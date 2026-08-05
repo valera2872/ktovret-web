@@ -1,7 +1,9 @@
-name: Deploy web MVP to GitHub Pages
+name: Validate and deploy Mystery Logic web
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   pull_request_target:
     types: [closed]
@@ -24,6 +26,7 @@ jobs:
   validate:
     if: >-
       github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) ||
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/deploy-ktovret-web')
@@ -31,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -39,8 +42,19 @@ jobs:
         run: node --check ktovret-game/assets/app.js
       - name: Validate PHP syntax
         run: php -l ktovret-game/ktovret-game.php
-      - name: Verify required files
-        run: test -f index.html && test -f ktovret-game/assets/style.css
+      - name: Verify public routes and assets
+        run: |
+          test -f index.html
+          test -f kto-vret/index.html
+          test -f delo/zapis-do-vskrytiya-konteynera/index.html
+          test -f assets/mysterylogic.css
+          test -f assets/ml-mark.svg
+          test -f ktovret-game/assets/style.css
+          test -f robots.txt
+          test -f sitemap.xml
+          test -f 404.html
+      - name: Validate sitemap XML
+        run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
 
   deploy:
     if: >-
@@ -73,7 +87,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Web MVP deployment\n\n- Build: **success**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
