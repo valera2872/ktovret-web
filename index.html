@@ -1,1 +1,108 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08111d"><meta name="description" content="Короткое интерактивное расследование: найдите деталь, которую свидетель не мог узнать из общего экрана."><title>Запись до вскрытия контейнера — Кто врёт?</title><link rel="stylesheet" href="./ktovret-game/assets/style.css"><style>html{background:#08111d}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -15%,#1a304a 0,#08111d 44%)}</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"Game","name":"Кто врёт? — Запись до вскрытия контейнера","description":"Интерактивное детективное расследование на проверку границ знания.","genre":["Detective","Logic puzzle"],"inLanguage":"ru"}</script></head><body><main class="ktv-game-shell" data-ktv-root data-case-id="volume1_066"><noscript>Для прохождения расследования включите JavaScript.</noscript></main><script>window.KtoVretWeb={storageKey:'ktovret:web:demo:v2:volume1_066',permalink:location.href,siteName:'Кто врёт?',case:{id:'volume1_066',title:'Запись до вскрытия контейнера',difficulty:'Сложное',category:'Кто мог это знать?',logicType:'Границы знания',materialsLabel:'Материалы дела',intro:'В 19:00 на круглом стеллаже стояли контейнеры: секция 1 — красный, 2 — синий, 3 — белый, 4 — чёрный. В 19:05 и 19:10 стеллаж сделал по одному повороту по часовой стрелке: содержимое 1 переходило в 2, 2 — в 3, 3 — в 4, 4 — в 1. В 19:12 открыли секцию №4, после чего один контейнер исчез.\n\nНа общем экране были видны исходная схема, два поворота, открытие секции №4 и запись западного датчика: в 19:15 через выход пронесли груз массой 4 кг. Массы: красный — 3 кг, синий — 4 кг, белый — 5 кг, чёрный — 6 кг. Содержимое контейнеров на экране не показывалось.\n\nВ 19:18 Роман записал: «В хранилище я не заходил. Всё восстановил по общему экрану. Исчез синий контейнер. Его вынули в 19:12, затем пронесли через западный выход. Внутри был пакет К-17». Синий контейнер впервые вскрыли в 19:42; внутри действительно был К-17. До вскрытия маркировка нигде не публиковалась.',question:'Какой фрагмент доказывает, что Роман солгал об источнике знания?',characters:[{id:'roman',name:'Роман',role:'сотрудник',statement:'Всё восстановил по общему экрану: исчез синий контейнер, его вынули в 19:12, пронесли через западный выход, внутри был пакет К-17.'}],answerStages:[{id:'fragment',prompt:'Выберите разоблачающий фрагмент',instruction:'Отметьте деталь, которую невозможно вывести из опубликованных данных.',selectionMode:'single',options:[{id:'blue',label:'«Исчез синий контейнер»'},{id:'time',label:'«Его вынули в 19:12»'},{id:'exit',label:'«Пронесли через западный выход»'},{id:'k17',label:'«Внутри был пакет К-17»'}],correctOptionIds:['k17']}],explanation:{shortReason:'Маркировку К-17 нельзя было вывести из общедоступных данных.',fullReason:'Два поворота помещают синий контейнер в секцию №4; время открытия дано журналом, а масса 4 кг связывает контейнер с западным выходом. Но номер внутреннего пакета оставался физически скрыт до вскрытия в 19:42. Роман назвал его в 19:18, поэтому его факты верны, а объяснение источника знания — нет.',reasoningSteps:['После двух поворотов в секции №4 оказывается синий контейнер.','Время и западный выход выводятся из журнала и таблицы масс.','Маркировка К-17 до 19:42 была недоступна, но прозвучала в записи 19:18.'],evidenceFragments:[{sourceId:'roman',quote:'Внутри был пакет К-17'},{sourceId:'intro',quote:'впервые вскрыли в 19:42'}]}}};</script><script src="./ktovret-game/assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111d">
+  <meta name="description" content="Mystery Logic — интерактивные детективные расследования, где каждую версию нужно доказать по фактам.">
+  <link rel="canonical" href="https://valera2872.github.io/ktovret-web/">
+  <link rel="icon" href="./assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/mysterylogic.css">
+  <meta property="og:title" content="Mystery Logic — докажите свою версию">
+  <meta property="og:description" content="Короткие и расширенные детективные расследования, в которых ответ следует из улик.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://valera2872.github.io/ktovret-web/">
+  <title>Mystery Logic — интерактивные детективные расследования</title>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Mystery Logic","url":"https://valera2872.github.io/ktovret-web/","description":"Экосистема интерактивных детективных расследований.","inLanguage":"ru"}</script>
+</head>
+<body>
+  <header class="ml-header ml-shell">
+    <a class="ml-brand" href="./" aria-label="Mystery Logic — главная">
+      <span class="ml-brand-mark">ML</span>
+      <span class="ml-brand-copy"><strong>Mystery Logic</strong><small>Interactive investigations</small></span>
+    </a>
+    <nav class="ml-nav" aria-label="Основная навигация">
+      <a href="#games">Игры</a>
+      <a href="#method">Как это работает</a>
+      <a class="ml-nav-cta" href="./delo/zapis-do-vskrytiya-konteynera/">Начать дело</a>
+    </nav>
+  </header>
+
+  <main class="ml-shell">
+    <section class="ml-hero">
+      <p class="ml-kicker">Экосистема детективных игр</p>
+      <h1>Mystery<br>Logic</h1>
+      <p class="ml-hero-lead">Интуиция приводит к версии. Логика превращает её в доказательство. Здесь каждое дело имеет точный ответ, который можно вывести из материалов.</p>
+      <div class="ml-actions">
+        <a class="ml-button ml-button-primary" href="./delo/zapis-do-vskrytiya-konteynera/">Получить первое дело</a>
+        <a class="ml-button ml-button-secondary" href="./kto-vret/">Открыть «Кто врёт?»</a>
+      </div>
+      <div class="ml-trust" aria-label="Преимущества первого дела">
+        <div><strong>Без регистрации</strong><span>Игра начинается сразу</span></div>
+        <div><strong>7 минут</strong><span>Короткое законченное расследование</span></div>
+        <div><strong>Один ответ</strong><span>Решение однозначно следует из улик</span></div>
+      </div>
+    </section>
+
+    <section class="ml-section" id="games">
+      <div class="ml-section-head">
+        <div><p class="ml-kicker">Линейки Mystery Logic</p><h2>От одной лжи — к большому расследованию</h2></div>
+        <p>Разные форматы объединяет один принцип: игрок не угадывает авторский замысел, а строит проверяемую логическую цепочку.</p>
+      </div>
+      <div class="ml-products">
+        <a class="ml-product ml-product-main" href="./kto-vret/">
+          <span class="ml-product-status">Доступно сейчас</span>
+          <h3>Кто врёт?</h3>
+          <p>Короткие дела: ситуация, показания, один разоблачающий фрагмент и полный разбор логики.</p>
+          <span class="ml-product-link">Открыть игру →</span>
+        </a>
+        <article class="ml-product ml-product-side">
+          <span class="ml-product-status is-future">В разработке</span>
+          <h3>ДБР</h3>
+          <p>Детективное бюро расследований: более длинные дела с уликами, версиями и последовательным раскрытием событий.</p>
+          <span class="ml-product-link">Следующая ступень экосистемы</span>
+        </article>
+        <article class="ml-product ml-product-side">
+          <span class="ml-product-status is-future">Специальное дело</span>
+          <h3>Последняя сборка</h3>
+          <p>Расширенное бонусное расследование — переход от коротких логических задач к сюжетному делу.</p>
+          <span class="ml-product-link">Готовится к веб-адаптации</span>
+        </article>
+        <article class="ml-product ml-product-main">
+          <span class="ml-product-status is-future">Будущее направление</span>
+          <h3>Квесты дома</h3>
+          <p>Сценарии поиска подарка, живые детективные игры и персональные маршруты с загадками для комнаты или праздника.</p>
+          <span class="ml-product-link">Внутри бренда Mystery Logic</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="ml-section" id="method">
+      <div class="ml-section-head">
+        <div><p class="ml-kicker">Метод игры</p><h2>Не угадывайте. Проверяйте.</h2></div>
+      </div>
+      <div class="ml-method">
+        <article class="ml-step"><span>01 · Материалы</span><h3>Отделите факты</h3><p>Разберите время, маршруты, показания и физические ограничения дела.</p></article>
+        <article class="ml-step"><span>02 · Версия</span><h3>Найдите разрыв</h3><p>Определите, какая деталь не могла появиться из заявленного источника знания.</p></article>
+        <article class="ml-step"><span>03 · Доказательство</span><h3>Соберите цепочку</h3><p>Получите полный разбор и проверьте, следует ли вывод из материалов без догадок.</p></article>
+      </div>
+    </section>
+
+    <section class="ml-section">
+      <div class="ml-manifesto">
+        <div class="ml-manifesto-main">
+          <p class="ml-kicker">Принцип Mystery Logic</p>
+          <h2>Честная детективная задача уважает игрока.</h2>
+          <p>Ключевая улика не должна возникать из воздуха, а решение — зависеть от совпадения с мыслью автора. Все необходимые данные уже находятся перед вами. Задача игрока — увидеть их связь.</p>
+        </div>
+        <aside class="ml-manifesto-note"><strong>Каждая улика имеет значение.</strong><small>Первый публичный вертикальный срез экосистемы</small></aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ml-footer ml-shell">
+    <span>© 2026 Mystery Logic</span>
+    <span class="ml-footer-links"><a href="./kto-vret/">Кто врёт?</a><a href="./delo/zapis-do-vskrytiya-konteynera/">Первое дело</a></span>
+  </footer>
+</body>
+</html>

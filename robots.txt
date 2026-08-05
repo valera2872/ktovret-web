@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://valera2872.github.io/ktovret-web/sitemap.xml
