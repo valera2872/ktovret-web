@@ -5,12 +5,16 @@ on:
     branches: [main]
   pull_request_target:
     types: [closed]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: pages
@@ -18,7 +22,11 @@ concurrency:
 
 jobs:
   validate:
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == true
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/deploy-ktovret-web')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +43,11 @@ jobs:
         run: test -f index.html && test -f ktovret-game/assets/style.css
 
   deploy:
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == true
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/deploy-ktovret-web')
     needs: validate
     environment:
       name: github-pages
@@ -52,3 +64,16 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Report deployment
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## Web MVP deployment\n\n- Build: **success**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+            })
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
