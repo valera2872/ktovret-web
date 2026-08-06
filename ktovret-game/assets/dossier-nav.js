@@ -9,10 +9,10 @@
   const siteRoot = new URL('../../', currentScript.src);
   const cases = [
     { id: 'first_r3_001_four_archive_entries', number: '001', title: 'Четыре входа в архив', storageKey: 'ktovret:web:demo:v4:first_r3_001_four_archive_entries', path: 'delo/chetyre-vhoda-v-arhiv/' },
-    { id: 'first_r3_002_three_unsynced_logs', number: '002', title: 'Три несинхронных журнала', storageKey: 'ktovret:web:demo:v4:first_r3_002_three_unsynced_logs', path: 'delo/tri-nesinhronnyh-zhurnala/' },
-    { id: 'first_r3_003_five_folders_empty_slot', number: '003', title: 'Пять папок и пустое место', storageKey: 'ktovret:web:demo:v4:first_r3_003_five_folders_empty_slot', path: 'delo/pyat-papok-i-pustoe-mesto/' },
+    { id: 'first_r3_002_unsynced_logs', number: '002', title: 'Три несинхронных журнала', storageKey: 'ktovret:web:demo:v4:first_r3_002_unsynced_logs', path: 'delo/tri-nesinhronnyh-zhurnala/' },
+    { id: 'first_r3_003_five_folders_gap', number: '003', title: 'Пять папок и пустое место', storageKey: 'ktovret:web:demo:v4:first_r3_003_five_folders_gap', path: 'delo/pyat-papok-i-pustoe-mesto/' },
     { id: 'first_r3_004_laptop_two_exits', number: '004', title: 'Ноутбук у двух выходов', storageKey: 'ktovret:web:demo:v4:first_r3_004_laptop_two_exits', path: 'delo/noutbuk-u-dvuh-vyhodov/' },
-    { id: 'first_r3_005_card_phone_eight_minutes', number: '005', title: 'Карта, телефон и восемь минут', storageKey: 'ktovret:web:demo:v4:first_r3_005_card_phone_eight_minutes', path: 'delo/karta-telefon-i-vosem-minut/' },
+    { id: 'first_r3_005_card_phone_route', number: '005', title: 'Карта, телефон и восемь минут', storageKey: 'ktovret:web:demo:v4:first_r3_005_card_phone_route', path: 'delo/karta-telefon-i-vosem-minut/' },
     { id: 'volume1_066', number: '066', title: 'Запись до вскрытия контейнера', storageKey: 'ktovret:web:demo:v3:volume1_066', path: 'delo/zapis-do-vskrytiya-konteynera/' },
   ];
 
