@@ -1,0 +1,9 @@
+{
+  "version": "1.2.0",
+  "visualSystem": "premium-editorial",
+  "premiumGameInterface": true,
+  "playableCases": 15,
+  "lockedCases": 85,
+  "seoLandingPages": 4,
+  "indexableUrls": 22
+}
