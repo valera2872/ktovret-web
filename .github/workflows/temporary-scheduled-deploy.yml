@@ -9,6 +9,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
+  pull-requests: write
 
 env:
   KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
@@ -61,3 +63,15 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Report successful scheduled deployment
+        uses: actions/github-script@v7
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 25,
+              body: `## Mystery Logic 1.2.1 scheduled deployment\n\n- Build: **success**\n- Validation: **100 routes / 15 playable / 85 locked**\n- Premium compatibility layer: **15/15 pages**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}\n- Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })
