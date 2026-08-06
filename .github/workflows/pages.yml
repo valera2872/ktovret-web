@@ -75,7 +75,7 @@ jobs:
           test -f 404.html
       - name: Validate sitemap XML
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
-      - name: Verify catalog links and profile integration
+      - name: Verify catalog links and stable game loader
         run: |
           grep -q 'chetyre-vhoda-v-arhiv' dela/index.html
           grep -q 'tri-nesinhronnyh-zhurnala' dela/index.html
@@ -84,8 +84,9 @@ jobs:
           grep -q 'karta-telefon-i-vosem-minut' dela/index.html
           grep -q 'dossier-progress.js' dela/index.html
           grep -q 'dossier-progress.js' kto-vret/index.html
-          grep -q 'dossier-model.js?v=0.6.1' ktovret-game/assets/app.js
-          grep -q 'performance.js?v=0.6.1' ktovret-game/assets/app.js
+          grep -q 'dossier-model.js?v=0.6.2' ktovret-game/assets/app.js
+          grep -q 'app-core.js?v=0.6.2' ktovret-game/assets/app.js
+          ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
           grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
           grep -q 'dossier-nav.js' ktovret-game/assets/app.js
           grep -q 'achievementKey' assets/dossier-model.js

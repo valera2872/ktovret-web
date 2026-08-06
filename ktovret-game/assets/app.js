@@ -105,7 +105,7 @@
 
   const loadDossierNavigation = () => {
     const dossierNav = document.createElement('script');
-    dossierNav.src = new URL('dossier-nav.js?v=0.6.1', currentScript.src).href;
+    dossierNav.src = new URL('dossier-nav.js?v=0.6.2', currentScript.src).href;
     document.head.appendChild(dossierNav);
   };
 
@@ -113,24 +113,16 @@
     loadDossierNavigation();
   } else {
     const dossierModel = document.createElement('script');
-    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.1', currentScript.src).href;
+    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.2', currentScript.src).href;
     dossierModel.onload = loadDossierNavigation;
     document.head.appendChild(dossierModel);
   }
 
-  const loadCore = () => {
-    const core = document.createElement('script');
-    core.src = new URL('app-core.js?v=0.6.1', currentScript.src).href;
-    core.onload = enhanceAnswerState;
-    core.onerror = () => {
-      root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
-    };
-    document.head.appendChild(core);
+  const core = document.createElement('script');
+  core.src = new URL('app-core.js?v=0.6.2', currentScript.src).href;
+  core.onload = enhanceAnswerState;
+  core.onerror = () => {
+    root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
   };
-
-  const performance = document.createElement('script');
-  performance.src = new URL('performance.js?v=0.6.1', currentScript.src).href;
-  performance.onload = loadCore;
-  performance.onerror = loadCore;
-  document.head.appendChild(performance);
+  document.head.appendChild(core);
 })();
