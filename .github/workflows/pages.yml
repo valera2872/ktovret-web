@@ -43,7 +43,10 @@ jobs:
           node --check ktovret-game/assets/app.js
           node --check ktovret-game/assets/dossier-nav.js
           node --check assets/case-adapter.js
+          node --check assets/dossier-model.js
           node --check assets/dossier-progress.js
+      - name: Test dossier model
+        run: node tests/dossier-model.test.js
       - name: Validate PHP syntax
         run: php -l ktovret-game/ktovret-game.php
       - name: Verify public routes and assets
@@ -58,17 +61,19 @@ jobs:
           test -f delo/karta-telefon-i-vosem-minut/index.html
           test -f delo/zapis-do-vskrytiya-konteynera/index.html
           test -f assets/case-adapter.js
+          test -f assets/dossier-model.js
           test -f assets/dossier-progress.js
           test -f assets/mysterylogic.css
           test -f assets/ml-mark.svg
           test -f ktovret-game/assets/dossier-nav.js
           test -f ktovret-game/assets/style.css
+          test -f tests/dossier-model.test.js
           test -f robots.txt
           test -f sitemap.xml
           test -f 404.html
       - name: Validate sitemap XML
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
-      - name: Verify catalog links and progress integration
+      - name: Verify catalog links and profile integration
         run: |
           grep -q 'chetyre-vhoda-v-arhiv' dela/index.html
           grep -q 'tri-nesinhronnyh-zhurnala' dela/index.html
@@ -77,10 +82,12 @@ jobs:
           grep -q 'karta-telefon-i-vosem-minut' dela/index.html
           grep -q 'dossier-progress.js' dela/index.html
           grep -q 'dossier-progress.js' kto-vret/index.html
+          grep -q 'dossier-model.js?v=0.6.0' ktovret-game/assets/app.js
+          grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
           grep -q 'dossier-nav.js' ktovret-game/assets/app.js
-          grep -q 'first_r3_002_unsynced_logs' assets/dossier-progress.js
-          grep -q 'first_r3_003_five_folders_gap' assets/dossier-progress.js
-          grep -q 'first_r3_005_card_phone_route' assets/dossier-progress.js
+          grep -q 'first_r3_002_unsynced_logs' assets/dossier-model.js
+          grep -q 'first_r3_003_five_folders_gap' assets/dossier-model.js
+          grep -q 'first_r3_005_card_phone_route' assets/dossier-model.js
 
   deploy:
     if: >-

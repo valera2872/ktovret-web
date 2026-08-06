@@ -1,0 +1,48 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const model = require('../assets/dossier-model.js');
+
+const makeStorage = (values = {}) => ({
+  values: { ...values },
+  getItem(key) { return Object.prototype.hasOwnProperty.call(this.values, key) ? this.values[key] : null; },
+  removeItem(key) { delete this.values[key]; },
+});
+
+const emptySummary = model.summarize(model.readRecords(makeStorage()));
+assert.equal(emptySummary.solvedCount, 0);
+assert.equal(emptySummary.nextCase.number, '001');
+assert.equal(emptySummary.rank, 'Стажёр бюро');
+assert.equal(emptySummary.allSolved, false);
+
+const storage = makeStorage({
+  [model.cases[0].storageKey]: JSON.stringify({ accepted: true, solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true, startedAt: 1000, solvedAt: 121000 }),
+  [model.cases[1].storageKey]: JSON.stringify({ accepted: true, solved: false, attempts: 0, hintsUsed: 1 }),
+  [model.cases[5].storageKey]: JSON.stringify({ accepted: true, solved: true, attempts: 2, hintsUsed: 1, firstAnswerCorrect: false, startedAt: 1000, solvedAt: 181000 }),
+});
+const records = model.readRecords(storage);
+const summary = model.summarize(records);
+assert.equal(summary.solvedCount, 2);
+assert.equal(summary.cleanCount, 1);
+assert.equal(summary.totalAttempts, 3);
+assert.equal(summary.totalHints, 1);
+assert.equal(summary.totalMinutes, 5);
+assert.equal(summary.activeCase.number, '002');
+assert.equal(summary.nextCase.number, '002');
+assert.equal(summary.rank, 'Младший аналитик');
+assert.equal(model.nextUnsolvedAfter(records, 'volume1_066').number, '002');
+assert.equal(model.pickRandomCase(records, 0).number, '002');
+assert.equal(model.pickRandomCase(records, 0.999999).number, '005');
+assert.match(model.buildShareText(summary), /2 из 6/);
+
+model.clearProgress(storage);
+model.cases.forEach((item) => assert.equal(storage.getItem(item.storageKey), null));
+
+const completeStorage = makeStorage(Object.fromEntries(model.cases.map((item) => [item.storageKey, JSON.stringify({ solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true })])));
+const completeSummary = model.summarize(model.readRecords(completeStorage));
+assert.equal(completeSummary.allSolved, true);
+assert.equal(completeSummary.rank, 'Эксперт Mystery Logic');
+assert.equal(completeSummary.cleanCount, 6);
+assert.match(model.buildShareText(completeSummary), /завершил/);
+
+console.log('dossier-model tests passed');
