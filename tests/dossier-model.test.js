@@ -29,13 +29,21 @@ assert.ok(premiumGameCss.includes('.ktv-timeline-item:only-child'),'single-event
 assert.ok(premiumGameCss.includes('.ktv-workspace'),'investigator workspace layout is missing');
 assert.ok(premiumGameCss.includes('.ktv-answer'),'version board styling is missing');
 
+const compatPath=path.join(root,'assets/premium-game-compat.css');
+assert.ok(fs.existsSync(compatPath),'premium compatibility stylesheet is missing');
+const compatCss=fs.readFileSync(compatPath,'utf8');
+assert.ok(compatCss.includes('grid-template-columns:minmax(0,1fr)!important'),'single-event full-width rule is missing');
+assert.ok(compatCss.includes(':has(.ktv-timeline-item:nth-child(2))'),'two-column timeline rule is missing');
+assert.ok(compatCss.includes('position:relative!important'),'desktop non-overlapping stage navigation rule is missing');
+
 for(const item of catalog.freeCases){
   const pagePath=path.join(root,item.path,'index.html');
   assert.ok(fs.existsSync(pagePath),`missing free page ${item.path}`);
   const html=fs.readFileSync(pagePath,'utf8');
-  assert.ok(html.includes('premium-game.css?v=1.2.0'),`premium UI is not connected to ${item.path}`);
+  assert.ok(html.includes('premium-game.css?v=1.2.1'),`premium UI is not connected to ${item.path}`);
+  assert.ok(html.includes('premium-game-compat.css?v=1.2.1'),`compatibility layer is not connected to ${item.path}`);
   assert.ok(html.includes('class="ktv-case-page"'),`case page body class is missing in ${item.path}`);
-  assert.ok(html.includes('data-premium-game="1.2"'),`premium interface marker is missing in ${item.path}`);
+  assert.ok(html.includes('data-premium-game="1.2.1"'),`premium interface marker is missing in ${item.path}`);
 }
 
 for(const item of catalog.cases.filter(entry=>entry.access==='premium')){
@@ -43,4 +51,4 @@ for(const item of catalog.cases.filter(entry=>entry.access==='premium')){
   assert.ok(!html.includes('window.KtoVretWeb='),`premium case leaked into ${item.path}`);
 }
 
-console.log('generated library tests passed: 100 total, 15 free with premium UI, 85 locked');
+console.log('generated library tests passed: 100 total, 15 free with premium UI 1.2.1, 85 locked');
