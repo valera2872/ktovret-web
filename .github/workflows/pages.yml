@@ -22,7 +22,7 @@ env:
   KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name == 'issue_comment' && github.event.issue.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,13 +32,14 @@ jobs:
       github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) ||
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/deploy-ktovret-web')
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request &&
+        (github.event.comment.body == '/deploy-ktovret-web' || github.event.comment.body == '/validate-ktovret-web'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout web
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web' && format('refs/pull/{0}/head', github.event.issue.number)) || 'main' }}
           path: web
       - name: Checkout mobile content
         uses: actions/checkout@v4
@@ -67,10 +68,12 @@ jobs:
           node --check assets/full-catalog.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/import-mobile/common.mjs
-          node --check tools/import-mobile/load.mjs
+          test ! -f tools/import-mobile/load.mjs || node --check tools/import-mobile/load.mjs
+          test ! -f tools/import-mobile/load-active.mjs || node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile/case-pages.mjs
           node --check tools/import-mobile/catalog.mjs
-      - name: Test generated 100-case library
+          test ! -f tools/import-mobile/seo-pages.mjs || node --check tools/import-mobile/seo-pages.mjs
+      - name: Test generated library
         working-directory: web
         run: node tests/dossier-model.test.js
       - name: Validate public boundaries
@@ -78,16 +81,26 @@ jobs:
         run: |
           test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
           test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'Материалы и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
           grep -q '"totalCases": 100' assets/generated/import-report.json
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
+          if test -f assets/premium.css; then
+            test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 85
+            test -f detektivnye-igry-onlayn/index.html
+            test -f detektivnye-zagadki-s-otvetami/index.html
+            test -f logicheskie-detektivnye-zadachi/index.html
+            test -f kto-vret-igra/index.html
+            grep -q '"indexableUrls": 22' assets/generated/import-report.json
+            test "$(grep -c '<url>' sitemap.xml)" -eq 22
+            grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
+          fi
       - name: Validate editorial 100-case conversion
         run: |
           cp -a web editorial
           node editorial/tools/import-mobile-cases.mjs --source mobile-source --site editorial --mode editorial --commit "$KTOVRET_SOURCE_COMMIT"
           test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -rl 'Материалы и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
           rm -rf editorial
       - name: Validate PHP and sitemap
         working-directory: web
@@ -103,6 +116,22 @@ jobs:
           grep -q '100 расследований' dela/index.html
           grep -q '15 бесплатно' dela/index.html
           grep -q '85 в полном томе' dela/index.html
+      - name: Report requested validation
+        if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
+        uses: actions/github-script@v7
+        env:
+          RESULT: ${{ job.status }}
+          RUN_ID: ${{ github.run_id }}
+          VALIDATED_SHA: ${{ github.event.issue.number }}
+        with:
+          script: |
+            const ok = process.env.RESULT === 'success';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 routes / 15 playable / 85 locked**\n- Editorial conversion: **100 cases**`
+            })
 
   deploy:
     if: >-
@@ -152,7 +181,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic 0.9 deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
