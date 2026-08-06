@@ -1,0 +1,63 @@
+name: Temporary scheduled deploy Mystery Logic 1.2.1
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+
+concurrency:
+  group: pages-scheduled-main
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout web main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: web
+      - name: Checkout mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate public 15/85 library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Validate generated library and premium UI
+        working-directory: web
+        run: |
+          node --check tools/import-mobile/case-pages.mjs
+          node tests/dossier-model.test.js
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'premium-game-compat.css?v=1.2.1' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-game=\"1.2.1\"' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+      - name: Remove development-only files
+        run: rm -rf web/.git web/.github web/tools web/tests
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
