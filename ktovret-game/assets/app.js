@@ -49,6 +49,9 @@
         color: rgba(255, 232, 223, .8);
         font-size: .78rem;
       }
+      .ktv-cover-seal { display: none !important; }
+      .ktv-cover-grid { grid-template-columns: minmax(0, 1fr) !important; }
+      .ktv-cover h1 { max-width: 860px; }
       @keyframes ktv-feedback-in {
         from { opacity: 0; transform: translateY(-8px) scale(.985); }
         to { opacity: 1; transform: translateY(0) scale(1); }
@@ -102,7 +105,7 @@
 
   const loadDossierNavigation = () => {
     const dossierNav = document.createElement('script');
-    dossierNav.src = new URL('dossier-nav.js?v=0.6.0', currentScript.src).href;
+    dossierNav.src = new URL('dossier-nav.js?v=0.6.1', currentScript.src).href;
     document.head.appendChild(dossierNav);
   };
 
@@ -110,16 +113,24 @@
     loadDossierNavigation();
   } else {
     const dossierModel = document.createElement('script');
-    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.0', currentScript.src).href;
+    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.1', currentScript.src).href;
     dossierModel.onload = loadDossierNavigation;
     document.head.appendChild(dossierModel);
   }
 
-  const core = document.createElement('script');
-  core.src = new URL('app-core.js', currentScript.src).href;
-  core.onload = enhanceAnswerState;
-  core.onerror = () => {
-    root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
+  const loadCore = () => {
+    const core = document.createElement('script');
+    core.src = new URL('app-core.js?v=0.6.1', currentScript.src).href;
+    core.onload = enhanceAnswerState;
+    core.onerror = () => {
+      root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
+    };
+    document.head.appendChild(core);
   };
-  document.head.appendChild(core);
+
+  const performance = document.createElement('script');
+  performance.src = new URL('performance.js?v=0.6.1', currentScript.src).href;
+  performance.onload = loadCore;
+  performance.onerror = loadCore;
+  document.head.appendChild(performance);
 })();

@@ -17,8 +17,10 @@ assert.equal(emptySummary.allSolved, false);
 
 const storage = makeStorage({
   [model.cases[0].storageKey]: JSON.stringify({ accepted: true, solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true, startedAt: 1000, solvedAt: 121000 }),
+  [model.cases[0].achievementKey]: JSON.stringify({ firstCompletionAt: 121000, firstCompletionAttempts: 1, firstCompletionHints: 0, firstCompletionClean: true }),
   [model.cases[1].storageKey]: JSON.stringify({ accepted: true, solved: false, attempts: 0, hintsUsed: 1 }),
   [model.cases[5].storageKey]: JSON.stringify({ accepted: true, solved: true, attempts: 2, hintsUsed: 1, firstAnswerCorrect: false, startedAt: 1000, solvedAt: 181000 }),
+  [model.cases[5].achievementKey]: JSON.stringify({ firstCompletionAt: 181000, firstCompletionAttempts: 2, firstCompletionHints: 1, firstCompletionClean: false }),
 });
 const records = model.readRecords(storage);
 const summary = model.summarize(records);
@@ -35,10 +37,24 @@ assert.equal(model.pickRandomCase(records, 0).number, '002');
 assert.equal(model.pickRandomCase(records, 0.999999).number, '005');
 assert.match(model.buildShareText(summary), /2 из 6/);
 
-model.clearProgress(storage);
-model.cases.forEach((item) => assert.equal(storage.getItem(item.storageKey), null));
+const replayStorage = makeStorage({
+  [model.cases[0].storageKey]: JSON.stringify({ solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true }),
+  [model.cases[0].achievementKey]: JSON.stringify({ firstCompletionAt: 100, firstCompletionAttempts: 3, firstCompletionHints: 0, firstCompletionClean: false }),
+});
+const replayRecord = model.readRecords(replayStorage)[0];
+assert.equal(model.isFirstCompletionClean(replayRecord), false, 'clean replay must not rewrite the first completion');
+assert.equal(model.summarize(model.readRecords(replayStorage)).cleanCount, 0);
 
-const completeStorage = makeStorage(Object.fromEntries(model.cases.map((item) => [item.storageKey, JSON.stringify({ solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true })])));
+model.clearProgress(storage);
+model.cases.forEach((item) => {
+  assert.equal(storage.getItem(item.storageKey), null);
+  assert.equal(storage.getItem(item.achievementKey), null);
+});
+
+const completeStorage = makeStorage(Object.fromEntries(model.cases.flatMap((item) => [
+  [item.storageKey, JSON.stringify({ solved: true, attempts: 1, hintsUsed: 0, firstAnswerCorrect: true })],
+  [item.achievementKey, JSON.stringify({ firstCompletionAt: 100, firstCompletionAttempts: 1, firstCompletionHints: 0, firstCompletionClean: true })],
+])));
 const completeSummary = model.summarize(model.readRecords(completeStorage));
 assert.equal(completeSummary.allSolved, true);
 assert.equal(completeSummary.rank, 'Эксперт Mystery Logic');
