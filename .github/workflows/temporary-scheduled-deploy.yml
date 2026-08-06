@@ -26,6 +26,16 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Report scheduled run start
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 25,
+              body: `Scheduled deploy 1.2.2 started · run https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })
       - name: Checkout web main
         uses: actions/checkout@v4
         with:
@@ -96,4 +106,15 @@ jobs:
               repo: context.repo.repo,
               issue_number: 25,
               body: `## Mystery Logic 1.2.2 scheduled deployment\n\n- Build: **success**\n- Validation: **100 routes / 15 playable / 85 locked**\n- Inline full-width layout: **15/15 pages**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}\n- Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })
+      - name: Report failed scheduled deployment
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 25,
+              body: `Scheduled deploy 1.2.2 failed · run https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             })
