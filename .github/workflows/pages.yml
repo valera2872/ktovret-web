@@ -18,6 +18,9 @@ permissions:
   issues: write
   pull-requests: write
 
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -32,83 +35,74 @@ jobs:
       (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/deploy-ktovret-web')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout web
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          path: web
+      - name: Checkout mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Generate public 15/85 library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
       - name: Validate JavaScript
+        working-directory: web
         run: |
           node --check ktovret-game/assets/app.js
+          node --check ktovret-game/assets/app-core.js
           node --check ktovret-game/assets/dossier-nav.js
           node --check ktovret-game/assets/performance.js
           node --check assets/case-adapter.js
           node --check assets/dossier-model.js
           node --check assets/dossier-progress.js
           node --check assets/dossier-achievements.js
-      - name: Test dossier model
+          node --check assets/full-catalog.js
+          node --check tools/import-mobile-cases.mjs
+          node --check tools/import-mobile/common.mjs
+          node --check tools/import-mobile/load.mjs
+          node --check tools/import-mobile/case-pages.mjs
+          node --check tools/import-mobile/catalog.mjs
+      - name: Test generated 100-case library
+        working-directory: web
         run: node tests/dossier-model.test.js
-      - name: Validate PHP syntax
-        run: php -l ktovret-game/ktovret-game.php
-      - name: Verify public routes and assets
+      - name: Validate public boundaries
+        working-directory: web
         run: |
-          test -f index.html
-          test -f kto-vret/index.html
-          test -f dela/index.html
-          test -f delo/chetyre-vhoda-v-arhiv/index.html
-          test -f delo/tri-nesinhronnyh-zhurnala/index.html
-          test -f delo/pyat-papok-i-pustoe-mesto/index.html
-          test -f delo/noutbuk-u-dvuh-vyhodov/index.html
-          test -f delo/karta-telefon-i-vosem-minut/index.html
-          test -f delo/zapis-do-vskrytiya-konteynera/index.html
-          test -f assets/case-adapter.js
-          test -f assets/dossier-model.js
-          test -f assets/dossier-progress.js
-          test -f assets/dossier-achievements.js
-          test -f assets/mysterylogic.css
-          test -f assets/ml-mark.svg
-          test -f ktovret-game/assets/dossier-nav.js
-          test -f ktovret-game/assets/performance.js
-          test -f ktovret-game/assets/style.css
-          test -f tests/dossier-model.test.js
-          test -f robots.txt
-          test -f sitemap.xml
-          test -f 404.html
-      - name: Validate sitemap XML
-        run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
-      - name: Verify catalog links and stable game loader
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'Материалы и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          grep -q '"totalCases": 100' assets/generated/import-report.json
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+      - name: Validate editorial 100-case conversion
         run: |
-          grep -q 'chetyre-vhoda-v-arhiv' dela/index.html
-          grep -q 'tri-nesinhronnyh-zhurnala' dela/index.html
-          grep -q 'pyat-papok-i-pustoe-mesto' dela/index.html
-          grep -q 'noutbuk-u-dvuh-vyhodov' dela/index.html
-          grep -q 'karta-telefon-i-vosem-minut' dela/index.html
-          grep -q 'dossier-progress.js?v=0.7.0' dela/index.html
-          grep -q 'dossier-achievements.js?v=0.7.0' dela/index.html
-          grep -q 'dossier-progress.js?v=0.7.0' kto-vret/index.html
-          grep -q 'dossier-achievements.js?v=0.7.0' kto-vret/index.html
-          grep -q 'dossier-model.js?v=0.6.2' ktovret-game/assets/app.js
-          grep -q 'app-core.js?v=0.6.2' ktovret-game/assets/app.js
+          cp -a web editorial
+          node editorial/tools/import-mobile-cases.mjs --source mobile-source --site editorial --mode editorial --commit "$KTOVRET_SOURCE_COMMIT"
+          test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 100
+          test "$(grep -rl 'Материалы и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
+          rm -rf editorial
+      - name: Validate PHP and sitemap
+        working-directory: web
+        run: |
+          php -l ktovret-game/ktovret-game.php
+          python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
+      - name: Verify stable game isolation
+        working-directory: web
+        run: |
           ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
-          for page in \
-            delo/chetyre-vhoda-v-arhiv/index.html \
-            delo/tri-nesinhronnyh-zhurnala/index.html \
-            delo/pyat-papok-i-pustoe-mesto/index.html \
-            delo/noutbuk-u-dvuh-vyhodov/index.html \
-            delo/karta-telefon-i-vosem-minut/index.html \
-            delo/zapis-do-vskrytiya-konteynera/index.html; do
-            grep -q 'app.js?v=0.6.4' "$page"
-            grep -q 'performance.js?v=0.6.4' "$page"
-            ! grep -q 'dossier-achievements.js' "$page"
-          done
-          grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
-          grep -q 'dossier-nav.js' ktovret-game/assets/app.js
-          grep -q 'achievementKey' assets/dossier-model.js
-          grep -q 'first_r3_002_unsynced_logs' assets/dossier-model.js
-          grep -q 'first_r3_003_five_folders_gap' assets/dossier-model.js
-          grep -q 'first_r3_005_card_phone_route' assets/dossier-model.js
-          grep -q 'Повторные попытки не переписывают награды' assets/dossier-achievements.js
+          test -f assets/generated/cases-index.json
+          test -f assets/generated/cases-index.js
+          grep -q '100 расследований' dela/index.html
+          grep -q '15 бесплатно' dela/index.html
+          grep -q '85 в полном томе' dela/index.html
 
   deploy:
     if: >-
@@ -122,13 +116,30 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout web
+        uses: actions/checkout@v4
         with:
           ref: main
+          path: web
+      - name: Checkout mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate public 15/85 library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Remove development-only files
+        run: rm -rf web/.git web/.github web/tools web/tests
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: web
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -141,7 +152,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic 0.9 deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
