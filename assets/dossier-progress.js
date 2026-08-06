@@ -2,8 +2,11 @@
   'use strict';
 
   const currentScript = document.currentScript;
-  const model = window.MysteryLogicDossier;
-  if (!currentScript?.src || !model) return;
+  if (!currentScript?.src) return;
+
+  const start = () => {
+    const model = window.MysteryLogicDossier;
+    if (!model) return;
 
   const siteRoot = new URL('../', currentScript.src);
   const records = model.readRecords(localStorage);
@@ -183,4 +186,14 @@
       location.reload();
     }
   });
+  };
+
+  if (window.MysteryLogicDossier) {
+    start();
+  } else {
+    const modelScript = document.createElement('script');
+    modelScript.src = new URL('dossier-model.js?v=0.6.0', currentScript.src).href;
+    modelScript.onload = start;
+    document.head.appendChild(modelScript);
+  }
 })();
