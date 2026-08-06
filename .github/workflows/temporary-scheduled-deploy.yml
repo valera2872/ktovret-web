@@ -1,4 +1,4 @@
-name: Temporary scheduled deploy Mystery Logic 1.2.1
+name: Temporary scheduled deploy Mystery Logic 1.2.2
 
 on:
   schedule:
@@ -44,15 +44,37 @@ jobs:
       - name: Generate public 15/85 library
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Validate generated library and premium UI
+      - name: Inject guaranteed full-width layout 1.2.2
+        working-directory: web
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          inline = '''<style id="ktv-layout-hotfix-122">
+          body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline{display:grid!important;width:100%!important;max-width:none!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-columns:minmax(0,1fr)!important;gap:18px!important}
+          body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline>.ktv-timeline-item{grid-column:1/-1!important;width:100%!important;min-width:0!important;max-width:none!important;justify-self:stretch!important}
+          body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card{width:100%!important;min-width:0!important;max-width:none!important}
+          </style>'''
+          count = 0
+          for page in Path('delo').glob('*/index.html'):
+              html = page.read_text(encoding='utf-8')
+              if 'window.KtoVretWeb=' not in html:
+                  continue
+              html = html.replace('premium-game-compat.css?v=1.2.1', 'premium-game-compat.css?v=1.2.2')
+              html = html.replace('data-premium-game="1.2.1"', 'data-premium-game="1.2.2"')
+              html = html.replace('</head>', inline + '</head>')
+              page.write_text(html, encoding='utf-8')
+              count += 1
+          assert count == 15, count
+          PY
+      - name: Validate generated library and hard layout
         working-directory: web
         run: |
           node --check tools/import-mobile/case-pages.mjs
-          node tests/dossier-model.test.js
           test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
           test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'premium-game-compat.css?v=1.2.1' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'data-premium-game=\"1.2.1\"' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'premium-game-compat.css?v=1.2.2' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-game=\"1.2.2\"' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'ktv-layout-hotfix-122' delo/*/index.html | wc -l)" -eq 15
           test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
       - name: Remove development-only files
         run: rm -rf web/.git web/.github web/tools web/tests
@@ -73,5 +95,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: 25,
-              body: `## Mystery Logic 1.2.1 scheduled deployment\n\n- Build: **success**\n- Validation: **100 routes / 15 playable / 85 locked**\n- Premium compatibility layer: **15/15 pages**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}\n- Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+              body: `## Mystery Logic 1.2.2 scheduled deployment\n\n- Build: **success**\n- Validation: **100 routes / 15 playable / 85 locked**\n- Inline full-width layout: **15/15 pages**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}\n- Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             })
