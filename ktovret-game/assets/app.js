@@ -100,9 +100,20 @@
   const observer = new MutationObserver(enhanceAnswerState);
   observer.observe(root, { childList: true, subtree: true });
 
-  const dossierNav = document.createElement('script');
-  dossierNav.src = new URL('dossier-nav.js', currentScript.src).href;
-  document.head.appendChild(dossierNav);
+  const loadDossierNavigation = () => {
+    const dossierNav = document.createElement('script');
+    dossierNav.src = new URL('dossier-nav.js?v=0.6.0', currentScript.src).href;
+    document.head.appendChild(dossierNav);
+  };
+
+  if (window.MysteryLogicDossier) {
+    loadDossierNavigation();
+  } else {
+    const dossierModel = document.createElement('script');
+    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.0', currentScript.src).href;
+    dossierModel.onload = loadDossierNavigation;
+    document.head.appendChild(dossierModel);
+  }
 
   const core = document.createElement('script');
   core.src = new URL('app-core.js', currentScript.src).href;
