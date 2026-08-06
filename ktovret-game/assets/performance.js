@@ -23,11 +23,11 @@
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      // Storage may be unavailable in strict privacy modes.
+      // The game remains playable when storage is blocked.
     }
   };
 
-  const pluralAttempts = (value) => {
+  const attemptsText = (value) => {
     const number = Math.max(1, Number(value) || 1);
     const mod100 = number % 100;
     const mod10 = number % 10;
@@ -37,7 +37,7 @@
     return `${number} попыток`;
   };
 
-  const pluralHints = (value) => {
+  const hintsText = (value) => {
     const number = Math.max(0, Number(value) || 0);
     const mod100 = number % 100;
     const mod10 = number % 10;
@@ -50,6 +50,7 @@
   const buildAchievement = (state, attemptsOverride) => {
     const attempts = Math.max(1, Number(attemptsOverride ?? state.attempts ?? 1));
     const hints = Math.max(0, Number(state.hintsUsed || 0));
+
     return {
       firstCompletionAt: Number(state.solvedAt || Date.now()),
       firstCompletionAttempts: attempts,
@@ -58,33 +59,18 @@
     };
   };
 
-  const migrateLegacyResult = () => {
+  const ensureAchievement = (state, attemptsOverride) => {
     const existing = read(achievementKey);
-    if (existing.firstCompletionAt) return;
+    if (existing.firstCompletionAt) return existing;
 
-    const state = read(storageKey);
-    if (!state.solved) return;
-
-    write(achievementKey, buildAchievement(state));
+    const achievement = buildAchievement(state, attemptsOverride);
+    write(achievementKey, achievement);
+    return achievement;
   };
 
-  migrateLegacyResult();
+  const installStyles = () => {
+    if (document.querySelector('[data-ktv-performance-styles]')) return;
 
-  root.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-action]');
-    if (!button || button.dataset.action !== 'submit') return;
-
-    const existing = read(achievementKey);
-    if (existing.firstCompletionAt) return;
-
-    const state = read(storageKey);
-    const selectedOptionId = state.selectedOptionId || root.querySelector('.ktv-option.is-selected')?.dataset.optionId || '';
-    if (!correctOptionId || selectedOptionId !== correctOptionId) return;
-
-    write(achievementKey, buildAchievement(state, Number(state.attempts || 0) + 1));
-  }, true);
-
-  if (!document.querySelector('[data-ktv-performance-styles]')) {
     const style = document.createElement('style');
     style.dataset.ktvPerformanceStyles = 'true';
     style.textContent = `
@@ -94,14 +80,17 @@
       .ktv-first-result span{color:#a8b6c5;font-size:.78rem}
     `;
     document.head.appendChild(style);
-  }
+  };
 
   const enhanceResult = () => {
     const result = root.querySelector('#ktv-result');
-    if (!result) return;
+    if (!result || result.dataset.performanceEnhanced === 'true') return false;
 
     const state = read(storageKey);
-    if (!state.solved) return;
+    if (!state.solved) return false;
+
+    result.dataset.performanceEnhanced = 'true';
+    installStyles();
 
     const attempts = Math.max(1, Number(state.attempts || 1));
     const hints = Math.max(0, Number(state.hintsUsed || 0));
@@ -113,36 +102,58 @@
       badge.textContent = cleanCurrentRun
         ? 'Раскрыто с первой попытки'
         : hints > 0
-          ? `Раскрыто · ${pluralHints(hints)}`
-          : `Раскрыто за ${pluralAttempts(attempts)}`;
+          ? `Раскрыто с подсказками · ${hintsText(hints)}`
+          : `Раскрыто за ${attemptsText(attempts)}`;
     }
 
-    if (title) {
-      title.textContent = cleanCurrentRun ? 'Чистое раскрытие' : 'Дело раскрыто';
-    }
+    if (title) title.textContent = cleanCurrentRun ? 'Чистое раскрытие' : 'Дело раскрыто';
 
-    let achievement = read(achievementKey);
-    if (!achievement.firstCompletionAt) {
-      achievement = buildAchievement(state);
-      write(achievementKey, achievement);
-    }
-
-    let panel = result.querySelector('.ktv-first-result');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.className = 'ktv-first-result';
-      const lead = result.querySelector('.ktv-result-lead');
-      if (lead) lead.insertAdjacentElement('afterend', panel);
-      else result.appendChild(panel);
-    }
+    const achievement = ensureAchievement(state);
+    const panel = document.createElement('div');
+    panel.className = 'ktv-first-result';
 
     const firstAttempts = Math.max(1, Number(achievement.firstCompletionAttempts || 1));
     const firstHints = Math.max(0, Number(achievement.firstCompletionHints || 0));
     panel.innerHTML = achievement.firstCompletionClean
       ? '<small>Постоянное достижение</small><strong>Чистое первое раскрытие</strong><span>Сохранено для будущих наград и бонусов.</span>'
-      : `<small>Первое прохождение</small><strong>${pluralAttempts(firstAttempts)} · ${pluralHints(firstHints)}</strong><span>Повторные прохождения не изменят этот результат.</span>`;
+      : `<small>Результат первого прохождения</small><strong>${attemptsText(firstAttempts)} · ${hintsText(firstHints)}</strong><span>Повторные прохождения не изменят этот результат.</span>`;
+
+    const lead = result.querySelector('.ktv-result-lead');
+    if (lead) lead.insertAdjacentElement('afterend', panel);
+    else result.appendChild(panel);
+
+    return true;
   };
 
-  new MutationObserver(enhanceResult).observe(root, { childList: true, subtree: true });
-  enhanceResult();
+  root.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+
+    if (button.dataset.action === 'submit') {
+      const existing = read(achievementKey);
+      if (!existing.firstCompletionAt) {
+        const state = read(storageKey);
+        const selectedOptionId = state.selectedOptionId
+          || root.querySelector('.ktv-option.is-selected')?.dataset.optionId
+          || '';
+
+        if (correctOptionId && selectedOptionId === correctOptionId) {
+          ensureAchievement(state, Number(state.attempts || 0) + 1);
+        }
+      }
+
+      setTimeout(enhanceResult, 0);
+    }
+  }, true);
+
+  let startupFrames = 0;
+  const enhanceExistingResult = () => {
+    if (enhanceResult()) return;
+    startupFrames += 1;
+    if (startupFrames < 120 && !root.querySelector('.ktv-app')) {
+      requestAnimationFrame(enhanceExistingResult);
+    }
+  };
+
+  requestAnimationFrame(enhanceExistingResult);
 })();
