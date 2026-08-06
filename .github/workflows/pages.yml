@@ -42,6 +42,7 @@ jobs:
         run: |
           node --check ktovret-game/assets/app.js
           node --check ktovret-game/assets/dossier-nav.js
+          node --check ktovret-game/assets/performance.js
           node --check assets/case-adapter.js
           node --check assets/dossier-model.js
           node --check assets/dossier-progress.js
@@ -66,6 +67,7 @@ jobs:
           test -f assets/mysterylogic.css
           test -f assets/ml-mark.svg
           test -f ktovret-game/assets/dossier-nav.js
+          test -f ktovret-game/assets/performance.js
           test -f ktovret-game/assets/style.css
           test -f tests/dossier-model.test.js
           test -f robots.txt
@@ -82,9 +84,11 @@ jobs:
           grep -q 'karta-telefon-i-vosem-minut' dela/index.html
           grep -q 'dossier-progress.js' dela/index.html
           grep -q 'dossier-progress.js' kto-vret/index.html
-          grep -q 'dossier-model.js?v=0.6.0' ktovret-game/assets/app.js
+          grep -q 'dossier-model.js?v=0.6.1' ktovret-game/assets/app.js
+          grep -q 'performance.js?v=0.6.1' ktovret-game/assets/app.js
           grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
           grep -q 'dossier-nav.js' ktovret-game/assets/app.js
+          grep -q 'achievementKey' assets/dossier-model.js
           grep -q 'first_r3_002_unsynced_logs' assets/dossier-model.js
           grep -q 'first_r3_003_five_folders_gap' assets/dossier-model.js
           grep -q 'first_r3_005_card_phone_route' assets/dossier-model.js
