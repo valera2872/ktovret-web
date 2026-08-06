@@ -67,9 +67,10 @@ jobs:
           node --check assets/full-catalog.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/import-mobile/common.mjs
-          node --check tools/import-mobile/load.mjs
+          node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile/case-pages.mjs
           node --check tools/import-mobile/catalog.mjs
+          node --check tools/import-mobile/seo-pages.mjs
       - name: Test generated 100-case library
         working-directory: web
         run: node tests/dossier-model.test.js
@@ -78,16 +79,32 @@ jobs:
         run: |
           test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
           test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'Материалы и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          test "$(grep -rl 'Материалы, показания и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 85
           grep -q '"totalCases": 100' assets/generated/import-report.json
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"indexableUrls": 22' assets/generated/import-report.json
+      - name: Validate premium and SEO pages
+        working-directory: web
+        run: |
+          test -f assets/premium.css
+          test -f detektivnye-igry-onlayn/index.html
+          test -f detektivnye-zagadki-s-otvetami/index.html
+          test -f logicheskie-detektivnye-zadachi/index.html
+          test -f kto-vret-igra/index.html
+          grep -q 'premium.css?v=1.1.0' index.html
+          grep -q 'premium.css?v=1.1.0' dela/index.html
+          grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
+          test "$(grep -c '<url>' sitemap.xml)" -eq 22
+          grep -q 'detektivnye-igry-onlayn' sitemap.xml
+          ! grep -q '/delo/016-' sitemap.xml
       - name: Validate editorial 100-case conversion
         run: |
           cp -a web editorial
           node editorial/tools/import-mobile-cases.mjs --source mobile-source --site editorial --mode editorial --commit "$KTOVRET_SOURCE_COMMIT"
           test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -rl 'Материалы и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
+          test "$(grep -rl 'Материалы, показания и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
           rm -rf editorial
       - name: Validate PHP and sitemap
         working-directory: web
@@ -152,7 +169,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic 0.9 deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic 1.1 deployment\n\n- Premium visual system: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO: **4 landing pages / 22 indexable URLs**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
