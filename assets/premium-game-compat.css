@@ -1,5 +1,5 @@
-/* Mystery Logic 1.2.1 — desktop composition correction.
-   Loaded after legacy and premium layers to neutralize conflicting grid rules. */
+/* Mystery Logic 1.2.2 — hard full-width dossier correction.
+   Intentionally simple: every event occupies the complete dossier width. */
 
 body.ktv-case-page .ktv-game-shell .ktv-stage-nav{
   position:relative!important;
@@ -23,18 +23,12 @@ body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-section-head h2{
 body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline{
   display:grid!important;
   width:100%!important;
+  max-width:none!important;
   grid-template-columns:minmax(0,1fr)!important;
+  grid-auto-columns:minmax(0,1fr)!important;
   gap:18px!important;
   margin:30px 0 0!important;
   align-items:stretch!important;
-}
-
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline:has(.ktv-timeline-item:nth-child(2)){
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-}
-
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline:has(.ktv-timeline-item:nth-child(5)){
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
 
 body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline::before{
@@ -42,15 +36,18 @@ body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline::before{
   content:none!important;
 }
 
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item{
+body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline>.ktv-timeline-item{
   display:grid!important;
-  width:auto!important;
+  grid-column:1 / -1!important;
+  width:100%!important;
   min-width:0!important;
   max-width:none!important;
   grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:auto minmax(0,1fr)!important;
   gap:10px!important;
   padding:0!important;
+  justify-self:stretch!important;
+  align-self:stretch!important;
 }
 
 body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-marker{
@@ -72,36 +69,38 @@ body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-marker span{
 }
 
 body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card{
+  display:grid!important;
   width:100%!important;
   min-width:0!important;
-  min-height:0!important;
-  padding:clamp(20px,2.4vw,30px)!important;
-  border-radius:3px!important;
-}
-
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-card{
-  display:grid!important;
-  grid-template-columns:minmax(180px,.42fr) minmax(0,1fr)!important;
+  max-width:none!important;
+  min-height:180px!important;
+  grid-template-columns:minmax(190px,.38fr) minmax(0,1fr)!important;
+  grid-template-rows:auto 1fr!important;
   column-gap:clamp(24px,4vw,58px)!important;
   row-gap:12px!important;
   align-items:start!important;
-  min-height:230px!important;
+  padding:clamp(22px,3vw,36px)!important;
+  border-radius:3px!important;
 }
 
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-head{
+body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-head{
+  grid-column:1!important;
+  grid-row:1!important;
   align-content:start!important;
 }
 
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-card>p{
+body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card>p{
   grid-column:2!important;
   grid-row:1 / span 2!important;
+  max-width:none!important;
   margin:0!important;
   font-size:clamp(1rem,1.25vw,1.12rem)!important;
   line-height:1.72!important;
 }
 
-body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-card>small{
+body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card>small{
   grid-column:1!important;
+  grid-row:2!important;
 }
 
 body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-facts{
@@ -128,18 +127,12 @@ body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-fact-card{
     scroll-margin-top:94px!important;
   }
 
-  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline,
-  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline:has(.ktv-timeline-item:nth-child(2)),
-  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline:has(.ktv-timeline-item:nth-child(5)){
-    grid-template-columns:minmax(0,1fr)!important;
-  }
-
-  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-card{
+  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card{
     display:block!important;
     min-height:0!important;
   }
 
-  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-item:only-child .ktv-timeline-card>p{
+  body.ktv-case-page .ktv-game-shell .ktv-paper .ktv-timeline-card>p{
     margin:12px 0 0!important;
   }
 }
