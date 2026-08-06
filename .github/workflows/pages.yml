@@ -46,6 +46,7 @@ jobs:
           node --check assets/case-adapter.js
           node --check assets/dossier-model.js
           node --check assets/dossier-progress.js
+          node --check assets/dossier-achievements.js
       - name: Test dossier model
         run: node tests/dossier-model.test.js
       - name: Validate PHP syntax
@@ -64,6 +65,7 @@ jobs:
           test -f assets/case-adapter.js
           test -f assets/dossier-model.js
           test -f assets/dossier-progress.js
+          test -f assets/dossier-achievements.js
           test -f assets/mysterylogic.css
           test -f assets/ml-mark.svg
           test -f ktovret-game/assets/dossier-nav.js
@@ -82,8 +84,10 @@ jobs:
           grep -q 'pyat-papok-i-pustoe-mesto' dela/index.html
           grep -q 'noutbuk-u-dvuh-vyhodov' dela/index.html
           grep -q 'karta-telefon-i-vosem-minut' dela/index.html
-          grep -q 'dossier-progress.js' dela/index.html
-          grep -q 'dossier-progress.js' kto-vret/index.html
+          grep -q 'dossier-progress.js?v=0.7.0' dela/index.html
+          grep -q 'dossier-achievements.js?v=0.7.0' dela/index.html
+          grep -q 'dossier-progress.js?v=0.7.0' kto-vret/index.html
+          grep -q 'dossier-achievements.js?v=0.7.0' kto-vret/index.html
           grep -q 'dossier-model.js?v=0.6.2' ktovret-game/assets/app.js
           grep -q 'app-core.js?v=0.6.2' ktovret-game/assets/app.js
           ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
@@ -96,6 +100,7 @@ jobs:
             delo/zapis-do-vskrytiya-konteynera/index.html; do
             grep -q 'app.js?v=0.6.4' "$page"
             grep -q 'performance.js?v=0.6.4' "$page"
+            ! grep -q 'dossier-achievements.js' "$page"
           done
           grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
           grep -q 'dossier-nav.js' ktovret-game/assets/app.js
@@ -103,6 +108,7 @@ jobs:
           grep -q 'first_r3_002_unsynced_logs' assets/dossier-model.js
           grep -q 'first_r3_003_five_folders_gap' assets/dossier-model.js
           grep -q 'first_r3_005_card_phone_route' assets/dossier-model.js
+          grep -q 'Повторные попытки не переписывают награды' assets/dossier-achievements.js
 
   deploy:
     if: >-
