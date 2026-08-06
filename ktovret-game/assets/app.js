@@ -78,7 +78,7 @@
     while (feedback.firstChild) content.appendChild(feedback.firstChild);
 
     const instruction = document.createElement('small');
-    instruction.textContent = 'Выберите другой фрагмент и проверьте версию ещё раз.';
+    instruction.textContent = 'Выберите другой вариант и проверьте версию ещё раз.';
     content.appendChild(instruction);
 
     const icon = document.createElement('span');
@@ -99,6 +99,10 @@
 
   const observer = new MutationObserver(enhanceAnswerState);
   observer.observe(root, { childList: true, subtree: true });
+
+  const dossierNav = document.createElement('script');
+  dossierNav.src = new URL('dossier-nav.js', currentScript.src).href;
+  document.head.appendChild(dossierNav);
 
   const core = document.createElement('script');
   core.src = new URL('app-core.js', currentScript.src).href;
