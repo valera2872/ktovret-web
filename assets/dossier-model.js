@@ -13,13 +13,18 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, () => {
   'use strict';
 
+  const makeCase = (data) => Object.freeze({
+    ...data,
+    achievementKey: `ktovret:achievement:v1:${data.id}`,
+  });
+
   const cases = Object.freeze([
-    Object.freeze({ id: 'first_r3_001_four_archive_entries', number: '001', title: 'Четыре входа в архив', storageKey: 'ktovret:web:demo:v4:first_r3_001_four_archive_entries', path: 'delo/chetyre-vhoda-v-arhiv/' }),
-    Object.freeze({ id: 'first_r3_002_unsynced_logs', number: '002', title: 'Три несинхронных журнала', storageKey: 'ktovret:web:demo:v4:first_r3_002_unsynced_logs', path: 'delo/tri-nesinhronnyh-zhurnala/' }),
-    Object.freeze({ id: 'first_r3_003_five_folders_gap', number: '003', title: 'Пять папок и пустое место', storageKey: 'ktovret:web:demo:v4:first_r3_003_five_folders_gap', path: 'delo/pyat-papok-i-pustoe-mesto/' }),
-    Object.freeze({ id: 'first_r3_004_laptop_two_exits', number: '004', title: 'Ноутбук у двух выходов', storageKey: 'ktovret:web:demo:v4:first_r3_004_laptop_two_exits', path: 'delo/noutbuk-u-dvuh-vyhodov/' }),
-    Object.freeze({ id: 'first_r3_005_card_phone_route', number: '005', title: 'Карта, телефон и восемь минут', storageKey: 'ktovret:web:demo:v4:first_r3_005_card_phone_route', path: 'delo/karta-telefon-i-vosem-minut/' }),
-    Object.freeze({ id: 'volume1_066', number: '066', title: 'Запись до вскрытия контейнера', storageKey: 'ktovret:web:demo:v3:volume1_066', path: 'delo/zapis-do-vskrytiya-konteynera/' }),
+    makeCase({ id: 'first_r3_001_four_archive_entries', number: '001', title: 'Четыре входа в архив', storageKey: 'ktovret:web:demo:v4:first_r3_001_four_archive_entries', path: 'delo/chetyre-vhoda-v-arhiv/' }),
+    makeCase({ id: 'first_r3_002_unsynced_logs', number: '002', title: 'Три несинхронных журнала', storageKey: 'ktovret:web:demo:v4:first_r3_002_unsynced_logs', path: 'delo/tri-nesinhronnyh-zhurnala/' }),
+    makeCase({ id: 'first_r3_003_five_folders_gap', number: '003', title: 'Пять папок и пустое место', storageKey: 'ktovret:web:demo:v4:first_r3_003_five_folders_gap', path: 'delo/pyat-papok-i-pustoe-mesto/' }),
+    makeCase({ id: 'first_r3_004_laptop_two_exits', number: '004', title: 'Ноутбук у двух выходов', storageKey: 'ktovret:web:demo:v4:first_r3_004_laptop_two_exits', path: 'delo/noutbuk-u-dvuh-vyhodov/' }),
+    makeCase({ id: 'first_r3_005_card_phone_route', number: '005', title: 'Карта, телефон и восемь минут', storageKey: 'ktovret:web:demo:v4:first_r3_005_card_phone_route', path: 'delo/karta-telefon-i-vosem-minut/' }),
+    makeCase({ id: 'volume1_066', number: '066', title: 'Запись до вскрытия контейнера', storageKey: 'ktovret:web:demo:v3:volume1_066', path: 'delo/zapis-do-vskrytiya-konteynera/' }),
   ]);
 
   const emptyStorage = Object.freeze({
@@ -40,19 +45,22 @@
 
   const getStorage = (storage) => storage || (typeof localStorage !== 'undefined' ? localStorage : emptyStorage);
 
+  const safeGet = (source, key) => {
+    try {
+      return source.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
   const readRecords = (storage) => {
     const source = getStorage(storage);
 
-    return cases.map((item) => {
-      let rawValue = null;
-      try {
-        rawValue = source.getItem(item.storageKey);
-      } catch {
-        rawValue = null;
-      }
-
-      return { ...item, state: parseState(rawValue) };
-    });
+    return cases.map((item) => ({
+      ...item,
+      state: parseState(safeGet(source, item.storageKey)),
+      achievement: parseState(safeGet(source, item.achievementKey)),
+    }));
   };
 
   const elapsedMinutes = (state) => {
@@ -70,12 +78,25 @@
     return 'Стажёр бюро';
   };
 
+  const isFirstCompletionClean = (record) => {
+    const achievement = record?.achievement || {};
+    if (Object.prototype.hasOwnProperty.call(achievement, 'firstCompletionClean')) {
+      return achievement.firstCompletionClean === true;
+    }
+
+    const state = record?.state || {};
+    return state.solved === true
+      && state.firstAnswerCorrect === true
+      && Number(state.attempts || 0) === 1
+      && Number(state.hintsUsed || 0) === 0;
+  };
+
   const summarize = (records = readRecords()) => {
     const solvedRecords = records.filter((item) => item.state.solved === true);
     const activeCase = records.find((item) => item.state.accepted === true && item.state.solved !== true) || null;
     const firstUnsolved = records.find((item) => item.state.solved !== true) || null;
     const solvedCount = solvedRecords.length;
-    const cleanCount = solvedRecords.filter((item) => item.state.firstAnswerCorrect === true && Number(item.state.hintsUsed || 0) === 0).length;
+    const cleanCount = solvedRecords.filter(isFirstCompletionClean).length;
     const totalAttempts = solvedRecords.reduce((sum, item) => sum + Number(item.state.attempts || 0), 0);
     const totalHints = solvedRecords.reduce((sum, item) => sum + Number(item.state.hintsUsed || 0), 0);
     const totalMinutes = solvedRecords.reduce((sum, item) => sum + elapsedMinutes(item.state), 0);
@@ -121,6 +142,7 @@
     cases.forEach((item) => {
       try {
         target.removeItem(item.storageKey);
+        target.removeItem(item.achievementKey);
       } catch {
         // Browsers can deny storage access in strict privacy modes.
       }
@@ -141,6 +163,7 @@
     readRecords,
     elapsedMinutes,
     rankForSolved,
+    isFirstCompletionClean,
     summarize,
     nextUnsolvedAfter,
     pickRandomCase,
