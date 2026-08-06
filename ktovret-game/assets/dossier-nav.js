@@ -43,7 +43,8 @@
 
     result.dataset.dossierEnhanced = 'true';
     const solvedCount = cases.filter((item) => readState(item.storageKey).solved === true).length;
-    const nextCase = cases[currentIndex + 1] || null;
+    const followingCases = [...cases.slice(currentIndex + 1), ...cases.slice(0, currentIndex)];
+    const nextCase = followingCases.find((item) => readState(item.storageKey).solved !== true) || null;
     const archiveUrl = new URL('dela/', siteRoot).href;
 
     const section = document.createElement('section');
