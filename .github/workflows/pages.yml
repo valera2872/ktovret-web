@@ -87,8 +87,16 @@ jobs:
           grep -q 'dossier-model.js?v=0.6.2' ktovret-game/assets/app.js
           grep -q 'app-core.js?v=0.6.2' ktovret-game/assets/app.js
           ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
-          grep -q 'app.js?v=0.6.3' delo/tri-nesinhronnyh-zhurnala/index.html
-          grep -q 'performance.js?v=0.6.3' delo/tri-nesinhronnyh-zhurnala/index.html
+          for page in \
+            delo/chetyre-vhoda-v-arhiv/index.html \
+            delo/tri-nesinhronnyh-zhurnala/index.html \
+            delo/pyat-papok-i-pustoe-mesto/index.html \
+            delo/noutbuk-u-dvuh-vyhodov/index.html \
+            delo/karta-telefon-i-vosem-minut/index.html \
+            delo/zapis-do-vskrytiya-konteynera/index.html; do
+            grep -q 'app.js?v=0.6.4' "$page"
+            grep -q 'performance.js?v=0.6.4' "$page"
+          done
           grep -q 'dossier-model.js?v=0.6.0' assets/dossier-progress.js
           grep -q 'dossier-nav.js' ktovret-game/assets/app.js
           grep -q 'achievementKey' assets/dossier-model.js
