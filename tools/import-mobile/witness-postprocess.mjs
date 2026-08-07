@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION = '1.4.1';
+const VERSION = '1.4.0';
+const SCROLL_VERSION = '1.4.1';
 const safeJson = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
 
 const publicCharacters = (item) => (item.characters || [])
@@ -38,19 +39,15 @@ export function enhanceGeneratedCases(siteRoot, cases, editorial = false) {
 
     if (!html.includes('witness-cycle.css')) {
       html = html.replace('</head>', `<link rel="stylesheet" href="../../assets/witness-cycle.css?v=${VERSION}"></head>`);
-    } else {
-      html = html.replace(/witness-cycle\.css\?v=[^\"]+/g, `witness-cycle.css?v=${VERSION}`);
     }
 
     if (!html.includes('mobile-scroll-stabilizer.js')) {
-      html = html.replace('</body>', `<script src="../../assets/mobile-scroll-stabilizer.js?v=${VERSION}"></script></body>`);
-    } else {
-      html = html.replace(/mobile-scroll-stabilizer\.js\?v=[^\"]+/g, `mobile-scroll-stabilizer.js?v=${VERSION}`);
+      html = html.replace('</body>', `<script src="../../assets/mobile-scroll-stabilizer.js?v=${SCROLL_VERSION}"></script></body>`);
     }
 
     html = html.replace(
       /data-premium-game="[^"]+"/,
-      `data-premium-game="${VERSION}" data-witness-ui="1.3" data-cycle-polish="1.4.1" data-witness-count="${characters.length}"`,
+      `data-premium-game="${VERSION}" data-witness-ui="1.3" data-cycle-polish="1.4" data-mobile-scroll="${SCROLL_VERSION}" data-witness-count="${characters.length}"`,
     );
 
     fs.writeFileSync(pagePath, html);
