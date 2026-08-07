@@ -24,9 +24,10 @@ assert.ok(html.includes('catalog-experience.css?v=1.6.0'),'catalog 1.6 styleshee
 assert.ok(html.includes('catalog-experience.js?v=1.6.0'),'catalog 1.6 script is not versioned');
 assert.ok(!html.includes('full-catalog.js?v='),'legacy filter script must not compete with catalog 1.6');
 assert.ok(js.includes('MysteryLogicDossier'),'catalog must read dossier progress');
-assert.ok(js.includes("data.progress=solved?'solved':active?'active':'new'"),'case progress states are missing');
+assert.ok(js.includes("card.dataset.progress=solved?'solved':active?'active':'new'"),'case progress states are missing');
 assert.ok(js.includes('pickRandomCase'),'random unsolved selection is missing');
 assert.ok(js.includes("injectedProgress?.remove()"),'old duplicate progress panel is not suppressed');
+assert.ok(js.includes("card.querySelectorAll('.case-state')"),'legacy duplicate case-state badges are not removed');
 assert.ok(css.includes('.catalog-command'),'command center styling is missing');
 assert.ok(css.includes('.case-card.is-solved'),'solved case styling is missing');
 assert.ok(css.includes('.case-card.is-active-case'),'active case styling is missing');
