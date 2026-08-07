@@ -49,9 +49,18 @@
     continueLink.textContent=summary.allSolved?'Открыть любое дело снова':summary.activeCase?'Продолжить расследование':'Следующее нераскрытое дело';
   }
 
+  const firstFree=freeCases[0];
+  const featureLink=document.querySelector('.catalog-feature .ml-button-primary');
+  if(featureLink&&firstFree){
+    featureLink.href=relativePath(firstFree);
+    featureLink.textContent='Открыть первое дело';
+  }
+
   const stateFor=(id)=>recordMap.get(id)?.state||{};
 
   cards.forEach(card=>{
+    card.querySelectorAll('.case-state').forEach(node=>node.remove());
+    card.classList.remove('is-active');
     if(card.dataset.access!=='free') return;
     const state=stateFor(card.dataset.caseId);
     const solved=state.solved===true;
