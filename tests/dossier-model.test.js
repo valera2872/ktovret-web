@@ -23,17 +23,19 @@ assert.equal(model.summarize(model.readRecords(empty)).totalCases,15);
 const premiumGamePath=path.join(root,'assets/premium-game.css');
 assert.ok(fs.existsSync(premiumGamePath),'premium game stylesheet is missing');
 const premiumGameCss=fs.readFileSync(premiumGamePath,'utf8');
-assert.ok(premiumGameCss.includes('repeat(auto-fit,minmax'),'timeline must adapt to the real number of events');
+assert.ok(premiumGameCss.includes('repeat(auto-fit,minmax'),'premium editorial timeline base is missing');
 assert.ok(!premiumGameCss.includes('repeat(7'),'premium layer must not force seven empty timeline columns');
-assert.ok(premiumGameCss.includes('.ktv-timeline-item:only-child'),'single-event dossier layout is missing');
+assert.ok(premiumGameCss.includes('.ktv-timeline-item:only-child'),'single-event dossier styling is missing');
 assert.ok(premiumGameCss.includes('.ktv-workspace'),'investigator workspace layout is missing');
 assert.ok(premiumGameCss.includes('.ktv-answer'),'version board styling is missing');
 
 const compatPath=path.join(root,'assets/premium-game-compat.css');
 assert.ok(fs.existsSync(compatPath),'premium compatibility stylesheet is missing');
 const compatCss=fs.readFileSync(compatPath,'utf8');
-assert.ok(compatCss.includes('grid-template-columns:minmax(0,1fr)!important'),'single-event full-width rule is missing');
-assert.ok(compatCss.includes(':has(.ktv-timeline-item:nth-child(2))'),'two-column timeline rule is missing');
+assert.ok(compatCss.includes('grid-template-columns:minmax(0,1fr)!important'),'hard full-width timeline grid is missing');
+assert.ok(compatCss.includes('grid-column:1 / -1!important'),'timeline item must span the complete dossier width');
+assert.ok(compatCss.includes('width:100%!important'),'timeline/card full-width rule is missing');
+assert.ok(!compatCss.includes(':has(.ktv-timeline-item:nth-child(2))'),'hard compatibility layer must not depend on :has');
 assert.ok(compatCss.includes('position:relative!important'),'desktop non-overlapping stage navigation rule is missing');
 
 for(const item of catalog.freeCases){
@@ -51,4 +53,4 @@ for(const item of catalog.cases.filter(entry=>entry.access==='premium')){
   assert.ok(!html.includes('window.KtoVretWeb='),`premium case leaked into ${item.path}`);
 }
 
-console.log('generated library tests passed: 100 total, 15 free with premium UI 1.2.1, 85 locked');
+console.log('generated library tests passed: 100 total, 15 free with hard full-width premium UI, 85 locked');
