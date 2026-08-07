@@ -4,6 +4,7 @@ import path from 'node:path';
 import {ensureDir} from './import-mobile/common.mjs';
 import {loadLibrary} from './import-mobile/load-active.mjs';
 import {writeCasePages} from './import-mobile/case-pages.mjs';
+import {enhanceGeneratedCases} from './import-mobile/witness-postprocess.mjs';
 import {writeCatalog} from './import-mobile/catalog.mjs';
 import {writeSeoPages,seoSlugs} from './import-mobile/seo-pages.mjs';
 
@@ -15,6 +16,7 @@ const index={schemaVersion:2,sourceCommit,mode,totalCases:100,freeCount:15,premi
 fs.writeFileSync(path.join(generated,'cases-index.json'),JSON.stringify(index,null,2));
 fs.writeFileSync(path.join(generated,'cases-index.js'),`window.KtoVretCatalog=${JSON.stringify(index)};\n`);
 writeCasePages(siteRoot,lib.cases,editorial);
+const witnessEnhancedPages=enhanceGeneratedCases(siteRoot,lib.cases,editorial);
 writeCatalog(siteRoot,lib.cases,lib.freeMeta,editorial);
 writeSeoPages(siteRoot,lib.freeMeta);
 
@@ -30,6 +32,6 @@ const base='https://valera2872.github.io/ktovret-web/';
 const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...lib.freeMeta.map(item=>`${base}${item.path}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,playablePages:editorial?100:15,lockedPages:editorial?0:85,indexableUrls:urls.length,seoLandingPages:seoSlugs.length};
+const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,playablePages:editorial?100:15,lockedPages:editorial?0:85,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,witnessEnhancedPages};
 fs.writeFileSync(path.join(generated,'import-report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));

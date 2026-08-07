@@ -1,0 +1,15 @@
+{
+  "version": "1.4.0",
+  "witnessInterface": "1.3",
+  "cyclePolish": "1.4",
+  "individualWitnesses": true,
+  "witnessAnswerLinkage": true,
+  "activeStageNavigation": true,
+  "stageContinueActions": true,
+  "selectedVersionSummary": true,
+  "longContentGuards": true,
+  "publicPlayableCases": 15,
+  "editorialPlayableCases": 100,
+  "lockedPublicCases": 85,
+  "gameCoreChanged": false
+}
