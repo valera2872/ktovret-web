@@ -1,0 +1,12 @@
+{
+  "version": "1.5.0",
+  "name": "Full Library QA",
+  "publicCases": 15,
+  "lockedCases": 85,
+  "editorialCases": 100,
+  "sourceAudit": true,
+  "generatedPageAudit": true,
+  "localEditorialPreview": true,
+  "paidContentPublished": false,
+  "gameCoreChanged": false
+}
