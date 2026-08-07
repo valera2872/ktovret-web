@@ -16,9 +16,13 @@
   }
 
   const progress=document.querySelector('[data-catalog-progress]');
+  const injectedProgress=document.querySelector('.ml-dossier-progress');
+  const investigator=document.querySelector('.ml-investigator-card');
+  injectedProgress?.remove();
+  if(progress&&investigator) investigator.before(progress);
+
   const progressFill=document.querySelector('[data-catalog-progress-fill]');
   const progressText=document.querySelector('[data-catalog-progress-text]');
-  const progressRank=document.querySelector('[data-catalog-rank]');
   const continueLink=document.querySelector('[data-catalog-continue]');
   const randomButton=document.querySelector('[data-catalog-random]');
   const resultCount=document.querySelector('[data-catalog-result-count]');
@@ -37,7 +41,6 @@
     progress.dataset.solved=String(solved);
     if(progressFill) progressFill.style.width=`${percent}%`;
     if(progressText) progressText.textContent=`${solved} из ${total} бесплатных дел раскрыто`;
-    if(progressRank) progressRank.textContent=summary.rank||'Стажёр бюро';
   }
 
   if(continueLink){
@@ -63,14 +66,6 @@
   });
 
   const filters={access:'all'};
-  document.querySelectorAll('[data-filter]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      filters.access=button.dataset.filter||'all';
-      document.querySelectorAll('[data-filter]').forEach(item=>item.classList.toggle('is-active',item===button));
-      apply();
-    });
-  });
-
   const apply=()=>{
     const q=(search?.value||'').trim().toLowerCase();
     const selectedDifficulty=difficulty?.value||'all';
@@ -93,6 +88,14 @@
     if(resultCount) resultCount.textContent=`Показано: ${visible} из ${cards.length}`;
   };
 
+  document.querySelectorAll('[data-filter]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      filters.access=button.dataset.filter||'all';
+      document.querySelectorAll('[data-filter]').forEach(item=>item.classList.toggle('is-active',item===button));
+      apply();
+    });
+  });
+
   search?.addEventListener('input',apply);
   difficulty?.addEventListener('change',apply);
   category?.addEventListener('change',apply);
@@ -100,9 +103,7 @@
 
   randomButton?.addEventListener('click',()=>{
     let target=null;
-    if(model){
-      target=model.pickRandomCase(model.readRecords());
-    }
+    if(model) target=model.pickRandomCase(model.readRecords());
     target=target||freeCases[Math.floor(Math.random()*Math.max(1,freeCases.length))];
     if(target?.path) location.href=relativePath(target);
   });
