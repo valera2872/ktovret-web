@@ -1,0 +1,15 @@
+{
+  "version": "1.6.0",
+  "feature": "full-product-catalog",
+  "totalCases": 100,
+  "freeCases": 15,
+  "lockedCases": 85,
+  "commandCenter": true,
+  "continueCase": true,
+  "randomUnsolved": true,
+  "difficultyFilter": true,
+  "categoryFilter": true,
+  "unsolvedFilter": true,
+  "gameCoreChanged": false,
+  "paidContentPublic": false
+}
