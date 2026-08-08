@@ -37,6 +37,8 @@ const originSmoke=spawnSync(process.execPath,[path.join(root,'tests/site-origin.
 assert.equal(originSmoke.status,0,`site origin 1.9 smoke failed: ${originSmoke.stderr||originSmoke.stdout}`);
 assert.ok(originSmoke.stdout.includes('site origin 1.9 smoke passed'),'site origin smoke did not confirm production migration');
 
+const paidClientSyntax=spawnSync(process.execPath,['--check',path.join(root,'assets/paid-access-client.js')],{cwd:root,encoding:'utf8'});
+assert.equal(paidClientSyntax.status,0,`paid access client syntax failed: ${paidClientSyntax.stderr||paidClientSyntax.stdout}`);
 const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access-boundary.test.js')],{cwd:root,encoding:'utf8'});
 assert.equal(paidBoundary.status,0,`paid access 1.10 boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
 assert.ok(paidBoundary.stdout.includes('paid access 1.10 boundary passed'),'paid access security gate did not confirm the boundary');
