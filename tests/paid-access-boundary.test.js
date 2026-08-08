@@ -1,7 +1,9 @@
 'use strict';
 const fs=require('node:fs');
 const path=require('node:path');
+const os=require('node:os');
 const assert=require('node:assert/strict');
+const {spawnSync}=require('node:child_process');
 
 const root=path.resolve(__dirname,'..');
 const catalog=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/cases-index.json'),'utf8'));
@@ -48,5 +50,29 @@ assert.ok(migration.includes('revoke all on table public.paid_case_payloads from
 assert.ok(migration.includes('revoke all on table public.access_entitlements from anon, authenticated'),'entitlements table must deny browser roles');
 assert.ok(gitignore.includes('.secure-backend/'),'secure payload export must be gitignored');
 assert.ok(!fs.existsSync(path.join(root,'.secure-backend')),'secure backend export must not exist in public build tree');
+
+const mobileSource=path.resolve(root,'../mobile-source');
+if(fs.existsSync(mobileSource)){
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'ml-paid-'));
+  const out=path.join(temp,'paid-case-payloads.json');
+  const exportRun=spawnSync(process.execPath,[
+    path.join(root,'tools/export-paid-backend.mjs'),
+    '--source',mobileSource,
+    '--out',out,
+    '--commit','51c178f4dceba7bdb859e1e5d0c3244150438c0d',
+  ],{cwd:root,encoding:'utf8'});
+  assert.equal(exportRun.status,0,`secure paid export failed: ${exportRun.stderr||exportRun.stdout}`);
+  const bundle=JSON.parse(fs.readFileSync(out,'utf8'));
+  assert.equal(bundle.totalCases,85,'secure export must contain 85 paid cases');
+  assert.equal(bundle.items.length,85,'secure export item count mismatch');
+  for(const item of bundle.items){
+    assert.equal(item.product_id,'volume1');
+    assert.equal(item.case_id,item.payload.case.id);
+    assert.equal(item.payload.case.witnessCount,item.payload.case.characters.length,`${item.case_id} witness shape mismatch`);
+    assert.ok(item.payload.case.answerStages.length>0,`${item.case_id} needs answer stages`);
+    assert.ok(item.payload.case.explanation.fullReason,`${item.case_id} needs protected explanation`);
+  }
+  fs.rmSync(temp,{recursive:true,force:true});
+}
 
 console.log('paid access 1.10 boundary passed: 15 public playable / 85 server-gated locked pages');
