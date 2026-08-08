@@ -74,6 +74,7 @@ jobs:
           node --check assets/analytics-events.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/preview-editorial.mjs
+          node --check tools/responsive-smoke.mjs
           node --check tools/import-mobile/common.mjs
           node --check tools/import-mobile/audit-library.mjs
           node --check tools/import-mobile/validate-editorial-build.mjs
@@ -111,6 +112,15 @@ jobs:
             test "$(grep -c '<url>' sitemap.xml)" -eq 22
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
           fi
+      - name: Render pilot in mobile and desktop Chrome
+        working-directory: web
+        run: node tools/responsive-smoke.mjs
+      - name: Upload responsive smoke screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-native-responsive-smoke
+          path: web/artifacts/responsive-smoke
+          retention-days: 7
       - name: Validate editorial 100-case conversion
         run: |
           cp -a web editorial
@@ -148,7 +158,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 legacy routes / 15 playable / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- Source audit: **100 cases validated**\n- Editorial conversion: **100 playable cases validated**\n- Catalog experience: **1.6 validated**`
+              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 legacy routes / 15 playable / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- Responsive Chrome: **390×844 mobile + 1440×1100 desktop**\n- Source audit: **100 cases validated**\n- Editorial conversion: **100 playable cases validated**\n- Catalog experience: **1.6 validated**`
             })
 
   deploy:
@@ -182,7 +192,7 @@ jobs:
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
       - name: Remove development-only files
-        run: rm -rf web/.git web/.github web/tools web/tests web/preview-all-100.cmd
+        run: rm -rf web/.git web/.github web/tools web/tests web/artifacts web/preview-all-100.cmd
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -199,7 +209,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- QA: **100 source + 100 editorial pages validated**\n- Catalog: **1.6 command center + filters validated**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- Responsive Chrome: **mobile + desktop smoke passed before deploy**\n- QA: **100 source + 100 editorial pages validated**\n- Catalog: **1.6 command center + filters validated**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
