@@ -2,297 +2,253 @@
 
 Дата фиксации: 2026-08-08
 
-Этот файл — точка восстановления контекста для продолжения разработки в новом чате. Перед любыми изменениями сначала прочитать его и сверить актуальный `main`.
+Этот файл — точка восстановления контекста. В новом чате сначала прочитать его, затем сверить актуальные `main`, Supabase и последний CI.
 
 ## 1. Репозитории и публикация
 
-- Web repo: `valera2872/ktovret-web`
-- Mobile/source repo: `valera2872/ktovret`
+- Web: `valera2872/ktovret-web`
+- Mobile/source: `valera2872/ktovret`
 - Pinned mobile source commit: `51c178f4dceba7bdb859e1e5d0c3244150438c0d`
-- Текущий staging: `https://valera2872.github.io/ktovret-web/`
-- Будущий production-domain: `https://mysterylogic.com/`
-- GitHub Pages deploy от connector merge часто НЕ стартует автоматически. Рабочая схема: после merge пользователь вручную запускает `Actions → Validate and deploy Mystery Logic web → Run workflow → main`, затем сообщает «зелёный».
+- Staging: `https://valera2872.github.io/ktovret-web/`
+- Будущий production: `https://mysterylogic.com/`
+- Pages после connector-merge часто требует ручного запуска: `Actions → Validate and deploy Mystery Logic web → Run workflow → main`.
 
 ## 2. Текущая web-версия
 
-Последняя слитая версия: **1.10.1**
+Последняя слитая версия: **1.11.0**.
 
-Последний merge:
-- PR #37 — `web 1.10.1: connect live Mystery Logic paid backend`
-- merge commit: `e883a7b7b5725e297bbd3ffa63e4896d45f96766`
-- CI #166: SUCCESS
-- CI #165 ранее падал только из-за устаревшей строки ожидания в wrapper-тесте (`1.10` vs `1.10.1`), а не из-за backend/security; исправлено.
+Последний product merge:
+- PR #38 — `web 1.11: add YooKassa payment orchestration`
+- merge commit: `a09fdd004de1bd7566c72db5f04a61b7fd6c2a91`
+- PR CI #171: SUCCESS
 
 До этого:
-- PR #36 / 1.10 — protected paid access boundary
-- merge commit `1fdf4e8557002b72cff86a964374990991ccad63`
-- CI #162: SUCCESS
+- 1.10.1 / PR #37 — live Supabase paid backend connection
+- 1.10 / PR #36 — protected paid-access boundary
 
-## 3. Библиотека дел
+`app-core.js` в 1.10/1.10.1/1.11 не менялся.
 
-Активная библиотека:
-- 100 дел всего
+## 3. Библиотека и Game Engine
+
+- 100 активных дел
 - 15 бесплатных
 - 85 платных
-- deprecated/mobile editorial records фильтруются тем же правилом, что в mobile source
-
-CI 1.5 подтвердил:
-- 100/100 исходных дел валидны
-- 100/100 editorial web conversion валидна
-- public build = 15 playable + 85 locked
-
-Важно: платные тексты/ответы НЕ должны попадать в статический GitHub Pages build.
+- Public build: 15 playable + 85 locked
+- Editorial/CI build: 100 playable, но не публикуется
+- Один общий Game Engine: `ktovret-game/assets/app-core.js`
+- Платные тексты/ответы/объяснения НЕ должны попадать в GitHub Pages или public repo.
 
 ## 4. SEO-native архитектура
 
 Реализовано:
-- `Case` — универсальная сущность дела
-- `Collection` — подборка
-- один общий Game Engine (`ktovret-game/assets/app-core.js`)
-- SEO layer — server-generated/static HTML + canonical + sitemap + OG + hreflang foundation + перелинковка
+- `Case`
+- `Collection`
+- единый Game Engine
+- SEO layer: статический индексируемый HTML + canonical + sitemap + OG + hreflang foundation + перелинковка
 
-Все 15 бесплатных дел имеют SEO-native URL:
+Все 15 бесплатных дел:
 - `/ru/cases/{slug}/`
 
 Legacy URL:
 - `/delo/{slug}/`
-- для SEO-native free дел остаются рабочими, но `noindex,follow` + canonical на `/ru/cases/.../`
+- для free SEO-native страниц: `noindex,follow` + canonical на новый URL
 
-Первая реальная индексируемая collection:
+Первая индексируемая collection:
 - `/ru/besplatnye-detektivnye-dela/`
 
-Sitemap после 1.8: 23 indexable URLs.
+Sitemap: 23 indexable URL.
 
-После прохождения дела есть:
-- следующее дело
-- 2 похожих дела
-- ссылка на бесплатную коллекцию
-- ссылка на каталог
+Production origin абстрагирован в 1.9. Не переключать canonical на `mysterylogic.com`, пока домен фактически не подключён.
 
-## 5. Production SEO origin
+## 5. Supabase Mystery Logic
 
-Версия 1.9 ввела единый origin config.
-
-Пока staging origin — GitHub Pages. При переходе на `mysterylogic.com` меняется одна настройка, после чего canonical/sitemap/robots должны переехать вместе.
-
-Есть smoke-test, который останавливает production build, если после смены origin остаётся staging URL.
-
-Не переключать origin на `mysterylogic.com`, пока домен реально не подключён в DNS/GitHub Pages.
-
-## 6. Supabase backend для 85 платных дел
-
-Создан отдельный Supabase project:
+Использовать только этот проект:
 - name: `mystery-logic`
 - project id/ref: `orknvuwknvsedjgqcfwc`
 - region: `eu-west-1`
-- status на момент фиксации: `ACTIVE_HEALTHY`
+- URL: `https://orknvuwknvsedjgqcfwc.supabase.co`
 
-НЕ использовать проект `supervision-pocket` для этого продукта.
+НЕ использовать `supervision-pocket`.
 
-Project URL:
-- `https://orknvuwknvsedjgqcfwc.supabase.co`
+## 6. Защищённые 85 платных дел
 
-Live Edge Function:
+В Supabase есть ровно 85/85 paid payload:
+- table: `public.paid_case_payloads`
+- entitlement table: `public.access_entitlements`
+- product id: `volume1`
+
+Edge Function:
 - `case-access`
-- endpoint: `https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access`
-
-`assets/paid-access-config.js` в web 1.10.1 уже указывает на этот endpoint.
-
-Checkout пока выключен:
-- `checkoutUrl: ''`
-
-То есть backend активен, но продажа ещё не включена.
-
-## 7. Database schema / security
-
-Применена migration:
-- `supabase/migrations/20260808181000_paid_access.sql`
-
-Таблицы:
-- `public.paid_case_payloads`
-- `public.access_entitlements`
+- `https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access`
 
 Security:
 - RLS enabled
-- anon/authenticated не имеют прямого доступа к таблицам
-- service-role используется только внутри Edge Function/server tooling
-- browser получает только opaque bearer token
-- в БД хранится SHA-256 hash токена, а не исходный токен
-- response paid case: `Cache-Control: private, no-store, max-age=0`
+- нет anon/authenticated policies
+- service role только server-side
+- browser передаёт opaque bearer token
+- в БД хранится только SHA-256 token hash
+- paid response: `private, no-store`
 
-Product entitlement сейчас:
-- `volume1`
+## 7. Paid access live test — ПРИНЯТ
 
-## 8. Платные payload
+Пользователь реально проверил опубликованный сайт после 1.10.1:
+- ввёл временный access key
+- paywall исчез
+- дело №016 `Две камеры с поправкой` загрузилось
+- отдельные показания работали
+- ответы и полный разбор работали
 
-В Supabase загружены ровно **85/85** платных case payload.
+Результат пользователя: **«Ключ внес, все прошло хорошо»**.
 
-Проверено запросом в БД:
-- total = 85
-- volume1 = 85
-- published = 85
-- complete_shape = 85
+Temporary live-test entitlement после подтверждения удалён. На момент удаления осталось `0` test entitlements с source `live-web-test`.
 
-Payload содержит тот же игровой config, что нужен Game Engine:
-- timeline/facts
-- отдельные characters/statements
-- answerStages
-- correct answer ids
-- full explanation/reasoning
+Никакой тестовый token в repo/checkpoint не записан.
 
-Эти payload НЕ находятся в публичном web repo/static pages.
+## 8. Web 1.11 — payment orchestration
 
-Secure-export локально/в CI:
-- `.secure-backend/`
-- gitignored
+Целевая цепочка:
 
-## 9. Seed/import платных дел
+`locked case → browser secret → create-checkout → YooKassa redirect → payment.succeeded → verified webhook → volume1 entitlement → case-access → 85 paid cases`
 
-Для первоначального импорта использовалась одноразовая Edge Function `seed-paid-cases`.
+Добавлено:
+- `public.payment_orders`
+- `supabase/functions/_shared/payment.ts`
+- `supabase/functions/create-checkout/index.ts`
+- `supabase/functions/yookassa-webhook/index.ts`
+- `supabase/functions/payment-status/index.ts`
+- browser purchase/return flow в `assets/paid-access-client.js`
 
-После загрузки 85 payload seed был отключён/переведён в защищённое состояние. Не использовать его как постоянный публичный API.
+Миграции применены в production Supabase:
+- `20260808181000_paid_access.sql`
+- `20260808204000_payment_orders.sql`
+- `20260808210500_payment_order_entitlement_index.sql`
 
-Для seed временно включалось PostgreSQL extension `http`; после завершения импорта extension удалено. На момент фиксации `http_installed = false`.
+Все три новые Edge Functions уже DEPLOYED/ACTIVE в `mystery-logic`:
+- `create-checkout`
+- `yookassa-webhook`
+- `payment-status`
 
-## 10. End-to-end backend validation
+Они пока dormant для реальной оплаты, потому что merchant YooKassa env ещё не настроен.
 
-Проведён реальный тест:
+## 9. Payment security model
 
-`opaque token → SHA-256 → access_entitlements(volume1) → case-access → paid_case_payloads → HTTP 200 → полный KtoVretWeb config`
+- Browser сам генерирует 256-bit opaque token до редиректа в платёжку.
+- Plaintext token хранится только в browser localStorage.
+- `payment_orders` хранит только SHA-256 token hash.
+- Сумма платежа НЕ приходит из browser; она читается из server env `VOLUME1_PRICE_RUB`.
+- Создание платежа использует YooKassa `Idempotence-Key`.
+- YooKassa credentials используются только server-side через HTTP Basic Auth.
+- Incoming webhook body не считается доверенным: сервер повторно запрашивает payment через authenticated YooKassa API.
+- `payment-status` служит recovery-path: если webhook задержался, после redirect сервер сам перепроверяет payment и активирует entitlement.
+- Verified full refund → `access_entitlements.status = refunded`, доступ закрывается.
+- `purchase_completed` analytics добавлена.
 
-Тестовое платное дело:
-- id: `alibi_r2_008_clock_correction`
-- title: `Две камеры с поправкой`
-- №016
+## 10. Payment orders DB
 
-Server response реально вернул:
-- HTTP 200
-- correct case id
-- 3 characters: Алина / Павел / Роман
-- answer stages
-- explanation
+Table: `public.payment_orders`.
 
-Тестовый entitlement, использованный для server-side smoke, был удалён после проверки.
+Основные состояния:
+- `creating`
+- `pending`
+- `paid`
+- `canceled`
+- `refunded`
+- `failed`
 
-## 11. Текущий live user-test
+RLS enabled, anon/authenticated access revoked.
 
-После deploy 1.10.1 пользователь сообщил `зелёный`.
+Supabase advisors после DDL:
+- Security: только INFO `rls_enabled_no_policy` для server-only таблиц — это намеренно.
+- Performance: advisor нашёл FK `entitlement_id` без индекса; индекс добавлен отдельной migration.
+- `unused_index` INFO ожидаемы до появления реальных заказов.
 
-Создан отдельный ВРЕМЕННЫЙ live-test entitlement для проверки через опубликованный браузер.
+## 11. Public checkout сейчас ВЫКЛЮЧЕН
 
-Важно:
-- сам test token намеренно НЕ записан в этот checkpoint и НЕ должен коммититься в GitHub
-- token был выдан пользователю в чате
-- entitlement должен быть удалён после пользовательского подтверждения
-- если новый чат начался после истечения ключа, просто создать новый temporary entitlement; не пытаться восстановить старый token
+`assets/paid-access-config.js` 1.11 содержит live backend endpoints, но:
 
-Тестовая цель на сайте:
-- дело №016 `Две камеры с поправкой`
-- ожидаемый legacy URL: `/delo/016-dve-kamery-s-popravkoy/`
+- `checkoutEnabled:false`
 
-Пользователь должен проверить:
-1. ввод ключа
-2. `Открыть купленное дело`
-3. paywall исчезает
-4. загружается само дело
-5. видны отдельные показания Алины / Павла / Романа
-6. можно выбрать неверный/правильный ответ
-7. после правильного ответа открывается полный разбор
+Поэтому deploy 1.11 НЕ должен показывать реальную кнопку покупки.
 
-После сообщения пользователя `работает`:
-- удалить temporary entitlement из `access_entitlements`
-- зафиксировать paid access E2E как принятый
+Live endpoints уже записаны:
+- `case-access`
+- `create-checkout`
+- `payment-status`
 
-## 12. Browser paid-access architecture
+Checkout включать только после merchant configuration + тестового платежа.
 
-Files:
-- `assets/paid-access-config.js`
-- `assets/paid-access-client.js`
-- `assets/paid-access.css`
-- `tools/import-mobile/paid-access-postprocess.mjs`
+## 12. Что нужно от YooKassa для следующего шага
 
-Public 85 locked pages:
-- содержат только metadata/paywall/gateway
-- НЕ содержат `window.KtoVretWeb`
-- НЕ содержат paid story/statements/correct answer/explanation
+В Supabase Edge Function secrets/env нужно настроить (значения НЕ писать в GitHub и желательно НЕ присылать в чат):
 
-При действующем token:
-- browser делает GET `case-access?case_id=...`
-- Authorization: `Bearer <opaque token>`
-- получает `config`
-- создаёт обычный `.ktv-game-shell`
-- запускает тот же Game Engine
-- witness UI 1.3 и mobile scroll fix 1.4.1 сохраняются
+- `YOOKASSA_SHOP_ID`
+- `YOOKASSA_SECRET_KEY`
+- `VOLUME1_PRICE_RUB`
+- optional `VOLUME1_DESCRIPTION`
+- `YOOKASSA_RECEIPT_MODE` = `disabled` или `yookassa` согласно реальной фискальной схеме
 
-Free 15 cases не зависят от backend и играются напрямую без регистрации.
+Если используются «Чеки от ЮKassa», также нужны подтверждённые merchant/accounting значения:
+- `YOOKASSA_VAT_CODE`
+- `YOOKASSA_PAYMENT_MODE`
+- `YOOKASSA_PAYMENT_SUBJECT`
 
-## 13. Аналитические события
+Не угадывать фискальные значения в коде.
 
-Заложены:
-- `case_view`
-- `case_started`
-- `answer_selected`
-- `answer_correct`
-- `answer_wrong`
-- `case_completed`
-- `next_case_clicked`
-- `paywall_viewed`
-- `purchase_started`
+## 13. YooKassa HTTP notifications
 
-Целевая воронка:
-`organic entry → case_view → case_started → case_completed → second case → paywall → purchase_started`
+Для HTTP Basic Auth уведомления настраиваются в кабинете YooKassa.
 
-## 14. Что НЕ делать
+URL:
+`https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/yookassa-webhook`
 
-- Не менять `app-core.js` без реальной необходимости.
-- Не публиковать 85 paid payload в GitHub Pages/repo.
-- Не переносить paid backend в `supervision-pocket`.
-- Не включать checkout раньше, чем готова payment/webhook/entitlement issuance цепочка.
-- Не коммитить реальные access tokens, service-role keys или payment secrets.
-- Не удалять legacy `/delo/.../` URL без миграционного плана.
-- Не переключать canonical origin на `mysterylogic.com`, пока домен фактически не подключён.
+События:
+- `payment.succeeded`
+- `payment.canceled`
+- `refund.succeeded`
 
-## 15. Следующий этап после live test
+Webhook перепроверяет payment через API YooKassa перед изменением entitlement.
 
-Если пользователь подтверждает, что платное дело реально открывается на опубликованном сайте:
+## 14. Следующий точный этап
 
-### 1.11 — payment issuance
+1. Пользователь настраивает/получает YooKassa shop credentials.
+2. Пользователь сам заносит секреты в Supabase Dashboard; secret key не пересылать в чат.
+3. Определить реальную цену `volume1`.
+4. Определить режим чеков/54-ФЗ и корректные receipt-параметры.
+5. Настроить HTTP notification URL + 3 события в YooKassa.
+6. Проверить `create-checkout` в тестовом/реальном YooKassa режиме при `checkoutEnabled:false`.
+7. Выполнить один полный payment E2E: create → redirect → payment → webhook/status → entitlement → paid case.
+8. Только после успешного теста сделать маленькую сборку 1.11.1/1.12 с `checkoutEnabled:true`.
+9. После этого можно переходить к UX цены/оффера, восстановлению покупки между устройствами и production domain.
 
-Цель:
-`ЮKassa → подтверждённый webhook → entitlement → opaque access token → пользователь получает полный volume1`
+## 15. Основные версии
 
-Нужно реализовать:
-1. payment/session creation endpoint
-2. ЮKassa webhook с обязательной серверной верификацией
-3. idempotency по payment reference
-4. создание `access_entitlements`
-5. генерацию криптографически случайного opaque token
-6. безопасную передачу token покупателю после подтверждённой оплаты
-7. restore/recovery flow (например по email/receipt, без хранения plaintext email если не нужен)
-8. refund → entitlement status `refunded/revoked`
-9. `purchase_started` / purchase completed analytics
-10. только после этого заполнить `checkoutUrl` / включить кнопку покупки
-
-Перед интеграцией ЮKassa проверить актуальную API/webhook документацию и реальные реквизиты/credentials пользователя. Секреты никогда не коммитить.
-
-## 16. Основные контрольные версии
-
-- 1.2.3 — robust premium dossier layout
-- 1.3 — separate witness UI
-- 1.4 — game cycle polish
-- 1.4.1 — mobile scroll stabilization
+- 1.2.3 — robust dossier layout
+- 1.3 — separate witnesses
+- 1.4 — investigation cycle
+- 1.4.1 — mobile scroll fix
 - 1.5 — 100-case QA/editorial validation
-- 1.6 — catalog command center/navigation
-- 1.7 — first SEO-native pilot
-- 1.8 — all 15 free SEO-native + first real collection
+- 1.6 — catalog/navigation
+- 1.7 — SEO-native pilot
+- 1.8 — all 15 free SEO-native + first collection
 - 1.9 — production origin abstraction
 - 1.10 — protected paid access boundary
-- 1.10.1 — live Supabase paid backend connection
+- 1.10.1 — live paid backend connection
+- 1.11 — YooKassa payment orchestration, public checkout still off
 
-## 17. Как продолжать в новом чате
+## 16. Что НЕ делать
+
+- Не менять `app-core.js` без необходимости.
+- Не публиковать paid payload.
+- Не хранить YooKassa secret, service role или plaintext access token в repo/browser bundle.
+- Не включать checkout до merchant/payment E2E.
+- Не использовать Supabase `supervision-pocket`.
+- Не переключать SEO origin до реального подключения `mysterylogic.com`.
+- Не удалять legacy `/delo/.../` без миграционного плана.
+
+## 17. Как продолжить в новом чате
 
 Пользователь может написать:
 
 > Продолжаем «Кто врёт?». Прочитай `PROJECT_CHECKPOINT.md` в `valera2872/ktovret-web` и продолжай с текущей точки.
 
-После чтения checkpoint обязательно сверить `main`, Supabase state и последний CI перед любыми writes.
+После чтения сверить `main`, Supabase state и последний CI до writes.
