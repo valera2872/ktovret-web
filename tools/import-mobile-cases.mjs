@@ -14,25 +14,28 @@ const tokens=process.argv.slice(2),args={};for(let i=0;i<tokens.length;i++)if(to
 const sourceRoot=path.resolve(args.source||'../mobile-source'),siteRoot=path.resolve(args.site||'.'),mode=args.mode||'public',sourceCommit=args.commit||'51c178f4dceba7bdb859e1e5d0c3244150438c0d',editorial=mode==='editorial';
 const lib=loadLibrary(sourceRoot,sourceCommit),generated=path.join(siteRoot,'assets/generated');
 ensureDir(generated);
-const index={schemaVersion:2,sourceCommit,mode,totalCases:100,freeCount:15,premiumCount:85,cases:lib.meta,freeCases:lib.freeMeta};
+const publicMeta=lib.meta.map(item=>({...item,legacyPath:item.path,path:canonicalPublicPathFor(item)}));
+const publicFreeMeta=publicMeta.filter(item=>item.access==='free');
+const publicCases=lib.cases.map(item=>({...item,legacyPath:item.path,path:canonicalPublicPathFor(item)}));
+const index={schemaVersion:3,sourceCommit,mode,totalCases:100,freeCount:15,premiumCount:85,cases:publicMeta,freeCases:publicFreeMeta};
 fs.writeFileSync(path.join(generated,'cases-index.json'),JSON.stringify(index,null,2));
 fs.writeFileSync(path.join(generated,'cases-index.js'),`window.KtoVretCatalog=${JSON.stringify(index)};\n`);
 writeCasePages(siteRoot,lib.cases,editorial);
 const witnessEnhancedPages=enhanceGeneratedCases(siteRoot,lib.cases,editorial);
+writeCatalog(siteRoot,publicCases,publicFreeMeta,editorial);
+writeSeoPages(siteRoot,publicFreeMeta);
 const seoNative=writeSeoNativePilot(siteRoot,lib.cases);
-writeCatalog(siteRoot,lib.cases,lib.freeMeta,editorial);
-writeSeoPages(siteRoot,lib.freeMeta);
 
 const product=path.join(siteRoot,'kto-vret/index.html');
 if(fs.existsSync(product)){
   let html=fs.readFileSync(product,'utf8');
   html=html.replace(/<script src="\.\.\/assets\/(generated\/cases-index|dossier-model|dossier-progress|dossier-achievements)\.js[^>]*><\/script>/g,'');
-  html=html.replace('</body>','<script src="../assets/generated/cases-index.js?v=1.1.0"></script><script src="../assets/dossier-model.js?v=1.1.0"></script><script src="../assets/dossier-progress.js?v=1.1.0"></script><script src="../assets/dossier-achievements.js?v=1.1.0"></script></body>');
+  html=html.replace('</body>','<script src="../assets/generated/cases-index.js?v=1.7.0"></script><script src="../assets/dossier-model.js?v=1.7.0"></script><script src="../assets/dossier-progress.js?v=1.7.0"></script><script src="../assets/dossier-achievements.js?v=1.7.0"></script></body>');
   fs.writeFileSync(product,html);
 }
 
 const base='https://valera2872.github.io/ktovret-web/';
-const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...lib.freeMeta.map(item=>`${base}${canonicalPublicPathFor(item)}`)];
+const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...publicFreeMeta.map(item=>`${base}${item.path}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,playablePages:editorial?100:15,lockedPages:editorial?0:85,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,seoNativeCases:seoNative.entities.length,witnessEnhancedPages};
