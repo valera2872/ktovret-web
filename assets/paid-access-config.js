@@ -1,7 +1,11 @@
 window.MysteryLogicPaidAccessConfig={
-  version:'1.10.1',
+  version:'1.11.0',
   endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access',
-  checkoutUrl:'',
+  checkoutEnabled:false,
+  checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout',
+  paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status',
   productId:'volume1',
-  tokenStorageKey:'mysterylogic:volume1:access-token'
+  tokenStorageKey:'mysterylogic:volume1:access-token',
+  orderStorageKey:'mysterylogic:volume1:last-order-id',
+  requestStorageKey:'mysterylogic:volume1:checkout-request-id'
 };

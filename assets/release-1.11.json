@@ -1,0 +1,16 @@
+{
+  "version": "1.11.0",
+  "title": "YooKassa Payment Orchestration",
+  "publicFreeCases": 15,
+  "serverGatedPaidCases": 85,
+  "paymentProvider": "yookassa",
+  "checkoutEnabled": false,
+  "paymentOrderTable": true,
+  "createCheckoutFunction": true,
+  "verifiedWebhookFunction": true,
+  "paymentStatusRecovery": true,
+  "fullRefundRevokesEntitlement": true,
+  "plaintextAccessTokenStoredServerSide": false,
+  "gameCoreChanged": false,
+  "note": "Infrastructure ready; public purchase button stays disabled until YooKassa credentials, server price and fiscal receipt settings are verified."
+}
