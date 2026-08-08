@@ -1,0 +1,10 @@
+{
+  "version":"1.10.1",
+  "feature":"paid-backend-connected",
+  "supabaseProject":"mystery-logic",
+  "paidCaseEndpoint":"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access",
+  "paidPayloads":85,
+  "paymentEnabled":false,
+  "gameCoreChanged":false,
+  "paidContentPublic":false
+}

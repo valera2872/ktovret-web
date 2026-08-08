@@ -35,7 +35,8 @@ for(const item of free){
   assert.ok(!html.includes('data-paid-case-gateway='),`${item.id} free case must not get paywall gateway`);
 }
 
-assert.ok(runtime.includes("endpoint:''"),'backend endpoint must stay disabled until backend deploy');
+assert.ok(runtime.includes("endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access'"),'live Mystery Logic paid endpoint must be configured');
+assert.ok(runtime.includes("checkoutUrl:''"),'checkout must remain disabled until payment flow is ready');
 assert.ok(runtime.includes("productId:'volume1'"),'volume1 product id missing');
 assert.ok(client.includes('authorization: `Bearer ${token}`'),'browser must use bearer entitlement token');
 assert.ok(client.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque access token only');
@@ -75,4 +76,4 @@ if(fs.existsSync(mobileSource)){
   fs.rmSync(temp,{recursive:true,force:true});
 }
 
-console.log('paid access 1.10 boundary passed: 15 public playable / 85 server-gated locked pages');
+console.log('paid access 1.10.1 boundary passed: 15 public playable / 85 server-gated / live backend endpoint / checkout disabled');
