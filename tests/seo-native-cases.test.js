@@ -31,6 +31,7 @@ const expectedSlugs = [
 assert.deepEqual(pilot.map((item) => item.slug), expectedSlugs);
 
 const titles = new Set();
+const descriptions = new Set();
 for (const item of pilot) {
   assert.equal(item.language, 'ru');
   assert.equal(item.status, 'published');
@@ -69,8 +70,11 @@ for (const item of pilot) {
   assert.ok(!html.includes('<meta name="robots" content="noindex,follow">'), `${item.id} canonical pilot page must be indexable`);
 
   const titleMatch = html.match(/<title>(.*?)<\/title>/);
+  const descriptionMatch = html.match(/<meta name="description" content="([^"]+)">/);
   assert.ok(titleMatch, `${item.id} title is missing`);
+  assert.ok(descriptionMatch, `${item.id} meta description is missing`);
   titles.add(titleMatch[1]);
+  descriptions.add(descriptionMatch[1]);
 
   assert.ok(legacy.includes('<meta name="robots" content="noindex,follow">'), `${item.id} legacy duplicate must be noindex`);
   assert.ok(legacy.includes(`<link rel="canonical" href="${canonical}">`), `${item.id} legacy duplicate must canonicalize to the new route`);
@@ -79,6 +83,7 @@ for (const item of pilot) {
 }
 
 assert.equal(titles.size, 3, 'pilot pages need unique titles');
+assert.equal(descriptions.size, 3, 'pilot pages need unique meta descriptions');
 assert.equal(fs.readdirSync(path.join(root, 'ru', 'cases'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).length, 3, 'pilot must not generate extra SEO-native case pages');
 
 for (const event of [
@@ -94,5 +99,7 @@ for (const event of [
 ]) {
   assert.ok(analytics.includes(`'${event}'`), `analytics event ${event} is missing`);
 }
+assert.ok(analytics.includes('location.search'), 'query-parameter states need a noindex guard');
+assert.ok(analytics.includes("robots.content = 'noindex,follow'"), 'query-parameter states must become noindex,follow');
 
 console.log('seo-native pilot 1.7 tests passed: 3 canonical case pages + legacy compatibility + automatic SEO paths');
