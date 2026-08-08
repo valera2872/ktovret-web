@@ -1,3 +1,7 @@
+import { registerSiteOriginFinalizer } from './site-origin-postprocess.mjs';
+
+registerSiteOriginFinalizer();
+
 export const SEO_POLICY = {
   defaultLanguage: 'ru',
   publishFreeCases: true,
