@@ -1,0 +1,8 @@
+.ml-paid-access{display:grid;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(214,177,109,.28);border-radius:16px;background:rgba(255,255,255,.03)}
+.ml-paid-access label{display:grid;gap:7px;color:rgba(255,255,255,.72);font-size:.82rem;font-weight:700}
+.ml-paid-access input{width:100%;min-height:46px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:#0b1622;color:#fff;font:inherit}
+.ml-paid-access-actions{display:flex;flex-wrap:wrap;gap:10px}
+.ml-paid-access-status{margin:0;color:rgba(255,255,255,.66);font-size:.84rem;line-height:1.45}
+.ml-paid-access-status.is-error{color:#ffc2b8}
+.ml-paid-access-status.is-ok{color:#bce8ca}
+@media(max-width:620px){.ml-paid-access-actions{display:grid}.ml-paid-access-actions .ml-button{width:100%}}
