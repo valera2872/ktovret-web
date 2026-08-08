@@ -5,6 +5,7 @@
   const root = document.querySelector('[data-ktv-root]');
   const cfg = window.KtoVretWeb || {};
   const model = window.MysteryLogicDossier;
+  const catalog = window.KtoVretCatalog;
   if (!root || !currentScript?.src || !cfg.case || !model) return;
 
   const siteRoot = new URL('../../', currentScript.src);
@@ -33,6 +34,12 @@
 
     const summary = model.summarize(records);
     const nextCase = model.nextUnsolvedAfter(records, cfg.case.id);
+    const currentMeta = Array.isArray(catalog?.cases) ? catalog.cases.find((item) => item.id === cfg.case.id) : null;
+    const relatedIds = Array.isArray(currentMeta?.relatedCaseIds) ? currentMeta.relatedCaseIds : [];
+    const relatedCases = relatedIds
+      .map((id) => catalog?.cases?.find((item) => item.id === id))
+      .filter((item) => item && item.access === 'free' && item.id !== nextCase?.id)
+      .slice(0, 2);
     result.dataset.dossierEnhanced = 'true';
 
     const section = document.createElement('section');
@@ -59,6 +66,14 @@
     primary.href = nextCase ? new URL(nextCase.path, siteRoot).href : archiveUrl;
     primary.textContent = nextCase ? `Перейти к делу №${nextCase.number}` : 'Открыть карточку следователя';
     actions.appendChild(primary);
+
+    for (const related of relatedCases) {
+      const link = document.createElement('a');
+      link.className = 'ktv-dossier-link ktv-dossier-link-secondary';
+      link.href = new URL(related.path, siteRoot).href;
+      link.textContent = `Похожее: ${related.title}`;
+      actions.appendChild(link);
+    }
 
     const collection = document.createElement('a');
     collection.className = 'ktv-dossier-link ktv-dossier-link-secondary';
