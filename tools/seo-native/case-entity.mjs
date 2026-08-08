@@ -14,6 +14,7 @@ const clip = (value, max = 158) => {
   const safe = slice.replace(/\s+\S*$/, '').trim();
   return `${safe || slice.trim()}…`;
 };
+const slugFor = (item) => item?.slug || String(item?.path || '').split('/').filter(Boolean).at(-1) || '';
 
 const shortDescription = (item) => {
   const intro = clean(item.intro);
@@ -49,8 +50,9 @@ export const buildCaseEntity = (item, {
   related = [],
   collectionId = 'kto-vret-free',
 } = {}) => {
-  if (!item?.id || !item?.title || !item?.slug) throw new Error('Case entity requires id, title and stable slug');
-  const route = `${language}/cases/${item.slug}/`;
+  const slug = slugFor(item);
+  if (!item?.id || !item?.title || !slug) throw new Error('Case entity requires id, title and stable slug');
+  const route = `${language}/cases/${slug}/`;
   const description = shortDescription(item);
   const characters = (item.characters || []).map((character) => ({
     id: character.id,
@@ -66,7 +68,7 @@ export const buildCaseEntity = (item, {
     id: item.id,
     number: item.number,
     title: item.title,
-    slug: item.slug,
+    slug,
     short_description: description,
     story: item.intro,
     characters,
@@ -102,12 +104,12 @@ export const buildCaseEntity = (item, {
 export const buildPilotCaseEntities = (cases) => {
   const selected = cases.filter((item) => isSeoNativePilotCase(item));
   if (selected.length !== PILOT_IDS.length) throw new Error(`SEO pilot requires ${PILOT_IDS.length} cases, found ${selected.length}`);
-  return selected.map((item, index) => {
+  return selected.map((item) => {
     const related = selected.filter((value) => value.id !== item.id).slice(0, 3);
     return buildCaseEntity(item, { related });
   });
 };
 
 export const canonicalPublicPathFor = (item) => isSeoNativePilotCase(item)
-  ? `ru/cases/${item.slug}/`
+  ? `ru/cases/${slugFor(item)}/`
   : item.path;
