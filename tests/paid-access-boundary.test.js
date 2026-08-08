@@ -11,7 +11,12 @@ const report=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/import-
 const client=fs.readFileSync(path.join(root,'assets/paid-access-client.js'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'assets/paid-access-config.js'),'utf8');
 const edge=fs.readFileSync(path.join(root,'supabase/functions/case-access/index.ts'),'utf8');
+const paymentShared=fs.readFileSync(path.join(root,'supabase/functions/_shared/payment.ts'),'utf8');
+const checkout=fs.readFileSync(path.join(root,'supabase/functions/create-checkout/index.ts'),'utf8');
+const webhook=fs.readFileSync(path.join(root,'supabase/functions/yookassa-webhook/index.ts'),'utf8');
+const paymentStatus=fs.readFileSync(path.join(root,'supabase/functions/payment-status/index.ts'),'utf8');
 const migration=fs.readFileSync(path.join(root,'supabase/migrations/20260808181000_paid_access.sql'),'utf8');
+const paymentMigration=fs.readFileSync(path.join(root,'supabase/migrations/20260808204000_payment_orders.sql'),'utf8');
 const gitignore=fs.readFileSync(path.join(root,'.gitignore'),'utf8');
 
 const premium=catalog.cases.filter((item)=>item.access==='premium');
@@ -22,10 +27,11 @@ assert.equal(report.paidGatewayPages,85,'all 85 locked pages need the gateway');
 
 for(const item of premium){
   const html=fs.readFileSync(path.join(root,item.legacyPath,'index.html'),'utf8');
-  assert.ok(html.includes('data-paid-case-gateway="1.10.0"'),`${item.id} needs paid gateway marker`);
+  assert.ok(html.includes('data-paid-case-gateway="1.11.0"'),`${item.id} needs paid gateway marker`);
   assert.ok(html.includes('data-paid-access-panel'),`${item.id} needs paid access panel`);
-  assert.ok(html.includes('paid-access-client.js?v=1.10.0'),`${item.id} needs paid access client`);
-  assert.ok(html.includes('paid-access-config.js?v=1.10.0'),`${item.id} needs paid access runtime config`);
+  assert.ok(html.includes('data-purchase-email-wrap'),`${item.id} needs dormant checkout email field`);
+  assert.ok(html.includes('paid-access-client.js?v=1.11.0'),`${item.id} needs paid access client`);
+  assert.ok(html.includes('paid-access-config.js?v=1.11.0'),`${item.id} needs paid access runtime config`);
   assert.ok(!html.includes('window.KtoVretWeb='),`${item.id} must not expose paid game config publicly`);
 }
 
@@ -35,20 +41,50 @@ for(const item of free){
   assert.ok(!html.includes('data-paid-case-gateway='),`${item.id} free case must not get paywall gateway`);
 }
 
-assert.ok(runtime.includes("endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access'"),'live Mystery Logic paid endpoint must be configured');
-assert.ok(runtime.includes("checkoutUrl:''"),'checkout must remain disabled until payment flow is ready');
+assert.ok(runtime.includes("endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access'"),'live paid endpoint must remain configured');
+assert.ok(runtime.includes("checkoutEnabled:false"),'checkout must remain publicly disabled until YooKassa credentials and receipt settings are verified');
+assert.ok(runtime.includes("checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout'"),'create-checkout endpoint missing');
+assert.ok(runtime.includes("paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status'"),'payment-status endpoint missing');
 assert.ok(runtime.includes("productId:'volume1'"),'volume1 product id missing');
-assert.ok(client.includes('authorization: `Bearer ${token}`'),'browser must use bearer entitlement token');
-assert.ok(client.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque access token only');
+
+assert.ok(client.includes('crypto.getRandomValues(bytes)'),'browser must create a cryptographically random purchase token');
+assert.ok(client.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque token before redirect');
+assert.ok(client.includes("track('purchase_completed'"),'purchase completion analytics missing');
+assert.ok(client.includes('payment_return'),'payment return reconciliation missing');
 assert.ok(!client.includes('SERVICE_ROLE'),'service-role secret must never be present in browser code');
-assert.ok(edge.includes("Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')"),'edge function must keep service role server-side');
-assert.ok(edge.includes("crypto.subtle.digest(\n  'SHA-256'"),'edge function must hash opaque token before lookup');
-assert.ok(edge.includes(".from('access_entitlements')"),'edge function must verify entitlement');
-assert.ok(edge.includes(".from('paid_case_payloads')"),'edge function must read paid payload only after access check');
+
+assert.ok(edge.includes("Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')"),'case access must keep service role server-side');
+assert.ok(edge.includes(".from('access_entitlements')"),'case access must verify entitlement');
+assert.ok(edge.includes(".from('paid_case_payloads')"),'case access must read paid payload only after access check');
 assert.ok(edge.includes("'cache-control': 'private, no-store, max-age=0'"),'paid payload responses must not be publicly cached');
+
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SHOP_ID')"),'YooKassa shop id must be server-side env');
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SECRET_KEY')"),'YooKassa secret must be server-side env');
+assert.ok(paymentShared.includes("Deno.env.get('VOLUME1_PRICE_RUB')"),'price must be server-side env');
+assert.ok(paymentShared.includes('Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}'),'YooKassa must use server-side Basic Auth');
+assert.ok(paymentShared.includes(".upsert({\n      token_hash: order.token_hash"),'entitlement issuance must use the stored token hash');
+
+assert.ok(checkout.includes("headers: { 'Idempotence-Key': requestId }"),'payment creation needs YooKassa idempotency');
+assert.ok(checkout.includes("amount: { value: amountValue, currency: 'RUB' }"),'checkout must use server amount');
+assert.ok(!checkout.includes('body.amount'),'client must not be able to choose payment amount');
+assert.ok(checkout.includes("metadata: { order_id: orderId, product_id: PRODUCT_ID"),'YooKassa payment must carry internal order metadata');
+assert.ok(checkout.includes('customerEmailHash'),'checkout may store only hashed customer email');
+
+assert.ok(webhook.includes("yookassaRequest(`payments/${encodeURIComponent(paymentId)}`)"),'webhook must re-read payment from YooKassa');
+assert.ok(webhook.includes("event === 'payment.succeeded'"),'payment success handler missing');
+assert.ok(webhook.includes("event === 'refund.succeeded'"),'refund revocation handler missing');
+assert.ok(webhook.includes("status: 'refunded'"),'full refund must revoke entitlement');
+assert.ok(paymentStatus.includes('refreshPaymentOrder(admin, order)'),'return flow must reconcile delayed webhook through YooKassa API');
+assert.ok(paymentStatus.includes('order.token_hash !== tokenHash'),'payment status must bind order to browser-held secret');
+
 assert.ok(migration.includes('enable row level security'),'paid tables must have RLS enabled');
 assert.ok(migration.includes('revoke all on table public.paid_case_payloads from anon, authenticated'),'paid payload table must deny browser roles');
 assert.ok(migration.includes('revoke all on table public.access_entitlements from anon, authenticated'),'entitlements table must deny browser roles');
+assert.ok(paymentMigration.includes('create table if not exists public.payment_orders'),'payment order table missing');
+assert.ok(paymentMigration.includes('alter table public.payment_orders enable row level security'),'payment orders need RLS');
+assert.ok(paymentMigration.includes('revoke all on table public.payment_orders from anon, authenticated'),'payment orders must deny browser roles');
+assert.ok(!paymentMigration.includes('access_token text'),'plaintext access token column must never exist');
+
 assert.ok(gitignore.includes('.secure-backend/'),'secure payload export must be gitignored');
 assert.ok(!fs.existsSync(path.join(root,'.secure-backend')),'secure backend export must not exist in public build tree');
 
@@ -76,4 +112,4 @@ if(fs.existsSync(mobileSource)){
   fs.rmSync(temp,{recursive:true,force:true});
 }
 
-console.log('paid access 1.10.1 boundary passed: 15 public playable / 85 server-gated / live backend endpoint / checkout disabled');
+console.log('paid access 1.11 boundary passed: payment orchestration ready / checkout disabled / 15 public / 85 server-gated');
