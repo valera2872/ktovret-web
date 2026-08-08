@@ -19,9 +19,10 @@
   emit('case_view',{referrer:document.referrer||'',entry_path:location.pathname,search_entry:/google\.|yandex\.|ya\.ru/i.test(document.referrer||'')});
 
   root.addEventListener('click',(event)=>{
-    const action=event.target.closest('[data-action]')?.dataset.action;
+    const control=event.target.closest('[data-action]');
+    const action=control?.dataset.action;
     if(action==='accept') emit('case_started');
-    if(action==='select') emit('answer_selected',{option_id:event.target.closest('[data-option-id]')?.dataset.optionId||''});
+    if(action==='select') emit('answer_selected',{option_id:control.dataset.optionId||''});
     if(action==='submit'){
       const optionId=selectedId();
       if(!optionId) return;
@@ -30,14 +31,14 @@
         emit('case_completed',{option_id:optionId});
       }else emit('answer_wrong',{option_id:optionId});
     }
-  });
+  },true);
 
   document.addEventListener('click',(event)=>{
     const next=event.target.closest('[data-analytics-next]');
     if(next) emit('next_case_clicked',{target_kind:next.dataset.analyticsNext||'next',target_url:next.href||''});
     const purchase=event.target.closest('[data-purchase-start]');
     if(purchase) emit('purchase_started',{target_url:purchase.href||''});
-  });
+  },true);
 
   const paywall=document.querySelector('[data-paywall]');
   if(paywall) emit('paywall_viewed');
