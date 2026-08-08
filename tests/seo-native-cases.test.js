@@ -8,12 +8,20 @@ const base = 'https://valera2872.github.io/ktovret-web/';
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'assets/generated/cases-index.json'), 'utf8'));
 const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
 const analytics = fs.readFileSync(path.join(root, 'assets/analytics-events.js'), 'utf8');
-const pilot = catalog.cases.filter((item) => item.seoNative === true);
+const pilot = catalog.cases.filter((item) => item.seoPublished === true);
 
 assert.equal(catalog.schemaVersion, 3, 'generated Case schema must be version 3');
 assert.equal(catalog.seoNativePilotCount, 3, 'pilot must contain exactly three SEO-native cases');
 assert.equal(pilot.length, 3, 'only three cases should migrate in the pilot');
 assert.ok(Array.isArray(catalog.collections) && catalog.collections.length > 0, 'Collection entities must exist in the generated model');
+assert.ok(catalog.collections.every((item) => item.indexable === false), 'collections must remain non-indexable until they have standalone value');
+
+for (const item of catalog.cases) {
+  assert.ok(item.slug, `${item.id} needs a stable slug`);
+  assert.equal(item.language, 'ru', `${item.id} needs an explicit language`);
+  assert.equal(item.seoPath, `ru/cases/${item.slug}/`, `${item.id} needs an automatically derived locale-aware SEO URL`);
+  assert.ok(['published', 'draft'].includes(item.status), `${item.id} needs an explicit publication status`);
+}
 
 const expectedSlugs = [
   'chetyre-vhoda-v-arhiv',
@@ -27,8 +35,9 @@ for (const item of pilot) {
   assert.equal(item.language, 'ru');
   assert.equal(item.status, 'published');
   assert.equal(item.access, 'free');
+  assert.equal(item.seoNative, true);
   assert.ok(item.shortDescription.length > 20, `${item.id} needs a real short description`);
-  assert.ok(item.path.startsWith('ru/cases/'), `${item.id} must use the locale-aware canonical route`);
+  assert.equal(item.path, item.seoPath, `${item.id} must use the locale-aware canonical route`);
   assert.ok(item.legacyPath.startsWith('delo/'), `${item.id} must preserve its legacy route`);
   assert.ok(Array.isArray(item.relatedCaseIds) && item.relatedCaseIds.length >= 2, `${item.id} needs related cases`);
 
@@ -86,4 +95,4 @@ for (const event of [
   assert.ok(analytics.includes(`'${event}'`), `analytics event ${event} is missing`);
 }
 
-console.log('seo-native pilot 1.7 tests passed: 3 canonical case pages + legacy compatibility');
+console.log('seo-native pilot 1.7 tests passed: 3 canonical case pages + legacy compatibility + automatic SEO paths');
