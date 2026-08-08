@@ -9,6 +9,7 @@
 
   const siteRoot = new URL('../../', currentScript.src);
   const archiveUrl = new URL('dela/', siteRoot).href;
+  const freeCollectionUrl = new URL('ru/besplatnye-detektivnye-dela/', siteRoot).href;
 
   const style = document.createElement('style');
   style.dataset.ktvDossierStyles = 'true';
@@ -43,7 +44,7 @@
     copy.innerHTML = `
       <small>${summary.allSolved ? 'Первое досье завершено' : `Первое досье · ${summary.solvedCount} из ${summary.totalCases} раскрыто`}</small>
       <strong>${nextCase ? 'Следующее расследование готово' : 'Открытый архив пройден'}</strong>
-      <p>${nextCase ? `Дело №${nextCase.number}: «${nextCase.title}».` : 'Все шесть доступных расследований раскрыты. Карточка следователя обновлена.'}</p>
+      <p>${nextCase ? `Дело №${nextCase.number}: «${nextCase.title}».` : `Все ${summary.totalCases} доступных расследований раскрыты. Карточка следователя обновлена.`}</p>
     `;
 
     const rank = document.createElement('div');
@@ -58,6 +59,12 @@
     primary.href = nextCase ? new URL(nextCase.path, siteRoot).href : archiveUrl;
     primary.textContent = nextCase ? `Перейти к делу №${nextCase.number}` : 'Открыть карточку следователя';
     actions.appendChild(primary);
+
+    const collection = document.createElement('a');
+    collection.className = 'ktv-dossier-link ktv-dossier-link-secondary';
+    collection.href = freeCollectionUrl;
+    collection.textContent = '15 бесплатных дел';
+    actions.appendChild(collection);
 
     if (nextCase) {
       const archive = document.createElement('a');
