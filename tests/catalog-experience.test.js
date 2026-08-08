@@ -40,7 +40,7 @@ assert.ok(originSmoke.stdout.includes('site origin 1.9 smoke passed'),'site orig
 const paidClientSyntax=spawnSync(process.execPath,['--check',path.join(root,'assets/paid-access-client.js')],{cwd:root,encoding:'utf8'});
 assert.equal(paidClientSyntax.status,0,`paid access client syntax failed: ${paidClientSyntax.stderr||paidClientSyntax.stdout}`);
 const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access-boundary.test.js')],{cwd:root,encoding:'utf8'});
-assert.equal(paidBoundary.status,0,`paid access 1.10.1 boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
-assert.ok(paidBoundary.stdout.includes('paid access 1.10.1 boundary passed'),'paid access security gate did not confirm the live backend boundary');
+assert.equal(paidBoundary.status,0,`paid access 1.11 boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
+assert.ok(paidBoundary.stdout.includes('paid access 1.11 boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
 
-console.log('catalog experience 1.6 + site origin 1.9 + paid access 1.10.1 tests passed');
+console.log('catalog experience 1.6 + site origin 1.9 + paid access/payment orchestration 1.11 tests passed');
