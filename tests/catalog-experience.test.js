@@ -2,6 +2,7 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
+const {spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 const catalog=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/cases-index.json'),'utf8'));
 const html=fs.readFileSync(path.join(root,'dela/index.html'),'utf8');
@@ -32,4 +33,8 @@ assert.ok(css.includes('.catalog-command'),'command center styling is missing');
 assert.ok(css.includes('.case-card.is-solved'),'solved case styling is missing');
 assert.ok(css.includes('.case-card.is-active-case'),'active case styling is missing');
 
-console.log('catalog experience 1.6 tests passed: 100 total / 15 free / 85 locked');
+const originSmoke=spawnSync(process.execPath,[path.join(root,'tests/site-origin.test.mjs')],{cwd:root,encoding:'utf8'});
+assert.equal(originSmoke.status,0,`site origin 1.9 smoke failed: ${originSmoke.stderr||originSmoke.stdout}`);
+assert.ok(originSmoke.stdout.includes('site origin 1.9 smoke passed'),'site origin smoke did not confirm production migration');
+
+console.log('catalog experience 1.6 + site origin 1.9 tests passed');
