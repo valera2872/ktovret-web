@@ -1,0 +1,13 @@
+{
+  "version": "1.8.0",
+  "feature": "seo-native-free-library",
+  "seoNativeCases": 15,
+  "indexableCollections": 1,
+  "collectionRoute": "ru/besplatnye-detektivnye-dela/",
+  "legacyNoindexDuplicates": 15,
+  "lockedPremiumCases": 85,
+  "sitemapUrls": 23,
+  "relatedCasesAfterCompletion": 2,
+  "gameCoreChanged": false,
+  "paidContentPublic": false
+}

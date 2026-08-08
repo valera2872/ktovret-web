@@ -78,6 +78,9 @@ jobs:
           node --check tools/import-mobile/common.mjs
           node --check tools/import-mobile/audit-library.mjs
           node --check tools/import-mobile/validate-editorial-build.mjs
+          node --check tools/import-mobile/seo-policy.mjs
+          node --check tools/import-mobile/collection-pages.mjs
+          node --check tools/import-mobile/seo-native-postprocess.mjs
           test ! -f tools/import-mobile/load.mjs || node --check tools/import-mobile/load.mjs
           test ! -f tools/import-mobile/load-active.mjs || node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile/case-pages.mjs
@@ -96,23 +99,31 @@ jobs:
           test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
           test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
           test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
-          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3
-          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 3
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-seo-collection-link' ru/cases/*/index.html | wc -l)" -eq 15
+          test -f ru/besplatnye-detektivnye-dela/index.html
+          grep -q '15 бесплатных детективных дел' ru/besplatnye-detektivnye-dela/index.html
+          grep -q 'CollectionPage' ru/besplatnye-detektivnye-dela/index.html
+          grep -q 'ItemList' ru/besplatnye-detektivnye-dela/index.html
           grep -q '"totalCases": 100' assets/generated/import-report.json
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
-          grep -q '"seoNativePilotCases": 3' assets/generated/import-report.json
+          grep -q '"seoNativeCases": 15' assets/generated/import-report.json
+          grep -q '"indexableCollections": 1' assets/generated/import-report.json
+          grep -q '"collectionPages": 1' assets/generated/import-report.json
           if test -f assets/premium.css; then
-            test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 88
+            test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
             test -f detektivnye-igry-onlayn/index.html
             test -f detektivnye-zagadki-s-otvetami/index.html
             test -f logicheskie-detektivnye-zadachi/index.html
             test -f kto-vret-igra/index.html
-            grep -q '"indexableUrls": 22' assets/generated/import-report.json
-            test "$(grep -c '<url>' sitemap.xml)" -eq 22
+            grep -q '"indexableUrls": 23' assets/generated/import-report.json
+            test "$(grep -c '<url>' sitemap.xml)" -eq 23
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
           fi
-      - name: Render pilot in mobile and desktop Chrome
+      - name: Render SEO-native case in mobile and desktop Chrome
         working-directory: web
         run: node tools/responsive-smoke.mjs
       - name: Upload responsive smoke screenshots
@@ -128,7 +139,8 @@ jobs:
           node editorial/tools/import-mobile/validate-editorial-build.mjs --site editorial
           test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 100
           test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
-          test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 3
+          test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 15
+          test -f editorial/ru/besplatnye-detektivnye-dela/index.html
           rm -rf editorial
       - name: Validate PHP and sitemap
         working-directory: web
@@ -158,7 +170,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 legacy routes / 15 playable / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- Responsive Chrome: **390×844 mobile + 1440×1100 desktop**\n- Source audit: **100 cases validated**\n- Editorial conversion: **100 playable cases validated**\n- Catalog experience: **1.6 validated**`
+              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 legacy routes / 15 playable / 85 locked**\n- SEO-native: **15 canonical server-rendered cases**\n- Collection: **1 indexable page / 15 free cases**\n- Responsive Chrome: **390×844 mobile + 1440×1100 desktop**\n- Source audit: **100 cases validated**\n- Editorial conversion: **100 playable cases validated**\n- Catalog experience: **1.6 validated**`
             })
 
   deploy:
@@ -209,7 +221,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO-native pilot: **3 canonical server-rendered cases**\n- Responsive Chrome: **mobile + desktop smoke passed before deploy**\n- QA: **100 source + 100 editorial pages validated**\n- Catalog: **1.6 command center + filters validated**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
+              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO-native: **15 canonical server-rendered cases**\n- Collection: **1 public indexable collection**\n- Responsive Chrome: **mobile + desktop smoke passed before deploy**\n- QA: **100 source + 100 editorial pages validated**\n- Catalog: **1.6 command center + filters validated**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
             })
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
