@@ -5,7 +5,16 @@
   const page = window.KtoVretPage || {};
   const cfg = window.MysteryLogicPaidAccessConfig || {};
   const panel = document.querySelector('[data-paid-access-panel]');
+  const comingSoon = document.querySelector('[data-paid-coming-soon]');
   if (!script?.src || !panel || !page.caseId) return;
+
+  if (!cfg.endpoint) {
+    panel.hidden = true;
+    if (comingSoon) comingSoon.hidden = false;
+    return;
+  }
+  panel.hidden = false;
+  if (comingSoon) comingSoon.hidden = true;
 
   const siteRoot = new URL('../', script.src);
   const unlockButton = panel.querySelector('[data-paid-unlock]');
@@ -79,7 +88,6 @@
   };
 
   const fetchPaidCase = async (token) => {
-    if (!cfg.endpoint) throw new Error('backend_not_configured');
     const url = new URL(cfg.endpoint);
     url.searchParams.set('case_id', page.caseId);
     const response = await fetch(url.href, {
@@ -103,11 +111,6 @@
     const typed = tokenInput?.value?.trim() || '';
     const stored = localStorage.getItem(storageKey) || '';
     const token = typed || stored;
-
-    if (!cfg.endpoint) {
-      setStatus('Сервер защищённого доступа подготовлен, но ещё не подключён к этой сборке.', 'error');
-      return;
-    }
     if (!token) {
       if (!silent) setStatus('Введите ключ доступа, полученный после покупки.', 'error');
       return;
@@ -122,7 +125,6 @@
       await bootGame(gameConfig);
     } catch (error) {
       const messages = {
-        backend_not_configured: 'Сервер доступа ещё не подключён.',
         access_denied: 'Ключ не даёт доступа к полному тому.',
         access_revoked: 'Доступ по этому ключу отозван.',
         access_expired: 'Срок доступа закончился.',
@@ -145,6 +147,5 @@
 
   if (tokenInput) tokenInput.value = localStorage.getItem(storageKey) || '';
   unlockButton?.addEventListener('click', () => unlock());
-
-  if (cfg.endpoint && localStorage.getItem(storageKey)) unlock({ silent: true });
+  if (localStorage.getItem(storageKey)) unlock({ silent: true });
 })();
