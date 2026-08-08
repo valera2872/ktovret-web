@@ -1,4 +1,5 @@
-.ml-paid-access{display:grid;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(214,177,109,.28);border-radius:16px;background:rgba(255,255,255,.03)}
+.ml-paid-access{display:grid;flex:1 1 100%;width:100%;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(214,177,109,.28);border-radius:16px;background:rgba(255,255,255,.03)}
+.ml-paid-access[hidden]{display:none!important}
 .ml-paid-access label{display:grid;gap:7px;color:rgba(255,255,255,.72);font-size:.82rem;font-weight:700}
 .ml-paid-access input{width:100%;min-height:46px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:#0b1622;color:#fff;font:inherit}
 .ml-paid-access-actions{display:flex;flex-wrap:wrap;gap:10px}
