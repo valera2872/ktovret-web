@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION = '1.7.0';
+const VERSION = '1.4.0';
 const SCROLL_VERSION = '1.4.1';
 const safeJson = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
 const prefixFor = (route) => '../'.repeat(String(route || '').split('/').filter(Boolean).length);
@@ -55,8 +55,8 @@ export function enhanceGeneratedCases(siteRoot, cases, editorial = false) {
       );
 
       fs.writeFileSync(pagePath, html);
-      enhanced += 1;
     }
+    enhanced += 1;
   }
 
   return enhanced;
