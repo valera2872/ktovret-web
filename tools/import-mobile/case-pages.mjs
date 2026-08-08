@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir, escapeHtml, estimate } from './common.mjs';
 
 const base = 'https://valera2872.github.io/ktovret-web/';
-const version = '1.2.1';
+const version = '1.7.0';
 
 const splitFacts = (intro) => String(intro || '')
   .split(/\n+|(?<=[.!?])\s+/u)
@@ -22,9 +22,13 @@ const steps = (item) => Array.isArray(item.explanation?.reasoningSteps)
     .slice(0, 4);
 
 const json = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
+const routeDepth = (route) => String(route || '').split('/').filter(Boolean).length;
+const prefixFor = (route) => '../'.repeat(routeDepth(route));
+const absolute = (route) => `${base}${String(route || '').replace(/^\/+/, '')}`;
 
-const head = (item, locked) => {
-  const url = `${base}${item.path}`;
+const head = (item, { locked = false, route = item.path, canonicalRoute = item.path, noindex = locked } = {}) => {
+  const url = absolute(canonicalRoute);
+  const description = item.shortDescription || `Короткое детективное дело категории ${item.category || 'логика'} из серии «Кто врёт?».`;
   const schema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -32,8 +36,9 @@ const head = (item, locked) => {
         '@type': 'WebPage',
         name: item.title,
         url,
-        description: `Короткое детективное дело категории ${item.category || 'логика'} из серии «Кто врёт?».`,
-        inLanguage: 'ru',
+        description,
+        inLanguage: item.language || 'ru',
+        isPartOf: { '@type': 'WebSite', name: 'Mystery Logic', url: base },
       },
       {
         '@type': 'BreadcrumbList',
@@ -46,11 +51,14 @@ const head = (item, locked) => {
       },
     ],
   };
+  const prefix = prefixFor(route);
+  const robots = noindex ? '<meta name="robots" content="noindex,follow">' : '';
+  const ogImage = `${base}assets/ml-mark.svg`;
 
-  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08111d"><meta name="description" content="Детективное дело №${item.number} «${escapeHtml(item.title)}»: изучите материалы и найдите единственную логически невозможную версию.">${locked ? '<meta name="robots" content="noindex,follow">' : ''}<link rel="canonical" href="${url}"><link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml"><link rel="stylesheet" href="../../assets/mysterylogic.css"><link rel="stylesheet" href="../../assets/full-catalog.css"><link rel="stylesheet" href="../../ktovret-game/assets/style.css"><link rel="stylesheet" href="../../assets/premium.css?v=1.1.0"><link rel="stylesheet" href="../../assets/premium-game.css?v=${version}"><link rel="stylesheet" href="../../assets/premium-game-compat.css?v=${version}"><meta property="og:title" content="${escapeHtml(item.title)} — детективное дело"><meta property="og:description" content="Короткое расследование Mystery Logic. Ответ можно доказать по материалам дела."><meta property="og:type" content="website"><meta property="og:url" content="${url}"><title>${escapeHtml(item.title)} — детективная задача «Кто врёт?»</title><script type="application/ld+json">${json(schema)}</script></head>`;
+  return `<!doctype html><html lang="${escapeHtml(item.language || 'ru')}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08111d"><meta name="description" content="${escapeHtml(description)}">${robots}<link rel="canonical" href="${url}"><link rel="alternate" hreflang="ru" href="${url}"><link rel="alternate" hreflang="x-default" href="${url}"><link rel="icon" href="${prefix}assets/ml-mark.svg" type="image/svg+xml"><link rel="stylesheet" href="${prefix}assets/mysterylogic.css"><link rel="stylesheet" href="${prefix}assets/full-catalog.css"><link rel="stylesheet" href="${prefix}ktovret-game/assets/style.css"><link rel="stylesheet" href="${prefix}assets/premium.css?v=1.1.0"><link rel="stylesheet" href="${prefix}assets/premium-game.css?v=${version}"><link rel="stylesheet" href="${prefix}assets/premium-game-compat.css?v=${version}"><meta property="og:title" content="${escapeHtml(item.title)} — детективное дело"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:type" content="website"><meta property="og:url" content="${url}"><meta property="og:image" content="${ogImage}"><meta name="twitter:card" content="summary_large_image"><title>${escapeHtml(item.title)} — детективное дело | Кто врёт?</title><script type="application/ld+json">${json(schema)}</script></head>`;
 };
 
-const brand = '<div class="ml-brand-strip"><div class="ml-brand-strip-inner"><a class="ml-brand" href="../../"><span class="ml-brand-mark">ML</span><span class="ml-brand-copy"><strong>Mystery Logic</strong><small>Interactive investigations</small></span></a><nav class="ml-brand-strip-nav"><a href="../../kto-vret/">Кто врёт?</a><a href="../../dela/">Все дела</a></nav></div></div>';
+const brand = (prefix) => `<div class="ml-brand-strip"><div class="ml-brand-strip-inner"><a class="ml-brand" href="${prefix}"><span class="ml-brand-mark">ML</span><span class="ml-brand-copy"><strong>Mystery Logic</strong><small>Interactive investigations</small></span></a><nav class="ml-brand-strip-nav"><a href="${prefix}kto-vret/">Кто врёт?</a><a href="${prefix}dela/">Все дела</a></nav></div></div>`;
 
 const choose = (items, min, max, start = 0, picked = [], result = []) => {
   if (picked.length >= min && picked.length <= max) result.push([...picked]);
@@ -178,28 +186,79 @@ function config(item) {
   };
 }
 
-const seoCopy = (item, related) => `<section class="ml-shell ml-copy-section" aria-labelledby="about-case"><div><p class="ml-kicker">Без спойлеров</p><h2 id="about-case">О деле «${escapeHtml(item.title)}»</h2></div><div class="ml-copy"><p>Это короткая детективная задача категории «${escapeHtml(item.category || 'Логика')}» со сложностью «${escapeHtml(item.difficulty || 'Средняя')}». На прохождение обычно требуется около ${estimate(item.difficulty)} минут. Решение не зависит от угадывания: нужно сопоставить материалы дела, показания и ограничения ситуации.</p><p>Основной тип рассуждения — ${escapeHtml((item.logicType || item.category || 'поиск логического противоречия').toLowerCase())}. Полный ответ и цепочка доказательства открываются только после проверки вашей версии.</p><p>Следующие дела: ${related.map((value) => `<a href="../../${value.path}">${escapeHtml(value.title)}</a>`).join(' · ')}. Больше форматов — в подборках <a href="../../detektivnye-zagadki-s-otvetami/">детективных загадок с ответами</a> и <a href="../../logicheskie-detektivnye-zadachi/">логических детективных задач</a>.</p></div></section>`;
+const staticAnswerStages = (item) => {
+  const stages = Array.isArray(item.answerStages) && item.answerStages.length
+    ? item.answerStages
+    : [{ prompt: item.question || 'Кто говорит неправду?', options: item.characters.map((character) => ({ label: character.name })) }];
+  return stages.map((stage) => `<section class="ktv-panel" data-seo-answer><div class="ktv-section-head"><div><p class="ktv-eyebrow">Ваша версия</p><h2>${escapeHtml(stage.prompt || item.question || 'Выберите ответ')}</h2></div></div><ul>${(stage.options || []).map((option) => `<li>${escapeHtml(option.label || '')}${option.detail ? ` — ${escapeHtml(option.detail)}` : ''}</li>`).join('')}</ul><p>Проверка ответа и полный разбор становятся доступны в интерактивном режиме.</p></section>`).join('');
+};
 
-const playable = (item, related) => `${head(item, false)}<body class="ktv-case-page"><div class="ktv-ambient" aria-hidden="true"></div>${brand}<main class="ktv-game-shell" data-ktv-root data-premium-game="1.2.1" data-case-id="${escapeHtml(item.id)}"><noscript>Включите JavaScript, чтобы открыть интерактивное расследование.</noscript></main><script src="../../assets/generated/cases-index.js?v=${version}"></script><script src="../../assets/dossier-model.js?v=${version}"></script><script>window.KtoVretWeb=${json(config(item))};window.KtoVretWeb.permalink=location.href;</script><script src="../../ktovret-game/assets/app.js?v=${version}"></script><script src="../../ktovret-game/assets/performance.js?v=${version}"></script><script src="../../assets/case-adapter.js?v=${version}"></script>${seoCopy(item, related)}<footer class="ml-case-footer">Дело из серии <a href="../../kto-vret/">«Кто врёт?»</a> · <a href="../../dela/">все расследования</a> · Mystery Logic</footer></body></html>`;
+const seoPrerender = (item, related, nextCase, prefix) => `<article class="ktv-app ktv-seo-prerender" data-seo-prerender data-case-id="${escapeHtml(item.id)}"><header class="ktv-cover"><div class="ktv-cover-copy"><div class="ktv-file-line"><span>Досье № ${escapeHtml(item.number)}</span><span>${escapeHtml(item.difficulty || 'Среднее')}</span></div><p class="ktv-eyebrow">Интерактивное расследование</p><h1>${escapeHtml(item.title)}</h1><p class="ktv-cover-lead">${escapeHtml(item.shortDescription || item.intro)}</p></div></header><section class="ktv-panel ktv-paper" data-seo-story><div class="ktv-section-head"><div><p class="ktv-eyebrow">Досье</p><h2>Завязка дела</h2></div></div><p>${escapeHtml(item.story || item.intro).replaceAll('\n', '<br>')}</p></section><section class="ktv-panel ktv-testimony" data-seo-statements><div class="ktv-section-head"><div><p class="ktv-eyebrow">Показания</p><h2>Что говорят участники</h2></div></div>${item.characters.length ? item.characters.map((character) => `<article class="ktv-transcript"><div class="ktv-person"><span><strong>${escapeHtml(character.name || 'Свидетель')}</strong><small>${escapeHtml(character.role || '')}</small></span></div><blockquote>«${escapeHtml(character.statement || '')}»</blockquote></article>`).join('') : '<p>В этом деле ответ строится по условиям и материалам досье.</p>'}</section>${staticAnswerStages(item)}<nav class="ktv-dossier-next" aria-label="Продолжить расследования" data-seo-links><div class="ktv-dossier-next-copy"><small>Продолжить</small><strong>Другие дела Mystery Logic</strong><p>После решения можно перейти к следующему делу или выбрать похожее.</p></div><div class="ktv-dossier-next-actions">${nextCase ? `<a class="ktv-dossier-link ktv-dossier-link-primary" data-analytics-event="next_case_clicked" href="${prefix}${nextCase.path}">Следующее дело: ${escapeHtml(nextCase.title)}</a>` : ''}<a class="ktv-dossier-link ktv-dossier-link-secondary" href="${prefix}dela/">Полная библиотека</a></div><p>${related.slice(0, 3).map((value) => `<a href="${prefix}${value.path}">${escapeHtml(value.title)}</a>`).join(' · ')}</p></nav><noscript><p>Для выбора ответа и проверки версии включите JavaScript. Условие и показания доступны выше без JavaScript.</p></noscript></article>`;
 
-const locked = (item) => `${head(item, true)}<body>${brand}<main class="ml-shell locked-case"><section class="ml-card"><p class="ml-kicker">Дело № ${item.number} · полный первый том</p><h1>${escapeHtml(item.title)}</h1><p>Расследование категории «${escapeHtml(item.category || 'Логика')}». Материалы, показания и решение не загружаются в публичную страницу до проверки доступа.</p><div class="ml-actions"><a class="ml-button ml-button-primary" href="../../dela/">Вернуться в каталог</a><span class="ml-button ml-button-secondary">Полный том · скоро</span></div></section></main></body></html>`;
+const seoCopy = (item, related, prefix) => `<section class="ml-shell ml-copy-section" aria-labelledby="about-case"><div><p class="ml-kicker">Без спойлеров</p><h2 id="about-case">О деле «${escapeHtml(item.title)}»</h2></div><div class="ml-copy"><p>Это короткая детективная задача категории «${escapeHtml(item.category || 'Логика')}» со сложностью «${escapeHtml(item.difficulty || 'Средняя')}». На прохождение обычно требуется около ${estimate(item.difficulty)} минут. Решение не зависит от угадывания: нужно сопоставить материалы дела, показания и ограничения ситуации.</p><p>Основной тип рассуждения — ${escapeHtml((item.logicType || item.category || 'поиск логического противоречия').toLowerCase())}. Полный ответ и цепочка доказательства открываются только после проверки вашей версии.</p><p>Похожие дела: ${related.slice(0, 4).map((value) => `<a href="${prefix}${value.path}">${escapeHtml(value.title)}</a>`).join(' · ')}. <a href="${prefix}dela/">Открыть полную библиотеку</a>.</p></div></section>`;
+
+const pageMeta = (item, canonicalRoute) => ({
+  caseId: item.id,
+  slug: item.slug,
+  language: item.language || 'ru',
+  access: item.access,
+  canonicalPath: canonicalRoute,
+  collectionIds: [item.set.id],
+});
+
+const playable = (item, related, nextCase, { route = item.path, canonicalRoute = item.path, noindex = false, prerender = false } = {}) => {
+  const prefix = prefixFor(route);
+  return `${head(item, { route, canonicalRoute, noindex })}<body class="ktv-case-page" data-case-language="${escapeHtml(item.language || 'ru')}"><div class="ktv-ambient" aria-hidden="true"></div>${brand(prefix)}<main class="ktv-game-shell" data-ktv-root data-premium-game="${version}" data-case-id="${escapeHtml(item.id)}">${prerender ? seoPrerender(item, related, nextCase, prefix) : '<noscript>Включите JavaScript, чтобы открыть интерактивное расследование.</noscript>'}</main><script src="${prefix}assets/generated/cases-index.js?v=${version}"></script><script src="${prefix}assets/dossier-model.js?v=${version}"></script><script>window.KtoVretWeb=${json(config(item))};window.KtoVretWeb.permalink=location.href;window.KtoVretPage=${json(pageMeta(item, canonicalRoute))};</script><script src="${prefix}assets/analytics-events.js?v=${version}"></script><script src="${prefix}ktovret-game/assets/app.js?v=${version}"></script><script src="${prefix}ktovret-game/assets/performance.js?v=${version}"></script><script src="${prefix}assets/case-adapter.js?v=${version}"></script>${seoCopy(item, related, prefix)}<footer class="ml-case-footer">Дело из серии <a href="${prefix}kto-vret/">«Кто врёт?»</a> · <a href="${prefix}dela/">все расследования</a> · Mystery Logic</footer></body></html>`;
+};
+
+const locked = (item, { route = item.path, canonicalRoute = item.path, noindex = true } = {}) => {
+  const prefix = prefixFor(route);
+  return `${head(item, { locked: true, route, canonicalRoute, noindex })}<body>${brand(prefix)}<main class="ml-shell locked-case" data-paywall-view="true"><section class="ml-card"><p class="ml-kicker">Дело № ${item.number} · полный первый том</p><h1>${escapeHtml(item.title)}</h1><p>Расследование категории «${escapeHtml(item.category || 'Логика')}». Материалы, показания и решение не загружаются в публичную страницу до проверки доступа.</p><div class="ml-actions"><a class="ml-button ml-button-primary" href="${prefix}dela/">Вернуться в каталог</a><span class="ml-button ml-button-secondary">Полный том · скоро</span></div></section></main><script>window.KtoVretPage=${json(pageMeta(item, canonicalRoute))};</script><script src="${prefix}assets/analytics-events.js?v=${version}"></script></body></html>`;
+};
 
 export function writeCasePages(siteRoot, cases, editorial) {
-  const root = path.join(siteRoot, 'delo');
-  fs.rmSync(root, { recursive: true, force: true });
-  ensureDir(root);
+  const legacyRoot = path.join(siteRoot, 'delo');
+  const seoRoot = path.join(siteRoot, 'ru', 'cases');
+  fs.rmSync(legacyRoot, { recursive: true, force: true });
+  fs.rmSync(seoRoot, { recursive: true, force: true });
+  ensureDir(legacyRoot);
+  ensureDir(seoRoot);
   const free = cases.filter((item) => item.access === 'free');
+  const byId = new Map(cases.map((item) => [item.id, item]));
+
+  const write = (route, html) => {
+    const dir = path.join(siteRoot, route);
+    ensureDir(dir);
+    fs.writeFileSync(path.join(dir, 'index.html'), html);
+  };
 
   for (const item of cases) {
-    const dir = path.join(root, item.slug);
-    ensureDir(dir);
-    const start = Number(item.number) % Math.max(1, free.length - 3);
-    const related = free
-      .filter((value) => value.id !== item.id)
-      .slice(start, start + 3);
-    fs.writeFileSync(
-      path.join(dir, 'index.html'),
-      editorial || item.access === 'free' ? playable(item, related) : locked(item),
+    const related = (item.relatedCases || []).map((id) => byId.get(id)).filter(Boolean);
+    const currentFreeIndex = free.findIndex((value) => value.id === item.id);
+    const nextCase = currentFreeIndex >= 0 ? free[(currentFreeIndex + 1) % free.length] : null;
+    const legacyRoute = item.legacyPath || `delo/${item.slug}/`;
+
+    if (item.seoNative) {
+      write(
+        item.path,
+        editorial || item.access === 'free'
+          ? playable(item, related, nextCase, { route: item.path, canonicalRoute: item.path, prerender: true })
+          : locked(item, { route: item.path, canonicalRoute: item.path }),
+      );
+      write(
+        legacyRoute,
+        editorial || item.access === 'free'
+          ? playable(item, related, nextCase, { route: legacyRoute, canonicalRoute: item.path, noindex: true, prerender: false })
+          : locked(item, { route: legacyRoute, canonicalRoute: item.path, noindex: true }),
+      );
+      continue;
+    }
+
+    write(
+      legacyRoute,
+      editorial || item.access === 'free'
+        ? playable(item, related, nextCase, { route: legacyRoute, canonicalRoute: legacyRoute })
+        : locked(item, { route: legacyRoute, canonicalRoute: legacyRoute }),
     );
   }
 }
