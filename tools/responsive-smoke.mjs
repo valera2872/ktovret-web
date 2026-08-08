@@ -105,10 +105,10 @@ try {
     if (dimensions.bytes < 10_000) throw new Error(`${viewport.name}: screenshot is suspiciously small (${dimensions.bytes} bytes)`);
     if (!dom.includes('data-ktv-root')) throw new Error(`${viewport.name}: game root disappeared after render`);
     if (!dom.includes('Четыре входа в архив')) throw new Error(`${viewport.name}: case H1/content did not render`);
-    if (!dom.includes('data-action="submit"')) throw new Error(`${viewport.name}: interactive answer UI did not render`);
+    if (!dom.includes('data-action="accept"')) throw new Error(`${viewport.name}: interactive game entry did not render`);
     if (dom.includes('Не удалось загрузить игровое дело')) throw new Error(`${viewport.name}: game loader reported an error`);
 
-    results.push({ ...viewport, screenshot: path.relative(siteRoot, screenshot), bytes: dimensions.bytes });
+    results.push({ ...viewport, screenshot: path.relative(siteRoot, screenshot), bytes: dimensions.bytes, interactiveEntry: true });
   }
 } finally {
   await new Promise((resolve) => server.close(resolve));
