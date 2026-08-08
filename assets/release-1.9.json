@@ -1,0 +1,14 @@
+{
+  "version": "1.9.0",
+  "feature": "production-seo-origin",
+  "singleOriginConfig": "site-origin.json",
+  "environmentOverride": "MYSTERYLOGIC_SITE_ORIGIN",
+  "canonicalMigration": true,
+  "sitemapMigration": true,
+  "robotsMigration": true,
+  "stagingLeakGuard": true,
+  "seoNativeCases": 15,
+  "indexableCollections": 1,
+  "gameCoreChanged": false,
+  "paidContentPublic": false
+}
