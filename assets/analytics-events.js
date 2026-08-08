@@ -10,6 +10,16 @@
     canonical_path: page.canonicalPath || '',
   };
 
+  if (location.search) {
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement('meta');
+      robots.name = 'robots';
+      document.head.appendChild(robots);
+    }
+    robots.content = 'noindex,follow';
+  }
+
   const track = (event, params = {}) => {
     if (!event) return;
     const detail = { event, ...base, ...params };
