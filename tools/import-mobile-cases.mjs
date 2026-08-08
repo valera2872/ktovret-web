@@ -7,6 +7,8 @@ import {writeCasePages} from './import-mobile/case-pages.mjs';
 import {enhanceGeneratedCases} from './import-mobile/witness-postprocess.mjs';
 import {writeCatalog} from './import-mobile/catalog.mjs';
 import {writeSeoPages,seoSlugs} from './import-mobile/seo-pages.mjs';
+import {writeSeoNativePilot} from './seo-native/pilot-pages.mjs';
+import {canonicalPublicPathFor} from './seo-native/case-entity.mjs';
 
 const tokens=process.argv.slice(2),args={};for(let i=0;i<tokens.length;i++)if(tokens[i].startsWith('--'))args[tokens[i].slice(2)]=tokens[i+1]&&!tokens[i+1].startsWith('--')?tokens[++i]:'true';
 const sourceRoot=path.resolve(args.source||'../mobile-source'),siteRoot=path.resolve(args.site||'.'),mode=args.mode||'public',sourceCommit=args.commit||'51c178f4dceba7bdb859e1e5d0c3244150438c0d',editorial=mode==='editorial';
@@ -17,6 +19,7 @@ fs.writeFileSync(path.join(generated,'cases-index.json'),JSON.stringify(index,nu
 fs.writeFileSync(path.join(generated,'cases-index.js'),`window.KtoVretCatalog=${JSON.stringify(index)};\n`);
 writeCasePages(siteRoot,lib.cases,editorial);
 const witnessEnhancedPages=enhanceGeneratedCases(siteRoot,lib.cases,editorial);
+const seoNative=writeSeoNativePilot(siteRoot,lib.cases);
 writeCatalog(siteRoot,lib.cases,lib.freeMeta,editorial);
 writeSeoPages(siteRoot,lib.freeMeta);
 
@@ -29,9 +32,9 @@ if(fs.existsSync(product)){
 }
 
 const base='https://valera2872.github.io/ktovret-web/';
-const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...lib.freeMeta.map(item=>`${base}${item.path}`)];
+const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...lib.freeMeta.map(item=>`${base}${canonicalPublicPathFor(item)}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,playablePages:editorial?100:15,lockedPages:editorial?0:85,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,witnessEnhancedPages};
+const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,playablePages:editorial?100:15,lockedPages:editorial?0:85,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,seoNativeCases:seoNative.entities.length,witnessEnhancedPages};
 fs.writeFileSync(path.join(generated,'import-report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
