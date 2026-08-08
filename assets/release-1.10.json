@@ -1,0 +1,14 @@
+{
+  "version": "1.10.0",
+  "feature": "protected-paid-access-boundary",
+  "freePlayableCases": 15,
+  "serverGatedPremiumCases": 85,
+  "premiumPayloadInStaticBuild": false,
+  "entitlementProduct": "volume1",
+  "browserAuth": "opaque-bearer-token",
+  "serverTokenStorage": "sha256-hash-only",
+  "backendTarget": "supabase-edge-function",
+  "backendDeployed": false,
+  "paymentProviderConnected": false,
+  "gameCoreChanged": false
+}
