@@ -1,0 +1,109 @@
+name: Build Mystery Logic production bundle for Beget
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
+
+jobs:
+  production-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: web
+
+      - name: Checkout mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate production public library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+
+      - name: Validate production SEO boundary
+        working-directory: web
+        run: |
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test -f ru/besplatnye-detektivnye-dela/index.html
+          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          grep -q '"indexableUrls": 23' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 23
+          grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
+          grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
+          ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
+            --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
+          grep -q "checkoutEnabled:false" assets/paid-access-config.js
+
+      - name: Prepare Beget runtime tree
+        run: |
+          cp -a web production-web
+          rm -rf production-web/.git production-web/.github production-web/tools production-web/tests production-web/artifacts production-web/supabase production-web/node_modules
+          rm -f production-web/preview-all-100.cmd production-web/README.md production-web/PROJECT_CHECKPOINT.md production-web/package.json production-web/package-lock.json production-web/site-origin.json
+          cat > production-web/.htaccess <<'HTACCESS'
+          Options -Indexes
+          DirectoryIndex index.html index.php
+
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{HTTPS} !=on [OR]
+            RewriteCond %{HTTP_HOST} !^mysterylogic\.com$ [NC]
+            RewriteRule ^ https://mysterylogic.com%{REQUEST_URI} [L,R=301]
+          </IfModule>
+
+          <IfModule mod_headers.c>
+            Header always set X-Content-Type-Options "nosniff"
+            Header always set Referrer-Policy "strict-origin-when-cross-origin"
+          </IfModule>
+          HTACCESS
+
+      - name: Validate Beget runtime tree
+        run: |
+          test -f production-web/index.html
+          test -f production-web/.htaccess
+          test -f production-web/sitemap.xml
+          test -f production-web/robots.txt
+          test -f production-web/assets/paid-access-client.js
+          test -f production-web/ktovret-game/assets/app-core.js
+          test ! -d production-web/supabase
+          test ! -d production-web/tools
+          test ! -d production-web/tests
+          test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
+          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 23
+          ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
+
+      - name: Create ZIP
+        run: |
+          cd production-web
+          zip -qr ../mysterylogic-beget-production.zip .
+          cd ..
+          unzip -l mysterylogic-beget-production.zip | sed -n '1,80p'
+
+      - name: Upload Beget production ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-beget-production
+          path: mysterylogic-beget-production.zip
+          retention-days: 14
+          if-no-files-found: error
+          include-hidden-files: true
