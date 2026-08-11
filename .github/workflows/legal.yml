@@ -1,0 +1,27 @@
+name: Validate Mystery Logic legal shell
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  legal-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate legal postprocess JavaScript
+        run: |
+          node --check tools/import-mobile/legal-footer-postprocess.mjs
+          node --check tools/import-mobile-cases.mjs
+          node --check tests/legal-pages.test.js
+      - name: Validate legal pages and seller identity
+        run: node tests/legal-pages.test.js
