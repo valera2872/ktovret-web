@@ -176,12 +176,16 @@
     });
 
     overlay.querySelector('[data-ml-challenge-create]').addEventListener('click', async () => {
-      if (createBusy) return;
-      createBusy = true;
       const createButton = overlay.querySelector('[data-ml-challenge-create]');
       const errorBox = overlay.querySelector('[data-ml-challenge-error]');
       const readyBox = overlay.querySelector('[data-ml-challenge-ready]');
       const nickname = (input.value || 'Следователь').trim().replace(/\s+/g, ' ').slice(0, 32) || 'Следователь';
+      if (createButton.dataset.shareUrl) {
+        await sharePreparedChallenge(createButton.dataset.shareUrl, createButton.dataset.nickname || nickname);
+        return;
+      }
+      if (createBusy) return;
+      createBusy = true;
       createButton.disabled = true;
       createButton.textContent = 'Создаём…';
       errorBox.hidden = true;
@@ -205,8 +209,9 @@
         readyBox.textContent = result.shareUrl;
         createButton.textContent = 'Поделиться вызовом';
         createButton.disabled = false;
+        createButton.dataset.shareUrl = result.shareUrl;
+        createButton.dataset.nickname = nickname;
         createBusy = false;
-        createButton.onclick = async () => sharePreparedChallenge(result.shareUrl, nickname);
       } catch (error) {
         errorBox.hidden = false;
         errorBox.textContent = error?.status === 429
