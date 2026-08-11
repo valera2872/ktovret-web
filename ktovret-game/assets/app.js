@@ -10,6 +10,14 @@
     window.KtoVretWeb.storageKey = `${window.KtoVretWeb.storageKey}:challenge:${challengeCode}`;
   }
 
+  let runtimeVersion = '1';
+  try {
+    runtimeVersion = new URL(currentScript.src).searchParams.get('v') || '1';
+  } catch {
+    runtimeVersion = '1';
+  }
+  const assetVersion = encodeURIComponent(runtimeVersion);
+
   if (!document.querySelector('[data-ktv-feedback-styles]')) {
     const style = document.createElement('style');
     style.dataset.ktvFeedbackStyles = 'true';
@@ -110,7 +118,7 @@
 
   const loadDossierNavigation = () => {
     const dossierNav = document.createElement('script');
-    dossierNav.src = new URL('dossier-nav.js?v=0.6.2', currentScript.src).href;
+    dossierNav.src = new URL(`dossier-nav.js?v=${assetVersion}`, currentScript.src).href;
     document.head.appendChild(dossierNav);
   };
 
@@ -118,13 +126,19 @@
     loadDossierNavigation();
   } else {
     const dossierModel = document.createElement('script');
-    dossierModel.src = new URL('../../assets/dossier-model.js?v=0.6.2', currentScript.src).href;
+    dossierModel.src = new URL(`../../assets/dossier-model.js?v=${assetVersion}`, currentScript.src).href;
     dossierModel.onload = loadDossierNavigation;
     document.head.appendChild(dossierModel);
   }
 
+  const stabilizer = document.createElement('script');
+  stabilizer.src = new URL(`../../assets/mobile-scroll-stabilizer.js?v=${assetVersion}`, currentScript.src).href;
+  stabilizer.async = false;
+  document.head.appendChild(stabilizer);
+
   const core = document.createElement('script');
-  core.src = new URL('app-core.js?v=0.6.2', currentScript.src).href;
+  core.src = new URL(`app-core.js?v=${assetVersion}`, currentScript.src).href;
+  core.async = false;
   core.onload = enhanceAnswerState;
   core.onerror = () => {
     root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
@@ -132,7 +146,7 @@
   document.head.appendChild(core);
 
   const challenge = document.createElement('script');
-  challenge.src = new URL('challenge-client.js?v=1.0.0', currentScript.src).href;
-  challenge.async = true;
+  challenge.src = new URL(`challenge-client.js?v=${assetVersion}`, currentScript.src).href;
+  challenge.async = false;
   document.head.appendChild(challenge);
 })();

@@ -101,6 +101,15 @@ jobs:
           </IfModule>
           HTACCESS
 
+      - name: Stamp production asset cache keys
+        run: |
+          release_version="${GITHUB_SHA::12}"
+          while IFS= read -r -d '' file; do
+            sed -i -E "s/\\?v=[0-9A-Za-z._-]+/?v=${release_version}/g" "$file"
+          done < <(find production-web -type f -name '*.html' -print0)
+          grep -R -q "app.js?v=${release_version}" production-web/ru/cases
+          grep -q "challenge-page.js?v=${release_version}" production-web/challenge/index.html
+
       - name: Validate Beget runtime tree
         run: |
           test -f production-web/index.html
@@ -108,7 +117,14 @@ jobs:
           test -f production-web/sitemap.xml
           test -f production-web/robots.txt
           test -f production-web/assets/paid-access-client.js
+          test -f production-web/assets/mobile-scroll-stabilizer.js
+          test -f production-web/assets/challenge-page.js
+          test -f production-web/assets/challenge.css
+          test -f production-web/challenge/index.html
           test -f production-web/ktovret-game/assets/app-core.js
+          test -f production-web/ktovret-game/assets/challenge-client.js
+          grep -q 'mobile-scroll-stabilizer.js?v=' production-web/ktovret-game/assets/app.js
+          grep -q 'challenge-client.js?v=' production-web/ktovret-game/assets/app.js
           test ! -d production-web/supabase
           test ! -d production-web/tools
           test ! -d production-web/tests
