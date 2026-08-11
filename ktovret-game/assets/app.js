@@ -145,6 +145,11 @@
   };
   document.head.appendChild(core);
 
+  const globalStats = document.createElement('script');
+  globalStats.src = new URL(`global-stats-client.js?v=${assetVersion}`, currentScript.src).href;
+  globalStats.async = false;
+  document.head.appendChild(globalStats);
+
   const challenge = document.createElement('script');
   challenge.src = new URL(`challenge-client.js?v=${assetVersion}`, currentScript.src).href;
   challenge.async = false;
