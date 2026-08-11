@@ -5,6 +5,11 @@
   const root = document.querySelector('[data-ktv-root]');
   if (!root || !currentScript?.src) return;
 
+  const challengeCode = new URL(location.href).searchParams.get('challenge')?.trim().toUpperCase() || '';
+  if (/^[A-HJ-NP-Z2-9]{8}$/.test(challengeCode) && window.KtoVretWeb?.storageKey) {
+    window.KtoVretWeb.storageKey = `${window.KtoVretWeb.storageKey}:challenge:${challengeCode}`;
+  }
+
   if (!document.querySelector('[data-ktv-feedback-styles]')) {
     const style = document.createElement('style');
     style.dataset.ktvFeedbackStyles = 'true';
@@ -125,4 +130,9 @@
     root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
   };
   document.head.appendChild(core);
+
+  const challenge = document.createElement('script');
+  challenge.src = new URL('challenge-client.js?v=1.0.0', currentScript.src).href;
+  challenge.async = true;
+  document.head.appendChild(challenge);
 })();

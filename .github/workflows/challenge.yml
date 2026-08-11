@@ -1,0 +1,46 @@
+name: Validate Mystery Logic challenge
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  challenge-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate challenge JavaScript
+        run: |
+          node --check ktovret-game/assets/app.js
+          node --check ktovret-game/assets/challenge-client.js
+          node --check assets/challenge-page.js
+      - name: Validate challenge public boundary
+        run: |
+          test -f challenge/index.html
+          test -f assets/challenge.css
+          test -f supabase/functions/challenge/index.ts
+          test -f supabase/migrations/20260811170000_add_challenges.sql
+          grep -q 'name="robots" content="noindex,follow"' challenge/index.html
+          grep -q 'https://mysterylogic.com/challenge/' challenge/index.html
+          grep -q 'functions/v1/challenge' ktovret-game/assets/challenge-client.js
+          grep -q 'functions/v1/challenge' assets/challenge-page.js
+          grep -q 'challenge-client.js?v=1.0.0' ktovret-game/assets/app.js
+          grep -q ':challenge:${challengeCode}' ktovret-game/assets/app.js
+          ! grep -q 'correctOptionIds' assets/challenge-page.js
+          ! grep -q 'fullReason' assets/challenge-page.js
+      - name: Validate backend safety contract
+        run: |
+          grep -q 'enable row level security' supabase/migrations/20260811170000_add_challenges.sql
+          grep -q 'revoke all on table public.challenges from anon, authenticated' supabase/migrations/20260811170000_add_challenges.sql
+          grep -q 'challenge_rate_limited' supabase/functions/challenge/index.ts
+          grep -q 'challenge_expired' supabase/functions/challenge/index.ts
+          grep -q "case_path ~ '^/(delo|ru/cases)/" supabase/migrations/20260811170000_add_challenges.sql
