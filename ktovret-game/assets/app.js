@@ -5,6 +5,11 @@
   const root = document.querySelector('[data-ktv-root]');
   if (!root || !currentScript?.src) return;
 
+  const challengeCode = new URL(location.href).searchParams.get('challenge')?.trim().toUpperCase() || '';
+  if (/^[A-HJ-NP-Z2-9]{8}$/.test(challengeCode) && window.KtoVretWeb?.storageKey) {
+    window.KtoVretWeb.storageKey = `${window.KtoVretWeb.storageKey}:challenge:${challengeCode}`;
+  }
+
   if (!document.querySelector('[data-ktv-feedback-styles]')) {
     const style = document.createElement('style');
     style.dataset.ktvFeedbackStyles = 'true';
