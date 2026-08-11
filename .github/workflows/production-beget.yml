@@ -9,7 +9,6 @@ permissions:
   contents: read
 
 env:
-  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
   MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
 
 jobs:
@@ -22,37 +21,21 @@ jobs:
           ref: main
           path: web
 
-      - name: Checkout mobile content
-        uses: actions/checkout@v4
-        with:
-          repository: valera2872/ktovret
-          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
-          path: mobile-source
-          persist-credentials: false
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Generate production public library
-        working-directory: web
-        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-
-      - name: Validate production SEO boundary
+      - name: Validate committed public boundary
         working-directory: web
         run: |
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
           test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
           test -f ru/besplatnye-detektivnye-dela/index.html
-          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
           grep -q '"indexableUrls": 23' assets/generated/import-report.json
           test "$(grep -c '<url>' sitemap.xml)" -eq 23
-          grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
-          grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
-          ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
-            --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
           grep -q "checkoutEnabled:false" assets/paid-access-config.js
 
       - name: Prepare Beget runtime tree
@@ -77,7 +60,11 @@ jobs:
           </IfModule>
           HTACCESS
 
-      - name: Validate Beget runtime tree
+      - name: Switch SEO origin to mysterylogic.com
+        run: |
+          node --input-type=module --eval "import {applySiteOrigin} from './web/tools/import-mobile/site-origin-postprocess.mjs'; console.log(applySiteOrigin('./production-web'));"
+
+      - name: Validate production SEO boundary
         run: |
           test -f production-web/index.html
           test -f production-web/.htaccess
@@ -89,8 +76,13 @@ jobs:
           test ! -d production-web/tools
           test ! -d production-web/tests
           test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
+          test "$(grep -rl 'data-seo-prerender' production-web/ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'noindex,follow' production-web/delo/*/index.html | wc -l)" -eq 100
           test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 23
+          grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' production-web/sitemap.xml
+          grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' production-web/robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
+          grep -q "checkoutEnabled:false" production-web/assets/paid-access-config.js
 
       - name: Create ZIP
         run: |
