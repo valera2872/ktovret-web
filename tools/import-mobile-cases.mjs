@@ -10,6 +10,7 @@ import {writeCatalog} from './import-mobile/catalog.mjs';
 import {writeSeoPages,seoSlugs} from './import-mobile/seo-pages.mjs';
 import {writeCollectionPages} from './import-mobile/collection-pages.mjs';
 import {postprocessSeoNativeCases} from './import-mobile/seo-native-postprocess.mjs';
+import {applyLegalFooter} from './import-mobile/legal-footer-postprocess.mjs';
 
 const tokens=process.argv.slice(2),args={};for(let i=0;i<tokens.length;i++)if(tokens[i].startsWith('--'))args[tokens[i].slice(2)]=tokens[i+1]&&!tokens[i+1].startsWith('--')?tokens[++i]:'true';
 const sourceRoot=path.resolve(args.source||'../mobile-source'),siteRoot=path.resolve(args.site||'.'),mode=args.mode||'public',sourceCommit=args.commit||'51c178f4dceba7bdb859e1e5d0c3244150438c0d',editorial=mode==='editorial';
@@ -35,11 +36,12 @@ if(fs.existsSync(product)){
   fs.writeFileSync(product,html);
 }
 
+const legalFooterPages=applyLegalFooter(siteRoot);
 const base='https://valera2872.github.io/ktovret-web/';
 const collectionUrls=collectionPages.map(item=>`${base}${item.route}`);
 const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...collectionUrls,...lib.freeMeta.map(item=>`${base}${item.path}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,seoNativeCases:seoNativeCaseCount,indexableCollections:indexableCollectionCount,collectionPages:collectionPages.length,playablePages:editorial?100:15,lockedPages:editorial?0:85,paidGatewayPages,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,witnessEnhancedPages,seoNativePostprocessedPages};
+const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,seoNativeCases:seoNativeCaseCount,indexableCollections:indexableCollectionCount,collectionPages:collectionPages.length,playablePages:editorial?100:15,lockedPages:editorial?0:85,paidGatewayPages,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,witnessEnhancedPages,seoNativePostprocessedPages,legalFooterPages};
 fs.writeFileSync(path.join(generated,'import-report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
