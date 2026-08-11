@@ -31,7 +31,7 @@ const statsFrom = (body: Record<string, unknown>) => {
   const hintsUsed = Number(body.hintsUsed);
   const attempts = Number(body.attempts);
   const firstAnswerCorrect = Boolean(body.firstAnswerCorrect);
-  if (!Number.isInteger(elapsedSeconds) || elapsedSeconds < 1 || elapsedSeconds > 21600) return null;
+  if (!Number.isInteger(elapsedSeconds) || elapsedSeconds < 1 || elapsedSeconds > 5400) return null;
   if (!Number.isInteger(hintsUsed) || hintsUsed < 0 || hintsUsed > 10) return null;
   if (!Number.isInteger(attempts) || attempts < 1 || attempts > 20) return null;
   return { elapsedSeconds, hintsUsed, attempts, firstAnswerCorrect };
