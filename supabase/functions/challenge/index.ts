@@ -30,16 +30,30 @@ const sha256 = async (value: string) => hex(await crypto.subtle.digest(
   new TextEncoder().encode(value),
 ));
 
-const code = () => Array.from(crypto.getRandomValues(new Uint8Array(CODE_LENGTH)))
+const makeCode = () => Array.from(crypto.getRandomValues(new Uint8Array(CODE_LENGTH)))
   .map((value) => CODE_ALPHABET[value % CODE_ALPHABET.length])
   .join('');
 
 const cleanName = (value: unknown) => {
-  const text = String(value || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/\s+/g, ' ').slice(0, 32);
+  const text = String(value || '')
+    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, 32);
   return text || 'Следователь';
 };
 
-const cleanTitle = (value: unknown) => String(value || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/\s+/g, ' ').slice(0, 120);
+const cleanTitle = (value: unknown) => String(value || '')
+  .replace(/[\u0000-\u001f\u007f]/g, '')
+  .trim()
+  .replace(/\s+/g, ' ')
+  .slice(0, 120);
+
+const normalizeCasePath = (value: unknown) => {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  return raw.endsWith('/') ? raw : `${raw}/`;
+};
 
 const statsFrom = (body: Record<string, unknown>) => {
   const elapsedSeconds = Number(body.elapsedSeconds);
@@ -52,7 +66,7 @@ const statsFrom = (body: Record<string, unknown>) => {
   return { elapsedSeconds, hintsUsed, attempts, firstAnswerCorrect };
 };
 
-const publicChallenge = (row: Record<string, unknown>) => ({
+const publicChallenge = (row: Record<string, any>) => ({
   code: row.code,
   caseId: row.case_id,
   caseTitle: row.case_title,
@@ -103,7 +117,10 @@ Deno.serve(async (req: Request) => {
       .eq('code', challengeCode)
       .maybeSingle();
 
-    if (error) return json(503, { error: 'challenge_lookup_failed' }, origin);
+    if (error) {
+      console.error('challenge_lookup_failed', error.code, error.message);
+      return json(503, { error: 'challenge_lookup_failed' }, origin);
+    }
     if (!data) return json(404, { error: 'challenge_not_found' }, origin);
     if (data.status !== 'active') return json(410, { error: 'challenge_inactive' }, origin);
     if (new Date(data.expires_at).getTime() <= Date.now()) return json(410, { error: 'challenge_expired' }, origin);
@@ -128,7 +145,7 @@ Deno.serve(async (req: Request) => {
   if (action === 'create') {
     const caseId = String(body.caseId || '').trim();
     const caseTitle = cleanTitle(body.caseTitle);
-    const casePath = String(body.casePath || '').trim();
+    const casePath = normalizeCasePath(body.casePath);
     const challengerName = cleanName(body.challengerName);
     const stats = statsFrom(body);
 
@@ -139,17 +156,36 @@ Deno.serve(async (req: Request) => {
 
     const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const [{ count: hourCount, error: hourError }, { count: dayCount, error: dayError }] = await Promise.all([
-      admin.from('challenges').select('id', { count: 'exact', head: true }).eq('creator_key_hash', browserKeyHash).gte('created_at', hourAgo),
-      admin.from('challenges').select('id', { count: 'exact', head: true }).eq('creator_key_hash', browserKeyHash).gte('created_at', dayAgo),
-    ]);
-    if (hourError || dayError) return json(503, { error: 'rate_check_failed' }, origin);
-    if ((hourCount || 0) >= 12 || (dayCount || 0) >= 40) return json(429, { error: 'challenge_rate_limited' }, origin);
+
+    const hourResult = await admin
+      .from('challenges')
+      .select('id', { count: 'exact', head: true })
+      .eq('creator_key_hash', browserKeyHash)
+      .gte('created_at', hourAgo);
+    if (hourResult.error) {
+      console.error('challenge_rate_hour_failed', hourResult.error.code, hourResult.error.message);
+      return json(503, { error: 'rate_check_failed' }, origin);
+    }
+
+    const dayResult = await admin
+      .from('challenges')
+      .select('id', { count: 'exact', head: true })
+      .eq('creator_key_hash', browserKeyHash)
+      .gte('created_at', dayAgo);
+    if (dayResult.error) {
+      console.error('challenge_rate_day_failed', dayResult.error.code, dayResult.error.message);
+      return json(503, { error: 'rate_check_failed' }, origin);
+    }
+
+    if ((hourResult.count || 0) >= 12 || (dayResult.count || 0) >= 40) {
+      return json(429, { error: 'challenge_rate_limited' }, origin);
+    }
 
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    let inserted: Record<string, unknown> | null = null;
+    let inserted: Record<string, any> | null = null;
+
     for (let attempt = 0; attempt < 6 && !inserted; attempt += 1) {
-      const challengeCode = code();
+      const challengeCode = makeCode();
       const { data, error } = await admin
         .from('challenges')
         .insert({
@@ -167,11 +203,16 @@ Deno.serve(async (req: Request) => {
         })
         .select('code,case_id,case_title,case_path,challenger_name,challenger_elapsed_seconds,challenger_hints_used,challenger_attempts,challenger_first_answer_correct,created_at,expires_at,status')
         .single();
+
       if (!error) inserted = data;
-      else if (error.code !== '23505') return json(503, { error: 'challenge_create_failed' }, origin);
+      else if (error.code !== '23505') {
+        console.error('challenge_create_failed', error.code, error.message);
+        return json(503, { error: 'challenge_create_failed' }, origin);
+      }
     }
 
     if (!inserted) return json(503, { error: 'challenge_code_generation_failed' }, origin);
+
     return json(201, {
       ok: true,
       ...publicChallenge(inserted),
@@ -190,7 +231,11 @@ Deno.serve(async (req: Request) => {
       .select('id,code,case_id,case_title,case_path,challenger_name,challenger_elapsed_seconds,challenger_hints_used,challenger_attempts,challenger_first_answer_correct,created_at,expires_at,status')
       .eq('code', challengeCode)
       .maybeSingle();
-    if (challengeError) return json(503, { error: 'challenge_lookup_failed' }, origin);
+
+    if (challengeError) {
+      console.error('challenge_complete_lookup_failed', challengeError.code, challengeError.message);
+      return json(503, { error: 'challenge_lookup_failed' }, origin);
+    }
     if (!challenge) return json(404, { error: 'challenge_not_found' }, origin);
     if (challenge.status !== 'active') return json(410, { error: 'challenge_inactive' }, origin);
     if (new Date(challenge.expires_at).getTime() <= Date.now()) return json(410, { error: 'challenge_expired' }, origin);
@@ -208,7 +253,11 @@ Deno.serve(async (req: Request) => {
       .select('elapsed_seconds,hints_used,attempts,first_answer_correct,completed_at')
       .single();
 
-    if (attemptError) return json(503, { error: 'challenge_result_failed' }, origin);
+    if (attemptError) {
+      console.error('challenge_result_failed', attemptError.code, attemptError.message);
+      return json(503, { error: 'challenge_result_failed' }, origin);
+    }
+
     return json(200, {
       ok: true,
       challenger: publicChallenge(challenge).challenger,
