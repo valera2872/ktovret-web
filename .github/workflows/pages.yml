@@ -20,6 +20,7 @@ permissions:
 
 env:
   KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 concurrency:
   group: pages-${{ github.event_name == 'issue_comment' && github.event.issue.number || github.ref }}
@@ -41,22 +42,31 @@ jobs:
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web' && format('refs/pull/{0}/head', github.event.issue.number)) || 'main' }}
           path: web
-      - name: Checkout mobile content
+
+      - name: Checkout private mobile content
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         uses: actions/checkout@v4
         with:
           repository: valera2872/ktovret
           ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
           path: mobile-source
           persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Audit source library 100 / 15 / 85
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         working-directory: web
         run: node tools/import-mobile/audit-library.mjs --source ../mobile-source --out ../qa-report.json --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Generate public 15/85 library
+
+      - name: Generate public 15/85 library from private source
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+
       - name: Validate JavaScript
         working-directory: web
         run: |
@@ -81,18 +91,22 @@ jobs:
           node --check tools/import-mobile/seo-policy.mjs
           node --check tools/import-mobile/collection-pages.mjs
           node --check tools/import-mobile/seo-native-postprocess.mjs
+          node --check tools/import-mobile/site-config.mjs
+          node --check tools/import-mobile/site-origin-postprocess.mjs
           test ! -f tools/import-mobile/load.mjs || node --check tools/import-mobile/load.mjs
           test ! -f tools/import-mobile/load-active.mjs || node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile/case-pages.mjs
           node --check tools/import-mobile/catalog.mjs
           node --check tools/import-mobile/witness-postprocess.mjs
           test ! -f tools/import-mobile/seo-pages.mjs || node --check tools/import-mobile/seo-pages.mjs
-      - name: Test generated library
+
+      - name: Test committed/generated public library
         working-directory: web
         run: |
           node tests/dossier-model.test.js
           node tests/catalog-experience.test.js
           node tests/seo-native-cases.test.js
+
       - name: Validate public boundaries
         working-directory: web
         run: |
@@ -123,16 +137,20 @@ jobs:
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
             grep -q '<loc>https://valera2872.github.io/ktovret-web/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
           fi
+
       - name: Render SEO-native case in mobile and desktop Chrome
         working-directory: web
         run: node tools/responsive-smoke.mjs
+
       - name: Upload responsive smoke screenshots
         uses: actions/upload-artifact@v4
         with:
           name: seo-native-responsive-smoke
           path: web/artifacts/responsive-smoke
           retention-days: 7
+
       - name: Validate editorial 100-case conversion
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         run: |
           cp -a web editorial
           node editorial/tools/import-mobile-cases.mjs --source mobile-source --site editorial --mode editorial --commit "$KTOVRET_SOURCE_COMMIT"
@@ -142,11 +160,13 @@ jobs:
           test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 15
           test -f editorial/ru/besplatnye-detektivnye-dela/index.html
           rm -rf editorial
+
       - name: Validate PHP and sitemap
         working-directory: web
         run: |
           php -l ktovret-game/ktovret-game.php
           python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
+
       - name: Verify stable game isolation
         working-directory: web
         run: |
@@ -156,13 +176,13 @@ jobs:
           grep -q '100 расследований' dela/index.html
           grep -q '15 бесплатно' dela/index.html
           grep -q '85 в полном томе' dela/index.html
+
       - name: Report requested validation
         if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
         uses: actions/github-script@v7
         env:
           RESULT: ${{ job.status }}
           RUN_ID: ${{ github.run_id }}
-          VALIDATED_SHA: ${{ github.event.issue.number }}
         with:
           script: |
             const ok = process.env.RESULT === 'success';
@@ -170,7 +190,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic pull request validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Pull request head: \`refs/pull/${context.issue.number}/head\`\n- Workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.RUN_ID}\n- Public boundary: **100 legacy routes / 15 playable / 85 locked**\n- SEO-native: **15 canonical server-rendered cases**\n- Collection: **1 indexable page / 15 free cases**\n- Responsive Chrome: **390×844 mobile + 1440×1100 desktop**\n- Source audit: **100 cases validated**\n- Editorial conversion: **100 playable cases validated**\n- Catalog experience: **1.6 validated**`
+              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO-native: **15 canonical cases + 1 collection**\n- Sitemap: **23 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
             })
 
   deploy:
@@ -190,21 +210,29 @@ jobs:
         with:
           ref: main
           path: web
-      - name: Checkout mobile content
+
+      - name: Checkout private mobile content
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         uses: actions/checkout@v4
         with:
           repository: valera2872/ktovret
           ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
           path: mobile-source
           persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Generate public 15/85 library
+
+      - name: Generate public library from private source
+        if: env.KTOVRET_SOURCE_TOKEN != ''
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+
       - name: Remove development-only files
         run: rm -rf web/.git web/.github web/tools web/tests web/artifacts web/preview-all-100.cmd
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -212,16 +240,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Report deployment
-        if: github.event_name == 'issue_comment'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `## Mystery Logic deployment\n\n- Build: **success**\n- Import: **100 cases / 15 free / 85 locked**\n- SEO-native: **15 canonical server-rendered cases**\n- Collection: **1 public indexable collection**\n- Responsive Chrome: **mobile + desktop smoke passed before deploy**\n- QA: **100 source + 100 editorial pages validated**\n- Catalog: **1.6 command center + filters validated**\n- Deploy: **success**\n- Page URL: ${process.env.PAGE_URL}`
-            })
-        env:
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
