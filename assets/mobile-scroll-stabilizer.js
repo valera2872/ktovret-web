@@ -9,8 +9,10 @@
   let desiredTarget = '';
   let settleTimer = 0;
   let settleToken = 0;
-  let desktopLock = null;
-  let desktopFrame = 0;
+  let desktopTarget = '';
+  let desktopUntil = 0;
+  let desktopToken = 0;
+  let desktopTimer = 0;
 
   const installVisualPolish = () => {
     if (document.querySelector('[data-ml-live-polish]')) return;
@@ -72,33 +74,39 @@
     window.setTimeout(() => placeTarget(selector, token), 220);
   };
 
-  const holdDesktopScroll = () => {
-    if (!desktopLock || isMobile()) {
-      desktopLock = null;
-      desktopFrame = 0;
-      return;
-    }
+  const placeDesktopTarget = (selector, token) => {
+    if (isMobile() || !selector || token !== desktopToken || performance.now() > desktopUntil) return;
+    const target = root.querySelector(selector);
+    if (!target) return;
 
-    if (performance.now() >= desktopLock.until) {
-      desktopLock = null;
-      desktopFrame = 0;
-      return;
+    // Keep one complete interaction section anchored near the top edge of the
+    // viewport. Late DOM adapters can still change heights for a few frames,
+    // so this placement is repeated briefly after the game re-render.
+    const desiredTop = 14;
+    const delta = target.getBoundingClientRect().top - desiredTop;
+    if (Math.abs(delta) > 0.5) {
+      window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
     }
-
-    if (Math.abs(window.scrollY - desktopLock.y) > 0.5) {
-      window.scrollTo({ top: desktopLock.y, left: window.scrollX, behavior: 'auto' });
-    }
-    desktopFrame = requestAnimationFrame(holdDesktopScroll);
+    target.focus?.({ preventScroll: true });
   };
 
-  const lockDesktopScroll = (duration = 650) => {
-    if (isMobile()) return;
-    desktopLock = {
-      y: window.scrollY,
-      until: performance.now() + duration,
-    };
-    if (desktopFrame) cancelAnimationFrame(desktopFrame);
-    desktopFrame = requestAnimationFrame(holdDesktopScroll);
+  const settleDesktopTo = (selector, duration = 850) => {
+    if (isMobile() || !selector) return;
+    desktopTarget = selector;
+    desktopUntil = performance.now() + duration;
+    desktopToken += 1;
+    const token = desktopToken;
+    window.clearTimeout(desktopTimer);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => placeDesktopTarget(selector, token));
+    });
+    [45, 110, 210, 360, 560, 760].forEach((delay) => {
+      window.setTimeout(() => placeDesktopTarget(selector, token), delay);
+    });
+    desktopTimer = window.setTimeout(() => {
+      if (token === desktopToken) desktopTarget = '';
+    }, duration + 80);
   };
 
   const selectedIsCorrect = () => {
@@ -126,25 +134,34 @@
       return;
     }
 
+    // Desktop should never stop between two sections after a state change.
+    // Selection/hints keep the full answer card in view. Submit snaps either
+    // the refreshed answer card (wrong) or the result card (correct) to top.
     if (action === 'select' || action === 'hint') {
-      lockDesktopScroll();
+      settleDesktopTo('#ktv-answer', 520);
       return;
     }
 
-    // Wrong answers re-render the answer panel and app-core requests a smooth
-    // scroll to it. On desktop that looks like a page jump, so keep the exact
-    // viewport position. Correct answers are allowed to move to the result.
-    if (action === 'submit' && !selectedIsCorrect()) {
-      lockDesktopScroll(750);
+    if (action === 'submit') {
+      settleDesktopTo(selectedIsCorrect() ? '#ktv-result' : '#ktv-answer', 950);
     }
   }, true);
 
   const observer = new MutationObserver(() => {
-    if (!isMobile() || !desiredTarget) return;
-    window.clearTimeout(settleTimer);
-    const target = desiredTarget;
-    const token = settleToken;
-    settleTimer = window.setTimeout(() => placeTarget(target, token), 70);
+    if (isMobile()) {
+      if (!desiredTarget) return;
+      window.clearTimeout(settleTimer);
+      const target = desiredTarget;
+      const token = settleToken;
+      settleTimer = window.setTimeout(() => placeTarget(target, token), 70);
+      return;
+    }
+
+    if (!desktopTarget || performance.now() > desktopUntil) return;
+    window.clearTimeout(desktopTimer);
+    const target = desktopTarget;
+    const token = desktopToken;
+    desktopTimer = window.setTimeout(() => placeDesktopTarget(target, token), 35);
   });
 
   observer.observe(root, { childList: true, subtree: true });
