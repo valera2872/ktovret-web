@@ -31,6 +31,25 @@
     document.head.appendChild(style);
   };
 
+  const normalizeStaleTimer = () => {
+    if (!cfg.storageKey) return;
+    try {
+      const state = JSON.parse(localStorage.getItem(cfg.storageKey) || '{}');
+      if (!state || typeof state !== 'object' || state.solved || !state.accepted) return;
+      const startedAt = Number(state.startedAt || 0);
+      if (!startedAt) return;
+
+      // «Кто врёт?» is a short-session product. If an unfinished case was left
+      // open for more than 90 minutes, do not count the idle gap as solve time.
+      if (Date.now() - startedAt > 90 * 60 * 1000) {
+        state.startedAt = Date.now();
+        localStorage.setItem(cfg.storageKey, JSON.stringify(state));
+      }
+    } catch {
+      // Storage errors must never block the game.
+    }
+  };
+
   const placeTarget = (selector, token) => {
     if (!isMobile() || !selector || token !== settleToken) return;
     const target = root.querySelector(selector);
@@ -129,5 +148,6 @@
   });
 
   observer.observe(root, { childList: true, subtree: true });
+  normalizeStaleTimer();
   installVisualPolish();
 })();
