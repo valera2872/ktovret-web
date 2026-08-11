@@ -43,4 +43,4 @@ jobs:
           grep -q 'revoke all on table public.challenges from anon, authenticated' supabase/migrations/20260811170000_add_challenges.sql
           grep -q 'challenge_rate_limited' supabase/functions/challenge/index.ts
           grep -q 'challenge_expired' supabase/functions/challenge/index.ts
-          grep -q "casePath ~ '^/(delo|ru/cases)/" supabase/migrations/20260811170000_add_challenges.sql
+          grep -q "case_path ~ '^/(delo|ru/cases)/" supabase/migrations/20260811170000_add_challenges.sql
