@@ -23,6 +23,7 @@ jobs:
           node --check ktovret-game/assets/app.js
           node --check ktovret-game/assets/challenge-client.js
           node --check assets/challenge-page.js
+          node --check assets/mobile-scroll-stabilizer.js
       - name: Validate challenge public boundary
         run: |
           test -f challenge/index.html
@@ -33,7 +34,8 @@ jobs:
           grep -q 'https://mysterylogic.com/challenge/' challenge/index.html
           grep -q 'functions/v1/challenge' ktovret-game/assets/challenge-client.js
           grep -q 'functions/v1/challenge' assets/challenge-page.js
-          grep -q 'challenge-client.js?v=1.0.0' ktovret-game/assets/app.js
+          grep -q 'challenge-client.js?v=${assetVersion}' ktovret-game/assets/app.js
+          grep -q 'mobile-scroll-stabilizer.js?v=${assetVersion}' ktovret-game/assets/app.js
           grep -q ':challenge:${challengeCode}' ktovret-game/assets/app.js
           ! grep -q 'correctOptionIds' assets/challenge-page.js
           ! grep -q 'fullReason' assets/challenge-page.js
