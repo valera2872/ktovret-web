@@ -125,4 +125,9 @@
     root.innerHTML = '<p style="padding:24px;color:#fff">Не удалось загрузить игровое дело. Обновите страницу.</p>';
   };
   document.head.appendChild(core);
+
+  const challenge = document.createElement('script');
+  challenge.src = new URL('challenge-client.js?v=1.0.0', currentScript.src).href;
+  challenge.async = true;
+  document.head.appendChild(challenge);
 })();
