@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION = '1.11.0';
+const VERSION = '1.13.0';
 const prefixFor = (route) => '../'.repeat(String(route || '').split('/').filter(Boolean).length);
 
 export function attachPaidAccessGateway(siteRoot, cases, editorial = false) {
@@ -18,7 +18,7 @@ export function attachPaidAccessGateway(siteRoot, cases, editorial = false) {
     if (html.includes('window.KtoVretWeb=')) throw new Error(`Платный payload уже находится в публичной странице ${route}`);
 
     const prefix = prefixFor(route);
-    const panel = `<span class="ml-button ml-button-secondary" data-paid-coming-soon>Полный том · скоро</span><div class="ml-paid-access" data-paid-access-panel hidden><label><span>Ключ доступа к полному тому</span><input type="password" inputmode="text" autocomplete="off" spellcheck="false" data-paid-token placeholder="Вставьте ключ после покупки"></label><label data-purchase-email-wrap hidden><span>E-mail для чека и восстановления покупки</span><input type="email" autocomplete="email" inputmode="email" data-purchase-email placeholder="name@example.com"></label><div class="ml-paid-access-actions"><button class="ml-button ml-button-secondary" type="button" data-paid-unlock>Открыть купленное дело</button><a class="ml-button ml-button-primary" data-purchase-start data-analytics-event="purchase_started" href="#" hidden>Купить полный том</a></div><p class="ml-paid-access-status" data-paid-status>Материалы дела будут загружены только после серверной проверки доступа.</p></div>`;
+    const panel = `<a class="ml-button ml-button-primary" data-paid-coming-soon href="${prefix}tom-1/">Открыть первый том</a><div class="ml-paid-access" data-paid-access-panel hidden><p class="ml-paid-access-intro"><strong>Это дело входит в полный первый том.</strong> Если доступ уже куплен, подтвердите его ключом. Если нет — сначала посмотрите состав тома и условия покупки.</p><label><span>Ключ доступа к полному тому</span><input type="password" inputmode="text" autocomplete="off" spellcheck="false" data-paid-token placeholder="Ключ доступа"></label><label data-purchase-email-wrap hidden><span>E-mail для электронного чека</span><input type="email" autocomplete="email" inputmode="email" data-purchase-email placeholder="name@example.com"></label><div class="ml-paid-access-actions"><button class="ml-button ml-button-secondary" type="button" data-paid-unlock>Открыть купленное дело</button><a class="ml-button ml-button-secondary" href="${prefix}tom-1/">О первом томе</a><a class="ml-button ml-button-primary" data-purchase-start data-analytics-event="purchase_started" href="#" hidden>Купить полный том</a></div><p class="ml-paid-access-status" data-paid-status>Материалы дела загружаются только после серверной проверки доступа.</p></div>`;
 
     html = html.replace(
       '<span class="ml-button ml-button-secondary">Полный том · скоро</span>',
@@ -38,6 +38,7 @@ export function attachPaidAccessGateway(siteRoot, cases, editorial = false) {
     );
 
     if (!html.includes('data-paid-access-panel')) throw new Error(`Не удалось встроить панель доступа в ${route}`);
+    if (!html.includes(`${prefix}tom-1/`)) throw new Error(`Не удалось связать платное дело с витриной тома ${route}`);
     fs.writeFileSync(pagePath, html);
     processed += 1;
   }
