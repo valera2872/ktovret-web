@@ -1,0 +1,14 @@
+/* Shared premium archive cards — compact, readable, and intentionally non-clickable. */
+.volume-archive-list{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.volume-archive-card{position:relative;display:flex;min-height:164px;flex-direction:column;padding:21px 22px;border:1px solid rgba(214,177,109,.17);border-radius:20px;background:linear-gradient(145deg,rgba(20,43,66,.92),rgba(9,23,37,.98));box-shadow:0 14px 36px rgba(0,0,0,.14)}
+.volume-archive-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.volume-lock{position:relative;display:block;width:28px;height:28px;flex:0 0 28px;border:1px solid rgba(214,177,109,.28);border-radius:8px;background:rgba(214,177,109,.05)}
+.volume-lock:before{content:"";position:absolute;left:8px;right:8px;bottom:6px;height:9px;border:1.5px solid rgba(240,217,160,.78);border-radius:3px}
+.volume-lock:after{content:"";position:absolute;left:9px;top:5px;width:8px;height:9px;border:1.5px solid rgba(240,217,160,.78);border-bottom:0;border-radius:7px 7px 0 0}
+.volume-archive-kicker{color:var(--ml-gold-2);font-size:.64rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+.volume-archive-card h3{margin:0;color:#fff;font-size:1.12rem;line-height:1.15;letter-spacing:-.015em}
+.volume-archive-card p{margin:8px 0 0;color:var(--ml-muted);font-size:.82rem;line-height:1.48}
+.volume-archive-card strong{display:block;margin-top:auto;padding-top:16px;color:#e7d2a4;font-size:.74rem;font-weight:800;letter-spacing:.02em}
+.catalog-archives-panel{padding:26px;border:1px solid rgba(214,177,109,.15);border-radius:26px;background:rgba(255,255,255,.018)}
+@media(min-width:1120px){.volume-archive-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.volume-archive-list{grid-template-columns:1fr}.volume-archive-card{min-height:0;padding:18px}.catalog-archives-panel{padding:18px}}
