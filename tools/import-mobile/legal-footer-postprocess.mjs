@@ -38,6 +38,9 @@ export const applyLegalFooter = (siteRoot) => {
     if (!html.includes('assets/legal.css')) {
       html = html.replace('</head>', `<link rel="stylesheet" href="${prefix}assets/legal.css?v=1.0.0"></head>`);
     }
+    if (!html.includes('assets/typography-polish.css')) {
+      html = html.replace('</head>', `<link rel="stylesheet" href="${prefix}assets/typography-polish.css?v=1.0.0"></head>`);
+    }
 
     if (!html.includes('data-ml-legal-footer')) {
       html = html.replace('</body>', `${footerHtml(prefix)}</body>`);
