@@ -10,6 +10,7 @@ const volume=fs.readFileSync(path.join(root,'tom-1/index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'assets/catalog-experience.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'assets/catalog-experience.css'),'utf8');
 const storefrontCss=fs.readFileSync(path.join(root,'assets/volume-storefront.css'),'utf8');
+const libraryCss=fs.readFileSync(path.join(root,'assets/premium-library.css'),'utf8');
 const typographyCss=fs.readFileSync(path.join(root,'assets/typography-polish.css'),'utf8');
 
 assert.equal(catalog.totalCases,100);
@@ -27,26 +28,30 @@ assert.ok(html.includes('data-catalog-random'),'random free case action is missi
 assert.ok(html.includes('id="case-difficulty"'),'difficulty filter is missing');
 assert.ok(html.includes('id="case-category"'),'category filter is missing');
 assert.ok(html.includes('id="case-unsolved"'),'unsolved-only filter is missing');
-assert.ok(html.includes('catalog-experience.css?v=1.13.0'),'catalog 1.13 stylesheet is not versioned');
-assert.ok(html.includes('catalog-experience.js?v=1.13.0'),'catalog 1.13 script is not versioned');
+assert.ok(html.includes('full-catalog.css?v=1.14.0'),'catalog stylesheet must be cache-busted');
+assert.ok(html.includes('premium-library.css?v=1.14.0'),'premium archive stylesheet must be cache-busted');
+assert.ok(html.includes('catalog-experience.css?v=1.14.0'),'catalog 1.14 stylesheet is not versioned');
+assert.ok(html.includes('catalog-experience.js?v=1.14.0'),'catalog 1.14 script is not versioned');
 assert.ok(!html.includes('full-catalog.js?v='),'legacy filter script must not compete with catalog experience');
 assert.ok(js.includes('MysteryLogicDossier'),'catalog must read dossier progress');
 assert.ok(js.includes("card.dataset.progress=solved?'solved':active?'active':'new'"),'case progress states are missing');
 assert.ok(js.includes('pickRandomCase'),'random unsolved selection is missing');
 assert.ok(css.includes('.catalog-command'),'command center styling is missing');
 assert.ok(css.includes('.case-card.is-solved'),'solved case styling is missing');
-assert.ok(volume.includes('100 логических расследований. Без рекламы и подписки.'),'volume sales hero is missing');
-assert.ok(volume.includes('85 расследований в тематических архивах'),'premium archive headline must be customer-facing');
+assert.ok(volume.includes('100 расследований в одном томе'),'compact volume sales hero is missing');
+assert.ok(volume.includes('тематических архивов'),'premium archive headline is missing');
 assert.ok(!volume.includes('Не портянка из 85 ссылок'),'internal redesign language must never reach customers');
-assert.ok(volume.includes('15 бесплатных дел доступны всегда'),'free-access promise is missing');
+assert.ok(volume.includes('15 дел доступны без покупки'),'free-access promise is missing');
 assert.ok(volume.includes('Открыть 85 дел за 99 ₽'),'volume CTA is missing');
 assert.ok(volume.includes('data-volume-buy disabled'),'payment must remain disabled until acquiring is connected');
 assert.ok(volume.includes('name="robots" content="noindex,follow"'),'volume page must stay outside SEO index until launch');
 assert.ok(volume.includes('support@mysterylogic.com'),'support contact is missing from storefront');
+assert.ok(volume.includes('premium-library.css?v=1.14.0'),'storefront must load shared premium archive styling');
 assert.ok((volume.match(/class="volume-archive-card"/g)||[]).length>0,'volume archive structure is missing');
-assert.ok(storefrontCss.includes('.volume-hero'),'volume storefront styling is missing');
+assert.ok(storefrontCss.includes('.volume-purchase-card'),'compact purchase card styling is missing');
+assert.ok(libraryCss.includes('.volume-lock:before'),'premium archive lock styling is missing');
 assert.ok(volume.includes('assets/typography-polish.css?v=1.0.0'),'storefront must receive shared typography polish');
-assert.ok(typographyCss.includes('.ktv-hero h1'),'typography polish must cover gameplay headings');
+assert.ok(typographyCss.includes('.ktv-game-shell .ktv-hero h1'),'typography polish must cover gameplay headings');
 assert.ok(typographyCss.includes('.volume-hero h1'),'typography polish must cover storefront headings');
 
 const originSmoke=spawnSync(process.execPath,[path.join(root,'tests/site-origin.test.mjs')],{cwd:root,encoding:'utf8'});
@@ -59,4 +64,4 @@ const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access
 assert.equal(paidBoundary.status,0,`paid access boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
 assert.ok(paidBoundary.stdout.includes('paid access 1.11 boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
 
-console.log('catalog/storefront 1.13 + typography polish + site origin 1.9 + paid access boundary tests passed');
+console.log('catalog/storefront 1.14 + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');
