@@ -53,6 +53,11 @@ jobs:
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
           test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
           test -f ru/besplatnye-detektivnye-dela/index.html
+          test -f tom-1/index.html
+          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
+          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+          grep -q 'Архивы первого тома' dela/index.html
           grep -q '"indexableUrls": 23' assets/generated/import-report.json
           test "$(grep -c '<url>' sitemap.xml)" -eq 23
           grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
@@ -109,6 +114,7 @@ jobs:
           done < <(find production-web -type f -name '*.html' -print0)
           grep -R -q "app.js?v=${release_version}" production-web/ru/cases
           grep -q "challenge-page.js?v=${release_version}" production-web/challenge/index.html
+          grep -q "volume-storefront.css?v=${release_version}" production-web/tom-1/index.html
 
       - name: Validate Beget runtime tree
         run: |
@@ -120,11 +126,15 @@ jobs:
           test -f production-web/assets/mobile-scroll-stabilizer.js
           test -f production-web/assets/challenge-page.js
           test -f production-web/assets/challenge.css
+          test -f production-web/assets/volume-storefront.css
           test -f production-web/challenge/index.html
+          test -f production-web/tom-1/index.html
           test -f production-web/ktovret-game/assets/app-core.js
           test -f production-web/ktovret-game/assets/challenge-client.js
           grep -q 'mobile-scroll-stabilizer.js?v=' production-web/ktovret-game/assets/app.js
           grep -q 'challenge-client.js?v=' production-web/ktovret-game/assets/app.js
+          grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
+          grep -q 'Политика конфиденциальности' production-web/tom-1/index.html
           test ! -d production-web/supabase
           test ! -d production-web/tools
           test ! -d production-web/tests
@@ -144,7 +154,7 @@ jobs:
           cd production-web
           zip -qr ../mysterylogic-beget-production.zip .
           cd ..
-          unzip -l mysterylogic-beget-production.zip | sed -n '1,80p'
+          unzip -l mysterylogic-beget-production.zip | sed -n '1,100p'
 
       - name: Upload Beget production ZIP
         uses: actions/upload-artifact@v4

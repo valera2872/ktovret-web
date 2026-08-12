@@ -132,6 +132,10 @@ jobs:
             test -f detektivnye-zagadki-s-otvetami/index.html
             test -f logicheskie-detektivnye-zadachi/index.html
             test -f kto-vret-igra/index.html
+            test -f tom-1/index.html
+            test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+            test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
+            grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
             grep -q '"indexableUrls": 23' assets/generated/import-report.json
             test "$(grep -c '<url>' sitemap.xml)" -eq 23
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
@@ -173,9 +177,10 @@ jobs:
           ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
           test -f assets/generated/cases-index.json
           test -f assets/generated/cases-index.js
-          grep -q '100 расследований' dela/index.html
-          grep -q '15 бесплатно' dela/index.html
-          grep -q '85 в полном томе' dela/index.html
+          test -f tom-1/index.html
+          grep -q '15 дел бесплатно' dela/index.html
+          grep -q 'Ещё 85 дел — одной покупкой' dela/index.html
+          grep -q '100 логических расследований' tom-1/index.html
 
       - name: Report requested validation
         if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
@@ -190,7 +195,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO-native: **15 canonical cases + 1 collection**\n- Sitemap: **23 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
+              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- Premium storefront: **15 free cards + grouped first-volume archives**\n- SEO-native: **15 canonical cases + 1 collection**\n- Sitemap: **23 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
             })
 
   deploy:

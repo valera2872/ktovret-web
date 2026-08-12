@@ -27,11 +27,12 @@ assert.equal(report.paidGatewayPages,85,'all 85 locked pages need the gateway');
 
 for(const item of premium){
   const html=fs.readFileSync(path.join(root,item.legacyPath,'index.html'),'utf8');
-  assert.ok(html.includes('data-paid-case-gateway="1.11.0"'),`${item.id} needs paid gateway marker`);
+  assert.ok(html.includes('data-paid-case-gateway="1.13.0"'),`${item.id} needs paid gateway marker`);
   assert.ok(html.includes('data-paid-access-panel'),`${item.id} needs paid access panel`);
   assert.ok(html.includes('data-purchase-email-wrap'),`${item.id} needs dormant checkout email field`);
-  assert.ok(html.includes('paid-access-client.js?v=1.11.0'),`${item.id} needs paid access client`);
-  assert.ok(html.includes('paid-access-config.js?v=1.11.0'),`${item.id} needs paid access runtime config`);
+  assert.ok(html.includes('paid-access-client.js?v=1.13.0'),`${item.id} needs paid access client`);
+  assert.ok(html.includes('paid-access-config.js?v=1.13.0'),`${item.id} needs paid access runtime config`);
+  assert.ok(html.includes('tom-1/'),`${item.id} must route unpurchased users to the first-volume storefront`);
   assert.ok(!html.includes('window.KtoVretWeb='),`${item.id} must not expose paid game config publicly`);
 }
 
@@ -42,7 +43,7 @@ for(const item of free){
 }
 
 assert.ok(runtime.includes("endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access'"),'live paid endpoint must remain configured');
-assert.ok(runtime.includes("checkoutEnabled:false"),'checkout must remain publicly disabled until YooKassa credentials and receipt settings are verified');
+assert.ok(runtime.includes("checkoutEnabled:false"),'checkout must remain publicly disabled until acquiring credentials and receipt settings are verified');
 assert.ok(runtime.includes("checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout'"),'create-checkout endpoint missing');
 assert.ok(runtime.includes("paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status'"),'payment-status endpoint missing');
 assert.ok(runtime.includes("productId:'volume1'"),'volume1 product id missing');
@@ -58,23 +59,23 @@ assert.ok(edge.includes(".from('access_entitlements')"),'case access must verify
 assert.ok(edge.includes(".from('paid_case_payloads')"),'case access must read paid payload only after access check');
 assert.ok(edge.includes("'cache-control': 'private, no-store, max-age=0'"),'paid payload responses must not be publicly cached');
 
-assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SHOP_ID')"),'YooKassa shop id must be server-side env');
-assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SECRET_KEY')"),'YooKassa secret must be server-side env');
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SHOP_ID')"),'legacy YooKassa shop id must remain server-side until T-Bank adapter replaces it');
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SECRET_KEY')"),'legacy YooKassa secret must remain server-side until T-Bank adapter replaces it');
 assert.ok(paymentShared.includes("Deno.env.get('VOLUME1_PRICE_RUB')"),'price must be server-side env');
-assert.ok(paymentShared.includes('Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}'),'YooKassa must use server-side Basic Auth');
+assert.ok(paymentShared.includes('Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}'),'legacy payment adapter must use server-side Basic Auth');
 assert.ok(paymentShared.includes(".upsert({\n      token_hash: order.token_hash"),'entitlement issuance must use the stored token hash');
 
-assert.ok(checkout.includes("headers: { 'Idempotence-Key': requestId }"),'payment creation needs YooKassa idempotency');
+assert.ok(checkout.includes("headers: { 'Idempotence-Key': requestId }"),'legacy payment creation needs idempotency');
 assert.ok(checkout.includes("amount: { value: amountValue, currency: 'RUB' }"),'checkout must use server amount');
 assert.ok(!checkout.includes('body.amount'),'client must not be able to choose payment amount');
-assert.ok(checkout.includes("metadata: { order_id: orderId, product_id: PRODUCT_ID"),'YooKassa payment must carry internal order metadata');
+assert.ok(checkout.includes("metadata: { order_id: orderId, product_id: PRODUCT_ID"),'payment must carry internal order metadata');
 assert.ok(checkout.includes('customerEmailHash'),'checkout may store only hashed customer email');
 
-assert.ok(webhook.includes("yookassaRequest(`payments/${encodeURIComponent(paymentId)}`)"),'webhook must re-read payment from YooKassa');
+assert.ok(webhook.includes("yookassaRequest(`payments/${encodeURIComponent(paymentId)}`)"),'legacy webhook must re-read payment');
 assert.ok(webhook.includes("event === 'payment.succeeded'"),'payment success handler missing');
 assert.ok(webhook.includes("event === 'refund.succeeded'"),'refund revocation handler missing');
 assert.ok(webhook.includes("status: 'refunded'"),'full refund must revoke entitlement');
-assert.ok(paymentStatus.includes('refreshPaymentOrder(admin, order)'),'return flow must reconcile delayed webhook through YooKassa API');
+assert.ok(paymentStatus.includes('refreshPaymentOrder(admin, order)'),'return flow must reconcile delayed webhook through payment API');
 assert.ok(paymentStatus.includes('order.token_hash !== tokenHash'),'payment status must bind order to browser-held secret');
 
 assert.ok(migration.includes('enable row level security'),'paid tables must have RLS enabled');
