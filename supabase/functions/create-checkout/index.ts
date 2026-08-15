@@ -20,6 +20,7 @@ import {
 } from '../_shared/tbank.ts';
 
 const description = Deno.env.get('VOLUME1_DESCRIPTION') || 'Mystery Logic — полный том «Кто врёт?»';
+const receiptName = Deno.env.get('VOLUME1_RECEIPT_NAME') || 'Цифровой доступ Mystery Logic — том «Кто врёт?»';
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -41,7 +42,8 @@ Deno.serve(async (req: Request) => {
   const language = String(body.language || '').toLowerCase() === 'en' ? 'en' : 'ru';
   if (!validAccessToken(accessToken)) return json(400, { error: 'invalid_access_token' }, origin);
   if (!validUuid(requestId)) return json(400, { error: 'invalid_request_id' }, origin);
-  if (email && !validEmail(email)) return json(400, { error: 'invalid_email' }, origin);
+  if (!email) return json(400, { error: 'email_required_for_receipt' }, origin);
+  if (!validEmail(email)) return json(400, { error: 'invalid_email' }, origin);
 
   let returnUrl: URL;
   try { returnUrl = new URL(String(body.returnUrl || '')); } catch {
@@ -57,8 +59,22 @@ Deno.serve(async (req: Request) => {
   const amount = amountToKopecks(VOLUME1_PRICE_RUB);
   if (!amountValue || amount <= 0) return json(503, { error: 'payment_service_not_configured' }, origin);
 
+  const receipt = {
+    Email: email,
+    Taxation: 'usn_income',
+    Items: [{
+      Name: receiptName.slice(0, 128),
+      Price: amount,
+      Quantity: 1,
+      Amount: amount,
+      PaymentMethod: 'full_payment',
+      PaymentObject: 'intellectual_activity',
+      Tax: 'none',
+    }],
+  };
+
   const tokenHash = await sha256(accessToken);
-  const customerEmailHash = email ? await sha256(email) : null;
+  const customerEmailHash = await sha256(email);
   const admin = adminClient();
 
   const { data: existing, error: existingError } = await admin
@@ -123,6 +139,7 @@ Deno.serve(async (req: Request) => {
       NotificationURL: notificationUrl,
       SuccessURL: successUrl.href,
       FailURL: failUrl.href,
+      Receipt: receipt,
     });
     const paymentId = String(payment?.PaymentId || '');
     const confirmationUrl = String(payment?.PaymentURL || '');
