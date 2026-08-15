@@ -4,6 +4,8 @@
   const cfg = window.MysteryLogicPaidAccessConfig || {};
   const buy = document.querySelector('[data-volume-buy]');
   const email = document.querySelector('[data-volume-email]');
+  const offerAccept = document.querySelector('[data-volume-offer-accept]');
+  const privacyAck = document.querySelector('[data-volume-privacy-ack]');
   const note = document.querySelector('[data-volume-payment-note]');
   if (!buy) return;
 
@@ -11,6 +13,7 @@
   const orderStorageKey = cfg.orderStorageKey || 'mysterylogic:volume1:last-order-id';
   const requestStorageKey = cfg.requestStorageKey || 'mysterylogic:volume1:checkout-request-id';
   const emailWrap = email?.closest('.volume-checkout-email') || null;
+  const legalWrap = document.querySelector('[data-volume-legal]');
   let busy = false;
   let libraryUnlocked = false;
   let catalogPromise = null;
@@ -44,6 +47,22 @@
   };
 
   const validEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
+
+  const checkoutReady = () => Boolean(
+    cfg.checkoutEnabled
+      && cfg.checkoutEndpoint
+      && validEmail(String(email?.value || '').trim().toLowerCase())
+      && offerAccept?.checked
+      && privacyAck?.checked
+  );
+
+  const syncBuyState = () => {
+    if (libraryUnlocked || busy) {
+      buy.disabled = true;
+      return;
+    }
+    buy.disabled = !checkoutReady();
+  };
 
   const paymentStatus = async (token, orderId) => {
     const response = await fetch(cfg.paymentStatusEndpoint, {
@@ -151,6 +170,7 @@
     buy.textContent = 'Доступ открыт';
     buy.setAttribute('aria-disabled', 'true');
     if (emailWrap) emailWrap.hidden = true;
+    if (legalWrap) legalWrap.hidden = true;
     document.documentElement.classList.add('volume-access-unlocked');
     setNote(message, 'ok');
     try {
@@ -205,20 +225,20 @@
         if (result.status === 'canceled') {
           setNote('Платёж не выполнен. Деньги не списаны.', 'error');
           busy = false;
-          buy.disabled = false;
+          syncBuyState();
           return true;
         }
         if (result.status === 'refunded') {
           setNote('Платёж возвращён. Доступ закрыт.', 'error');
           busy = false;
-          buy.disabled = false;
+          syncBuyState();
           return true;
         }
       } catch {}
     }
     setNote('Платёж ещё обрабатывается. Обновите страницу через несколько секунд.', 'error');
     busy = false;
-    buy.disabled = false;
+    syncBuyState();
     return true;
   };
 
@@ -230,9 +250,19 @@
       email?.focus();
       return;
     }
+    if (!offerAccept?.checked) {
+      setNote('Перед оплатой примите условия Публичной оферты.', 'error');
+      offerAccept?.focus();
+      return;
+    }
+    if (!privacyAck?.checked) {
+      setNote('Подтвердите, что ознакомились с Политикой конфиденциальности.', 'error');
+      privacyAck?.focus();
+      return;
+    }
 
     busy = true;
-    buy.disabled = true;
+    syncBuyState();
     setNote('Создаём защищённый платёж…');
 
     const token = ensureToken();
@@ -254,6 +284,8 @@
           caseId: '',
           email: customerEmail,
           language: 'ru',
+          offerAccepted: true,
+          privacyAcknowledged: true,
         }),
         cache: 'no-store',
         credentials: 'omit',
@@ -272,19 +304,24 @@
       const messages = {
         email_required_for_receipt: 'Для электронного чека укажите e-mail.',
         invalid_email: 'Проверьте e-mail.',
+        offer_acceptance_required: 'Перед оплатой примите условия Публичной оферты.',
+        privacy_acknowledgement_required: 'Подтвердите ознакомление с Политикой конфиденциальности.',
         payment_service_not_configured: 'Оплата временно недоступна.',
         payment_create_failed: 'T‑Bank не создал платёж. Попробуйте ещё раз.',
       };
       setNote(messages[error.message] || 'Не удалось начать оплату. Попробуйте ещё раз.', 'error');
       busy = false;
-      buy.disabled = false;
+      syncBuyState();
     }
   };
 
   if (cfg.checkoutEnabled && cfg.checkoutEndpoint) {
-    buy.disabled = false;
-    setNote('Укажите e-mail для электронного чека и перейдите к оплате через T‑Bank.');
+    setNote('Укажите e-mail и подтвердите условия перед переходом к оплате через T‑Bank.');
     buy.addEventListener('click', startCheckout);
+    email?.addEventListener('input', syncBuyState);
+    offerAccept?.addEventListener('change', syncBuyState);
+    privacyAck?.addEventListener('change', syncBuyState);
+    syncBuyState();
   } else {
     buy.disabled = true;
     setNote('Оплата временно недоступна. Бесплатные дела работают без ограничений.');
