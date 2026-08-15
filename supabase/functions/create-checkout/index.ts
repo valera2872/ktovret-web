@@ -21,6 +21,8 @@ import {
 
 const description = Deno.env.get('VOLUME1_DESCRIPTION') || 'Mystery Logic — полный том «Кто врёт?»';
 const receiptName = Deno.env.get('VOLUME1_RECEIPT_NAME') || 'Цифровой доступ Mystery Logic — том «Кто врёт?»';
+const OFFER_VERSION = '2026-08-16';
+const PRIVACY_VERSION = '2026-08-16';
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -40,10 +42,15 @@ Deno.serve(async (req: Request) => {
   const caseId = String(body.caseId || '').trim().slice(0, 160);
   const email = String(body.email || '').trim().toLowerCase();
   const language = String(body.language || '').toLowerCase() === 'en' ? 'en' : 'ru';
+  const offerAccepted = body.offerAccepted === true;
+  const privacyAcknowledged = body.privacyAcknowledged === true;
+
   if (!validAccessToken(accessToken)) return json(400, { error: 'invalid_access_token' }, origin);
   if (!validUuid(requestId)) return json(400, { error: 'invalid_request_id' }, origin);
   if (!email) return json(400, { error: 'email_required_for_receipt' }, origin);
   if (!validEmail(email)) return json(400, { error: 'invalid_email' }, origin);
+  if (!offerAccepted) return json(400, { error: 'offer_acceptance_required' }, origin);
+  if (!privacyAcknowledged) return json(400, { error: 'privacy_acknowledgement_required' }, origin);
 
   let returnUrl: URL;
   try { returnUrl = new URL(String(body.returnUrl || '')); } catch {
@@ -79,7 +86,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: existing, error: existingError } = await admin
     .from('payment_orders')
-    .select('id,token_hash,status,payment_provider,provider_payment_id,confirmation_url,return_url')
+    .select('id,token_hash,status,payment_provider,provider_payment_id,confirmation_url,return_url,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at')
     .eq('client_request_id', requestId)
     .maybeSingle();
   if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
@@ -101,6 +108,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const orderId = existing?.id || crypto.randomUUID();
+  const acceptedAt = new Date().toISOString();
   const successUrl = new URL(returnUrl.href);
   successUrl.searchParams.set('payment_return', '1');
   successUrl.searchParams.set('payment_result', 'success');
@@ -125,7 +133,18 @@ Deno.serve(async (req: Request) => {
       source_origin: origin || returnUrl.origin,
       case_id: caseId || null,
       customer_email_hash: customerEmailHash,
-      metadata: { source: 'web_checkout', payment_provider: 'tbank' },
+      offer_version: OFFER_VERSION,
+      offer_accepted_at: acceptedAt,
+      privacy_version: PRIVACY_VERSION,
+      privacy_acknowledged_at: acceptedAt,
+      metadata: {
+        source: 'web_checkout',
+        payment_provider: 'tbank',
+        offer_version: OFFER_VERSION,
+        offer_accepted_at: acceptedAt,
+        privacy_version: PRIVACY_VERSION,
+        privacy_acknowledged_at: acceptedAt,
+      },
     });
     if (insertError) return json(503, { error: 'order_create_failed' }, origin);
   }
