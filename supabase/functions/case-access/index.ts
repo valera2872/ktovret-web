@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: entitlement, error: entitlementError } = await admin
     .from('access_entitlements')
-    .select('id,product_id,status,starts_at,expires_at,revoked_at')
+    .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
     .eq('token_hash', tokenHash)
     .eq('product_id', PRODUCT_ID)
     .eq('status', 'active')
@@ -87,6 +87,25 @@ Deno.serve(async (req: Request) => {
 
   if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
   if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
+
+  const rawOrderId = String(entitlement.metadata?.order_id || '');
+  const orderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawOrderId)
+    ? rawOrderId
+    : null;
+
+  const { error: auditError } = await admin.from('paid_access_audit').insert({
+    entitlement_id: entitlement.id,
+    order_id: orderId,
+    product_id: PRODUCT_ID,
+    case_id: paidCase.case_id,
+    event_type: 'payload_delivered',
+    payload_version: paidCase.payload_version,
+    metadata: {
+      source: 'case_access',
+      source_origin: origin || null,
+    },
+  });
+  if (auditError) console.error('paid_access_audit_failed', auditError.message);
 
   return json(200, {
     ok: true,
