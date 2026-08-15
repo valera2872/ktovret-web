@@ -10,7 +10,10 @@
   const storageKey = cfg.tokenStorageKey || 'mysterylogic:volume1:access-token';
   const orderStorageKey = cfg.orderStorageKey || 'mysterylogic:volume1:last-order-id';
   const requestStorageKey = cfg.requestStorageKey || 'mysterylogic:volume1:checkout-request-id';
+  const emailWrap = email?.closest('.volume-checkout-email') || null;
   let busy = false;
+  let libraryUnlocked = false;
+  let catalogPromise = null;
 
   const setNote = (text, kind = '') => {
     if (!note) return;
@@ -59,16 +62,132 @@
     return body;
   };
 
+  const loadCatalog = () => {
+    if (window.KtoVretCatalog?.cases) return Promise.resolve(window.KtoVretCatalog);
+    if (catalogPromise) return catalogPromise;
+    catalogPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = new URL('../assets/generated/cases-index.js', location.href).href;
+      script.async = true;
+      script.onload = () => window.KtoVretCatalog?.cases ? resolve(window.KtoVretCatalog) : reject(new Error('catalog_missing'));
+      script.onerror = () => reject(new Error('catalog_load_failed'));
+      document.head.appendChild(script);
+    });
+    return catalogPromise;
+  };
+
+  const caseNumber = (item) => Number.parseInt(String(item.number || '').replace(/\D/g, ''), 10) || 0;
+
+  const buildArchiveLibrary = async () => {
+    const catalog = await loadCatalog();
+    const premium = (catalog.cases || []).filter((item) => item.access === 'premium');
+    const aliases = new Map([['Ежедневные расследования', 'Дела дня']]);
+
+    for (const card of document.querySelectorAll('.volume-archive-card')) {
+      if (card.dataset.libraryReady === '1') continue;
+      const displayTitle = card.querySelector('h3')?.textContent?.trim() || '';
+      const setTitle = aliases.get(displayTitle) || displayTitle;
+      const cases = premium
+        .filter((item) => String(item.setTitle || '').trim() === setTitle)
+        .sort((a, b) => caseNumber(a) - caseNumber(b));
+      if (!cases.length) continue;
+
+      card.dataset.libraryReady = '1';
+      card.classList.add('is-unlocked');
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-expanded', 'false');
+      card.setAttribute('aria-label', `${displayTitle}. Открыть архив: ${cases.length} дел`);
+
+      const lock = card.querySelector('.volume-lock');
+      lock?.classList.add('is-unlocked');
+
+      const openLabel = document.createElement('span');
+      openLabel.className = 'volume-archive-open';
+      openLabel.textContent = 'Открыть архив';
+      card.appendChild(openLabel);
+
+      const list = document.createElement('div');
+      list.className = 'volume-archive-case-list';
+      list.hidden = true;
+
+      for (const item of cases) {
+        const link = document.createElement('a');
+        const target = item.legacyPath || item.path || '';
+        link.href = new URL(`../${target}`, location.href).href;
+        link.className = 'volume-archive-case-link';
+        link.innerHTML = `<span>Дело № ${String(item.number || '').padStart(3, '0')}</span><strong>${String(item.title || 'Расследование')}</strong><small>${String(item.difficulty || 'Логика')} · ≈ ${Number(item.estimatedMinutes) || 7} мин</small>`;
+        list.appendChild(link);
+      }
+      card.appendChild(list);
+
+      const toggle = () => {
+        const expanded = card.getAttribute('aria-expanded') === 'true';
+        card.setAttribute('aria-expanded', String(!expanded));
+        card.classList.toggle('is-expanded', !expanded);
+        list.hidden = expanded;
+        openLabel.textContent = expanded ? 'Открыть архив' : 'Свернуть архив';
+        if (!expanded) track('premium_archive_opened', { archive: setTitle });
+      };
+
+      card.addEventListener('click', (event) => {
+        if (event.target.closest('a')) return;
+        toggle();
+      });
+      card.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (event.target.closest('a')) return;
+        event.preventDefault();
+        toggle();
+      });
+    }
+  };
+
+  const unlockLibrary = async ({ message = 'Доступ к полному первому тому активен.' } = {}) => {
+    if (libraryUnlocked) return;
+    libraryUnlocked = true;
+    busy = false;
+    buy.disabled = true;
+    buy.textContent = 'Доступ открыт';
+    buy.setAttribute('aria-disabled', 'true');
+    if (emailWrap) emailWrap.hidden = true;
+    document.documentElement.classList.add('volume-access-unlocked');
+    setNote(message, 'ok');
+    try {
+      await buildArchiveLibrary();
+    } catch {
+      setNote('Доступ активен. Не удалось загрузить список дел — обновите страницу.', 'error');
+    }
+  };
+
+  const restoreAccess = async () => {
+    if (!cfg.paymentStatusEndpoint) return false;
+    const token = localStorage.getItem(storageKey) || '';
+    const orderId = localStorage.getItem(orderStorageKey) || '';
+    if (!token || !orderId) return false;
+    try {
+      const result = await paymentStatus(token, orderId);
+      if (result.status === 'paid' && result.entitled) {
+        await unlockLibrary({ message: 'Доступ открыт. Выберите архив и расследование.' });
+        return true;
+      }
+      if (result.status === 'refunded') {
+        setNote('Платёж возвращён. Доступ закрыт.', 'error');
+      }
+    } catch {}
+    return false;
+  };
+
   const reconcileReturn = async () => {
     const params = new URLSearchParams(location.search);
-    if (params.get('payment_return') !== '1' || !cfg.paymentStatusEndpoint) return;
+    if (params.get('payment_return') !== '1' || !cfg.paymentStatusEndpoint) return false;
 
     const token = localStorage.getItem(storageKey) || '';
     const orderId = params.get('order_id') || localStorage.getItem(orderStorageKey) || '';
     sessionStorage.removeItem(requestStorageKey);
     if (!token || !orderId) {
       setNote('Не удалось найти данные покупки в этом браузере. Напишите в поддержку, если оплата уже прошла.', 'error');
-      return;
+      return true;
     }
 
     setNote('Проверяем оплату…');
@@ -79,33 +198,32 @@
         if (result.status === 'paid' && result.entitled) {
           localStorage.setItem(orderStorageKey, orderId);
           track('purchase_completed', { order_id: orderId, payment_id: result.paymentId || '' });
-          buy.disabled = true;
-          buy.textContent = 'Доступ открыт';
-          setNote('Оплата подтверждена. Доступ к полному первому тому активирован.', 'ok');
+          await unlockLibrary({ message: 'Оплата подтверждена. Выберите архив и расследование.' });
           try { history.replaceState({}, '', location.pathname); } catch {}
-          return;
+          return true;
         }
         if (result.status === 'canceled') {
           setNote('Платёж не выполнен. Деньги не списаны.', 'error');
           busy = false;
           buy.disabled = false;
-          return;
+          return true;
         }
         if (result.status === 'refunded') {
           setNote('Платёж возвращён. Доступ закрыт.', 'error');
           busy = false;
           buy.disabled = false;
-          return;
+          return true;
         }
       } catch {}
     }
     setNote('Платёж ещё обрабатывается. Обновите страницу через несколько секунд.', 'error');
     busy = false;
     buy.disabled = false;
+    return true;
   };
 
   const startCheckout = async () => {
-    if (busy || !cfg.checkoutEnabled || !cfg.checkoutEndpoint) return;
+    if (busy || libraryUnlocked || !cfg.checkoutEnabled || !cfg.checkoutEndpoint) return;
     const customerEmail = String(email?.value || '').trim().toLowerCase();
     if (!validEmail(customerEmail)) {
       setNote('Укажите корректный e-mail — на него придёт электронный чек.', 'error');
@@ -172,5 +290,7 @@
     setNote('Оплата временно недоступна. Бесплатные дела работают без ограничений.');
   }
 
-  reconcileReturn();
+  reconcileReturn().then((handled) => {
+    if (!handled) restoreAccess();
+  });
 })();
