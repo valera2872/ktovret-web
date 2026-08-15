@@ -11,6 +11,7 @@ import {
   validAccessToken,
   validUuid,
 } from '../_shared/payment.ts';
+import { refreshTbankOrder, tbankConfigReady } from '../_shared/tbank.ts';
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -20,7 +21,6 @@ Deno.serve(async (req: Request) => {
   }
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
   if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
-  if (!paymentConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
 
   const auth = req.headers.get('authorization') || '';
   const match = auth.match(/^Bearer\s+(.+)$/i);
@@ -44,10 +44,17 @@ Deno.serve(async (req: Request) => {
   if (!order) return json(404, { error: 'order_not_found' }, origin);
   if (order.token_hash !== tokenHash) return json(403, { error: 'order_access_denied' }, origin);
 
+  const provider = String(order.payment_provider || (order.yookassa_payment_id ? 'yookassa' : 'tbank'));
+  if (provider === 'tbank' && !tbankConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
+  if (provider === 'yookassa' && !paymentConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
+
   try {
-    const refreshed = ['creating', 'pending'].includes(order.status)
-      ? await refreshPaymentOrder(admin, order)
-      : order;
+    let refreshed = order;
+    if (['creating', 'pending'].includes(order.status)) {
+      refreshed = provider === 'tbank'
+        ? await refreshTbankOrder(admin, order)
+        : await refreshPaymentOrder(admin, order);
+    }
 
     const { data: entitlement } = await admin
       .from('access_entitlements')
@@ -62,7 +69,8 @@ Deno.serve(async (req: Request) => {
     return json(200, {
       ok: true,
       orderId: order.id,
-      paymentId: order.yookassa_payment_id,
+      paymentId: provider === 'tbank' ? order.provider_payment_id : order.yookassa_payment_id,
+      provider,
       status: refreshed.status,
       entitled,
     }, origin);
