@@ -62,6 +62,6 @@ const paidClientSyntax=spawnSync(process.execPath,['--check',path.join(root,'ass
 assert.equal(paidClientSyntax.status,0,`paid access client syntax failed: ${paidClientSyntax.stderr||paidClientSyntax.stdout}`);
 const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access-boundary.test.js')],{cwd:root,encoding:'utf8'});
 assert.equal(paidBoundary.status,0,`paid access boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
-assert.ok(paidBoundary.stdout.includes('paid access 1.11 boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
+assert.ok(paidBoundary.stdout.includes('paid access boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
 
 console.log('catalog/storefront 1.14 + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');
