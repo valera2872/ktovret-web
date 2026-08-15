@@ -27,6 +27,33 @@ const readNotification = async (req: Request) => {
   return Object.fromEntries(new URLSearchParams(text));
 };
 
+const finalizeVerifiedRefund = async (admin: any, order: any) => {
+  const now = new Date().toISOString();
+  if (order.entitlement_id) {
+    const { error } = await admin.from('access_entitlements').update({
+      status: 'refunded',
+      revoked_at: now,
+      updated_at: now,
+    }).eq('id', order.entitlement_id);
+    if (error) throw error;
+  } else {
+    const { error } = await admin.from('access_entitlements').update({
+      status: 'refunded',
+      revoked_at: now,
+      updated_at: now,
+    }).eq('token_hash', order.token_hash).eq('product_id', PRODUCT_ID);
+    if (error) throw error;
+  }
+
+  const { error: orderError } = await admin.from('payment_orders').update({
+    status: 'refunded',
+    provider_status: 'REFUNDED',
+    refunded_at: now,
+    updated_at: now,
+  }).eq('id', order.id);
+  if (orderError) throw orderError;
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return fail(405, 'METHOD_NOT_ALLOWED');
   if (!tbankConfigReady()) return fail(503, 'NOT_CONFIGURED');
@@ -58,6 +85,15 @@ Deno.serve(async (req: Request) => {
 
   const providerStatus = String(notification.Status || '').trim();
   try {
+    if (providerStatus === 'REFUNDED') {
+      // The notification has already passed cryptographic signature, terminal,
+      // order, payment and amount checks above. Finalize the entitlement from
+      // that verified event instead of requiring a second GetState amount match,
+      // whose post-refund amount semantics can differ from the original charge.
+      await finalizeVerifiedRefund(admin, order);
+      return ok();
+    }
+
     if (providerStatus) {
       await admin.from('payment_orders').update({
         provider_status: providerStatus,
@@ -65,7 +101,7 @@ Deno.serve(async (req: Request) => {
       }).eq('id', order.id);
     }
 
-    if (['CONFIRMED', 'REFUNDED', 'CANCELED', 'REJECTED', 'REVERSED', 'DEADLINE_EXPIRED'].includes(providerStatus)) {
+    if (['CONFIRMED', 'CANCELED', 'REJECTED', 'REVERSED', 'DEADLINE_EXPIRED'].includes(providerStatus)) {
       await refreshTbankOrder(admin, { ...order, provider_status: providerStatus });
     }
     return ok();
