@@ -1,7 +1,7 @@
 window.MysteryLogicPaidAccessConfig={
-  version:'1.11.0',
+  version:'1.12.0',
   endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access',
-  checkoutEnabled:false,
+  checkoutEnabled:true,
   checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout',
   paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status',
   productId:'volume1',
