@@ -65,6 +65,7 @@
 
     const token = localStorage.getItem(storageKey) || '';
     const orderId = params.get('order_id') || localStorage.getItem(orderStorageKey) || '';
+    sessionStorage.removeItem(requestStorageKey);
     if (!token || !orderId) {
       setNote('Не удалось найти данные покупки в этом браузере. Напишите в поддержку, если оплата уже прошла.', 'error');
       return;
@@ -76,7 +77,6 @@
       try {
         const result = await paymentStatus(token, orderId);
         if (result.status === 'paid' && result.entitled) {
-          sessionStorage.removeItem(requestStorageKey);
           localStorage.setItem(orderStorageKey, orderId);
           track('purchase_completed', { order_id: orderId, payment_id: result.paymentId || '' });
           buy.disabled = true;
@@ -87,15 +87,21 @@
         }
         if (result.status === 'canceled') {
           setNote('Платёж не выполнен. Деньги не списаны.', 'error');
+          busy = false;
+          buy.disabled = false;
           return;
         }
         if (result.status === 'refunded') {
           setNote('Платёж возвращён. Доступ закрыт.', 'error');
+          busy = false;
+          buy.disabled = false;
           return;
         }
       } catch {}
     }
     setNote('Платёж ещё обрабатывается. Обновите страницу через несколько секунд.', 'error');
+    busy = false;
+    buy.disabled = false;
   };
 
   const startCheckout = async () => {
@@ -112,11 +118,8 @@
     setNote('Создаём защищённый платёж…');
 
     const token = ensureToken();
-    let requestId = sessionStorage.getItem(requestStorageKey) || '';
-    if (!requestId) {
-      requestId = crypto.randomUUID();
-      sessionStorage.setItem(requestStorageKey, requestId);
-    }
+    const requestId = crypto.randomUUID();
+    sessionStorage.setItem(requestStorageKey, requestId);
 
     const returnUrl = new URL(location.href);
     returnUrl.search = '';
@@ -147,6 +150,7 @@
       setNote('Переходим на защищённую платёжную страницу T‑Bank…', 'ok');
       location.assign(body.confirmationUrl);
     } catch (error) {
+      sessionStorage.removeItem(requestStorageKey);
       const messages = {
         email_required_for_receipt: 'Для электронного чека укажите e-mail.',
         invalid_email: 'Проверьте e-mail.',
