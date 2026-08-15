@@ -12,11 +12,15 @@ const client=fs.readFileSync(path.join(root,'assets/paid-access-client.js'),'utf
 const runtime=fs.readFileSync(path.join(root,'assets/paid-access-config.js'),'utf8');
 const edge=fs.readFileSync(path.join(root,'supabase/functions/case-access/index.ts'),'utf8');
 const paymentShared=fs.readFileSync(path.join(root,'supabase/functions/_shared/payment.ts'),'utf8');
+const tbankShared=fs.readFileSync(path.join(root,'supabase/functions/_shared/tbank.ts'),'utf8');
+const russianCa=fs.readFileSync(path.join(root,'supabase/functions/_shared/russian-ca.ts'),'utf8');
 const checkout=fs.readFileSync(path.join(root,'supabase/functions/create-checkout/index.ts'),'utf8');
-const webhook=fs.readFileSync(path.join(root,'supabase/functions/yookassa-webhook/index.ts'),'utf8');
+const legacyWebhook=fs.readFileSync(path.join(root,'supabase/functions/yookassa-webhook/index.ts'),'utf8');
+const tbankWebhook=fs.readFileSync(path.join(root,'supabase/functions/tbank-webhook/index.ts'),'utf8');
 const paymentStatus=fs.readFileSync(path.join(root,'supabase/functions/payment-status/index.ts'),'utf8');
 const migration=fs.readFileSync(path.join(root,'supabase/migrations/20260808181000_paid_access.sql'),'utf8');
 const paymentMigration=fs.readFileSync(path.join(root,'supabase/migrations/20260808204000_payment_orders.sql'),'utf8');
+const providerMigration=fs.readFileSync(path.join(root,'supabase/migrations/20260815221500_tbank_payment_provider.sql'),'utf8');
 const gitignore=fs.readFileSync(path.join(root,'.gitignore'),'utf8');
 
 const premium=catalog.cases.filter((item)=>item.access==='premium');
@@ -59,23 +63,45 @@ assert.ok(edge.includes(".from('access_entitlements')"),'case access must verify
 assert.ok(edge.includes(".from('paid_case_payloads')"),'case access must read paid payload only after access check');
 assert.ok(edge.includes("'cache-control': 'private, no-store, max-age=0'"),'paid payload responses must not be publicly cached');
 
-assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SHOP_ID')"),'legacy YooKassa shop id must remain server-side until T-Bank adapter replaces it');
-assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SECRET_KEY')"),'legacy YooKassa secret must remain server-side until T-Bank adapter replaces it');
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SHOP_ID')"),'legacy YooKassa shop id must remain server-side while old orders are recoverable');
+assert.ok(paymentShared.includes("Deno.env.get('YOOKASSA_SECRET_KEY')"),'legacy YooKassa secret must remain server-side while old orders are recoverable');
 assert.ok(paymentShared.includes("Deno.env.get('VOLUME1_PRICE_RUB')"),'price must be server-side env');
-assert.ok(paymentShared.includes('Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}'),'legacy payment adapter must use server-side Basic Auth');
-assert.ok(paymentShared.includes(".upsert({\n      token_hash: order.token_hash"),'entitlement issuance must use the stored token hash');
+assert.ok(paymentShared.includes('Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}'),'legacy payment adapter must keep server-side Basic Auth');
+assert.ok(paymentShared.includes(".upsert({\n      token_hash: order.token_hash"),'legacy entitlement issuance must use the stored token hash');
 
-assert.ok(checkout.includes("headers: { 'Idempotence-Key': requestId }"),'legacy payment creation needs idempotency');
-assert.ok(checkout.includes("amount: { value: amountValue, currency: 'RUB' }"),'checkout must use server amount');
+assert.ok(tbankShared.includes("Deno.env.get('TBANK_TERMINAL_KEY')"),'T-Bank terminal key must be server-side');
+assert.ok(tbankShared.includes("Deno.env.get('TBANK_PASSWORD')"),'T-Bank password must be server-side');
+assert.ok(tbankShared.includes("crypto.subtle.digest('SHA-256'"),'T-Bank requests must be signed with SHA-256');
+assert.ok(tbankShared.includes("typeof value !== 'object'"),'T-Bank signature must exclude nested request objects');
+assert.ok(tbankShared.includes("Deno.createHttpClient({ caCerts: RUSSIAN_TRUSTED_CA_CERTS })"),'T-Bank needs a dedicated client with Russian trusted CAs');
+assert.ok(tbankShared.includes("tbankRequest('GetState'"),'T-Bank final states must be verified through GetState');
+assert.ok(tbankShared.includes("payment_provider: 'tbank'"),'T-Bank entitlement must record its payment provider');
+assert.ok(russianCa.includes('RUSSIAN_TRUSTED_ROOT_CA'),'Russian Trusted Root CA missing');
+assert.ok(russianCa.includes('RUSSIAN_TRUSTED_SUB_CA'),'Russian Trusted Sub CA missing');
+assert.ok(russianCa.includes('-----BEGIN CERTIFICATE-----'),'Russian CA bundle must use PEM certificates');
+
+assert.ok(checkout.includes("tbankRequest('Init'"),'T-Bank checkout must initiate payment server-side');
+assert.ok(checkout.includes('Amount: amount'),'checkout must use server-derived kopeck amount');
+assert.ok(checkout.includes('OrderId: orderId'),'checkout must bind T-Bank payment to the internal order');
+assert.ok(checkout.includes('NotificationURL: notificationUrl'),'checkout must provide the verified notification endpoint');
+assert.ok(checkout.includes('SuccessURL: successUrl.href'),'checkout needs a controlled success return URL');
+assert.ok(checkout.includes('FailURL: failUrl.href'),'checkout needs a controlled failure return URL');
 assert.ok(!checkout.includes('body.amount'),'client must not be able to choose payment amount');
-assert.ok(checkout.includes("metadata: { order_id: orderId, product_id: PRODUCT_ID"),'payment must carry internal order metadata');
 assert.ok(checkout.includes('customerEmailHash'),'checkout may store only hashed customer email');
+assert.ok(checkout.includes("payment_provider: 'tbank'"),'new orders must be explicitly marked as T-Bank');
 
-assert.ok(webhook.includes("yookassaRequest(`payments/${encodeURIComponent(paymentId)}`)"),'legacy webhook must re-read payment');
-assert.ok(webhook.includes("event === 'payment.succeeded'"),'payment success handler missing');
-assert.ok(webhook.includes("event === 'refund.succeeded'"),'refund revocation handler missing');
-assert.ok(webhook.includes("status: 'refunded'"),'full refund must revoke entitlement');
-assert.ok(paymentStatus.includes('refreshPaymentOrder(admin, order)'),'return flow must reconcile delayed webhook through payment API');
+assert.ok(tbankWebhook.includes('verifyTbankToken(notification)'),'T-Bank webhook must verify notification signature');
+assert.ok(tbankWebhook.includes("String(notification.TerminalKey || '') !== TBANK_TERMINAL_KEY"),'T-Bank webhook must bind notifications to our terminal');
+assert.ok(tbankWebhook.includes('PAYMENT_MISMATCH'),'T-Bank webhook must reject mismatched payment IDs');
+assert.ok(tbankWebhook.includes('AMOUNT_MISMATCH'),'T-Bank webhook must reject mismatched amounts');
+assert.ok(tbankWebhook.includes('refreshTbankOrder'),'T-Bank webhook must re-read final payment state before entitlement changes');
+assert.ok(tbankWebhook.includes("new Response('OK'"),'valid T-Bank notification must acknowledge with exact OK body');
+
+assert.ok(legacyWebhook.includes("yookassaRequest(`payments/${encodeURIComponent(paymentId)}`)"),'legacy webhook must re-read old YooKassa payments');
+assert.ok(legacyWebhook.includes("event === 'payment.succeeded'"),'legacy payment success handler missing');
+assert.ok(legacyWebhook.includes("event === 'refund.succeeded'"),'legacy refund revocation handler missing');
+assert.ok(paymentStatus.includes('refreshTbankOrder(admin, order)'),'return flow must reconcile T-Bank through GetState');
+assert.ok(paymentStatus.includes('refreshPaymentOrder(admin, order)'),'return flow must preserve legacy YooKassa recovery');
 assert.ok(paymentStatus.includes('order.token_hash !== tokenHash'),'payment status must bind order to browser-held secret');
 
 assert.ok(migration.includes('enable row level security'),'paid tables must have RLS enabled');
@@ -85,6 +111,9 @@ assert.ok(paymentMigration.includes('create table if not exists public.payment_o
 assert.ok(paymentMigration.includes('alter table public.payment_orders enable row level security'),'payment orders need RLS');
 assert.ok(paymentMigration.includes('revoke all on table public.payment_orders from anon, authenticated'),'payment orders must deny browser roles');
 assert.ok(!paymentMigration.includes('access_token text'),'plaintext access token column must never exist');
+assert.ok(providerMigration.includes("payment_provider text not null default 'tbank'"),'payment orders must record provider');
+assert.ok(providerMigration.includes('provider_payment_id text'),'generic provider payment id missing');
+assert.ok(providerMigration.includes('payment_orders_provider_payment_uidx'),'provider payment identifiers need uniqueness protection');
 
 assert.ok(gitignore.includes('.secure-backend/'),'secure payload export must be gitignored');
 assert.ok(!fs.existsSync(path.join(root,'.secure-backend')),'secure backend export must not exist in public build tree');
@@ -113,4 +142,4 @@ if(fs.existsSync(mobileSource)){
   fs.rmSync(temp,{recursive:true,force:true});
 }
 
-console.log('paid access 1.11 boundary passed: payment orchestration ready / checkout disabled / 15 public / 85 server-gated');
+console.log('paid access boundary passed: T-Bank orchestration dormant / checkout disabled / 15 public / 85 server-gated');
