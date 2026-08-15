@@ -44,6 +44,10 @@ jobs:
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
 
+      - name: Enable production storefront checkout
+        working-directory: web
+        run: node tools/enable-volume-checkout.mjs --site .
+
       - name: Validate generated public boundary
         working-directory: web
         run: |
@@ -55,6 +59,8 @@ jobs:
           test -f ru/besplatnye-detektivnye-dela/index.html
           test -f tom-1/index.html
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          grep -q 'data-volume-email' tom-1/index.html
+          grep -q 'volume-storefront.js?v=' tom-1/index.html
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
           test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
           grep -q 'Архивы первого тома' dela/index.html
@@ -65,6 +71,7 @@ jobs:
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
           grep -q "checkoutEnabled:true" assets/paid-access-config.js
+          node --check assets/volume-storefront.js
 
       - name: Prepare Beget runtime tree
         run: |
@@ -115,6 +122,7 @@ jobs:
           grep -R -q "app.js?v=${release_version}" production-web/ru/cases
           grep -q "challenge-page.js?v=${release_version}" production-web/challenge/index.html
           grep -q "volume-storefront.css?v=${release_version}" production-web/tom-1/index.html
+          grep -q "volume-storefront.js?v=${release_version}" production-web/tom-1/index.html
 
       - name: Validate Beget runtime tree
         run: |
@@ -123,6 +131,7 @@ jobs:
           test -f production-web/sitemap.xml
           test -f production-web/robots.txt
           test -f production-web/assets/paid-access-client.js
+          test -f production-web/assets/volume-storefront.js
           test -f production-web/assets/mobile-scroll-stabilizer.js
           test -f production-web/assets/challenge-page.js
           test -f production-web/assets/challenge.css
@@ -131,6 +140,8 @@ jobs:
           test -f production-web/tom-1/index.html
           test -f production-web/ktovret-game/assets/app-core.js
           test -f production-web/ktovret-game/assets/challenge-client.js
+          grep -q 'data-volume-email' production-web/tom-1/index.html
+          grep -q 'volume-storefront.js?v=' production-web/tom-1/index.html
           grep -q 'mobile-scroll-stabilizer.js?v=' production-web/ktovret-game/assets/app.js
           grep -q 'challenge-client.js?v=' production-web/ktovret-game/assets/app.js
           grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
