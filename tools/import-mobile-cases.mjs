@@ -28,6 +28,14 @@ const collectionPages=writeCollectionPages(siteRoot,lib.collections,lib.cases);
 writeCatalog(siteRoot,lib.cases,lib.freeMeta,editorial);
 writeSeoPages(siteRoot,lib.freeMeta);
 
+const volume=path.join(siteRoot,'tom-1/index.html');
+if(fs.existsSync(volume)){
+  let html=fs.readFileSync(volume,'utf8');
+  html=html.replace('<meta name="robots" content="noindex,follow">','');
+  if(html.includes('name="robots" content="noindex')) throw new Error('tom-1 must be indexable at SEO launch');
+  fs.writeFileSync(volume,html);
+}
+
 const product=path.join(siteRoot,'kto-vret/index.html');
 if(fs.existsSync(product)){
   let html=fs.readFileSync(product,'utf8');
@@ -39,7 +47,7 @@ if(fs.existsSync(product)){
 const legalFooterPages=applyLegalFooter(siteRoot);
 const base='https://valera2872.github.io/ktovret-web/';
 const collectionUrls=collectionPages.map(item=>`${base}${item.route}`);
-const urls=[base,`${base}kto-vret/`,`${base}dela/`,...seoSlugs.map(slug=>`${base}${slug}/`),...collectionUrls,...lib.freeMeta.map(item=>`${base}${item.path}`)];
+const urls=[base,`${base}kto-vret/`,`${base}dela/`,`${base}tom-1/`,...seoSlugs.map(slug=>`${base}${slug}/`),...collectionUrls,...lib.freeMeta.map(item=>`${base}${item.path}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,seoNativeCases:seoNativeCaseCount,indexableCollections:indexableCollectionCount,collectionPages:collectionPages.length,playablePages:editorial?100:15,lockedPages:editorial?0:85,paidGatewayPages,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,witnessEnhancedPages,seoNativePostprocessedPages,legalFooterPages};
