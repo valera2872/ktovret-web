@@ -38,7 +38,7 @@ assert.ok(js.includes("card.dataset.progress=solved?'solved':active?'active':'ne
 assert.ok(js.includes('pickRandomCase'),'random unsolved selection is missing');
 assert.ok(css.includes('.catalog-command'),'command center styling is missing');
 assert.ok(css.includes('.case-card.is-solved'),'solved case styling is missing');
-assert.ok(volume.includes('Первый том «Кто врёт?» — 100 детективных расследований'),'Wordstat storefront H1 is missing');
+assert.ok(volume.includes('Первый том «Кто врёт?» — 100 детективных задач'),'final SEO storefront H1 is missing');
 assert.ok(volume.includes('тематических архивов'),'premium archive headline is missing');
 assert.ok(!volume.includes('Не портянка из 85 ссылок'),'internal redesign language must never reach customers');
 assert.ok(volume.includes('15 дел доступны без покупки'),'free-access promise is missing');
