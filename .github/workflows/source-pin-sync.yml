@@ -1,0 +1,65 @@
+name: Sync Russian editorial source pin
+
+on:
+  push:
+    branches:
+      - agent/russian-copy-100-cases
+
+permissions:
+  contents: write
+
+env:
+  NEW_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  OLD_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  sync-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/russian-copy-100-cases
+          path: web
+      - name: Update all source pins
+        working-directory: web
+        run: |
+          sed -i "s/${OLD_SOURCE_COMMIT}/${NEW_SOURCE_COMMIT}/g" \
+            .github/workflows/pages.yml \
+            .github/workflows/production-beget.yml \
+            .github/workflows/seo-expansion.yml
+          test "$(grep -R -l "$NEW_SOURCE_COMMIT" .github/workflows/pages.yml .github/workflows/production-beget.yml .github/workflows/seo-expansion.yml | wc -l)" -eq 3
+          ! grep -R -q "$OLD_SOURCE_COMMIT" .github/workflows/pages.yml .github/workflows/production-beget.yml .github/workflows/seo-expansion.yml
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN"
+      - uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.NEW_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate importer against corrected 100-case source
+        working-directory: web
+        run: |
+          node --check tools/import-mobile/load-active.mjs
+          node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$NEW_SOURCE_COMMIT"
+          grep -q '"sourceCommit": "'"$NEW_SOURCE_COMMIT"'"' assets/generated/import-report.json
+          grep -q '"indexableUrls": 112' assets/generated/import-report.json
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
+          grep -R -q 'Павел ошибается: в 18:10 он пользовался не личной картой, а ключом' ru/cases/*/index.html
+          grep -q 'Все необходимые сведения есть в материалах дела' index.html
+      - name: Commit synchronized pins and remove helper workflow
+        working-directory: web
+        run: |
+          rm .github/workflows/source-pin-sync.yml
+          git config user.name "valera2872"
+          git config user.email "barbarov28@protonmail.com"
+          git add .github/workflows/pages.yml .github/workflows/production-beget.yml .github/workflows/seo-expansion.yml .github/workflows/source-pin-sync.yml
+          git commit -m "editorial: pin corrected 100-case Russian source [skip ci]"
+          git push
