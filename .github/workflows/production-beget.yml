@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
   MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
 
