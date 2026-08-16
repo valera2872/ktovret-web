@@ -61,11 +61,14 @@ jobs:
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
           grep -q 'data-volume-email' tom-1/index.html
           grep -q 'volume-storefront.js?v=' tom-1/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' tom-1/index.html
+          ! grep -q 'name="robots" content="noindex' tom-1/index.html
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
           test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
           grep -q 'Архивы первого тома' dela/index.html
-          grep -q '"indexableUrls": 23' assets/generated/import-report.json
-          test "$(grep -c '<url>' sitemap.xml)" -eq 23
+          grep -q '"indexableUrls": 24' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 24
+          grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
           grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
@@ -146,6 +149,8 @@ jobs:
           grep -q 'challenge-client.js?v=' production-web/ktovret-game/assets/app.js
           grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
           grep -q 'Политика конфиденциальности' production-web/tom-1/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
+          ! grep -q 'name="robots" content="noindex' production-web/tom-1/index.html
           test ! -d production-web/supabase
           test ! -d production-web/tools
           test ! -d production-web/tests
@@ -157,7 +162,8 @@ jobs:
           test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15
           test "$(grep -rl 'data-seo-prerender' production-web/ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'noindex,follow' production-web/delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 23
+          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 24
+          grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' production-web/sitemap.xml
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
 
       - name: Create ZIP
