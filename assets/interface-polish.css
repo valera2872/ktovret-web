@@ -1,0 +1,94 @@
+/* Mystery Logic interface polish v1.0 — remove empty paper decoration and make catalog cards information-first. */
+
+/* Homepage: the hero should sell the idea through copy, actions and facts — not through an empty paper prop. */
+.ml-hero{
+  min-height:0!important;
+  justify-content:flex-start!important;
+  padding:clamp(44px,6.5vw,76px)!important;
+  background:
+    radial-gradient(circle at 88% 18%,rgba(214,177,109,.10),transparent 22rem),
+    radial-gradient(circle at 12% 100%,rgba(55,104,142,.15),transparent 24rem),
+    linear-gradient(120deg,rgba(9,24,38,.99),rgba(14,35,54,.97) 60%,rgba(7,16,26,.98))!important;
+}
+.ml-hero:before,.ml-hero:after{display:none!important}
+.ml-hero h1{max-width:760px!important}
+.ml-hero-lead{max-width:760px!important}
+.ml-hero .ml-actions{max-width:900px}
+.ml-hero .ml-trust{max-width:980px}
+
+/* Open archive hero: replace the rotated blank sheet with a compact information panel. */
+.catalog-hero-grid{
+  grid-template-columns:minmax(0,1.45fr) minmax(250px,.55fr)!important;
+  gap:22px!important;
+  align-items:stretch!important;
+}
+.catalog-case-file{
+  display:flex!important;
+  min-height:0!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  padding:24px 26px!important;
+  color:#fff!important;
+  border:1px solid rgba(214,177,109,.22)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 100% 0,rgba(214,177,109,.10),transparent 15rem),
+    linear-gradient(145deg,rgba(20,45,69,.96),rgba(8,20,33,.99))!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.20)!important;
+  transform:none!important;
+}
+.catalog-case-file:before{display:none!important}
+.catalog-case-file small{
+  display:block!important;
+  margin:0!important;
+  color:var(--ml-gold-2)!important;
+  font-size:.68rem!important;
+  font-weight:850!important;
+  letter-spacing:.14em!important;
+}
+.catalog-case-file strong{
+  display:block!important;
+  margin-top:14px!important;
+  color:#fff!important;
+  font-family:var(--ml-display)!important;
+  font-size:clamp(2.9rem,4.5vw,4.2rem)!important;
+  line-height:.9!important;
+}
+.catalog-case-file p{
+  margin:14px 0 0!important;
+  color:var(--ml-muted)!important;
+  font-size:.88rem!important;
+  line-height:1.75!important;
+}
+
+/* Free case cards: remove the decorative stripe panel and spend the space on the case itself. */
+.case-card{
+  min-height:0!important;
+  border-radius:16px!important;
+  padding:0!important;
+}
+.case-card:before{
+  content:"";
+  display:block;
+  height:3px;
+  background:linear-gradient(90deg,rgba(214,177,109,.88),rgba(214,177,109,.12) 72%,transparent);
+}
+.case-card[data-tone="2"]:before{background:linear-gradient(90deg,rgba(130,183,150,.82),rgba(130,183,150,.10) 72%,transparent)}
+.case-card[data-tone="3"]:before{background:linear-gradient(90deg,rgba(185,88,70,.82),rgba(185,88,70,.10) 72%,transparent)}
+.case-card-visual{display:none!important}
+.case-card-body{gap:13px!important;padding:21px 22px 22px!important}
+.case-card h3{font-size:1.46rem!important;line-height:1.08!important}
+.case-card p{line-height:1.5!important}
+.case-card.is-locked .case-card-visual,.case-card[data-tone="2"] .case-card-visual,.case-card[data-tone="3"] .case-card-visual{display:none!important;filter:none!important}
+
+@media(max-width:900px){
+  .ml-hero{padding:clamp(36px,7vw,58px)!important}
+  .catalog-hero-grid{grid-template-columns:1fr!important}
+  .catalog-case-file{max-width:none!important}
+}
+@media(max-width:560px){
+  .ml-hero{min-height:0!important;padding:32px 22px!important}
+  .catalog-case-file{min-height:0!important;padding:20px!important}
+  .case-card{min-height:0!important}
+  .case-card-body{padding:19px!important}
+}
