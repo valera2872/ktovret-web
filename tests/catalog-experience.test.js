@@ -38,7 +38,7 @@ assert.ok(js.includes("card.dataset.progress=solved?'solved':active?'active':'ne
 assert.ok(js.includes('pickRandomCase'),'random unsolved selection is missing');
 assert.ok(css.includes('.catalog-command'),'command center styling is missing');
 assert.ok(css.includes('.case-card.is-solved'),'solved case styling is missing');
-assert.ok(volume.includes('100 расследований в одном томе'),'compact volume sales hero is missing');
+assert.ok(volume.includes('Первый том «Кто врёт?» — 100 детективных расследований'),'Wordstat storefront H1 is missing');
 assert.ok(volume.includes('тематических архивов'),'premium archive headline is missing');
 assert.ok(!volume.includes('Не портянка из 85 ссылок'),'internal redesign language must never reach customers');
 assert.ok(volume.includes('15 дел доступны без покупки'),'free-access promise is missing');
@@ -65,4 +65,4 @@ const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access
 assert.equal(paidBoundary.status,0,`paid access boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
 assert.ok(paidBoundary.stdout.includes('paid access boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
 
-console.log('catalog/storefront 1.14 + SEO launch indexability + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');
+console.log('catalog/storefront 1.14 + Wordstat SEO expansion + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');

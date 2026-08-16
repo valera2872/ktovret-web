@@ -1,0 +1,85 @@
+name: Validate Mystery Logic SEO expansion
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  seo-expansion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "KTOVRET_SOURCE_TOKEN is required" && exit 1)
+
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+          path: web
+
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate public SEO library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+
+      - name: Validate generator syntax and SEO contract
+        working-directory: web
+        run: |
+          node --check tools/import-mobile/seo-wordstat-expansion.mjs
+          node --check tools/import-mobile-cases.mjs
+          node tests/seo-native-cases.test.js
+
+      - name: Validate spoiler-safe 112 URL boundary
+        working-directory: web
+        run: |
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'window.KtoVretWeb=' | wc -l)" -eq 0
+          test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'data-seo-statements' | wc -l)" -eq 0
+          test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
+          test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
+          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
+          test "$(grep -c '<url>' sitemap.xml)" -eq 112
+          grep -q '"indexableUrls": 112' assets/generated/import-report.json
+          grep -q '"seoCasePages": 100' assets/generated/import-report.json
+          grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
+          grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          test -f golovolomki-onlayn/index.html
+          test -f zagadki-na-logiku-dlya-vzroslyh/index.html
+          test -f detektivnye-igry-dlya-dvoih/index.html
+
+      - name: Upload generated SEO sample
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-seo-expansion-sample
+          path: |
+            web/assets/generated/import-report.json
+            web/sitemap.xml
+            web/index.html
+            web/detektivnye-igry-onlayn/index.html
+            web/golovolomki-onlayn/index.html
+            web/zagadki-na-logiku-dlya-vzroslyh/index.html
+            web/detektivnye-igry-dlya-dvoih/index.html
+            web/ru/cases
+          retention-days: 7
