@@ -44,7 +44,8 @@ assert.ok(!volume.includes('Не портянка из 85 ссылок'),'intern
 assert.ok(volume.includes('15 дел доступны без покупки'),'free-access promise is missing');
 assert.ok(volume.includes('Открыть 85 дел за 99 ₽'),'volume CTA is missing');
 assert.ok(volume.includes('data-volume-buy disabled'),'payment must remain disabled until acquiring is connected');
-assert.ok(volume.includes('name="robots" content="noindex,follow"'),'volume page must stay outside SEO index until launch');
+assert.ok(!volume.includes('name="robots" content="noindex'),'volume page must be indexable at SEO launch');
+assert.ok(volume.includes('rel="canonical"'),'volume page must keep a canonical URL');
 assert.ok(volume.includes('support@mysterylogic.com'),'support contact is missing from storefront');
 assert.ok(volume.includes('premium-library.css?v=1.14.0'),'storefront must load shared premium archive styling');
 assert.ok((volume.match(/class="volume-archive-card"/g)||[]).length>0,'volume archive structure is missing');
@@ -64,4 +65,4 @@ const paidBoundary=spawnSync(process.execPath,[path.join(root,'tests/paid-access
 assert.equal(paidBoundary.status,0,`paid access boundary failed: ${paidBoundary.stderr||paidBoundary.stdout}`);
 assert.ok(paidBoundary.stdout.includes('paid access boundary passed'),'paid access security gate did not confirm payment orchestration boundary');
 
-console.log('catalog/storefront 1.14 + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');
+console.log('catalog/storefront 1.14 + SEO launch indexability + compact premium UI + typography polish + site origin 1.9 + paid access boundary tests passed');
