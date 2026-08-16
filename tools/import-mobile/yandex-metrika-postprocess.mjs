@@ -20,7 +20,7 @@ const scriptBlock=`<!-- Yandex.Metrika counter -->
 
 const noscriptBlock=`<noscript><div><img src="https://mc.yandex.ru/watch/111664459" style="position:absolute; left:-9999px;" alt="" /></div></noscript>`;
 
-const skipDirs=new Set(['.git','.github','node_modules','tools','tests']);
+const skipDirs=new Set(['.git','.github','node_modules','tools','tests','supabase','artifacts','.secure-backend']);
 
 function htmlFiles(root){
   const files=[];
