@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 jobs:
@@ -46,6 +46,7 @@ jobs:
         working-directory: web
         run: |
           node --check tools/import-mobile/seo-wordstat-expansion.mjs
+          node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile-cases.mjs
           node tests/seo-native-cases.test.js
 
@@ -65,6 +66,10 @@ jobs:
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          grep -q '"sourceCommit": "a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd"' assets/generated/import-report.json
+          grep -R -q 'Павел ошибается: в 18:10 он пользовался не личной картой, а ключом' ru/cases/*/index.html
+          grep -q 'Все необходимые сведения есть в материалах дела' index.html
+          grep -q 'Определить правильную последовательность' index.html
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test -f detektivnye-igry-dlya-dvoih/index.html
