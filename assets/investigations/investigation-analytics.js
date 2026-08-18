@@ -102,6 +102,10 @@
       const materialId = target.dataset.material || '';
       const wasViewed = (currentState.viewedMaterials || []).includes(materialId);
       track('investigation_material_opened', { material_id: materialId, first_open: wasViewed ? 0 : 1 });
+      setTimeout(() => {
+        currentState = readState();
+        currentStatements = statementSnapshot(currentState);
+      }, 0);
       return;
     }
 
@@ -128,7 +132,10 @@
         suspect_id: suspectId,
         change_index: (currentState.hypothesisHistory || []).length + 1,
       });
-      setTimeout(() => { currentState = readState(); }, 0);
+      setTimeout(() => {
+        currentState = readState();
+        currentStatements = statementSnapshot(currentState);
+      }, 0);
       return;
     }
 
