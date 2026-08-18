@@ -5,6 +5,39 @@
 PR: #64 — `Mystery Logic: Last Build web functional slice`
 Статус: draft; разработка только web, APK/Flutter заморожен.
 
+## WORK HANDOFF — читать первым
+
+Этот файл — основная контрольная точка для продолжения проекта в ChatGPT Work.
+
+Новый Work НЕ должен восстанавливать состояние по старым чатам и НЕ должен начинать проектирование заново. Сначала:
+
+1. прочитать этот файл целиком;
+2. открыть PR #64 и текущую ветку `feature/last-build-web-slice`;
+3. считать текущий web engine и scenario graph рабочей базой;
+4. продолжать только от текущего live lab preview;
+5. любые изменения сюжета делать только при обнаруженной доказательной/психологической дыре или после ручного playthrough.
+
+Текущий safe lab preview:
+
+`https://valera2872.github.io/ktovret-web/ru/investigations/poslednyaya-sborka/`
+
+Preview опубликован GitHub Pages workflow `Deploy Last Build lab preview` успешно. Первое подтверждённое успешное развертывание — commit `c8b10eb8b564fe17842dcef117ef5b651239e572`.
+
+Production `mysterylogic.com`, Beget, Supabase, платежи и обычные 100 дел этим preview не затронуты.
+
+### Точный следующий шаг для Work
+
+Не добавлять новые механики и не делать новый UI слой вслепую.
+
+Сначала провести ручной product playthrough текущего preview от cold open до финала и составить friction log по четырём вопросам:
+
+- где игрок не понимает, что может сделать;
+- где интерфейс слишком явно подсказывает правильную теорию;
+- где расследование превращается в чтение вместо проверки гипотез;
+- где материал/действие не даёт достаточного ощущения настоящего следственного действия.
+
+После этого исправлять только подтверждённый friction. Затем — финальные high-reuse art assets: утренний офис и 4 портрета. AI interrogation остаётся следующим B-upgrade только после устойчивого базового web-flow.
+
 ## Продуктовое решение
 
 «Последняя сборка» развивается в `valera2872/ktovret-web` как отдельный reusable advanced-investigation engine внутри Mystery Logic.
@@ -102,7 +135,7 @@ QA URL `previewEvidence` / `previewResult` намеренно не отправ�
 
 Workflow: `.github/workflows/advanced-investigation.yml`.
 
-Проверяет:
+На контрольной точке перед переходом в Work workflow полностью SUCCESS, включая:
 - JS syntax;
 - graph references;
 - достижимость всех материалов;
@@ -120,7 +153,7 @@ Workflow: `.github/workflows/advanced-investigation.yml`.
 - premium evidence renderers;
 - S final + rich debrief;
 - B final без truth reveal;
-- наличие analytics layer;
+- analytics layer;
 - noindex и отсутствие дела в sitemap/catalog.
 
 Lab-only QA helpers:
@@ -133,7 +166,52 @@ Workflow: `.github/workflows/last-build-preview.yml`.
 
 Он повторно валидирует advanced investigation и публикует feature-ветку только в GitHub Pages staging. `mysterylogic.com`, Beget production, Supabase и платежи не затрагиваются.
 
-Первый вариант workflow зависал на GitHub Environment approval (`github-pages`). Environment-gate для лабораторного preview убран; production Pages/Beget workflows не менялись. Текущий deploy нужно считать готовым только после фактического успешного run и появления preview URL в PR #64.
+Первый вариант workflow зависал на GitHub Environment approval. Environment-gate для лабораторного preview убран; production workflows не менялись.
+
+Текущий статус перед переходом в Work: **validate SUCCESS + deploy-preview SUCCESS**.
+
+Live URL:
+
+`https://valera2872.github.io/ktovret-web/ru/investigations/poslednyaya-sborka/`
+
+## Mystery Logic quality standard — обязателен
+
+При любых следующих правках использовать конкурентный quality gate как постоянную систему проверки:
+
+- True Crime Games / Last Ascent — премиальность, глубина, ощущение законченного большого расследования;
+- ProfileDetective — достоверность материалов, мультимедиа, психологическая неоднозначность;
+- Saint Twins / Home Detective — свобода расследования, выбор маршрутов, низкий порог входа;
+- Rassledovanie.online — свободный AI-допрос в будущем, но только внутри жёсткой author truth;
+- Kodgoroda — ощущение живого мира без необходимости строить огромный дорогой мир;
+- Dramtezi — быстрый web-start, ветвление последствий и web/SEO-практичность.
+
+Основная формула Mystery Logic:
+
+**психологически убедительная история + ощущение настоящего расследования + свобода действий + качественные цифровые доказательства + минимум технического трения.**
+
+Правило стоимости:
+- A — дёшево и сильно улучшает: делать;
+- B — заметно улучшает, но требует работы: выбирать лучшие;
+- C — дорого/сложно: не делать, если тот же эффект можно получить проще.
+
+Не копировать механику конкурента ради механики. Всегда оценивать, что именно должен почувствовать игрок и можно ли получить этот эффект дешевле.
+
+## Канон расследования — не переписывать автоматически
+
+Сохранять:
+- «лгут все, виновен один»;
+- Алина скрывает нарушение с T-17;
+- Тимур скрывает открытую сессию и NIGHTSAFE;
+- Роман — единственный сознательный исполнитель кражи/передачи;
+- `t.vlasov` — честный ложный след;
+- T-17 + RK-Pixel — независимая presence constellation;
+- ASTER — средство копирования;
+- R-03 — ранний след с поздним переосмыслением;
+- NIGHTSAFE — улика, меняющая значение и спасающая проект;
+- Павел возвращается после преступления, восстанавливает сборку на ORBIT-2;
+- финал — proof graph, а не выбор фамилии.
+
+Интерфейс должен быть очевидным; расследование не должно быть очевидным.
 
 ## Известные внешние проблемы repo CI
 
@@ -151,12 +229,15 @@ Workflow: `.github/workflows/last-build-preview.yml`.
 - не добавлять карту без географической дедукции;
 - не включать AI interrogation до ручной проверки web-flow;
 - не делать видео/3D/multiplayer;
-- не публиковать дело в каталог до ручного прохождения.
+- не публиковать дело в каталог до ручного прохождения;
+- не создавать второй evidence renderer — единый reusable layer уже существует.
 
 ## Следующий production step
 
-1. Получить работающий lab preview URL.
-2. Пройти дело человеком от cold open до финала и записать friction: где непонятно, где слишком явно, где скучно, где действие не ощущается следственным.
-3. Исправить только подтверждённый UX/deduction friction.
-4. После этого добавить дорогие high-reuse art-assets: реальное утреннее фото офиса и 4 портрета.
-5. Затем решить controlled publication boundary и только после устойчивого web-flow возвращаться к AI interrogation как B-upgrade.
+1. Ручной playthrough live lab preview.
+2. Friction log и аудит по Mystery Logic standard.
+3. Точечные A-правки подтверждённого friction.
+4. Повторный playthrough.
+5. Только затем high-reuse art: утренний офис + 4 портрета.
+6. Controlled publication decision.
+7. После устойчивого web-flow — AI interrogation как B-upgrade.
