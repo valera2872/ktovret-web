@@ -32,14 +32,8 @@ for (const proof of definition.proofFamilies) {
     `Player-facing proof copy must not reveal canonical suspect: ${proof.id}`,
   );
 }
-assert.equal(
-  definition.proofFamilies.find((proof) => proof.id === 'presence').label,
-  'Физическое присутствие',
-);
-assert.equal(
-  definition.proofFamilies.find((proof) => proof.id === 'copy-device').label,
-  'Кто контролировал носитель с копией?',
-);
+assert.equal(definition.proofFamilies.find((proof) => proof.id === 'presence').label, 'Физическое присутствие');
+assert.equal(definition.proofFamilies.find((proof) => proof.id === 'copy-device').label, 'Кто контролировал носитель с копией?');
 
 require('../assets/investigations/last-build-evidence.js');
 const premiumKinds = new Set(['message', 'receipt', 'terminal', 'access', 'registry', 'interview', 'web', 'screenshot', 'email', 'comparison', 'document', 'scene', 'statements']);
@@ -48,6 +42,17 @@ for (const id of ['pavel-message', 'delete-audit', 'roman-receipt', 'studio-brie
   assert.ok(material?.presentation, `Premium presentation missing for ${id}`);
   assert.ok(premiumKinds.has(material.presentation.kind), `Unsupported evidence renderer kind for ${id}`);
 }
+
+const statementHistory = require('../assets/investigations/statement-history.js');
+const timur = definition.characters.find((character) => character.id === 'timur');
+assert.equal(statementHistory.buildHistory(timur, []).length, 1, 'Unchallenged testimony must have one visible version');
+const timurSessionHistory = statementHistory.buildHistory(timur, ['timur_admits_session_open']);
+assert.equal(timurSessionHistory.length, 2, 'First contradiction must preserve original and current testimony');
+assert.equal(timurSessionHistory[0].current, false);
+assert.equal(timurSessionHistory[1].current, true);
+const timurFullHistory = statementHistory.buildHistory(timur, ['timur_admits_session_open', 'timur_admits_nightsafe']);
+assert.equal(timurFullHistory.length, 3, 'Second contradiction must preserve the intermediate testimony too');
+assert.equal(timurFullHistory.filter((item) => item.current).length, 1);
 
 let state = core.createInitialState(definition);
 let safety = 0;
@@ -72,16 +77,8 @@ while (changed && safety < 100) {
 }
 
 assert.ok(safety < 100, 'Investigation graph should converge');
-assert.equal(
-  core.availableActions(definition, state).length,
-  0,
-  'Full exploration should leave no unperformed earned actions',
-);
-assert.equal(
-  state.viewedMaterials.length,
-  definition.materials.length,
-  'Every material should be reachable in a full exploration',
-);
+assert.equal(core.availableActions(definition, state).length, 0, 'Full exploration should leave no unperformed earned actions');
+assert.equal(state.viewedMaterials.length, definition.materials.length, 'Every material should be reachable in a full exploration');
 
 state = core.selectSuspect(state, 'roman');
 let incomplete = core.finalize(definition, state);
@@ -91,10 +88,7 @@ for (const proof of definition.proofFamilies) {
   for (const material of definition.materials) {
     if (!state.viewedMaterials.includes(material.id)) continue;
     const materialFacts = new Set(material.grantsFacts || []);
-    const requiredFacts = new Set([
-      ...(proof.allOf || []),
-      ...((proof.anyOfGroups || []).flat()),
-    ]);
+    const requiredFacts = new Set([...(proof.allOf || []), ...((proof.anyOfGroups || []).flat())]);
     if ([...materialFacts].some((fact) => requiredFacts.has(fact))) {
       state = core.toggleEvidence(definition, state, proof.id, material.id);
     }
@@ -102,20 +96,13 @@ for (const proof of definition.proofFamilies) {
 }
 
 for (const proof of definition.proofFamilies) {
-  assert.equal(
-    core.proofSatisfiedBySelection(definition, state, proof.id),
-    true,
-    `Proof family ${proof.id} must be satisfiable from player-selected materials`,
-  );
+  assert.equal(core.proofSatisfiedBySelection(definition, state, proof.id), true, `Proof family ${proof.id} must be satisfiable from player-selected materials`);
 }
 
 state = core.finalize(definition, state);
 assert.equal(state.resultTier, 'S', 'Full Last Build reconstruction must reach S');
 
-const wrong = core.finalize(
-  definition,
-  core.selectSuspect(core.createInitialState(definition), 'timur'),
-);
+const wrong = core.finalize(definition, core.selectSuspect(core.createInitialState(definition), 'timur'));
 assert.equal(wrong.resultTier, 'C', 'Wrong suspect must produce C');
 
-console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, fair-play copy and full S path validated.');
+console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, statement history, fair-play copy and full S path validated.');
