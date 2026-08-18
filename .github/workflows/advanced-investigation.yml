@@ -1,0 +1,44 @@
+name: Validate advanced investigations
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "assets/investigations/**"
+      - "ru/investigations/**"
+      - "tests/investigation-core.test.js"
+      - ".github/workflows/advanced-investigation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "assets/investigations/**"
+      - "ru/investigations/**"
+      - "tests/investigation-core.test.js"
+      - ".github/workflows/advanced-investigation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/investigations/investigation-core.js
+          node --check assets/investigations/last-build.ru.js
+          node --check assets/investigations/investigation-app.js
+      - name: Validate Last Build graph and full playthrough
+        run: node tests/investigation-core.test.js
+      - name: Validate laboratory publication boundary
+        run: |
+          test -f ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'data-ml-investigation' ru/investigations/poslednyaya-sborka/index.html
+          ! grep -q 'poslednyaya-sborka' sitemap.xml
+          ! grep -q 'poslednyaya-sborka' dela/index.html
