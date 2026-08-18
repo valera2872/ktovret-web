@@ -113,6 +113,7 @@
     const state = readState(definition);
     const html = render(definition, state);
     if (!html) return;
+    result.querySelector('.mli-truth')?.remove();
     result.insertAdjacentHTML('afterend', html);
   }
 
