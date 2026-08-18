@@ -103,7 +103,7 @@
   });
   set('guest02-assignment', {
     kind: 'registry', kicker: 'EQUIPMENT ISSUE', heading: 'GUEST-02', fields: [
-      { label: 'Дата', value: '15 октября' }, { label: 'Выдан', value: 'Роман Карский', emphasis: true }, { label: 'Возвращён', value: '17:35' },
+      { label: 'Дата', value: '15 октября' }, { label: 'Выдан', value: 'Роман Карский', emphasis: true }, { label: 'Личное устройство', value: 'ASTER-64 / A64-7731', emphasis: true }, { label: 'Возвращён', value: '17:35' },
     ],
   });
   set('review-registry', {

@@ -34,6 +34,12 @@ for (const id of ['pavel-message', 'delete-audit', 'roman-receipt', 'studio-brie
   assert.ok(material?.presentation, `Premium presentation missing for ${id}`);
   assert.ok(premiumKinds.has(material.presentation.kind), `Unsupported evidence renderer kind for ${id}`);
 }
+const guest02Assignment = definition.materials.find((item) => item.id === 'guest02-assignment');
+assert.match(guest02Assignment.body, /личное устройство: ASTER-64 \/ A64-7731/i, 'GUEST-02 register must explicitly bind the ASTER serial to its assigned visitor');
+assert.ok(
+  guest02Assignment.presentation.fields.some((field) => field.label === 'Личное устройство' && field.value === 'ASTER-64 / A64-7731'),
+  'Premium GUEST-02 registry must preserve the explicit ASTER ownership link',
+);
 
 const statementHistory = require('../assets/investigations/statement-history.js');
 const timur = definition.characters.find((character) => character.id === 'timur');

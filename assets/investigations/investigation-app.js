@@ -170,6 +170,8 @@
 
   function renderMaterials() {
     const materials = core.availableMaterials(definition, state);
+    const unread = materials.filter((material) => !state.viewedMaterials.includes(material.id));
+    const viewed = materials.filter((material) => state.viewedMaterials.includes(material.id));
     const actions = core.availableActions(definition, state).filter((action) => !action.characterId);
     return `
       <section class="mli-section mli-section-first">
@@ -177,7 +179,18 @@
           <div><p class="mli-eyebrow">Доказательства</p><h2>Материалы дела</h2></div>
           <p>Открытие документа означает, что вы действительно ознакомились с его содержанием. Только просмотренные материалы можно приложить к итоговой версии.</p>
         </div>
-        <div class="mli-material-grid">${materials.map(renderMaterialCard).join('')}</div>
+        <div class="mli-material-groups">
+          <section class="mli-material-group" data-material-group="new">
+            <div class="mli-material-subheading"><h3>Новые материалы</h3><span>${unread.length}</span></div>
+            <div class="mli-material-grid">${unread.length ? unread.map(renderMaterialCard).join('') : renderEmpty('Новых материалов нет. Продолжайте обоснованные проверки или вернитесь к участникам дела.')}</div>
+          </section>
+          ${viewed.length ? `
+            <details class="mli-viewed-materials" data-material-group="viewed">
+              <summary>Изученные материалы <b>${viewed.length}</b></summary>
+              <div class="mli-material-grid">${viewed.map(renderMaterialCard).join('')}</div>
+            </details>
+          ` : ''}
+        </div>
       </section>
       <section class="mli-section">
         <div class="mli-section-heading">
@@ -291,7 +304,7 @@
       <article class="mli-proof-card">
         <header><span>${String(ordinal).padStart(2, '0')}</span><div><h3>${escapeHtml(proof.label)}</h3><p>${escapeHtml(proof.description)}</p></div></header>
         <details>
-          <summary>Приложить доказательства <b>${selected.size ? `· выбрано ${selected.size}` : ''}</b></summary>
+          <summary>Приложить доказательства <b data-proof-count>${selected.size ? `· выбрано ${selected.size}` : ''}</b></summary>
           <div class="mli-evidence-picker">
             ${viewed.length ? viewed.map((material) => `
               <label class="${selected.has(material.id) ? 'is-selected' : ''}">
@@ -395,9 +408,20 @@
 
     root.querySelectorAll('[data-proof][data-evidence]').forEach((input) => {
       input.addEventListener('change', () => {
+        const hadResult = Boolean(state.resultTier);
         state = core.toggleEvidence(definition, state, input.dataset.proof, input.dataset.evidence);
         saveState();
-        render();
+        if (hadResult) {
+          render();
+          return;
+        }
+        const selected = state.proofSelections?.[input.dataset.proof] || [];
+        input.checked = selected.includes(input.dataset.evidence);
+        input.closest('label')?.classList.toggle('is-selected', input.checked);
+        const counter = input.closest('.mli-proof-card')?.querySelector('[data-proof-count]');
+        if (counter) {
+          counter.textContent = selected.length ? `· выбрано ${selected.length}` : '';
+        }
       });
     });
 
@@ -447,11 +471,11 @@
     saveState();
     const revealed = (outcome.action.revealsMaterials || []).map((id) => core.materialById(definition, id)).filter(Boolean);
     render();
-    showNotice(
-      revealed.length
-        ? `Получен новый материал: ${revealed.map((item) => item.title).join(', ')}`
-        : 'Проверка завершена. Новые факты добавлены в дело.',
-    );
+    if (revealed.length) {
+      openMaterialDialog(revealed[0].id, true);
+      return;
+    }
+    showNotice('Проверка завершена. Новые факты добавлены в дело.');
   }
 
   function auditVersion() {

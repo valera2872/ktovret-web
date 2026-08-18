@@ -127,6 +127,12 @@ try {
     if (!solvedDom.includes('Первая рабочая версия')) throw new Error(`${viewport.name}: debrief lost personalized investigation path`);
     if (solvedDom.includes('class="mli-truth"')) throw new Error(`${viewport.name}: generic truth dump remained alongside rich debrief`);
 
+    const { stdout: materialsDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=materials`]);
+    if (!materialsDom.includes('data-material-group="new"')) throw new Error(`${viewport.name}: unread-first material group did not render`);
+    if (!materialsDom.includes('data-material-group="viewed"')) throw new Error(`${viewport.name}: viewed material archive did not render`);
+    if (!materialsDom.includes('Изученные материалы')) throw new Error(`${viewport.name}: viewed material archive lost its label`);
+    if (materialsDom.includes('<details class="mli-viewed-materials" data-material-group="viewed" open')) throw new Error(`${viewport.name}: viewed material archive must start collapsed`);
+
     const { stdout: weakDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=B`]);
     if (weakDom.includes('data-mli-debrief')) throw new Error(`${viewport.name}: weak B accusation must not reveal canonical debrief`);
     if (!weakDom.includes('Версия пока не выдерживает предъявления')) throw new Error(`${viewport.name}: weak B result copy did not render`);
@@ -140,6 +146,7 @@ try {
       fairPlayCopy: true,
       premiumEvidence: ['receipt', 'terminal', 'web'],
       solvedDebrief: true,
+      materialArchive: 'unread-first, viewed-collapsed',
       weakResultProtected: true,
     });
   }
