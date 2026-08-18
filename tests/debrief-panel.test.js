@@ -3,11 +3,17 @@
 const assert = require('node:assert/strict');
 require('../assets/investigations/last-build.ru.js');
 require('../assets/investigations/last-build-human-layer.js');
+require('../assets/investigations/last-build-presentation.js');
 require('../assets/investigations/last-build-debrief.js');
 const debrief = require('../assets/investigations/debrief-panel.js');
 
 const definition = globalThis.MysteryLogicInvestigationCase;
 assert.ok(definition.debrief, 'Last Build must define a rich debrief');
+assert.equal(
+  /каноничес|угад|верн.*исполн|роман|карск/i.test(definition.resultTiers.B.text),
+  false,
+  'Weak B result must not confirm that the selected suspect is canonically correct',
+);
 
 const base = {
   resultTier: null,
@@ -44,4 +50,4 @@ const noMisses = debrief.missedMaterials(definition, {
 });
 assert.deepEqual(noMisses, []);
 
-console.log('Advanced investigation debrief: reveal boundary and personalized path validated.');
+console.log('Advanced investigation debrief: reveal boundary, neutral weak result and personalized path validated.');
