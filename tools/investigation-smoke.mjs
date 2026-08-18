@@ -119,6 +119,19 @@ try {
     if (!webDom.includes('mli-ev-browser')) throw new Error(`${viewport.name}: web evidence renderer did not activate`);
     if (!webDom.includes('kadr17.studio / team')) throw new Error(`${viewport.name}: web evidence content disappeared`);
 
+    const { stdout: solvedDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S`]);
+    if (solvedDom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: cold open must not block result QA preview`);
+    if (!solvedDom.includes('data-mli-debrief')) throw new Error(`${viewport.name}: solved case did not render rich debrief`);
+    if (!solvedDom.includes('Почему они лгали')) throw new Error(`${viewport.name}: debrief lost character-lie reconstruction`);
+    if (!solvedDom.includes('Улики, которые изменили смысл')) throw new Error(`${viewport.name}: debrief lost clue reinterpretation layer`);
+    if (!solvedDom.includes('Первая рабочая версия')) throw new Error(`${viewport.name}: debrief lost personalized investigation path`);
+    if (solvedDom.includes('class="mli-truth"')) throw new Error(`${viewport.name}: generic truth dump remained alongside rich debrief`);
+
+    const { stdout: weakDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=B`]);
+    if (weakDom.includes('data-mli-debrief')) throw new Error(`${viewport.name}: weak B accusation must not reveal canonical debrief`);
+    if (!weakDom.includes('Версия пока не выдерживает предъявления')) throw new Error(`${viewport.name}: weak B result copy did not render`);
+    if (weakDom.includes('канонического исполнителя')) throw new Error(`${viewport.name}: weak B result leaked answer confirmation`);
+
     results.push({
       ...viewport,
       screenshotBytes: dimensions.bytes,
@@ -126,6 +139,8 @@ try {
       coldOpenRendered: true,
       fairPlayCopy: true,
       premiumEvidence: ['receipt', 'terminal', 'web'],
+      solvedDebrief: true,
+      weakResultProtected: true,
     });
   }
 } finally {
