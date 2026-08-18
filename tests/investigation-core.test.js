@@ -15,6 +15,24 @@ assert.equal(
 );
 assert.deepEqual(core.auditDefinition(definition), [], 'Investigation graph must have no dangling references');
 
+require('../assets/investigations/last-build-presentation.js');
+for (const proof of definition.proofFamilies) {
+  const visibleCopy = `${proof.label} ${proof.description}`.toLowerCase();
+  assert.equal(
+    /роман|карск/.test(visibleCopy),
+    false,
+    `Player-facing proof copy must not reveal canonical suspect: ${proof.id}`,
+  );
+}
+assert.equal(
+  definition.proofFamilies.find((proof) => proof.id === 'presence').label,
+  'Физическое присутствие',
+);
+assert.equal(
+  definition.proofFamilies.find((proof) => proof.id === 'copy-device').label,
+  'Кто контролировал носитель с копией?',
+);
+
 let state = core.createInitialState(definition);
 let safety = 0;
 let changed = true;
@@ -86,4 +104,4 @@ const wrong = core.finalize(
 );
 assert.equal(wrong.resultTier, 'C', 'Wrong suspect must produce C');
 
-console.log('Advanced investigation core: Last Build graph validated and full S path is reachable.');
+console.log('Advanced investigation core: Last Build graph, fair-play copy and full S path validated.');
