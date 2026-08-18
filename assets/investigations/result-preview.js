@@ -57,6 +57,7 @@
     return;
   }
 
+  globalThis.MysteryLogicPreviewInitialView = 'theory';
   try {
     localStorage.setItem(`mysterylogic:investigation:v1:${definition.id}`, JSON.stringify(state));
   } catch (_) {}
