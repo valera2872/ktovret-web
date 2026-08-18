@@ -1,8 +1,8 @@
 name: Deploy Last Build lab preview
 
 on:
-  push:
-    branches: [feature/last-build-web-slice]
+  pull_request:
+    branches: [main]
     paths:
       - "assets/investigations/**"
       - "ru/investigations/**"
@@ -18,11 +18,12 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: last-build-lab-pages
+  group: last-build-lab-pages-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.ref == 'feature/last-build-web-slice'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +42,7 @@ jobs:
 
   deploy-preview:
     needs: validate
+    if: needs.validate.result == 'success'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -90,7 +92,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           script: |
             const base = (process.env.PAGE_URL || '').replace(/\/+$/, '');
