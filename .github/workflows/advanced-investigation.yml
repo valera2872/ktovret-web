@@ -45,6 +45,7 @@ jobs:
           node --check assets/investigations/last-build-questions.js
           node --check assets/investigations/last-build-debrief.js
           node --check assets/investigations/last-build-intro.js
+          node --check assets/investigations/result-preview.js
           node --check assets/investigations/investigation-app.js
           node --check assets/investigations/investigation-fairplay.js
           node --check assets/investigations/evidence-renderers.js
@@ -62,7 +63,7 @@ jobs:
           node tests/investigation-core.test.js
           node tests/debrief-panel.test.js
           node tests/case-intro.test.js
-      - name: Render Last Build and premium evidence in mobile and desktop Chrome
+      - name: Render Last Build, premium evidence and final states in mobile and desktop Chrome
         run: node tools/investigation-smoke.mjs
       - name: Validate premium web layers and laboratory boundary
         run: |
@@ -82,6 +83,7 @@ jobs:
           grep -q 'last-build-questions.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-debrief.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-intro.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'result-preview.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-renderers.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-preview.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.js' ru/investigations/poslednyaya-sborka/index.html
