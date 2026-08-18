@@ -84,7 +84,7 @@ try {
   for (const viewport of viewports) {
     const common = [
       '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-      '--force-device-scale-factor=1', `--window-size=${viewport.width},${viewport.height}`, '--virtual-time-budget=2800',
+      '--force-device-scale-factor=1', `--window-size=${viewport.width},${viewport.height}`, '--virtual-time-budget=4500',
     ];
     const screenshot = path.join(outDir, `${viewport.name}.png`);
     await runChrome([...common, `--screenshot=${screenshot}`, baseUrl]);
@@ -95,7 +95,10 @@ try {
     if (dimensions.height !== viewport.height) throw new Error(`${viewport.name}: screenshot height ${dimensions.height}, expected ${viewport.height}`);
     if (dimensions.bytes < 12_000) throw new Error(`${viewport.name}: screenshot is suspiciously small (${dimensions.bytes} bytes)`);
     if (!dom.includes('Последняя сборка')) throw new Error(`${viewport.name}: case title did not render`);
-    if (!dom.includes('mli-workspace')) throw new Error(`${viewport.name}: investigation workspace did not render`);
+    if (!dom.includes('mli-workspace')) throw new Error(`${viewport.name}: investigation workspace did not render behind cold open`);
+    if (!dom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: cold open did not render for a fresh investigation`);
+    if (!dom.includes('data-mli-intro-start')) throw new Error(`${viewport.name}: cold open has no immediate investigation entry`);
+    if (!dom.includes('Презентации не будет. Один из вас уже продал нашу игру.')) throw new Error(`${viewport.name}: cold open lost Pavel message`);
     if (!dom.includes('data-view="materials"')) throw new Error(`${viewport.name}: materials navigation did not render`);
     if (!dom.includes('data-view="theory"')) throw new Error(`${viewport.name}: theory navigation did not render`);
     if (!dom.includes('data-material="pavel-message"')) throw new Error(`${viewport.name}: initial evidence did not render`);
@@ -103,6 +106,7 @@ try {
     if (dom.includes('Роман физически вернулся в офис')) throw new Error(`${viewport.name}: canonical theory leaked into player-facing proof copy`);
 
     const { stdout: receiptDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=roman-receipt`]);
+    if (receiptDom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: cold open must not block evidence QA preview`);
     if (!receiptDom.includes('mli-ev-receipt')) throw new Error(`${viewport.name}: receipt renderer did not activate`);
     if (!receiptDom.includes('mli-ev-message-card')) throw new Error(`${viewport.name}: receipt message context did not render`);
     if (!receiptDom.includes('20:47')) throw new Error(`${viewport.name}: receipt evidence content disappeared`);
@@ -119,6 +123,7 @@ try {
       ...viewport,
       screenshotBytes: dimensions.bytes,
       workspaceRendered: true,
+      coldOpenRendered: true,
       fairPlayCopy: true,
       premiumEvidence: ['receipt', 'terminal', 'web'],
     });
