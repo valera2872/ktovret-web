@@ -54,6 +54,21 @@ const expandedTimeline = timelinePanel.visibleEvents(definition, ['roman_at_port
 assert.equal(expandedTimeline[0].id, 'review-r03', 'R-03 discovery must expand timeline backwards instead of adding a future hint');
 assert.equal(expandedTimeline.at(-1).id, 'release-delete');
 
+require('../assets/investigations/last-build-questions.js');
+const questionsPanel = require('../assets/investigations/questions-panel.js');
+let questions = questionsPanel.openQuestions(definition, ['r03_visible']);
+assert.ok(questions.some((question) => question.id === 'r03-meaning'), 'Visible R-03 must earn the question about its meaning');
+questions = questionsPanel.openQuestions(definition, ['r03_visible', 'r03_linked_roman']);
+assert.equal(questions.some((question) => question.id === 'r03-meaning'), false, 'R-03 question must disappear after its meaning is established');
+questions = questionsPanel.openQuestions(definition, ['copy_before_delete']);
+assert.ok(questions.some((question) => question.id === 'delete-purpose'), 'Copy-before-delete must earn the causal question about deletion');
+questions = questionsPanel.openQuestions(definition, ['copy_before_delete', 'nordlight_clean_build_promise', 'deal_pressure_context_known']);
+assert.equal(questions.some((question) => question.id === 'delete-purpose'), false, 'Deletion-purpose question must resolve only after intent and deal context are known');
+questions = questionsPanel.openQuestions(definition, ['orbit_write_2123']);
+assert.ok(questions.some((question) => question.id === 'orbit-source-question'), 'ORBIT write after deletion must earn the source question');
+questions = questionsPanel.openQuestions(definition, ['orbit_write_2123', 'orbit_from_nightsafe']);
+assert.equal(questions.some((question) => question.id === 'orbit-source-question'), false, 'ORBIT source question must resolve after NIGHTSAFE comparison');
+
 let state = core.createInitialState(definition);
 let safety = 0;
 let changed = true;
@@ -105,4 +120,4 @@ assert.equal(state.resultTier, 'S', 'Full Last Build reconstruction must reach S
 const wrong = core.finalize(definition, core.selectSuspect(core.createInitialState(definition), 'timur'));
 assert.equal(wrong.resultTier, 'C', 'Wrong suspect must produce C');
 
-console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, statement history, progressive timeline, fair-play copy and full S path validated.');
+console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, statement history, progressive timeline, earned questions, fair-play copy and full S path validated.');
