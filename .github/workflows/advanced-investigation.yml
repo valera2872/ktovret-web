@@ -7,6 +7,7 @@ on:
       - "assets/investigations/**"
       - "ru/investigations/**"
       - "tests/investigation-core.test.js"
+      - "tools/investigation-smoke.mjs"
       - ".github/workflows/advanced-investigation.yml"
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - "assets/investigations/**"
       - "ru/investigations/**"
       - "tests/investigation-core.test.js"
+      - "tools/investigation-smoke.mjs"
       - ".github/workflows/advanced-investigation.yml"
   workflow_dispatch:
 
@@ -35,8 +37,11 @@ jobs:
           node --check assets/investigations/last-build-presentation.js
           node --check assets/investigations/investigation-app.js
           node --check assets/investigations/investigation-fairplay.js
+          node --check tools/investigation-smoke.mjs
       - name: Validate Last Build graph and full playthrough
         run: node tests/investigation-core.test.js
+      - name: Render Last Build in mobile and desktop Chrome
+        run: node tools/investigation-smoke.mjs
       - name: Validate laboratory publication boundary
         run: |
           test -f ru/investigations/poslednyaya-sborka/index.html
