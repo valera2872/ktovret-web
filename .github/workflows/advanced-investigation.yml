@@ -56,6 +56,7 @@ jobs:
           node --check assets/investigations/questions-panel.js
           node --check assets/investigations/debrief-panel.js
           node --check assets/investigations/case-intro.js
+          node --check assets/investigations/investigation-analytics.js
           node --check tools/investigation-smoke.mjs
           node --check tests/debrief-panel.test.js
           node --check tests/case-intro.test.js
@@ -75,6 +76,7 @@ jobs:
           test -f assets/investigations/questions-panel.css
           test -f assets/investigations/debrief-panel.css
           test -f assets/investigations/case-intro.css
+          test -f assets/investigations/investigation-analytics.js
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'data-ml-investigation' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-human-layer.js' ru/investigations/poslednyaya-sborka/index.html
@@ -93,6 +95,7 @@ jobs:
           grep -q 'questions-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'debrief-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'case-intro.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'investigation-analytics.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'timeline-panel.css' ru/investigations/poslednyaya-sborka/index.html
@@ -100,5 +103,9 @@ jobs:
           grep -q 'debrief-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'case-intro.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation-fairplay.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'investigation_material_opened' assets/investigations/investigation-analytics.js
+          grep -q 'investigation_action_performed' assets/investigations/investigation-analytics.js
+          grep -q 'investigation_hypothesis_changed' assets/investigations/investigation-analytics.js
+          grep -q 'investigation_completed' assets/investigations/investigation-analytics.js
           ! grep -q 'poslednyaya-sborka' sitemap.xml
           ! grep -q 'poslednyaya-sborka' dela/index.html
