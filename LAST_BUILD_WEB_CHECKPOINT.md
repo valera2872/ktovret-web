@@ -16,6 +16,8 @@ APK / Flutter на этом этапе заморожен. Развитие «П
 
 До ручного product playthrough маршрут остаётся `noindex,follow`, вне sitemap и каталога.
 
+Для безопасной ручной проверки добавлен отдельный workflow `.github/workflows/last-build-preview.yml`: он публикует feature-ветку только на GitHub Pages staging. `mysterylogic.com`, Beget production, Supabase и платежи этим workflow не затрагиваются.
+
 ## Что уже работает
 
 ### Investigation engine
@@ -125,6 +127,16 @@ Lab-only QA helpers:
 - `?previewResult=S|A|B|C`.
 They are not player mechanics.
 
+## Safe manual preview
+
+Workflow: `.github/workflows/last-build-preview.yml`.
+
+Trigger: push в `feature/last-build-web-slice` по advanced-investigation файлам/checkpoint или manual dispatch.
+
+Перед staging deploy он снова прогоняет полный advanced graph, debrief/cold-open tests и mobile+desktop Chrome smoke. Только после успешной проверки feature branch публикуется в GitHub Pages environment.
+
+Цель — дать человеку пройти дело в настоящем браузере по staging URL, не сливая ветку в `main` и не затрагивая production `mysterylogic.com`.
+
 ## Известные внешние проблемы repo CI
 
 Общие workflows репозитория всё ещё могут быть красными по старым, не связанным с advanced engine причинам:
@@ -145,7 +157,7 @@ They are not player mechanics.
 
 ## Следующий production step
 
-1. Получить безопасный ручной browser preview / пройти дело человеком от холодного открытия до финала.
+1. Убедиться, что safe GitHub Pages lab preview опубликован, и пройти дело человеком от cold open до финала.
 2. По результату исправить только UX/deduction friction.
 3. После этого добавить финальные art-assets с высокой reuse value: прежде всего реальное изображение утреннего офиса и четыре портрета.
 4. Затем решить publication boundary: merge/noindex staging -> controlled public launch.
