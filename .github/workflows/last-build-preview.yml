@@ -1,0 +1,85 @@
+name: Deploy Last Build lab preview
+
+on:
+  push:
+    branches: [feature/last-build-web-slice]
+    paths:
+      - "assets/investigations/**"
+      - "ru/investigations/**"
+      - ".github/workflows/last-build-preview.yml"
+      - "LAST_BUILD_WEB_CHECKPOINT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: last-build-lab-pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate advanced investigation before preview
+        run: |
+          node tests/investigation-core.test.js
+          node tests/debrief-panel.test.js
+          node tests/case-intro.test.js
+          node tools/investigation-smoke.mjs
+          grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
+          ! grep -q 'poslednyaya-sborka' sitemap.xml
+          ! grep -q 'poslednyaya-sborka' dela/index.html
+
+  deploy-preview:
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Last Build branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/last-build-web-slice
+          path: web
+
+      - name: Prepare static preview tree
+        run: |
+          rm -rf \
+            web/.git \
+            web/.github \
+            web/tools \
+            web/tests \
+            web/artifacts \
+            web/supabase \
+            web/node_modules \
+            web/docs \
+            web/ops \
+            web/old.bac
+          rm -f \
+            web/.gitignore \
+            web/preview-all-100.cmd \
+            web/PROJECT_CHECKPOINT.md \
+            web/LAST_BUILD_WEB_CHECKPOINT.md \
+            web/package.json \
+            web/package-lock.json
+          test -f web/ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'name="robots" content="noindex,follow"' web/ru/investigations/poslednyaya-sborka/index.html
+          test -f web/assets/investigations/investigation-core.js
+          test -f web/assets/investigations/evidence-renderers.js
+          test -f web/assets/investigations/debrief-panel.js
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - name: Deploy feature branch to GitHub Pages staging
+        id: deployment
+        uses: actions/deploy-pages@v4
