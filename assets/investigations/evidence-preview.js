@@ -8,9 +8,8 @@
     .find((candidate) => candidate.dataset.material === materialId);
 
   const enhance = () => {
-    requestAnimationFrame(() => {
-      globalThis.MysteryLogicEvidenceRenderers?.enhanceDialog?.();
-    });
+    globalThis.MysteryLogicEvidenceRenderers?.enhanceDialog?.();
+    setTimeout(() => globalThis.MysteryLogicEvidenceRenderers?.enhanceDialog?.(), 0);
   };
 
   const clickMaterial = (button) => {
@@ -26,12 +25,12 @@
     const materialsView = document.querySelector('[data-view="materials"]');
     if (!materialsView) return;
     materialsView.click();
-    requestAnimationFrame(() => clickMaterial(findMaterialButton()));
+    setTimeout(() => clickMaterial(findMaterialButton()), 0);
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(open), { once: true });
+    document.addEventListener('DOMContentLoaded', open, { once: true });
   } else {
-    requestAnimationFrame(open);
+    open();
   }
 })();
