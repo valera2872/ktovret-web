@@ -3,20 +3,22 @@
 Дата: 2026-08-18
 Ветка: `feature/last-build-web-slice`
 PR: #64 — `Mystery Logic: Last Build web functional slice`
-Статус: draft, advanced-investigation CI GREEN.
+Статус: draft; разработка только web, APK/Flutter заморожен.
 
 ## Продуктовое решение
 
-APK / Flutter на этом этапе заморожен. Развитие «Последней сборки» идёт в `valera2872/ktovret-web` как отдельный reusable advanced-investigation engine внутри Mystery Logic.
+«Последняя сборка» развивается в `valera2872/ktovret-web` как отдельный reusable advanced-investigation engine внутри Mystery Logic.
 
-Обычный движок 100 дел `ktovret-game/assets/app-core.js`, Supabase paid-access и платёжный слой не менялись.
+Не изменены:
+- обычный движок 100 коротких дел `ktovret-game/assets/app-core.js`;
+- Supabase paid-access;
+- YooKassa/payment orchestration;
+- APK/Flutter.
 
 Лабораторный маршрут:
 `/ru/investigations/poslednyaya-sborka/`
 
 До ручного product playthrough маршрут остаётся `noindex,follow`, вне sitemap и каталога.
-
-Для безопасной ручной проверки добавлен отдельный workflow `.github/workflows/last-build-preview.yml`: он публикует feature-ветку только на GitHub Pages staging. `mysterylogic.com`, Beget production, Supabase и платежи этим workflow не затрагиваются.
 
 ## Что уже работает
 
@@ -33,7 +35,7 @@ APK / Flutter на этом этапе заморожен. Развитие «П
 - B-result не подтверждает, что игрок угадал виновного.
 
 ### Premium evidence layer
-Reusable renderers:
+Reusable renderers уже реализованы:
 - messenger;
 - receipt + message context;
 - terminal / endpoint audit;
@@ -48,117 +50,113 @@ Reusable renderers:
 - office scene;
 - statement cards.
 
-`last-build-evidence.js` задаёт presentation-data, а `evidence-renderers.js` рисует носитель. Логика доказательств от визуального представления отделена.
+`last-build-evidence.js` задаёт presentation-data, `evidence-renderers.js` рисует носитель. Логика доказательств отделена от presentation.
 
 ### Human layer
-Добавлены три дешёвых supporting-materials, не являющиеся chokepoint:
+Supporting-materials без single-clue chokepoint:
 1. Алина ↔ Роман о T-17;
 2. Павел ↔ Тимур о резервных копиях;
 3. деловой контекст Романа перед презентацией.
 
-### Statement history
-После фактического опровержения старое показание не исчезает: остаётся зачёркнутым как изменённая версия. Для Тимура поддерживается промежуточное состояние и отдельное позднее признание NIGHTSAFE.
-
-### Progressive timeline
-Timeline строится только из уже установленных literal facts. После раскрытия R-03 временная линия расширяется назад к 15 октября. Timeline не пишет выводы и не связывает события с виновностью.
-
-### Earned open questions
-Вопросы появляются из уже найденного противоречия и исчезают после его фактического разрешения. Это не quest-log и не список следующих действий.
-
-Примеры:
-- кто мог действовать под `t.vlasov` после ухода Тимура;
-- кто воспользовался T-17;
-- что означает R-03;
-- зачем удалить RELEASE после завершения копирования;
-- откуда взялась полная сборка на ORBIT-2.
+### Statement history / timeline / open questions
+- опровергнутые показания остаются зачёркнутыми;
+- у Тимура есть промежуточное состояние до признания NIGHTSAFE;
+- timeline строится только из literal facts;
+- после R-03 timeline расширяется назад к 15 октября;
+- открытые вопросы появляются из противоречий и исчезают после разрешения;
+- интерфейс не превращает вопросы в список «следующих правильных действий».
 
 ### Cold open
-Новый игрок почти сразу видит:
-- сообщение Павла 21:27;
-- утреннее состояние офиса;
-- название дела;
-- кнопку «Начать расследование».
-
-Cold open показывается только для чистого старта. При сохранённом прогрессе не повторяется. QA previews его обходят.
+Чистый старт: сообщение Павла 21:27 → состояние офиса утром → название дела → «Начать расследование».
+При сохранённом прогрессе интро не повторяется. QA preview-параметры его обходят.
 
 ### Personalized debrief
-Полная реконструкция раскрывается только на S/A.
-B/C не получают canonical truth dump.
+Canonical reconstruction раскрывается только на S/A. B/C не получают truth dump.
 
 S/A debrief показывает:
 - настоящую причинную хронологию;
 - почему лгали Алина / Тимур / Роман;
-- второе значение R-03, NIGHTSAFE, t.vlasov и чека «Порт»;
-- первую и итоговую рабочую версию игрока;
-- количество смен версии;
-- чьи показания удалось изменить;
+- переосмысление R-03, NIGHTSAFE, t.vlasov и чека «Порт»;
+- первую и итоговую гипотезу игрока;
+- смены версии;
+- изменившиеся показания;
 - пропущенные материалы.
 
-Старый generic truth wall при наличии rich debrief убирается.
+### Investigation analytics
+Добавлен `assets/investigations/investigation-analytics.js`.
+Он не отправляет тексты показаний/документов и не собирает персональные данные игрока. Передаются только технические ID и агрегаты процесса.
+
+События:
+- `investigation_view`;
+- `investigation_started`;
+- `investigation_material_opened`;
+- `investigation_action_performed`;
+- `investigation_statement_changed`;
+- `investigation_hypothesis_changed`;
+- `investigation_theory_audited`;
+- `investigation_completed` с result tier S/A/B/C.
+
+QA URL `previewEvidence` / `previewResult` намеренно не отправляют эти события.
 
 ## QA
 
-Отдельный workflow: `.github/workflows/advanced-investigation.yml`.
+Workflow: `.github/workflows/advanced-investigation.yml`.
 
-На текущей контрольной точке SUCCESS:
+Проверяет:
 - JS syntax;
 - graph references;
-- все материалы достижимы;
-- full exploration converges;
-- manual proof assembly достигает S;
+- достижимость всех материалов;
+- convergence полного exploration;
+- manual proof assembly -> S;
 - wrong suspect -> C;
-- fair-play player copy не выдаёт Романа;
+- theory-neutral player copy;
 - earned question lifecycle;
-- progressive timeline / R-03 backwards expansion;
+- progressive timeline;
 - statement history;
-- cold-open fresh/resume rules;
-- debrief S/A vs B/C reveal boundary;
+- cold-open fresh/resume;
+- S/A vs B/C debrief boundary;
 - mobile Chrome 390×844;
 - desktop Chrome 1440×1100;
-- premium receipt renderer;
-- terminal renderer;
-- pseudo-web renderer;
-- S final + rich debrief in Chrome;
-- B final without truth reveal in Chrome;
-- lab page remains noindex and outside sitemap/catalog.
+- premium evidence renderers;
+- S final + rich debrief;
+- B final без truth reveal;
+- наличие analytics layer;
+- noindex и отсутствие дела в sitemap/catalog.
 
 Lab-only QA helpers:
 - `?previewEvidence=<material-id>`;
 - `?previewResult=S|A|B|C`.
-They are not player mechanics.
 
 ## Safe manual preview
 
 Workflow: `.github/workflows/last-build-preview.yml`.
 
-Trigger: push в `feature/last-build-web-slice` по advanced-investigation файлам/checkpoint или manual dispatch.
+Он повторно валидирует advanced investigation и публикует feature-ветку только в GitHub Pages staging. `mysterylogic.com`, Beget production, Supabase и платежи не затрагиваются.
 
-Перед staging deploy он снова прогоняет полный advanced graph, debrief/cold-open tests и mobile+desktop Chrome smoke. Только после успешной проверки feature branch публикуется в GitHub Pages environment.
-
-Цель — дать человеку пройти дело в настоящем браузере по staging URL, не сливая ветку в `main` и не затрагивая production `mysterylogic.com`.
+Первый вариант workflow зависал на GitHub Environment approval (`github-pages`). Environment-gate для лабораторного preview убран; production Pages/Beget workflows не менялись. Текущий deploy нужно считать готовым только после фактического успешного run и появления preview URL в PR #64.
 
 ## Известные внешние проблемы repo CI
 
-Общие workflows репозитория всё ещё могут быть красными по старым, не связанным с advanced engine причинам:
+Не относятся к advanced engine:
 - paid-access boundary для `alibi_r2_008_clock_correction` после генерации из pinned mobile source;
-- legal test `personal-data-consent/index.html` (требование отдельной отметки).
+- legal test `personal-data-consent/index.html`.
 
-Не смешивать эти задачи с «Последней сборкой» без необходимости.
+Не смешивать их с «Последней сборкой» без необходимости.
 
-## Что НЕ делать следующим шагом
+## Не делать сейчас
 
 - не возвращаться к APK;
 - не переписывать сюжет;
-- не добавлять новые улики ради объёма;
-- не делать карту для этого дела без географической дедукции;
-- не включать AI interrogation до ручной проверки базового web-flow;
-- не добавлять видео, 3D или multiplayer;
-- не сливать лабораторный маршрут в публичный каталог до ручного прохождения.
+- не добавлять улики ради объёма;
+- не добавлять карту без географической дедукции;
+- не включать AI interrogation до ручной проверки web-flow;
+- не делать видео/3D/multiplayer;
+- не публиковать дело в каталог до ручного прохождения.
 
 ## Следующий production step
 
-1. Убедиться, что safe GitHub Pages lab preview опубликован, и пройти дело человеком от cold open до финала.
-2. По результату исправить только UX/deduction friction.
-3. После этого добавить финальные art-assets с высокой reuse value: прежде всего реальное изображение утреннего офиса и четыре портрета.
-4. Затем решить publication boundary: merge/noindex staging -> controlled public launch.
-5. Только после устойчивого web-flow рассматривать AI interrogation как B-upgrade.
+1. Получить работающий lab preview URL.
+2. Пройти дело человеком от cold open до финала и записать friction: где непонятно, где слишком явно, где скучно, где действие не ощущается следственным.
+3. Исправить только подтверждённый UX/deduction friction.
+4. После этого добавить дорогие high-reuse art-assets: реальное утреннее фото офиса и 4 портрета.
+5. Затем решить controlled publication boundary и только после устойчивого web-flow возвращаться к AI interrogation как B-upgrade.
