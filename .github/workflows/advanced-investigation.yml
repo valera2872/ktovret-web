@@ -8,6 +8,7 @@ on:
       - "ru/investigations/**"
       - "tests/investigation-core.test.js"
       - "tests/debrief-panel.test.js"
+      - "tests/case-intro.test.js"
       - "tools/investigation-smoke.mjs"
       - ".github/workflows/advanced-investigation.yml"
   push:
@@ -17,6 +18,7 @@ on:
       - "ru/investigations/**"
       - "tests/investigation-core.test.js"
       - "tests/debrief-panel.test.js"
+      - "tests/case-intro.test.js"
       - "tools/investigation-smoke.mjs"
       - ".github/workflows/advanced-investigation.yml"
   workflow_dispatch:
@@ -42,6 +44,7 @@ jobs:
           node --check assets/investigations/last-build-timeline.js
           node --check assets/investigations/last-build-questions.js
           node --check assets/investigations/last-build-debrief.js
+          node --check assets/investigations/last-build-intro.js
           node --check assets/investigations/investigation-app.js
           node --check assets/investigations/investigation-fairplay.js
           node --check assets/investigations/evidence-renderers.js
@@ -50,15 +53,18 @@ jobs:
           node --check assets/investigations/timeline-panel.js
           node --check assets/investigations/questions-panel.js
           node --check assets/investigations/debrief-panel.js
+          node --check assets/investigations/case-intro.js
           node --check tools/investigation-smoke.mjs
           node --check tests/debrief-panel.test.js
+          node --check tests/case-intro.test.js
       - name: Validate Last Build graph and full playthrough
         run: |
           node tests/investigation-core.test.js
           node tests/debrief-panel.test.js
+          node tests/case-intro.test.js
       - name: Render Last Build and premium evidence in mobile and desktop Chrome
         run: node tools/investigation-smoke.mjs
-      - name: Validate premium evidence wiring and laboratory boundary
+      - name: Validate premium web layers and laboratory boundary
         run: |
           test -f ru/investigations/poslednyaya-sborka/index.html
           test -f assets/investigations/evidence.css
@@ -66,6 +72,7 @@ jobs:
           test -f assets/investigations/timeline-panel.css
           test -f assets/investigations/questions-panel.css
           test -f assets/investigations/debrief-panel.css
+          test -f assets/investigations/case-intro.css
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'data-ml-investigation' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-human-layer.js' ru/investigations/poslednyaya-sborka/index.html
@@ -74,17 +81,20 @@ jobs:
           grep -q 'last-build-timeline.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-questions.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-debrief.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'last-build-intro.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-renderers.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-preview.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'timeline-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'questions-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'debrief-panel.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'case-intro.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'timeline-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'questions-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'debrief-panel.css' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'case-intro.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation-fairplay.js' ru/investigations/poslednyaya-sborka/index.html
           ! grep -q 'poslednyaya-sborka' sitemap.xml
           ! grep -q 'poslednyaya-sborka' dela/index.html
