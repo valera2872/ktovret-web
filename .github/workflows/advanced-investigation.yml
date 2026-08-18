@@ -37,11 +37,13 @@ jobs:
           node --check assets/investigations/last-build-human-layer.js
           node --check assets/investigations/last-build-presentation.js
           node --check assets/investigations/last-build-evidence.js
+          node --check assets/investigations/last-build-timeline.js
           node --check assets/investigations/investigation-app.js
           node --check assets/investigations/investigation-fairplay.js
           node --check assets/investigations/evidence-renderers.js
           node --check assets/investigations/evidence-preview.js
           node --check assets/investigations/statement-history.js
+          node --check assets/investigations/timeline-panel.js
           node --check tools/investigation-smoke.mjs
       - name: Validate Last Build graph and full playthrough
         run: node tests/investigation-core.test.js
@@ -52,16 +54,20 @@ jobs:
           test -f ru/investigations/poslednyaya-sborka/index.html
           test -f assets/investigations/evidence.css
           test -f assets/investigations/statement-history.css
+          test -f assets/investigations/timeline-panel.css
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'data-ml-investigation' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-human-layer.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-presentation.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-evidence.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'last-build-timeline.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-renderers.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence-preview.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'timeline-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.css' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'timeline-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation-fairplay.js' ru/investigations/poslednyaya-sborka/index.html
           ! grep -q 'poslednyaya-sborka' sitemap.xml
           ! grep -q 'poslednyaya-sborka' dela/index.html
