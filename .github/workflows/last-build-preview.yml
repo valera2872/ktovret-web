@@ -43,9 +43,6 @@ jobs:
   deploy-preview:
     needs: validate
     if: needs.validate.result == 'success'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Last Build branch
