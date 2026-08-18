@@ -9,11 +9,7 @@ const definition = globalThis.MysteryLogicInvestigationCase;
 
 assert.ok(definition, 'Last Build definition must be available');
 assert.equal(definition.id, 'last_build_ru_web');
-assert.equal(
-  definition.suspects.filter((suspect) => suspect.isCanonicalCulprit).length,
-  1,
-  'There must be exactly one canonical culprit',
-);
+assert.equal(definition.suspects.filter((suspect) => suspect.isCanonicalCulprit).length, 1, 'There must be exactly one canonical culprit');
 assert.deepEqual(core.auditDefinition(definition), [], 'Investigation graph must have no dangling references');
 
 for (const id of ['alina-roman-t17-chat', 'pavel-timur-backup-chat', 'roman-deal-context']) {
@@ -26,11 +22,7 @@ for (const id of ['inspect-t17-chat', 'inspect-backup-conflict', 'inspect-deal-c
 require('../assets/investigations/last-build-presentation.js');
 for (const proof of definition.proofFamilies) {
   const visibleCopy = `${proof.label} ${proof.description}`.toLowerCase();
-  assert.equal(
-    /роман|карск/.test(visibleCopy),
-    false,
-    `Player-facing proof copy must not reveal canonical suspect: ${proof.id}`,
-  );
+  assert.equal(/роман|карск/.test(visibleCopy), false, `Player-facing proof copy must not reveal canonical suspect: ${proof.id}`);
 }
 assert.equal(definition.proofFamilies.find((proof) => proof.id === 'presence').label, 'Физическое присутствие');
 assert.equal(definition.proofFamilies.find((proof) => proof.id === 'copy-device').label, 'Кто контролировал носитель с копией?');
@@ -53,6 +45,14 @@ assert.equal(timurSessionHistory[1].current, true);
 const timurFullHistory = statementHistory.buildHistory(timur, ['timur_admits_session_open', 'timur_admits_nightsafe']);
 assert.equal(timurFullHistory.length, 3, 'Second contradiction must preserve the intermediate testimony too');
 assert.equal(timurFullHistory.filter((item) => item.current).length, 1);
+
+require('../assets/investigations/last-build-timeline.js');
+const timelinePanel = require('../assets/investigations/timeline-panel.js');
+const initialTimeline = timelinePanel.visibleEvents(definition, ['roman_at_port_1812', 'delete_t_vlasov_2059']);
+assert.deepEqual(initialTimeline.map((event) => event.id), ['port-payment', 'release-delete']);
+const expandedTimeline = timelinePanel.visibleEvents(definition, ['roman_at_port_1812', 'delete_t_vlasov_2059', 'r03_linked_roman']);
+assert.equal(expandedTimeline[0].id, 'review-r03', 'R-03 discovery must expand timeline backwards instead of adding a future hint');
+assert.equal(expandedTimeline.at(-1).id, 'release-delete');
 
 let state = core.createInitialState(definition);
 let safety = 0;
@@ -105,4 +105,4 @@ assert.equal(state.resultTier, 'S', 'Full Last Build reconstruction must reach S
 const wrong = core.finalize(definition, core.selectSuspect(core.createInitialState(definition), 'timur'));
 assert.equal(wrong.resultTier, 'C', 'Wrong suspect must produce C');
 
-console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, statement history, fair-play copy and full S path validated.');
+console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, statement history, progressive timeline, fair-play copy and full S path validated.');
