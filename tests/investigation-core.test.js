@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const core = require('../assets/investigations/investigation-core.js');
 require('../assets/investigations/last-build.ru.js');
+require('../assets/investigations/last-build-human-layer.js');
 
 const definition = globalThis.MysteryLogicInvestigationCase;
 
@@ -14,6 +15,13 @@ assert.equal(
   'There must be exactly one canonical culprit',
 );
 assert.deepEqual(core.auditDefinition(definition), [], 'Investigation graph must have no dangling references');
+
+for (const id of ['alina-roman-t17-chat', 'pavel-timur-backup-chat', 'roman-deal-context']) {
+  assert.ok(definition.materials.some((material) => material.id === id), `Human-layer material ${id} must exist`);
+}
+for (const id of ['inspect-t17-chat', 'inspect-backup-conflict', 'inspect-deal-context']) {
+  assert.ok(definition.actions.some((action) => action.id === id), `Human-layer action ${id} must exist`);
+}
 
 require('../assets/investigations/last-build-presentation.js');
 for (const proof of definition.proofFamilies) {
@@ -32,6 +40,14 @@ assert.equal(
   definition.proofFamilies.find((proof) => proof.id === 'copy-device').label,
   'Кто контролировал носитель с копией?',
 );
+
+require('../assets/investigations/last-build-evidence.js');
+const premiumKinds = new Set(['message', 'receipt', 'terminal', 'access', 'registry', 'interview', 'web', 'screenshot', 'email', 'comparison', 'document', 'scene', 'statements']);
+for (const id of ['pavel-message', 'delete-audit', 'roman-receipt', 'studio-brief', 'access-log', 't17-registry', 'guest-wifi', 'nordlight-compliance', 'orbit-source', 'pavel-deposit', 'alina-roman-t17-chat', 'pavel-timur-backup-chat', 'roman-deal-context']) {
+  const material = definition.materials.find((item) => item.id === id);
+  assert.ok(material?.presentation, `Premium presentation missing for ${id}`);
+  assert.ok(premiumKinds.has(material.presentation.kind), `Unsupported evidence renderer kind for ${id}`);
+}
 
 let state = core.createInitialState(definition);
 let safety = 0;
@@ -73,9 +89,7 @@ assert.equal(incomplete.resultTier, 'B', 'Correct suspect without assembled proo
 
 for (const proof of definition.proofFamilies) {
   for (const material of definition.materials) {
-    if (!state.viewedMaterials.includes(material.id)) {
-      continue;
-    }
+    if (!state.viewedMaterials.includes(material.id)) continue;
     const materialFacts = new Set(material.grantsFacts || []);
     const requiredFacts = new Set([
       ...(proof.allOf || []),
@@ -104,4 +118,4 @@ const wrong = core.finalize(
 );
 assert.equal(wrong.resultTier, 'C', 'Wrong suspect must produce C');
 
-console.log('Advanced investigation core: Last Build graph, fair-play copy and full S path validated.');
+console.log('Advanced investigation core: Last Build graph, human layer, premium evidence, fair-play copy and full S path validated.');
