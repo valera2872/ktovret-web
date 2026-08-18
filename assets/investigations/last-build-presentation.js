@@ -50,4 +50,10 @@
       proof.description = copy[proof.id].description;
     }
   }
+
+  if (definition.resultTiers?.B) {
+    definition.resultTiers.B.title = 'Версия пока не выдерживает предъявления';
+    definition.resultTiers.B.text =
+      'В обвинительной цепочке остаётся как минимум одно критическое звено, которое не подтверждено приложенными материалами. Это не позволяет считать выбранного исполнителя доказанным.';
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : window);
