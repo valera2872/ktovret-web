@@ -47,10 +47,13 @@
         <section class="mli-intro-card" role="dialog" aria-modal="true" aria-labelledby="mli-intro-title">
           <div class="mli-intro-message">
             <small>${escapeHtml(intro.messageDate)}</small>
-            <div><span>${escapeHtml((intro.sender || '').split(/\s+/).map((part) => part[0] || '').slice(0, 2).join('').toUpperCase())}</span><p><strong>${escapeHtml(intro.sender)}</strong>${escapeHtml(intro.message)}</p></div>
+            <div><span>${intro.senderPortrait ? `<img src="${escapeHtml(intro.senderPortrait)}" alt="" width="96" height="120" decoding="async">` : escapeHtml((intro.sender || '').split(/\s+/).map((part) => part[0] || '').slice(0, 2).join('').toUpperCase())}</span><p><strong>${escapeHtml(intro.sender)}</strong>${escapeHtml(intro.message)}</p></div>
           </div>
           <div class="mli-intro-divider"><span>${escapeHtml(intro.morningDate)}</span></div>
-          <ul class="mli-intro-facts">${(intro.morningFacts || []).map((fact) => `<li>${escapeHtml(fact)}</li>`).join('')}</ul>
+          <div class="mli-intro-morning">
+            ${intro.morningImage ? `<figure class="mli-intro-scene"><img src="${escapeHtml(intro.morningImage)}" alt="${escapeHtml(intro.morningImageAlt || '')}" width="1440" height="810" fetchpriority="high" decoding="async" data-mli-intro-scene-image></figure>` : ''}
+            <ul class="mli-intro-facts">${(intro.morningFacts || []).map((fact) => `<li>${escapeHtml(fact)}</li>`).join('')}</ul>
+          </div>
           <div class="mli-intro-title">
             <p class="mli-eyebrow">Mystery Logic · расширенное расследование</p>
             <h1 id="mli-intro-title">${escapeHtml(intro.title)}</h1>

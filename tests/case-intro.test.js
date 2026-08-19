@@ -34,5 +34,7 @@ const html = intro.render(definition.caseIntro);
 assert.ok(html.includes('Презентации не будет. Один из вас уже продал нашу игру.'));
 assert.ok(html.includes('Начать расследование'));
 assert.ok(html.includes('RELEASE удалена'));
+assert.ok(html.includes('office-morning.webp'), 'Cold open must use the morning office image');
+assert.ok(html.includes('pavel-nesterov.webp'), 'Cold open message must use Pavel portrait');
 
 console.log('Advanced investigation cold open: fresh/resume/QA rules validated.');

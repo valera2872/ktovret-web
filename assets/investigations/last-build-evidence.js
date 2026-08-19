@@ -11,7 +11,8 @@
     messages: [{ sender: 'Павел Нестеров', time: '21:27', text: 'Презентации не будет. Один из вас уже продал нашу игру.' }],
   });
   set('office-morning', {
-    kind: 'scene', monitor: 'включён',
+    kind: 'scene', monitor: 'включён', image: '../../../assets/investigations/last-build-art/office-morning.webp',
+    imageAlt: 'Офис студии утром 18 октября: рабочая станция включена, на столе открыт пустой футляр накопителя.',
     notes: ['Рабочий телефон Павла оставлен на зарядке', 'Следов взлома дверей нет', 'Финальная папка RELEASE отсутствует'],
   });
   set('initial-statements', {

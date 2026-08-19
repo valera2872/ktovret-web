@@ -239,7 +239,7 @@
             return `
               <article class="mli-person-card">
                 <header>
-                  <span class="mli-avatar">${initials(character.name)}</span>
+                  <span class="mli-avatar">${characterPortrait(character, 'data-character-portrait')}</span>
                   <div><h3>${escapeHtml(character.name)}</h3><p>${escapeHtml(character.role)}</p></div>
                 </header>
                 <div class="mli-statement"><small>Текущая версия показаний</small><p>${escapeHtml(core.statementFor(character, facts))}</p></div>
@@ -265,7 +265,10 @@
         </div>
 
         <div class="mli-suspect-picker" role="group" aria-label="Кто исполнитель">
-          ${definition.suspects.map((suspect) => `<button type="button" class="${state.selectedSuspectId === suspect.id ? 'is-selected' : ''}" data-suspect="${escapeHtml(suspect.id)}"><span>${initials(suspect.label)}</span><strong>${escapeHtml(suspect.label)}</strong></button>`).join('')}
+          ${definition.suspects.map((suspect) => {
+            const character = definition.characters.find((item) => item.id === suspect.id) || suspect;
+            return `<button type="button" class="${state.selectedSuspectId === suspect.id ? 'is-selected' : ''}" data-suspect="${escapeHtml(suspect.id)}"><span>${characterPortrait(character, 'data-suspect-portrait')}</span><strong>${escapeHtml(suspect.label)}</strong></button>`;
+          }).join('')}
         </div>
       </section>
 
@@ -379,6 +382,13 @@
       .map((part) => part[0] || '')
       .join('')
       .toUpperCase();
+  }
+
+  function characterPortrait(character, dataAttribute) {
+    if (!character?.portrait) {
+      return initials(character?.name || character?.label || '');
+    }
+    return `<img src="${escapeHtml(character.portrait)}" alt="" width="160" height="200" loading="lazy" decoding="async" ${dataAttribute}="${escapeHtml(character.id)}">`;
   }
 
   function bindEvents() {

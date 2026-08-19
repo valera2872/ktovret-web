@@ -98,6 +98,8 @@ try {
     if (!dom.includes('mli-workspace')) throw new Error(`${viewport.name}: investigation workspace did not render behind cold open`);
     if (!dom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: cold open did not render for a fresh investigation`);
     if (!dom.includes('data-mli-intro-start')) throw new Error(`${viewport.name}: cold open has no immediate investigation entry`);
+    if (!dom.includes('data-mli-intro-scene-image')) throw new Error(`${viewport.name}: cold open lost the morning office scene`);
+    if (!dom.includes('office-morning.webp')) throw new Error(`${viewport.name}: morning office asset did not load into the cold open`);
     if (!dom.includes('Презентации не будет. Один из вас уже продал нашу игру.')) throw new Error(`${viewport.name}: cold open lost Pavel message`);
     if (!dom.includes('data-view="materials"')) throw new Error(`${viewport.name}: materials navigation did not render`);
     if (!dom.includes('data-view="theory"')) throw new Error(`${viewport.name}: theory navigation did not render`);
@@ -110,6 +112,14 @@ try {
     if (!receiptDom.includes('mli-ev-receipt')) throw new Error(`${viewport.name}: receipt renderer did not activate`);
     if (!receiptDom.includes('mli-ev-message-card')) throw new Error(`${viewport.name}: receipt message context did not render`);
     if (!receiptDom.includes('20:47')) throw new Error(`${viewport.name}: receipt evidence content disappeared`);
+
+    const { stdout: officeDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=office-morning`]);
+    if (!officeDom.includes('mli-ev-office-photo')) throw new Error(`${viewport.name}: office evidence did not reuse the scene image`);
+
+    const { stdout: peopleDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=people`]);
+    for (const portrait of ['alina-sokolova.webp', 'timur-vlasov.webp', 'roman-karsky.webp', 'pavel-nesterov.webp']) {
+      if (!peopleDom.includes(portrait)) throw new Error(`${viewport.name}: dossier portrait ${portrait} did not render`);
+    }
 
     const { stdout: terminalDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=delete-audit`]);
     if (!terminalDom.includes('mli-ev-terminal')) throw new Error(`${viewport.name}: terminal renderer did not activate`);
@@ -145,6 +155,7 @@ try {
       coldOpenRendered: true,
       fairPlayCopy: true,
       premiumEvidence: ['receipt', 'terminal', 'web'],
+      premiumArt: ['office', 'four portraits'],
       solvedDebrief: true,
       materialArchive: 'unread-first, viewed-collapsed',
       weakResultProtected: true,

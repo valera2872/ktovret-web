@@ -78,8 +78,9 @@
   }
 
   function renderInterview(p) {
+    const character = (definition.characters || []).find((item) => item.name === p.name);
     return `<div class="mli-ev-interview">
-      <div class="mli-ev-interview-meta"><span class="mli-ev-avatar">${escapeHtml(p.initials || '—')}</span><div><small>ПОВТОРНЫЙ ОПРОС</small><strong>${escapeHtml(p.name || '')}</strong><span>${escapeHtml(p.role || '')}</span></div></div>
+      <div class="mli-ev-interview-meta"><span class="mli-ev-avatar">${character?.portrait ? `<img src="${escapeHtml(character.portrait)}" alt="" width="96" height="120" loading="lazy" decoding="async">` : escapeHtml(p.initials || '—')}</span><div><small>ПОВТОРНЫЙ ОПРОС</small><strong>${escapeHtml(p.name || '')}</strong><span>${escapeHtml(p.role || '')}</span></div></div>
       <blockquote>${escapeHtml(p.quote || '')}</blockquote>
       ${p.context ? `<p>${escapeHtml(p.context)}</p>` : ''}
     </div>`;
@@ -134,18 +135,21 @@
 
   function renderScene(p) {
     return `<div class="mli-ev-scene">
-      <div class="mli-ev-office-plan">
+      ${p.image ? `<div class="mli-ev-office-photo"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.imageAlt || '')}" width="1440" height="810" loading="lazy" decoding="async"></div>` : `<div class="mli-ev-office-plan">
         <div class="mli-ev-office-desk"><span>DEMO-04</span><strong>${escapeHtml(p.monitor || 'ON')}</strong></div>
         <div class="mli-ev-office-phone"><span>телефон Павла</span><strong>▯</strong></div>
         <div class="mli-ev-office-orbit"><span>ORBIT-2</span><strong>пустой футляр</strong></div>
         <div class="mli-ev-office-release"><span>RELEASE</span><strong>не найден</strong></div>
-      </div>
+      </div>`}
       <div class="mli-ev-scene-notes">${(p.notes || []).map((note) => `<span>${escapeHtml(note)}</span>`).join('')}</div>
     </div>`;
   }
 
   function renderStatements(p) {
-    return `<div class="mli-ev-statements">${(p.items || []).map((item) => `<article><span class="mli-ev-avatar">${escapeHtml(item.initials)}</span><div><small>${escapeHtml(item.role || '')}</small><strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.text)}</p></div></article>`).join('')}</div>`;
+    return `<div class="mli-ev-statements">${(p.items || []).map((item) => {
+      const character = (definition.characters || []).find((candidate) => candidate.name === item.name);
+      return `<article><span class="mli-ev-avatar">${character?.portrait ? `<img src="${escapeHtml(character.portrait)}" alt="" width="96" height="120" loading="lazy" decoding="async">` : escapeHtml(item.initials)}</span><div><small>${escapeHtml(item.role || '')}</small><strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.text)}</p></div></article>`;
+    }).join('')}</div>`;
   }
 
   const renderers = {

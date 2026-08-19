@@ -1,6 +1,8 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const core = require('../assets/investigations/investigation-core.js');
 require('../assets/investigations/last-build.ru.js');
 require('../assets/investigations/last-build-human-layer.js');
@@ -11,6 +13,10 @@ assert.ok(definition, 'Last Build definition must be available');
 assert.equal(definition.id, 'last_build_ru_web');
 assert.equal(definition.suspects.filter((suspect) => suspect.isCanonicalCulprit).length, 1, 'There must be exactly one canonical culprit');
 assert.deepEqual(core.auditDefinition(definition), [], 'Investigation graph must have no dangling references');
+for (const character of definition.characters) {
+  assert.match(character.portrait || '', /last-build-art\/.+\.webp$/, `Character ${character.id} must have a reusable dossier portrait`);
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', path.basename(character.portrait))), `Portrait file for ${character.id} must exist`);
+}
 
 for (const id of ['alina-roman-t17-chat', 'pavel-timur-backup-chat', 'roman-deal-context']) {
   assert.ok(definition.materials.some((material) => material.id === id), `Human-layer material ${id} must exist`);
@@ -40,6 +46,8 @@ assert.ok(
   guest02Assignment.presentation.fields.some((field) => field.label === 'Личное устройство' && field.value === 'ASTER-64 / A64-7731'),
   'Premium GUEST-02 registry must preserve the explicit ASTER ownership link',
 );
+assert.match(definition.materials.find((item) => item.id === 'office-morning').presentation.image || '', /office-morning\.webp$/, 'Office inspection must reuse the cold-open scene image');
+assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', 'office-morning.webp')), 'Morning office art file must exist');
 
 const statementHistory = require('../assets/investigations/statement-history.js');
 const timur = definition.characters.find((character) => character.id === 'timur');

@@ -21,6 +21,7 @@
         id: 'alina',
         name: 'Алина Соколова',
         role: 'операционный менеджер',
+        portrait: '../../../assets/investigations/last-build-art/alina-sokolova.webp',
         initialStatement:
           'Я закрыла офис около 19:35. К этому моменту временные пропуска были возвращены. После закрытия я не возвращалась.',
         statementStates: [
@@ -35,6 +36,7 @@
         id: 'timur',
         name: 'Тимур Власов',
         role: 'технический руководитель',
+        portrait: '../../../assets/investigations/last-build-art/timur-vlasov.webp',
         initialStatement:
           'Я ушёл в 19:26. Финальную сборку выложил на DEMO-04, сессию закрыл. Других копий не делал.',
         statementStates: [
@@ -54,6 +56,7 @@
         id: 'roman',
         name: 'Роман Карский',
         role: 'консультант инвестора',
+        portrait: '../../../assets/investigations/last-build-art/roman-karsky.webp',
         initialStatement:
           'После 18:30 в офис я не возвращался. Ужинал в «Порту». T-17 оставил на стойке ещё днём. У меня была только обзорная версия проекта.',
         statementStates: [
@@ -68,6 +71,7 @@
         id: 'pavel',
         name: 'Павел Нестеров',
         role: 'руководитель студии',
+        portrait: '../../../assets/investigations/last-build-art/pavel-nesterov.webp',
         initialStatement: 'Недоступен. Его рабочий телефон найден в офисе.',
         statementStates: [],
       },
