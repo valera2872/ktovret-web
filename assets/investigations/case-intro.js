@@ -32,7 +32,7 @@
   function shouldShow(definition, search) {
     if (!definition?.caseIntro) return false;
     const params = new URLSearchParams(search || '');
-    if (params.has('previewEvidence') || params.has('previewResult')) return false;
+    if (params.has('previewEvidence') || params.has('previewResult') || params.has('previewInterrogation')) return false;
     if (hasProgress(definition)) return false;
     try {
       return localStorage.getItem(`mysterylogic:investigation:intro:v1:${definition.id}`) !== 'seen';

@@ -10,6 +10,9 @@ on:
       - "tests/debrief-panel.test.js"
       - "tests/case-intro.test.js"
       - "tests/interrogation-core.test.js"
+      - "tests/interrogation-preview.test.js"
+      - "tests/fixtures/last-build-interrogation-eval.json"
+      - "tools/interrogation-eval.mjs"
       - "tools/investigation-smoke.mjs"
       - "supabase/functions/interrogate-character/**"
       - ".github/workflows/advanced-investigation.yml"
@@ -22,6 +25,9 @@ on:
       - "tests/debrief-panel.test.js"
       - "tests/case-intro.test.js"
       - "tests/interrogation-core.test.js"
+      - "tests/interrogation-preview.test.js"
+      - "tests/fixtures/last-build-interrogation-eval.json"
+      - "tools/interrogation-eval.mjs"
       - "tools/investigation-smoke.mjs"
       - "supabase/functions/interrogate-character/**"
       - ".github/workflows/advanced-investigation.yml"
@@ -63,17 +69,22 @@ jobs:
           node --check assets/investigations/investigation-analytics.js
           node --check assets/investigations/interrogation-core.js
           node --check assets/investigations/last-build-interrogation.js
+          node --check assets/investigations/interrogation-preview.js
           node --check assets/investigations/interrogation-panel.js
+          node --check tools/interrogation-eval.mjs
           node --check tools/investigation-smoke.mjs
           node --check tests/debrief-panel.test.js
           node --check tests/case-intro.test.js
           node --check tests/interrogation-core.test.js
+          node --check tests/interrogation-preview.test.js
       - name: Validate Last Build graph and full playthrough
         run: |
           node tests/investigation-core.test.js
           node tests/debrief-panel.test.js
           node tests/case-intro.test.js
           node tests/interrogation-core.test.js
+          node tests/interrogation-preview.test.js
+          node tools/interrogation-eval.mjs
       - name: Render Last Build, premium evidence and final states in mobile and desktop Chrome
         run: node tools/investigation-smoke.mjs
       - name: Validate premium web layers and laboratory boundary
@@ -88,6 +99,7 @@ jobs:
           test -f assets/investigations/investigation-analytics.js
           test -f assets/investigations/interrogation-core.js
           test -f assets/investigations/last-build-interrogation.js
+          test -f assets/investigations/interrogation-preview.js
           test -f assets/investigations/interrogation-panel.js
           test -f assets/investigations/interrogation-panel.css
           test -f supabase/functions/interrogate-character/index.ts
@@ -112,6 +124,7 @@ jobs:
           grep -q 'investigation-analytics.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'interrogation-core.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-interrogation.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'interrogation-preview.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'interrogation-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.css' ru/investigations/poslednyaya-sborka/index.html

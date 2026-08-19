@@ -20,6 +20,7 @@ assert.ok(definition.caseIntro, 'Last Build must define a cold open');
 assert.equal(intro.shouldShow(definition, ''), true, 'Fresh investigation should show cold open');
 assert.equal(intro.shouldShow(definition, '?previewEvidence=roman-receipt'), false, 'Evidence QA preview must bypass cold open');
 assert.equal(intro.shouldShow(definition, '?previewResult=S'), false, 'Result QA preview must bypass cold open');
+assert.equal(intro.shouldShow(definition, '?previewInterrogation=initial'), false, 'Interrogation QA preview must bypass cold open');
 
 store.set(introKey, 'seen');
 assert.equal(intro.shouldShow(definition, ''), false, 'Seen cold open should not repeat');

@@ -6,6 +6,10 @@ on:
     paths:
       - "assets/investigations/**"
       - "ru/investigations/**"
+      - "tests/interrogation-preview.test.js"
+      - "tests/fixtures/last-build-interrogation-eval.json"
+      - "tools/interrogation-eval.mjs"
+      - "tools/investigation-smoke.mjs"
       - ".github/workflows/last-build-preview.yml"
       - "LAST_BUILD_WEB_CHECKPOINT.md"
   workflow_dispatch:
@@ -36,6 +40,8 @@ jobs:
           node tests/debrief-panel.test.js
           node tests/case-intro.test.js
           node tests/interrogation-core.test.js
+          node tests/interrogation-preview.test.js
+          node tools/interrogation-eval.mjs
           node tools/investigation-smoke.mjs
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           ! grep -q 'poslednyaya-sborka' sitemap.xml
@@ -78,6 +84,7 @@ jobs:
           test -f web/assets/investigations/evidence-renderers.js
           test -f web/assets/investigations/debrief-panel.js
           test -f web/assets/investigations/interrogation-core.js
+          test -f web/assets/investigations/interrogation-preview.js
           test -f web/assets/investigations/interrogation-panel.js
 
       - uses: actions/configure-pages@v5

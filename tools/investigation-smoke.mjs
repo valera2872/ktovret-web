@@ -75,6 +75,12 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 1100 },
 ];
+const interrogationScenarios = [
+  { mode: 'initial', expected: 'После 18:30 в офис я не возвращался' },
+  { mode: 'presence-ready', expected: 'После предъявления T-17' },
+  { mode: 'aster-blocked', expected: 'В реестре указано, что устройство было связано со мной' },
+  { mode: 'aster-ready', expected: 'Роман подтверждает, что пользовался ASTER-64' },
+];
 
 const port = await listen();
 const baseUrl = `http://127.0.0.1:${port}${casePath}`;
@@ -121,6 +127,18 @@ try {
       if (!peopleDom.includes(portrait)) throw new Error(`${viewport.name}: dossier portrait ${portrait} did not render`);
     }
 
+    for (const scenario of interrogationScenarios) {
+      const { stdout: interrogationDom } = await runChrome([
+        ...common,
+        '--dump-dom',
+        `${baseUrl}?previewInterrogation=${scenario.mode}`,
+      ]);
+      if (interrogationDom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}/${scenario.mode}: cold open blocked interrogation QA`);
+      if (!interrogationDom.includes('data-interrogation-character="roman"')) throw new Error(`${viewport.name}/${scenario.mode}: Roman interrogation panel did not mount`);
+      if (!interrogationDom.includes('data-interrogation-question')) throw new Error(`${viewport.name}/${scenario.mode}: free-form question field disappeared`);
+      if (!interrogationDom.includes(scenario.expected)) throw new Error(`${viewport.name}/${scenario.mode}: authored response did not match gated state`);
+    }
+
     const { stdout: terminalDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=delete-audit`]);
     if (!terminalDom.includes('mli-ev-terminal')) throw new Error(`${viewport.name}: terminal renderer did not activate`);
     if (!terminalDom.includes('DEMO-04 · endpoint audit')) throw new Error(`${viewport.name}: terminal evidence content disappeared`);
@@ -143,11 +161,10 @@ try {
     if (!materialsDom.includes('Изученные материалы')) throw new Error(`${viewport.name}: viewed material archive lost its label`);
     if (materialsDom.includes('<details class="mli-viewed-materials" data-material-group="viewed" open')) throw new Error(`${viewport.name}: viewed material archive must start collapsed`);
 
-    const { stdout: interrogationDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=people`]);
-    if (!interrogationDom.includes('data-interrogation-character="roman"')) throw new Error(`${viewport.name}: Roman free-form interrogation did not mount`);
-    if (!interrogationDom.includes('Свободный допрос · пилот')) throw new Error(`${viewport.name}: interrogation pilot label disappeared`);
-    if (!interrogationDom.includes('data-interrogation-question')) throw new Error(`${viewport.name}: interrogation has no free-form question field`);
-    if (!interrogationDom.includes('Допрос не создаёт новых фактов')) throw new Error(`${viewport.name}: authored-truth boundary is not visible`);
+    if (!peopleDom.includes('data-interrogation-character="roman"')) throw new Error(`${viewport.name}: Roman free-form interrogation did not mount`);
+    if (!peopleDom.includes('Свободный допрос · пилот')) throw new Error(`${viewport.name}: interrogation pilot label disappeared`);
+    if (!peopleDom.includes('data-interrogation-question')) throw new Error(`${viewport.name}: interrogation has no free-form question field`);
+    if (!peopleDom.includes('Допрос не создаёт новых фактов')) throw new Error(`${viewport.name}: authored-truth boundary is not visible`);
     const { stdout: weakDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=B`]);
     if (weakDom.includes('data-mli-debrief')) throw new Error(`${viewport.name}: weak B accusation must not reveal canonical debrief`);
     if (!weakDom.includes('Версия пока не выдерживает предъявления')) throw new Error(`${viewport.name}: weak B result copy did not render`);
@@ -163,7 +180,7 @@ try {
       premiumArt: ['office', 'four portraits'],
       solvedDebrief: true,
       materialArchive: 'unread-first, viewed-collapsed',
-      strictInterrogation: 'roman, free-form, authored-truth',
+      strictInterrogation: 'four gated states, authored-truth',
       weakResultProtected: true,
     });
   }
