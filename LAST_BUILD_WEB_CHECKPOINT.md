@@ -40,9 +40,9 @@ Production `mysterylogic.com`, Beget, Supabase, платежи и обычные
 
 `0.3.0` опубликована в feature-ветку коммитом `6af85fa62b0e84d03b3a2d27aaef2c4721baa083`. `Validate advanced investigations` и `Deploy Last Build lab preview` — SUCCESS. Live browser review подтвердил: портрет Романа сохранён, панель и три примера вопросов отображаются, свободный вопрос возвращает существующий авторский материал.
 
-`0.3.1` добавляет воспроизводимый clean-state маршрут «исходная ложь → заслуженное признание возвращения → ASTER ещё не доказан → ASTER доказан» и authored eval из 45 русских вопросов. Локальный классификатор проходит 45/45, включая неизвестные вопросы и prompt injection; серверный fallback использует тот же словарь. Remote semantic classifier остаётся выключен до отдельного eval его точности, injection-устойчивости, задержки и стоимости.
+`0.3.1` добавляет воспроизводимый clean-state маршрут «исходная ложь → заслуженное признание возвращения → ASTER ещё не доказан → ASTER доказан» и authored eval из 45 русских вопросов. Локальный классификатор проходит 45/45, включая неизвестные вопросы и prompt injection; серверный fallback использует тот же словарь. Изменение опубликовано коммитом `d358d202e40a1463ef04f5088cd0229a9a159152`: оба целевых workflow — SUCCESS, live browser review подтвердил правильную авторскую реплику во всех четырёх состояниях. Remote semantic classifier остаётся выключен до отдельного eval его точности, injection-устойчивости, задержки и стоимости.
 
-Следующий шаг после подтверждения live preview: расширить eval естественными перефразировками из ручного теста и только затем решать, даёт ли remote semantic classifier заметный игроку эффект относительно бесплатного локального fallback.
+Следующий шаг: расширить eval естественными перефразировками из ручного теста и только затем решать, даёт ли remote semantic classifier заметный игроку эффект относительно бесплатного локального fallback.
 
 ## Продуктовое решение
 
@@ -194,7 +194,7 @@ Workflow: `.github/workflows/last-build-preview.yml`.
 
 Первый вариант workflow зависал на GitHub Environment approval. Environment-gate для лабораторного preview убран; production workflows не менялись.
 
-Текущий статус `0.3.0`: **validate SUCCESS + deploy-preview SUCCESS + live browser review SUCCESS**. Арт-слой `0.2.11` и strict interrogation pilot проверены вместе.
+Текущий статус `0.3.1`: **validate SUCCESS + deploy-preview SUCCESS + live browser review SUCCESS**. Проверены арт-слой, strict interrogation pilot, четыре gated-состояния и authored eval 45/45.
 
 Live URL:
 
