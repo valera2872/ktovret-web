@@ -38,7 +38,9 @@ Production `mysterylogic.com`, Beget, Supabase, платежи и обычные
 
 `0.2.11` опубликована в feature-ветку и подтверждена mobile/desktop smoke QA и live browser review. В `0.3.0` добавлен B-пилот: свободный допрос Романа внутри жёсткой author truth, без генерации фактов или реплик дела.
 
-Следующий шаг: дождаться CI/deploy `0.3.0`, в live preview проверить сценарии «ложь без улик → признание возвращения → уклонение по ASTER». После этого отдельно включать semantic classifier только после eval точности, prompt-injection и стоимости.
+`0.3.0` опубликована в feature-ветку коммитом `6af85fa62b0e84d03b3a2d27aaef2c4721baa083`. `Validate advanced investigations` и `Deploy Last Build lab preview` — SUCCESS. Live browser review подтвердил: портрет Романа сохранён, панель и три примера вопросов отображаются, свободный вопрос возвращает существующий авторский материал.
+
+Следующий шаг: ручной маршрут на чистом state «ложь без улик → признание возвращения → blocked/earned ASTER». Remote semantic classifier включать только после eval точности, prompt-injection и стоимости.
 
 ## Продуктовое решение
 
@@ -183,7 +185,7 @@ Workflow: `.github/workflows/last-build-preview.yml`.
 
 Первый вариант workflow зависал на GitHub Environment approval. Environment-gate для лабораторного preview убран; production workflows не менялись.
 
-Текущий статус `0.2.11`: **validate SUCCESS + deploy-preview SUCCESS + live browser review SUCCESS**. Коммит арт-слоя: `dcbf78e1bc869bd024d29cd6995fd33488389752`.
+Текущий статус `0.3.0`: **validate SUCCESS + deploy-preview SUCCESS + live browser review SUCCESS**. Арт-слой `0.2.11` и strict interrogation pilot проверены вместе.
 
 Live URL:
 
