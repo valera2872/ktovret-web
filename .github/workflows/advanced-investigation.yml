@@ -9,7 +9,9 @@ on:
       - "tests/investigation-core.test.js"
       - "tests/debrief-panel.test.js"
       - "tests/case-intro.test.js"
+      - "tests/interrogation-core.test.js"
       - "tools/investigation-smoke.mjs"
+      - "supabase/functions/interrogate-character/**"
       - ".github/workflows/advanced-investigation.yml"
   push:
     branches: [main]
@@ -19,7 +21,9 @@ on:
       - "tests/investigation-core.test.js"
       - "tests/debrief-panel.test.js"
       - "tests/case-intro.test.js"
+      - "tests/interrogation-core.test.js"
       - "tools/investigation-smoke.mjs"
+      - "supabase/functions/interrogate-character/**"
       - ".github/workflows/advanced-investigation.yml"
   workflow_dispatch:
 
@@ -57,14 +61,19 @@ jobs:
           node --check assets/investigations/debrief-panel.js
           node --check assets/investigations/case-intro.js
           node --check assets/investigations/investigation-analytics.js
+          node --check assets/investigations/interrogation-core.js
+          node --check assets/investigations/last-build-interrogation.js
+          node --check assets/investigations/interrogation-panel.js
           node --check tools/investigation-smoke.mjs
           node --check tests/debrief-panel.test.js
           node --check tests/case-intro.test.js
+          node --check tests/interrogation-core.test.js
       - name: Validate Last Build graph and full playthrough
         run: |
           node tests/investigation-core.test.js
           node tests/debrief-panel.test.js
           node tests/case-intro.test.js
+          node tests/interrogation-core.test.js
       - name: Render Last Build, premium evidence and final states in mobile and desktop Chrome
         run: node tools/investigation-smoke.mjs
       - name: Validate premium web layers and laboratory boundary
@@ -77,6 +86,11 @@ jobs:
           test -f assets/investigations/debrief-panel.css
           test -f assets/investigations/case-intro.css
           test -f assets/investigations/investigation-analytics.js
+          test -f assets/investigations/interrogation-core.js
+          test -f assets/investigations/last-build-interrogation.js
+          test -f assets/investigations/interrogation-panel.js
+          test -f assets/investigations/interrogation-panel.css
+          test -f supabase/functions/interrogate-character/index.ts
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'data-ml-investigation' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'last-build-human-layer.js' ru/investigations/poslednyaya-sborka/index.html
@@ -96,16 +110,22 @@ jobs:
           grep -q 'debrief-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'case-intro.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation-analytics.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'interrogation-core.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'last-build-interrogation.js' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'interrogation-panel.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'evidence.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'statement-history.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'timeline-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'questions-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'debrief-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'case-intro.css' ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'interrogation-panel.css' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation-fairplay.js' ru/investigations/poslednyaya-sborka/index.html
           grep -q 'investigation_material_opened' assets/investigations/investigation-analytics.js
           grep -q 'investigation_action_performed' assets/investigations/investigation-analytics.js
           grep -q 'investigation_hypothesis_changed' assets/investigations/investigation-analytics.js
           grep -q 'investigation_completed' assets/investigations/investigation-analytics.js
+          grep -q 'additionalProperties: false' supabase/functions/interrogate-character/index.ts
+          grep -q 'INTERROGATION_AI_ENABLED' supabase/functions/interrogate-character/index.ts
           ! grep -q 'poslednyaya-sborka' sitemap.xml
           ! grep -q 'poslednyaya-sborka' dela/index.html

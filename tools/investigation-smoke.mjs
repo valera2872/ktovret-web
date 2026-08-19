@@ -143,6 +143,11 @@ try {
     if (!materialsDom.includes('Изученные материалы')) throw new Error(`${viewport.name}: viewed material archive lost its label`);
     if (materialsDom.includes('<details class="mli-viewed-materials" data-material-group="viewed" open')) throw new Error(`${viewport.name}: viewed material archive must start collapsed`);
 
+    const { stdout: interrogationDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=people`]);
+    if (!interrogationDom.includes('data-interrogation-character="roman"')) throw new Error(`${viewport.name}: Roman free-form interrogation did not mount`);
+    if (!interrogationDom.includes('Свободный допрос · пилот')) throw new Error(`${viewport.name}: interrogation pilot label disappeared`);
+    if (!interrogationDom.includes('data-interrogation-question')) throw new Error(`${viewport.name}: interrogation has no free-form question field`);
+    if (!interrogationDom.includes('Допрос не создаёт новых фактов')) throw new Error(`${viewport.name}: authored-truth boundary is not visible`);
     const { stdout: weakDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=B`]);
     if (weakDom.includes('data-mli-debrief')) throw new Error(`${viewport.name}: weak B accusation must not reveal canonical debrief`);
     if (!weakDom.includes('Версия пока не выдерживает предъявления')) throw new Error(`${viewport.name}: weak B result copy did not render`);
@@ -158,6 +163,7 @@ try {
       premiumArt: ['office', 'four portraits'],
       solvedDebrief: true,
       materialArchive: 'unread-first, viewed-collapsed',
+      strictInterrogation: 'roman, free-form, authored-truth',
       weakResultProtected: true,
     });
   }

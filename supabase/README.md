@@ -73,3 +73,16 @@ The webhook answers HTTP 200 after verified processing. On transient YooKassa AP
 `assets/paid-access-config.js` contains `checkoutEnabled:false` while the merchant credentials, price and fiscal receipt configuration are not yet verified.
 
 Only after all of those are configured and a real/test YooKassa payment passes end-to-end should this flag be changed to `true` and deployed.
+
+## Strict interrogation classifier
+
+`interrogate-character` is the optional semantic classifier for the free-form Roman Karsky interrogation pilot in “Last Build”. It never writes dialogue or case facts. It may only return one topic ID from the authored contract; the browser then selects the authored lie, evasion or admission and can unlock only an existing investigation action.
+
+The public preview keeps `classifierMode: 'local'`, so it works without a network request or model cost. To evaluate the semantic classifier, deploy the function and set these Edge Function secrets/environment variables:
+
+- `OPENAI_API_KEY` — server-side OpenAI API key; never place it in browser JavaScript or HTML.
+- `OPENAI_INTERROGATION_MODEL` — explicitly approved model name for classification.
+- `INTERROGATION_AI_ENABLED=true` — cost and rollout switch. If absent or false, the function returns its deterministic authored fallback.
+- `ALLOWED_ORIGINS` — production and staging origins, comma-separated.
+
+After evaluation confirms topic accuracy, prompt-injection resistance and acceptable cost, change `classifierMode` to `remote`. An API failure, timeout or rate limit still falls back to the local authored classifier; it cannot alter the objective truth of the case.

@@ -35,6 +35,7 @@ jobs:
           node tests/investigation-core.test.js
           node tests/debrief-panel.test.js
           node tests/case-intro.test.js
+          node tests/interrogation-core.test.js
           node tools/investigation-smoke.mjs
           grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
           ! grep -q 'poslednyaya-sborka' sitemap.xml
@@ -76,6 +77,8 @@ jobs:
           test -f web/assets/investigations/investigation-core.js
           test -f web/assets/investigations/evidence-renderers.js
           test -f web/assets/investigations/debrief-panel.js
+          test -f web/assets/investigations/interrogation-core.js
+          test -f web/assets/investigations/interrogation-panel.js
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

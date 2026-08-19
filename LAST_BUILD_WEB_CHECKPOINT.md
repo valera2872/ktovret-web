@@ -1,9 +1,9 @@
 # «Последняя сборка» — web checkpoint
 
-Дата: 2026-08-18
+Дата: 2026-08-19
 Ветка: `feature/last-build-web-slice`
 PR: #64 — `Mystery Logic: Last Build web functional slice`
-Статус: draft; web `0.2.11`, APK/Flutter заморожен.
+Статус: draft; web `0.3.0`, APK/Flutter заморожен.
 
 ## WORK HANDOFF — читать первым
 
@@ -36,7 +36,9 @@ Production `mysterylogic.com`, Beget, Supabase, платежи и обычные
 
 `0.2.10` опубликована и подтверждена целевыми workflow и live preview. В `0.2.11` добавлен high-reuse art pack: утренний офис и четыре психологически нейтральных портрета. Офис повторно используется в cold open и осмотре места; портреты — в досье, выборе версии, первичных показаниях и повторных опросах.
 
-`0.2.11` опубликована в feature-ветку и подтверждена mobile/desktop smoke QA и live browser review. Следующий шаг — controlled publication decision. AI interrogation остаётся отдельным B-upgrade и не должен задерживать решение о текущем деле.
+`0.2.11` опубликована в feature-ветку и подтверждена mobile/desktop smoke QA и live browser review. В `0.3.0` добавлен B-пилот: свободный допрос Романа внутри жёсткой author truth, без генерации фактов или реплик дела.
+
+Следующий шаг: дождаться CI/deploy `0.3.0`, в live preview проверить сценарии «ложь без улик → признание возвращения → уклонение по ASTER». После этого отдельно включать semantic classifier только после eval точности, prompt-injection и стоимости.
 
 ## Продуктовое решение
 
@@ -130,6 +132,19 @@ S/A debrief показывает:
 - `investigation_completed` с result tier S/A/B/C.
 
 QA URL `previewEvidence` / `previewResult` намеренно не отправляют эти события.
+
+### Strict free-form interrogation · Roman pilot
+
+`0.3.0` добавляет свободный текстовый допрос Романа в карточке персонажа.
+
+Граница авторской истины:
+- классификатор может выбрать только одну авторскую тему;
+- текст лжи, уклонения или признания хранится в сценарном контракте, а не генерируется;
+- новые факты появляются только через уже существующие `confront-roman-presence` и `confront-roman-aster`;
+- без достаточной совокупности улик Роман сохраняет ложь или уклоняется;
+- неизвестная тема, ошибка API или prompt injection не меняют state дела.
+
+Live preview использует `classifierMode: 'local'`: механика работает мгновенно, без API-ключа, сетевой задержки и стоимости. `supabase/functions/interrogate-character/` готовит optional semantic classifier со strict topic enum и server-only secrets, но не включается до eval.
 
 ## QA
 
@@ -235,7 +250,8 @@ Live URL:
 - не переписывать сюжет;
 - не добавлять улики ради объёма;
 - не добавлять карту без географической дедукции;
-- не включать AI interrogation до controlled publication decision;
+- не разрешать модели генерировать факты или реплики дела;
+- не включать remote semantic classifier до eval точности, injection и стоимости;
 - не делать видео/3D/multiplayer;
 - не публиковать дело в каталог до ручного прохождения;
 - не создавать второй evidence renderer — единый reusable layer уже существует.
@@ -244,5 +260,7 @@ Live URL:
 
 1. Ручной playthrough, friction log и A-правки — выполнено в `0.2.10`.
 2. High-reuse art и browser QA — выполнено в `0.2.11`.
-3. Следующий шаг — controlled publication decision: оставить lab-only, открыть ограниченный внешний тест или готовить каталогизацию.
-4. После решения — AI interrogation как отдельный B-пилот внутри author truth; не делать его блокером текущей публикации.
+3. CI и live QA strict Roman interrogation `0.3.0`.
+4. Ручной маршрут: ложь без улик → earned presence admission → blocked/earned ASTER response.
+5. Eval semantic classifier на авторском наборе вопросов; только затем решать, включать ли remote mode.
+6. Controlled publication decision: lab-only, ограниченный внешний тест или каталогизация.

@@ -237,7 +237,7 @@
           ${definition.characters.map((character) => {
             const actions = core.availableActions(definition, state).filter((action) => action.characterId === character.id);
             return `
-              <article class="mli-person-card">
+              <article class="mli-person-card" data-character="${escapeHtml(character.id)}">
                 <header>
                   <span class="mli-avatar">${characterPortrait(character, 'data-character-portrait')}</span>
                   <div><h3>${escapeHtml(character.name)}</h3><p>${escapeHtml(character.role)}</p></div>
@@ -533,6 +533,13 @@
     clearTimeout(showNotice.timer);
     showNotice.timer = setTimeout(() => notice.classList.remove('is-visible'), 4200);
   }
+
+  window.addEventListener('mysterylogic:interrogation-state-changed', (event) => {
+    state = loadState();
+    activeView = 'people';
+    lastOpenedMaterialId = event.detail?.materialId || null;
+    render();
+  });
 
   render();
 })();
