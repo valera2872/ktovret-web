@@ -1,0 +1,50 @@
+name: Fix duel observer render loop
+
+on:
+  push:
+    branches:
+      - feat/two-player-rooms
+
+permissions:
+  contents: write
+
+jobs:
+  fix_duel_observer:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/two-player-rooms
+          fetch-depth: 0
+
+      - name: Isolate our DOM mutations from the observer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('ktovret-game/assets/duel-room-client.js')
+          text = path.read_text(encoding='utf-8')
+          old = """  const renderRoomUi = () => {\n    ensureBanner();\n    removeOrdinaryChallengeAction();\n    ensureWaiting();\n    ensureResults();\n  };"""
+          new = """  const renderRoomUi = () => {\n    observer?.disconnect();\n    try {\n      ensureBanner();\n      removeOrdinaryChallengeAction();\n      ensureWaiting();\n      ensureResults();\n    } finally {\n      observer?.observe(root, { childList: true, subtree: true });\n    }\n  };"""
+          if old not in text:
+              raise SystemExit('renderRoomUi block not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          node --check ktovret-game/assets/duel-room-client.js
+          grep -q 'observer?.disconnect();' ktovret-game/assets/duel-room-client.js
+          grep -q 'observer?.observe(root, { childList: true, subtree: true });' ktovret-game/assets/duel-room-client.js
+
+      - name: Commit fix and remove one-time workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-duel-observer-loop.yml
+          git add ktovret-game/assets/duel-room-client.js
+          git diff --cached --check
+          git commit -m 'fix: prevent duel DOM observer render loop'
+          git push origin HEAD:feat/two-player-rooms
