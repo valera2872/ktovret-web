@@ -227,10 +227,15 @@
   };
 
   const renderRoomUi = () => {
-    ensureBanner();
-    removeOrdinaryChallengeAction();
-    ensureWaiting();
-    ensureResults();
+    observer?.disconnect();
+    try {
+      ensureBanner();
+      removeOrdinaryChallengeAction();
+      ensureWaiting();
+      ensureResults();
+    } finally {
+      observer?.observe(root, { childList: true, subtree: true });
+    }
   };
 
   const schedulePoll = () => {
