@@ -23,6 +23,9 @@ assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', '
 for (const character of definition.characters) {
   assert.match(character.portrait || '', /last-build-art\/.+\.webp$/, `Character ${character.id} must have a reusable dossier portrait`);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', path.basename(character.portrait))), `Portrait file for ${character.id} must exist`);
+  assert.ok(character.relationship, `Character ${character.id} must explain their relationship to the case in plain language`);
+  assert.ok(character.responsibility, `Character ${character.id} must explain what they are responsible for`);
+  assert.ok(character.introduction, `Character ${character.id} must have an authored answer to the introductory interview question`);
 }
 
 for (const id of ['alina-roman-t17-chat', 'pavel-timur-backup-chat', 'roman-deal-context']) {
@@ -55,6 +58,12 @@ assert.ok(
 );
 assert.match(definition.materials.find((item) => item.id === 'office-morning').presentation.image || '', /office-morning\.webp$/, 'Office inspection must reuse the cold-open scene image');
 assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', 'office-morning.webp')), 'Morning office art file must exist');
+const initialInterviews = definition.materials.find((item) => item.id === 'initial-statements');
+assert.equal(initialInterviews.title, 'Первые опросы участников');
+assert.equal(initialInterviews.presentation.items.length, 3, 'The introductory interview file must contain three separate authored interviews');
+assert.match(initialInterviews.presentation.identityQuestion, /представьтесь.*как вы связаны/i, 'The first interview question must establish identity and relationship before alibi');
+assert.match(initialInterviews.presentation.items.find((item) => item.id === 'timur').introduction, /DEMO-04 — общий компьютер в переговорной/i, 'DEMO-04 must be explained before it is used as evidence jargon');
+assert.equal(initialInterviews.presentation.items.some((item) => /operations|technical lead/i.test(item.role)), false, 'Introductory roles must not use unexplained English job titles');
 
 const statementHistory = require('../assets/investigations/statement-history.js');
 const timur = definition.characters.find((character) => character.id === 'timur');

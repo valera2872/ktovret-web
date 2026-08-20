@@ -45,6 +45,7 @@
       'Сообщение': '✉',
       'Осмотр места': '⌂',
       'Показания': '◎',
+      'Опросы': '◎',
       'Системный журнал': '⌘',
       'Чек + сообщение': '▤',
       'Изображение': '◫',
@@ -92,7 +93,7 @@
     const labels = {
       'pavel-message': 'Начать: открыть сообщение руководителя',
       'office-morning': 'Продолжить: осмотреть офис',
-      'initial-statements': 'Продолжить: прочитать показания',
+      'initial-statements': 'Продолжить: опросить участников',
     };
     return labels[material?.id] || 'Продолжить расследование';
   }
@@ -298,8 +299,8 @@
     return `
       <section class="mli-section mli-section-first">
         <div class="mli-section-heading">
-          <div><p class="mli-eyebrow">Показания</p><h2>Участники дела</h2></div>
-          <p>Показания меняются только тогда, когда вы предъявляете фактическое противоречие. Сильное обвинительное слово само по себе ничего не открывает.</p>
+          <div><p class="mli-eyebrow">Люди и показания</p><h2>Кто связан с делом</h2></div>
+          <p>Сначала разберитесь, кто эти люди и за что каждый отвечал. Новые показания появляются только после предъявления фактического противоречия.</p>
         </div>
         <div class="mli-people-list">
           ${definition.characters.map((character) => {
@@ -308,8 +309,9 @@
               <article class="mli-person-card" data-character="${escapeHtml(character.id)}">
                 <header>
                   <span class="mli-avatar">${characterPortrait(character, 'data-character-portrait')}</span>
-                  <div><h3>${escapeHtml(character.name)}</h3><p>${escapeHtml(character.role)}</p></div>
+                  <div><p class="mli-person-index">${escapeHtml(character.relationship || 'Участник дела')}</p><h3>${escapeHtml(character.name)}</h3><p>${escapeHtml(character.role)}</p></div>
                 </header>
+                ${character.responsibility ? `<div class="mli-person-context"><small>Связь с расследованием</small><p>${escapeHtml(character.responsibility)}</p></div>` : ''}
                 <div class="mli-statement"><small>Текущая версия показаний</small><p>${escapeHtml(core.statementFor(character, facts))}</p></div>
                 <div class="mli-person-actions">
                   ${actions.length ? actions.map((action) => `<button type="button" data-action="${escapeHtml(action.id)}"><strong>${escapeHtml(action.label)}</strong><span>${escapeHtml(action.description || '')}</span></button>`).join('') : '<p class="mli-muted-note">Новых обоснованных вопросов пока нет.</p>'}

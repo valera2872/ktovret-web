@@ -146,10 +146,62 @@
   }
 
   function renderStatements(p) {
-    return `<div class="mli-ev-statements">${(p.items || []).map((item) => {
-      const character = (definition.characters || []).find((candidate) => candidate.name === item.name);
-      return `<article><span class="mli-ev-avatar">${character?.portrait ? `<img src="${escapeHtml(character.portrait)}" alt="" width="96" height="120" loading="lazy" decoding="async">` : escapeHtml(item.initials)}</span><div><small>${escapeHtml(item.role || '')}</small><strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.text)}</p></div></article>`;
-    }).join('')}</div>`;
+    const items = p.items || [];
+    return `<section class="mli-ev-statements" data-statement-viewer>
+      <header class="mli-ev-statements-head">
+        <div><small>ПРОТОКОЛ ПЕРВИЧНЫХ ОПРОСОВ</small><strong>Участники дела</strong></div>
+        <span>${escapeHtml(p.date || '')}<br>${escapeHtml(p.place || '')}</span>
+      </header>
+      ${p.lead ? `<p class="mli-ev-statements-lead">${escapeHtml(p.lead)}</p>` : ''}
+      <div class="mli-ev-statements-layout">
+        <div class="mli-ev-statement-tabs" role="tablist" aria-label="Выберите участника для опроса">
+          ${items.map((item, index) => {
+            const character = (definition.characters || []).find((candidate) => candidate.id === item.id || candidate.name === item.name);
+            return `<button type="button" role="tab" class="${index === 0 ? 'is-active' : ''}" data-statement-person="${escapeHtml(item.id || String(index))}" aria-selected="${index === 0 ? 'true' : 'false'}" aria-controls="mli-statement-${escapeHtml(item.id || String(index))}">
+              <span class="mli-ev-avatar">${character?.portrait ? `<img src="${escapeHtml(character.portrait)}" alt="" width="96" height="120" loading="lazy" decoding="async">` : escapeHtml(item.initials)}</span>
+              <span><small>ОПРОС ${escapeHtml(item.number || String(index + 1).padStart(2, '0'))}</small><strong>${escapeHtml(item.name)}</strong><em>${escapeHtml(item.relationship || item.role || '')}</em></span>
+            </button>`;
+          }).join('')}
+        </div>
+        <div class="mli-ev-statement-panels">
+          ${items.map((item, index) => {
+            const character = (definition.characters || []).find((candidate) => candidate.id === item.id || candidate.name === item.name);
+            return `<article id="mli-statement-${escapeHtml(item.id || String(index))}" role="tabpanel" data-statement-panel="${escapeHtml(item.id || String(index))}" ${index === 0 ? '' : 'hidden'}>
+              <header>
+                <span class="mli-ev-statement-portrait">${character?.portrait ? `<img src="${escapeHtml(character.portrait)}" alt="Портрет: ${escapeHtml(item.name)}" width="180" height="224" loading="lazy" decoding="async">` : escapeHtml(item.initials)}</span>
+                <div><small>ОПРОС ${escapeHtml(item.number || String(index + 1).padStart(2, '0'))} · ПЕРВИЧНЫЙ</small><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.role || '')}</p><span>${escapeHtml(item.relationship || '')}</span></div>
+              </header>
+              <div class="mli-ev-transcript">
+                <div class="mli-ev-question"><small>Следователь</small><p>${escapeHtml(p.identityQuestion || 'Представьтесь и объясните, как вы связаны с делом.')}</p></div>
+                <blockquote><small>${escapeHtml(item.name)}</small><p>${escapeHtml(item.introduction || '')}</p></blockquote>
+                <div class="mli-ev-question"><small>Следователь</small><p>${escapeHtml(item.eventsQuestion || 'Что вам известно о событиях вечера?')}</p></div>
+                <blockquote class="is-statement"><small>${escapeHtml(item.name)} · первоначальные показания</small><p>${escapeHtml(item.text || '')}</p></blockquote>
+              </div>
+            </article>`;
+          }).join('')}
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function bindStatementViewer(scope) {
+    const viewer = scope.querySelector('[data-statement-viewer]');
+    if (!viewer) return;
+    const tabs = [...viewer.querySelectorAll('[data-statement-person]')];
+    const panels = [...viewer.querySelectorAll('[data-statement-panel]')];
+    for (const tab of tabs) {
+      tab.addEventListener('click', () => {
+        const personId = tab.dataset.statementPerson;
+        for (const candidate of tabs) {
+          const active = candidate === tab;
+          candidate.classList.toggle('is-active', active);
+          candidate.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+        for (const panel of panels) {
+          panel.hidden = panel.dataset.statementPanel !== personId;
+        }
+      });
+    }
   }
 
   const renderers = {
@@ -181,6 +233,7 @@
     body.dataset.evidenceEnhanced = 'true';
     body.innerHTML = `<div class="mli-evidence-frame" data-evidence-kind="${escapeHtml(presentation.kind)}">${renderer(presentation)}</div>`;
     dialog.querySelector('.mli-dialog-card')?.classList.add('is-evidence');
+    bindStatementViewer(body);
   }
 
   const observer = new MutationObserver(enhanceDialog);

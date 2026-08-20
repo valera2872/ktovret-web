@@ -136,6 +136,15 @@ try {
     const { stdout: officeDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=office-morning`]);
     if (!officeDom.includes('mli-ev-office-photo')) throw new Error(`${viewport.name}: office evidence did not reuse the scene image`);
 
+    const { stdout: interviewsDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=initial-statements`]);
+    if (!interviewsDom.includes('data-statement-viewer')) throw new Error(`${viewport.name}: introductory interview dossier did not render`);
+    if ((interviewsDom.match(/data-statement-person=/g) || []).length !== 3) throw new Error(`${viewport.name}: introductory dossier must expose exactly three interview tabs`);
+    if (!interviewsDom.includes('Для протокола: представьтесь и объясните, как вы связаны со студией и этой игрой.')) throw new Error(`${viewport.name}: investigator identity question disappeared`);
+    if (!interviewsDom.includes('DEMO-04 — общий компьютер в переговорной')) throw new Error(`${viewport.name}: DEMO-04 is not explained before the alibi`);
+    for (const role of ['Операционный менеджер', 'Технический руководитель', 'Консультант инвестора']) {
+      if (!interviewsDom.includes(role)) throw new Error(`${viewport.name}: plain-language participant role lost ${role}`);
+    }
+
     const { stdout: peopleDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=people`]);
     for (const portrait of ['alina-sokolova.webp', 'timur-vlasov.webp', 'roman-karsky.webp', 'pavel-nesterov.webp']) {
       if (!peopleDom.includes(portrait)) throw new Error(`${viewport.name}: dossier portrait ${portrait} did not render`);
@@ -155,7 +164,7 @@ try {
 
     const { stdout: terminalDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=delete-audit`]);
     if (!terminalDom.includes('mli-ev-terminal')) throw new Error(`${viewport.name}: terminal renderer did not activate`);
-    if (!terminalDom.includes('DEMO-04 · endpoint audit')) throw new Error(`${viewport.name}: terminal evidence content disappeared`);
+    if (!terminalDom.includes('КОМПЬЮТЕР DEMO-04 · ЖУРНАЛ ДЕЙСТВИЙ')) throw new Error(`${viewport.name}: terminal evidence content disappeared`);
 
     const { stdout: webDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=studio-brief`]);
     if (!webDom.includes('mli-ev-browser')) throw new Error(`${viewport.name}: web evidence renderer did not activate`);
