@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, '..');
 const required = {
   'offer/index.html': ['Публичная оферта', 'возврат', 'цифров', 'support@mysterylogic.com'],
   'privacy/index.html': ['Политика конфиденциальности', '152-ФЗ', 'support@mysterylogic.com'],
-  'personal-data-consent/index.html': ['Согласие на обработку', 'отдельной отметки', 'support@mysterylogic.com'],
+  'personal-data-consent/index.html': ['Согласие на обработку', 'заранее не отмеченной отметки', 'support@mysterylogic.com'],
   'contacts/index.html': ['ИП Барбарова Людмила Ивановна', 'ИНН 300800815628', 'ОГРНИП 317302500040403', 'support@mysterylogic.com'],
 };
 
