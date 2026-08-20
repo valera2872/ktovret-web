@@ -106,11 +106,18 @@ try {
     if (!dom.includes('data-mli-lead-material')) throw new Error(`${viewport.name}: integrated cover has no immediate evidence action`);
     if (!dom.includes('office-hero-v2.webp')) throw new Error(`${viewport.name}: cinematic phone-and-empty-case cover did not load`);
     if (!dom.includes('Один из вас уже продал нашу игру')) throw new Error(`${viewport.name}: integrated cover lost Pavel message`);
+    if (!dom.includes('Интерактивный детектив')) throw new Error(`${viewport.name}: product format is not explained on first contact`);
+    if (!dom.includes('Кто украл секретную копию новой компьютерной игры?')) throw new Error(`${viewport.name}: plain-language premise did not render`);
+    if (!dom.includes('Вы — следователь.')) throw new Error(`${viewport.name}: player role is not explained`);
+    if (!dom.includes('готовая версия игры')) throw new Error(`${viewport.name}: case-title jargon is not explained`);
     if (!dom.includes('data-view="materials"')) throw new Error(`${viewport.name}: materials navigation did not render`);
     if (!dom.includes('data-view="theory"')) throw new Error(`${viewport.name}: theory navigation did not render`);
     if (!dom.includes('data-material="pavel-message"')) throw new Error(`${viewport.name}: initial evidence did not render`);
-    if (!dom.includes('Кто украл финальную сборку — и почему остальные лгут?')) throw new Error(`${viewport.name}: case mission did not render`);
-    if (!dom.includes('Открыть сообщение Павла')) throw new Error(`${viewport.name}: first authored action is not explicit`);
+    if (!dom.includes('Три шага до обвинения')) throw new Error(`${viewport.name}: investigation instructions did not render`);
+    if (!dom.includes('Начать: открыть сообщение руководителя')) throw new Error(`${viewport.name}: first authored action is not explicit`);
+    for (const label of ['Начало', 'Улики', 'Участники', 'Обвинение']) {
+      if (!dom.includes(label)) throw new Error(`${viewport.name}: plain-language navigation lost ${label}`);
+    }
     if (!dom.includes('Краткая вводная по делу')) throw new Error(`${viewport.name}: collapsible case brief did not render`);
     if (dom.includes('mli-progress-strip')) throw new Error(`${viewport.name}: dashboard counters returned to the first workspace`);
     if (dom.includes('mli-desk-aside')) throw new Error(`${viewport.name}: competing status sidebar returned to the first workspace`);

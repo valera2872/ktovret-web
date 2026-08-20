@@ -90,11 +90,11 @@
 
   function leadMaterialLabel(material) {
     const labels = {
-      'pavel-message': 'Открыть сообщение Павла',
-      'office-morning': 'Осмотреть офис утром',
-      'initial-statements': 'Сверить первые показания',
+      'pavel-message': 'Начать: открыть сообщение руководителя',
+      'office-morning': 'Продолжить: осмотреть офис',
+      'initial-statements': 'Продолжить: прочитать показания',
     };
-    return labels[material?.id] || `Изучить: ${material?.title || 'следующий материал'}`;
+    return labels[material?.id] || 'Продолжить расследование';
   }
 
   function renderCaseHead() {
@@ -118,21 +118,18 @@
       <section class="mli-case-head mli-story-cover">
         ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="Утренний офис студии: на столе светится телефон, рядом лежит пустой футляр накопителя.">` : ''}
         <div class="mli-case-head-copy">
-          <p class="mli-kicker">Дело 17-К · студия «Кадр 17»</p>
-          <h1>${escapeHtml(definition.title)}</h1>
-          <p class="mli-case-quote">«Один из вас уже продал нашу игру»</p>
-          <p class="mli-message-source">Последнее сообщение Павла Нестерова · 17 октября, 21:27</p>
-          <div class="mli-case-facts" aria-label="Состояние дела утром 18 октября">
-            <span>Павел не отвечает</span>
-            <span>RELEASE удалена</span>
-            <span>ORBIT-2 исчез</span>
-          </div>
+          <p class="mli-kicker">Интерактивный детектив</p>
+          <p class="mli-case-title">Дело «${escapeHtml(definition.title)}»</p>
+          <h1>Кто украл секретную копию новой компьютерной игры?</h1>
+          <p class="mli-case-explainer"><strong>«Сборка» — это готовая версия игры.</strong> Накануне важной презентации файлы удалили, а флешка с копией исчезла.</p>
+          <blockquote class="mli-case-message">«Один из вас уже продал нашу игру»<span>Последнее сообщение руководителя студии · 21:27</span></blockquote>
+          <p class="mli-player-role"><strong>Вы — следователь.</strong> Изучите улики, поговорите с участниками и докажите, кто виновен.</p>
           ${lead
             ? `<button class="mli-case-start" type="button" data-material="${escapeHtml(lead.id)}" data-mli-lead-material>${escapeHtml(leadMaterialLabel(lead))}<span>→</span></button>`
             : hasAvailableActions
               ? `<button class="mli-case-start" type="button" data-view="materials" data-mli-lead-material>Перейти к доступным проверкам<span>→</span></button>`
               : `<button class="mli-case-start" type="button" data-view="theory" data-mli-lead-material>Собрать итоговую версию<span>→</span></button>`}
-          <p class="mli-case-freedom">Можно идти своим путём — весь архив открыт в разделе «Материалы».</p>
+          <p class="mli-case-freedom">Порядок действий выбираете вы. Все найденные улики сохраняются в деле.</p>
         </div>
         <div class="mli-cover-meta" aria-label="Параметры дела">
           <span>${escapeHtml(definition.estimatedMinutes)}</span>
@@ -148,10 +145,10 @@
 
       <div class="mli-workspace">
         <nav class="mli-rail" aria-label="Разделы расследования">
-          ${navButton('overview', 'Досье', '⌂')}
-          ${navButton('materials', 'Материалы', '▤')}
-          ${navButton('people', 'Люди', '◎')}
-          ${navButton('theory', 'Версия', '⌘')}
+          ${navButton('overview', 'Начало', '⌂')}
+          ${navButton('materials', 'Улики', '▤')}
+          ${navButton('people', 'Участники', '◎')}
+          ${navButton('theory', 'Обвинение', '⌘')}
         </nav>
         <main class="mli-main">
           ${renderActiveView()}
@@ -198,11 +195,15 @@
     return `
       <section class="mli-mission-strip mli-section-first">
         <div class="mli-mission-copy">
-          <p class="mli-eyebrow">Дело в одном вопросе</p>
-          <h2>Кто украл финальную сборку — и почему остальные лгут?</h2>
-          <p>${openingComplete
-            ? 'Первичная картина собрана. Теперь проверяйте версии, сопоставляйте цифровые следы и решайте, кому предъявлять противоречия.'
-            : 'Начните с кнопки на обложке. Первичные материалы откроются последовательно, но порядок расследования всегда можно изменить.'}</p>
+          <p class="mli-eyebrow">Как расследовать</p>
+          <h2>${openingComplete ? 'Теперь проверяйте версии' : 'Три шага до обвинения'}</h2>
+          ${openingComplete
+            ? '<p>Сопоставляйте цифровые следы, возвращайтесь к участникам с найденными противоречиями и собирайте доказательства против виновного.</p>'
+            : `<ol class="mli-howto">
+                <li><b>1</b><span><strong>Изучайте улики</strong><small>Сообщения, документы и цифровые следы.</small></span></li>
+                <li><b>2</b><span><strong>Проверяйте показания</strong><small>Все что-то скрывают, но виновен только один.</small></span></li>
+                <li><b>3</b><span><strong>Предъявите обвинение</strong><small>Выберите виновного и приложите доказательства.</small></span></li>
+              </ol>`}
         </div>
         <details class="mli-briefing-details">
           <summary>Краткая вводная по делу</summary>
