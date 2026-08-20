@@ -74,6 +74,7 @@ jobs:
           node --check ktovret-game/assets/app-core.js
           node --check ktovret-game/assets/dossier-nav.js
           node --check ktovret-game/assets/performance.js
+          node --check ktovret-game/assets/duel-room-client.js
           node --check assets/case-adapter.js
           node --check assets/mobile-scroll-stabilizer.js
           node --check assets/dossier-model.js
@@ -82,6 +83,7 @@ jobs:
           node --check assets/full-catalog.js
           node --check assets/catalog-experience.js
           node --check assets/analytics-events.js
+          node --check assets/duel-room.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/preview-editorial.mjs
           node --check tools/responsive-smoke.mjs
@@ -92,6 +94,7 @@ jobs:
           node --check tools/import-mobile/collection-pages.mjs
           node --check tools/import-mobile/seo-native-postprocess.mjs
           node --check tools/import-mobile/seo-wordstat-expansion.mjs
+          node --check tools/import-mobile/two-player-room-postprocess.mjs
           node --check tools/import-mobile/site-config.mjs
           node --check tools/import-mobile/site-origin-postprocess.mjs
           test ! -f tools/import-mobile/load.mjs || node --check tools/import-mobile/load.mjs
@@ -135,6 +138,10 @@ jobs:
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
+          grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
+          test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -l 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
           if test -f assets/premium.css; then
             test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
             test -f detektivnye-igry-onlayn/index.html
@@ -190,10 +197,12 @@ jobs:
           ! grep -q 'performance.js?v=' ktovret-game/assets/app.js
           test -f assets/generated/cases-index.json
           test -f assets/generated/cases-index.js
+          test -f assets/duel-room.js
+          test -f ktovret-game/assets/duel-room-client.js
           test -f tom-1/index.html
           grep -q '15 дел бесплатно' dela/index.html
           grep -q 'Ещё 85 дел — одной покупкой' dela/index.html
-          grep -q '100 логических расследований' tom-1/index.html
+          grep -q '100 детективных дел' tom-1/index.html
 
       - name: Report requested validation
         if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
