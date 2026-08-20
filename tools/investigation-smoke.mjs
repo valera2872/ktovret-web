@@ -105,7 +105,7 @@ try {
     if (dom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: blocking cold-open overlay returned instead of the integrated cover`);
     if (!dom.includes('data-mli-lead-material')) throw new Error(`${viewport.name}: integrated cover has no immediate evidence action`);
     if (!dom.includes('office-hero-v2.webp')) throw new Error(`${viewport.name}: cinematic phone-and-empty-case cover did not load`);
-    if (!dom.includes('Презентации не будет. Один из вас уже продал нашу игру.')) throw new Error(`${viewport.name}: cold open lost Pavel message`);
+    if (!dom.includes('Один из вас уже продал нашу игру')) throw new Error(`${viewport.name}: integrated cover lost Pavel message`);
     if (!dom.includes('data-view="materials"')) throw new Error(`${viewport.name}: materials navigation did not render`);
     if (!dom.includes('data-view="theory"')) throw new Error(`${viewport.name}: theory navigation did not render`);
     if (!dom.includes('data-material="pavel-message"')) throw new Error(`${viewport.name}: initial evidence did not render`);
