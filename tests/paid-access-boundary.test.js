@@ -9,6 +9,7 @@ const root=path.resolve(__dirname,'..');
 const catalog=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/cases-index.json'),'utf8'));
 const report=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/import-report.json'),'utf8'));
 const client=fs.readFileSync(path.join(root,'assets/paid-access-client.js'),'utf8');
+const storefront=fs.readFileSync(path.join(root,'assets/volume-storefront.js'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'assets/paid-access-config.js'),'utf8');
 const edge=fs.readFileSync(path.join(root,'supabase/functions/case-access/index.ts'),'utf8');
 const paymentShared=fs.readFileSync(path.join(root,'supabase/functions/_shared/payment.ts'),'utf8');
@@ -51,10 +52,10 @@ assert.ok(runtime.includes("checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supab
 assert.ok(runtime.includes("paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status'"),'payment-status endpoint missing');
 assert.ok(runtime.includes("productId:'volume1'"),'volume1 product id missing');
 
-assert.ok(client.includes('crypto.getRandomValues(bytes)'),'browser must create a cryptographically random purchase token');
-assert.ok(client.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque token before redirect');
-assert.ok(client.includes("track('purchase_completed'"),'purchase completion analytics missing');
-assert.ok(client.includes('payment_return'),'payment return reconciliation missing');
+assert.ok(storefront.includes('crypto.getRandomValues(bytes)'),'browser must create a cryptographically random purchase token');
+assert.ok(storefront.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque token before redirect');
+assert.ok(storefront.includes("track('purchase_completed'"),'purchase completion analytics missing');
+assert.ok(storefront.includes('payment_return'),'payment return reconciliation missing');
 assert.ok(!client.includes('SERVICE_ROLE'),'service-role secret must never be present in browser code');
 
 assert.ok(edge.includes("Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')"),'case access must keep service role server-side');
