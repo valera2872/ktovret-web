@@ -223,7 +223,7 @@
     roomState = state;
     const code = state.room.code;
     const opponent = state.opponent || { joined: false };
-    const startDisabled = !state.bothJoined || busy;
+    const startDisabled = !state.bothJoined;
     const startText = state.me.completed ? 'Открыть результат дела' : state.me.started ? 'Продолжить расследование' : 'Начать расследование';
 
     renderShell(
