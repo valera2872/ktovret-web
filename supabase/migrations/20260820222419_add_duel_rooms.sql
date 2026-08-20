@@ -1,3 +1,5 @@
+-- Isolated two-player room state. Browser roles have no direct table access;
+-- all room operations go through the duel-room Edge Function.
 create table if not exists public.duel_rooms (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,
