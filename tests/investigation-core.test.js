@@ -18,7 +18,8 @@ for (const materialId of definition.openingMaterialIds) {
   const material = definition.materials.find((item) => item.id === materialId);
   assert.ok(material?.availableFromStart, `Opening material ${materialId} must be available from the start`);
 }
-assert.match(definition.heroImage || '', /office-morning\.webp$/, 'The workspace hero must reuse the authored morning scene');
+assert.match(definition.heroImage || '', /office-hero-v2\.webp$/, 'The workspace hero must use the cinematic phone-and-empty-case scene');
+assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', 'office-hero-v2.webp')), 'Cinematic case-cover art file must exist');
 for (const character of definition.characters) {
   assert.match(character.portrait || '', /last-build-art\/.+\.webp$/, `Character ${character.id} must have a reusable dossier portrait`);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', path.basename(character.portrait))), `Portrait file for ${character.id} must exist`);

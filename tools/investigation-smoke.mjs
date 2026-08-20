@@ -102,21 +102,21 @@ try {
     if (dimensions.bytes < 12_000) throw new Error(`${viewport.name}: screenshot is suspiciously small (${dimensions.bytes} bytes)`);
     if (!dom.includes('Последняя сборка')) throw new Error(`${viewport.name}: case title did not render`);
     if (!dom.includes('mli-workspace')) throw new Error(`${viewport.name}: investigation workspace did not render behind cold open`);
-    if (!dom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: cold open did not render for a fresh investigation`);
-    if (!dom.includes('data-mli-intro-start')) throw new Error(`${viewport.name}: cold open has no immediate investigation entry`);
-    if (!dom.includes('data-mli-intro-scene-image')) throw new Error(`${viewport.name}: cold open lost the morning office scene`);
-    if (!dom.includes('office-morning.webp')) throw new Error(`${viewport.name}: morning office asset did not load into the cold open`);
+    if (dom.includes('mli-intro-backdrop')) throw new Error(`${viewport.name}: blocking cold-open overlay returned instead of the integrated cover`);
+    if (!dom.includes('data-mli-lead-material')) throw new Error(`${viewport.name}: integrated cover has no immediate evidence action`);
+    if (!dom.includes('office-hero-v2.webp')) throw new Error(`${viewport.name}: cinematic phone-and-empty-case cover did not load`);
     if (!dom.includes('Презентации не будет. Один из вас уже продал нашу игру.')) throw new Error(`${viewport.name}: cold open lost Pavel message`);
     if (!dom.includes('data-view="materials"')) throw new Error(`${viewport.name}: materials navigation did not render`);
     if (!dom.includes('data-view="theory"')) throw new Error(`${viewport.name}: theory navigation did not render`);
     if (!dom.includes('data-material="pavel-message"')) throw new Error(`${viewport.name}: initial evidence did not render`);
-    if (!dom.includes('Начните с первичных материалов')) throw new Error(`${viewport.name}: focused first-step orientation did not render`);
-    if (!dom.includes('Три точки входа')) throw new Error(`${viewport.name}: opening evidence group lost its orientation label`);
+    if (!dom.includes('Кто украл финальную сборку — и почему остальные лгут?')) throw new Error(`${viewport.name}: case mission did not render`);
+    if (!dom.includes('Открыть сообщение Павла')) throw new Error(`${viewport.name}: first authored action is not explicit`);
     if (!dom.includes('Краткая вводная по делу')) throw new Error(`${viewport.name}: collapsible case brief did not render`);
     if (dom.includes('mli-progress-strip')) throw new Error(`${viewport.name}: dashboard counters returned to the first workspace`);
     if (dom.includes('mli-desk-aside')) throw new Error(`${viewport.name}: competing status sidebar returned to the first workspace`);
-    const openingCards = (dom.match(/mli-material-card[^\"]*is-opening/g) || []).length;
-    if (openingCards !== 3) throw new Error(`${viewport.name}: expected exactly three opening materials, found ${openingCards}`);
+    const leadControls = (dom.match(/data-mli-lead-material/g) || []).length;
+    if (leadControls !== 1) throw new Error(`${viewport.name}: expected one dominant opening action, found ${leadControls}`);
+    if (dom.includes('mli-material-card is-opening')) throw new Error(`${viewport.name}: competing opening cards returned to the first screen`);
     if (dom.includes('Что можно сделать')) throw new Error(`${viewport.name}: empty generic action block returned to the first workspace`);
     if (dom.includes('Роман физически вернулся в офис')) throw new Error(`${viewport.name}: canonical theory leaked into player-facing proof copy`);
 
@@ -181,8 +181,8 @@ try {
       ...viewport,
       screenshotBytes: dimensions.bytes,
       workspaceRendered: true,
-      coldOpenRendered: true,
-      focusedWorkspace: 'three opening materials, no counters/sidebar',
+      coldOpenRendered: 'integrated persistent case cover',
+      focusedWorkspace: 'one dominant evidence action, no counters/sidebar',
       fairPlayCopy: true,
       premiumEvidence: ['receipt', 'terminal', 'web'],
       premiumArt: ['office', 'four portraits'],

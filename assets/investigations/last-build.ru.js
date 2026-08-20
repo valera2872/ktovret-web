@@ -5,7 +5,7 @@
     id: 'last_build_ru_web',
     title: 'Последняя сборка',
     subtitle: 'Лгут все. Виновен один.',
-    heroImage: '../../../assets/investigations/last-build-art/office-morning.webp',
+    heroImage: '../../../assets/investigations/last-build-art/office-hero-v2.webp',
     estimatedMinutes: '25–35 минут',
     difficulty: 'Экспертное расследование',
     openingMaterialIds: ['pavel-message', 'office-morning', 'initial-statements'],

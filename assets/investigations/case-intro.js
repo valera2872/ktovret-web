@@ -31,6 +31,7 @@
 
   function shouldShow(definition, search) {
     if (!definition?.caseIntro) return false;
+    if (definition.caseIntro.mode === 'integrated') return false;
     const params = new URLSearchParams(search || '');
     if (params.has('previewEvidence') || params.has('previewResult') || params.has('previewInterrogation')) return false;
     if (hasProgress(definition)) return false;

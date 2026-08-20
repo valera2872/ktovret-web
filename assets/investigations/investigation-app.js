@@ -76,20 +76,75 @@
     return definition.materials.filter((material) => viewed.has(material.id));
   }
 
-  function render() {
-    root.innerHTML = `
-      <section class="mli-case-head">
-        ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="" aria-hidden="true">` : ''}
-        <div class="mli-case-head-copy">
-          <p class="mli-kicker">Mystery Logic · расширенное расследование</p>
-          <h1>${escapeHtml(definition.title)}</h1>
-          <p class="mli-subtitle">${escapeHtml(definition.subtitle)}</p>
-          <div class="mli-head-meta" aria-label="Параметры дела">
-            <span>${escapeHtml(definition.estimatedMinutes)}</span>
-            <span>${escapeHtml(definition.difficulty)}</span>
+  function leadMaterial() {
+    const materials = core.availableMaterials(definition, state);
+    const byId = new Map(materials.map((material) => [material.id, material]));
+    const orderedIds = [
+      ...(definition.openingMaterialIds || []),
+      ...materials.map((material) => material.id),
+    ];
+    return orderedIds
+      .map((id) => byId.get(id))
+      .find((material, index, ordered) => material && ordered.indexOf(material) === index && !state.viewedMaterials.includes(material.id)) || null;
+  }
+
+  function leadMaterialLabel(material) {
+    const labels = {
+      'pavel-message': 'Открыть сообщение Павла',
+      'office-morning': 'Осмотреть офис утром',
+      'initial-statements': 'Сверить первые показания',
+    };
+    return labels[material?.id] || `Изучить: ${material?.title || 'следующий материал'}`;
+  }
+
+  function renderCaseHead() {
+    const compact = activeView !== 'overview' || Boolean(state.resultTier);
+    if (compact) {
+      return `
+        <section class="mli-case-head is-compact">
+          ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="" aria-hidden="true">` : ''}
+          <div class="mli-case-head-copy">
+            <p class="mli-kicker">Дело 17-К · студия «Кадр 17»</p>
+            <h1>${escapeHtml(definition.title)}</h1>
+            <p class="mli-subtitle">${escapeHtml(definition.subtitle)}</p>
           </div>
+        </section>
+      `;
+    }
+
+    const lead = leadMaterial();
+    const hasAvailableActions = core.availableActions(definition, state).length > 0;
+    return `
+      <section class="mli-case-head mli-story-cover">
+        ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="Утренний офис студии: на столе светится телефон, рядом лежит пустой футляр накопителя.">` : ''}
+        <div class="mli-case-head-copy">
+          <p class="mli-kicker">Дело 17-К · студия «Кадр 17»</p>
+          <h1>${escapeHtml(definition.title)}</h1>
+          <p class="mli-case-quote">«Один из вас уже продал нашу игру»</p>
+          <p class="mli-message-source">Последнее сообщение Павла Нестерова · 17 октября, 21:27</p>
+          <div class="mli-case-facts" aria-label="Состояние дела утром 18 октября">
+            <span>Павел не отвечает</span>
+            <span>RELEASE удалена</span>
+            <span>ORBIT-2 исчез</span>
+          </div>
+          ${lead
+            ? `<button class="mli-case-start" type="button" data-material="${escapeHtml(lead.id)}" data-mli-lead-material>${escapeHtml(leadMaterialLabel(lead))}<span>→</span></button>`
+            : hasAvailableActions
+              ? `<button class="mli-case-start" type="button" data-view="materials" data-mli-lead-material>Перейти к доступным проверкам<span>→</span></button>`
+              : `<button class="mli-case-start" type="button" data-view="theory" data-mli-lead-material>Собрать итоговую версию<span>→</span></button>`}
+          <p class="mli-case-freedom">Можно идти своим путём — весь архив открыт в разделе «Материалы».</p>
+        </div>
+        <div class="mli-cover-meta" aria-label="Параметры дела">
+          <span>${escapeHtml(definition.estimatedMinutes)}</span>
+          <span>${escapeHtml(definition.difficulty)}</span>
         </div>
       </section>
+    `;
+  }
+
+  function render() {
+    root.innerHTML = `
+      ${renderCaseHead()}
 
       <div class="mli-workspace">
         <nav class="mli-rail" aria-label="Разделы расследования">
@@ -137,21 +192,17 @@
     const openingMaterials = openingIds
       .map((id) => materials.find((material) => material.id === id))
       .filter(Boolean);
-    const isFresh = state.viewedMaterials.length === 0 && state.performedActions.length === 0;
-    const focusMaterials = isFresh
-      ? openingMaterials
-      : unread.slice(0, 3);
+    const openingComplete = openingMaterials.every((material) => state.viewedMaterials.includes(material.id));
+    const focusMaterials = openingComplete ? unread.slice(0, 3) : [];
     const remainingUnread = Math.max(0, unread.length - focusMaterials.length);
     return `
-      <section class="mli-case-entry mli-section-first">
-        <div class="mli-case-entry-copy">
-          <p class="mli-eyebrow">${isFresh ? 'Первый шаг' : 'Текущий фокус'}</p>
-          <h2>${isFresh ? 'Начните с первичных материалов' : unread.length ? 'Продолжите проверку материалов' : 'Соберите рабочую версию'}</h2>
-          <p>${isFresh
-            ? 'Сообщение Павла, утренний осмотр и первые показания дают достаточно, чтобы самостоятельно выбрать направление расследования.'
-            : unread.length
-              ? 'Перед вами только ближайшие доступные материалы. Остальной архив и следственные действия открываются в своих разделах.'
-              : 'Новых поступлений сейчас нет. Сопоставьте уже найденное, вернитесь к участникам дела или предъявите итоговую версию.'}</p>
+      <section class="mli-mission-strip mli-section-first">
+        <div class="mli-mission-copy">
+          <p class="mli-eyebrow">Дело в одном вопросе</p>
+          <h2>Кто украл финальную сборку — и почему остальные лгут?</h2>
+          <p>${openingComplete
+            ? 'Первичная картина собрана. Теперь проверяйте версии, сопоставляйте цифровые следы и решайте, кому предъявлять противоречия.'
+            : 'Начните с кнопки на обложке. Первичные материалы откроются последовательно, но порядок расследования всегда можно изменить.'}</p>
         </div>
         <details class="mli-briefing-details">
           <summary>Краткая вводная по делу</summary>
@@ -160,14 +211,14 @@
       </section>
       ${focusMaterials.length ? `<section class="mli-section mli-focus-section">
         <div class="mli-section-heading compact">
-          <div><p class="mli-eyebrow">${isFresh ? 'На столе следователя' : 'Ближайшие материалы'}</p><h2>${isFresh ? 'Три точки входа' : 'Что изучить дальше'}</h2></div>
+          <div><p class="mli-eyebrow">Ближайшие материалы</p><h2>Что изучить дальше</h2></div>
           <button class="mli-text-button" type="button" data-view="materials">Все материалы${remainingUnread ? ` · ещё ${remainingUnread}` : ''} →</button>
         </div>
-        <div class="mli-material-grid mli-opening-grid">
-          ${focusMaterials.map((material, index) => renderMaterialCard(material, ` is-opening is-opening-${index + 1}`)).join('')}
+        <div class="mli-material-grid">
+          ${focusMaterials.map(renderMaterialCard).join('')}
         </div>
       </section>` : ''}
-      ${generalActions.length ? `<section class="mli-section">
+      ${openingComplete && generalActions.length ? `<section class="mli-section">
         <div class="mli-section-heading compact">
           <div><p class="mli-eyebrow">Основано на найденных фактах</p><h2>Доступные проверки</h2></div>
           <button class="mli-text-button" type="button" data-view="materials">Все действия →</button>
