@@ -13,6 +13,12 @@ assert.ok(definition, 'Last Build definition must be available');
 assert.equal(definition.id, 'last_build_ru_web');
 assert.equal(definition.suspects.filter((suspect) => suspect.isCanonicalCulprit).length, 1, 'There must be exactly one canonical culprit');
 assert.deepEqual(core.auditDefinition(definition), [], 'Investigation graph must have no dangling references');
+assert.deepEqual(definition.openingMaterialIds, ['pavel-message', 'office-morning', 'initial-statements'], 'The first workspace must expose exactly three authored entry points');
+for (const materialId of definition.openingMaterialIds) {
+  const material = definition.materials.find((item) => item.id === materialId);
+  assert.ok(material?.availableFromStart, `Opening material ${materialId} must be available from the start`);
+}
+assert.match(definition.heroImage || '', /office-morning\.webp$/, 'The workspace hero must reuse the authored morning scene');
 for (const character of definition.characters) {
   assert.match(character.portrait || '', /last-build-art\/.+\.webp$/, `Character ${character.id} must have a reusable dossier portrait`);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'investigations', 'last-build-art', path.basename(character.portrait))), `Portrait file for ${character.id} must exist`);

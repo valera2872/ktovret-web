@@ -77,24 +77,18 @@
   }
 
   function render() {
-    const progress = core.progress(definition, state);
     root.innerHTML = `
       <section class="mli-case-head">
-        <div>
+        ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="" aria-hidden="true">` : ''}
+        <div class="mli-case-head-copy">
           <p class="mli-kicker">Mystery Logic · расширенное расследование</p>
           <h1>${escapeHtml(definition.title)}</h1>
           <p class="mli-subtitle">${escapeHtml(definition.subtitle)}</p>
+          <div class="mli-head-meta" aria-label="Параметры дела">
+            <span>${escapeHtml(definition.estimatedMinutes)}</span>
+            <span>${escapeHtml(definition.difficulty)}</span>
+          </div>
         </div>
-        <div class="mli-head-meta" aria-label="Параметры дела">
-          <span>${escapeHtml(definition.estimatedMinutes)}</span>
-          <span>${escapeHtml(definition.difficulty)}</span>
-        </div>
-      </section>
-
-      <section class="mli-progress-strip" aria-label="Прогресс расследования">
-        <div><strong>${progress.viewedMaterials}</strong><span>изучено материалов</span></div>
-        <div><strong>${progress.performedActions}</strong><span>проверок проведено</span></div>
-        <div><strong>${state.hypothesisHistory.length}</strong><span>смен рабочей версии</span></div>
       </section>
 
       <div class="mli-workspace">
@@ -107,7 +101,6 @@
         <main class="mli-main">
           ${renderActiveView()}
         </main>
-        ${renderDeskAside()}
       </div>
     `;
     bindEvents();
@@ -140,31 +133,47 @@
     const generalActions = actions.filter((action) => !action.characterId);
     const materials = core.availableMaterials(definition, state);
     const unread = materials.filter((material) => !state.viewedMaterials.includes(material.id));
+    const openingIds = definition.openingMaterialIds || materials.slice(0, 3).map((material) => material.id);
+    const openingMaterials = openingIds
+      .map((id) => materials.find((material) => material.id === id))
+      .filter(Boolean);
+    const isFresh = state.viewedMaterials.length === 0 && state.performedActions.length === 0;
+    const focusMaterials = isFresh
+      ? openingMaterials
+      : unread.slice(0, 3);
+    const remainingUnread = Math.max(0, unread.length - focusMaterials.length);
     return `
-      <section class="mli-section">
-        <div class="mli-paper mli-brief">
-          <span class="mli-paper-label">Вводная</span>
+      <section class="mli-case-entry mli-section-first">
+        <div class="mli-case-entry-copy">
+          <p class="mli-eyebrow">${isFresh ? 'Первый шаг' : 'Текущий фокус'}</p>
+          <h2>${isFresh ? 'Начните с первичных материалов' : unread.length ? 'Продолжите проверку материалов' : 'Соберите рабочую версию'}</h2>
+          <p>${isFresh
+            ? 'Сообщение Павла, утренний осмотр и первые показания дают достаточно, чтобы самостоятельно выбрать направление расследования.'
+            : unread.length
+              ? 'Перед вами только ближайшие доступные материалы. Остальной архив и следственные действия открываются в своих разделах.'
+              : 'Новых поступлений сейчас нет. Сопоставьте уже найденное, вернитесь к участникам дела или предъявите итоговую версию.'}</p>
+        </div>
+        <details class="mli-briefing-details">
+          <summary>Краткая вводная по делу</summary>
           <p>${escapeHtml(definition.brief)}</p>
-        </div>
+        </details>
       </section>
-      <section class="mli-section">
-        <div class="mli-section-heading">
-          <div><p class="mli-eyebrow">Сейчас доступно</p><h2>Что можно сделать</h2></div>
-          <p>Интерфейс не указывает правильный маршрут. Новые проверки появляются только после фактов, которые дают для них основание.</p>
-        </div>
-        <div class="mli-action-grid">
-          ${generalActions.length ? generalActions.slice(0, 6).map(renderActionCard).join('') : renderEmpty('Откройте новые материалы или вернитесь к участникам дела.')}
-        </div>
-      </section>
-      <section class="mli-section">
+      ${focusMaterials.length ? `<section class="mli-section mli-focus-section">
         <div class="mli-section-heading compact">
-          <div><p class="mli-eyebrow">Новые поступления</p><h2>Неизученные материалы</h2></div>
-          <button class="mli-text-button" type="button" data-view="materials">Открыть всё дело →</button>
+          <div><p class="mli-eyebrow">${isFresh ? 'На столе следователя' : 'Ближайшие материалы'}</p><h2>${isFresh ? 'Три точки входа' : 'Что изучить дальше'}</h2></div>
+          <button class="mli-text-button" type="button" data-view="materials">Все материалы${remainingUnread ? ` · ещё ${remainingUnread}` : ''} →</button>
         </div>
-        <div class="mli-material-grid">
-          ${unread.length ? unread.slice(0, 6).map(renderMaterialCard).join('') : renderEmpty('Все доступные материалы уже просмотрены. Следующие появятся после обоснованных проверок.')}
+        <div class="mli-material-grid mli-opening-grid">
+          ${focusMaterials.map((material, index) => renderMaterialCard(material, ` is-opening is-opening-${index + 1}`)).join('')}
         </div>
-      </section>
+      </section>` : ''}
+      ${generalActions.length ? `<section class="mli-section">
+        <div class="mli-section-heading compact">
+          <div><p class="mli-eyebrow">Основано на найденных фактах</p><h2>Доступные проверки</h2></div>
+          <button class="mli-text-button" type="button" data-view="materials">Все действия →</button>
+        </div>
+        <div class="mli-action-grid">${generalActions.slice(0, 3).map(renderActionCard).join('')}</div>
+      </section>` : ''}
     `;
   }
 
@@ -173,6 +182,9 @@
     const unread = materials.filter((material) => !state.viewedMaterials.includes(material.id));
     const viewed = materials.filter((material) => state.viewedMaterials.includes(material.id));
     const actions = core.availableActions(definition, state).filter((action) => !action.characterId);
+    const openingSet = new Set(definition.openingMaterialIds || []);
+    const unreadOpening = unread.filter((material) => openingSet.has(material.id));
+    const unreadArchive = unread.filter((material) => !openingSet.has(material.id));
     return `
       <section class="mli-section mli-section-first">
         <div class="mli-section-heading">
@@ -180,9 +192,13 @@
           <p>Открытие документа означает, что вы действительно ознакомились с его содержанием. Только просмотренные материалы можно приложить к итоговой версии.</p>
         </div>
         <div class="mli-material-groups">
+          ${unreadOpening.length ? `<section class="mli-material-group" data-material-group="opening">
+            <div class="mli-material-subheading"><h3>Первичные материалы</h3><span>${unreadOpening.length}</span></div>
+            <div class="mli-material-grid">${unreadOpening.map(renderMaterialCard).join('')}</div>
+          </section>` : ''}
           <section class="mli-material-group" data-material-group="new">
-            <div class="mli-material-subheading"><h3>Новые материалы</h3><span>${unread.length}</span></div>
-            <div class="mli-material-grid">${unread.length ? unread.map(renderMaterialCard).join('') : renderEmpty('Новых материалов нет. Продолжайте обоснованные проверки или вернитесь к участникам дела.')}</div>
+            <div class="mli-material-subheading"><h3>${unreadOpening.length ? 'Остальные поступления' : 'Новые материалы'}</h3><span>${unreadArchive.length}</span></div>
+            <div class="mli-material-grid">${unreadArchive.length ? unreadArchive.map(renderMaterialCard).join('') : renderEmpty('Новых материалов нет. Продолжайте обоснованные проверки или вернитесь к участникам дела.')}</div>
           </section>
           ${viewed.length ? `
             <details class="mli-viewed-materials" data-material-group="viewed">
@@ -192,20 +208,20 @@
           ` : ''}
         </div>
       </section>
-      <section class="mli-section">
+      ${actions.length ? `<section class="mli-section">
         <div class="mli-section-heading">
           <div><p class="mli-eyebrow">Операции</p><h2>Следственные действия</h2></div>
           <p>Это проверки, для которых у вас уже появилось фактическое основание. Они не отсортированы по «правильности».</p>
         </div>
-        <div class="mli-action-grid">${actions.length ? actions.map(renderActionCard).join('') : renderEmpty('Новых общих проверок пока нет. Посмотрите раздел «Люди» — там могут быть доступны уточняющие вопросы.')}</div>
-      </section>
+        <div class="mli-action-grid">${actions.map(renderActionCard).join('')}</div>
+      </section>` : ''}
     `;
   }
 
-  function renderMaterialCard(material) {
+  function renderMaterialCard(material, modifier = '') {
     const viewed = state.viewedMaterials.includes(material.id);
     return `
-      <button class="mli-material-card${viewed ? ' is-viewed' : ''}" type="button" data-material="${escapeHtml(material.id)}">
+      <button class="mli-material-card${viewed ? ' is-viewed' : ''}${modifier}" type="button" data-material="${escapeHtml(material.id)}">
         <span class="mli-material-icon">${materialIcon(material.type)}</span>
         <span class="mli-material-copy">
           <small>${escapeHtml(material.type)}${viewed ? ' · изучено' : ' · новое'}</small>
@@ -337,36 +353,6 @@
           ${tier === 'S' ? `<details class="mli-truth"><summary>Что произошло на самом деле</summary><p>${escapeHtml(definition.resultNarrative)}</p></details>` : ''}
         </div>
       </section>
-    `;
-  }
-
-  function renderDeskAside() {
-    const selected = definition.suspects.find((suspect) => suspect.id === state.selectedSuspectId);
-    const available = core.availableActions(definition, state);
-    const facts = new Set(state.facts || []);
-    const caughtLies = definition.characters.filter((character) =>
-      (character.statementStates || []).some((candidate) =>
-        (candidate.requiresAllFacts || []).every((fact) => facts.has(fact)),
-      ),
-    ).length;
-    return `
-      <aside class="mli-desk-aside">
-        <div class="mli-aside-card">
-          <small>Рабочая версия</small>
-          <strong>${selected ? escapeHtml(selected.label) : 'Не выбрана'}</strong>
-          <button type="button" data-view="theory">Открыть версию →</button>
-        </div>
-        <div class="mli-aside-card">
-          <small>Сейчас</small>
-          <strong>${available.length}</strong>
-          <span>доступных проверок и вопросов</span>
-        </div>
-        <div class="mli-aside-card">
-          <small>Изменили показания</small>
-          <strong>${caughtLies}</strong>
-          <span>участника дела</span>
-        </div>
-      </aside>
     `;
   }
 
