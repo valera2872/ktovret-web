@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/2317';
 
@@ -19,6 +19,7 @@ const specialPage = () => `<!doctype html>
   <link rel="stylesheet" href="../../assets/mysterylogic.css">
   <link rel="stylesheet" href="../../assets/premium.css?v=1.1.0">
   <link rel="stylesheet" href="../../assets/case-2317.css?v=${VERSION}">
+  <link rel="stylesheet" href="../../assets/case-2317-v2.css?v=${VERSION}">
   <meta property="og:title" content="Последний звонок в 23:17 — дело для двоих">
   <meta property="og:description" content="Два игрока получают разные улики. Сопоставьте факты и раскройте дело вместе.">
   <meta property="og:type" content="website">
@@ -46,6 +47,7 @@ const specialPage = () => `<!doctype html>
 
   <script src="../../assets/case-2317-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-2317.js?v=${VERSION}"></script>
+  <script src="../../assets/case-2317-runtime.js?v=${VERSION}"></script>
 </body>
 </html>`;
 
@@ -104,7 +106,7 @@ const feature = `
       </div>
 
       <div class="coop-evidence-strip">
-        <div class="coop-evidence-paper"><small>112 · 23:17:08</small><strong>«Он приехал. Я вижу его машину…»</strong><span>расшифровка звонка</span></div>
+        <div class="coop-evidence-paper"><small>112 · 23:17:08</small><strong>«Он приехал. Я вижу его машину…»</strong><span>аудиореконструкция звонка</span></div>
         <div class="coop-evidence-map"><i></i><i></i><i></i><b>23:44</b><span>телефон и автомобиль расходятся</span></div>
         <div class="coop-evidence-chat"><small>22:41</small><p>Если он появится —<br><b>выход Б.</b> Я рядом.</p><span>переписка</span></div>
       </div>
@@ -119,8 +121,8 @@ const feature = `
       <p class="ml-kicker">Как проходит расследование</p>
       <div class="coop-how-grid">
         <article><span>01</span><h3>Создайте комнату</h3><p>Отправьте второму игроку ссылку или восьмисимвольный код.</p></article>
-        <article><span>02</span><h3>Получите разные роли</h3><p>Следователь и Аналитик видят разные документы и цифровые следы.</p></article>
-        <article><span>03</span><h3>Соберите одну версию</h3><p>Сверьте факты и вместе ответьте на три финальных вопроса.</p></article>
+        <article><span>02</span><h3>Получите разные роли</h3><p>Следователь и Аналитик видят разные документы и передают друг другу ключевые маркеры.</p></article>
+        <article><span>03</span><h3>Соберите одну версию</h3><p>Принимайте решения, выберите главные доказательства и получите общий ранг пары.</p></article>
       </div>
     </section>
 

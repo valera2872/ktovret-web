@@ -22,8 +22,9 @@ jobs:
         run: |
           node --check assets/case-2317-data.js
           node --check assets/case-2317.js
+          node --check assets/case-2317-runtime.js
           node --check tools/import-mobile/two-player-2317-postprocess.mjs
-      - name: Validate product boundary
+      - name: Validate v2 product boundary
         run: |
           grep -q "id: 'special:2317'" assets/case-2317-data.js
           grep -q "Последний звонок в 23:17" assets/case-2317-data.js
@@ -32,9 +33,21 @@ jobs:
           grep -q 'meta name="robots" content="noindex,follow"' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q '<h1>Детективная игра для двоих онлайн</h1>' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q 'Короткая дуэль · 10–15 минут' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'case-2317-v2.css' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'case-2317-runtime.js' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q "functions/v1/coop-2317" assets/case-2317.js
           grep -q "const CASE_ID = 'special:2317'" supabase/functions/coop-2317/index.ts
           ! grep -q "functions/v1/coop-2317" assets/duel-room.js
+          grep -q "D-2147" assets/case-2317.js
+          grep -q "Q7-29" assets/case-2317.js
+          grep -q "RB-17" assets/case-2317.js
+          grep -q "4F-7719" assets/case-2317.js
+          grep -q "Заключение следственной группы" assets/case-2317.js
+          grep -q "Отдел особых расследований" assets/case-2317.js
+          grep -q "CALL_DURATION = 46" assets/case-2317-runtime.js
+          grep -q "SpeechSynthesisUtterance" assets/case-2317-runtime.js
+          grep -q "Аудиореконструкция линии 112" assets/case-2317-runtime.js
+          ! grep -q "call-112-2317.mp3" assets/case-2317-runtime.js
       - name: Live room contract smoke
         env:
           ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-2317
