@@ -22,7 +22,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: last-build-lab-pages-${{ github.event.pull_request.number || github.ref }}
+  group: last-build-lab-pages-v2-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
