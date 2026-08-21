@@ -1,4 +1,4 @@
-name: Visual smoke Mystery Logic storefront v2
+name: Visual smoke Mystery Logic storefront v3
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ env:
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 jobs:
-  storefront-v2:
+  storefront-v3:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout web
@@ -35,14 +35,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate storefront v2 sources
+      - name: Validate storefront v3 sources
         working-directory: web
         run: |
           node --check tools/import-mobile/archive-visual-postprocess.mjs
+          node --check tools/import-mobile/storefront-v3-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          grep -q 'sf-home-hero' assets/storefront-v2.css
-          grep -q 'sf-volume-box' assets/storefront-v2.css
-          grep -q 'sf-catalog-art' assets/storefront-v2.css
+          grep -q 'mx-hero-figure' assets/storefront-v3.css
+          grep -q 'storefront-v3-archive-hero.svg' assets/storefront-v3.css
+          grep -q 'VOLUME I' assets/storefront-v3-archive-hero.svg
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
@@ -50,12 +51,14 @@ jobs:
         working-directory: web
         run: |
           grep -q '"archiveVisualPages": 3' assets/generated/import-report.json
-          grep -q '"archiveVisualVersion": "2.0.0"' assets/generated/import-report.json
-          grep -q 'storefront-v2.css' index.html
-          grep -q 'storefront-v2.css' dela/index.html
-          grep -q 'storefront-v2.css' tom-1/index.html
-          grep -q 'sf-format-grid' index.html
-          grep -q 'sf-volume-box' tom-1/index.html
+          grep -q '"storefrontV3Pages": 3' assets/generated/import-report.json
+          grep -q '"storefrontV3Version": "3.0.0"' assets/generated/import-report.json
+          grep -q 'storefront-v3.css' index.html
+          grep -q 'storefront-v3.css' dela/index.html
+          grep -q 'storefront-v3.css' tom-1/index.html
+          grep -q 'storefront-v3-archive-hero.svg' index.html
+          grep -q 'storefront-v3-archive-hero.svg' dela/index.html
+          grep -q 'storefront-v3-archive-hero.svg' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
           grep -q 'case-search' dela/index.html
@@ -68,7 +71,7 @@ jobs:
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: mysterylogic-storefront-v2
+          name: mysterylogic-storefront-v3
           path: web/artifacts/storefront-v2-smoke
           retention-days: 7
           if-no-files-found: error
