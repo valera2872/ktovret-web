@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 435" role="img" aria-labelledby="t d">
+<title id="t">Материалы дела ML-2317</title><desc id="d">Карточка звонка 112, кадр камеры наблюдения и папка дела</desc>
+<defs>
+  <linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111820"/><stop offset=".55" stop-color="#252a2d"/><stop offset="1" stop-color="#090e13"/></linearGradient>
+  <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d5c5a9"/><stop offset=".6" stop-color="#b7a589"/><stop offset="1" stop-color="#948268"/></linearGradient>
+  <linearGradient id="folder" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d0bd9a"/><stop offset=".5" stop-color="#b19a77"/><stop offset="1" stop-color="#887256"/></linearGradient>
+  <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="13" stdDeviation="12" flood-color="#000" flood-opacity=".52"/></filter>
+  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  <pattern id="grain" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M2 6h8M14 17h10M5 25h5" stroke="#5d503f" stroke-opacity=".16" stroke-width="1"/></pattern>
+</defs>
+<g filter="url(#shadow)">
+  <g transform="translate(42 53) rotate(-5 90 95)">
+    <rect width="172" height="188" rx="4" fill="url(#paper)" stroke="#7e6d55"/>
+    <rect width="172" height="188" rx="4" fill="url(#grain)" opacity=".65"/>
+    <text x="19" y="31" fill="#362c22" font-family="Arial, sans-serif" font-size="12" font-weight="700">ЗВОНОК 112</text>
+    <text x="19" y="70" fill="#2d241b" font-family="Georgia, serif" font-size="31">23:17</text>
+    <g transform="translate(19 96)" stroke="#40352a" stroke-width="2">
+      <path d="M0 25v-10M6 27V9M12 31V3M18 25V12M24 29V7M30 35V1M36 27V9M42 31V4M48 25V12M54 32V5M60 29V8M66 36V0M72 29V7M78 33V4M84 26V11M90 29V8M96 35V1M102 26V11M108 31V5M114 25V12M120 30V7M126 34V2M132 28V9"/>
+    </g>
+    <circle cx="28" cy="151" r="12" fill="none" stroke="#3e342a"/><path d="M25 144l8 7-8 7z" fill="#3e342a"/>
+    <text x="48" y="155" fill="#4d4032" font-family="Arial" font-size="11">00:00 / 01:12</text>
+  </g>
+
+  <g transform="translate(215 35) rotate(5 150 100)">
+    <rect width="300" height="200" rx="5" fill="#070c10" stroke="#88704b" stroke-width="2"/>
+    <rect x="8" y="8" width="284" height="184" fill="url(#night)"/>
+    <path d="M10 137L292 105M12 149L292 116" stroke="#6a7378" stroke-opacity=".28"/>
+    <path d="M0 92h300M76 0v200M154 0v200M232 0v200" stroke="#c2c7ca" stroke-opacity=".08"/>
+    <g fill="#e8dfc7">
+      <circle cx="81" cy="84" r="4" opacity=".85"/><circle cx="118" cy="75" r="3" opacity=".55"/><circle cx="180" cy="70" r="4" opacity=".75"/><circle cx="229" cy="80" r="3" opacity=".6"/>
+    </g>
+    <g filter="url(#soft)" fill="#fff1c6" opacity=".42"><circle cx="82" cy="86" r="9"/><circle cx="180" cy="72" r="8"/></g>
+    <path d="M209 130c10-13 36-11 47 1l7 23h-65z" fill="#151b20" stroke="#434b51"/><circle cx="212" cy="154" r="6" fill="#080b0e"/><circle cx="252" cy="154" r="6" fill="#080b0e"/>
+    <g fill="#080b0d"><circle cx="245" cy="106" r="8"/><path d="M238 115h16l5 31h-27z"/><circle cx="264" cy="111" r="7"/><path d="M258 119h14l4 28h-23z"/></g>
+    <text x="18" y="28" fill="#d7d1c4" font-family="monospace" font-size="12">CAM C17</text>
+    <text x="178" y="28" fill="#d7d1c4" font-family="monospace" font-size="10">2024-05-12 23:17:41</text>
+  </g>
+
+  <g transform="translate(174 233) rotate(6 175 90)">
+    <path d="M0 0h315l19 18v160H0z" fill="url(#folder)" stroke="#7f694c" stroke-width="2"/>
+    <path d="M26 0h122l12 18H26z" fill="#b79d77" opacity=".72"/>
+    <rect x="28" y="37" width="251" height="104" fill="#cbb894" opacity=".45" stroke="#6d5a43"/>
+    <rect x="84" y="58" width="145" height="64" fill="none" stroke="#9e4337" stroke-width="3"/>
+    <text x="112" y="83" fill="#8f382f" font-family="Georgia, serif" font-size="23" font-weight="700">CASE</text>
+    <text x="101" y="108" fill="#8f382f" font-family="Georgia, serif" font-size="28" font-weight="700">ML-2317</text>
+    <circle cx="269" cy="130" r="26" fill="none" stroke="#76634b" opacity=".65"/><text x="256" y="137" fill="#6e5b45" font-family="Georgia" font-size="19">ML</text>
+  </g>
+</g>
+</svg>
