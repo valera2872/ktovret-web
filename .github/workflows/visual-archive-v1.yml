@@ -72,6 +72,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mysterylogic-storefront-v3
-          path: web/artifacts/storefront-v2-smoke
+          path: web/artifacts/storefront-v3-smoke
           retention-days: 7
           if-no-files-found: error
