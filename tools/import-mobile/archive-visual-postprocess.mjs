@@ -3,14 +3,15 @@ import path from 'node:path';
 
 const VERSION='1.0.0';
 const STYLE=`archive-visual-v1.css?v=${VERSION}`;
+const MOBILE_STYLE=`archive-visual-mobile.css?v=${VERSION}`;
 
 const addBodyClass=(html,className)=>{
   if(html.includes(`class="${className}"`)) return html;
   return html.replace('<body>',`<body class="${className}">`).replace(/<body class="([^"]*)">/,(_,classes)=>`<body class="${classes.includes(className)?classes:`${classes} ${className}`.trim()}">`);
 };
 
-const addStyle=(html,href)=>{
-  if(html.includes(STYLE)) return html;
+const addStyle=(html,href,marker=STYLE)=>{
+  if(html.includes(marker)) return html;
   return html.replace('</head>',`  <link rel="stylesheet" href="${href}">\n</head>`);
 };
 
@@ -79,6 +80,7 @@ function patchCatalog(siteRoot){
   let html=fs.readFileSync(file,'utf8');
   html=addBodyClass(html,'av-catalog');
   html=addStyle(html,`../assets/${STYLE}`);
+  html=addStyle(html,`../assets/${MOBILE_STYLE}`,MOBILE_STYLE);
   if(!html.includes('class="case-grid"')||!html.includes('catalog-case-file')) throw new Error('archive visual catalog contract missing');
   fs.writeFileSync(file,html);
   return true;
