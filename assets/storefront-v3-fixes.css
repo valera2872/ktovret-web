@@ -1,0 +1,18 @@
+.mx-v3 .sf-volume-copy h1{font-size:clamp(3.5rem,5.35vw,5.7rem)!important;line-height:.9!important;max-width:520px!important}.mx-v3 .sf-volume-copy{max-width:520px!important}.mx-v3 .sf-volume-hero{grid-template-columns:minmax(0,.72fr) minmax(560px,1.28fr)!important}
+@media(max-width:980px){.mx-v3 .sf-volume-hero{grid-template-columns:1fr!important}.mx-v3 .sf-volume-copy h1{max-width:720px!important}}
+@media(max-width:620px){
+  .mx-v3 .sf-home-hero,.mx-v3 .sf-volume-hero,.mx-v3 .sf-catalog-hero{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+  .mx-v3 .sf-home-copy,.mx-v3 .sf-volume-copy,.mx-v3 .sf-catalog-copy{display:contents!important}
+  .mx-v3 .sf-home-copy>.ml-kicker,.mx-v3 .sf-volume-copy>.ml-kicker,.mx-v3 .sf-catalog-copy>.ml-kicker{order:1;margin:0 0 12px!important}
+  .mx-v3 .sf-home-copy>h1,.mx-v3 .sf-volume-copy>h1,.mx-v3 .sf-catalog-copy>h1{order:2;margin:0!important;font-size:clamp(2.95rem,14vw,4.15rem)!important;line-height:.9!important;max-width:none!important}
+  .mx-v3 .mx-hero-figure{order:3;margin:16px -14px 8px!important;overflow:hidden!important;border-radius:14px!important;background:#09131c!important}
+  .mx-v3 .mx-hero-figure img{width:118%!important;margin-inline:-9%!important;max-width:none!important;transform:none!important}
+  .mx-v3 .sf-home-copy>.sf-lead,.mx-v3 .sf-volume-copy>.sf-lead,.mx-v3 .sf-catalog-copy>p{order:4;margin:12px 0 0!important;font-size:.93rem!important;line-height:1.62!important}
+  .mx-v3 .sf-home-copy>.sf-home-actions,.mx-v3 .sf-catalog-copy>.sf-home-actions{order:5;margin-top:18px!important}
+  .mx-v3 .sf-home-copy>.sf-home-proof{order:6;margin-top:22px!important;padding-top:18px!important}
+  .mx-v3 .sf-volume-copy>.sf-volume-access{order:5;margin-top:18px!important}
+  .mx-v3 .sf-volume-copy>.sf-buy-shell{order:6;margin-top:20px!important}
+  .mx-v3 .sf-home-proof{grid-template-columns:1fr 1fr 1fr!important;gap:10px!important}
+  .mx-v3 .sf-home-proof strong{font-size:.82rem!important}.mx-v3 .sf-home-proof small{font-size:.58rem!important}
+  .mx-v3 .sf-home-actions{display:grid!important;grid-template-columns:1fr!important}.mx-v3 .sf-home-actions .ml-button{width:100%!important;justify-content:center!important;text-align:center!important}
+}
