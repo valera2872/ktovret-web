@@ -1,0 +1,37 @@
+name: Validate Mystery Logic 23:17 co-op case
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-2317:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate client and dossier syntax
+        run: |
+          node --check assets/case-2317-data.js
+          node --check assets/case-2317.js
+          node --check tools/import-mobile/two-player-2317-postprocess.mjs
+      - name: Validate product boundary
+        run: |
+          grep -q "id: 'special:2317'" assets/case-2317-data.js
+          grep -q "Последний звонок в 23:17" assets/case-2317-data.js
+          grep -q "45–60 минут" assets/case-2317-data.js
+          grep -q "CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/2317'" tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'meta name="robots" content="noindex,follow"' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q '<h1>Детективная игра для двоих онлайн</h1>' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'Короткая дуэль · 10–15 минут' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q "functions/v1/coop-2317" assets/case-2317.js
+          grep -q "const CASE_ID = 'special:2317'" supabase/functions/coop-2317/index.ts
+          ! grep -q "functions/v1/coop-2317" assets/duel-room.js
