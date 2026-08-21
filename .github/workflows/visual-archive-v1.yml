@@ -1,4 +1,4 @@
-name: Visual smoke Mystery Logic archive storefront
+name: Visual smoke Mystery Logic storefront v2
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ env:
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 jobs:
-  visual-archive:
+  storefront-v2:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout web
@@ -35,27 +35,30 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate archive visual sources
+      - name: Validate storefront v2 sources
         working-directory: web
         run: |
           node --check tools/import-mobile/archive-visual-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          grep -q 'av-hero-archive' assets/archive-visual-v1.css
-          grep -q 'av-volume-binder' assets/archive-visual-v1.css
+          grep -q 'sf-home-hero' assets/storefront-v2.css
+          grep -q 'sf-volume-box' assets/storefront-v2.css
+          grep -q 'sf-catalog-art' assets/storefront-v2.css
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Validate generated visual and commercial boundaries
+      - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
           grep -q '"archiveVisualPages": 3' assets/generated/import-report.json
-          grep -q 'archive-visual-v1.css' index.html
-          grep -q 'archive-visual-v1.css' dela/index.html
-          grep -q 'archive-visual-v1.css' tom-1/index.html
-          grep -q 'av-format-grid' index.html
-          grep -q 'av-volume-binder' tom-1/index.html
+          grep -q '"archiveVisualVersion": "2.0.0"' assets/generated/import-report.json
+          grep -q 'storefront-v2.css' index.html
+          grep -q 'storefront-v2.css' dela/index.html
+          grep -q 'storefront-v2.css' tom-1/index.html
+          grep -q 'sf-format-grid' index.html
+          grep -q 'sf-volume-box' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
-          grep -q '99 ₽' tom-1/index.html
+          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          grep -q 'case-search' dela/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
           grep -q '"indexableUrls": 112' assets/generated/import-report.json
@@ -65,7 +68,7 @@ jobs:
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: mysterylogic-archive-visual-v1
-          path: web/artifacts/archive-visual-smoke
+          name: mysterylogic-storefront-v2
+          path: web/artifacts/storefront-v2-smoke
           retention-days: 7
           if-no-files-found: error
