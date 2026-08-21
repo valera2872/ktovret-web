@@ -16,6 +16,7 @@ import {applyFinalSitePolish} from './import-mobile/final-site-polish.mjs';
 import {applyFinalSeoPostprocess} from './import-mobile/final-seo-postprocess.mjs';
 import {applyTwoPlayerRoom} from './import-mobile/two-player-room-postprocess.mjs';
 import {applyTwoPlayer2317} from './import-mobile/two-player-2317-postprocess.mjs';
+import {applyArchiveVisualSystem} from './import-mobile/archive-visual-postprocess.mjs';
 import {registerSiteOriginFinalizer} from './import-mobile/site-origin-postprocess.mjs';
 
 registerSiteOriginFinalizer();
@@ -40,6 +41,7 @@ const finalPolish=applyFinalSitePolish(siteRoot);
 const finalSeo=applyFinalSeoPostprocess(siteRoot);
 const twoPlayerRoom=applyTwoPlayerRoom(siteRoot,lib.cases);
 const twoPlayer2317=applyTwoPlayer2317(siteRoot);
+const archiveVisual=applyArchiveVisualSystem(siteRoot);
 
 const volume=path.join(siteRoot,'tom-1/index.html');
 if(fs.existsSync(volume)){
@@ -63,6 +65,6 @@ const collectionUrls=collectionPages.map(item=>`${base}${item.route}`);
 const urls=[base,`${base}kto-vret/`,`${base}dela/`,`${base}tom-1/`,...seoSlugs.map(slug=>`${base}${slug}/`),...collectionUrls,...seoExpansion.hubSlugs.map(slug=>`${base}${slug}/`),...seoExpansion.caseRoutes.map(route=>`${base}${route}`)];
 const lastmod=new Date().toISOString().slice(0,10);
 fs.writeFileSync(path.join(siteRoot,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,seoNativeCases:seoNativeCaseCount,indexableCollections:indexableCollectionCount,collectionPages:collectionPages.length,playablePages:editorial?100:15,lockedPages:editorial?0:85,paidGatewayPages,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,wordstatHubPages:seoExpansion.newHubPages,seoCasePages:seoExpansion.caseRoutes.length,premiumSeoTeaserPages:seoExpansion.premiumTeaserPages,wordstatUpdatedFreeCasePages:seoExpansion.updatedFreeCasePages,wordstatUpdatedHubPages:seoExpansion.updatedHubPages,finalPolishCaseTitles:finalPolish.caseTitles,finalPolishHubTitles:finalPolish.hubTitles,finalPolishRussianPages:finalPolish.russianPages,finalPolishVolumeChallenge:finalPolish.volumeChallenge,finalSeoCasePages:finalSeo.casePages,finalSeoHubPages:finalSeo.hubPages,finalSeoMaxCaseTitle:finalSeo.maxCaseTitle,finalSeoMaxCaseDescription:finalSeo.maxCaseDescription,finalSeoMaxHubTitle:finalSeo.maxHubTitle,finalSeoMaxHubDescription:finalSeo.maxHubDescription,twoPlayerRoomPage:twoPlayerRoom.page,twoPlayerRoomFreeCases:twoPlayerRoom.freeCases,twoPlayerSpecialCase:twoPlayer2317.route,witnessEnhancedPages,seoNativePostprocessedPages,legalFooterPages};
+const report={sourceCommit,mode,packages:lib.assets.length,sourceEntries:lib.sourceEntries,deprecatedIds:lib.deprecatedCount,totalCases:100,freeCases:15,premiumCases:85,seoNativeCases:seoNativeCaseCount,indexableCollections:indexableCollectionCount,collectionPages:collectionPages.length,playablePages:editorial?100:15,lockedPages:editorial?0:85,paidGatewayPages,indexableUrls:urls.length,seoLandingPages:seoSlugs.length,wordstatHubPages:seoExpansion.newHubPages,seoCasePages:seoExpansion.caseRoutes.length,premiumSeoTeaserPages:seoExpansion.premiumTeaserPages,wordstatUpdatedFreeCasePages:seoExpansion.updatedFreeCasePages,wordstatUpdatedHubPages:seoExpansion.updatedHubPages,finalPolishCaseTitles:finalPolish.caseTitles,finalPolishHubTitles:finalPolish.hubTitles,finalPolishRussianPages:finalPolish.russianPages,finalPolishVolumeChallenge:finalPolish.volumeChallenge,finalSeoCasePages:finalSeo.casePages,finalSeoHubPages:finalSeo.hubPages,finalSeoMaxCaseTitle:finalSeo.maxCaseTitle,finalSeoMaxCaseDescription:finalSeo.maxCaseDescription,finalSeoMaxHubTitle:finalSeo.maxHubTitle,finalSeoMaxHubDescription:finalSeo.maxHubDescription,twoPlayerRoomPage:twoPlayerRoom.page,twoPlayerRoomFreeCases:twoPlayerRoom.freeCases,twoPlayerSpecialCase:twoPlayer2317.route,archiveVisualPages:archiveVisual.pages,archiveVisualVersion:archiveVisual.version,witnessEnhancedPages,seoNativePostprocessedPages,legalFooterPages};
 fs.writeFileSync(path.join(generated,'import-report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
