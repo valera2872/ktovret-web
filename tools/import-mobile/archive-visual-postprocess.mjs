@@ -54,6 +54,7 @@ const evidenceSection=`
         <article class="av-evidence-tile"><small>MESSAGES</small><strong>Переписки</strong><div class="av-evidence-chat" aria-hidden="true"><i>Ты где?</i><i>Буду через 10 минут</i></div><span>сверяйте время и контекст</span></article>
         <article class="av-evidence-tile"><small>CASE FILE</small><strong>Протоколы</strong><div class="av-evidence-doc" aria-hidden="true"></div><span>факты, показания, отметки</span></article>
       </div>
+      <p class="av-proof-note"><strong>Все необходимые сведения есть в материалах дела.</strong> Определить правильную последовательность событий можно только сопоставив факты и проверив версию логикой.</p>
     </section>`;
 
 const volumeArt=`<div class="av-volume-art" aria-hidden="true"><div class="av-volume-binder"></div><div class="av-volume-tabs"><i>001</i><i>015</i><i>037</i><i>066</i><i>100</i></div><div class="av-volume-case-paper"><small>ДЕЛО №037</small><strong>Mystery Logic</strong><span>ДОКАЗАТЕЛЬСТВО</span></div></div>`;
