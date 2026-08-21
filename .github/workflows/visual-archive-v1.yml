@@ -1,0 +1,71 @@
+name: Visual smoke Mystery Logic archive storefront
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  visual-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          path: web
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN"
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate archive visual sources
+        working-directory: web
+        run: |
+          node --check tools/import-mobile/archive-visual-postprocess.mjs
+          node --check tools/archive-visual-smoke.mjs
+          grep -q 'av-hero-archive' assets/archive-visual-v1.css
+          grep -q 'av-volume-binder' assets/archive-visual-v1.css
+      - name: Generate public site
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Validate generated visual and commercial boundaries
+        working-directory: web
+        run: |
+          grep -q '"archiveVisualPages": 3' assets/generated/import-report.json
+          grep -q 'archive-visual-v1.css' index.html
+          grep -q 'archive-visual-v1.css' dela/index.html
+          grep -q 'archive-visual-v1.css' tom-1/index.html
+          grep -q 'av-format-grid' index.html
+          grep -q 'av-volume-binder' tom-1/index.html
+          grep -q 'data-volume-buy' tom-1/index.html
+          grep -q '99 ₽' tom-1/index.html
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"indexableUrls": 112' assets/generated/import-report.json
+      - name: Render homepage catalog and volume
+        working-directory: web
+        run: node tools/archive-visual-smoke.mjs
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-archive-visual-v1
+          path: web/artifacts/archive-visual-smoke
+          retention-days: 7
+          if-no-files-found: error
