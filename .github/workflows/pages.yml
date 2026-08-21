@@ -200,9 +200,11 @@ jobs:
           test -f assets/duel-room.js
           test -f ktovret-game/assets/duel-room-client.js
           test -f tom-1/index.html
-          grep -q '15 дел бесплатно' dela/index.html
-          grep -q 'Ещё 85 дел — одной покупкой' dela/index.html
-          grep -q '100 детективных дел' tom-1/index.html
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+          test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
+          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
 
       - name: Report requested validation
         if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
