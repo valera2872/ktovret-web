@@ -51,7 +51,7 @@ jobs:
         working-directory: web
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceVersion": "4.0.0"' assets/generated/import-report.json
+          grep -q '"storefrontReferenceVersion": "4.0.1"' assets/generated/import-report.json
           grep -q 'storefront-reference.css' index.html
           grep -q 'storefront-reference.css' dela/index.html
           grep -q 'storefront-reference.css' tom-1/index.html
