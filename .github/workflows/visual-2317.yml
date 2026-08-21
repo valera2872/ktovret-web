@@ -1,0 +1,53 @@
+name: Visual smoke Mystery Logic 23:17
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  visual-2317:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          path: web
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN"
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate public site
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Validate visual smoke script
+        working-directory: web
+        run: node --check tools/two-player-2317-smoke.mjs
+      - name: Render two-player landing and ML-2317
+        working-directory: web
+        run: node tools/two-player-2317-smoke.mjs
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: two-player-2317-visual-smoke
+          path: web/artifacts/two-player-2317-smoke
+          retention-days: 7
+          if-no-files-found: error
