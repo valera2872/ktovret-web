@@ -15,7 +15,7 @@ export function applyStorefrontV2Contracts(siteRoot){
 
   insertBeforeMainEnd(catalog,`<section class="sf-contract-note" data-storefront-v2-contract><p class="ml-kicker">Полный первый том</p><h2>Ещё 85 дел — одной покупкой</h2><p>Одна разовая покупка открывает продолжение архива без подписки и регулярных списаний.</p></section>`);
 
-  insertBeforeMainEnd(volume,`<section class="sf-contract-note" data-storefront-v2-contract><p class="ml-kicker">Первый том «Кто врёт?» — 100 детективных задач</p><h2>Тематические архивы и 100 расследований</h2><p>15 дел доступны без покупки. Для вопросов об оплате и восстановлении доступа: <a href="mailto:support@mysterylogic.com">support@mysterylogic.com</a>.</p></section>`);
+  insertBeforeMainEnd(volume,`<section class="sf-contract-note" data-storefront-v2-contract><p class="ml-kicker">Первый том «Кто врёт?» — 100 детективных задач</p><h2>Архив первого тома</h2><p>Внутри — несколько тематических архивов и 100 расследований. 15 дел доступны без покупки. Для вопросов об оплате и восстановлении доступа: <a href="mailto:support@mysterylogic.com">support@mysterylogic.com</a>.</p></section>`);
 
   return {pages:2};
 }
