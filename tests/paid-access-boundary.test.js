@@ -9,6 +9,7 @@ const root=path.resolve(__dirname,'..');
 const catalog=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/cases-index.json'),'utf8'));
 const report=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/import-report.json'),'utf8'));
 const client=fs.readFileSync(path.join(root,'assets/paid-access-client.js'),'utf8');
+const storefront=fs.readFileSync(path.join(root,'assets/volume-storefront.js'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'assets/paid-access-config.js'),'utf8');
 const edge=fs.readFileSync(path.join(root,'supabase/functions/case-access/index.ts'),'utf8');
 const paymentShared=fs.readFileSync(path.join(root,'supabase/functions/_shared/payment.ts'),'utf8');
@@ -31,11 +32,10 @@ assert.equal(report.paidGatewayPages,85,'all 85 locked pages need the gateway');
 
 for(const item of premium){
   const html=fs.readFileSync(path.join(root,item.legacyPath,'index.html'),'utf8');
-  assert.ok(html.includes('data-paid-case-gateway="1.13.0"'),`${item.id} needs paid gateway marker`);
+  assert.ok(html.includes('data-paid-case-gateway="1.15.0"'),`${item.id} needs paid gateway marker`);
   assert.ok(html.includes('data-paid-access-panel'),`${item.id} needs paid access panel`);
-  assert.ok(html.includes('data-purchase-email-wrap'),`${item.id} needs dormant checkout email field`);
-  assert.ok(html.includes('paid-access-client.js?v=1.13.0'),`${item.id} needs paid access client`);
-  assert.ok(html.includes('paid-access-config.js?v=1.13.0'),`${item.id} needs paid access runtime config`);
+  assert.ok(html.includes('paid-access-client.js?v=1.15.0'),`${item.id} needs paid access client`);
+  assert.ok(html.includes('paid-access-config.js?v=1.15.0'),`${item.id} needs paid access runtime config`);
   assert.ok(html.includes('tom-1/'),`${item.id} must route unpurchased users to the first-volume storefront`);
   assert.ok(!html.includes('window.KtoVretWeb='),`${item.id} must not expose paid game config publicly`);
 }
@@ -47,15 +47,15 @@ for(const item of free){
 }
 
 assert.ok(runtime.includes("endpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-access'"),'live paid endpoint must remain configured');
-assert.ok(runtime.includes("checkoutEnabled:false"),'checkout must remain publicly disabled until acquiring credentials and receipt settings are verified');
+assert.ok(runtime.includes("checkoutEnabled:true"),'live T-Bank checkout must remain enabled');
 assert.ok(runtime.includes("checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout'"),'create-checkout endpoint missing');
 assert.ok(runtime.includes("paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status'"),'payment-status endpoint missing');
 assert.ok(runtime.includes("productId:'volume1'"),'volume1 product id missing');
 
-assert.ok(client.includes('crypto.getRandomValues(bytes)'),'browser must create a cryptographically random purchase token');
-assert.ok(client.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque token before redirect');
-assert.ok(client.includes("track('purchase_completed'"),'purchase completion analytics missing');
-assert.ok(client.includes('payment_return'),'payment return reconciliation missing');
+assert.ok(storefront.includes('crypto.getRandomValues(bytes)'),'browser must create a cryptographically random purchase token');
+assert.ok(storefront.includes('localStorage.setItem(storageKey, token)'),'browser must persist the opaque token before redirect');
+assert.ok(storefront.includes("track('purchase_completed'"),'purchase completion analytics missing');
+assert.ok(storefront.includes('payment_return'),'payment return reconciliation missing');
 assert.ok(!client.includes('SERVICE_ROLE'),'service-role secret must never be present in browser code');
 
 assert.ok(edge.includes("Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')"),'case access must keep service role server-side');
@@ -142,4 +142,4 @@ if(fs.existsSync(mobileSource)){
   fs.rmSync(temp,{recursive:true,force:true});
 }
 
-console.log('paid access boundary passed: T-Bank orchestration dormant / checkout disabled / 15 public / 85 server-gated');
+console.log('paid access boundary passed: live T-Bank checkout / 15 public / 85 server-gated');

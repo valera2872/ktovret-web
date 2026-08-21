@@ -95,6 +95,23 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Verify the published case route
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          case_url="${PAGE_URL%/}/ru/investigations/poslednyaya-sborka/?deployment=${GITHUB_SHA}-${GITHUB_RUN_ATTEMPT}"
+          for attempt in {1..10}; do
+            if curl --fail --silent --show-error --location "$case_url" \
+              | grep -q 'data-ml-investigation'; then
+              echo "Verified $case_url"
+              exit 0
+            fi
+            echo "Case route is not live yet (attempt $attempt/10)"
+            sleep 3
+          done
+          echo "The Pages deployment completed, but the case route is unavailable: $case_url" >&2
+          exit 1
+
       - name: Report preview URL to PR 64
         uses: actions/github-script@v7
         env:
