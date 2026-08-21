@@ -41,36 +41,38 @@ jobs:
         run: |
           node <<'NODE'
           const { randomBytes } = require('node:crypto');
-          const endpoint = process.env.ENDPOINT;
-          const origin = 'https://mysterylogic.com';
-          const k1 = randomBytes(24).toString('hex');
-          const k2 = randomBytes(24).toString('hex');
-          const post = async (body, expected = 200) => {
-            const response = await fetch(endpoint, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json', origin },
-              body: JSON.stringify(body),
-            });
-            const text = await response.text();
-            let payload = {};
-            try { payload = JSON.parse(text); } catch {}
-            if (response.status !== expected) throw new Error(`${body.action}: HTTP ${response.status} ${text}`);
-            return payload;
-          };
-          const created = await post({ action: 'create', browserKey: k1, playerName: 'CI Investigator' }, 201);
-          if (created.me?.role !== 'creator' || created.room?.caseId !== 'special:2317') throw new Error('create contract mismatch');
-          const code = created.room.code;
-          const preview = await post({ action: 'preview', browserKey: k2, code });
-          if (preview.roomFull || !preview.creatorName) throw new Error('preview contract mismatch');
-          const joined = await post({ action: 'join', browserKey: k2, code, playerName: 'CI Analyst' });
-          if (!joined.bothJoined || joined.me?.role !== 'guest') throw new Error('join contract mismatch');
-          const startedCreator = await post({ action: 'start', browserKey: k1, code });
-          const startedGuest = await post({ action: 'start', browserKey: k2, code });
-          if (!startedCreator.me?.started || !startedGuest.me?.started) throw new Error('start contract mismatch');
-          const first = await post({ action: 'complete', browserKey: k1, code, elapsedSeconds: 120, hintsUsed: 1, attempts: 1, firstAnswerCorrect: true });
-          if (first.bothCompleted) throw new Error('room completed before second player');
-          const second = await post({ action: 'complete', browserKey: k2, code, elapsedSeconds: 140, hintsUsed: 0, attempts: 2, firstAnswerCorrect: false });
-          if (!second.bothCompleted) throw new Error('room did not complete');
-          if (second.results?.creator?.name !== 'CI Investigator' || second.results?.guest?.name !== 'CI Analyst') throw new Error('result contract mismatch');
-          console.log(`coop-2317 live contract passed for room ${code}`);
+          (async () => {
+            const endpoint = process.env.ENDPOINT;
+            const origin = 'https://mysterylogic.com';
+            const k1 = randomBytes(24).toString('hex');
+            const k2 = randomBytes(24).toString('hex');
+            const post = async (body, expected = 200) => {
+              const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', origin },
+                body: JSON.stringify(body),
+              });
+              const text = await response.text();
+              let payload = {};
+              try { payload = JSON.parse(text); } catch {}
+              if (response.status !== expected) throw new Error(`${body.action}: HTTP ${response.status} ${text}`);
+              return payload;
+            };
+            const created = await post({ action: 'create', browserKey: k1, playerName: 'CI Investigator' }, 201);
+            if (created.me?.role !== 'creator' || created.room?.caseId !== 'special:2317') throw new Error('create contract mismatch');
+            const code = created.room.code;
+            const preview = await post({ action: 'preview', browserKey: k2, code });
+            if (preview.roomFull || !preview.creatorName) throw new Error('preview contract mismatch');
+            const joined = await post({ action: 'join', browserKey: k2, code, playerName: 'CI Analyst' });
+            if (!joined.bothJoined || joined.me?.role !== 'guest') throw new Error('join contract mismatch');
+            const startedCreator = await post({ action: 'start', browserKey: k1, code });
+            const startedGuest = await post({ action: 'start', browserKey: k2, code });
+            if (!startedCreator.me?.started || !startedGuest.me?.started) throw new Error('start contract mismatch');
+            const first = await post({ action: 'complete', browserKey: k1, code, elapsedSeconds: 120, hintsUsed: 1, attempts: 1, firstAnswerCorrect: true });
+            if (first.bothCompleted) throw new Error('room completed before second player');
+            const second = await post({ action: 'complete', browserKey: k2, code, elapsedSeconds: 140, hintsUsed: 0, attempts: 2, firstAnswerCorrect: false });
+            if (!second.bothCompleted) throw new Error('room did not complete');
+            if (second.results?.creator?.name !== 'CI Investigator' || second.results?.guest?.name !== 'CI Analyst') throw new Error('result contract mismatch');
+            console.log(`coop-2317 live contract passed for room ${code}`);
+          })().catch((error) => { console.error(error); process.exit(1); });
           NODE
