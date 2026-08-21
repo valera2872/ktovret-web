@@ -22,8 +22,10 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: last-build-lab-pages-v2-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # GitHub Pages accepts only one deployment at a time across the repository.
+  # Share the main Pages queue instead of racing another site publication.
+  group: pages-refs/heads/main
+  cancel-in-progress: false
 
 jobs:
   validate:
