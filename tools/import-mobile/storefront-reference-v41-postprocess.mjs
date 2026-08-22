@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 
 const VERSION='4.1.4';
+const PRODUCT_VERSION='1.0.0';
 const HASHES={
   homeHero:'8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02',
   archiveHero:'7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f',
@@ -58,5 +59,19 @@ function remainingFree(cases){const items=cases.filter(item=>item.access==='free
 function paidLibrary(cases){const groups=[];const seen=new Set();for(const item of cases.filter(item=>item.access==='premium')){const title=String(item.setTitle||'').trim();if(!title||seen.has(title))continue;seen.add(title);groups.push(title);}return `<section class="ref-paid-library"><h2>Полный архив открыт</h2><div class="ref-paid-library-grid">${groups.map(title=>`<article class="volume-archive-card"><h3>${esc(title)}</h3></article>`).join('')}</div></section>`;}
 function patchHome(siteRoot){const file=path.join(siteRoot,'index.html');let html=fs.readFileSync(file,'utf8');html=addClass(addStyle(html,'./assets/storefront-reference-v41.css'),'ref-storefront-v41');html=html.replace(/src="\.\/assets\/reference-home-hero\.(?:svg|webp)"/,`src="./assets/reference-home-hero.webp" data-reference-asset="home-hero"`);html=html.replace(/<section class="ref-trust"[\s\S]*?<section class="ref-manifesto"[\s\S]*?<\/section>/,homeLower());if(!html.includes('data-reference-asset="home-hero"')||!html.includes('data-reference-asset="home-lower"'))throw new Error('v41 homepage patch failed');fs.writeFileSync(file,html);}
 function patchVolume(siteRoot,cases){const file=path.join(siteRoot,'tom-1/index.html');let html=fs.readFileSync(file,'utf8');html=addClass(addStyle(html,'../assets/storefront-reference-v41.css'),'ref-storefront-v41');html=html.replace(/src="\.\.\/assets\/reference-archive-hero\.(?:svg|webp)"/,`src="../assets/reference-archive-hero.webp" data-reference-asset="archive-hero"`);html=html.replace(/<section class="ref-access-strip">[\s\S]*?<\/section>/,checkoutStrip());html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:true})}${paidLibrary(cases)}<fieldset class="ref-why"`);html=ensureVolumeCheckoutScripts(html);if(!html.includes('data-reference-asset="archive-hero"')||!html.includes('data-reference-asset="archive-grid"')||!html.includes('data-volume-email')||!html.includes('data-volume-offer-accept')||!html.includes('data-volume-privacy-ack')||!html.includes('data-volume-buy')||!html.includes('paid-access-config.js')||!html.includes('volume-storefront.js'))throw new Error('v41 volume patch failed');fs.writeFileSync(file,html);}
-function patchCatalog(siteRoot,cases){const file=path.join(siteRoot,'dela/index.html');let html=fs.readFileSync(file,'utf8');html=addClass(addStyle(html,'../assets/storefront-reference-v41.css'),'ref-storefront-v41');html=html.replace(/src="\.\.\/assets\/reference-archive-hero\.(?:svg|webp)"/,`src="../assets/reference-archive-hero.webp" data-reference-asset="archive-hero"`);html=html.replace(/<section class="ref-access-strip">[\s\S]*?<\/section>/,catalogAccessStrip());html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:false})}${remainingFree(cases)}<fieldset class="ref-why"`);if(!html.includes('data-reference-asset="archive-hero"')||!html.includes('data-reference-asset="archive-grid"')||!html.includes('ref-catalog-extra'))throw new Error('v41 catalog patch failed');fs.writeFileSync(file,html);}
-export function applyStorefrontReferenceV41(siteRoot,cases){prepareReferenceAssets(siteRoot);patchHome(siteRoot);patchCatalog(siteRoot,cases);patchVolume(siteRoot,cases);return {pages:3,version:VERSION};}
+function patchCatalog(siteRoot,cases){const file=path.join(siteRoot,'dela/index.html');let html=fs.readFileSync(file,'utf8');html=addClass(addStyle(html,'../assets/storefront-reference-v41.css'),'ref-storefront-v41');html=html.replace(/src="\.\.\/assets\/reference-archive-hero\.(?:svg|webp)"/,`src="../assets/reference-archive-hero.webp" data-reference-asset="archive-hero"`);html=html.replace(/<section class="ref-access-strip">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:false})}${remainingFree(cases)}<fieldset class="ref-why"`);if(!html.includes('data-reference-asset="archive-hero"')||!html.includes('data-reference-asset="archive-grid"')||!html.includes('ref-catalog-extra'))throw new Error('v41 catalog patch failed');fs.writeFileSync(file,html);}
+function patchProduct(siteRoot){
+  const file=path.join(siteRoot,'kto-vret/index.html');
+  const templateFile=path.join(siteRoot,'tools/import-mobile/kto-vret-reference-body.html');
+  if(!fs.existsSync(file)||!fs.existsSync(templateFile))throw new Error('Кто врёт storefront product source missing');
+  let html=fs.readFileSync(file,'utf8');
+  const body=fs.readFileSync(templateFile,'utf8').trim();
+  if(!html.includes('kto-vret-reference-v1.css'))html=html.replace('</head>',`<link rel="stylesheet" href="../assets/kto-vret-reference-v1.css?v=${PRODUCT_VERSION}">\n</head>`);
+  if(!/<body(?:\s[^>]*)?>[\s\S]*<\/body>/i.test(html))throw new Error('Кто врёт storefront body boundary missing');
+  html=html.replace(/<body(?:\s[^>]*)?>[\s\S]*<\/body>/i,`<body class="kv-ref">\n${body}\n</body>`);
+  for(const marker of ['class="kv-ref"','kto-vret-reference-v1.css','Перед вами несколько версий одного события','15 дел бесплатно','Первый том · ещё 85 дел','reference-archive-grid.webp']){
+    if(!html.includes(marker))throw new Error(`Кто врёт storefront patch missing marker: ${marker}`);
+  }
+  fs.writeFileSync(file,html);
+}
+export function applyStorefrontReferenceV41(siteRoot,cases){prepareReferenceAssets(siteRoot);patchHome(siteRoot);patchCatalog(siteRoot,cases);patchVolume(siteRoot,cases);patchProduct(siteRoot);return {pages:3,version:VERSION};}
