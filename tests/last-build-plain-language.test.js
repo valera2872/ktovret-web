@@ -25,7 +25,7 @@ assert.equal(definition.plainLanguageVersion, '0.6.0');
 const byId = (items, id) => items.find((item) => item.id === id);
 
 assert.match(byId(definition.actions, 'inspect-t17-registry').label, /ночн.*пропуск/i);
-assert.match(byId(definition.actions, 'inspect-t17-registry').description, /гостев.*пропуск\w* T-17/i);
+assert.match(byId(definition.actions, 'inspect-t17-registry').description, /гостев.*пропуск.*T-17/i);
 assert.match(byId(definition.actions, 'inspect-demo-session').label, /общ.*компьютер.*переговор/i);
 assert.match(byId(definition.actions, 'trace-guest02').label, /гостев.*ноутбук/i);
 assert.match(byId(definition.actions, 'question-timur-backup').label, /резервн.*коп/i);
@@ -34,13 +34,13 @@ assert.match(byId(definition.actions, 'trace-aster-serial').description, /фле
 assert.equal(byId(definition.materials, 'demo-session').type, 'Журнал компьютера');
 assert.equal(byId(definition.materials, 'usb-audit').type, 'История подключённых устройств');
 assert.equal(byId(definition.materials, 'orbit-source').type, 'Сравнение файлов');
-assert.match(byId(definition.materials, 't17-registry').body, /временн.*гостев.*пропуск\w* T-17/i);
-assert.match(byId(definition.materials, 'guest02-assignment').body, /гостев.*ноутбук\w* GUEST-02/i);
+assert.match(byId(definition.materials, 't17-registry').body, /временн.*гостев.*пропуск.*T-17/i);
+assert.match(byId(definition.materials, 'guest02-assignment').body, /гостев.*ноутбук.*GUEST-02/i);
 assert.match(byId(definition.materials, 'aster-history').body, /флешк.*ASTER-64.*серийн.*A64-7731/i);
 assert.match(byId(definition.materials, 'nordlight-compliance').body, /чистую финальную версию игры/i);
 assert.match(byId(definition.materials, 'office-morning').body, /папк.*финальн.*верси.*\(RELEASE\)/i);
 
-assert.match(byId(definition.investigationQuestions, 't17-user').text, /временн.*гостев.*пропуск\w* T-17/i);
+assert.match(byId(definition.investigationQuestions, 't17-user').text, /временн.*гостев.*пропуск.*T-17/i);
 assert.match(byId(definition.investigationQuestions, 'timur-account').text, /открыт.*аккаунт Тимура/i);
 assert.match(byId(definition.timelineEvents, 'demo-wake').label, /общ.*компьютер.*аккаунт Тимура/i);
 assert.match(byId(definition.timelineEvents, 'aster-in').label, /флешк.*ASTER-64.*серийн/i);
@@ -48,7 +48,7 @@ assert.match(byId(definition.proofFamilies, 'copy-device').label, /финаль�
 
 const roman = definition.interrogationContracts.roman;
 assert.equal(roman.label, 'Допрос Романа');
-assert.match(roman.suggestedQuestions[1], /гостев.*пропуск\w* T-17/i);
+assert.match(roman.suggestedQuestions[1], /гостев.*пропуск.*T-17/i);
 assert.match(byId(roman.topics, 'session').stages[0].response, /аккаунт Тимура.*общ.*компьютер/i);
 
 const playerFacing = [];
