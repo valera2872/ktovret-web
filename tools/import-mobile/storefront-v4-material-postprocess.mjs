@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
 
@@ -36,7 +36,9 @@ function materialCaseCard(item,index,{root='../'}={}){
   const locked=item.access==='premium';
   const href=locked?`${root}tom-1/`:`${root}${String(item.path||'').replace(/^\/+/, '')}`;
   const [pos,x,y]=archivePositions[index]||archivePositions[index%8];
-  return `<a class="ref-case ml-material-case" href="${href}"><div class="ref-case-visual ml-archive-crop ${pos}" data-crop-x="${x}" data-crop-y="${y}"><img src="${root}assets/reference-archive-grid.webp" alt="Материал дела ${esc(item.title)}" width="994" height="497" loading="lazy" decoding="async"></div><div class="ref-case-body"><h3>${esc(item.title||`Дело ${index+1}`)}</h3><div class="ref-case-meta"><span>${esc(item.difficulty||'Среднее')}</span><span>◷ ${estimate(item.difficulty)} минут</span></div></div></a>`;
+  const number=String(index+1).padStart(2,'0');
+  const badge=locked?'В Первом томе':'Бесплатно';
+  return `<a class="ref-case ml-material-case" href="${href}"><div class="ref-case-visual ml-archive-crop ${pos}" data-crop-x="${x}" data-crop-y="${y}"><img src="${root}assets/reference-archive-grid.webp" alt="Материал дела ${esc(item.title)}" width="994" height="497" loading="lazy" decoding="async"><span class="ml-live-number">${number}</span><span class="ml-live-badge${locked?' locked':''}">${badge}</span></div><div class="ref-case-body"><h3>${esc(item.title||`Дело ${index+1}`)}</h3><div class="ref-case-meta"><span>${esc(item.difficulty||'Среднее')}</span><span>◷ ${estimate(item.difficulty)} минут</span></div></div></a>`;
 }
 function materialArchiveGrid(cases,{premium=false,root='../'}={}){
   const free=cases.filter(item=>item.access==='free');
