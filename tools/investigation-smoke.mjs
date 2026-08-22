@@ -135,29 +135,33 @@ try {
 
     const { stdout: officeDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=office-morning`]);
     if (!officeDom.includes('mli-ev-office-photo')) throw new Error(`${viewport.name}: office evidence did not reuse the scene image`);
-    if (!officeDom.includes('общий компьютер в переговорной')) throw new Error(`${viewport.name}: office evidence does not explain DEMO-04`);
-    if (!officeDom.includes('официальной флешки студии ORBIT-2')) throw new Error(`${viewport.name}: office evidence does not explain ORBIT-2`);
+    if (!officeDom.includes('Общий компьютер в переговорной')) throw new Error(`${viewport.name}: office evidence does not explain DEMO-04`);
+    if (!officeDom.includes('официальной флешки студии')) throw new Error(`${viewport.name}: office evidence does not explain ORBIT-2`);
     if (!officeDom.includes('финальной версией игры')) throw new Error(`${viewport.name}: office evidence does not explain RELEASE`);
+    for (const code of ['DEMO-04', 'ORBIT-2', 'RELEASE']) {
+      if (!officeDom.includes(code)) throw new Error(`${viewport.name}: office evidence lost identifier ${code}`);
+    }
 
     const { stdout: interviewsDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=initial-statements`]);
     if (!interviewsDom.includes('data-statement-viewer')) throw new Error(`${viewport.name}: introductory interview dossier did not render`);
     if ((interviewsDom.match(/data-statement-person=/g) || []).length !== 3) throw new Error(`${viewport.name}: introductory dossier must expose exactly three interview tabs`);
     if (!interviewsDom.includes('Для протокола: представьтесь и объясните, как вы связаны со студией и этой игрой.')) throw new Error(`${viewport.name}: investigator identity question disappeared`);
-    if (!interviewsDom.includes('общий компьютер в переговорной')) throw new Error(`${viewport.name}: DEMO-04 is not explained before the alibi`);
+    if (!interviewsDom.includes('общий компьютер')) throw new Error(`${viewport.name}: DEMO-04 is not explained before the alibi`);
+    if (!interviewsDom.includes('служебное имя — DEMO-04')) throw new Error(`${viewport.name}: DEMO-04 code is not attached to its explanation`);
     for (const role of ['Операционный менеджер', 'Технический руководитель', 'Консультант инвестора']) {
       if (!interviewsDom.includes(role)) throw new Error(`${viewport.name}: plain-language participant role lost ${role}`);
     }
 
     const { stdout: passDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=t17-registry`]);
-    if (!passDom.includes('Временный гостевой пропуск T-17')) throw new Error(`${viewport.name}: T-17 is not explained as a temporary guest pass`);
-    if (passDom.includes('scan-in') || passDom.includes('Контроллер:')) throw new Error(`${viewport.name}: unexplained access-control jargon leaked into T-17 evidence`);
+    if (!passDom.includes('ВРЕМЕННЫЙ ГОСТЕВОЙ ПРОПУСК') || !passDom.includes('T-17')) throw new Error(`${viewport.name}: T-17 is not explained as a temporary guest pass`);
+    if (passDom.includes('scan-in') || passDom.includes('Контроллер')) throw new Error(`${viewport.name}: unexplained access-control jargon leaked into T-17 evidence`);
 
     const { stdout: guestLaptopDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=guest02-assignment`]);
-    if (!guestLaptopDom.includes('Гостевой ноутбук GUEST-02')) throw new Error(`${viewport.name}: GUEST-02 is not explained as a guest laptop`);
+    if (!guestLaptopDom.includes('ГОСТЕВОГО НОУТБУКА') || !guestLaptopDom.includes('GUEST-02')) throw new Error(`${viewport.name}: GUEST-02 is not explained as a guest laptop`);
 
     const { stdout: usbDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=usb-audit`]);
-    if (!usbDom.includes('внешняя флешка ASTER-64')) throw new Error(`${viewport.name}: ASTER-64 is not explained as a flash drive`);
-    for (const technicalLeak of ['transfer started', 'transfer completed', 'USB-аудит']) {
+    if (!usbDom.includes('флешка ASTER-64')) throw new Error(`${viewport.name}: ASTER-64 is not explained as a flash drive`);
+    for (const technicalLeak of ['transfer started', 'transfer completed', 'USB-аудит', 'removable media audit']) {
       if (usbDom.includes(technicalLeak)) throw new Error(`${viewport.name}: unexplained technical copy leaked into USB evidence: ${technicalLeak}`);
     }
 
@@ -180,7 +184,8 @@ try {
 
     const { stdout: terminalDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=delete-audit`]);
     if (!terminalDom.includes('mli-ev-terminal')) throw new Error(`${viewport.name}: terminal renderer did not activate`);
-    if (!terminalDom.includes('КОМПЬЮТЕР DEMO-04 · ЖУРНАЛ ДЕЙСТВИЙ')) throw new Error(`${viewport.name}: terminal evidence content disappeared`);
+    if (!terminalDom.includes('ОБЩИЙ КОМПЬЮТЕР · ЖУРНАЛ ДЕЙСТВИЙ')) throw new Error(`${viewport.name}: terminal evidence content disappeared`);
+    if (!terminalDom.includes('Открытый аккаунт') || !terminalDom.includes('Тимур Власов')) throw new Error(`${viewport.name}: account-vs-person distinction disappeared`);
 
     const { stdout: webDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=studio-brief`]);
     if (!webDom.includes('mli-ev-browser')) throw new Error(`${viewport.name}: web evidence renderer did not activate`);
