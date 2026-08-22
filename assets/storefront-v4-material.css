@@ -17,19 +17,22 @@
 .ml-material-formats .mat-format-2 img{width:359.7%;transform:translate(-34.6%,-29.4%)}
 .ml-material-formats .mat-format-3 img{width:341.3%;transform:translate(-63.6%,-29.4%)}
 
-/* Evidence row: use only the inner photographic evidence, not the raster card labels. */
+/* Evidence row: retain the photographic evidence, but hide raster headings inherited from the source board. */
 .ml-material-evidence .ref-material{padding-bottom:14px;background:#06141e}
 .ml-material-evidence .ml-mat-crop{height:96px;border:1px solid rgba(197,140,58,.16);border-radius:2px;background:#08121a}
+.ml-material-evidence .ml-mat-crop:before{content:"";position:absolute;z-index:3;left:0;right:0;top:0;height:25px;pointer-events:none;background:linear-gradient(180deg,#06141e 0 68%,rgba(6,20,30,.96) 78%,rgba(6,20,30,0) 100%)}
 .ml-material-evidence .ml-mat-crop img{width:454.5%}
 .ml-material-evidence .mat-evidence-1 img{transform:translate(-4.0%,-65.0%)}
 .ml-material-evidence .mat-evidence-2 img{transform:translate(-27.7%,-65.0%)}
 .ml-material-evidence .mat-evidence-3 img{transform:translate(-51.2%,-65.0%)}
 .ml-material-evidence .mat-evidence-4 img{transform:translate(-74.7%,-65.0%)}
 
-/* Archive cards: original evidence/photo crop + crisp live number and access badge. */
+/* Archive cards: original evidence/photo crop + crisp live number and access badge.
+   The two masks remove the old raster number/badge baked into the reference collage. */
 .ml-material-archive{margin-bottom:20px}
 .ml-material-case{background:#06131c}
 .ml-material-case .ml-archive-crop{height:150px;position:relative;overflow:hidden;background:#071019}
+.ml-material-case .ml-archive-crop:before{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:linear-gradient(180deg,#07131c 0 70%,rgba(7,19,28,.92) 82%,rgba(7,19,28,0) 100%) left top/52px 62px no-repeat,linear-gradient(180deg,#07131c 0 70%,rgba(7,19,28,.92) 82%,rgba(7,19,28,0) 100%) right top/145px 62px no-repeat}
 .ml-material-case .ml-archive-crop img{width:432.9%}
 .ml-material-case .c1 img{transform:translate(0,0)}
 .ml-material-case .c2 img{transform:translate(-24.7%,0)}
@@ -39,7 +42,7 @@
 .ml-material-case .c6 img{transform:translate(-24.7%,-52.8%)}
 .ml-material-case .c7 img{transform:translate(-49.3%,-52.8%)}
 .ml-material-case .c8 img{transform:translate(-76.2%,-52.8%)}
-.ml-live-number,.ml-live-badge{position:absolute;z-index:4;box-sizing:border-box}
+.ml-live-number,.ml-live-badge{position:absolute;z-index:5;box-sizing:border-box}
 .ml-live-number{left:0;top:0;min-width:42px;height:31px;display:grid;place-items:center;border-right:1px solid rgba(197,140,58,.32);border-bottom:1px solid rgba(197,140,58,.32);background:#07131c;color:#d6a04a;font:400 17px Georgia,serif}
 .ml-live-badge{right:7px;top:7px;padding:5px 9px;border-radius:3px;background:#173c23;color:#d9edcf;font:10px/1.1 Arial,sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.03)}
 .ml-live-badge.locked{background:#15324e;color:#d8e5ed}
