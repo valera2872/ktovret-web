@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='4.1.0';
+const VERSION='4.1.1';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addClass(html,className){
@@ -11,14 +11,17 @@ function addStyle(html,href){
   if(html.includes('storefront-reference-v41.css')) return html;
   return html.replace('</head>',`<link rel="stylesheet" href="${href}?v=${VERSION}">\n</head>`);
 }
-function readHomeLower(siteRoot){
-  const file=path.join(siteRoot,'assets/reference-home-lower.b64.txt');
-  if(!fs.existsSync(file)) throw new Error('reference home lower asset source missing');
-  return fs.readFileSync(file,'utf8').trim();
+function readReferenceBase64(siteRoot,name){
+  const file=path.join(siteRoot,'assets',name);
+  if(!fs.existsSync(file)) throw new Error(`reference asset source missing: ${name}`);
+  const value=fs.readFileSync(file,'utf8').replace(/\s+/g,'').trim();
+  if(!value.startsWith('UklGR')) throw new Error(`reference asset is not WEBP base64: ${name}`);
+  return value;
 }
+function referenceDataUri(siteRoot,name){return `data:image/webp;base64,${readReferenceBase64(siteRoot,name)}`;}
 function homeLower(siteRoot){
-  const src=`data:image/webp;base64,${readHomeLower(siteRoot)}`;
-  return `<section class="ref-snapshot ref-home-lower" aria-label="Форматы и материалы Mystery Logic"><img src="${src}" alt="Форматы расследования, материалы дела и принципы Mystery Logic" width="1055" height="940" loading="eager"><a class="ref-snapshot-link hot-format-1" href="./detektivnye-igry-dlya-dvoih/" aria-label="Последний звонок в 23:17 — играть вдвоём">Последний звонок в 23:17</a><a class="ref-snapshot-link hot-format-2" href="./kto-vret/" aria-label="Открыть серию Кто врёт">Кто врёт?</a><a class="ref-snapshot-link hot-format-3" href="./tom-1/" aria-label="Открыть Первый том">Первый том</a></section><section class="ref-sr-only" id="method"><h2>Выберите формат расследования</h2><p>Последний звонок в 23:17 — совместное расследование для двух игроков. Кто врёт? — короткие логические дела. Первый том — полный архив из 100 дел.</p><h2>С чем вы будете работать</h2><p>Записи 112, камеры, переписки и протоколы. Все необходимые сведения есть в материалах дела. Определить правильную последовательность событий можно только сопоставив факты.</p></section>`;
+  const src=referenceDataUri(siteRoot,'reference-home-lower.b64.txt');
+  return `<section class="ref-snapshot ref-home-lower" aria-label="Форматы и материалы Mystery Logic"><img src="${src}" data-reference-asset="home-lower" alt="Форматы расследования, материалы дела и принципы Mystery Logic" width="1055" height="940" loading="eager"><a class="ref-snapshot-link hot-format-1" href="./detektivnye-igry-dlya-dvoih/" aria-label="Последний звонок в 23:17 — играть вдвоём">Последний звонок в 23:17</a><a class="ref-snapshot-link hot-format-2" href="./kto-vret/" aria-label="Открыть серию Кто врёт">Кто врёт?</a><a class="ref-snapshot-link hot-format-3" href="./tom-1/" aria-label="Открыть Первый том">Первый том</a></section><section class="ref-sr-only" id="method"><h2>Выберите формат расследования</h2><p>Последний звонок в 23:17 — совместное расследование для двух игроков. Кто врёт? — короткие логические дела. Первый том — полный архив из 100 дел.</p><h2>С чем вы будете работать</h2><p>Записи 112, камеры, переписки и протоколы. Все необходимые сведения есть в материалах дела. Определить правильную последовательность событий можно только сопоставив факты.</p></section>`;
 }
 function checkoutStrip(){
   return `<section class="ref-access-strip"><div class="ref-access-stat"><span class="ico">♧</span><strong>15 дел</strong><span>бесплатно</span></div><div class="ref-access-stat"><span class="ico">▣</span><strong>85 дел</strong><span>закрыты</span></div><div class="ref-access-stat"><span class="ico">₽</span><strong>99 ₽</strong><span>полный доступ</span></div><div class="ref-access-buy"><details class="ref-checkout"><summary class="ref-btn ref-btn-primary">Открыть Первый том →</summary><div class="ref-checkout-panel"><label class="volume-checkout-email">E-mail для электронного чека<input type="email" inputmode="email" autocomplete="email" data-volume-email placeholder="name@example.com"></label><div data-volume-legal><label><input type="checkbox" data-volume-offer-accept> <span>Принимаю <a href="../offer/" target="_blank" rel="noopener">Публичную оферту</a></span></label><label><input type="checkbox" data-volume-privacy-ack> <span>Ознакомился с <a href="../privacy/" target="_blank" rel="noopener">Политикой конфиденциальности</a></span></label></div><button class="ref-btn ref-btn-primary" type="button" data-volume-buy disabled>Перейти к оплате T‑Bank</button><small data-volume-payment-note>Укажите e-mail и подтвердите условия перед оплатой.</small></div></details><small>Мгновенный доступ · Без подписки</small></div></section>`;
@@ -33,19 +36,18 @@ function chooseEight(cases,{premium=false}={}){
   if(!premium) return cases.filter(item=>item.access==='free').slice(0,8);
   return [...cases.filter(item=>item.access==='free').slice(0,2),...cases.filter(item=>item.access==='premium').slice(0,6)];
 }
-function archiveSnapshot(cases,{premium=false,root='../'}={}){
+function archiveSnapshot(cases,{premium=false,root='../',src}={}){
   const items=chooseEight(cases,{premium});
   const links=items.map((item,index)=>{
-    const row=index<4?1:2, col=(index%4)+1;
     const href=item.access==='premium'?`${root}tom-1/`:`${root}${item.path}`;
     return `<a class="ref-snapshot-link hot-case hot-c${index+1}" href="${href}" aria-label="${esc(item.title)}">${esc(item.title)}</a>`;
   }).join('');
-  return `<section class="ref-snapshot ref-archive-snapshot" aria-label="Восемь дел из архива"><img src="${root}assets/reference-archive-grid.webp" alt="Восемь дел Mystery Logic: камеры, журналы, карты, аудиозаписи и архивные материалы" width="994" height="497" loading="lazy">${links}</section>`;
+  return `<section class="ref-snapshot ref-archive-snapshot" aria-label="Восемь дел из архива"><img src="${src}" data-reference-asset="archive-grid" alt="Восемь дел Mystery Logic: камеры, журналы, карты, аудиозаписи и архивные материалы" width="994" height="497" loading="lazy">${links}</section>`;
 }
 function remainingFree(cases){
   const items=cases.filter(item=>item.access==='free').slice(8,15);
   if(!items.length) return '';
-  return `<details class="ref-catalog-extra"><summary>Ещё 7 бесплатных дел</summary><div class="ref-case-grid">${items.map((item,index)=>`<a class="ref-case" href="../${item.path}"><div class="ref-case-body"><h3>${esc(item.title)}</h3><div class="ref-case-meta"><span>${esc(item.difficulty||'Логика')}</span><span>Открыть дело →</span></div></div></a>`).join('')}</div></details>`;
+  return `<details class="ref-catalog-extra"><summary>Ещё 7 бесплатных дел</summary><div class="ref-case-grid">${items.map((item)=>`<a class="ref-case" href="../${item.path}"><div class="ref-case-body"><h3>${esc(item.title)}</h3><div class="ref-case-meta"><span>${esc(item.difficulty||'Логика')}</span><span>Открыть дело →</span></div></div></a>`).join('')}</div></details>`;
 }
 function paidLibrary(cases){
   const groups=[];
@@ -59,31 +61,36 @@ function paidLibrary(cases){
 }
 function patchHome(siteRoot){
   const file=path.join(siteRoot,'index.html');
+  const heroSrc=referenceDataUri(siteRoot,'reference-home-hero.b64.txt');
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'./assets/storefront-reference-v41.css'),'ref-storefront-v41');
-  html=html.replace('src="./assets/reference-home-hero.svg"','src="./assets/reference-home-hero.webp"');
+  html=html.replace(/src="\.\/assets\/reference-home-hero\.(?:svg|webp)"/,`src="${heroSrc}" data-reference-asset="home-hero"`);
   html=html.replace(/<section class="ref-trust"[\s\S]*?<section class="ref-manifesto"[\s\S]*?<\/section>/,homeLower(siteRoot));
-  if(!html.includes('reference-home-hero.webp')||!html.includes('ref-home-lower')) throw new Error('v41 homepage patch failed');
+  if(!html.includes('data-reference-asset="home-hero"')||!html.includes('data-reference-asset="home-lower"')) throw new Error('v41 homepage patch failed');
   fs.writeFileSync(file,html);
 }
 function patchVolume(siteRoot,cases){
   const file=path.join(siteRoot,'tom-1/index.html');
+  const heroSrc=referenceDataUri(siteRoot,'reference-archive-hero.b64.txt');
+  const gridSrc=referenceDataUri(siteRoot,'reference-archive-grid.b64.txt');
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'../assets/storefront-reference-v41.css'),'ref-storefront-v41');
-  html=html.replace('src="../assets/reference-archive-hero.svg"','src="../assets/reference-archive-hero.webp"');
+  html=html.replace(/src="\.\.\/assets\/reference-archive-hero\.(?:svg|webp)"/,`src="${heroSrc}" data-reference-asset="archive-hero"`);
   html=html.replace(/<section class="ref-access-strip">[\s\S]*?<\/section>/,checkoutStrip());
-  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:true})}${paidLibrary(cases)}<fieldset class="ref-why"`);
-  if(!html.includes('reference-archive-hero.webp')||!html.includes('reference-archive-grid.webp')||!html.includes('data-volume-email')||!html.includes('data-volume-offer-accept')||!html.includes('data-volume-privacy-ack')||!html.includes('data-volume-buy')) throw new Error('v41 volume patch failed');
+  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:true,src:gridSrc})}${paidLibrary(cases)}<fieldset class="ref-why"`);
+  if(!html.includes('data-reference-asset="archive-hero"')||!html.includes('data-reference-asset="archive-grid"')||!html.includes('data-volume-email')||!html.includes('data-volume-offer-accept')||!html.includes('data-volume-privacy-ack')||!html.includes('data-volume-buy')) throw new Error('v41 volume patch failed');
   fs.writeFileSync(file,html);
 }
 function patchCatalog(siteRoot,cases){
   const file=path.join(siteRoot,'dela/index.html');
+  const heroSrc=referenceDataUri(siteRoot,'reference-archive-hero.b64.txt');
+  const gridSrc=referenceDataUri(siteRoot,'reference-archive-grid.b64.txt');
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'../assets/storefront-reference-v41.css'),'ref-storefront-v41');
-  html=html.replace('src="../assets/reference-archive-hero.svg"','src="../assets/reference-archive-hero.webp"');
+  html=html.replace(/src="\.\.\/assets\/reference-archive-hero\.(?:svg|webp)"/,`src="${heroSrc}" data-reference-asset="archive-hero"`);
   html=html.replace(/<section class="ref-access-strip">[\s\S]*?<\/section>/,catalogAccessStrip());
-  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:false})}${remainingFree(cases)}<fieldset class="ref-why"`);
-  if(!html.includes('reference-archive-grid.webp')||!html.includes('ref-catalog-extra')) throw new Error('v41 catalog patch failed');
+  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<fieldset class="ref-why"/,`${archiveToolbar()}${archiveSnapshot(cases,{premium:false,src:gridSrc})}${remainingFree(cases)}<fieldset class="ref-why"`);
+  if(!html.includes('data-reference-asset="archive-hero"')||!html.includes('data-reference-asset="archive-grid"')||!html.includes('ref-catalog-extra')) throw new Error('v41 catalog patch failed');
   fs.writeFileSync(file,html);
 }
 export function applyStorefrontReferenceV41(siteRoot,cases){
