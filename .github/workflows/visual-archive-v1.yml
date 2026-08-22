@@ -1,4 +1,4 @@
-name: Visual smoke Mystery Logic storefront v2
+name: Visual smoke Mystery Logic approved storefront reference
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ env:
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 jobs:
-  storefront-v2:
+  storefront-reference:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout web
@@ -35,40 +35,63 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate storefront v2 sources
+      - name: Validate exact reference sources
         working-directory: web
         run: |
-          node --check tools/import-mobile/archive-visual-postprocess.mjs
+          node --check tools/import-mobile/storefront-reference-postprocess.mjs
+          node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          grep -q 'sf-home-hero' assets/storefront-v2.css
-          grep -q 'sf-volume-box' assets/storefront-v2.css
-          grep -q 'sf-catalog-art' assets/storefront-v2.css
+          test "$(find assets/reference-parts -name 'home-hero.*.b64.txt' -type f | wc -l)" -eq 4
+          test "$(find assets/reference-parts -name 'archive-hero.*.chunks.txt' -type f | wc -l)" -eq 5
+          test "$(find assets/reference-parts -name 'archive-grid.*.part' -type f | wc -l)" -eq 6
+          test "$(find assets/reference-parts -name 'home-lower.*.part' -type f | wc -l)" -eq 6
+          grep -q '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q 'ref-snapshot' assets/storefront-reference-v41.css
+          grep -q 'data-volume-email' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q 'data-volume-offer-accept' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q 'data-volume-privacy-ack' tools/import-mobile/storefront-reference-v41-postprocess.mjs
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Verify exact generated WebP artwork
+        working-directory: web
+        run: |
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
       - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
-          grep -q '"archiveVisualPages": 3' assets/generated/import-report.json
-          grep -q '"archiveVisualVersion": "2.0.0"' assets/generated/import-report.json
-          grep -q 'storefront-v2.css' index.html
-          grep -q 'storefront-v2.css' dela/index.html
-          grep -q 'storefront-v2.css' tom-1/index.html
-          grep -q 'sf-format-grid' index.html
-          grep -q 'sf-volume-box' tom-1/index.html
+          grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "4.1.4"' assets/generated/import-report.json
+          grep -q 'storefront-reference-v41.css' index.html
+          grep -q 'storefront-reference-v41.css' dela/index.html
+          grep -q 'storefront-reference-v41.css' tom-1/index.html
+          grep -q 'data-reference-asset="home-hero"' index.html
+          grep -q 'data-reference-asset="home-lower"' index.html
+          grep -q 'data-reference-asset="archive-hero"' tom-1/index.html
+          grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
+          grep -q 'data-volume-email' tom-1/index.html
+          grep -q 'data-volume-offer-accept' tom-1/index.html
+          grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
-          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
-          grep -q 'case-search' dela/index.html
+          grep -q '99 ₽' tom-1/index.html
+          grep -q '15 дел' dela/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
           grep -q '"indexableUrls": 112' assets/generated/import-report.json
-      - name: Render homepage catalog and volume
+      - name: Render approved reference pages
         working-directory: web
         run: node tools/archive-visual-smoke.mjs
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: mysterylogic-storefront-v2
-          path: web/artifacts/storefront-v2-smoke
+          name: mysterylogic-approved-storefront-reference
+          path: web/artifacts/storefront-reference-smoke
           retention-days: 7
           if-no-files-found: error

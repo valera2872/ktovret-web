@@ -27,5 +27,6 @@
 .volume-archive-case-link strong{padding:0;color:#fff;font-size:.88rem;line-height:1.25}
 .volume-archive-case-link small{color:var(--ml-muted);font-size:.68rem}
 .catalog-archives-panel{padding:26px;border:1px solid rgba(214,177,109,.15);border-radius:26px;background:rgba(255,255,255,.018)}
+.ref-compat{display:none!important}
 @media(min-width:1120px){.volume-archive-list{grid-template-columns:repeat(3,minmax(0,1fr))}.volume-archive-case-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:720px){.volume-archive-list{grid-template-columns:1fr}.volume-archive-card{min-height:0;padding:18px}.volume-archive-case-list{grid-template-columns:1fr}.catalog-archives-panel{padding:18px}}
