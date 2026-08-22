@@ -35,17 +35,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate reference storefront sources
+      - name: Validate exact reference sources
         working-directory: web
         run: |
           node --check tools/import-mobile/storefront-reference-postprocess.mjs
           node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          test -s assets/reference-home-hero.webp
-          test -s assets/reference-archive-hero.webp
-          test -s assets/reference-archive-grid.webp
+          test "$(find assets/reference-parts -name 'home-hero.*.b64.txt' -type f | wc -l)" -eq 4
+          test "$(find assets/reference-parts -name 'archive-hero.*.chunks.txt' -type f | wc -l)" -eq 2
+          test "$(find assets/reference-parts -name 'archive-grid.*.chunks.txt' -type f | wc -l)" -eq 3
           test "$(find assets/reference-parts -name 'home-lower.*.part' -type f | wc -l)" -eq 6
-          grep -q 'HOME_LOWER_SHA256' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf' tools/import-mobile/storefront-reference-v41-postprocess.mjs
           grep -q 'ref-snapshot' assets/storefront-reference-v41.css
           grep -q 'data-volume-email' tools/import-mobile/storefront-reference-v41-postprocess.mjs
           grep -q 'data-volume-offer-accept' tools/import-mobile/storefront-reference-v41-postprocess.mjs
@@ -53,13 +56,19 @@ jobs:
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Verify exact generated WebP artwork
+        working-directory: web
+        run: |
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
       - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceV41Version": "4.1.2"' assets/generated/import-report.json
-          test -s assets/reference-home-lower.webp
+          grep -q '"storefrontReferenceV41Version": "4.1.3"' assets/generated/import-report.json
           grep -q 'storefront-reference-v41.css' index.html
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
