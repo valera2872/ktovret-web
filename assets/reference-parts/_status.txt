@@ -1,0 +1,1 @@
+Exact approved reference assets are being reconstructed from binary parts with SHA-256 verification. Temporary file used only to force branch activity during binary replacement.
