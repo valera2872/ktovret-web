@@ -77,9 +77,9 @@ const viewports = [
 ];
 const interrogationScenarios = [
   { mode: 'initial', expected: 'После 18:30 в офис я не возвращался' },
-  { mode: 'presence-ready', expected: 'После предъявления T-17' },
+  { mode: 'presence-ready', expected: 'После предъявления данных о гостевом пропуске T-17' },
   { mode: 'aster-blocked', expected: 'В реестре указано, что устройство было связано со мной' },
-  { mode: 'aster-ready', expected: 'Роман подтверждает, что пользовался ASTER-64' },
+  { mode: 'aster-ready', expected: 'Роман подтверждает, что раньше пользовался флешкой ASTER-64' },
 ];
 
 const port = await listen();
@@ -135,14 +135,30 @@ try {
 
     const { stdout: officeDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=office-morning`]);
     if (!officeDom.includes('mli-ev-office-photo')) throw new Error(`${viewport.name}: office evidence did not reuse the scene image`);
+    if (!officeDom.includes('общий компьютер в переговорной')) throw new Error(`${viewport.name}: office evidence does not explain DEMO-04`);
+    if (!officeDom.includes('официальной флешки студии ORBIT-2')) throw new Error(`${viewport.name}: office evidence does not explain ORBIT-2`);
+    if (!officeDom.includes('финальной версией игры')) throw new Error(`${viewport.name}: office evidence does not explain RELEASE`);
 
     const { stdout: interviewsDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=initial-statements`]);
     if (!interviewsDom.includes('data-statement-viewer')) throw new Error(`${viewport.name}: introductory interview dossier did not render`);
     if ((interviewsDom.match(/data-statement-person=/g) || []).length !== 3) throw new Error(`${viewport.name}: introductory dossier must expose exactly three interview tabs`);
     if (!interviewsDom.includes('Для протокола: представьтесь и объясните, как вы связаны со студией и этой игрой.')) throw new Error(`${viewport.name}: investigator identity question disappeared`);
-    if (!interviewsDom.includes('DEMO-04 — общий компьютер в переговорной')) throw new Error(`${viewport.name}: DEMO-04 is not explained before the alibi`);
+    if (!interviewsDom.includes('общий компьютер в переговорной')) throw new Error(`${viewport.name}: DEMO-04 is not explained before the alibi`);
     for (const role of ['Операционный менеджер', 'Технический руководитель', 'Консультант инвестора']) {
       if (!interviewsDom.includes(role)) throw new Error(`${viewport.name}: plain-language participant role lost ${role}`);
+    }
+
+    const { stdout: passDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=t17-registry`]);
+    if (!passDom.includes('Временный гостевой пропуск T-17')) throw new Error(`${viewport.name}: T-17 is not explained as a temporary guest pass`);
+    if (passDom.includes('scan-in') || passDom.includes('Контроллер:')) throw new Error(`${viewport.name}: unexplained access-control jargon leaked into T-17 evidence`);
+
+    const { stdout: guestLaptopDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=guest02-assignment`]);
+    if (!guestLaptopDom.includes('Гостевой ноутбук GUEST-02')) throw new Error(`${viewport.name}: GUEST-02 is not explained as a guest laptop`);
+
+    const { stdout: usbDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=usb-audit`]);
+    if (!usbDom.includes('внешняя флешка ASTER-64')) throw new Error(`${viewport.name}: ASTER-64 is not explained as a flash drive`);
+    for (const technicalLeak of ['transfer started', 'transfer completed', 'USB-аудит']) {
+      if (usbDom.includes(technicalLeak)) throw new Error(`${viewport.name}: unexplained technical copy leaked into USB evidence: ${technicalLeak}`);
     }
 
     const { stdout: peopleDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewInitial=people`]);
@@ -185,7 +201,7 @@ try {
     if (materialsDom.includes('<details class="mli-viewed-materials" data-material-group="viewed" open')) throw new Error(`${viewport.name}: viewed material archive must start collapsed`);
 
     if (!peopleDom.includes('data-interrogation-character="roman"')) throw new Error(`${viewport.name}: Roman free-form interrogation did not mount`);
-    if (!peopleDom.includes('Свободный допрос · пилот')) throw new Error(`${viewport.name}: interrogation pilot label disappeared`);
+    if (!peopleDom.includes('Допрос Романа')) throw new Error(`${viewport.name}: human-readable interrogation label disappeared`);
     if (!peopleDom.includes('data-interrogation-question')) throw new Error(`${viewport.name}: interrogation has no free-form question field`);
     if (!peopleDom.includes('Допрос не создаёт новых фактов')) throw new Error(`${viewport.name}: authored-truth boundary is not visible`);
     const { stdout: weakDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=B`]);
@@ -200,6 +216,7 @@ try {
       coldOpenRendered: 'integrated persistent case cover',
       focusedWorkspace: 'one dominant evidence action, no counters/sidebar',
       fairPlayCopy: true,
+      plainLanguage: 'codes explained before or alongside identifiers',
       premiumEvidence: ['receipt', 'terminal', 'web'],
       premiumArt: ['office', 'four portraits'],
       solvedDebrief: true,
