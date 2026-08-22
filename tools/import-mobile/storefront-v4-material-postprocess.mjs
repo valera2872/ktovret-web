@@ -29,7 +29,7 @@ function materials(){
 function manifesto(){
   return `<section class="ref-manifesto" id="method"><div><h2>Честная детективная задача уважает игрока.</h2><p>Все необходимые сведения есть в материалах дела. Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки.<br>Определить правильную последовательность событий можно только сопоставив факты.</p></div><div class="ref-seal">ML</div></section>`;
 }
-function homeLower(){return `<div class="ml-material-home-lower" data-material-ui="home-lower">${trustStrip()}${formats()}${materials()}${manifesto()}</div>`;}
+function homeLower(){return `<div class="ml-material-home-lower" data-material-ui="home-lower" data-reference-asset="home-lower">${trustStrip()}${formats()}${materials()}${manifesto()}</div>`;}
 
 const archivePositions=[['c1','0','0'],['c2','24.7','0'],['c3','49.3','0'],['c4','76.2','0'],['c5','0','52.8'],['c6','24.7','52.8'],['c7','49.3','52.8'],['c8','76.2','52.8']];
 function materialCaseCard(item,index,{root='../'}={}){
@@ -41,7 +41,7 @@ function materialCaseCard(item,index,{root='../'}={}){
 function materialArchiveGrid(cases,{premium=false,root='../'}={}){
   const free=cases.filter(item=>item.access==='free');
   const items=premium?[...free.slice(0,2),...cases.filter(item=>item.access==='premium').slice(0,6)]:free.slice(0,8);
-  return `<div class="ref-case-grid ml-material-archive" data-material-ui="archive-grid">${items.map((item,index)=>materialCaseCard(item,index,{root})).join('')}</div>`;
+  return `<div class="ref-case-grid ml-material-archive" data-material-ui="archive-grid" data-reference-asset="archive-grid">${items.map((item,index)=>materialCaseCard(item,index,{root})).join('')}</div>`;
 }
 function replaceArchiveSnapshot(html,replacement){
   const pattern=/<section class="ref-snapshot ref-archive-snapshot"[\s\S]*?<\/section>/;
@@ -80,9 +80,9 @@ function patchWho(siteRoot,cases){
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'../assets/storefront-v4-material.css'),'ref-storefront-material');
   const hero=/<div class="ref-who-crop"><img src="\.\.\/assets\/reference-home-lower\.webp"[\s\S]*?<\/div>/;
-  if(hero.test(html)) html=html.replace(hero,materialCrop('../assets/reference-home-lower.webp','mat-format-who-hero','Блокнот с показаниями и лупа','eager'));
+  if(hero.test(html)) html=html.replace(hero,materialCrop('../assets/reference-home-lower.webp','mat-format-who-hero','Блокнот с показаниями и лупа','eager').replace('class="ml-mat-crop mat-format-who-hero"','class="ml-mat-crop mat-format-who-hero" data-reference-asset="who-approved-art"'));
   html=replaceArchiveSnapshot(html,materialArchiveGrid(cases,{premium:true}));
-  if(!html.includes('mat-format-who-hero')||!html.includes('data-material-ui="archive-grid"')) throw new Error('material v4: who page patch failed');
+  if(!html.includes('data-reference-asset="who-approved-art"')||!html.includes('data-material-ui="archive-grid"')) throw new Error('material v4: who page patch failed');
   fs.writeFileSync(file,html);
 }
 
