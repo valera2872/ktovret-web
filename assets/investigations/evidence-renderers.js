@@ -99,8 +99,68 @@
   }
 
   function renderScreenshot(p) {
+    const sceneTitle = escapeHtml(p.sceneTitle || 'Закрытый игровой уровень');
+    const marker = escapeHtml(p.marker || 'R-03');
     return `<div class="mli-ev-screenshot">
-      <div class="mli-ev-game-scene"><div class="mli-ev-game-horizon"></div><div class="mli-ev-game-panel"><span>REVIEW BUILD</span><strong>${escapeHtml(p.sceneTitle || 'PROJECT FRAME')}</strong></div><small>${escapeHtml(p.marker || '')}</small></div>
+      <svg class="mli-ev-game-shot" viewBox="0 0 1280 720" role="img" aria-label="Скриншот компьютерной игры: тёмный промышленный уровень с игровым интерфейсом и служебной меткой ${marker}" style="display:block;width:100%;height:auto;border-radius:14px;background:#07111b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)">
+        <defs>
+          <linearGradient id="mliGameSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101f2c"/><stop offset="1" stop-color="#071018"/></linearGradient>
+          <linearGradient id="mliGameFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#203342"/><stop offset="1" stop-color="#0a141d"/></linearGradient>
+          <linearGradient id="mliGameDoor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#84d7db" stop-opacity=".85"/><stop offset="1" stop-color="#2b6972" stop-opacity=".18"/></linearGradient>
+          <radialGradient id="mliGameGlow"><stop offset="0" stop-color="#b9f4ed" stop-opacity=".5"/><stop offset="1" stop-color="#6dd0d1" stop-opacity="0"/></radialGradient>
+          <filter id="mliGameBlur"><feGaussianBlur stdDeviation="18"/></filter>
+        </defs>
+        <rect width="1280" height="720" fill="url(#mliGameSky)"/>
+        <ellipse cx="640" cy="275" rx="320" ry="180" fill="url(#mliGameGlow)" filter="url(#mliGameBlur)"/>
+        <polygon points="0,0 330,0 500,295 0,560" fill="#182b39"/>
+        <polygon points="1280,0 950,0 780,295 1280,560" fill="#132532"/>
+        <polygon points="0,720 0,560 500,295 780,295 1280,560 1280,720" fill="url(#mliGameFloor)"/>
+        <g opacity=".34" stroke="#8db9c0" stroke-width="2">
+          <line x1="640" y1="300" x2="260" y2="720"/><line x1="640" y1="300" x2="420" y2="720"/><line x1="640" y1="300" x2="860" y2="720"/><line x1="640" y1="300" x2="1020" y2="720"/>
+          <line x1="105" y1="605" x2="1175" y2="605"/><line x1="225" y1="505" x2="1055" y2="505"/><line x1="350" y1="415" x2="930" y2="415"/>
+        </g>
+        <rect x="518" y="118" width="244" height="245" rx="6" fill="#0b1720" stroke="#487984" stroke-width="5"/>
+        <rect x="545" y="145" width="190" height="218" fill="url(#mliGameDoor)"/>
+        <rect x="574" y="172" width="132" height="191" fill="#112632" opacity=".7"/>
+        <path d="M610 363 L625 230 L655 230 L671 363 Z" fill="#061015" opacity=".72"/>
+        <circle cx="640" cy="215" r="18" fill="#081218" opacity=".85"/>
+        <g transform="translate(110 455)">
+          <rect width="205" height="112" rx="5" fill="#263d49" stroke="#55717b" stroke-width="3"/>
+          <path d="M0 28 H205 M52 0 V112 M154 0 V112" stroke="#667f88" stroke-width="3" opacity=".65"/>
+          <rect x="75" y="42" width="55" height="26" rx="3" fill="#d3a95d" opacity=".85"/>
+          <text x="102" y="60" fill="#17222b" font-size="14" font-weight="900" text-anchor="middle">CARGO</text>
+        </g>
+        <g transform="translate(950 470)">
+          <rect width="170" height="96" rx="4" fill="#213844" stroke="#54727b" stroke-width="3"/>
+          <path d="M0 24 H170 M44 0 V96 M127 0 V96" stroke="#66808a" stroke-width="3" opacity=".65"/>
+        </g>
+        <g opacity=".85">
+          <rect x="75" y="90" width="250" height="86" rx="12" fill="#07121b" fill-opacity=".72" stroke="#7797a5" stroke-opacity=".38"/>
+          <text x="98" y="118" fill="#9fbac4" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="700" letter-spacing="2">ВЕРСИЯ ДЛЯ ОЗНАКОМЛЕНИЯ</text>
+          <text x="98" y="151" fill="#ffffff" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="800">${sceneTitle}</text>
+        </g>
+        <g transform="translate(75 618)">
+          <rect width="265" height="48" rx="10" fill="#07121b" fill-opacity=".7"/>
+          <text x="18" y="19" fill="#9fbac4" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="700">ЗАДАЧА</text>
+          <text x="18" y="38" fill="#ffffff" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800">Найти вход в лабораторию</text>
+        </g>
+        <g transform="translate(1002 82)" opacity=".88">
+          <circle cx="82" cy="82" r="68" fill="#07121b" fill-opacity=".62" stroke="#7495a1" stroke-opacity=".45" stroke-width="3"/>
+          <path d="M36 84 L68 55 L94 72 L126 42 M58 112 L90 91 L120 104" fill="none" stroke="#7fd1cd" stroke-width="4" opacity=".65"/>
+          <circle cx="83" cy="82" r="6" fill="#e1b966"/>
+        </g>
+        <g stroke="#e6eff2" stroke-width="2" opacity=".78">
+          <line x1="620" y1="360" x2="660" y2="360"/><line x1="640" y1="340" x2="640" y2="380"/>
+          <circle cx="640" cy="360" r="11" fill="none"/>
+        </g>
+        <g transform="translate(950 630)">
+          <rect width="225" height="38" rx="8" fill="#07121b" fill-opacity=".65"/>
+          <rect x="12" y="12" width="142" height="14" rx="7" fill="#203541"/>
+          <rect x="12" y="12" width="106" height="14" rx="7" fill="#85c6af"/>
+          <text x="168" y="25" fill="#dbe7ea" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="800">76%</text>
+        </g>
+        <text x="1225" y="696" fill="#d7e0e3" fill-opacity=".72" font-size="15" font-family="ui-monospace,monospace" font-weight="700" text-anchor="end">${marker}</text>
+      </svg>
       ${p.caption ? `<p>${escapeHtml(p.caption)}</p>` : ''}
     </div>`;
   }
