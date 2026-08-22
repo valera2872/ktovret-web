@@ -39,14 +39,14 @@
 .ref-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(min-width:761px){
  .ref-storefront-v41 .ref-home-hero{min-height:419px}
- .ref-storefront-v41 .ref-home-copy{transform:translateY(-58px)}
+ .ref-storefront-v41 .ref-home-copy{transform:translateY(-28px)}
  .ref-storefront-v41 .ref-home-copy h1{font-size:clamp(62px,6vw,83px)!important;line-height:.95}
  .ref-storefront-v41 .ref-home-art{transform:translateY(-12px)}
- .ref-storefront-v41 .ref-home-lower{margin-top:-32px}
+ .ref-storefront-v41 .ref-home-lower{margin-top:-46px}
  .ref-storefront-v41 .ref-archive-hero{min-height:361px}
- .ref-storefront-v41 .ref-archive-copy{transform:translateY(-88px)}
+ .ref-storefront-v41 .ref-archive-copy{padding-left:0;transform:translateY(-76px)}
  .ref-storefront-v41 .ref-archive-copy h1{font-size:clamp(52px,5.4vw,72px)!important;line-height:.98}
- .ref-storefront-v41 .ref-archive-art{width:105%;transform:translate(14px,-48px)}
+ .ref-storefront-v41 .ref-archive-art{width:102%;transform:translate(30px,-34px)}
  .ref-storefront-v41 .ref-archive-hero+.ref-access-strip{margin-top:-28px}
  .ref-storefront-v41 .ref-bottom-banner{grid-template-columns:37% 47% 16%;min-height:190px;padding:0;overflow:hidden}
  .ref-storefront-v41 .ref-banner-scene{min-height:190px;background:url('./reference-archive-bottom-left.webp') center/cover no-repeat}
