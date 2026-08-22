@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const VERSION='4.1.3';
+const VERSION='4.1.4';
 const HASHES={
   homeHero:'8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02',
   archiveHero:'7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f',
@@ -27,16 +27,19 @@ function rebuildTextChunks(siteRoot,{pattern,expected,outName,label}){
   }
   return writeVerifiedAsset(siteRoot,outName,Buffer.concat(chunks),expected,label);
 }
-function rebuildHomeLower(siteRoot){
+function rebuildBinaryParts(siteRoot,{pattern,count,expected,outName,label}){
   const dir=path.join(siteRoot,'assets','reference-parts');
-  const files=fs.readdirSync(dir).filter(name=>/^home-lower\.\d+\.part$/.test(name)).sort();
-  if(files.length!==6)throw new Error(`home lower reference expected 6 binary parts, got ${files.length}`);
-  return writeVerifiedAsset(siteRoot,'reference-home-lower.webp',Buffer.concat(files.map(name=>fs.readFileSync(path.join(dir,name)))),HASHES.homeLower,'home lower');
+  const files=fs.readdirSync(dir).filter(name=>pattern.test(name)).sort();
+  if(files.length!==count)throw new Error(`${label} expected ${count} binary parts, got ${files.length}`);
+  return writeVerifiedAsset(siteRoot,outName,Buffer.concat(files.map(name=>fs.readFileSync(path.join(dir,name)))),expected,label);
+}
+function rebuildHomeLower(siteRoot){
+  return rebuildBinaryParts(siteRoot,{pattern:/^home-lower\.\d+\.part$/,count:6,expected:HASHES.homeLower,outName:'reference-home-lower.webp',label:'home lower'});
 }
 function prepareReferenceAssets(siteRoot){
   rebuildTextChunks(siteRoot,{pattern:/^home-hero\.\d+\.b64\.txt$/,expected:HASHES.homeHero,outName:'reference-home-hero.webp',label:'home hero'});
   rebuildTextChunks(siteRoot,{pattern:/^archive-hero\.\d+\.chunks\.txt$/,expected:HASHES.archiveHero,outName:'reference-archive-hero.webp',label:'archive hero'});
-  rebuildTextChunks(siteRoot,{pattern:/^archive-grid\.\d+\.chunks\.txt$/,expected:HASHES.archiveGrid,outName:'reference-archive-grid.webp',label:'archive grid'});
+  rebuildBinaryParts(siteRoot,{pattern:/^archive-grid\.\d+\.part$/,count:6,expected:HASHES.archiveGrid,outName:'reference-archive-grid.webp',label:'archive grid'});
   rebuildHomeLower(siteRoot);
 }
 function homeLower(){return `<section class="ref-snapshot ref-home-lower" aria-label="Форматы и материалы Mystery Logic"><img src="./assets/reference-home-lower.webp" data-reference-asset="home-lower" alt="Форматы расследования, материалы дела и принципы Mystery Logic" width="1055" height="940" loading="eager"><a class="ref-snapshot-link hot-format-1" href="./detektivnye-igry-dlya-dvoih/" aria-label="Последний звонок в 23:17 — играть вдвоём">Последний звонок в 23:17</a><a class="ref-snapshot-link hot-format-2" href="./kto-vret/" aria-label="Открыть серию Кто врёт">Кто врёт?</a><a class="ref-snapshot-link hot-format-3" href="./tom-1/" aria-label="Открыть Первый том">Первый том</a></section><section class="ref-sr-only" id="method"><h2>Выберите формат расследования</h2><p>Последний звонок в 23:17 — совместное расследование для двух игроков. Кто врёт? — короткие логические дела. Первый том — полный архив из 100 дел.</p><h2>С чем вы будете работать</h2><p>Записи 112, камеры, переписки и протоколы. Все необходимые сведения есть в материалах дела. Определить правильную последовательность событий можно только сопоставив факты.</p></section>`;}
