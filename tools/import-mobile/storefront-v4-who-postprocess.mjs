@@ -29,9 +29,11 @@ function accessStrip(){
 }
 
 function archiveSnapshot(cases){
-  const items=cases.filter(item=>item.access==='free').slice(0,8);
-  const links=items.map((item,index)=>`<a class="ref-snapshot-link hot-case hot-c${index+1}" href="../${item.path}" aria-label="${esc(item.title)}">${esc(item.title)}</a>`).join('');
-  return `<section class="ref-snapshot ref-archive-snapshot" aria-label="Восемь бесплатных дел Кто врёт"><img src="../assets/reference-archive-grid.webp" data-reference-asset="archive-grid" alt="Восемь дел Mystery Logic: камеры, журналы, карты, аудиозаписи и архивные материалы" width="994" height="497" loading="eager">${links}</section>`;
+  const free=cases.filter(item=>item.access==='free').slice(0,2);
+  const paid=cases.filter(item=>item.access==='premium').slice(0,6);
+  const items=[...free,...paid];
+  const links=items.map((item,index)=>`<a class="ref-snapshot-link hot-case hot-c${index+1}" href="${item.access==='premium'?'../tom-1/':`../${item.path}`}" aria-label="${esc(item.title)}">${esc(item.title)}</a>`).join('');
+  return `<section class="ref-snapshot ref-archive-snapshot" aria-label="Примеры дел серии Кто врёт"><img src="../assets/reference-archive-grid.webp" data-reference-asset="archive-grid" alt="Примеры дел Mystery Logic: камеры, журналы, карты, аудиозаписи и архивные материалы" width="994" height="497" loading="eager">${links}</section>`;
 }
 
 function method(){
@@ -47,7 +49,7 @@ function bottomBanner(){
 }
 
 function main(cases){
-  return `<main class="ref-main ref-wrap"><section class="ref-who-hero"><div class="ref-who-copy"><p class="ref-kicker">Серия детективных дел</p><h1>Кто врёт?</h1><p class="ref-who-lead">Перед вами несколько версий одного события. Изучите материалы, найдите противоречие и докажите, кто говорит неправду.</p><div class="ref-who-actions"><a class="ref-btn ref-btn-primary" href="../delo/chetyre-vhoda-v-arhiv/">Начать расследование</a><a class="ref-btn ref-btn-outline" href="../dela/">Открыть архив дел</a></div></div><div class="ref-who-art" aria-label="Блокнот с показаниями и лупа из утверждённого дизайна Mystery Logic"><div class="ref-who-crop"><img src="../assets/reference-home-lower.webp" data-reference-asset="who-approved-art" alt="Папка серии Кто врёт: показания, журналы, переписка и лупа" width="1055" height="940"></div></div></section>${accessStrip()}<div class="ref-who-archive-head"><h2>15 бесплатных дел</h2><p>Начните с любого расследования. На карточках — те же материалы, с которыми вы будете работать внутри дела.</p></div>${archiveSnapshot(cases)}<div class="ref-who-after-grid"><a class="ref-btn ref-btn-outline" href="../dela/">Посмотреть все 15 дел →</a></div>${method()}${seoCopy()}${bottomBanner()}</main>`;
+  return `<main class="ref-main ref-wrap"><section class="ref-who-hero"><div class="ref-who-copy"><p class="ref-kicker">Серия детективных дел</p><h1>Кто врёт?</h1><p class="ref-who-lead">Перед вами несколько версий одного события. Изучите материалы, найдите противоречие и докажите, кто говорит неправду.</p><div class="ref-who-actions"><a class="ref-btn ref-btn-primary" href="../delo/chetyre-vhoda-v-arhiv/">Начать расследование</a><a class="ref-btn ref-btn-outline" href="../dela/">Открыть архив дел</a></div></div><div class="ref-who-art" aria-label="Блокнот с показаниями и лупа из утверждённого дизайна Mystery Logic"><div class="ref-who-crop"><img src="../assets/reference-home-lower.webp" data-reference-asset="who-approved-art" alt="Блокнот с материалами дела и лупа" width="1055" height="940"></div></div></section>${accessStrip()}<div class="ref-who-archive-head"><h2>Архив дел</h2><p>15 расследований доступны бесплатно. Первый том продолжает тот же архив и добавляет ещё 85 дел.</p></div>${archiveSnapshot(cases)}<div class="ref-who-after-grid"><a class="ref-btn ref-btn-outline" href="../dela/">Открыть 15 бесплатных дел →</a></div>${method()}${seoCopy()}${bottomBanner()}</main>`;
 }
 
 export function applyStorefrontV4Who(siteRoot,cases){
@@ -60,7 +62,7 @@ export function applyStorefrontV4Who(siteRoot,cases){
   html=addStyle(html,`../assets/storefront-v4-who.css?v=${VERSION}`,'storefront-v4-who.css');
   const body=`<body class="ref-storefront ref-storefront-v41 ref-who-v4" data-storefront-v4-who="${VERSION}">${header()}${main(cases)}${footer()}</body>`;
   html=html.replace(/<body[\s\S]*?<\/body>/,body);
-  const required=['data-storefront-v4-who','data-reference-asset="who-approved-art"','data-reference-asset="archive-grid"','15 бесплатных дел','Как проходит расследование','storefront-v4-who.css'];
+  const required=['data-storefront-v4-who','data-reference-asset="who-approved-art"','data-reference-asset="archive-grid"','15 дел','85 дел','Как проходит расследование','storefront-v4-who.css'];
   for(const marker of required) if(!html.includes(marker)) throw new Error(`Who Lied v4 extension missing marker: ${marker}`);
   fs.writeFileSync(file,html);
   return {pages:1,version:VERSION};
