@@ -41,6 +41,7 @@ export function applyCaseV4(siteRoot){
     if(!html.includes('window.KtoVretWeb=')||!html.includes('data-ktv-root')) continue;
     html=addStyle(html,'../../assets/storefront-reference.css?v=4.0.1','storefront-reference.css');
     html=addStyle(html,`../../assets/case-v4.css?v=${VERSION}`,'case-v4.css');
+    html=addStyle(html,`../../assets/case-v4-polish.css?v=${VERSION}`,'case-v4-polish.css');
     html=addBodyClass(html,'ref-storefront ktv-case-v4');
     html=html.replace(/<div class="ml-brand-strip">[\s\S]*?<\/div>\s*<\/div>/,header());
     html=html.replace(/<footer class="ml-case-footer">[\s\S]*?<\/footer>/,footer());
@@ -50,7 +51,7 @@ export function applyCaseV4(siteRoot){
     if(!html.includes('class="ref-footer ref-wrap"')){
       html=html.replace('</body>',`${footer()}</body>`);
     }
-    const markers=['ktv-case-v4','case-v4.css','ktv-ref-header','data-ktv-root','window.KtoVretWeb='];
+    const markers=['ktv-case-v4','case-v4.css','case-v4-polish.css','ktv-ref-header','data-ktv-root','window.KtoVretWeb='];
     for(const marker of markers) if(!html.includes(marker)) throw new Error(`Case v4 missing ${marker}: ${entry.name}`);
     fs.writeFileSync(file,html);
     pages+=1;
