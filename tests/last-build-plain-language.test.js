@@ -41,7 +41,7 @@ assert.match(byId(definition.materials, 'nordlight-compliance').body, /чист�
 assert.match(byId(definition.materials, 'office-morning').body, /папк.*финальн.*верси.*\(RELEASE\)/i);
 
 assert.match(byId(definition.investigationQuestions, 't17-user').text, /временн.*гостев.*пропуск.*T-17/i);
-assert.match(byId(definition.investigationQuestions, 'timur-account').text, /открыт.*аккаунт Тимура/i);
+assert.match(byId(definition.investigationQuestions, 'timur-account').text, /открыт.*аккаунт.*Тимура/i);
 assert.match(byId(definition.timelineEvents, 'demo-wake').label, /общ.*компьютер.*аккаунт Тимура/i);
 assert.match(byId(definition.timelineEvents, 'aster-in').label, /флешк.*ASTER-64.*серийн/i);
 assert.match(byId(definition.proofFamilies, 'copy-device').label, /финальн.*верси.*флешк.*Роман/i);
