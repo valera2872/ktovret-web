@@ -24,7 +24,7 @@ function materials(){
   return `<p class="ref-section-label">С чем вы будете работать</p><section class="ref-material-grid"><article class="ref-material"><h3>Запись 112</h3><div class="ref-wave">${wave()}</div><div class="ref-player"><span class="ref-play">▶</span><span>00:00 / 01:12</span></div></article><article class="ref-material"><h3>Камера</h3><div class="ref-camera-mini"></div></article><article class="ref-material"><h3>Переписка</h3><div class="ref-chat-bubble">Ты где?<small style="float:right">23:12 ✓✓</small></div><div class="ref-chat-bubble">Буду через 10 минут<small style="float:right">23:12 ✓✓</small></div></article><article class="ref-material"><h3>Протокол</h3><div class="ref-protocol"><strong>ПРОТОКОЛ ОСМОТРА</strong><span></span></div></article></section>`;
 }
 function manifesto(){
-  return `<section class="ref-manifesto" id="method"><div><h2>Честная детективная задача уважает игрока.</h2><p>Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки.<br>Все необходимые данные уже есть в материалах дела.</p></div><div class="ref-seal">ML</div></section>`;
+  return `<section class="ref-manifesto" id="method"><div><h2>Честная детективная задача уважает игрока.</h2><p>Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки.<br>Все необходимые сведения есть в материалах дела.<br>Определить правильную последовательность событий можно только сопоставив факты.</p></div><div class="ref-seal">ML</div></section>`;
 }
 function homeLowerSharp(){
   return `<div class="ref-home-sharp" data-reference-asset="home-lower" data-sharp-ui="home-lower-html">${trustStrip()}${formats()}${materials()}${manifesto()}</div>`;
