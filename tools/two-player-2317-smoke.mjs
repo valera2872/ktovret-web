@@ -54,16 +54,17 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 1100 },
 ];
+const v4Markers = ['data-coop-v4="1.0.0"', 'coop-v4.css', 'class="ref-header ref-wrap"', 'class="ref-footer ref-wrap"'];
 const pages = [
   {
     name: 'landing',
     path: '/detektivnye-igry-dlya-dvoih/',
-    required: ['Детективная игра для двоих онлайн', 'Последний звонок в 23:17', 'Следователь', 'Аналитик', 'data-duel-room-app'],
+    required: [...v4Markers, 'Детективная игра для двоих онлайн', 'Последний звонок в 23:17', 'Следователь', 'Аналитик', 'data-duel-room-app'],
   },
   {
     name: 'case',
     path: '/detektivnye-igry-dlya-dvoih/2317/',
-    required: ['Последний звонок', '23:17', 'Создать комнату', 'У меня есть код', 'data-case2317-app'],
+    required: [...v4Markers, 'Последний звонок', '23:17', 'Создать комнату', 'У меня есть код', 'data-case2317-app'],
   },
 ];
 
