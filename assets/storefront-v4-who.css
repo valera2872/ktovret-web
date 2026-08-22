@@ -1,0 +1,44 @@
+/* Mystery Logic storefront v4 extension — Who Lied product page.
+   Intentionally reuses the approved v4.1.4 visual system and artwork. */
+.ref-who-v4 .ref-who-hero{display:grid;grid-template-columns:47% 53%;align-items:center;min-height:430px;padding:34px 8px 18px;position:relative}
+.ref-who-v4 .ref-who-copy{padding-left:9px;position:relative;z-index:2}
+.ref-who-v4 .ref-who-copy h1{margin:12px 0 19px;color:var(--ref-cream);font:400 clamp(66px,6.8vw,92px)/.9 Georgia,serif;letter-spacing:-.045em}
+.ref-who-v4 .ref-who-lead{max-width:485px;margin:0;color:#d0c8bc;font-size:15px;line-height:1.68}
+.ref-who-v4 .ref-who-actions{display:flex;gap:16px;margin-top:27px}
+.ref-who-v4 .ref-who-art{justify-self:end;width:min(100%,520px);padding:19px 21px 20px;position:relative}
+.ref-who-v4 .ref-who-art:before{content:"СЕРИЯ ДЕЛ · КТО ВРЁТ?";position:absolute;left:4px;top:0;color:#a98b5e;font:700 9px Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.ref-who-v4 .ref-who-crop{position:relative;width:min(100%,410px);aspect-ratio:.783;overflow:hidden;margin:16px auto 0;border:1px solid rgba(197,140,58,.42);border-radius:5px;background:#06131d;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-1.1deg)}
+.ref-who-v4 .ref-who-crop:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(224,183,102,.08)}
+.ref-who-v4 .ref-who-crop img{display:block;width:359.8%;max-width:none;height:auto;transform:translate(-34.6%,-15.1%);transform-origin:0 0}
+.ref-who-v4 .ref-who-access .ref-access-stat strong{white-space:nowrap}
+.ref-who-v4 .ref-who-archive-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin:32px 8px 13px}
+.ref-who-v4 .ref-who-archive-head h2{margin:0;color:#dfc8a2;font:400 31px Georgia,serif}
+.ref-who-v4 .ref-who-archive-head p{max-width:470px;margin:0;color:#9f9689;font-size:12px;line-height:1.55;text-align:right}
+.ref-who-v4 .ref-who-after-grid{display:flex;justify-content:flex-end;margin:0 8px 26px}
+.ref-who-v4 .ref-who-after-grid .ref-btn{min-height:45px;font-size:13px}
+.ref-who-v4 .ref-who-method .ref-why-card strong{align-self:end}
+.ref-who-v4 .ref-who-method .ref-why-card>span:last-child{grid-column:2}
+.ref-who-v4 .ref-who-seo{display:grid;grid-template-columns:minmax(260px,.62fr) minmax(0,1fr);gap:52px;margin:30px 8px 18px;padding:29px 0;border-top:1px solid var(--ref-line-soft);border-bottom:1px solid var(--ref-line-soft)}
+.ref-who-v4 .ref-who-seo h2{margin:7px 0 0;color:#dfc8a2;font:400 30px/1.08 Georgia,serif}
+.ref-who-v4 .ref-who-seo-copy{color:#aaa194;font-size:12px;line-height:1.7}
+.ref-who-v4 .ref-who-seo-copy p{margin:0 0 10px}
+.ref-who-v4 .ref-who-seo-copy a{color:#d2a457}
+@media(max-width:980px){
+ .ref-who-v4 .ref-who-hero{grid-template-columns:1fr;min-height:0;padding-top:34px}
+ .ref-who-v4 .ref-who-copy{padding-left:0}
+ .ref-who-v4 .ref-who-art{justify-self:center;width:min(100%,520px);margin-top:18px}
+ .ref-who-v4 .ref-who-seo{grid-template-columns:1fr;gap:18px}
+}
+@media(max-width:700px){
+ .ref-who-v4 .ref-who-hero{padding:30px 0 12px}
+ .ref-who-v4 .ref-who-copy h1{font-size:58px}
+ .ref-who-v4 .ref-who-lead{font-size:14px}
+ .ref-who-v4 .ref-who-actions{display:grid;grid-template-columns:1fr;margin-top:22px}
+ .ref-who-v4 .ref-who-art{padding:12px 8px 0;margin-top:18px}
+ .ref-who-v4 .ref-who-crop{width:min(94%,350px)}
+ .ref-who-v4 .ref-who-archive-head{display:grid;margin-left:0;margin-right:0}
+ .ref-who-v4 .ref-who-archive-head p{text-align:left}
+ .ref-who-v4 .ref-who-after-grid{margin-left:0;margin-right:0}
+ .ref-who-v4 .ref-who-after-grid .ref-btn{width:100%}
+ .ref-who-v4 .ref-who-seo{margin-left:0;margin-right:0}
+}
