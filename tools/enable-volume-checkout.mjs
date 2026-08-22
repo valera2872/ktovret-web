@@ -5,10 +5,31 @@ const args = process.argv.slice(2);
 const siteIndex = args.indexOf('--site');
 const siteRoot = path.resolve(siteIndex >= 0 && args[siteIndex + 1] ? args[siteIndex + 1] : '.');
 const pagePath = path.join(siteRoot, 'tom-1', 'index.html');
+const configPath = path.join(siteRoot, 'assets', 'paid-access-config.js');
 
 if (!fs.existsSync(pagePath)) throw new Error(`Storefront not found: ${pagePath}`);
 
 let html = fs.readFileSync(pagePath, 'utf8');
+const config = fs.existsSync(configPath) ? fs.readFileSync(configPath, 'utf8') : '';
+
+const checkoutMarkers = [
+  'data-volume-email',
+  'data-volume-offer-accept',
+  'data-volume-privacy-ack',
+  'data-volume-buy',
+  'volume-storefront.js',
+];
+const checkoutAlreadyRendered = checkoutMarkers.every(marker => html.includes(marker));
+const checkoutConfigured = /checkoutEnabled\s*:\s*true/.test(config) && /checkoutEndpoint\s*:\s*['"][^'"]+['"]/.test(config);
+
+// The approved storefront v4.1+ renders the checkout panel during generation.
+// Production enablement must therefore be idempotent instead of trying to
+// replace the legacy storefront block a second time.
+if (checkoutAlreadyRendered) {
+  if (!checkoutConfigured) throw new Error('Storefront checkout is rendered but paid-access-config.js is not production-enabled');
+  console.log('volume storefront checkout already enabled; no legacy patch required');
+  process.exit(0);
+}
 
 const actionsPattern = /<div class="volume-actions"><button class="ml-button ml-button-primary" type="button" data-volume-buy disabled>([^<]+)<\/button><a class="ml-button ml-button-secondary" href="\.\.\/dela\/">Сначала пройти бесплатные<\/a><\/div><p class="volume-payment-note" data-volume-payment-note>[^<]*<\/p>/;
 const match = html.match(actionsPattern);
@@ -28,6 +49,7 @@ if (!html.includes('data-volume-email')) throw new Error('Email field was not ad
 if (!html.includes('data-volume-offer-accept')) throw new Error('Offer acceptance checkbox was not added');
 if (!html.includes('data-volume-privacy-ack')) throw new Error('Privacy acknowledgement checkbox was not added');
 if (!html.includes('volume-storefront.js')) throw new Error('Storefront checkout script was not added');
+if (!checkoutConfigured) throw new Error('paid-access-config.js is not production-enabled');
 
 fs.writeFileSync(pagePath, html);
 console.log('volume storefront checkout enabled with legal acknowledgement');
