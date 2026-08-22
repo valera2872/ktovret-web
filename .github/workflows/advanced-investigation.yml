@@ -142,3 +142,10 @@ jobs:
           grep -q 'INTERROGATION_AI_ENABLED' supabase/functions/interrogate-character/index.ts
           ! grep -q 'poslednyaya-sborka' sitemap.xml
           ! grep -q 'poslednyaya-sborka' dela/index.html
+      - name: Upload Last Build visual smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-build-visual-smoke
+          path: artifacts/investigation-smoke
+          retention-days: 14
+          if-no-files-found: error
