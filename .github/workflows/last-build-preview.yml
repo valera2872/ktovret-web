@@ -1,0 +1,149 @@
+name: Deploy Last Build lab preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "assets/investigations/**"
+      - "ru/investigations/**"
+      - "tests/interrogation-preview.test.js"
+      - "tests/fixtures/last-build-interrogation-eval.json"
+      - "tools/interrogation-eval.mjs"
+      - "tools/investigation-smoke.mjs"
+      - ".github/workflows/last-build-preview.yml"
+      - "LAST_BUILD_WEB_CHECKPOINT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  # GitHub Pages accepts only one deployment at a time across the repository.
+  # Share the main Pages queue instead of racing another site publication.
+  group: pages-refs/heads/main
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.ref == 'feature/last-build-web-slice'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate advanced investigation before preview
+        run: |
+          node tests/investigation-core.test.js
+          node tests/debrief-panel.test.js
+          node tests/case-intro.test.js
+          node tests/interrogation-core.test.js
+          node tests/interrogation-preview.test.js
+          node tools/interrogation-eval.mjs
+          node tools/investigation-smoke.mjs
+          grep -q 'name="robots" content="noindex,follow"' ru/investigations/poslednyaya-sborka/index.html
+          ! grep -q 'poslednyaya-sborka' sitemap.xml
+          ! grep -q 'poslednyaya-sborka' dela/index.html
+
+  deploy-preview:
+    needs: validate
+    if: needs.validate.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Last Build branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/last-build-web-slice
+          path: web
+
+      - name: Prepare static preview tree
+        run: |
+          rm -rf \
+            web/.git \
+            web/.github \
+            web/tools \
+            web/tests \
+            web/artifacts \
+            web/supabase \
+            web/node_modules \
+            web/docs \
+            web/ops \
+            web/old.bac
+          rm -f \
+            web/.gitignore \
+            web/preview-all-100.cmd \
+            web/PROJECT_CHECKPOINT.md \
+            web/LAST_BUILD_WEB_CHECKPOINT.md \
+            web/package.json \
+            web/package-lock.json
+          test -f web/ru/investigations/poslednyaya-sborka/index.html
+          grep -q 'name="robots" content="noindex,follow"' web/ru/investigations/poslednyaya-sborka/index.html
+          test -f web/assets/investigations/investigation-core.js
+          test -f web/assets/investigations/evidence-renderers.js
+          test -f web/assets/investigations/debrief-panel.js
+          test -f web/assets/investigations/interrogation-core.js
+          test -f web/assets/investigations/interrogation-preview.js
+          test -f web/assets/investigations/interrogation-panel.js
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - name: Deploy feature branch to GitHub Pages staging
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify the published case route
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          case_url="${PAGE_URL%/}/ru/investigations/poslednyaya-sborka/?deployment=${GITHUB_SHA}-${GITHUB_RUN_ATTEMPT}"
+          for attempt in {1..10}; do
+            if curl --fail --silent --show-error --location "$case_url" \
+              | grep -q 'data-ml-investigation'; then
+              echo "Verified $case_url"
+              exit 0
+            fi
+            echo "Case route is not live yet (attempt $attempt/10)"
+            sleep 3
+          done
+          echo "The Pages deployment completed, but the case route is unavailable: $case_url" >&2
+          exit 1
+
+      - name: Report preview URL to PR 64
+        uses: actions/github-script@v7
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        with:
+          script: |
+            const base = (process.env.PAGE_URL || '').replace(/\/+$/, '');
+            const caseUrl = `${base}/ru/investigations/poslednyaya-sborka/`;
+            const marker = '<!-- last-build-lab-preview -->';
+            const body = `${marker}\n## Last Build lab preview\n\n- Status: **deployed**\n- Commit: \`${process.env.COMMIT_SHA}\`\n- Case: ${caseUrl}\n- Boundary: GitHub Pages staging only; \`mysterylogic.com\` production unchanged.`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 64,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: 64,
+                body,
+              });
+            }
