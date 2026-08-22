@@ -41,10 +41,11 @@ jobs:
           node --check tools/import-mobile/storefront-reference-postprocess.mjs
           node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          grep -q '^UklGR' assets/reference-home-hero.b64.txt
-          grep -q '^UklGR' assets/reference-archive-hero.b64.txt
-          grep -q '^UklGR' assets/reference-archive-grid.b64.txt
-          grep -q '^UklGR' assets/reference-home-lower.b64.txt
+          test -s assets/reference-home-hero.webp
+          test -s assets/reference-archive-hero.webp
+          test -s assets/reference-archive-grid.webp
+          test "$(find assets/reference-parts -name 'home-lower.*.part' -type f | wc -l)" -eq 6
+          grep -q 'HOME_LOWER_SHA256' tools/import-mobile/storefront-reference-v41-postprocess.mjs
           grep -q 'ref-snapshot' assets/storefront-reference-v41.css
           grep -q 'data-volume-email' tools/import-mobile/storefront-reference-v41-postprocess.mjs
           grep -q 'data-volume-offer-accept' tools/import-mobile/storefront-reference-v41-postprocess.mjs
@@ -57,7 +58,8 @@ jobs:
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceV41Version": "4.1.1"' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "4.1.2"' assets/generated/import-report.json
+          test -s assets/reference-home-lower.webp
           grep -q 'storefront-reference-v41.css' index.html
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
