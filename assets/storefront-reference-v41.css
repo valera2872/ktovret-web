@@ -39,13 +39,15 @@
 .ref-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(min-width:761px){
  .ref-storefront-v41 .ref-home-hero{min-height:419px}
- .ref-storefront-v41 .ref-home-copy{transform:translateY(-25px)}
- .ref-storefront-v41 .ref-home-copy h1{font-size:70px;line-height:.92}
+ .ref-storefront-v41 .ref-home-copy{transform:translateY(-52px)}
+ .ref-storefront-v41 .ref-home-copy h1{font-size:100px;line-height:.88}
  .ref-storefront-v41 .ref-home-art{transform:translateY(-12px)}
+ .ref-storefront-v41 .ref-home-lower{margin-top:-26px}
  .ref-storefront-v41 .ref-archive-hero{min-height:361px}
- .ref-storefront-v41 .ref-archive-copy{transform:translateY(-72px)}
- .ref-storefront-v41 .ref-archive-copy h1{font-size:64px;line-height:.96}
- .ref-storefront-v41 .ref-archive-art{transform:translateY(-27px)}
+ .ref-storefront-v41 .ref-archive-copy{transform:translateY(-85px)}
+ .ref-storefront-v41 .ref-archive-copy h1{font-size:96px;line-height:.92}
+ .ref-storefront-v41 .ref-archive-art{width:104%;transform:translate(12px,-46px)}
+ .ref-storefront-v41 .ref-archive-hero+.ref-access-strip{margin-top:-24px}
 }
 @media(max-width:760px){
  .ref-snapshot{margin-left:0;margin-right:0;border-radius:4px}
