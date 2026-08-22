@@ -1,0 +1,9 @@
+@media(max-width:680px){
+  .kv-ref .kv-top{gap:10px}
+  .kv-ref .kv-brand{gap:8px;min-width:0}
+  .kv-ref .kv-mark{width:38px;height:38px;font-size:12px;flex:0 0 38px}
+  .kv-ref .kv-brand-copy{display:block;white-space:nowrap}
+  .kv-ref .kv-brand-copy strong{font-size:17px;line-height:1}
+  .kv-ref .kv-nav{margin-left:auto;flex:0 0 auto}
+  .kv-ref .kv-nav .is-cta{max-width:142px;padding:9px 10px;font-size:10px;line-height:1.2;text-align:center}
+}
