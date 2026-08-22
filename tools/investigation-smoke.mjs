@@ -152,14 +152,14 @@ try {
       if (!interviewsDom.includes(role)) throw new Error(`${viewport.name}: plain-language participant role lost ${role}`);
     }
 
-    const { stdout: passDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=t17-registry`]);
+    const { stdout: passDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewEvidence=t17-registry`]);
     if (!passDom.includes('ВРЕМЕННЫЙ ГОСТЕВОЙ ПРОПУСК') || !passDom.includes('T-17')) throw new Error(`${viewport.name}: T-17 is not explained as a temporary guest pass`);
     if (passDom.includes('scan-in') || passDom.includes('Контроллер')) throw new Error(`${viewport.name}: unexplained access-control jargon leaked into T-17 evidence`);
 
-    const { stdout: guestLaptopDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=guest02-assignment`]);
+    const { stdout: guestLaptopDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewEvidence=guest02-assignment`]);
     if (!guestLaptopDom.includes('ГОСТЕВОГО НОУТБУКА') || !guestLaptopDom.includes('GUEST-02')) throw new Error(`${viewport.name}: GUEST-02 is not explained as a guest laptop`);
 
-    const { stdout: usbDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewEvidence=usb-audit`]);
+    const { stdout: usbDom } = await runChrome([...common, '--dump-dom', `${baseUrl}?previewResult=S&previewEvidence=usb-audit`]);
     if (!usbDom.includes('флешка ASTER-64')) throw new Error(`${viewport.name}: ASTER-64 is not explained as a flash drive`);
     for (const technicalLeak of ['transfer started', 'transfer completed', 'USB-аудит', 'removable media audit']) {
       if (usbDom.includes(technicalLeak)) throw new Error(`${viewport.name}: unexplained technical copy leaked into USB evidence: ${technicalLeak}`);
