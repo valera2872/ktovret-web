@@ -1,0 +1,66 @@
+/* Mystery Logic v4 — material hybrid layer.
+   Keeps the accepted photographic evidence/artwork while rendering all interface copy as native HTML. */
+.ref-storefront-material .ref-home-art{width:min(100%,560px)!important;max-width:560px!important;height:auto!important;image-rendering:auto}
+.ref-storefront-material .ref-archive-art{width:min(100%,562px)!important;max-width:562px!important;height:auto!important;image-rendering:auto}
+.ref-storefront-material .ml-material-home-lower{margin-top:-46px}
+.ref-storefront-material .ml-material-home-lower .ref-trust{margin-top:0}
+
+.ml-mat-crop{position:relative;overflow:hidden;background:#06131d;isolation:isolate}
+.ml-mat-crop:after,.ml-archive-crop:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(222,178,101,.08);background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(0,0,0,.035));mix-blend-mode:soft-light}
+.ml-mat-crop img,.ml-archive-crop img{position:absolute;left:0;top:0;display:block;max-width:none;height:auto;filter:contrast(1.045) saturate(1.035);transform-origin:0 0;backface-visibility:hidden}
+
+/* Format cards: crop only the material/art part from the accepted v4 mockup.
+   Text above and CTA below stay native and crisp. */
+.ml-material-formats .ref-format-card{background:#06131d}
+.ml-material-formats .ml-mat-crop{height:188px;margin-top:auto;border-top:1px solid rgba(197,140,58,.08)}
+.ml-material-formats .mat-format-1 img{width:341.3%;transform:translate(-4.1%,-29.4%)}
+.ml-material-formats .mat-format-2 img{width:359.7%;transform:translate(-34.6%,-29.4%)}
+.ml-material-formats .mat-format-3 img{width:341.3%;transform:translate(-63.6%,-29.4%)}
+
+/* Evidence row: use the photographic miniature materials from the same approved source. */
+.ml-material-evidence .ref-material{padding-bottom:14px;background:#06141e}
+.ml-material-evidence .ml-mat-crop{height:96px;border:1px solid rgba(197,140,58,.16);border-radius:2px;background:#08121a}
+.ml-material-evidence .ml-mat-crop img{width:454.5%}
+.ml-material-evidence .mat-evidence-1 img{transform:translate(-4.0%,-62.0%)}
+.ml-material-evidence .mat-evidence-2 img{transform:translate(-27.7%,-62.0%)}
+.ml-material-evidence .mat-evidence-3 img{transform:translate(-51.2%,-62.0%)}
+.ml-material-evidence .mat-evidence-4 img{transform:translate(-74.7%,-62.0%)}
+
+/* Archive cards: each card receives the original evidence/photo crop, but its title/meta are live HTML. */
+.ml-material-archive{margin-bottom:20px}
+.ml-material-case{background:#06131c}
+.ml-material-case .ml-archive-crop{height:150px;position:relative;overflow:hidden;background:#071019}
+.ml-material-case .ml-archive-crop img{width:432.9%}
+.ml-material-case .c1 img{transform:translate(0,0)}
+.ml-material-case .c2 img{transform:translate(-24.7%,0)}
+.ml-material-case .c3 img{transform:translate(-49.3%,0)}
+.ml-material-case .c4 img{transform:translate(-76.2%,0)}
+.ml-material-case .c5 img{transform:translate(0,-52.8%)}
+.ml-material-case .c6 img{transform:translate(-24.7%,-52.8%)}
+.ml-material-case .c7 img{transform:translate(-49.3%,-52.8%)}
+.ml-material-case .c8 img{transform:translate(-76.2%,-52.8%)}
+
+/* Who Lied hero: use the actual notebook/loupe artwork from the accepted card,
+   at a restrained size so the source is not enlarged 3.6x across the whole composition. */
+.ref-who-v4.ref-storefront-material .ref-who-art{width:min(100%,460px);padding:0 12px 18px}
+.ref-who-v4.ref-storefront-material .mat-format-who-hero{width:min(100%,400px);aspect-ratio:1.44;margin:0 auto;border:1px solid rgba(197,140,58,.42);border-radius:4px;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-1deg)}
+.ref-who-v4.ref-storefront-material .mat-format-who-hero img{width:359.7%;transform:translate(-34.6%,-29.7%)}
+
+/* Undo v4.1.4's slight desktop enlargement of photographic hero art. */
+@media(min-width:761px){
+ .ref-storefront-material .ref-home-art{transform:translate(0,-12px)!important}
+ .ref-storefront-material .ref-archive-art{transform:translate(10px,-34px)!important}
+}
+
+@media(max-width:980px){
+ .ref-storefront-material .ml-material-home-lower{margin-top:10px}
+ .ref-storefront-material .ref-home-art,.ref-storefront-material .ref-archive-art{width:min(100%,560px)!important;margin-left:auto!important;margin-right:auto!important}
+}
+@media(max-width:700px){
+ .ref-storefront-material .ml-material-home-lower{margin-top:8px}
+ .ml-material-formats .ml-mat-crop{height:205px}
+ .ml-material-evidence .ml-mat-crop{height:118px}
+ .ml-material-case .ml-archive-crop{height:170px}
+ .ref-who-v4.ref-storefront-material .ref-who-art{padding-left:0;padding-right:0}
+ .ref-who-v4.ref-storefront-material .mat-format-who-hero{width:min(96%,360px)}
+}
