@@ -42,7 +42,7 @@ jobs:
           node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
           test "$(find assets/reference-parts -name 'home-hero.*.b64.txt' -type f | wc -l)" -eq 4
-          test "$(find assets/reference-parts -name 'archive-hero.*.chunks.txt' -type f | wc -l)" -eq 2
+          test "$(find assets/reference-parts -name 'archive-hero.*.chunks.txt' -type f | wc -l)" -eq 5
           test "$(find assets/reference-parts -name 'archive-grid.*.chunks.txt' -type f | wc -l)" -eq 3
           test "$(find assets/reference-parts -name 'home-lower.*.part' -type f | wc -l)" -eq 6
           grep -q '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02' tools/import-mobile/storefront-reference-v41-postprocess.mjs
