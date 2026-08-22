@@ -23,7 +23,7 @@ for (const file of [
 const definition = context.MysteryLogicInvestigationCase;
 assert.ok(definition, 'Last Build definition did not load');
 assert.equal(definition.plainLanguageVersion, '0.6.0');
-assert.equal(definition.plainPresentationVersion, '0.6.0');
+assert.equal(definition.plainPresentationVersion, '0.6.1');
 
 const byId = (items, id) => items.find((item) => item.id === id);
 
@@ -42,6 +42,16 @@ assert.match(byId(definition.materials, 'guest02-assignment').body, /госте�
 assert.match(byId(definition.materials, 'aster-history').body, /флешк.*ASTER-64.*серийн.*A64-7731/i);
 assert.match(byId(definition.materials, 'nordlight-compliance').body, /чистую финальную версию игры/i);
 assert.match(byId(definition.materials, 'office-morning').body, /папк.*финальн.*верси.*\(RELEASE\)/i);
+
+const screenshotPresentation = byId(definition.materials, 'r03-screenshot').presentation;
+assert.equal(screenshotPresentation.sceneTitle, 'Уровень «Северный док»');
+assert.equal(screenshotPresentation.marker, 'R-03');
+assert.match(screenshotPresentation.caption, /кадр из версии игры.*правом нижнем углу.*R-03/i);
+
+const rendererSource = fs.readFileSync(path.join(repoRoot, 'assets/investigations/evidence-renderers.js'), 'utf8');
+assert.ok(rendererSource.includes('mli-ev-game-shot'), 'R-03 evidence must render as a game screenshot');
+assert.ok(rendererSource.includes('Найти вход в лабораторию'), 'Game screenshot must contain recognizable gameplay HUD');
+assert.ok(!rendererSource.includes('REVIEW BUILD'), 'Unexplained REVIEW BUILD label leaked into screenshot renderer');
 
 const t17Presentation = byId(definition.materials, 't17-registry').presentation;
 assert.equal(t17Presentation.kicker, 'ВРЕМЕННЫЙ ГОСТЕВОЙ ПРОПУСК');
