@@ -1,0 +1,55 @@
+/* Mystery Logic v4 — two-player landing + ML-2317 presentation layer. */
+body.ref-storefront.coop-v4{background:radial-gradient(circle at 58% 0,rgba(38,55,66,.17),transparent 34rem),linear-gradient(180deg,#020b12 0,#04111a 44%,#03101a 100%);color:var(--ref-text);font-family:Arial,Helvetica,sans-serif}
+.coop-v4 .ml-header{display:none!important}.coop-v4 .ref-header{position:relative;z-index:40}.coop-v4 .ref-footer{margin-top:28px}
+.coop-v4 .duel-page,.coop-v4 .case2317-shell{width:min(1180px,calc(100% - 64px));margin:0 auto}
+.coop-v4 .duel-page{padding:28px 0 36px}.coop-v4 .case2317-shell{padding:28px 0 40px}
+.coop-v4 .duel-kicker,.coop-v4 .ml-kicker,.coop-v4 .case2317-eyebrow{color:var(--ref-gold2)!important;font-size:10px!important;font-weight:700!important;letter-spacing:.19em!important;text-transform:uppercase}
+
+/* Two-player landing */
+.coop-v4 .duel-hero{margin:0;padding:0;border:1px solid var(--ref-line);border-radius:6px;background:#06131d;box-shadow:0 22px 48px rgba(0,0,0,.28)}
+.coop-v4 .duel-hero:after{display:none}.coop-v4 .coop-hero-grid{grid-template-columns:minmax(0,1fr) minmax(360px,.78fr);gap:0;min-height:470px}
+.coop-v4 .coop-hero-copy{max-width:none;padding:52px 48px}.coop-v4 .coop-hero h1{max-width:700px;margin:12px 0 0;color:var(--ref-cream);font:400 clamp(48px,5.4vw,72px)/.96 Georgia,serif;letter-spacing:-.035em}
+.coop-v4 .coop-lead{max-width:660px;margin:20px 0 0;color:#c9c0b4;font-size:14px;line-height:1.68}.coop-v4 .coop-lead strong{color:#e4d6c2;font-weight:500}
+.coop-v4 .duel-trust{gap:7px;margin-top:22px}.coop-v4 .duel-trust span{padding:5px 8px;border:1px solid rgba(197,140,58,.22);border-radius:3px;background:#04111a;color:#aa9f90;font-size:9px;font-weight:500}
+.coop-v4 .coop-hero-actions{margin-top:27px}.coop-v4 .coop-primary,.coop-v4 .coop-secondary{min-height:52px;padding:0 22px;border-radius:4px;font:500 14px Georgia,serif;box-shadow:none}
+.coop-v4 .coop-primary{border:1px solid #c58c3a;background:linear-gradient(180deg,#deb65f,#b97829);color:#17120b}.coop-v4 .coop-secondary{border:1px solid #9a7137;background:#06131c;color:#d8c9ae}
+.coop-v4 .coop-primary:hover,.coop-v4 .coop-secondary:hover{transform:none;filter:brightness(1.06)}
+.coop-v4 .coop-hero-scene{min-height:470px;border:0;border-left:1px solid var(--ref-line-soft);border-radius:0;background:radial-gradient(circle at 28% 22%,rgba(191,143,70,.12),transparent 28%),linear-gradient(145deg,#0a1821,#03101a);box-shadow:none}
+.coop-v4 .coop-phone{border-radius:7px;border-color:rgba(197,140,58,.25);background:linear-gradient(165deg,#0a1116,#03070a)}
+.coop-v4 .coop-file-card{border-radius:3px;background:#d9c5a3;color:#2d271f}.coop-v4 .coop-scene-stamp{border-color:rgba(149,78,57,.52);color:rgba(149,78,57,.7)}
+
+.coop-v4 .coop-case-feature{margin:18px 0;padding:34px 38px;border:1px solid var(--ref-line);border-radius:6px;background:#06131d;box-shadow:none}
+.coop-v4 .coop-case-head h2,.coop-v4 .coop-duel-intro h2{color:#dfc8a2;font:400 clamp(30px,4vw,48px)/1 Georgia,serif;letter-spacing:-.025em}.coop-v4 .coop-case-number strong{color:#d4a04f}
+.coop-v4 .coop-case-setup{color:#bdb4a7;font-size:13px}.coop-v4 .coop-case-question{border-left-color:#c58c3a;background:#04111a;color:#dfd5c7;font-size:17px}
+.coop-v4 .coop-role-card,.coop-v4 .coop-how-grid article,.coop-v4 .coop-duel-intro{border:1px solid var(--ref-line-soft);border-radius:5px;background:#04111a}
+.coop-v4 .coop-role-mark{border-radius:3px;border-color:rgba(197,140,58,.28);background:#071620;color:#d8a653}.coop-v4 .coop-role-card.is-analyst{border-color:var(--ref-line-soft)}.coop-v4 .is-analyst .coop-role-mark{border-color:rgba(197,140,58,.28);background:#071620;color:#d8a653}
+.coop-v4 .coop-role-card h3,.coop-v4 .coop-how-grid h3{color:#dfcfb2;font-family:Georgia,serif;font-weight:400}.coop-v4 .coop-role-card p,.coop-v4 .coop-how-grid p,.coop-v4 .coop-duel-intro>p{color:#9f9689}
+.coop-v4 .coop-evidence-paper,.coop-v4 .coop-evidence-map,.coop-v4 .coop-evidence-chat{border-radius:4px}.coop-v4 .coop-evidence-paper{background:#d8c3a1}.coop-v4 .coop-evidence-map,.coop-v4 .coop-evidence-chat{border:1px solid var(--ref-line-soft);background:#04111a}
+.coop-v4 .coop-how{padding:32px 0 10px}.coop-v4 .coop-how-grid article{padding:20px}.coop-v4 .coop-how-grid span{color:#c99140}.coop-v4 .coop-duel-intro{padding:24px}
+
+/* Room creator */
+.coop-v4 .duel-app-shell{gap:14px;margin-top:18px}.coop-v4 .duel-app,.coop-v4 .duel-side{border:1px solid var(--ref-line);border-radius:6px;background:#06131d;box-shadow:none}
+.coop-v4 .duel-app{padding:28px}.coop-v4 .duel-side{padding:24px}.coop-v4 .duel-app-header h2,.coop-v4 .duel-side h2{color:#dfc8a2;font:400 clamp(22px,3vw,30px)/1.1 Georgia,serif}.coop-v4 .duel-app-header p,.coop-v4 .duel-side li{color:#9f9689}
+.coop-v4 .duel-choice,.coop-v4 .duel-case-card,.coop-v4 .duel-player-slot,.coop-v4 .duel-note,.coop-v4 .duel-error{border-radius:4px;background:#04111a;border-color:var(--ref-line-soft)}
+.coop-v4 .duel-choice:hover{transform:none;border-color:rgba(197,140,58,.5);background:#071620}.coop-v4 .duel-choice b,.coop-v4 .duel-case-card strong,.coop-v4 .duel-room-case h3,.coop-v4 .duel-player-slot strong{color:#ded3c4}
+.coop-v4 .duel-field>span{color:#c99548}.coop-v4 .duel-field input{border-radius:4px;border-color:var(--ref-line-soft);background:#03101a;color:#ddd5c8}.coop-v4 .duel-field input:focus{border-color:#c58c3a;box-shadow:0 0 0 2px rgba(197,140,58,.12)}
+.coop-v4 .duel-button{border-radius:4px;font:500 14px Georgia,serif}.coop-v4 .duel-button-primary{border:1px solid #c58c3a;background:linear-gradient(180deg,#deb65f,#b97829);color:#17120b}.coop-v4 .duel-button-secondary{border-color:#8d6937;background:#06131c;color:#d8c9ae}.coop-v4 .duel-button-quiet{color:#c99548}
+.coop-v4 .duel-room-code{border-radius:4px;border-color:rgba(197,140,58,.34);background:#04111a}.coop-v4 .duel-room-code strong{color:#e0b766}
+.coop-v4 .duel-case-links .seo-case-card,.coop-v4 .duel-seo .seo-content-section{border-color:var(--ref-line-soft);background:#04111a}.coop-v4 .duel-case-links .seo-case-card{border-radius:4px}.coop-v4 .duel-seo .seo-content-section h2{color:#dfc8a2;font-family:Georgia,serif;font-weight:400}
+.coop-v4 .ml-copy-section{border:1px solid var(--ref-line);border-radius:5px;background:#06131d;padding:28px 32px;margin-top:28px}.coop-v4 .ml-copy-section h2{color:#dfc8a2;font-family:Georgia,serif;font-weight:400}.coop-v4 .ml-copy-section .ml-copy{color:#a59d91}
+
+/* ML-2317 */
+.coop-v4.case2317-body{background:radial-gradient(circle at 58% 0,rgba(38,55,66,.17),transparent 34rem),linear-gradient(180deg,#020b12 0,#04111a 44%,#03101a 100%)}
+.coop-v4 .case2317-header{display:none!important}.coop-v4 .case2317-boot,.coop-v4 .case2317-cover{grid-template-columns:minmax(0,1fr) 320px;gap:0;min-height:500px;padding:0;border:1px solid var(--ref-line);border-radius:6px;background:#06131d;box-shadow:0 22px 48px rgba(0,0,0,.28)}
+.coop-v4 .case2317-boot-copy,.coop-v4 .case2317-cover>div:first-child{padding:52px 48px}.coop-v4 .case2317-boot-copy h1,.coop-v4 .case2317-cover h1{color:var(--ref-cream);font:400 clamp(48px,6vw,76px)/.9 Georgia,serif;letter-spacing:-.045em}.coop-v4 .case2317-boot-copy h1 em,.coop-v4 .case2317-cover h1 em{color:#d7a754}.coop-v4 .case2317-boot-copy p,.coop-v4 .case2317-cover p{color:#b9b0a4;font-size:14px}
+.coop-v4 .case2317-clock{min-height:100%;border:0;border-left:1px solid var(--ref-line-soft);border-radius:0;background:linear-gradient(155deg,#03070a,#0a1116);box-shadow:none}.coop-v4 .case2317-clock span{color:#e4d0ad;font-weight:400}.coop-v4 .case2317-clock i{color:#c58c3a}
+.coop-v4 .case2317-app{gap:14px}.coop-v4 .case2317-panel,.coop-v4 .case2317-handoff,.coop-v4 .case2317-decision,.coop-v4 .case2317-score{border:1px solid var(--ref-line);border-radius:6px;background:#06131d;box-shadow:none}
+.coop-v4 .case2317-panel h2,.coop-v4 .case2317-handoff h3,.coop-v4 .case2317-decision h3,.coop-v4 .case2317-score-head h3{color:#dfc8a2;font-family:Georgia,serif;font-weight:400}.coop-v4 .case2317-panel>p,.coop-v4 .case2317-handoff p{color:#a59d91}
+.coop-v4 .case2317-button{border-radius:4px;border-color:#8d6937;background:#06131c;color:#d8c9ae;font:500 14px Georgia,serif}.coop-v4 .case2317-button.is-primary{border-color:#c58c3a;background:linear-gradient(180deg,#deb65f,#b97829);color:#17120b}
+.coop-v4 .case2317-field input,.coop-v4 .case2317-field select{border-radius:4px;border-color:var(--ref-line-soft);background:#03101a;color:#ddd5c8}.coop-v4 .case2317-room-code,.coop-v4 .case2317-role-slot,.coop-v4 .case2317-material,.coop-v4 .case2317-audio,.coop-v4 .case2317-drop,.coop-v4 .case2317-decision-option,.coop-v4 .case2317-pick,.coop-v4 .case2317-score-row{border-radius:4px}
+.coop-v4 .case2317-room-code{border-color:rgba(197,140,58,.34);background:#04111a}.coop-v4 .case2317-role-slot,.coop-v4 .case2317-material,.coop-v4 .case2317-audio,.coop-v4 .case2317-decision-option,.coop-v4 .case2317-pick,.coop-v4 .case2317-score-row{border-color:var(--ref-line-soft);background:#04111a}
+.coop-v4 .case2317-audio{box-shadow:none}.coop-v4 .case2317-audio-play{border-color:#b88743;background:#071620;color:#d8a653}.coop-v4 .case2317-wave{border-radius:3px;background:#03101a}.coop-v4 .case2317-marker{border-radius:4px;border-color:rgba(197,140,58,.4);background:rgba(197,140,58,.05)}
+.coop-v4 .case2317-handoff-row input{border-radius:4px;border-color:var(--ref-line-soft);background:#03101a}.coop-v4 .case2317-decision-option:hover{border-color:#b8843b;background:#071620}.coop-v4 .case2317-score-number{color:#e0b766}.coop-v4 .case2317-badge{border-radius:3px;color:#e0b766;border-color:rgba(197,140,58,.34);background:#04111a}
+
+@media(max-width:900px){.coop-v4 .coop-hero-grid{grid-template-columns:1fr}.coop-v4 .coop-hero-scene{min-height:390px;border-left:0;border-top:1px solid var(--ref-line-soft)}.coop-v4 .case2317-boot,.coop-v4 .case2317-cover{grid-template-columns:1fr}.coop-v4 .case2317-clock{min-height:260px;border-left:0;border-top:1px solid var(--ref-line-soft)}}
+@media(max-width:760px){.coop-v4 .duel-page,.coop-v4 .case2317-shell{width:min(100% - 24px,1180px)}.coop-v4 .coop-hero-copy,.coop-v4 .case2317-boot-copy,.coop-v4 .case2317-cover>div:first-child{padding:34px 24px}.coop-v4 .coop-hero h1,.coop-v4 .case2317-boot-copy h1,.coop-v4 .case2317-cover h1{font-size:clamp(42px,13vw,58px)}.coop-v4 .coop-case-feature{padding:26px 20px}.coop-v4 .duel-app{padding:20px}.coop-v4 .ml-copy-section{grid-template-columns:1fr;padding:24px 20px}.coop-v4 .ref-footer{width:min(100% - 24px,1180px)}}
