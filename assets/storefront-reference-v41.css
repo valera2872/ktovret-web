@@ -40,12 +40,12 @@
 @media(min-width:761px){
  .ref-storefront-v41 .ref-home-hero{min-height:419px}
  .ref-storefront-v41 .ref-home-copy{transform:translateY(-58px)}
- .ref-storefront-v41 .ref-home-copy h1{font-size:118px;line-height:.86}
+ .ref-storefront-v41 .ref-home-copy h1{font-size:clamp(62px,6vw,83px)!important;line-height:.95}
  .ref-storefront-v41 .ref-home-art{transform:translateY(-12px)}
  .ref-storefront-v41 .ref-home-lower{margin-top:-32px}
  .ref-storefront-v41 .ref-archive-hero{min-height:361px}
  .ref-storefront-v41 .ref-archive-copy{transform:translateY(-88px)}
- .ref-storefront-v41 .ref-archive-copy h1{font-size:112px;line-height:.9}
+ .ref-storefront-v41 .ref-archive-copy h1{font-size:clamp(52px,5.4vw,72px)!important;line-height:.98}
  .ref-storefront-v41 .ref-archive-art{width:105%;transform:translate(14px,-48px)}
  .ref-storefront-v41 .ref-archive-hero+.ref-access-strip{margin-top:-28px}
  .ref-storefront-v41 .ref-bottom-banner{grid-template-columns:37% 47% 16%;min-height:190px;padding:0;overflow:hidden}
