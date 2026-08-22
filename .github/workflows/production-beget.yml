@@ -3,6 +3,17 @@ name: Build Mystery Logic production bundle for Beget
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-beget.yml'
+      - 'assets/**'
+      - 'tools/**'
+      - 'index.html'
+      - 'dela/**'
+      - 'tom-1/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:
@@ -24,7 +35,6 @@ jobs:
       - name: Checkout web
         uses: actions/checkout@v4
         with:
-          ref: main
           path: web
 
       - name: Checkout private mobile content
@@ -66,6 +76,8 @@ jobs:
           test -f tom-1/index.html
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
           grep -q 'data-volume-email' tom-1/index.html
+          grep -q 'data-volume-offer-accept' tom-1/index.html
+          grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q 'volume-storefront.js?v=' tom-1/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' tom-1/index.html
           ! grep -q 'name="robots" content="noindex' tom-1/index.html
@@ -76,6 +88,19 @@ jobs:
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "4.1.4"' assets/generated/import-report.json
+          grep -q 'storefront-reference-v41.css' index.html
+          grep -q 'storefront-reference-v41.css' dela/index.html
+          grep -q 'storefront-reference-v41.css' tom-1/index.html
+          grep -q 'data-reference-asset="home-hero"' index.html
+          grep -q 'data-reference-asset="home-lower"' index.html
+          grep -q 'data-reference-asset="archive-hero"' tom-1/index.html
+          grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
           test "$(grep -c '<url>' sitemap.xml)" -eq 112
           grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
@@ -87,6 +112,12 @@ jobs:
             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
           grep -q "checkoutEnabled:true" assets/paid-access-config.js
           node --check assets/volume-storefront.js
+          node --check tools/enable-volume-checkout.mjs
+          node --check tools/archive-visual-smoke.mjs
+
+      - name: Render approved production storefront smoke
+        working-directory: web
+        run: node tools/archive-visual-smoke.mjs
 
       - name: Prepare Beget runtime tree
         run: |
@@ -138,6 +169,9 @@ jobs:
           grep -q "challenge-page.js?v=${release_version}" production-web/challenge/index.html
           grep -q "volume-storefront.css?v=${release_version}" production-web/tom-1/index.html
           grep -q "volume-storefront.js?v=${release_version}" production-web/tom-1/index.html
+          grep -q "storefront-reference-v41.css?v=${release_version}" production-web/index.html
+          grep -q "storefront-reference-v41.css?v=${release_version}" production-web/dela/index.html
+          grep -q "storefront-reference-v41.css?v=${release_version}" production-web/tom-1/index.html
 
       - name: Validate Beget runtime tree
         run: |
@@ -151,6 +185,11 @@ jobs:
           test -f production-web/assets/challenge-page.js
           test -f production-web/assets/challenge.css
           test -f production-web/assets/volume-storefront.css
+          test -f production-web/assets/storefront-reference-v41.css
+          test -f production-web/assets/reference-home-hero.webp
+          test -f production-web/assets/reference-home-lower.webp
+          test -f production-web/assets/reference-archive-hero.webp
+          test -f production-web/assets/reference-archive-grid.webp
           test -f production-web/challenge/index.html
           test -f production-web/tom-1/index.html
           test -f production-web/golovolomki-onlayn/index.html
@@ -159,13 +198,21 @@ jobs:
           test -f production-web/ktovret-game/assets/app-core.js
           test -f production-web/ktovret-game/assets/challenge-client.js
           grep -q 'data-volume-email' production-web/tom-1/index.html
+          grep -q 'data-volume-offer-accept' production-web/tom-1/index.html
+          grep -q 'data-volume-privacy-ack' production-web/tom-1/index.html
           grep -q 'volume-storefront.js?v=' production-web/tom-1/index.html
-          grep -q 'mobile-scroll-stabilizer.js?v=' production-web/ktovret-game/assets/app.js
-          grep -q 'challenge-client.js?v=' production-web/ktovret-game/assets/app.js
+          grep -q 'data-reference-asset="home-hero"' production-web/index.html
+          grep -q 'data-reference-asset="home-lower"' production-web/index.html
+          grep -q 'data-reference-asset="archive-hero"' production-web/tom-1/index.html
+          grep -q 'data-reference-asset="archive-grid"' production-web/tom-1/index.html
           grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
           grep -q 'Политика конфиденциальности' production-web/tom-1/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
           ! grep -q 'name="robots" content="noindex' production-web/tom-1/index.html
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  production-web/assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  production-web/assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  production-web/assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  production-web/assets/reference-home-lower.webp' | sha256sum -c -
           test ! -d production-web/supabase
           test ! -d production-web/tools
           test ! -d production-web/tests
@@ -191,6 +238,14 @@ jobs:
           zip -qr ../mysterylogic-beget-production.zip .
           cd ..
           unzip -l mysterylogic-beget-production.zip | sed -n '1,100p'
+
+      - name: Upload production storefront smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-production-storefront-smoke
+          path: web/artifacts/storefront-reference-smoke
+          retention-days: 14
+          if-no-files-found: error
 
       - name: Upload Beget production ZIP
         uses: actions/upload-artifact@v4
