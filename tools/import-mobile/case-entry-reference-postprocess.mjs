@@ -3,9 +3,22 @@ import path from 'node:path';
 
 const VERSION='1.0.0';
 
+const patchProductMobile=(siteRoot)=>{
+  const file=path.join(siteRoot,'kto-vret/index.html');
+  if(!fs.existsSync(file)) return false;
+  let html=fs.readFileSync(file,'utf8');
+  if(!html.includes('kto-vret-reference-v1-mobile.css')){
+    html=html.replace('</head>',`<link rel="stylesheet" href="../assets/kto-vret-reference-v1-mobile.css?v=${VERSION}">\n</head>`);
+  }
+  if(!html.includes('kto-vret-reference-v1-mobile.css')) throw new Error('Кто врёт mobile polish injection failed');
+  fs.writeFileSync(file,html);
+  return true;
+};
+
 export function applyCaseEntryReference(siteRoot){
+  const productMobile=patchProductMobile(siteRoot);
   const casesRoot=path.join(siteRoot,'delo');
-  if(!fs.existsSync(casesRoot)) return {pages:0,version:VERSION};
+  if(!fs.existsSync(casesRoot)) return {pages:0,version:VERSION,productMobile};
   let pages=0;
   for(const entry of fs.readdirSync(casesRoot,{withFileTypes:true})){
     if(!entry.isDirectory()) continue;
@@ -25,5 +38,5 @@ export function applyCaseEntryReference(siteRoot){
     fs.writeFileSync(file,html);
     pages+=1;
   }
-  return {pages,version:VERSION};
+  return {pages,version:VERSION,productMobile};
 }
