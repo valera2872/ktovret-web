@@ -39,11 +39,16 @@ jobs:
         working-directory: web
         run: |
           node --check tools/import-mobile/storefront-reference-postprocess.mjs
+          node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          grep -q 'ref-home-hero' assets/storefront-reference.css
-          grep -q 'ref-archive-hero' assets/storefront-reference.css
-          grep -q 'CASE' assets/reference-home-hero.svg
-          grep -q 'VOLUME I' assets/reference-archive-hero.svg
+          test -s assets/reference-home-hero.webp
+          test -s assets/reference-archive-hero.webp
+          test -s assets/reference-archive-grid.webp
+          test -s assets/reference-home-lower.b64.txt
+          grep -q 'ref-snapshot' assets/storefront-reference-v41.css
+          grep -q 'data-volume-email' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q 'data-volume-offer-accept' tools/import-mobile/storefront-reference-v41-postprocess.mjs
+          grep -q 'data-volume-privacy-ack' tools/import-mobile/storefront-reference-v41-postprocess.mjs
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
@@ -51,12 +56,18 @@ jobs:
         working-directory: web
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceVersion": "4.0.1"' assets/generated/import-report.json
-          grep -q 'storefront-reference.css' index.html
-          grep -q 'storefront-reference.css' dela/index.html
-          grep -q 'storefront-reference.css' tom-1/index.html
-          grep -q 'reference-home-hero.svg' index.html
-          grep -q 'reference-archive-hero.svg' tom-1/index.html
+          grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "4.1.0"' assets/generated/import-report.json
+          grep -q 'storefront-reference-v41.css' index.html
+          grep -q 'storefront-reference-v41.css' dela/index.html
+          grep -q 'storefront-reference-v41.css' tom-1/index.html
+          grep -q 'reference-home-hero.webp' index.html
+          grep -q 'ref-home-lower' index.html
+          grep -q 'reference-archive-hero.webp' tom-1/index.html
+          grep -q 'reference-archive-grid.webp' tom-1/index.html
+          grep -q 'data-volume-email' tom-1/index.html
+          grep -q 'data-volume-offer-accept' tom-1/index.html
+          grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
           grep -q '99 ₽' tom-1/index.html
           grep -q '15 дел' dela/index.html
