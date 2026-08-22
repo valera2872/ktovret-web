@@ -41,10 +41,10 @@ jobs:
           node --check tools/import-mobile/storefront-reference-postprocess.mjs
           node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
-          test -s assets/reference-home-hero.webp
-          test -s assets/reference-archive-hero.webp
-          test -s assets/reference-archive-grid.webp
-          test -s assets/reference-home-lower.b64.txt
+          grep -q '^UklGR' assets/reference-home-hero.b64.txt
+          grep -q '^UklGR' assets/reference-archive-hero.b64.txt
+          grep -q '^UklGR' assets/reference-archive-grid.b64.txt
+          grep -q '^UklGR' assets/reference-home-lower.b64.txt
           grep -q 'ref-snapshot' assets/storefront-reference-v41.css
           grep -q 'data-volume-email' tools/import-mobile/storefront-reference-v41-postprocess.mjs
           grep -q 'data-volume-offer-accept' tools/import-mobile/storefront-reference-v41-postprocess.mjs
@@ -57,14 +57,14 @@ jobs:
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceV41Version": "4.1.0"' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "4.1.1"' assets/generated/import-report.json
           grep -q 'storefront-reference-v41.css' index.html
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
-          grep -q 'reference-home-hero.webp' index.html
-          grep -q 'ref-home-lower' index.html
-          grep -q 'reference-archive-hero.webp' tom-1/index.html
-          grep -q 'reference-archive-grid.webp' tom-1/index.html
+          grep -q 'data-reference-asset="home-hero"' index.html
+          grep -q 'data-reference-asset="home-lower"' index.html
+          grep -q 'data-reference-asset="archive-hero"' tom-1/index.html
+          grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
           grep -q 'data-volume-email' tom-1/index.html
           grep -q 'data-volume-offer-accept' tom-1/index.html
           grep -q 'data-volume-privacy-ack' tom-1/index.html
