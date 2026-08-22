@@ -4,7 +4,16 @@ import path from 'node:path';
 const VERSION='1.0.0';
 
 function addBodyClass(html,className){
-  return html.replace(/<body(?: class="([^"]*)")?>/,(_,classes='')=>`<body class="${[...new Set(`${classes} ${className}`.trim().split(/\s+/).filter(Boolean))].join(' ')}">`);
+  return html.replace(/<body([^>]*)>/,(_,attrs='')=>{
+    const wanted=className.trim().split(/\s+/).filter(Boolean);
+    const classMatch=attrs.match(/\sclass=(['"])(.*?)\1/);
+    if(classMatch){
+      const classes=[...new Set([...classMatch[2].split(/\s+/).filter(Boolean),...wanted])].join(' ');
+      const next=attrs.replace(classMatch[0],` class=${classMatch[1]}${classes}${classMatch[1]}`);
+      return `<body${next}>`;
+    }
+    return `<body${attrs} class="${wanted.join(' ')}">`;
+  });
 }
 
 function addStyle(html,href,needle){
