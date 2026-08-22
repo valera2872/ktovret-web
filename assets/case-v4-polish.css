@@ -1,0 +1,5 @@
+/* Final case v4 cleanup: remove legacy presentation that duplicates the approved storefront brand. */
+.ktv-case-v4 .ktv-game-shell:before{display:none!important;content:none!important}
+.ktv-case-v4 .ktv-topbar{justify-content:flex-end;min-height:28px;padding:0 8px 8px}
+.ktv-case-v4 .ktv-topbar .ktv-brand{display:none!important}
+@media(max-width:700px){.ktv-case-v4 .ktv-topbar{min-height:24px;padding-left:0;padding-right:0}.ktv-case-v4 .ktv-case-status{font-size:10px}}
