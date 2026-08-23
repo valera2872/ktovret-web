@@ -1,4 +1,4 @@
-name: Visual smoke Mystery Logic 23:17
+name: Visual smoke Mystery Logic co-op cases
 
 on:
   pull_request:
@@ -40,14 +40,25 @@ jobs:
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
       - name: Validate visual smoke script
         working-directory: web
-        run: node --check tools/two-player-2317-smoke.mjs
-      - name: Render two-player landing and ML-2317
+        run: |
+          node --check tools/two-player-2317-smoke.mjs
+          node --check tools/two-player-407-smoke.mjs
+      - name: Render two-player landing and co-op cases
         working-directory: web
-        run: node tools/two-player-2317-smoke.mjs
-      - name: Upload screenshots
+        run: |
+          node tools/two-player-2317-smoke.mjs
+          node tools/two-player-407-smoke.mjs
+      - name: Upload ML-2317 screenshots
         uses: actions/upload-artifact@v4
         with:
           name: two-player-2317-visual-smoke
           path: web/artifacts/two-player-2317-smoke
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload Room 407 screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: two-player-407-visual-smoke
+          path: web/artifacts/two-player-407-smoke
           retention-days: 7
           if-no-files-found: error

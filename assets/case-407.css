@@ -1,0 +1,110 @@
+/* Mystery Logic — ML-0407 premium hotel case */
+.case407-body{
+  --case407-gold:#d5a456;
+  --case407-gold-soft:#f0d49b;
+  --case407-wine:#5d1f2c;
+  --case407-ink:#02090e;
+  background:
+    radial-gradient(circle at 82% 5%,rgba(105,32,46,.18),transparent 31rem),
+    radial-gradient(circle at 18% 32%,rgba(187,132,54,.07),transparent 29rem),
+    linear-gradient(180deg,#02080d,#04121b 52%,#020b12);
+}
+.case407-body .case2317-shell{position:relative}
+.case407-body .case2317-shell:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 72%);
+}
+.case407-body .case2317-cover,.case407-body .case2317-boot{
+  position:relative;background:
+    linear-gradient(90deg,rgba(3,11,16,.99) 0%,rgba(3,11,16,.94) 48%,rgba(3,11,16,.37) 72%,rgba(3,11,16,.66) 100%),
+    url('/assets/room-407-evidence.webp') center/cover no-repeat;
+  border-color:rgba(213,164,86,.34);
+}
+.case407-body .case2317-cover:after,.case407-body .case2317-boot:after{
+  content:"HOTEL MEYER · FLOOR 4";position:absolute;right:24px;bottom:18px;color:rgba(240,212,155,.5);
+  font-size:9px;font-weight:800;letter-spacing:.24em;writing-mode:vertical-rl;
+}
+.case407-body .case2317-cover>div:first-child,.case407-body .case2317-boot-copy{position:relative;z-index:2}
+.case407-body .case2317-cover h1,.case407-body .case2317-boot h1{text-shadow:0 12px 44px rgba(0,0,0,.8)}
+.case407-body .case2317-cover h1 em,.case407-body .case2317-boot h1 em{font-style:normal;color:var(--case407-gold-soft)}
+.case407-body .case2317-cover p,.case407-body .case2317-boot p{color:#d2c7b9}
+.case407-body .case407-room-mark{
+  position:relative;z-index:2;min-height:320px;border:1px solid rgba(213,164,86,.3)!important;
+  background:linear-gradient(165deg,rgba(2,7,10,.88),rgba(18,9,12,.9))!important;
+  box-shadow:0 26px 80px rgba(0,0,0,.56),inset 0 0 80px rgba(88,28,40,.16)!important;
+}
+.case407-body .case407-room-mark:before{
+  content:"";position:absolute;inset:18px;border:1px solid rgba(213,164,86,.16);pointer-events:none;
+}
+.case407-body .case407-room-mark span{color:#ead9b9!important;font-size:clamp(3.5rem,8vw,6.8rem)!important}
+.case407-body .case407-room-mark i{color:#8e5d23!important;font-size:clamp(2.8rem,6vw,5.2rem)!important}
+.case407-body .case407-room-mark small{color:#b67c85!important}
+
+.case407-body .case2317-topbar{border-color:rgba(213,164,86,.22);background:rgba(2,10,15,.94)}
+.case407-body .case2317-panel,.case407-body .case2317-brief,.case407-body .case2317-final{
+  border-color:rgba(213,164,86,.22);background:linear-gradient(145deg,rgba(7,23,32,.98),rgba(3,13,20,.99));
+}
+.case407-body .case2317-brief{background:
+  radial-gradient(circle at 100% 0,rgba(105,32,46,.2),transparent 24rem),
+  linear-gradient(145deg,#071923,#031019);
+}
+.case407-body .case2317-mission{border-left-color:var(--case407-gold);background:rgba(105,32,46,.09)}
+.case407-guidance{position:relative;display:grid;grid-template-columns:minmax(170px,.45fr) minmax(0,1fr) auto;gap:18px;align-items:center;margin:0 0 16px;padding:16px 18px;border:1px solid rgba(213,164,86,.25);border-radius:6px;background:linear-gradient(100deg,rgba(105,32,46,.11),rgba(213,164,86,.035))}
+.case407-guidance small,.case407-guidance strong{display:block}.case407-guidance small{color:#b98741;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.case407-guidance strong{margin-top:4px;color:#e6d6bd;font:400 18px/1.2 Georgia,serif}.case407-guidance p{margin:0;color:#afa493;font-size:12px;line-height:1.55}.case407-guidance>span{display:grid;place-items:center;min-width:38px;height:38px;border:1px solid rgba(213,164,86,.25);color:#dab365;font:400 16px Georgia,serif}
+.case407-body .case2317-evidence{
+  border-color:rgba(213,164,86,.15);background:
+    linear-gradient(155deg,rgba(12,35,47,.98),rgba(4,18,27,.99));
+  box-shadow:0 15px 35px rgba(0,0,0,.16);
+}
+.case407-body .case2317-evidence:before{
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,212,155,.32),transparent);
+}
+.case407-body .case2317-evidence.has-photo{grid-column:1/-1;padding:0 0 22px}
+.case407-body .case2317-evidence.has-photo>.tag,.case407-body .case2317-evidence.has-photo>h3,
+.case407-body .case2317-evidence.has-photo>p,.case407-body .case2317-evidence.has-photo>.case2317-facts{margin-left:22px;margin-right:22px}
+.case407-body .case2317-evidence.has-photo>.tag{padding-top:20px}
+.case407-evidence-photo{position:relative;margin:18px 0 20px;overflow:hidden;border-block:1px solid rgba(213,164,86,.16);background:#02070a}
+.case407-evidence-photo:after{content:"EVIDENCE · 01:19";position:absolute;right:14px;top:14px;padding:7px 9px;border:1px solid rgba(241,213,158,.35);background:rgba(2,8,12,.72);color:#ead3a6;font-size:9px;letter-spacing:.15em}
+.case407-evidence-photo img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;filter:saturate(.82) contrast(1.04) brightness(.9)}
+.case407-evidence-photo figcaption{position:absolute;left:12px;bottom:10px;padding:6px 8px;background:rgba(2,8,12,.74);color:#b9ad9b;font-size:10px;letter-spacing:.05em}
+.case407-body .case2317-facts span{border-color:rgba(213,164,86,.16);background:rgba(213,164,86,.035);color:#cbbda6}
+.case407-body .case2317-stamp{border-color:rgba(142,57,70,.58);color:#d08d98}
+.case407-body .case2317-handoff{border-color:rgba(83,139,158,.34);background:linear-gradient(145deg,#061923,#071118)}
+.case407-body .case2317-handoff.is-complete{border-color:rgba(139,177,139,.34)}
+.case407-body .case2317-decision{border-color:rgba(213,164,86,.25);background:linear-gradient(145deg,#171008,#080d11)}
+.case407-body .case2317-button.is-primary{border-color:#d5a456;background:linear-gradient(180deg,#edc778,#b9762a)}
+.case407-body .case2317-reveal{border-color:rgba(213,164,86,.25);background:radial-gradient(circle at 90% 0,rgba(105,32,46,.2),transparent 24rem),linear-gradient(145deg,#071a20,#031017)}
+.case407-body .case2317-closing{border-left-color:var(--case407-gold);color:#eadfcf}
+
+/* Catalog card on the two-player landing. */
+.case407-catalog{
+  margin:18px 0;padding:0;border:1px solid rgba(197,140,58,.34);border-radius:6px;overflow:hidden;
+  background:#06131d;box-shadow:0 22px 48px rgba(0,0,0,.2);
+}
+.case407-catalog-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.82fr);min-height:390px}
+.case407-catalog-copy{padding:42px 40px}
+.case407-catalog .ml-kicker{color:#d7a754!important}
+.case407-catalog h2{max-width:660px;margin:10px 0 0;color:#e6d4b6;font:400 clamp(34px,5vw,58px)/.95 Georgia,serif;letter-spacing:-.035em}
+.case407-catalog-lead{max-width:680px;margin:20px 0 0;color:#bfb5a7;font-size:14px;line-height:1.72}
+.case407-catalog-question{margin-top:18px;padding:15px 17px;border-left:2px solid #a8616c;background:rgba(93,31,44,.13);color:#e0d4c5;font:400 17px/1.55 Georgia,serif}
+.case407-catalog-facts{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}
+.case407-catalog-facts span{padding:6px 8px;border:1px solid rgba(213,164,86,.23);border-radius:3px;color:#afa393;font-size:9px;letter-spacing:.04em}
+.case407-catalog .coop-primary{margin-top:24px}
+.case407-catalog-visual{position:relative;min-height:360px;background:linear-gradient(90deg,rgba(4,13,19,.12),rgba(4,13,19,.48)),url('/assets/room-407-evidence.webp') center/cover no-repeat}
+.case407-catalog-visual:before{content:"407";position:absolute;right:24px;top:18px;color:rgba(240,212,155,.88);font:400 clamp(64px,9vw,110px)/1 Georgia,serif;text-shadow:0 10px 36px #000}
+.case407-catalog-visual:after{content:"ТИХАЯ ТРЕВОГА · 01:12";position:absolute;right:25px;top:128px;color:#d18c96;font-size:9px;font-weight:800;letter-spacing:.17em}
+.case407-catalog-seal{position:absolute;left:22px;bottom:20px;padding:10px 12px;border:1px solid rgba(240,212,155,.35);background:rgba(2,8,12,.68);color:#ead3a6;font-size:10px;letter-spacing:.13em}
+
+@media(max-width:900px){
+  .case407-catalog-grid{grid-template-columns:1fr}.case407-catalog-visual{min-height:330px;order:-1}
+  .case407-body .case2317-cover,.case407-body .case2317-boot{background-position:62% center}
+}
+@media(max-width:760px){
+  .case407-catalog-copy{padding:30px 22px}.case407-catalog-visual{min-height:260px}
+  .case407-catalog-visual:before{right:18px;top:14px}.case407-catalog-visual:after{right:18px;top:88px}
+  .case407-body .case407-room-mark{min-height:230px}
+  .case407-guidance{grid-template-columns:1fr auto;gap:10px}.case407-guidance p{grid-column:1/-1;grid-row:2}
+  .case407-evidence-photo:after{right:8px;top:8px}.case407-evidence-photo figcaption{display:none}
+}
+@media(prefers-reduced-motion:reduce){.case407-body *{scroll-behavior:auto!important}}
