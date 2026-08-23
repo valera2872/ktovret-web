@@ -11,6 +11,7 @@ const fail = (message) => { throw new Error(`Room 407 evidence-v2 validation fai
 const expect = (condition, message) => { if (!condition) fail(message); };
 
 const js = read('assets/case-407-evidence-v2.js');
+const hydrate = read('assets/case-407-evidence-v2-hydrate.js');
 const css = read('assets/case-407-evidence-v2.css');
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
 const context = { window: {} };
@@ -18,6 +19,7 @@ vm.runInNewContext(read('assets/case-407-data.js'), context, { filename: 'case-4
 const data = context.window.MLCase407;
 
 expect(js.length > 12_000, 'visual evidence renderer is unexpectedly small');
+expect(hydrate.length > 3_000, 'visual evidence hydration layer is unexpectedly small');
 expect(css.length > 18_000, 'visual evidence stylesheet is unexpectedly small');
 for (const marker of [
   'statementArtifact', 'plaqueArtifact', 'logArtifact', 'cctvArtifact', 'registryArtifact', 'planArtifact',
@@ -25,13 +27,17 @@ for (const marker of [
   'accessArtifact', 'telemetryArtifact', 'chatArtifact', 'MutationObserver', 'Комментарий эксперта'
 ]) expect(js.includes(marker), `renderer missing ${marker}`);
 
+for (const marker of ['case407-evidenceHydrated', ':scope > p', 'case407-log-row', 'case407-cctv-frame', 'case407-lab-data', 'case407-request-grid']) {
+  expect(hydrate.includes(marker), `hydration layer missing ${marker}`);
+}
+
 for (const marker of [
   '.case407-plaque-grid', '.case407-cctv-strip', '.case407-plan-canvas', '.case407-code-line',
   '.case407-network-grid', '.case407-audit-row', '.case407-access-path', '.case407-car-dash', '.case407-phone',
   '@media(max-width:760px)'
 ]) expect(css.includes(marker), `stylesheet missing ${marker}`);
 
-for (const marker of ['case-407-evidence-v2.css', 'case-407-evidence-v2.js', "const VERSION = '1.4.0'"]) {
+for (const marker of ['case-407-evidence-v2.css', 'case-407-evidence-v2.js', 'case-407-evidence-v2-hydrate.js', "const VERSION = '1.4.1'"]) {
   expect(postprocess.includes(marker), `generated case page does not load ${marker}`);
 }
 
@@ -43,13 +49,14 @@ for (const marker of [
   'Служебные события доступа', 'Служебная камера B1', 'Телематика автомобиля', 'Удалённый черновик'
 ]) expect(story.includes(marker), `current story no longer contains material expected by renderer: ${marker}`);
 
-expect(!js.includes('fetch('), 'evidence layer must not depend on external runtime fetches');
-expect(!js.includes('innerHTML = card.textContent'), 'renderer contains unsafe blanket HTML conversion');
-expect(js.includes("replaceAll('&', '&amp;')"), 'renderer must HTML-escape evidence text');
+expect(!js.includes('fetch(') && !hydrate.includes('fetch('), 'evidence layer must not depend on external runtime fetches');
+expect(!js.includes('innerHTML = card.textContent') && !hydrate.includes('innerHTML = card.textContent'), 'renderer contains unsafe blanket HTML conversion');
+expect(js.includes("replaceAll('&', '&amp;')") && hydrate.includes("replaceAll('&', '&amp;')"), 'renderer must HTML-escape evidence text');
 
 console.log(JSON.stringify({
   case: data.title,
   rendererBytes: Buffer.byteLength(js),
+  hydrationBytes: Buffer.byteLength(hydrate),
   stylesheetBytes: Buffer.byteLength(css),
   visualLanguages: 15,
   materializedEvidence: 17,
