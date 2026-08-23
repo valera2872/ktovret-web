@@ -20,7 +20,7 @@ vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-data.js'
 vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-detective-audit-v4.js'), 'utf8'), context, { filename: 'case-407-detective-audit-v4.js' });
 vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-detective-proof-v4.js'), 'utf8'), context, { filename: 'case-407-detective-proof-v4.js' });
 const data = context.window.MLCase407;
-if (data.logicVersion !== 4 || data.proofRevision !== '4.1') throw new Error('detective v4.1 overlays did not apply');
+if (data.logicVersion !== 4 || data.proofRevision !== '4.1' || data.playtestRevision !== '4.2') throw new Error('detective v4.1 / playtest v4.2 overlays did not apply');
 
 const esc = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 const evidenceHtml = (item, index) => {
@@ -65,13 +65,18 @@ const assertDom = (key, viewport, dom) => {
   if (key === '1-investigator') {
     if (!dom.includes('H-7C4') || dom.includes('H-409')) throw new Error(`${key}/${viewport}: plaque privacy regression`);
     if (dom.includes('телефон Марты, её ключ-карта')) throw new Error(`${key}/${viewport}: impossible key-card returned`);
+    if (!dom.includes('Ключ-карты Марты здесь нет')) throw new Error(`${key}/${viewport}: key-card absence fact missing`);
+    if (dom.includes('журнал показывает, что в 00:54')) throw new Error(`${key}/${viewport}: Analyst log inference leaked into Investigator packet`);
   }
   if (key === '1-analyst') {
     for (const marker of ['H-7C4','H-409','L-409','L-407','S-407']) if (dom.includes(marker)) throw new Error(`${key}/${viewport}: leaked legacy/private marker ${marker}`);
     for (const marker of ['L-6B2','L-4A8','S-8D1','LOCKED']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing opaque marker ${marker}`);
   }
   if (key === '2-investigator') {
-    if (!dom.includes('00:51:50') || !dom.includes('через восемь секунд после входа Елены')) throw new Error(`${key}/${viewport}: phone placement chronology missing`);
+    if (!dom.includes('00:51:50')) throw new Error(`${key}/${viewport}: raw phone placement timestamp missing`);
+    if (!dom.includes('Кто именно подключил аппарат, этот материал сам по себе не устанавливает')) throw new Error(`${key}/${viewport}: phone-placement uncertainty missing`);
+    if (dom.includes('через восемь секунд после входа Елены')) throw new Error(`${key}/${viewport}: cross-role phone chronology is pre-solved`);
+    if (dom.includes('актуальные события доступа находятся в отдельном журнале безопасности')) throw new Error(`${key}/${viewport}: operational request is telegraphed by the plan`);
   }
   if (key === '2-analyst') {
     if (!dom.includes('•••••6') || !dom.includes('•••••7')) throw new Error(`${key}/${viewport}: realistic duress visual missing`);
@@ -84,8 +89,9 @@ const assertDom = (key, viewport, dom) => {
   }
   if (key === '3-analyst') {
     if (!dom.includes('Последние четыре минуты')) throw new Error(`${key}/${viewport}: neutral stage3 title missing`);
-    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1: OFFLINE 01:27','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА','не попадают в поле камеры погрузочной двери']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
+    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1: OFFLINE 01:27','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА','не попадают в поле камеры погрузочной двери','01:14:26','01:13:58','01:16:32']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
     if (dom.includes('BLE: MO-W1 В САЛОНЕ') || dom.includes('Bluetooth-журнал')) throw new Error(`${key}/${viewport}: unsupported vehicle Bluetooth inference returned`);
+    if (dom.includes('Значит, в 01:14 она физически не могла держать HK-44')) throw new Error(`${key}/${viewport}: token-transfer deduction is pre-solved`);
   }
 };
 
@@ -108,5 +114,5 @@ try {
   await new Promise((resolve) => server.close(resolve));
 }
 
-fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, chrome, results }, null, 2));
-console.log(JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, screenshots:results.length, results }, null, 2));
+fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, playtestRevision:data.playtestRevision, chrome, results }, null, 2));
+console.log(JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, playtestRevision:data.playtestRevision, screenshots:results.length, results }, null, 2));
