@@ -49,7 +49,7 @@ for (const question of data.final.questions) {
   expect(values.has(question.answer), `answer for “${question.id}” is not present in its options`);
   expect(expectedAnswers.get(question.id) === question.answer, `canonical answer changed for “${question.id}”`);
 }
-expect(data.hints?.length >= 6, 'progressive hint ladder is incomplete');
+expect(data.hints?.length === 6, 'hint ladder must contain exactly two hints per stage');
 expect(data.reveal?.body?.length >= 5 && data.reveal.closing, 'fair-play debrief is incomplete');
 
 const roleText = (role) => JSON.stringify(data.stages.map((stage) => stage[role]));
@@ -63,18 +63,21 @@ for (const [label, source, token] of handoffs) expect(source.includes(token), `$
 
 const stage1 = JSON.stringify(data.stages[0]);
 for (const earlySpoiler of ['SVC-407', 'HK-44', 'LOADING-B1', 'цифру 9', 'служебный лифт']) {
-  expect(!stage1.includes(earlySpoiler), `stage 1 reveals the central escape mechanism too early: ${earlySpoiler}`);
+  expect(!stage1.includes(earlySpoiler), `stage 1 reveals the escape mechanism too early: ${earlySpoiler}`);
 }
 expect(stage1.includes('H-409') && stage1.includes('L-409'), 'stage 1 must contain complementary room identifiers');
 
 const stage2 = JSON.stringify(data.stages[1]);
-for (const marker of ['SVC-407', 'HK-44', 'LOADING-B1', 'цифру 9', 'Владелец токена ≠ обязательно его носитель']) {
-  expect(stage2.includes(marker), `stage 2 missing escape/intent marker: ${marker}`);
+for (const marker of ['LOADING-B1', 'STAFF-4', 'цифру 9', 'Нужны журналы доступа']) {
+  expect(stage2.includes(marker), `stage 2 missing indirect route/intent marker: ${marker}`);
+}
+for (const prematureExact of ['SVC-407', 'HK-44', '01:18:41', 'служебный лифт']) {
+  expect(!stage2.includes(prematureExact), `stage 2 reveals the requested access log before the operational decision: ${prematureExact}`);
 }
 
 const stage3 = JSON.stringify(data.stages[2]);
-for (const marker of ['BR-220', 'NIGHT-MGR', 'ER-02', '94 секунды', '31 800 евро', 'ЛОЖЬ ≠ ВИНОВНОСТЬ']) {
-  expect(stage3.includes(marker), `stage 3 missing accomplice/sapphire marker: ${marker}`);
+for (const marker of ['BR-220', 'HK-44', 'SVC-407', 'LOADING-B1', 'NIGHT-MGR', 'ER-02', '94 секунды', '31 800 евро', 'ЛОЖЬ ≠ ВИНОВНОСТЬ', 'Владелец токена ≠ обязательно его носитель']) {
+  expect(stage3.includes(marker), `stage 3 missing route/accomplice/sapphire marker: ${marker}`);
 }
 for (const confession of ['HK-44 у меня', 'Футляр BR-220 войдёт', 'В аэропорту разделимся', 'масса в багажном отсеке']) {
   expect(!stage3.includes(confession), `stage 3 contains an over-explicit or implausible clue: ${confession}`);
@@ -94,7 +97,11 @@ for (const marker of [
   "expected: 'L-409'", "expected: 'H-409'", "expected: 'HK-44'", "expected: 'BR-220'",
   "correct: 'service'",
   "new Set(['room', 'intent', 'route', 'sapphire', 'accomplice'])",
-  'mysterylogic:407:v2:',
+  'mysterylogic:407:v3:',
+  'HINTS_BY_STAGE',
+  'hintUsage',
+  'usedStageHints >= stageHints.length',
+  'Полный журнал служебного доступа открыт в этапе 3',
   'Выберите 5 опорных доказательств',
   'reconstruction + evidence + coordination + discipline',
   'не доказывает, кто именно нёс токен',
@@ -102,9 +109,10 @@ for (const marker of [
 ]) expect(runtime.includes(marker), `runtime contract is missing: ${marker}`);
 expect(!runtime.includes("new Set(['room_swap', 'duress', 'service_route'])"), 'old rigid three-evidence final still exists');
 expect(!runtime.includes('teamwork = 25'), 'teamwork score must not be hard-coded');
+expect(!runtime.includes("mysterylogic:407:v2:"), 'stale v2 progress key remains');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
-for (const marker of ['noindex,follow', 'case407-catalog', 'room-407-evidence.webp', 'href="407/"']) {
+for (const marker of ['noindex,follow', 'case407-catalog', 'room-407-evidence.webp', 'href="407/"', "const VERSION = '1.3.0'"]) {
   expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
 }
 
@@ -123,11 +131,12 @@ expect(image.toString('ascii', 0, 4) === 'RIFF' && image.toString('ascii', 8, 12
 
 console.log(JSON.stringify({
   case: data.title,
-  logicVersion: 2,
+  logicVersion: 3,
   stages: data.stages.length,
   materials: materialCount,
   finalQuestions: data.final.questions.length,
   handoffs: handoffs.length,
+  stageScopedHints: 6,
   finalEvidenceGroups: 5,
   imageBytes: image.length,
   fairPlay: 'passed',
