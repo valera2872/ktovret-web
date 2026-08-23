@@ -18,11 +18,17 @@
 .ml-material-formats .mat-format-1{background-image:url("./reference-format-2317.svg")}
 .ml-material-formats .mat-format-3{background-image:url("./reference-format-volume.svg")}
 .ml-material-formats .mat-format-1>img,.ml-material-formats .mat-format-3>img{display:none!important}
-.ml-material-formats .mat-format-1:before,.ml-material-formats .mat-format-3:before,.ml-native-photo-stage:after{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;background:repeating-linear-gradient(17deg,rgba(219,188,139,.045) 0 1px,transparent 1px 4px),radial-gradient(circle at 24% 27%,rgba(222,187,126,.08),transparent 31%),radial-gradient(circle at 74% 68%,rgba(0,0,0,.16),transparent 38%);mix-blend-mode:soft-light;opacity:.72}
-.ml-material-formats .mat-format-1:after,.ml-material-formats .mat-format-3:after{z-index:3}
+
+/* A deliberately soft, low-opacity crop of the accepted photographic board is used only as surface texture.
+   It restores paper/shadow irregularity without bringing raster text back into the UI. */
+.ml-material-formats .mat-format-1:before,.ml-material-formats .mat-format-3:before,.ml-native-photo-stage:before{content:"";position:absolute;z-index:2;inset:-4px;pointer-events:none;background-image:url("./reference-home-lower.webp");background-repeat:no-repeat;opacity:.13;mix-blend-mode:multiply;filter:blur(2.4px) sepia(.16) contrast(1.22) saturate(.72)}
+.ml-material-formats .mat-format-1:before{background-size:341% auto;background-position:4% 34%}
+.ml-material-formats .mat-format-3:before{background-size:341% auto;background-position:64% 30%}
+.ml-native-photo-stage:before{background-size:360% auto;background-position:35% 30%}
+.ml-material-formats .mat-format-1:after,.ml-material-formats .mat-format-3:after,.ml-native-photo-stage:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:repeating-linear-gradient(17deg,rgba(219,188,139,.035) 0 1px,transparent 1px 4px),radial-gradient(circle at 24% 27%,rgba(222,187,126,.055),transparent 31%),radial-gradient(circle at 74% 68%,rgba(0,0,0,.12),transparent 38%);box-shadow:inset 0 0 0 1px rgba(222,178,101,.07),inset 0 -28px 42px rgba(0,0,0,.08);mix-blend-mode:soft-light}
 
 /* Who card: same accepted notebook/loupe composition, but from the true vector source.
-   Material grain is added separately, so there is no raster ghost text. */
+   Photo is present only as blurred texture, so there is no raster ghost text. */
 .ml-native-photo-stage{height:188px;margin-top:auto;display:grid;place-items:center;overflow:hidden;background-image:url("./reference-format-who.svg");border-top:1px solid rgba(197,140,58,.08);box-shadow:inset 0 0 0 1px rgba(197,140,58,.04)}
 .ml-native-photo-stage .ml-who-photo-card{display:none!important}
 
