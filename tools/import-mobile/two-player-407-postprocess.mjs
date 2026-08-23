@@ -53,6 +53,7 @@ const specialPage = () => `<!doctype html>
 
   <script src="../../assets/case-407-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-detective-audit-v4.js?v=${VERSION}"></script>
+  <script src="../../assets/case-407-detective-proof-v4.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-plaque-code-v2.js?v=${VERSION}"></script>
   <script src="../../assets/case-407.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-evidence-v2.js?v=${VERSION}"></script>
