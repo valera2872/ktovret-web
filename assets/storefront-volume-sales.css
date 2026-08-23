@@ -33,3 +33,11 @@
 .ref-volume-close-action{display:flex;flex-direction:column;align-items:stretch;gap:10px}.ref-volume-close-action>strong{display:flex;align-items:baseline;justify-content:center;gap:8px;color:#e3c28c;font:400 24px Georgia,'Times New Roman',serif}.ref-volume-close-action>strong span{color:#d89f45;font-size:29px}.ref-volume-close-action>.ref-btn{width:100%;min-height:48px;box-sizing:border-box}.ref-volume-close-action>a:last-child{color:#a99e90;font-size:11px;text-align:center;text-decoration:none}.ref-volume-close-action>a:last-child:hover{color:#d9bd8c}
 .volume-access-unlocked .ref-volume-close-v4{display:none}
 @media(max-width:700px){.ref-volume-close-v4{grid-template-columns:1fr;margin-left:0;margin-right:0;padding:23px 17px;gap:22px}.ref-volume-close-action>strong{justify-content:flex-start}.ref-volume-close-action>strong span{font-size:27px}}
+
+
+/* Expanded checkout stays in document flow instead of being clipped by the access strip. */
+.ref-access-strip.is-checkout-open{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ref-access-strip.is-checkout-open .ref-access-buy{grid-column:1/-1;padding:18px 24px 22px;border-top:1px solid var(--ref-line-soft)}
+.ref-access-strip.is-checkout-open .ref-checkout{width:100%;max-width:620px;margin:0 auto}
+.ref-access-strip.is-checkout-open .ref-checkout-panel{position:static;inset:auto;width:100%;max-height:none;overflow:visible;margin-top:12px;box-sizing:border-box;box-shadow:0 16px 38px rgba(0,0,0,.28)}
+@media(max-width:700px){.ref-access-strip.is-checkout-open{grid-template-columns:1fr}.ref-access-strip.is-checkout-open .ref-access-buy{grid-column:auto;padding:16px 14px 19px}.ref-access-strip.is-checkout-open .ref-checkout{max-width:none}}

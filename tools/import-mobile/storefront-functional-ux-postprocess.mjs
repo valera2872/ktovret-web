@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.1';
+const VERSION='1.0.2';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/эксперт/i.test(difficulty)?9:/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
 
@@ -13,11 +13,12 @@ function addStyle(html,href){
 function oldFunctionalHeader(root,active=''){
   const nav=[
     ['Игры',`${root}#games`,'games'],
+    ['<span class="ref-nav-coop-full">Игры для двоих</span><span class="ref-nav-coop-short" aria-hidden="true">Для двоих</span>',`${root}detektivnye-igry-dlya-dvoih/`,'coop'],
     ['15 бесплатных дел',`${root}dela/`,'free'],
     ['Первый том',`${root}tom-1/`,'volume'],
     ['Метод',`${root}#method`,'method'],
   ];
-  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="${root}" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация">${nav.map(([label,href,key])=>`<a${active===key?' class="is-active"':''} href="${href}">${label}</a>`).join('')}</nav><a class="ref-login ref-dossier-cta" href="${root}delo/chetyre-vhoda-v-arhiv/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Открыть досье</a></header>`;
+  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="${root}" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация">${nav.map(([label,href,key])=>`<a${key==='coop'?' data-nav-coop':''}${active===key?' class="is-active"':''} href="${href}">${label}</a>`).join('')}</nav><a class="ref-login ref-dossier-cta" href="${root}delo/chetyre-vhoda-v-arhiv/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Открыть досье</a></header>`;
 }
 
 function replaceHeader(html,root,active=''){
@@ -129,14 +130,14 @@ function patchVolume(html,cases){
 
 function patchCoopLanding(html){
   html=addStyle(html,'../assets/storefront-functional-ux.css');
-  html=replaceFooter(replaceHeader(html,'../','games'),'../');
+  html=replaceFooter(replaceHeader(html,'../','coop'),'../');
   html=html.replace('<a class="coop-secondary" href="#short-duel">Короткая дуэль · 10–15 минут</a>','<a class="coop-secondary" href="#coop-how">Как проходит игра ↓</a>');
   html=html.replace('<section class="coop-how">','<section class="coop-how" id="coop-how">');
   html=html.replace('<section class="coop-duel-intro" id="short-duel">','<section class="coop-duel-intro" id="short-duel" data-secondary-format="short-duel">');
   html=html.replace(/(<section class="coop-duel-intro"[\s\S]*?<p>Если у вас только 10–15 минут,[\s\S]*?<\/p>)(\s*<\/section>)/,`$1<a class="ref-btn ref-btn-outline ref-short-duel-cta" href="#duel-room">Перейти к короткой дуэли ↓</a>$2`);
   html=html.replace('<section class="duel-app-shell"','<section class="duel-app-shell" id="duel-room"');
   if(html.includes('coop-hero-actions')&&html.includes('Короткая дуэль · 10–15 минут')) throw new Error('functional UX: confusing duel CTA remains in hero');
-  if(!html.includes('id="coop-how"')||!html.includes('id="duel-room"')) throw new Error('functional UX: co-op anchors missing');
+  if(!html.includes('id="coop-how"')||!html.includes('id="duel-room"')||!html.includes('data-nav-coop class="is-active"')) throw new Error('functional UX: co-op anchors or active navigation missing');
   return html;
 }
 
@@ -153,7 +154,7 @@ export function applyStorefrontFunctionalUx(siteRoot,cases){
   touch('kto-vret/index.html',html=>patchWho(html,cases));
   touch('tom-1/index.html',html=>patchVolume(html,cases));
   touch('detektivnye-igry-dlya-dvoih/index.html',patchCoopLanding);
-  touch('detektivnye-igry-dlya-dvoih/2317/index.html',html=>patchSimpleHeader(html,'../../','games'));
+  touch('detektivnye-igry-dlya-dvoih/2317/index.html',html=>patchSimpleHeader(html,'../../','coop'));
   const casesRoot=path.join(siteRoot,'delo');
   if(fs.existsSync(casesRoot)) for(const entry of fs.readdirSync(casesRoot,{withFileTypes:true})) if(entry.isDirectory()){
     const rel=`delo/${entry.name}/index.html`;
