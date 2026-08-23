@@ -83,3 +83,12 @@
  .ref-who-v4.ref-storefront-material .ref-who-art{padding-left:0;padding-right:0}
  .ref-who-v4.ref-storefront-material .mat-format-who-hero{width:min(310px,90%)}
 }
+
+/* Archive/volume bottom banner: keep the photographic scene, but render all readable copy and the ML seal live. */
+.ref-storefront-v41.ref-storefront-material .ref-banner-copy{min-height:190px;box-sizing:border-box;padding:26px 30px;background:radial-gradient(circle at 18% 20%,rgba(196,145,72,.08),transparent 34%),repeating-linear-gradient(8deg,rgba(223,199,157,.018) 0 1px,transparent 1px 5px),#06131d;display:grid;align-content:center}
+.ref-storefront-v41.ref-storefront-material .ref-banner-copy>*{visibility:visible!important}
+.ref-storefront-v41.ref-storefront-material .ref-banner-logo{min-height:190px;padding:0;background:radial-gradient(circle at 50% 50%,rgba(197,140,58,.06),transparent 57%),#06131d;display:grid;place-items:center;align-content:center}
+.ref-storefront-v41.ref-storefront-material .ref-banner-logo>*{display:block!important}
+.ref-storefront-v41.ref-storefront-material .ref-banner-logo .ref-seal{display:grid!important}
+@media(max-width:980px){.ref-storefront-v41.ref-storefront-material .ref-banner-logo{display:none}}
+@media(max-width:700px){.ref-storefront-v41.ref-storefront-material .ref-banner-copy{min-height:0;padding:24px}}
