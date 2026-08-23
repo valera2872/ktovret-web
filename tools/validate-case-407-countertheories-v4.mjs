@@ -44,7 +44,7 @@ const theories = {
     claim: 'Елена могла принудить Марту вызвать тревогу и пройти маршрут против её воли.',
     blockers: [
       ['Марта заранее спрашивает о доступности служебных дверей', stage2.includes('Марта спрашивала, остаются ли служебные двери доступными')],
-      ['Марта сама инициирует предсобытийный вопрос о сигнале 01:12', stage3.includes('22:48 · Марта') && stage3.includes('Если сигнал уйдёт в 01:12')],
+      ['Марта сама инициирует предсобытийное окно 01:12', stage3.includes('22:48 · Марта') && stage3.includes('Если начинаем в 01:12')],
       ['Марта заранее пишет, что оставляет телефон', stage3.includes('Телефон оставляю')],
       ['за три дня куплены билеты на обеих', stage3.includes('два билета на рейс в Белград на 06:40')],
       ['общий аудит создаёт совместный риск', stage3.includes('обе подписи') || stage3.includes('обеим')]
@@ -76,6 +76,7 @@ expect(data.final.questions.find((q) => q.id === 'sequence')?.answer === 'collus
 console.log(JSON.stringify({
   logicVersion: data.logicVersion,
   proofRevision: data.proofRevision,
+  playtestRevision: data.playtestRevision,
   theoriesRejected: Object.fromEntries(Object.entries(theories).map(([id, theory]) => [id, { claim: theory.claim, independentBlockers: theory.blockers.length }])),
   verdict: 'all four principal counter-theories are contradicted by multiple independent facts'
 }, null, 2));
