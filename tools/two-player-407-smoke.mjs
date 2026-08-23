@@ -26,8 +26,15 @@ const server = http.createServer((request, response) => {
   const filePath = path.resolve(siteRoot, relative);
   if (!filePath.startsWith(`${siteRoot}${path.sep}`) && filePath !== siteRoot) return response.writeHead(403).end('Forbidden');
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return response.writeHead(404).end('Not found');
-  response.setHeader('Content-Type', contentTypes.get(path.extname(filePath).toLowerCase()) || 'application/octet-stream');
-  response.end(fs.readFileSync(filePath));
+  const extension = path.extname(filePath).toLowerCase();
+  response.setHeader('Content-Type', contentTypes.get(extension) || 'application/octet-stream');
+  const content = fs.readFileSync(filePath);
+  if (extension === '.html' && requestUrl.searchParams.get('smoke') === 'case407') {
+    const html = content.toString('utf8').replace('</body>', `<script>window.addEventListener('load',()=>setTimeout(()=>document.querySelector('.case407-catalog')?.scrollIntoView({block:'start'}),150));</script></body>`);
+    response.end(html);
+    return;
+  }
+  response.end(content);
 });
 
 const listen = () => new Promise((resolve, reject) => {
@@ -63,7 +70,7 @@ const pages = [
   },
   {
     name: 'landing407',
-    path: '/detektivnye-igry-dlya-dvoih/#case407-title',
+    path: '/detektivnye-igry-dlya-dvoih/?smoke=case407',
     required: [...v4Markers, 'case407-catalog', 'Номер 407', '50–70 минут', '18 материалов', 'room-407-evidence.webp'],
   },
   {
