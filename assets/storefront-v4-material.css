@@ -7,7 +7,7 @@
 
 .ml-mat-crop{position:relative;overflow:hidden;background:#06131d;isolation:isolate}
 .ml-mat-crop:after,.ml-archive-crop:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(222,178,101,.08);background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(0,0,0,.035));mix-blend-mode:soft-light}
-.ml-mat-crop img,.ml-archive-crop img{position:absolute;left:0;top:0;display:block;max-width:none;height:auto;filter:contrast(1.045) saturate(1.035);transform-origin:0 0;backface-visibility:hidden}
+.ml-mat-crop img,.ml-archive-crop img{position:absolute;left:0;top:0;display:block;max-width:none;height:auto;filter:contrast(1.055) saturate(1.025);transform-origin:0 0;backface-visibility:hidden}
 
 /* Format cards: crop only the material/art part from the accepted v4 mockup.
    Text above and CTA below stay native and crisp. */
@@ -16,16 +16,11 @@
 .ml-material-formats .mat-format-1 img{width:341.3%;transform:translate(-4.1%,-34.0%)}
 .ml-material-formats .mat-format-3 img{width:341.3%;transform:translate(-63.6%,-29.4%)}
 
-/* Кто врёт?: sharp vector structure with a restrained layer of the accepted real paper texture.
-   This avoids the enlarged blurry notebook crop without reverting to a sterile vector-only card. */
-.ml-who-hybrid{position:relative;overflow:hidden;isolation:isolate;background:#06131d;border-top:1px solid rgba(197,140,58,.08)}
-.ml-who-hybrid>img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover;filter:contrast(1.035) saturate(.93) sepia(.05)}
-.ml-who-texture{position:absolute;z-index:2;inset:0;pointer-events:none;background-image:linear-gradient(180deg,rgba(4,12,18,.02),rgba(4,12,18,.08)),url("./reference-home-lower.webp");background-repeat:no-repeat;background-size:100% 100%,360% auto;background-position:center,49% 31%;opacity:.24;mix-blend-mode:multiply;filter:sepia(.18) contrast(1.14) saturate(.78)}
-.ml-who-hybrid:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(197,140,58,.12),inset 0 -30px 55px rgba(0,0,0,.12);background:radial-gradient(circle at 72% 44%,rgba(241,222,185,.05),transparent 28%)}
-.ml-material-formats .ml-who-card-art{height:188px;margin-top:auto}
-.ref-who-v4.ref-storefront-material .ref-who-art{width:min(100%,460px);padding:0 12px 18px}
-.ref-who-v4.ref-storefront-material .ml-who-hero-art{width:min(100%,410px);aspect-ratio:1.45;margin:0 auto;border:1px solid rgba(197,140,58,.42);border-radius:4px;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-.65deg)}
-.ref-who-v4.ref-storefront-material .ml-who-hero-art .ml-who-texture{opacity:.28}
+/* Keep the accepted photographic notebook/loupe at almost native crop scale.
+   The surrounding stage preserves the original card proportion without enlarging the photo. */
+.ml-native-photo-stage{height:188px;margin-top:auto;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 52% 46%,rgba(154,117,69,.08),transparent 46%),#06131d;border-top:1px solid rgba(197,140,58,.08)}
+.ml-native-photo-stage .ml-who-photo-card{width:305px;max-width:88%;height:178px;margin:0;border:1px solid rgba(197,140,58,.10);box-shadow:0 14px 24px rgba(0,0,0,.22)}
+.ml-native-photo-stage .ml-who-photo-card img{width:359.7%;filter:contrast(1.08) saturate(1.02);transform:translate(-34.6%,-29.4%)}
 
 /* Evidence row: retain the photographic evidence, but hide raster headings inherited from the source board. */
 .ml-material-evidence .ref-material{padding-bottom:14px;background:#06141e}
@@ -57,6 +52,11 @@
 .ml-live-badge{right:7px;top:7px;padding:5px 9px;border-radius:3px;background:#173c23;color:#d9edcf;font:10px/1.1 Arial,sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.03)}
 .ml-live-badge.locked{background:#15324e;color:#d8e5ed}
 
+/* Кто врёт? product hero — same accepted photo, kept almost 1:1 with its source crop. */
+.ref-who-v4.ref-storefront-material .ref-who-art{width:min(100%,390px);padding:0 12px 18px}
+.ref-who-v4.ref-storefront-material .mat-format-who-hero{width:310px;max-width:100%;aspect-ratio:1.44;margin:0 auto;border:1px solid rgba(197,140,58,.42);border-radius:4px;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-.55deg)}
+.ref-who-v4.ref-storefront-material .mat-format-who-hero img{width:359.7%;filter:contrast(1.08) saturate(1.02);transform:translate(-34.6%,-29.7%)}
+
 /* Undo v4.1.4's slight desktop enlargement of photographic hero art. */
 @media(min-width:761px){
  .ref-storefront-material .ref-home-art{transform:translate(0,-12px)!important}
@@ -69,9 +69,10 @@
 }
 @media(max-width:700px){
  .ref-storefront-material .ml-material-home-lower{margin-top:8px}
- .ml-material-formats .ml-mat-crop,.ml-material-formats .ml-who-card-art{height:205px}
+ .ml-material-formats .ml-mat-crop,.ml-native-photo-stage{height:205px}
+ .ml-native-photo-stage .ml-who-photo-card{width:min(305px,88%);height:180px}
  .ml-material-evidence .ml-mat-crop{height:118px}
  .ml-material-case .ml-archive-crop{height:170px}
  .ref-who-v4.ref-storefront-material .ref-who-art{padding-left:0;padding-right:0}
- .ref-who-v4.ref-storefront-material .ml-who-hero-art{width:min(94%,360px)}
+ .ref-who-v4.ref-storefront-material .mat-format-who-hero{width:min(310px,90%)}
 }
