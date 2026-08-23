@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.5.1';
+const VERSION = '1.5.2';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/407';
 
@@ -54,6 +54,7 @@ const specialPage = () => `<!doctype html>
   <script src="../../assets/case-407-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-407.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-evidence-v2.js?v=${VERSION}"></script>
+  <script src="../../assets/case-407-evidence-finalize.js?v=${VERSION}"></script>
 </body>
 </html>`;
 
@@ -75,15 +76,9 @@ const catalogCard = `
 const patchLanding = (siteRoot) => {
   const file = path.join(siteRoot, LANDING);
   let html = fs.readFileSync(file, 'utf8');
-  if (!html.includes('case-407.css')) {
-    html = html.replace('</head>', `  <link rel="stylesheet" href="../assets/case-407.css?v=${VERSION}">\n</head>`);
-  }
-  if (!html.includes('case407-catalog')) {
-    html = html.replace(/(\s*<section class="coop-how"[^>]*>)/, `\n${catalogCard}\n$1`);
-  }
-  for (const marker of ['case407-catalog', 'href="407/"', 'Номер 407']) {
-    if (!html.includes(marker)) throw new Error(`407 landing patch missing ${marker}`);
-  }
+  if (!html.includes('case-407.css')) html = html.replace('</head>', `  <link rel="stylesheet" href="../assets/case-407.css?v=${VERSION}">\n</head>`);
+  if (!html.includes('case407-catalog')) html = html.replace(/(\s*<section class="coop-how"[^>]*>)/, `\n${catalogCard}\n$1`);
+  for (const marker of ['case407-catalog', 'href="407/"', 'Номер 407']) if (!html.includes(marker)) throw new Error(`407 landing patch missing ${marker}`);
   fs.writeFileSync(file, html);
 };
 
