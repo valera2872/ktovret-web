@@ -110,13 +110,13 @@
         const strong = road.querySelector('b');
         if (spans[0]) spans[0].textContent = 'CAM G1 · 01:26';
         if (spans[1]) spans[1].textContent = 'ВОДИТЕЛЬ: E. RAEVA';
-        if (strong) strong.textContent = 'BLE: MO-W1 В САЛОНЕ';
+        if (strong) strong.textContent = 'MO-W1: OFFLINE 01:27';
       }
       if (!car.querySelector('[data-driver-proof]')) {
         const proof = document.createElement('div');
         proof.className = 'case407-access-note';
         proof.dataset.driverProof = '1';
-        proof.textContent = '01:31 · городская камера повторно фиксирует Елену за рулём по направлению к аэропорту. Личность водителя подтверждается камерой, а не владельцем машины или цифрового ключа.';
+        proof.textContent = '01:31 · городская камера повторно фиксирует Елену за рулём. Часы Марты теряют сеть отеля сразу после выезда машины; это согласуется с вывозом, но не является самостоятельной идентификацией пассажира.';
         car.appendChild(proof);
       }
     });
