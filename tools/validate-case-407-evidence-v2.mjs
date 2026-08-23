@@ -45,7 +45,7 @@ for (const marker of [
 
 expect(!js.includes('fetch('), 'evidence layer must not depend on external runtime fetches');
 expect(!js.includes('innerHTML = card.textContent'), 'renderer contains unsafe blanket HTML conversion');
-expect(js.includes('replaceAll(\'&\', \'&amp;\')'), 'renderer must HTML-escape evidence text');
+expect(js.includes("replaceAll('&', '&amp;')"), 'renderer must HTML-escape evidence text');
 
 console.log(JSON.stringify({
   case: data.title,
