@@ -1,0 +1,20 @@
+name: Validate Room 407 premium entry v2
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-entry-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate entry treatment
+        run: node tools/validate-case-407-entry-v2.mjs
