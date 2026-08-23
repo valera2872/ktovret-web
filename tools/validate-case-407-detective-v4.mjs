@@ -43,12 +43,14 @@ expect(s2.includes('само по себе не исключает принуж�
 expect(!s2.includes('Он физически не перемещается'), 'Wi-Fi association overclaims exact phone location');
 expect(s2.includes('не даёт точной координаты'), 'Wi-Fi limitation is not stated');
 expect(s2.includes('выведена из продажи'), 'vacant-room opportunity is not established');
-expect(s2.includes('00:51:50') && s2.includes('через восемь секунд после входа Елены'), 'phone placement chronology is not physically closed');
+expect(s2.includes('00:51:50'), 'phone placement timestamp is missing');
+expect(!s2.includes('через восемь секунд после входа Елены'), 'Investigator packet pre-solves the cross-role phone chronology');
 
 for (const marker of ['NS-17', '23:50', 'BR-220']) expect(s3.includes(marker), `sealed sapphire chain missing ${marker}`);
 expect(s3.includes('23:51 сейф с футляром закрыт') && s3.includes('ни одного открытия до события 01:12'), 'Denis early-theft alternative is not excluded by safe log');
 expect(s3.includes('фрагмент пломбы NS-17'), 'trolley does not contain unique seal evidence');
-expect(s3.includes('в 01:14 она физически не могла держать HK-44'), 'HK-44 transfer is not proven by simultaneous CCTV');
+expect(s3.includes('01:14:26') && s3.includes('01:13:58') && s3.includes('01:16:32'), 'HK-44/C4 simultaneity facts are incomplete');
+expect(!s3.includes('Значит, в 01:14 она физически не могла держать HK-44'), 'access report pre-solves the token-transfer deduction');
 expect(s3.includes('за рулём находится Елена Раева'), 'Elena is not personally identified as driver');
 expect(s3.includes('сам по себе не различает человека и предмет'), 'passenger-seat sensor is still overclaimed');
 expect(s3.includes('MO-W1'), 'Marta watch timing is missing from vehicle exit sequence');
@@ -78,8 +80,8 @@ expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'unsupported vehicle Blue
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
 expect(postprocess.includes("const VERSION = '1.6.0'"), 'production case bundle is not v1.6.0');
-for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
-const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js'].map((marker) => postprocess.indexOf(marker));
+for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
+const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js'].map((marker) => postprocess.indexOf(marker));
 expect(order.every((position, i) => position >= 0 && (i === 0 || position > order[i - 1])), 'production script load order is wrong');
 expect(!postprocess.includes('case-407-photo-cleanup-v4.css'), 'obsolete photo overlay is still loaded in production');
 expect(!fs.existsSync(path.join(repo, 'assets/case-407-photo-cleanup-v4.css')), 'obsolete photo overlay file remains');
@@ -91,6 +93,7 @@ console.log(JSON.stringify({
   case: data.title,
   logicVersion: data.logicVersion,
   proofRevision: data.proofRevision,
+  playtestRevision: data.playtestRevision,
   impossibleKeyCard: false,
   opaqueStage1Ids: true,
   neutralStage3: true,
@@ -98,7 +101,8 @@ console.log(JSON.stringify({
   wifiLocationCaveat: true,
   sealedSapphireChain: 'BR-220 + NS-17 + locked safe',
   denisEarlyTheftExcluded: true,
-  tokenTransferProven: true,
+  tokenTransferInferable: true,
+  crossRoleInferencePreSolved: false,
   elenaPersonallyIdentified: true,
   passengerSensorNotIdentity: true,
   b1CameraFovClosed: true,
