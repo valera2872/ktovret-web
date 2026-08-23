@@ -71,7 +71,7 @@ const pages = [
   {
     name: 'landing407',
     path: '/detektivnye-igry-dlya-dvoih/?smoke=case407',
-    required: [...v4Markers, 'case407-catalog', 'Номер 407', '50–70 минут', '18 материалов', 'room-407-evidence.webp'],
+    required: [...v4Markers, 'case407-catalog', 'Номер 407', '50–70 минут', '18 материалов', 'case-407.css'],
   },
   {
     name: 'case407',
