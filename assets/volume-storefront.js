@@ -7,6 +7,8 @@
   const offerAccept = document.querySelector('[data-volume-offer-accept]');
   const privacyAck = document.querySelector('[data-volume-privacy-ack]');
   const note = document.querySelector('[data-volume-payment-note]');
+  const checkoutDetails = document.querySelector('.ref-checkout');
+  const closingBuyLinks = document.querySelectorAll('[data-volume-scroll-buy]');
   if (!buy) return;
 
   const storageKey = cfg.tokenStorageKey || 'mysterylogic:volume1:access-token';
@@ -314,6 +316,16 @@
       syncBuyState();
     }
   };
+
+  for (const link of closingBuyLinks) {
+    link.addEventListener('click', () => {
+      if (checkoutDetails) checkoutDetails.open = true;
+      track('volume_closing_cta_clicked', { price: 99, premium_cases: 85 });
+      window.setTimeout(() => {
+        (email || checkoutDetails?.querySelector('summary'))?.focus({ preventScroll: true });
+      }, 350);
+    });
+  }
 
   if (cfg.checkoutEnabled && cfg.checkoutEndpoint) {
     setNote('Укажите e-mail и подтвердите условия перед переходом к оплате через T‑Bank.');
