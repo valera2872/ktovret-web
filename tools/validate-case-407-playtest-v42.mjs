@@ -35,7 +35,7 @@ for (const marker of [
   'каждый подтвердите тот же вариант на своём экране',
   'Сначала сообщите Аналитику заводской H-код',
   "picks.includes('night_mgr')",
-  'не заменяют независимое доказательство личного действия Елены'
+  'не заменяет независимое доказательство личного действия Елены'
 ]) expect(ux.includes(marker), `co-op UX hardening missing: ${marker}`);
 
 const generator = read('tools/import-mobile/two-player-407-postprocess.mjs');
