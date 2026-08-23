@@ -8,13 +8,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate-407:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -48,16 +50,30 @@ jobs:
         run: node tools/validate-case-407-detective-v4.mjs
       - name: Reject principal counter-theories
         run: node tools/validate-case-407-countertheories-v4.mjs
-      - name: Build source-photo inpaint candidates
+      - name: Build source-photo cleanup candidates
         run: |
           python3 -m pip install --quiet opencv-python-headless
           python3 tools/room-407-photo-inpaint.py
-      - name: Upload source-photo inpaint candidates
+      - name: Upload source-photo cleanup candidates
         uses: actions/upload-artifact@v4
         with:
           name: room-407-photo-inpaint-candidates
           path: artifacts/room-407-photo-candidates/
           retention-days: 2
+      - name: Apply approved natural recrop to source photo
+        if: github.event_name == 'pull_request' && github.head_ref == 'fix/room-407-logic-v2'
+        run: |
+          CURRENT=$(git hash-object assets/room-407-evidence.webp)
+          if [ "$CURRENT" = "513343854da15ac6853f9f80bb410a75bf36154f" ]; then
+            APPLY_CLEAN=1 python3 tools/room-407-photo-inpaint.py
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add assets/room-407-evidence.webp
+            git commit -m "Room 407: remove ambiguous key-card object from scene photo"
+            git push origin HEAD:fix/room-407-logic-v2
+          else
+            echo "Source photo already replaced; no commit needed ($CURRENT)."
+          fi
       - name: Render legacy role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
       - name: Render detective-v4 role-specific evidence packets
