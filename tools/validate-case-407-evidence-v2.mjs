@@ -24,7 +24,7 @@ expect(finalizer.length > 3_000, 'visual evidence finalizer is unexpectedly smal
 expect(css.length > 18_000, 'base visual evidence stylesheet is unexpectedly small');
 expect(overrides.length > 2_000, 'readability override stylesheet is unexpectedly small');
 for (const marker of ['statementArtifact', 'plaqueArtifact', 'logArtifact', 'cctvArtifact', 'registryArtifact', 'planArtifact', 'labArtifact', 'manualArtifact', 'wearableArtifact', 'serviceMapArtifact', 'auditArtifact', 'alibiArtifact', 'accessCameraArtifact', 'telemetryArtifact', 'chatArtifact', 'MutationObserver', 'Расшифровка материала']) expect(js.includes(marker), `renderer missing ${marker}`);
-for (const marker of ['directParagraphs', 'fillArtifact', 'case407-transcript', 'case407-log-table', 'case407-cctv-strip', 'case407-lab-data', 'case407-request-grid', 'data.evidenceFinalized', 'Расшифровка материала']) expect(finalizer.includes(marker), `finalizer missing ${marker}`);
+for (const marker of ['directParagraphs', 'fillArtifact', 'case407-transcript', 'case407-log-table', 'case407-cctv-strip', 'case407-lab-data', 'case407-request-grid', 'dataset.evidenceFinalized', 'Расшифровка материала']) expect(finalizer.includes(marker), `finalizer missing ${marker}`);
 for (const marker of ['.case407-plaque-grid', '.case407-cctv-strip', '.case407-plan-canvas', '.case407-code-line', '.case407-network-grid', '.case407-audit-row', '.case407-access-path', '.case407-car-dash', '.case407-phone', '@media(max-width:760px)']) expect(css.includes(marker), `stylesheet missing ${marker}`);
 for (const marker of ['grid-template-columns:repeat(2,minmax(0,1fr))', 'font-size:11px', '.case407-access-camera']) expect(overrides.includes(marker), `readability overrides missing ${marker}`);
 
