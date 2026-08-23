@@ -18,8 +18,9 @@ if (!chrome) throw new Error(`Chrome/Chromium not found. Checked: ${chromeCandid
 const context = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-data.js'), 'utf8'), context, { filename: 'case-407-data.js' });
 vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-detective-audit-v4.js'), 'utf8'), context, { filename: 'case-407-detective-audit-v4.js' });
+vm.runInNewContext(fs.readFileSync(path.join(siteRoot, 'assets/case-407-detective-proof-v4.js'), 'utf8'), context, { filename: 'case-407-detective-proof-v4.js' });
 const data = context.window.MLCase407;
-if (data.logicVersion !== 4) throw new Error('detective v4 overlay did not apply');
+if (data.logicVersion !== 4 || data.proofRevision !== '4.1') throw new Error('detective v4.1 overlays did not apply');
 
 const esc = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 const evidenceHtml = (item, index) => {
@@ -69,17 +70,21 @@ const assertDom = (key, viewport, dom) => {
     for (const marker of ['H-7C4','H-409','L-409','L-407','S-407']) if (dom.includes(marker)) throw new Error(`${key}/${viewport}: leaked legacy/private marker ${marker}`);
     for (const marker of ['L-6B2','L-4A8','S-8D1','LOCKED']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing opaque marker ${marker}`);
   }
+  if (key === '2-investigator') {
+    if (!dom.includes('00:51:50') || !dom.includes('через восемь секунд после входа Елены')) throw new Error(`${key}/${viewport}: phone placement chronology missing`);
+  }
   if (key === '2-analyst') {
     if (!dom.includes('•••••6') || !dom.includes('•••••7')) throw new Error(`${key}/${viewport}: realistic duress visual missing`);
     if (dom.includes('телефон неподвижен')) throw new Error(`${key}/${viewport}: Wi-Fi visual overclaims exact location`);
     if (!dom.includes('телефон остаётся в зоне WEST-4')) throw new Error(`${key}/${viewport}: Wi-Fi caveat visual missing`);
+    if (!dom.includes('часы: WEST-4 → STAFF-4 → LOADING-B1')) throw new Error(`${key}/${viewport}: network chronology label missing`);
   }
   if (key === '3-investigator') {
-    if (!dom.includes('BR-220 / NS-17') || !dom.includes('23:50')) throw new Error(`${key}/${viewport}: sealed sapphire chain missing`);
+    for (const marker of ['BR-220 / NS-17','23:50','23:51','ни одного открытия до события 01:12']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: sealed sapphire chain missing ${marker}`);
   }
   if (key === '3-analyst') {
     if (!dom.includes('Последние четыре минуты')) throw new Error(`${key}/${viewport}: neutral stage3 title missing`);
-    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1 В САЛОНЕ','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
+    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1 В САЛОНЕ','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА','не попадают в поле камеры погрузочной двери']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
   }
 };
 
@@ -102,5 +107,5 @@ try {
   await new Promise((resolve) => server.close(resolve));
 }
 
-fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ logicVersion:data.logicVersion, chrome, results }, null, 2));
-console.log(JSON.stringify({ logicVersion:data.logicVersion, screenshots:results.length, results }, null, 2));
+fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, chrome, results }, null, 2));
+console.log(JSON.stringify({ logicVersion:data.logicVersion, proofRevision:data.proofRevision, screenshots:results.length, results }, null, 2));
