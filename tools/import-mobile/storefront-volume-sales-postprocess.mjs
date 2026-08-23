@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.1';
+const VERSION='1.0.2';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html){
@@ -18,7 +18,8 @@ function premiumArchives(cases){
     const title=set.title==='Дела дня'?'Ежедневные расследования':(set.title||`Архив ${index+1}`);
     const description=set.description||'Отдельный тип противоречий, показаний и проверяемых версий.';
     const countLabel=`${count} ${count===1?'дело':count<5?'дела':'дел'}`;
-    return `<article class="ref-volume-archive-card"><div class="ref-volume-archive-top"><span>Архив ${String(index+1).padStart(2,'0')}</span><span>${countLabel}</span></div><h3>${esc(title)}</h3><p>${esc(description)}</p></article>`;
+    const crop=`c${index%8+1}`;
+    return `<article class="ref-volume-archive-card"><div class="ref-volume-archive-art ${crop}" data-volume-archive-art="${crop}" role="img" aria-label="Материалы архива ${esc(title)}"><img src="../assets/reference-archive-grid.webp" alt="" width="994" height="497" loading="lazy" decoding="async"></div><div class="ref-volume-archive-copy"><div class="ref-volume-archive-top"><span>Архив ${String(index+1).padStart(2,'0')}</span><span>${countLabel}</span></div><h3>${esc(title)}</h3><p>${esc(description)}</p></div></article>`;
   }).join('');
   return `<section class="ref-volume-archives-v3" data-volume-premium-archives><div class="ref-volume-section-head"><p class="ref-kicker">Продолжение расследований</p><h2>85 дел в тематических архивах</h2><p>Не бесконечная лента карточек, а полноценный первый том: разные типы противоречий, показаний, временных линий и скрытых связей.</p></div><div class="ref-volume-archives-grid">${cards}</div></section>`;
 }

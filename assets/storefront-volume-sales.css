@@ -8,3 +8,14 @@
 .ref-storefront-v41 #volume-access{scroll-margin-top:24px}
 @media(max-width:980px){.ref-volume-included-v3{grid-template-columns:1fr}.ref-volume-archives-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.ref-volume-included-v3,.ref-volume-archives-v3{margin-left:0;margin-right:0;padding:21px 16px}.ref-volume-included-actions{display:grid}.ref-volume-included-actions .ref-btn{width:100%;box-sizing:border-box}.ref-volume-included-stats{grid-template-columns:1fr 1fr}.ref-volume-included-stats article{min-height:104px;padding:18px 14px}.ref-volume-included-stats strong{font-size:27px}.ref-volume-archives-grid{grid-template-columns:1fr}.ref-volume-section-head h2{font-size:29px}}
+
+/* Premium archive cards are physical dossier previews, not flat taxonomy boxes. */
+.ref-volume-archive-card{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:286px}
+.ref-volume-archive-art{position:relative;height:118px;overflow:hidden;flex:0 0 auto;background:#071019;border-bottom:1px solid rgba(197,140,58,.2)}
+.ref-volume-archive-art:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(3,9,14,.05),rgba(3,9,14,.2)),radial-gradient(circle at 72% 18%,rgba(210,161,87,.09),transparent 38%);box-shadow:inset 0 0 0 1px rgba(222,178,101,.05)}
+.ref-volume-archive-art img{position:absolute;left:0;top:0;width:400%;max-width:none;height:auto;filter:contrast(1.07) saturate(.96);transform-origin:0 0}
+.ref-volume-archive-art.c1 img{transform:translate(0,0)}.ref-volume-archive-art.c2 img{transform:translate(-25%,0)}.ref-volume-archive-art.c3 img{transform:translate(-50%,0)}.ref-volume-archive-art.c4 img{transform:translate(-75%,0)}
+.ref-volume-archive-art.c5 img{transform:translate(0,-50%)}.ref-volume-archive-art.c6 img{transform:translate(-25%,-50%)}.ref-volume-archive-art.c7 img{transform:translate(-50%,-50%)}.ref-volume-archive-art.c8 img{transform:translate(-75%,-50%)}
+.ref-volume-archive-copy{padding:16px 19px 19px;display:flex;flex:1;flex-direction:column}
+.ref-volume-archive-copy .ref-volume-archive-top{margin:0}.ref-volume-archive-copy h3{margin:11px 0 8px}.ref-volume-archive-copy p{margin-top:auto}
+@media(max-width:700px){.ref-volume-archive-card{min-height:300px}.ref-volume-archive-art{height:154px}.ref-volume-archive-copy{padding:17px 18px 20px}}
