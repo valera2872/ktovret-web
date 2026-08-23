@@ -1,11 +1,17 @@
 (() => {
   'use strict';
 
-  const PUBLIC_CODE = 'H-7C4';
-  const LEGACY_CODE = 'H-409';
+  const IDENTIFIERS = [
+    { legacy: 'H-409', public: 'H-7C4' },
+    { legacy: 'L-409', public: 'L-6B2' },
+    { legacy: 'L-407', public: 'L-4A8' }
+  ];
   const root = document.querySelector('[data-case407-app]');
 
-  const replaceInValue = (value) => typeof value === 'string' ? value.replaceAll(LEGACY_CODE, PUBLIC_CODE) : value;
+  const replaceInValue = (value) => {
+    if (typeof value !== 'string') return value;
+    return IDENTIFIERS.reduce((text, pair) => text.replaceAll(pair.legacy, pair.public), value);
+  };
   const migrateStory = (value, seen = new WeakSet()) => {
     if (!value || typeof value !== 'object') return value;
     if (seen.has(value)) return value;
@@ -28,11 +34,13 @@
   if (!root) return;
 
   const normalize = (value = '') => String(value).trim().toUpperCase().replace(/[–—−]/g, '-').replace(/\s+/g, '');
+  const publicToLegacy = new Map(IDENTIFIERS.map((pair) => [pair.public, pair.legacy]));
   const translateInputForLegacyRuntime = (event) => {
     const input = event.target?.closest?.('[data-handoff-input][data-handoff-key="stage1"]')
       || root.querySelector('[data-handoff-input][data-handoff-key="stage1"]');
-    if (!input || normalize(input.value) !== PUBLIC_CODE) return;
-    input.value = LEGACY_CODE;
+    if (!input) return;
+    const legacy = publicToLegacy.get(normalize(input.value));
+    if (legacy) input.value = legacy;
   };
 
   root.addEventListener('click', (event) => {
@@ -42,19 +50,36 @@
     if (event.key === 'Enter' && event.target?.matches?.('[data-handoff-input][data-handoff-key="stage1"]')) translateInputForLegacyRuntime(event);
   }, true);
 
+  const sanitizeRegistry = (scope) => {
+    if (!(scope instanceof Element)) return;
+    const registries = scope.matches('.case407-registry') ? [scope] : [...scope.querySelectorAll('.case407-registry')];
+    for (const registry of registries) {
+      registry.querySelectorAll('.case407-registry-row:not(.head)').forEach((row) => {
+        row.classList.remove('focus');
+        const physicalNode = row.querySelector(':scope > b');
+        if (physicalNode) physicalNode.textContent = 'LOCKED';
+      });
+      const physicalHeader = registry.querySelector('.case407-registry-row.head > span:first-child');
+      if (physicalHeader) physicalHeader.textContent = 'PHY NODE';
+      const note = registry.querySelector('.case407-registry-note');
+      if (note) note.textContent = 'Физический узел скрыт до перекрёстной сверки. Для запроса нужен заводской H-код с таблички; один LOCK ID не раскрывает номер комнаты.';
+    }
+  };
+
   const maskLegacyText = (node) => {
     if (!node) return;
     if (node.nodeType === Node.TEXT_NODE) {
-      if (node.nodeValue?.includes(LEGACY_CODE)) node.nodeValue = node.nodeValue.replaceAll(LEGACY_CODE, PUBLIC_CODE);
+      node.nodeValue = replaceInValue(node.nodeValue || '');
       return;
     }
     if (!(node instanceof Element)) return;
     const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
     let textNode = walker.nextNode();
     while (textNode) {
-      if (textNode.nodeValue?.includes(LEGACY_CODE)) textNode.nodeValue = textNode.nodeValue.replaceAll(LEGACY_CODE, PUBLIC_CODE);
+      textNode.nodeValue = replaceInValue(textNode.nodeValue || '');
       textNode = walker.nextNode();
     }
+    sanitizeRegistry(node);
   };
 
   new MutationObserver((mutations) => {
@@ -62,5 +87,9 @@
   }).observe(root, { childList: true, subtree: true });
   maskLegacyText(root);
 
-  window.ML407PlaqueCode = Object.freeze({ publicCode: PUBLIC_CODE, legacyAlias: LEGACY_CODE });
+  window.ML407PlaqueCode = Object.freeze({
+    plaqueCode: 'H-7C4',
+    lockCodes: Object.freeze({ room407: 'L-4A8', room409: 'L-6B2' }),
+    legacyAliasesHidden: true
+  });
 })();
