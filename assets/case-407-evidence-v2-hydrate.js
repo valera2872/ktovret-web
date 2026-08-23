@@ -14,12 +14,22 @@
     ids.forEach((id) => { safe = safe.replaceAll(esc(id), `<mark>${esc(id)}</mark>`); });
     return safe;
   };
+  const requestArtifact = () => `<div class="case407-artifact case407-request-export"><div class="case407-artifact-head"><span>КАРТА СЛУЖЕБНОЙ СЕТИ</span><b>LIMITED SCOPE</b></div><div class="case407-request-grid"></div><div class="case407-redaction"><span>door IDs</span><i>████████</i><span>token</span><i>██████</i><b>требуется срочный запрос доступа</b></div></div>`;
+  const normalizeCurrentMaterial = (card, artifact, title) => {
+    const key = title.toLowerCase();
+    if (key.includes('staff-4') && key.includes('loading-b1') && !artifact.classList.contains('case407-request-export')) {
+      artifact.outerHTML = requestArtifact();
+      return card.querySelector(':scope > .case407-artifact');
+    }
+    return artifact;
+  };
   const hydrate = (card) => {
     if (!(card instanceof HTMLElement) || card.dataset.evidenceHydrated === '1') return;
-    const artifact = card.querySelector(':scope > .case407-artifact');
+    let artifact = card.querySelector(':scope > .case407-artifact');
     if (!artifact) return;
     const materialLines = lines(card);
     const title = card.querySelector(':scope > h3')?.textContent.trim() || '';
+    artifact = normalizeCurrentMaterial(card, artifact, title);
 
     const transcript = artifact.querySelector('.case407-transcript');
     if (transcript && !transcript.children.length) transcript.innerHTML = materialLines.map((line, index) => `<div><span>${String(index + 1).padStart(2, '0')}</span><p>${esc(line.replace(/^«|»$/g, ''))}</p></div>`).join('');
@@ -34,7 +44,7 @@
     if (lab && !lab.children.length) lab.innerHTML = materialLines.slice(0, 3).map((line, index) => `<div><small>OBS-${index + 1}</small><p>${esc(line)}</p></div>`).join('');
 
     const request = artifact.querySelector('.case407-request-grid');
-    if (request && !request.children.length) request.innerHTML = materialLines.slice(0, 3).map((line, index) => `<div><span>${['01:14','01:16','01:19'][index] || `0${index + 1}`}</span><p>${esc(line)}</p><b>${index === 0 ? 'EVENT' : index === 1 ? 'VERTICAL' : 'ZONE'}</b></div>`).join('');
+    if (request && !request.children.length) request.innerHTML = materialLines.slice(0, 3).map((line, index) => `<div><span>${['01:14','01:16','01:19'][index] || `0${index + 1}`}</span><p>${esc(line)}</p><b>${index === 0 ? 'ZONE' : index === 1 ? 'VERTICAL' : 'ACCESS'}</b></div>`).join('');
 
     if (!card.querySelector(':scope > .case407-evidence-notes') && materialLines.length) {
       const details = document.createElement('details');
