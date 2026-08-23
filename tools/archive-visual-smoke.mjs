@@ -43,19 +43,20 @@ const pages=[
 const port=await listen();const results=[];
 async function render(page,viewport){
   const url=`http://127.0.0.1:${port}${page.path}`;
-  const scale=viewport.scale||1;
-  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--force-device-scale-factor=${scale}`,`--window-size=${viewport.width},${viewport.height}`,'--virtual-time-budget=3800'];
+  const captureViewport=page.name==='volume-checkout'&&viewport.name==='mobile'?{...viewport,height:1400}:viewport;
+  const scale=captureViewport.scale||1;
+  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--force-device-scale-factor=${scale}`,`--window-size=${captureViewport.width},${captureViewport.height}`,'--virtual-time-budget=3800'];
   const screenshot=path.join(outDir,`${page.name}-${viewport.name}.png`);
   await runChrome([...common,`--screenshot=${screenshot}`,url]);
   const{stdout:dom}=await runChrome([...common,'--dump-dom',url]);
   const dimensions=pngDimensions(screenshot);
-  const expectedWidth=viewport.width*scale,expectedHeight=viewport.height*scale;
+  const expectedWidth=captureViewport.width*scale,expectedHeight=captureViewport.height*scale;
   if(dimensions.width!==expectedWidth||dimensions.height!==expectedHeight)throw new Error(`${page.name}/${viewport.name}: unexpected screenshot dimensions ${dimensions.width}x${dimensions.height}, expected ${expectedWidth}x${expectedHeight}`);
   if(dimensions.bytes<(scale===1?18000:60000))throw new Error(`${page.name}/${viewport.name}: screenshot suspiciously small (${dimensions.bytes})`);
   for(const marker of page.required)if(!dom.includes(marker)){const qa=dom.match(/data-ml-(?:checkout|case)-(?:config|elements|ready|open)="[^"]*"/g)?.join(', ')||'no QA markers';throw new Error(`${page.name}/${viewport.name}: missing marker ${marker}; ${qa}`)}
   for(const marker of page.forbidden||[])if(dom.includes(marker))throw new Error(`${page.name}/${viewport.name}: forbidden marker remains: ${marker}`);
   if(dom.includes('ReferenceError')||dom.includes('TypeError:'))throw new Error(`${page.name}/${viewport.name}: runtime failure detected`);
-  results.push({page:page.name,path:page.path,viewport:viewport.name,scale,width:dimensions.width,height:dimensions.height,cssWidth:viewport.width,cssHeight:viewport.height,bytes:dimensions.bytes,screenshot:path.relative(siteRoot,screenshot)});
+  results.push({page:page.name,path:page.path,viewport:viewport.name,scale,width:dimensions.width,height:dimensions.height,cssWidth:captureViewport.width,cssHeight:captureViewport.height,bytes:dimensions.bytes,screenshot:path.relative(siteRoot,screenshot)});
 }
 try{
   for(const page of pages)for(const viewport of viewports)await render(page,viewport);
