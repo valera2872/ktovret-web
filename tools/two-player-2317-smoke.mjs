@@ -54,7 +54,7 @@ const viewports = [
   { name: 'mobile', width: 390, height: 844 },
   { name: 'desktop', width: 1440, height: 1100 },
 ];
-const v4Markers = ['data-coop-v4="1.0.0"', 'coop-v4.css', 'class="ref-header ref-wrap"', 'class="ref-footer ref-wrap"'];
+const v4Markers = ['data-coop-v4="1.0.0"', 'coop-v4.css', 'data-functional-nav="v2"', 'ref-functional-footer'];
 const pages = [
   {
     name: 'landing',
