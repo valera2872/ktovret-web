@@ -1,0 +1,66 @@
+name: Validate Mystery Logic Room 407
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-407:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate source syntax
+        run: |
+          node --check assets/case-407-data.js
+          node --check assets/case-407.js
+          node --check tools/import-mobile/two-player-407-postprocess.mjs
+          node --check tools/validate-case-407.mjs
+          node --check tools/two-player-407-smoke.mjs
+      - name: Validate product and fair-play boundary
+        run: node tools/validate-case-407.mjs
+      - name: Live room contract smoke
+        env:
+          ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-407
+        run: |
+          node <<'NODE'
+          const { randomBytes } = require('node:crypto');
+          (async () => {
+            const endpoint = process.env.ENDPOINT;
+            const origin = 'https://mysterylogic.com';
+            const k1 = randomBytes(24).toString('hex');
+            const k2 = randomBytes(24).toString('hex');
+            const post = async (body, expected = 200) => {
+              const response = await fetch(endpoint, {
+                method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(body),
+              });
+              const text = await response.text();
+              let payload = {};
+              try { payload = JSON.parse(text); } catch {}
+              if (response.status !== expected) throw new Error(`${body.action}: HTTP ${response.status} ${text}`);
+              return payload;
+            };
+            const created = await post({ action: 'create', browserKey: k1, playerName: 'CI Investigator 407' }, 201);
+            if (created.me?.role !== 'creator' || created.room?.caseId !== 'special:407') throw new Error('create contract mismatch');
+            const code = created.room.code;
+            const preview = await post({ action: 'preview', browserKey: k2, code });
+            if (preview.roomFull || !preview.creatorName) throw new Error('preview contract mismatch');
+            const joined = await post({ action: 'join', browserKey: k2, code, playerName: 'CI Analyst 407' });
+            if (!joined.bothJoined || joined.me?.role !== 'guest') throw new Error('join contract mismatch');
+            await post({ action: 'start', browserKey: k1, code });
+            await post({ action: 'start', browserKey: k2, code });
+            const first = await post({ action: 'complete', browserKey: k1, code, elapsedSeconds: 180, hintsUsed: 0, attempts: 1, firstAnswerCorrect: true });
+            if (first.bothCompleted) throw new Error('room completed before second player');
+            const second = await post({ action: 'complete', browserKey: k2, code, elapsedSeconds: 210, hintsUsed: 1, attempts: 2, firstAnswerCorrect: false });
+            if (!second.bothCompleted || second.results?.guest?.name !== 'CI Analyst 407') throw new Error('result contract mismatch');
+            console.log(`coop-407 live contract passed for room ${code}`);
+          })().catch((error) => { console.error(error); process.exit(1); });
+          NODE

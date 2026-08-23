@@ -155,6 +155,7 @@ export function applyStorefrontFunctionalUx(siteRoot,cases){
   touch('tom-1/index.html',html=>patchVolume(html,cases));
   touch('detektivnye-igry-dlya-dvoih/index.html',patchCoopLanding);
   touch('detektivnye-igry-dlya-dvoih/2317/index.html',html=>patchSimpleHeader(html,'../../','coop'));
+  touch('detektivnye-igry-dlya-dvoih/407/index.html',html=>patchSimpleHeader(html,'../../','coop'));
   const casesRoot=path.join(siteRoot,'delo');
   if(fs.existsSync(casesRoot)) for(const entry of fs.readdirSync(casesRoot,{withFileTypes:true})) if(entry.isDirectory()){
     const rel=`delo/${entry.name}/index.html`;
