@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/эксперт/i.test(difficulty)?9:/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
 
@@ -78,12 +78,25 @@ function catalogTools(cases){
   return `<section class="ref-catalog-progress" data-catalog-progress><div class="ref-progress-copy"><small>Ваш прогресс</small><strong data-catalog-progress-text>0 из 15 бесплатных дел раскрыто</strong><div class="ref-progress-track"><span data-catalog-progress-fill></span></div></div><div class="ref-progress-actions"><a class="ref-btn ref-btn-outline" data-catalog-continue href="../${esc(first?.path||'dela/')}">Следующее нераскрытое дело</a><button class="ref-btn ref-btn-outline" data-catalog-random type="button">Случайное дело</button></div></section><div class="ref-archive-bar ref-functional-catalog-bar"><div><h2>15 бесплатных дел</h2><span data-catalog-result-count>Показано: 15 из 15</span></div><div class="ref-filters"><input class="ref-search" id="case-search" type="search" placeholder="Поиск по делам" aria-label="Поиск по делам"><select class="ref-select" id="case-difficulty" aria-label="Сложность">${options(difficulties,'Любая сложность')}</select><select class="ref-select" id="case-category" aria-label="Категория">${options(categories,'Все категории')}</select><label class="ref-unsolved"><input id="case-unsolved" type="checkbox"> Только нераскрытые</label></div></div>`;
 }
 
+function premiumArchiveCards(cases){
+  const premium=cases.filter(item=>item.access==='premium'&&item.set?.id);
+  const sets=[...new Map(premium.map(item=>[item.set.id,item.set])).values()].sort((a,b)=>(a.order||0)-(b.order||0)||String(a.title||'').localeCompare(String(b.title||''),'ru'));
+  const cards=sets.map((set,index)=>{
+    const count=premium.filter(item=>item.set.id===set.id).length;
+    const title=set.title==='Дела дня'?'Ежедневные расследования':(set.title||`Архив ${index+1}`);
+    const description=set.description||'Отдельный тип логических противоречий и проверяемых версий.';
+    const countLabel=`${count} ${count===1?'дело':count<5?'дела':'дел'}`;
+    return `<article class="volume-archive-card"><div class="volume-archive-head"><span class="volume-lock" aria-hidden="true"></span><span class="volume-archive-kicker">Архив ${String(index+1).padStart(2,'0')}</span></div><h3>${esc(title)}</h3><p>${esc(description)}</p><strong>${countLabel} · в Первом томе</strong></article>`;
+  }).join('');
+  return `<section class="ref-premium-archives" data-premium-archive-summaries><div class="ref-premium-archives-head"><p class="ref-kicker">Продолжение</p><h2>Архивы первого тома</h2><p>Ещё 85 дел — одной покупкой. Они собраны в тематические архивы; сами материалы и решения остаются закрыты до получения доступа.</p></div><div class="ref-premium-archive-grid">${cards}</div><div class="ref-premium-archives-action"><a class="ref-btn ref-btn-primary" href="../tom-1/">Посмотреть Первый том →</a></div></section>`;
+}
+
 function patchCatalog(html,cases){
   html=addStyle(html,'../assets/storefront-functional-ux.css');
   html=replaceFooter(replaceHeader(html,'../','free'),'../');
-  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<\/div>\s*<div class="ref-case-grid ml-material-archive"[\s\S]*?<\/div>\s*<details class="ref-catalog-extra">[\s\S]*?<\/details>/,`${catalogTools(cases)}${freeGrid(cases,{root:'../',interactive:true})}<section class="ref-catalog-volume-v2"><div><p class="ref-kicker">Продолжение</p><h2>Архивы первого тома</h2><p>Ещё 85 дел собраны в тематические архивы и открываются одной покупкой без подписки.</p></div><a class="ref-btn ref-btn-primary" href="../tom-1/">Посмотреть Первый том →</a></section><span class="ref-catalog-extra ref-functional-compat-marker" hidden aria-hidden="true"></span>`);
+  html=html.replace(/<div class="ref-archive-bar">[\s\S]*?<\/div>\s*<div class="ref-case-grid ml-material-archive"[\s\S]*?<\/div>\s*<details class="ref-catalog-extra">[\s\S]*?<\/details>/,`${catalogTools(cases)}${freeGrid(cases,{root:'../',interactive:true})}${premiumArchiveCards(cases)}<span class="ref-catalog-extra ref-functional-compat-marker" hidden aria-hidden="true"></span>`);
   html=html.replace(/<div class="ref-compat" aria-hidden="true">[\s\S]*?<\/div>/,'');
-  if(!html.includes('data-free-case-count="15"')||!html.includes('data-catalog-progress')||html.includes('<details class="ref-catalog-extra"')) throw new Error('functional UX: catalog patch failed');
+  if(!html.includes('data-free-case-count="15"')||!html.includes('data-catalog-progress')||!html.includes('data-premium-archive-summaries')||html.includes('<details class="ref-catalog-extra"')) throw new Error('functional UX: catalog patch failed');
   return html;
 }
 
@@ -128,6 +141,7 @@ function patchCoopLanding(html){
 }
 
 function patchSimpleHeader(html,root,active=''){return addStyle(replaceFooter(replaceHeader(html,root,active),root),`${root}assets/storefront-functional-ux.css`);}
+function patchCaseHeader(html){return patchSimpleHeader(html,'../../','free').replace('class="ref-header ref-wrap ref-functional-header"','class="ref-header ref-wrap ref-functional-header ktv-ref-header"');}
 
 function write(file,transform){if(!fs.existsSync(file)) return false;const before=fs.readFileSync(file,'utf8');const after=transform(before);fs.writeFileSync(file,after);return true;}
 
@@ -147,7 +161,7 @@ export function applyStorefrontFunctionalUx(siteRoot,cases){
     if(!fs.existsSync(file)) continue;
     const html=fs.readFileSync(file,'utf8');
     if(!html.includes('ktv-case-v4')) continue;
-    fs.writeFileSync(file,patchSimpleHeader(html,'../../','free'));
+    fs.writeFileSync(file,patchCaseHeader(html));
     touched.push(rel);
   }
   for(const rel of touched){
