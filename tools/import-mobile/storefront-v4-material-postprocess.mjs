@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.3';
+const VERSION='1.0.4';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
 
@@ -82,7 +82,8 @@ function patchWho(siteRoot,cases){
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'../assets/storefront-v4-material.css'),'ref-storefront-material');
   const hero=/<div class="ref-who-crop"><img src="\.\.\/assets\/reference-home-lower\.webp"[\s\S]*?<\/div>/;
-  if(hero.test(html)) html=html.replace(hero,materialCrop('../assets/reference-home-lower.webp','mat-format-who-hero ml-who-photo-hero','Блокнот с показаниями и лупа','eager').replace('class="ml-mat-crop mat-format-who-hero ml-who-photo-hero"','class="ml-mat-crop mat-format-who-hero ml-who-photo-hero" data-reference-asset="who-approved-art"'));
+  const sharpWhoHero='<div class="ml-native-photo-stage mat-format-who-hero" data-reference-asset="who-approved-art" role="img" aria-label="Блокнот с показаниями и лупа" style="height:auto;aspect-ratio:1.44"></div>';
+  if(hero.test(html)) html=html.replace(hero,sharpWhoHero);
   html=replaceArchiveSnapshot(html,materialArchiveGrid(cases,{premium:true}));
   if(!html.includes('data-reference-asset="who-approved-art"')||!html.includes('data-material-ui="archive-grid"')) throw new Error('material v4: who page patch failed');
   fs.writeFileSync(file,html);
