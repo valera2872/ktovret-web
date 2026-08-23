@@ -19,3 +19,9 @@
 .ref-volume-archive-copy{padding:16px 19px 19px;display:flex;flex:1;flex-direction:column}
 .ref-volume-archive-copy .ref-volume-archive-top{margin:0}.ref-volume-archive-copy h3{margin:11px 0 8px}.ref-volume-archive-copy p{margin-top:auto}
 @media(max-width:700px){.ref-volume-archive-card{min-height:300px}.ref-volume-archive-art{height:154px}.ref-volume-archive-copy{padding:17px 18px 20px}}
+
+/* A compact try-before-buy bridge replaces the duplicated 15/85/99/100 statistics. */
+.ref-volume-trial-v4{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:center;margin:24px 8px 30px;padding:24px 30px;border:1px solid var(--ref-line);border-radius:5px;background:radial-gradient(circle at 88% 15%,rgba(197,140,58,.09),transparent 22rem),linear-gradient(145deg,#071823,#06131d 68%)}
+.ref-volume-trial-copy h2{margin:7px 0 8px;color:#e5d1ad;font:400 clamp(27px,2.8vw,37px)/1.08 Georgia,'Times New Roman',serif}.ref-volume-trial-copy>p:last-child{max-width:700px;margin:0;color:#b9afa1;font-size:13px;line-height:1.6}
+.ref-volume-trial-v4>.ref-btn{min-width:240px;min-height:46px;box-sizing:border-box}
+@media(max-width:700px){.ref-volume-trial-v4{grid-template-columns:1fr;margin-left:0;margin-right:0;padding:21px 16px;gap:18px}.ref-volume-trial-v4>.ref-btn{width:100%;min-width:0;box-sizing:border-box}}
