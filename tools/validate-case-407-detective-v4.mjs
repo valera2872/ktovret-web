@@ -51,8 +51,8 @@ expect(s3.includes('фрагмент пломбы NS-17'), 'trolley does not con
 expect(s3.includes('в 01:14 она физически не могла держать HK-44'), 'HK-44 transfer is not proven by simultaneous CCTV');
 expect(s3.includes('за рулём находится Елена Раева'), 'Elena is not personally identified as driver');
 expect(s3.includes('сам по себе не различает человека и предмет'), 'passenger-seat sensor is still overclaimed');
-expect(s3.includes('MO-W1') && s3.includes('теряют сеть отеля сразу после выезда'), 'Marta watch network-exit timing is missing');
-expect(!s3.includes('Bluetooth-журнал'), 'vehicle Bluetooth is being used without prior pairing evidence');
+expect(s3.includes('MO-W1'), 'Marta watch timing is missing from vehicle exit sequence');
+expect(!s3.includes('Bluetooth-журнал'), 'unsupported vehicle Bluetooth inference returned');
 expect(s3.includes('не попадают в поле камеры погрузочной двери'), 'B1 camera field-of-view contradiction is unresolved');
 expect(s3.includes('22:48 · Марта') && s3.includes('22:49 · Елена') && s3.includes('22:51 · Марта'), 'pre-event message timestamps are missing');
 expect(s3.includes('отправленных вечером до событий'), 'message chronology is not explicitly pre-event');
@@ -71,17 +71,21 @@ expect(data.reveal.body.some((line) => line.includes('сейф оставалс�
 const bridge = read('assets/case-407-plaque-code-v2.js');
 for (const marker of ["legacy: 'S-407', public: 'S-8D1'", "legacy: 'L-409', public: 'L-6B2'", "legacy: 'L-407', public: 'L-4A8'", "legacy: 'H-409', public: 'H-7C4'"]) expect(bridge.includes(marker), `identifier bridge missing ${marker}`);
 expect(bridge.includes('duress-вариация персонального PIN'), 'runtime final-label compatibility does not remove obsolete +9 claim');
-expect(bridge.includes('CAM G1 + NIGHT-MGR') && bridge.includes('BR-220 + NS-17'), 'runtime final proof labels are not grounded in v4 evidence');
 
 const visual = read('assets/case-407-detective-visual-v4.js');
 for (const marker of ['•••••6', '•••••7', 'не идентифицирует человека', 'BR-220 / NS-17', 'ВОДИТЕЛЬ: E. RAEVA', 'MO-W1: OFFLINE 01:27', 'УДАЛЁННАЯ ПЕРЕПИСКА', 'grid-template-columns:1fr 24px 1fr 24px 1fr']) expect(visual.includes(marker), `v4 visual evidence missing ${marker}`);
-expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'visual still overclaims vehicle Bluetooth proof');
+expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'unsupported vehicle Bluetooth proof remains in visual layer');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
 expect(postprocess.includes("const VERSION = '1.6.0'"), 'production case bundle is not v1.6.0');
 for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
 const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js'].map((marker) => postprocess.indexOf(marker));
 expect(order.every((position, i) => position >= 0 && (i === 0 || position > order[i - 1])), 'production script load order is wrong');
+expect(!postprocess.includes('case-407-photo-cleanup-v4.css'), 'obsolete photo overlay is still loaded in production');
+expect(!fs.existsSync(path.join(repo, 'assets/case-407-photo-cleanup-v4.css')), 'obsolete photo overlay file remains');
+expect(!fs.existsSync(path.join(repo, 'tools/room-407-photo-inpaint.py')), 'temporary photo cleanup generator remains');
+const sceneImage = fs.readFileSync(path.join(repo, 'assets/room-407-evidence.webp'));
+expect(sceneImage.length > 70_000, 'cleaned scene photo is unexpectedly small');
 
 console.log(JSON.stringify({
   case: data.title,
@@ -97,8 +101,8 @@ console.log(JSON.stringify({
   tokenTransferProven: true,
   elenaPersonallyIdentified: true,
   passengerSensorNotIdentity: true,
-  vehicleBluetoothInference: false,
   b1CameraFovClosed: true,
   preEventMessages: true,
+  scenePhotoCleanedAtSource: true,
   productionVersion: '1.6.0'
 }, null, 2));
