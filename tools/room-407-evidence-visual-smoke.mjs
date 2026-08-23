@@ -41,7 +41,12 @@ const runChrome = (args) => new Promise((resolve, reject) => { const child = spa
 const dimensions = (file) => { const bytes = fs.readFileSync(file); return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), bytes: bytes.length }; };
 const viewports = [{ name:'desktop', width:1440, height:1900 }, { name:'mobile', width:390, height:2200 }];
 const expected = { '1-investigator':['case407-evidence-photo','case407-statement','case407-plaque-grid'], '1-analyst':['case407-terminal','case407-cctv','case407-registry'], '2-investigator':['case407-floorplan','case407-statement','case407-lab'], '2-analyst':['case407-manual','case407-network','case407-request-export'], '3-investigator':['case407-lab','case407-audit','case407-alibi'], '3-analyst':['case407-access','case407-car','case407-chat'] };
-const forbidden = { '1-investigator':['L-409','H-409'], '1-analyst':['H-409','H-7C4'], '3-investigator':['HK-44'], '3-analyst':['BR-220'] };
+const forbidden = {
+  '1-investigator':['L-409','L-407','H-409','L-6B2','L-4A8'],
+  '1-analyst':['H-409','H-7C4','L-409','L-407'],
+  '3-investigator':['HK-44'],
+  '3-analyst':['BR-220']
+};
 const results = [];
 try {
   for (const stage of data.stages) for (const role of ['investigator','analyst']) {
@@ -54,6 +59,8 @@ try {
       for (const marker of expected[key]) if (!dom.includes(marker)) throw new Error(`${key}/${viewport.name}: missing visual marker ${marker}`);
       for (const marker of forbidden[key] || []) if (dom.includes(marker)) throw new Error(`${key}/${viewport.name}: private or legacy marker leaked: ${marker}`);
       if (key === '1-investigator' && !dom.includes('H-7C4')) throw new Error(`${key}/${viewport.name}: opaque plaque code H-7C4 is missing`);
+      if (key === '1-analyst' && (!dom.includes('L-6B2') || !dom.includes('L-4A8'))) throw new Error(`${key}/${viewport.name}: opaque lock IDs are missing`);
+      if (key === '1-analyst' && !dom.includes('LOCKED')) throw new Error(`${key}/${viewport.name}: registry exposes physical node before crosscheck`);
       if ((dom.match(/case407-materialized/g) || []).length < 3 || (dom.match(/data-evidence-finalized="1"/g) || []).length < 3) throw new Error(`${key}/${viewport.name}: fewer than 3 finalized evidence cards`);
       if ((dom.match(/case407-evidence-notes/g) || []).length < 3 || !dom.includes('Расшифровка материала')) throw new Error(`${key}/${viewport.name}: interpretation is not collapsed on all cards`);
       if (!dom.includes('data-overflow="false"')) throw new Error(`${key}/${viewport.name}: horizontal overflow detected or not measured`);
