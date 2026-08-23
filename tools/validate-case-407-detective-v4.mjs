@@ -51,7 +51,8 @@ expect(s3.includes('фрагмент пломбы NS-17'), 'trolley does not con
 expect(s3.includes('в 01:14 она физически не могла держать HK-44'), 'HK-44 transfer is not proven by simultaneous CCTV');
 expect(s3.includes('за рулём находится Елена Раева'), 'Elena is not personally identified as driver');
 expect(s3.includes('сам по себе не различает человека и предмет'), 'passenger-seat sensor is still overclaimed');
-expect(s3.includes('MO-W1'), 'Marta watch is not independently associated with vehicle');
+expect(s3.includes('MO-W1') && s3.includes('теряют сеть отеля сразу после выезда'), 'Marta watch network-exit timing is missing');
+expect(!s3.includes('Bluetooth-журнал'), 'vehicle Bluetooth is being used without prior pairing evidence');
 expect(s3.includes('не попадают в поле камеры погрузочной двери'), 'B1 camera field-of-view contradiction is unresolved');
 expect(s3.includes('22:48 · Марта') && s3.includes('22:49 · Елена') && s3.includes('22:51 · Марта'), 'pre-event message timestamps are missing');
 expect(s3.includes('отправленных вечером до событий'), 'message chronology is not explicitly pre-event');
@@ -70,9 +71,11 @@ expect(data.reveal.body.some((line) => line.includes('сейф оставалс�
 const bridge = read('assets/case-407-plaque-code-v2.js');
 for (const marker of ["legacy: 'S-407', public: 'S-8D1'", "legacy: 'L-409', public: 'L-6B2'", "legacy: 'L-407', public: 'L-4A8'", "legacy: 'H-409', public: 'H-7C4'"]) expect(bridge.includes(marker), `identifier bridge missing ${marker}`);
 expect(bridge.includes('duress-вариация персонального PIN'), 'runtime final-label compatibility does not remove obsolete +9 claim');
+expect(bridge.includes('CAM G1 + NIGHT-MGR') && bridge.includes('BR-220 + NS-17'), 'runtime final proof labels are not grounded in v4 evidence');
 
 const visual = read('assets/case-407-detective-visual-v4.js');
-for (const marker of ['•••••6', '•••••7', 'не идентифицирует человека', 'BR-220 / NS-17', 'ВОДИТЕЛЬ: E. RAEVA', 'MO-W1 В САЛОНЕ', 'УДАЛЁННАЯ ПЕРЕПИСКА', 'grid-template-columns:1fr 24px 1fr 24px 1fr']) expect(visual.includes(marker), `v4 visual evidence missing ${marker}`);
+for (const marker of ['•••••6', '•••••7', 'не идентифицирует человека', 'BR-220 / NS-17', 'ВОДИТЕЛЬ: E. RAEVA', 'MO-W1: OFFLINE 01:27', 'УДАЛЁННАЯ ПЕРЕПИСКА', 'grid-template-columns:1fr 24px 1fr 24px 1fr']) expect(visual.includes(marker), `v4 visual evidence missing ${marker}`);
+expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'visual still overclaims vehicle Bluetooth proof');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
 expect(postprocess.includes("const VERSION = '1.6.0'"), 'production case bundle is not v1.6.0');
@@ -94,6 +97,7 @@ console.log(JSON.stringify({
   tokenTransferProven: true,
   elenaPersonallyIdentified: true,
   passengerSensorNotIdentity: true,
+  vehicleBluetoothInference: false,
   b1CameraFovClosed: true,
   preEventMessages: true,
   productionVersion: '1.6.0'
