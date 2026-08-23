@@ -1,0 +1,21 @@
+/* Room 407 — remove the card-like ambiguity from the false-room photograph without altering the source WebP. */
+.case407-body .case407-evidence-photo{position:relative;isolation:isolate}
+.case407-body .case407-evidence-photo::after{
+  content:"";
+  position:absolute;
+  left:78.2%;
+  top:73.8%;
+  width:7.2%;
+  height:5.4%;
+  z-index:2;
+  pointer-events:none;
+  border-radius:2px;
+  background:linear-gradient(150deg,rgba(38,22,15,.92),rgba(61,34,21,.9) 55%,rgba(31,18,13,.94));
+  box-shadow:0 2px 7px rgba(0,0,0,.28),inset 0 0 8px rgba(255,190,120,.04);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  transform:rotate(-2deg) skewX(-8deg);
+}
+@media(max-width:760px){
+  .case407-body .case407-evidence-photo::after{left:78%;top:73.5%;width:7.6%;height:5.8%}
+}
