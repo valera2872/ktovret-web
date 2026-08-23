@@ -27,7 +27,7 @@ for (const marker of [
   'accessArtifact', 'telemetryArtifact', 'chatArtifact', 'MutationObserver', 'Комментарий эксперта'
 ]) expect(js.includes(marker), `renderer missing ${marker}`);
 
-for (const marker of ['evidenceHydrated', ':scope > p', 'case407-log-row', 'case407-cctv-frame', 'case407-lab-data', 'case407-request-grid', 'КАРТА СЛУЖЕБНОЙ СЕТИ']) {
+for (const marker of ['evidenceHydrated', ':scope > p', 'case407-log-row', 'case407-cctv-frame', 'case407-lab-data', 'case407-request-grid', 'КАРТА СЛУЖЕБНОЙ СЕТИ', 'СЛУЖЕБНЫЙ ДОСТУП + CAM B1']) {
   expect(hydrate.includes(marker), `hydration layer missing ${marker}`);
 }
 
@@ -46,7 +46,7 @@ for (const marker of [
   'Павел Зорин', 'Осмотр двери', 'Фрагмент журнала замков', 'Камера C4', 'Реестр оборудования',
   'Архивный план', 'Нина Круглова', 'Чай и стекло', 'Инструкция сейфа S-400', 'Сеть носимых устройств',
   'Карта служебной сети', 'Бельевая тележка', 'Внутренняя проверка', 'Проверка подозреваемого',
-  'Служебные события доступа', 'Служебная камера B1', 'Телематика автомобиля', 'Удалённый черновик'
+  'Служебный доступ + камера B1', 'Телематика автомобиля', 'Удалённый черновик'
 ]) expect(story.includes(marker), `current story no longer contains material expected by renderer: ${marker}`);
 
 expect(!js.includes('fetch(') && !hydrate.includes('fetch('), 'evidence layer must not depend on external runtime fetches');
