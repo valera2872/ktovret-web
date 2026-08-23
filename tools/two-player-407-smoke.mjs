@@ -30,7 +30,9 @@ const server = http.createServer((request, response) => {
   response.setHeader('Content-Type', contentTypes.get(extension) || 'application/octet-stream');
   const content = fs.readFileSync(filePath);
   if (extension === '.html' && requestUrl.searchParams.get('smoke') === 'case407') {
-    const html = content.toString('utf8').replace('</body>', `<script>window.addEventListener('load',()=>setTimeout(()=>document.querySelector('.case407-catalog')?.scrollIntoView({block:'start'}),150));</script></body>`);
+    let html = content.toString('utf8');
+    const card = html.match(/<section class="case407-catalog"[\s\S]*?<\/section>/)?.[0] || '';
+    if (card) html = html.replace(card, '').replace(/(<main[^>]*>)/, `$1${card}`);
     response.end(html);
     return;
   }
