@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.5';
+const VERSION='1.0.6';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html){
@@ -28,6 +28,10 @@ function includedBlock(){
   return `<span data-reference-asset="archive-grid" class="ref-volume-archive-compat" hidden aria-hidden="true"></span><section class="ref-volume-trial-v4" data-volume-sales-v3 data-free-case-count="15"><div class="ref-volume-trial-copy"><p class="ref-kicker">Сначала попробуйте</p><h2>15 полноценных дел доступны бесплатно.</h2><p>Раскройте несколько дел и убедитесь, что формат вам подходит. Покупка нужна только для продолжения ещё на 85 расследований.</p></div><a class="ref-btn ref-btn-outline" href="../dela/">Открыть бесплатные дела →</a></section>`;
 }
 
+function closingCta(){
+  return `<section class="ref-volume-close-v4" data-volume-closing-cta><div class="ref-volume-close-copy"><p class="ref-kicker">Первый том</p><h2>Расследование продолжается.</h2><p>Ещё 85 дел уже собраны в архив. Одна покупка — 99 ₽, без подписки и повторных списаний.</p></div><div class="ref-volume-close-action"><strong>85 новых дел <span>за 99 ₽</span></strong><a class="ref-btn ref-btn-primary" href="#volume-access" data-volume-scroll-buy>Получить 85 дел за 99 ₽ ↑</a><a href="../dela/">Сначала попробовать бесплатно</a></div></section>`;
+}
+
 function patchVolume(html,cases){
   let out=addStyle(html);
   out=out.replace('<section class="ref-access-strip">','<section class="ref-access-strip" id="volume-access">');
@@ -35,7 +39,8 @@ function patchVolume(html,cases){
   out=out.replace('>Открыть Первый том →</summary>','>Получить 85 дел за 99 ₽ →</summary>');
   out=out.replace(/<div class="ref-archive-bar ref-volume-free-head">[\s\S]*?<\/div>\s*<div class="ref-case-grid ml-material-archive ref-free-grid"[\s\S]*?<\/div>\s*(?=<section class="ref-paid-library">)/,includedBlock());
   out=out.replace(/<section class="ref-paid-library">[\s\S]*?<\/section>/,premiumArchives(cases));
-  if(!out.includes('data-volume-sales-v3')||!out.includes('ref-volume-trial-v4')||!out.includes('data-volume-premium-archives')||!out.includes('id="volume-access"')||!out.includes('Получить 85 дел за 99 ₽')) throw new Error('volume sales v3 patch failed');
+  out=out.replace('<section class="ref-volume-faq"',`${closingCta()}<section class="ref-volume-faq"`);
+  if(!out.includes('data-volume-sales-v3')||!out.includes('ref-volume-trial-v4')||!out.includes('data-volume-premium-archives')||!out.includes('id="volume-access"')||!out.includes('Получить 85 дел за 99 ₽')||!out.includes('data-volume-closing-cta')||!out.includes('data-volume-scroll-buy')) throw new Error('volume sales v3 patch failed');
   if(out.includes('ref-volume-free-head')||out.includes('ref-volume-included-stats')||out.includes('<span>закрыты</span>')||out.includes('class="ref-case-grid ml-material-archive ref-free-grid"')) throw new Error('volume sales v3: duplicate stats or catalog grid leaked into sales page');
   return out;
 }
