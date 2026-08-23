@@ -25,7 +25,6 @@ const specialPage = () => `<!doctype html>
   <link rel="stylesheet" href="../../assets/case-407-entry-v2.css?v=${VERSION}">
   <link rel="stylesheet" href="../../assets/case-407-evidence-v2.css?v=${VERSION}">
   <link rel="stylesheet" href="../../assets/case-407-evidence-v3.css?v=${VERSION}">
-  <link rel="stylesheet" href="../../assets/case-407-photo-cleanup-v4.css?v=${VERSION}">
   <meta property="og:title" content="Номер 407 — детективное дело для двоих">
   <meta property="og:description" content="Два игрока получают разные улики. Раскройте исчезновение из запертого гостиничного номера.">
   <meta property="og:type" content="website">
