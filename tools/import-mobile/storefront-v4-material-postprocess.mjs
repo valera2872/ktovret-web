@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.2';
+const VERSION='1.0.3';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
 
@@ -15,15 +15,12 @@ function addStyle(html,href){
 function materialCrop(src,klass,alt,loading='lazy'){
   return `<div class="ml-mat-crop ${klass}"><img src="${src}" alt="${esc(alt)}" width="1055" height="940" loading="${loading}" decoding="async"></div>`;
 }
-function whoHybrid(root='./',klass=''){
-  return `<div class="ml-who-hybrid ${klass}"${klass.includes('hero')?' data-reference-asset="who-approved-art"':''}><img src="${root}assets/reference-format-who.svg" alt="Блокнот с показаниями и лупа" width="360" height="190" loading="eager" decoding="async"><span class="ml-who-texture" aria-hidden="true"></span></div>`;
-}
 function trustStrip(){
   return `<section class="ref-trust" aria-label="Преимущества"><article><span class="ref-trust-icon">⌁</span><strong>15 дел бесплатно</strong><span>Попробуйте без риска</span></article><article><span class="ref-trust-icon">▣</span><strong>100+ дел в архиве</strong><span>Растущий каталог</span></article><article><span class="ref-trust-icon">◷</span><strong>5–10 минут</strong><span>Короткие расследования</span></article><article><span class="ref-trust-icon">✓</span><strong>Один доказуемый ответ</strong><span>Логика важнее догадок</span></article></section>`;
 }
 function formats(){
   const src='./assets/reference-home-lower.webp';
-  return `<p class="ref-section-label" id="games">Выберите формат расследования</p><section class="ref-format-grid ml-material-formats" aria-labelledby="games"><a class="ref-format-card" href="./detektivnye-igry-dlya-dvoih/"><div class="ref-format-copy"><small>Для двоих</small><h3>Последний звонок<br>в 23:17</h3><p>Совместное расследование.<br>2 игрока · 45–60 минут</p></div>${materialCrop(src,'mat-format-1','Телефон 112, карта и материалы двух следователей','eager')}<span class="ref-format-link">Играть вдвоём →</span></a><a class="ref-format-card" href="./kto-vret/"><div class="ref-format-copy"><small>Серия дел</small><h3>Кто врёт?</h3><p>Короткие логические дела<br>в удобном формате.</p></div>${whoHybrid('./','ml-who-card-art')}<span class="ref-format-link">Открыть серию →</span></a><a class="ref-format-card" href="./tom-1/"><div class="ref-format-copy"><small>Архив</small><h3>Первый том</h3><p>Полный архив · 15 бесплатных дел<br>+ 85 дел в одном томе.</p></div>${materialCrop(src,'mat-format-3','Первый том Mystery Logic и архивные папки','eager')}<span class="ref-format-link">Посмотреть том →</span></a></section>`;
+  return `<p class="ref-section-label" id="games">Выберите формат расследования</p><section class="ref-format-grid ml-material-formats" aria-labelledby="games"><a class="ref-format-card" href="./detektivnye-igry-dlya-dvoih/"><div class="ref-format-copy"><small>Для двоих</small><h3>Последний звонок<br>в 23:17</h3><p>Совместное расследование.<br>2 игрока · 45–60 минут</p></div>${materialCrop(src,'mat-format-1','Телефон 112, карта и материалы двух следователей','eager')}<span class="ref-format-link">Играть вдвоём →</span></a><a class="ref-format-card" href="./kto-vret/"><div class="ref-format-copy"><small>Серия дел</small><h3>Кто врёт?</h3><p>Короткие логические дела<br>в удобном формате.</p></div><div class="ml-native-photo-stage">${materialCrop(src,'mat-format-2 ml-who-photo-card','Блокнот с показаниями и лупа','eager')}</div><span class="ref-format-link">Открыть серию →</span></a><a class="ref-format-card" href="./tom-1/"><div class="ref-format-copy"><small>Архив</small><h3>Первый том</h3><p>Полный архив · 15 бесплатных дел<br>+ 85 дел в одном томе.</p></div>${materialCrop(src,'mat-format-3','Первый том Mystery Logic и архивные папки','eager')}<span class="ref-format-link">Посмотреть том →</span></a></section>`;
 }
 function materials(){
   const src='./assets/reference-home-lower.webp';
@@ -85,7 +82,7 @@ function patchWho(siteRoot,cases){
   let html=fs.readFileSync(file,'utf8');
   html=addClass(addStyle(html,'../assets/storefront-v4-material.css'),'ref-storefront-material');
   const hero=/<div class="ref-who-crop"><img src="\.\.\/assets\/reference-home-lower\.webp"[\s\S]*?<\/div>/;
-  if(hero.test(html)) html=html.replace(hero,whoHybrid('../','ml-who-hero-art'));
+  if(hero.test(html)) html=html.replace(hero,materialCrop('../assets/reference-home-lower.webp','mat-format-who-hero ml-who-photo-hero','Блокнот с показаниями и лупа','eager').replace('class="ml-mat-crop mat-format-who-hero ml-who-photo-hero"','class="ml-mat-crop mat-format-who-hero ml-who-photo-hero" data-reference-asset="who-approved-art"'));
   html=replaceArchiveSnapshot(html,materialArchiveGrid(cases,{premium:true}));
   if(!html.includes('data-reference-asset="who-approved-art"')||!html.includes('data-material-ui="archive-grid"')) throw new Error('material v4: who page patch failed');
   fs.writeFileSync(file,html);
