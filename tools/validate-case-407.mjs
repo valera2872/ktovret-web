@@ -79,6 +79,10 @@ const edge = read('supabase/functions/coop-407/index.ts');
 for (const marker of ["const CASE_ID = 'special:407'", "const CASE_PATH = '/detektivnye-igry-dlya-dvoih/407/'", "const CASE_TITLE = 'Номер 407'"]) {
   expect(edge.includes(marker), `isolated room server is missing: ${marker}`);
 }
+const migration = read('supabase/migrations/20260823172500_allow_room_407_case_path.sql');
+for (const marker of ['duel_rooms_case_path_format', '/detektivnye-igry-dlya-dvoih/2317/', '/detektivnye-igry-dlya-dvoih/407/']) {
+  expect(migration.includes(marker), `room path allowlist migration is missing: ${marker}`);
+}
 
 const image = fs.readFileSync(path.join(repo, 'assets/room-407-evidence.webp'));
 expect(image.length > 30_000, 'evidence image is suspiciously small');
