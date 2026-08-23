@@ -33,6 +33,7 @@ jobs:
           node --check tools/validate-case-407-evidence-v2.mjs
           node --check tools/validate-case-407-plaque-code.mjs
           node --check tools/validate-case-407-detective-v4.mjs
+          node --check tools/validate-case-407-countertheories-v4.mjs
           node --check tools/room-407-evidence-visual-smoke.mjs
           node --check tools/room-407-detective-visual-smoke.mjs
           node --check tools/two-player-407-smoke.mjs
@@ -44,6 +45,8 @@ jobs:
         run: node tools/validate-case-407-plaque-code.mjs
       - name: Adversarial Holmes-Poirot validation
         run: node tools/validate-case-407-detective-v4.mjs
+      - name: Reject principal counter-theories
+        run: node tools/validate-case-407-countertheories-v4.mjs
       - name: Render legacy role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
       - name: Render detective-v4 role-specific evidence packets
