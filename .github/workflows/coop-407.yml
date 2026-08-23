@@ -21,29 +21,39 @@ jobs:
       - name: Validate source syntax
         run: |
           node --check assets/case-407-data.js
+          node --check assets/case-407-detective-audit-v4.js
           node --check assets/case-407-plaque-code-v2.js
           node --check assets/case-407.js
           node --check assets/case-407-evidence-v2.js
           node --check assets/case-407-evidence-finalize.js
+          node --check assets/case-407-detective-visual-v4.js
           node --check tools/import-mobile/two-player-407-postprocess.mjs
           node --check tools/validate-case-407.mjs
           node --check tools/validate-case-407-evidence-v2.mjs
           node --check tools/validate-case-407-plaque-code.mjs
+          node --check tools/validate-case-407-detective-v4.mjs
           node --check tools/room-407-evidence-visual-smoke.mjs
+          node --check tools/room-407-detective-visual-smoke.mjs
           node --check tools/two-player-407-smoke.mjs
-      - name: Validate product and fair-play boundary
+      - name: Validate base product and fair-play boundary
         run: node tools/validate-case-407.mjs
       - name: Validate materialized evidence layer
         run: node tools/validate-case-407-evidence-v2.mjs
-      - name: Validate opaque plaque-code boundary
+      - name: Validate opaque identifier boundary
         run: node tools/validate-case-407-plaque-code.mjs
-      - name: Render role-specific evidence packets
+      - name: Adversarial Holmes-Poirot validation
+        run: node tools/validate-case-407-detective-v4.mjs
+      - name: Render legacy role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
+      - name: Render detective-v4 role-specific evidence packets
+        run: node tools/room-407-detective-visual-smoke.mjs
       - name: Upload role-specific evidence screenshots
         uses: actions/upload-artifact@v4
         with:
           name: room-407-evidence-visual-smoke
-          path: artifacts/room-407-evidence-smoke/
+          path: |
+            artifacts/room-407-evidence-smoke/
+            artifacts/room-407-detective-v4/
           retention-days: 7
       - name: Live room contract smoke
         env:
