@@ -4,6 +4,26 @@
   const root = document.querySelector('[data-case407-app]');
   if (!root) return;
 
+  const style = document.createElement('style');
+  style.dataset.case407DetectiveV4 = '1';
+  style.textContent = `
+    .case407-lab-footer{gap:8px}.case407-lab-footer span{min-width:0}
+    @media(max-width:760px){
+      .case407-network-grid{grid-template-columns:1fr 24px 1fr 24px 1fr!important;grid-template-rows:auto auto!important}
+      .case407-device.phone{grid-column:1!important;grid-row:1!important}
+      .case407-device.watch{grid-column:1!important;grid-row:2!important}
+      .case407-network-grid>.arrow:nth-of-type(1){grid-column:2!important;grid-row:2!important;display:block!important}
+      .case407-network-grid>.case407-node:not(.hot){grid-column:3!important;grid-row:2!important}
+      .case407-network-grid>.arrow:nth-of-type(2){grid-column:4!important;grid-row:2!important;display:block!important}
+      .case407-network-grid>.case407-node.hot{grid-column:5!important;grid-row:2!important}
+      .case407-code-line{grid-template-columns:auto minmax(48px,1fr) auto minmax(78px,1fr)!important;gap:6px!important}
+      .case407-code-line b{font-size:14px!important;letter-spacing:.1em!important;white-space:nowrap!important}
+      .case407-code-line strong{font-size:14px!important;white-space:nowrap!important;padding-inline:4px!important}
+      .case407-lab-footer{flex-direction:column;align-items:flex-start}
+    }
+  `;
+  document.head.appendChild(style);
+
   const mark = (node, key) => {
     if (!node || node.dataset[key] === '1') return false;
     node.dataset[key] = '1';
@@ -40,7 +60,7 @@
       const span = foot.querySelector('span');
       const strong = foot.querySelector('b');
       if (span) span.textContent = 'телефон остаётся в зоне WEST-4';
-      if (strong) strong.textContent = 'часы меняют зоны доступа';
+      if (strong) strong.textContent = 'часы: WEST-4 → STAFF-4 → LOADING-B1';
     });
   };
 
