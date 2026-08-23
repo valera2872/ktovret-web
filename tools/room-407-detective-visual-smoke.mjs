@@ -84,7 +84,8 @@ const assertDom = (key, viewport, dom) => {
   }
   if (key === '3-analyst') {
     if (!dom.includes('Последние четыре минуты')) throw new Error(`${key}/${viewport}: neutral stage3 title missing`);
-    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1 В САЛОНЕ','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА','не попадают в поле камеры погрузочной двери']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
+    for (const marker of ['ВОДИТЕЛЬ: E. RAEVA','не идентифицирует человека','MO-W1: OFFLINE 01:27','22:48 · Марта','22:49 · Елена','УДАЛЁННАЯ ПЕРЕПИСКА','не попадают в поле камеры погрузочной двери']) if (!dom.includes(marker)) throw new Error(`${key}/${viewport}: missing proof marker ${marker}`);
+    if (dom.includes('BLE: MO-W1 В САЛОНЕ') || dom.includes('Bluetooth-журнал')) throw new Error(`${key}/${viewport}: unsupported vehicle Bluetooth inference returned`);
   }
 };
 
