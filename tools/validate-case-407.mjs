@@ -112,7 +112,7 @@ expect(!runtime.includes('teamwork = 25'), 'teamwork score must not be hard-code
 expect(!runtime.includes("mysterylogic:407:v2:"), 'stale v2 progress key remains');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
-for (const marker of ['noindex,follow', 'case407-catalog', 'room-407-evidence.webp', 'href="407/"', "const VERSION = '1.3.0'"]) {
+for (const marker of ['noindex,follow', 'case407-catalog', 'room-407-evidence.webp', 'href="407/"', "const VERSION = '1.4.1'"]) {
   expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
 }
 
