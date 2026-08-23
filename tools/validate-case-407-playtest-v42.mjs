@@ -19,6 +19,7 @@ expect(data?.playtestRevision === '4.2', 'playtest revision 4.2 did not apply');
 const s1i = JSON.stringify(data.stages[0].investigator);
 const s2i = JSON.stringify(data.stages[1].investigator);
 const s3a = JSON.stringify(data.stages[2].analyst);
+const chat = data.stages[2].analyst[2].messages.flat().join(' ');
 
 expect(!s1i.includes('журнал показывает, что в 00:54'), 'Investigator still receives Analyst key-card log inference');
 expect(s1i.includes('Ключ-карты Марты здесь нет'), 'key-card absence fact disappeared');
@@ -28,6 +29,9 @@ expect(s2i.includes('Телефон подключён к питанию в 00:5
 expect(!s2i.includes('через восемь секунд после входа Елены'), 'Investigator still receives Analyst timing join pre-solved');
 expect(!s3a.includes('Значит, в 01:14 она физически не могла держать HK-44'), 'access report still states the token-transfer deduction');
 expect(s3a.includes('Первое использование HK-44 у SVC-407 в 01:14:26 приходится внутрь этого же временного интервала'), 'neutral synchronized access/CCTV facts missing');
+expect(chat.includes('Если начинаем в 01:12') && chat.includes('четырёх минут'), 'pre-event coordination window disappeared from recovered chat');
+expect(chat.includes('Телефон оставляю') && chat.includes('06:40'), 'phone/flight coordination disappeared from recovered chat');
+expect(!chat.includes('сигнал') && !chat.includes('лифт'), 'recovered chat narrates the alarm mechanic or escape route instead of merely proving planning');
 
 const ux = read('assets/case-407-playtest-ux-v42.js');
 for (const marker of [
@@ -50,6 +54,7 @@ console.log(JSON.stringify({
   roleInferenceLeakStage2: false,
   stage2RequestTelegraph: false,
   stage3TokenDeductionPreSolved: false,
+  stage3ChatNarratesRoute: false,
   pairedDecisionCopy: true,
   independentElenaActionRequiredAtFinal: true
 }, null, 2));
