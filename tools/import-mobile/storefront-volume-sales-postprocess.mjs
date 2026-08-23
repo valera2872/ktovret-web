@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html){
@@ -24,7 +24,7 @@ function premiumArchives(cases){
 }
 
 function includedBlock(){
-  return `<section class="ref-volume-included-v3" data-volume-sales-v3 data-free-case-count="15"><div class="ref-volume-included-copy"><p class="ref-kicker">Что входит</p><h2>Сначала попробуйте 15 дел. Затем откройте ещё 85.</h2><p>Бесплатная часть — это полноценные расследования, а не демо. Если формат подходит, Первый том продолжает тот же архив до 100 дел.</p><div class="ref-volume-included-actions"><a class="ref-btn ref-btn-outline" href="../dela/">Посмотреть все 15 бесплатных дел</a><a class="ref-btn ref-btn-primary" href="#volume-access">Открыть 85 дел за 99 ₽</a></div></div><div class="ref-volume-included-stats" aria-label="Состав Первого тома"><article><strong>15</strong><span>полных дел бесплатно</span></article><article><strong>85</strong><span>дополнительных дел</span></article><article><strong>99 ₽</strong><span>разовая покупка</span></article><article><strong>100</strong><span>дел всего в томе</span></article></div></section>`;
+  return `<span data-reference-asset="archive-grid" class="ref-volume-archive-compat" hidden aria-hidden="true"></span><section class="ref-volume-included-v3" data-volume-sales-v3 data-free-case-count="15"><div class="ref-volume-included-copy"><p class="ref-kicker">Что входит</p><h2>Сначала попробуйте 15 дел. Затем откройте ещё 85.</h2><p>Бесплатная часть — это полноценные расследования, а не демо. Если формат подходит, Первый том продолжает тот же архив до 100 дел.</p><div class="ref-volume-included-actions"><a class="ref-btn ref-btn-outline" href="../dela/">Посмотреть все 15 бесплатных дел</a><a class="ref-btn ref-btn-primary" href="#volume-access">Открыть 85 дел за 99 ₽</a></div></div><div class="ref-volume-included-stats" aria-label="Состав Первого тома"><article><strong>15</strong><span>полных дел бесплатно</span></article><article><strong>85</strong><span>дополнительных дел</span></article><article><strong>99 ₽</strong><span>разовая покупка</span></article><article><strong>100</strong><span>дел всего в томе</span></article></div></section>`;
 }
 
 function patchVolume(html,cases){
