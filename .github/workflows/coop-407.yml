@@ -36,6 +36,7 @@ jobs:
           node --check tools/validate-case-407-detective-v4.mjs
           node --check tools/validate-case-407-countertheories-v4.mjs
           node --check tools/validate-case-407-playtest-v42.mjs
+          node --check tools/room-407-playtest-ux-smoke.mjs
           node --check tools/room-407-evidence-visual-smoke.mjs
           node --check tools/room-407-detective-visual-smoke.mjs
           node --check tools/two-player-407-smoke.mjs
@@ -51,6 +52,8 @@ jobs:
         run: node tools/validate-case-407-countertheories-v4.mjs
       - name: Blind two-role playtest regression
         run: node tools/validate-case-407-playtest-v42.mjs
+      - name: Browser smoke blind-playtest co-op UX
+        run: node tools/room-407-playtest-ux-smoke.mjs
       - name: Render legacy role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
       - name: Render detective-v4 role-specific evidence packets
@@ -62,6 +65,7 @@ jobs:
           path: |
             artifacts/room-407-evidence-smoke/
             artifacts/room-407-detective-v4/
+            artifacts/room-407-playtest-ux/
           retention-days: 7
       - name: Live room contract smoke
         env:
