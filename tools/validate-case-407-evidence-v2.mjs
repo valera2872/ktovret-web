@@ -27,7 +27,7 @@ for (const marker of [
   'accessArtifact', 'telemetryArtifact', 'chatArtifact', 'MutationObserver', 'Комментарий эксперта'
 ]) expect(js.includes(marker), `renderer missing ${marker}`);
 
-for (const marker of ['case407-evidenceHydrated', ':scope > p', 'case407-log-row', 'case407-cctv-frame', 'case407-lab-data', 'case407-request-grid']) {
+for (const marker of ['evidenceHydrated', ':scope > p', 'case407-log-row', 'case407-cctv-frame', 'case407-lab-data', 'case407-request-grid']) {
   expect(hydrate.includes(marker), `hydration layer missing ${marker}`);
 }
 
