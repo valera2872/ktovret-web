@@ -22,11 +22,15 @@ jobs:
         run: |
           node --check assets/case-407-data.js
           node --check assets/case-407.js
+          node --check assets/case-407-evidence-v2.js
           node --check tools/import-mobile/two-player-407-postprocess.mjs
           node --check tools/validate-case-407.mjs
+          node --check tools/validate-case-407-evidence-v2.mjs
           node --check tools/two-player-407-smoke.mjs
       - name: Validate product and fair-play boundary
         run: node tools/validate-case-407.mjs
+      - name: Validate materialized evidence layer
+        run: node tools/validate-case-407-evidence-v2.mjs
       - name: Live room contract smoke
         env:
           ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-407
