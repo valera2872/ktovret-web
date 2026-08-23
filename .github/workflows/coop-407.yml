@@ -23,7 +23,6 @@ jobs:
           node --check assets/case-407-data.js
           node --check assets/case-407.js
           node --check assets/case-407-evidence-v2.js
-          node --check assets/case-407-evidence-v2-hydrate.js
           node --check tools/import-mobile/two-player-407-postprocess.mjs
           node --check tools/validate-case-407.mjs
           node --check tools/validate-case-407-evidence-v2.mjs
@@ -33,9 +32,9 @@ jobs:
         run: node tools/validate-case-407.mjs
       - name: Validate materialized evidence layer
         run: node tools/validate-case-407-evidence-v2.mjs
-      - name: Render materialized evidence packets
+      - name: Render role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
-      - name: Upload materialized evidence screenshots
+      - name: Upload role-specific evidence screenshots
         uses: actions/upload-artifact@v4
         with:
           name: room-407-evidence-visual-smoke
