@@ -37,6 +37,7 @@ jobs:
           node --check tools/room-407-evidence-visual-smoke.mjs
           node --check tools/room-407-detective-visual-smoke.mjs
           node --check tools/two-player-407-smoke.mjs
+          python3 -m py_compile tools/room-407-photo-inpaint.py
       - name: Validate base product and fair-play boundary
         run: node tools/validate-case-407.mjs
       - name: Validate materialized evidence layer
@@ -47,6 +48,16 @@ jobs:
         run: node tools/validate-case-407-detective-v4.mjs
       - name: Reject principal counter-theories
         run: node tools/validate-case-407-countertheories-v4.mjs
+      - name: Build source-photo inpaint candidates
+        run: |
+          python3 -m pip install --quiet opencv-python-headless
+          python3 tools/room-407-photo-inpaint.py
+      - name: Upload source-photo inpaint candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-407-photo-inpaint-candidates
+          path: artifacts/room-407-photo-candidates/
+          retention-days: 2
       - name: Render legacy role-specific evidence packets
         run: node tools/room-407-evidence-visual-smoke.mjs
       - name: Render detective-v4 role-specific evidence packets
