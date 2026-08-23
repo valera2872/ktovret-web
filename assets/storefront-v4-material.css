@@ -10,20 +10,19 @@
 .ml-mat-crop img,.ml-archive-crop img{position:absolute;left:0;top:0;display:block;max-width:none;height:auto;filter:contrast(1.055) saturate(1.025);transform-origin:0 0;backface-visibility:hidden}
 
 /* The accepted big photographic compositions remain photographic.
-   Only the three small format illustrations use their genuine vector originals,
-   avoiding obvious compression blur in the most visible card row. */
+   The co-op and Who Lied cards keep their genuine vector originals; First Volume uses
+   a dedicated high-resolution archival still life instead of the old flat folder icon. */
 .ml-material-formats .ref-format-card{background:#06131d}
 .ml-material-formats .ml-mat-crop{height:188px;margin-top:auto;border-top:1px solid rgba(197,140,58,.08)}
 .ml-material-formats .mat-format-1,.ml-material-formats .mat-format-3,.ml-native-photo-stage{position:relative;background-color:#071019;background-repeat:no-repeat;background-position:center;background-size:cover}
 .ml-material-formats .mat-format-1{background-image:url("./reference-format-2317.svg")}
-.ml-material-formats .mat-format-3{background-image:url("./reference-format-volume.svg")}
+.ml-material-formats .mat-format-3{background-image:url("./reference-format-volume-archive.webp")}
 .ml-material-formats .mat-format-1>img,.ml-material-formats .mat-format-3>img{display:none!important}
 
 /* A deliberately soft, low-opacity crop of the accepted photographic board is used only as surface texture.
    It restores paper/shadow irregularity without bringing raster text back into the UI. */
-.ml-material-formats .mat-format-1:before,.ml-material-formats .mat-format-3:before,.ml-native-photo-stage:before{content:"";position:absolute;z-index:2;inset:-4px;pointer-events:none;background-image:url("./reference-home-lower.webp");background-repeat:no-repeat;opacity:.13;mix-blend-mode:multiply;filter:blur(2.4px) sepia(.16) contrast(1.22) saturate(.72)}
+.ml-material-formats .mat-format-1:before,.ml-native-photo-stage:before{content:"";position:absolute;z-index:2;inset:-4px;pointer-events:none;background-image:url("./reference-home-lower.webp");background-repeat:no-repeat;opacity:.13;mix-blend-mode:multiply;filter:blur(2.4px) sepia(.16) contrast(1.22) saturate(.72)}
 .ml-material-formats .mat-format-1:before{background-size:341% auto;background-position:4% 34%}
-.ml-material-formats .mat-format-3:before{background-size:341% auto;background-position:64% 30%}
 .ml-native-photo-stage:before{background-size:360% auto;background-position:35% 30%}
 .ml-material-formats .mat-format-1:after,.ml-material-formats .mat-format-3:after,.ml-native-photo-stage:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:repeating-linear-gradient(17deg,rgba(219,188,139,.035) 0 1px,transparent 1px 4px),radial-gradient(circle at 24% 27%,rgba(222,187,126,.055),transparent 31%),radial-gradient(circle at 74% 68%,rgba(0,0,0,.12),transparent 38%);box-shadow:inset 0 0 0 1px rgba(222,178,101,.07),inset 0 -28px 42px rgba(0,0,0,.08);mix-blend-mode:soft-light}
 
