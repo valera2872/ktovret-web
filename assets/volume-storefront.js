@@ -9,6 +9,7 @@
   const note = document.querySelector('[data-volume-payment-note]');
   const checkoutDetails = document.querySelector('.ref-checkout');
   const closingBuyLinks = document.querySelectorAll('[data-volume-scroll-buy]');
+  const accessStrip = document.querySelector('#volume-access');
   if (!buy) return;
 
   const storageKey = cfg.tokenStorageKey || 'mysterylogic:volume1:access-token';
@@ -317,9 +318,16 @@
     }
   };
 
+  const syncCheckoutLayout = () => {
+    accessStrip?.classList.toggle('is-checkout-open', Boolean(checkoutDetails?.open));
+  };
+  checkoutDetails?.addEventListener('toggle', syncCheckoutLayout);
+  syncCheckoutLayout();
+
   for (const link of closingBuyLinks) {
     link.addEventListener('click', () => {
       if (checkoutDetails) checkoutDetails.open = true;
+      syncCheckoutLayout();
       track('volume_closing_cta_clicked', { price: 99, premium_cases: 85 });
       window.setTimeout(() => {
         (email || checkoutDetails?.querySelector('summary'))?.focus({ preventScroll: true });
