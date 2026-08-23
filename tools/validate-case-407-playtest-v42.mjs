@@ -37,9 +37,10 @@ const ux = read('assets/case-407-playtest-ux-v42.js');
 for (const marker of [
   "revision: '4.2'",
   'каждый подтвердите тот же вариант на своём экране',
-  'Сначала сообщите Аналитику заводской H-код',
+  'Назовите Аналитику H-код с обратной стороны таблички',
+  'связанный L-код замка',
   "picks.includes('night_mgr')",
-  'не заменяет независимое доказательство личного действия Елены'
+  'общий план, но не личное действие Елены'
 ]) expect(ux.includes(marker), `co-op UX hardening missing: ${marker}`);
 
 const generator = read('tools/import-mobile/two-player-407-postprocess.mjs');
@@ -56,5 +57,6 @@ console.log(JSON.stringify({
   stage3TokenDeductionPreSolved: false,
   stage3ChatNarratesRoute: false,
   pairedDecisionCopy: true,
-  independentElenaActionRequiredAtFinal: true
+  independentElenaActionRequiredAtFinal: true,
+  playerCopySimplified: true
 }, null, 2));
