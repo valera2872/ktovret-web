@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.5.2';
+const VERSION = '1.5.3';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/407';
 
@@ -52,6 +52,7 @@ const specialPage = () => `<!doctype html>
   </main>
 
   <script src="../../assets/case-407-data.js?v=${VERSION}"></script>
+  <script src="../../assets/case-407-plaque-code-v2.js?v=${VERSION}"></script>
   <script src="../../assets/case-407.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-evidence-v2.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-evidence-finalize.js?v=${VERSION}"></script>
