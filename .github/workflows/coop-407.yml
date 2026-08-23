@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check assets/case-407-data.js
           node --check assets/case-407-detective-audit-v4.js
+          node --check assets/case-407-detective-proof-v4.js
           node --check assets/case-407-plaque-code-v2.js
           node --check assets/case-407.js
           node --check assets/case-407-evidence-v2.js
