@@ -4,13 +4,20 @@
   const IDENTIFIERS = [
     { legacy: 'H-409', public: 'H-7C4' },
     { legacy: 'L-409', public: 'L-6B2' },
-    { legacy: 'L-407', public: 'L-4A8' }
+    { legacy: 'L-407', public: 'L-4A8' },
+    { legacy: 'S-407', public: 'S-8D1' }
+  ];
+  const PHRASES = [
+    { legacy: 'верный код Марты + осознанная цифра 9', public: 'штатная duress-вариация персонального PIN Марты' },
+    { legacy: 'цифру 9', public: 'duress-вариацию PIN' },
+    { legacy: 'цифра 9', public: 'duress-вариант PIN' }
   ];
   const root = document.querySelector('[data-case407-app]');
 
   const replaceInValue = (value) => {
     if (typeof value !== 'string') return value;
-    return IDENTIFIERS.reduce((text, pair) => text.replaceAll(pair.legacy, pair.public), value);
+    const withIds = IDENTIFIERS.reduce((text, pair) => text.replaceAll(pair.legacy, pair.public), value);
+    return PHRASES.reduce((text, pair) => text.replaceAll(pair.legacy, pair.public), withIds);
   };
   const migrateStory = (value, seen = new WeakSet()) => {
     if (!value || typeof value !== 'object') return value;
@@ -90,6 +97,7 @@
   window.ML407PlaqueCode = Object.freeze({
     plaqueCode: 'H-7C4',
     lockCodes: Object.freeze({ room407: 'L-4A8', room409: 'L-6B2' }),
+    safeCode: 'S-8D1',
     legacyAliasesHidden: true
   });
 })();
