@@ -25,7 +25,7 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{const child=spawn(chrome,
 const pngDimensions=(filePath)=>{const bytes=fs.readFileSync(filePath);if(bytes.length<24||bytes.toString('hex',0,8)!=='89504e470d0a1a0a')throw new Error(`${filePath} is not a PNG`);return{width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 const viewports=[{name:'reference',width:1055,height:1491,scale:1},{name:'mobile',width:390,height:844,scale:1},{name:'desktop',width:1440,height:1100,scale:1}];
 const retinaViewport={name:'retina',width:1055,height:1491,scale:2};
-const functionalNav=['data-functional-nav="v2"','>Игры<','>15 бесплатных дел<','>Первый том<','>Метод<','Открыть досье'];
+const functionalNav=['data-functional-nav="v2"','>Игры<','data-nav-coop','Игры для двоих','ref-nav-coop-short','>15 бесплатных дел<','>Первый том<','>Метод<','Открыть досье'];
 const liveFreeGrid=['class="ref-case-grid ml-material-archive ref-free-grid"','ml-live-number','ml-live-badge'];
 const pages=[
 {name:'home',path:'/',required:['ref-storefront-v41','data-reference-asset="home-hero"','data-reference-asset="home-lower"','data-material-ui="home-lower"','data-material-ui="live-evidence"','ml-material-formats','data-reference-asset="volume-archive-photo"','storefront-v4-material.css','Детективные игры онлайн','Получить первое досье','Открыть 15 бесплатных дел','Посмотреть Первый том','data-functional-method="v2"',...functionalNav],forbidden:['class="ref-snapshot ref-home-lower"']},
