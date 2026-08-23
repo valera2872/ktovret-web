@@ -37,7 +37,8 @@
 .ml-live-evidence .ref-material{position:relative;isolation:isolate;background:radial-gradient(circle at 18% 12%,rgba(183,140,80,.055),transparent 38%),linear-gradient(145deg,#071721,#06131d 68%);box-shadow:inset 0 0 28px rgba(0,0,0,.13)}
 .ml-live-evidence .ref-material:before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;opacity:.34;background:repeating-linear-gradient(8deg,rgba(223,199,157,.028) 0 1px,transparent 1px 5px),radial-gradient(circle at 78% 82%,rgba(197,140,58,.055),transparent 32%);mix-blend-mode:soft-light}
 .ml-live-evidence .ref-wave i{box-shadow:0 0 3px rgba(198,172,129,.14)}
-.ml-live-evidence .ref-camera-mini{background:radial-gradient(circle at 20% 31%,rgba(237,220,183,.7) 0 1px,transparent 3px),radial-gradient(circle at 42% 38%,rgba(237,220,183,.45) 0 1px,transparent 3px),radial-gradient(circle at 69% 29%,rgba(237,220,183,.55) 0 1px,transparent 3px),linear-gradient(176deg,transparent 0 49%,rgba(172,162,144,.16) 50%,transparent 51%),linear-gradient(155deg,#090e12,#242b2e 48%,#080c10);box-shadow:inset 0 -22px 30px rgba(0,0,0,.32)}
+/* Keep the real approved CCTV frame at essentially native crop scale. Dark top/bottom masks remove its old raster labels; the base v4 pseudo labels stay live and crisp above it. */
+.ml-live-evidence .ref-camera-mini{background-image:url("./reference-home-lower.webp");background-repeat:no-repeat;background-size:556% auto;background-position:36.5% 73.5%;background-color:#080d11;box-shadow:inset 0 18px 8px -8px rgba(4,9,13,.96),inset 0 -18px 8px -8px rgba(4,9,13,.96),inset 0 0 26px rgba(0,0,0,.32)}
 .ml-live-evidence .ref-chat-bubble{box-shadow:0 4px 10px rgba(0,0,0,.15);background-image:linear-gradient(120deg,rgba(255,255,255,.08),transparent 42%)}
 .ml-live-evidence .ref-protocol{box-shadow:0 8px 18px rgba(0,0,0,.25);background:linear-gradient(155deg,#d0bd9c,#a18c6c 68%,#89765c)}
 
