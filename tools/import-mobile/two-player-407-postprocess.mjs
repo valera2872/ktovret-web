@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/407';
 
@@ -23,6 +23,7 @@ const specialPage = () => `<!doctype html>
   <link rel="stylesheet" href="../../assets/case-2317-v2.css?v=1.1.0">
   <link rel="stylesheet" href="../../assets/case-407.css?v=${VERSION}">
   <link rel="stylesheet" href="../../assets/case-407-entry-v2.css?v=${VERSION}">
+  <link rel="stylesheet" href="../../assets/case-407-evidence-v2.css?v=${VERSION}">
   <meta property="og:title" content="Номер 407 — детективное дело для двоих">
   <meta property="og:description" content="Два игрока получают разные улики. Раскройте исчезновение из запертого гостиничного номера.">
   <meta property="og:type" content="website">
@@ -51,6 +52,7 @@ const specialPage = () => `<!doctype html>
 
   <script src="../../assets/case-407-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-407.js?v=${VERSION}"></script>
+  <script src="../../assets/case-407-evidence-v2.js?v=${VERSION}"></script>
 </body>
 </html>`;
 
