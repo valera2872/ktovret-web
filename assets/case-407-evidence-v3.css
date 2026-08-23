@@ -1,0 +1,33 @@
+/* Room 407 — final evidence readability and role-safe layout */
+@media(min-width:760px){
+  .case407-body .case2317-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .case407-body .case2317-evidence-grid>.case2317-evidence:last-child:nth-child(odd){grid-column:1/-1}
+  .case407-body .case2317-evidence.has-photo{grid-column:1/-1}
+}
+.case407-evidence-notes .case2317-facts{margin-top:12px}
+.case407-evidence-notes .case2317-stamp{margin-top:12px}
+.case407-evidence-notes summary{min-height:34px;display:flex;align-items:center}
+.case407-access-camera{margin:0 12px 12px;border:1px solid rgba(97,143,154,.2)}
+.case407-access-camera .case407-cctv-strip{padding:8px}
+
+@media(max-width:760px){
+  .case407-artifact-head{font-size:10px;letter-spacing:.08em}
+  .case407-paper-title small,.case407-transcript>div span,.case407-signature{font-size:10px}
+  .case407-transcript p{font-size:13px!important}
+  .case407-plaque-front small,.case407-plaque-back small,.case407-plaque-back em,.case407-toolmark,.case407-measure{font-size:10px}
+  .case407-terminal-bar span,.case407-terminal-foot{font-size:10px}
+  .case407-terminal h4{font-size:13px}.case407-log-row>span,.case407-log-row code{font-size:11px}
+  .case407-cctv-meta b{font-size:11px}.case407-cctv-meta span,.case407-cctv-timeline b{font-size:10px}
+  .case407-registry-title{font-size:12px}.case407-registry-row{font-size:11px}.case407-registry-row.head,.case407-registry-note{font-size:10px}
+  .case407-plan-corridor,.case407-room span,.case407-service,.case407-plan-note,.case407-plan-legend{font-size:9px}.case407-shaft{font-size:10px}
+  .case407-lab-sample span,.case407-lab-data small,.case407-lab-footer{font-size:10px}.case407-lab-data p{font-size:11px!important;line-height:1.5!important}
+  .case407-manual-copy p{font-size:12px!important}.case407-code-line span,.case407-manual-margin span,.case407-manual-margin em{font-size:10px}.case407-manual-margin b{font-size:12px}
+  .case407-device span,.case407-device small,.case407-node small,.case407-network-foot{font-size:10px}.case407-device b,.case407-node b{font-size:13px}
+  .case407-request-grid span{font-size:10px}.case407-request-grid p{font-size:11px!important;line-height:1.5!important}.case407-redaction{font-size:10px;flex-wrap:wrap}.case407-redaction b{margin-left:0;width:100%}
+  .case407-audit-row{font-size:10px}.case407-audit-row.head{font-size:9px}.case407-ticket span,.case407-ticket b{font-size:11px}.case407-ticket em{font-size:10px}
+  .case407-alibi-line b{font-size:12px}.case407-alibi-line span,.case407-alibi-line small,.case407-alibi-verdict{font-size:10px}
+  .case407-access-token span,.case407-access-token small,.case407-access-path span,.case407-access-path small,.case407-access-note{font-size:10px}.case407-access-path b{font-size:12px}
+  .case407-car-dash small,.case407-car-dash span,.case407-road{font-size:10px}
+  .case407-phone-top,.case407-chat-body small,.case407-deleted{font-size:10px}.case407-chat-body p{font-size:12px!important}
+  .case407-evidence-notes summary{font-size:10px}.case407-evidence-notes>p{font-size:12px!important}
+}
