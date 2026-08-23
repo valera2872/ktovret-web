@@ -15,10 +15,15 @@
     return safe;
   };
   const requestArtifact = () => `<div class="case407-artifact case407-request-export"><div class="case407-artifact-head"><span>КАРТА СЛУЖЕБНОЙ СЕТИ</span><b>LIMITED SCOPE</b></div><div class="case407-request-grid"></div><div class="case407-redaction"><span>door IDs</span><i>████████</i><span>token</span><i>██████</i><b>требуется срочный запрос доступа</b></div></div>`;
+  const accessCameraArtifact = () => `<div class="case407-artifact case407-access"><div class="case407-artifact-head"><span>СЛУЖЕБНЫЙ ДОСТУП + CAM B1</span><b>PRIORITY EXPORT</b></div><div class="case407-access-token"><span>MASTER TOKEN</span><strong>HK-44</strong><small>issued: E. RAEVA</small></div><div class="case407-access-path"><div><span>01:14:26</span><b>SVC-407</b><small>HK-44</small></div><i></i><div><span>01:15:02</span><b>SERVICE LIFT</b><small>HK-44</small></div><i></i><div><span>01:18:41</span><b>LOADING-B1</b><small>HK-44</small></div></div><div class="case407-cctv case407-access-camera"><div class="case407-cctv-strip"><div class="case407-cctv-frame"><div class="case407-cctv-scene is-b1"><i class="figure f1"></i></div><div class="case407-cctv-meta"><b>01:17:42</b><span>camera active · cart visible</span></div></div><div class="case407-cctv-frame"><div class="case407-cctv-scene is-b1"><b class="case407-gap">NO SIGNAL<br>94 SEC</b></div><div class="case407-cctv-meta"><b>01:17:43</b><span>NIGHT-MGR / ER-02 maintenance window</span></div></div><div class="case407-cctv-frame"><div class="case407-cctv-scene is-b1"><i class="figure f3"></i></div><div class="case407-cctv-meta"><b>01:19:17</b><span>recording restored · cart gone</span></div></div></div></div><div class="case407-access-note">Журнал фиксирует токен, а не личность человека, который держал его. Команда отключения камеры отдельно привязана к NIGHT-MGR и ER-02.</div></div>`;
   const normalizeCurrentMaterial = (card, artifact, title) => {
     const key = title.toLowerCase();
     if (key.includes('staff-4') && key.includes('loading-b1') && !artifact.classList.contains('case407-request-export')) {
       artifact.outerHTML = requestArtifact();
+      return card.querySelector(':scope > .case407-artifact');
+    }
+    if (key.includes('hk-44') && key.includes('камера') && !artifact.classList.contains('case407-access')) {
+      artifact.outerHTML = accessCameraArtifact();
       return card.querySelector(':scope > .case407-artifact');
     }
     return artifact;
