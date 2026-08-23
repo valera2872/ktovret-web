@@ -20,6 +20,7 @@
       .case407-code-line b{font-size:14px!important;letter-spacing:.1em!important;white-space:nowrap!important}
       .case407-code-line strong{font-size:14px!important;white-space:nowrap!important;padding-inline:4px!important}
       .case407-lab-footer{flex-direction:column;align-items:flex-start}
+      .case407-lab-sample span{font-size:7px!important;white-space:nowrap}
     }
   `;
   document.head.appendChild(style);
@@ -75,7 +76,7 @@
         const strong = sample.querySelector('strong');
         const span = sample.querySelector('span');
         if (strong) strong.textContent = 'BR-220 / NS-17';
-        if (span) span.textContent = 'подкладка / ювелирный воск / контрольная пломба';
+        if (span) span.textContent = 'подкладка · пломба';
       }
       const footer = lab.querySelector('.case407-lab-footer span');
       if (footer) footer.textContent = '23:50: сапфир запечатан в BR-220 пломбой NS-17 · фрагмент NS-17 найден в тележке';
@@ -85,8 +86,10 @@
   const patchAccess = (scope) => {
     scope.querySelectorAll('.case407-access').forEach((access) => {
       if (!mark(access, 'detectiveV4')) return;
+      const head = access.querySelector('.case407-artifact-head span');
+      if (head) head.textContent = 'СЛУЖЕБНЫЙ ДОСТУП + CAM B1 / LOADING DOOR';
       const note = access.querySelector('.case407-access-note');
-      if (note) note.textContent = '01:14:26 камера C4 одновременно показывает Елену рядом с Зориным. Значит, HK-44 у SVC-407 держал другой человек: токен был передан заранее.';
+      if (note) note.textContent = '01:14:26 · CAM C4: E. RAEVA находится рядом с P. ZORIN у двери гостевого коридора. Синхронизация журналов и камеры: ±1 сек.';
       const cameraFrames = access.querySelectorAll('.case407-access-camera .case407-cctv-meta span');
       if (cameraFrames[1]) cameraFrames[1].textContent = 'NIGHT-MGR / ER-02 · maintenance · 94 sec';
     });
