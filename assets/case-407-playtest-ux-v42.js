@@ -9,7 +9,7 @@
       if (!input || input.placeholder !== 'ID контроллера') return;
       const copy = [...section.children].find((node) => node.tagName === 'P' && !node.classList.contains('case2317-eyebrow'));
       if (copy && !section.classList.contains('is-complete')) {
-        copy.textContent = 'Сначала сообщите Аналитику заводской H-код с вашей таблички. После того как его реестр найдёт связанный LOCK ID, получите этот L-код и введите его здесь.';
+        copy.textContent = 'Назовите Аналитику H-код с обратной стороны таблички. Его реестр покажет связанный L-код замка. Попросите Аналитика назвать этот L-код и введите его здесь.';
       }
     });
   };
@@ -30,9 +30,9 @@
       const label = input.closest('label');
       if (!label) return;
       const textNode = [...label.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim());
-      const suffix = ' Подтверждает общий план, но не заменяет независимое доказательство личного действия Елены.';
-      if (textNode && !textNode.nodeValue.includes('не заменяет независимое')) textNode.nodeValue = `${textNode.nodeValue.trim()}${suffix}`;
-      else if (!label.textContent.includes('не заменяет независимое')) label.append(document.createTextNode(suffix));
+      const suffix = ' · общий план, но не личное действие Елены';
+      if (textNode && !textNode.nodeValue.includes('не личное действие Елены')) textNode.nodeValue = `${textNode.nodeValue.trim()}${suffix}`;
+      else if (!label.textContent.includes('не личное действие Елены')) label.append(document.createTextNode(suffix));
     });
   };
 
