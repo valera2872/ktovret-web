@@ -24,7 +24,7 @@
         unlockBody: 'Совместная сверка H-409 и архивного узла L-409 показывает: латунная табличка «407» стояла на физической двери 409. Мы знаем, где была ложная сцена, но пока не знаем, откуда и как ушла Марта.'
       },
       stage3: {
-        prompt: 'У Аналитика есть мастер-токен, зафиксированный на служебном маршруте. Получите его и сопоставьте с повреждением тележки у LOADING-B1.',
+        prompt: 'У Аналитика есть мастер-токен из только что открытого журнала служебного доступа. Получите его и сопоставьте с повреждением тележки у LOADING-B1.',
         expected: 'HK-44',
         label: 'Мастер-токен',
         unlockTitle: 'Тележка и цифровой маршрут сходятся в B1',
@@ -55,13 +55,13 @@
     options: [
       { id: 'corridor', title: 'Повторная экспертиза коридора', text: 'Искать скрытый монтаж или пропущенные кадры камеры C4.' },
       { id: 'appraiser', title: 'Срочно проверить Дениса', text: 'Поднять такси, городские камеры и его перемещения после спора.' },
-      { id: 'service', title: 'Поднять служебный маршрут', text: 'Запросить SVC-407, лифт, B1 и связанные токены.' }
+      { id: 'service', title: 'Поднять служебный доступ', text: 'Запросить события закрытых дверей, вертикальной инфраструктуры и погрузочной зоны.' }
     ],
     correct: 'service',
     feedback: {
       corridor: 'Дополнительная экспертиза подтверждает: камера C4 непрерывна, а через гостевой коридор никто не выходил. Первый запрос потрачен, но эта линия теперь окончательно закрыта.',
       appraiser: 'Такси и городские камеры дают Денису непрерывный маршрут домой. Он соврал о встрече, но после 00:36 физически не возвращался в отель. Первый запрос потрачен.',
-      service: 'Запрос даёт связку SVC-407 → служебный лифт → LOADING-B1. Следующий пакет материалов открыт без штрафа.'
+      service: 'Система безопасности подтверждает события служебного доступа в нужное четырёхминутное окно. Полный журнал с ID дверей и мастер-токеном открыт в следующем пакете.'
     }
   };
 
@@ -76,6 +76,11 @@
     { id: 'denis_alibi', group: 'exclusion', label: 'Алиби Дениса: непрерывный маршрут домой после 00:36' }
   ];
   const REQUIRED_EVIDENCE_GROUPS = new Set(['room', 'intent', 'route', 'sapphire', 'accomplice']);
+  const HINTS_BY_STAGE = {
+    1: data.hints.slice(0, 2),
+    2: data.hints.slice(2, 4),
+    3: data.hints.slice(4, 6)
+  };
 
   let roomState = null;
   let pollTimer = null;
@@ -231,21 +236,28 @@
     }, 3000);
   };
 
-  const progressKey = (state) => `mysterylogic:407:v2:${state.room.code}:${state.me.role}`;
+  const progressKey = (state) => `mysterylogic:407:v3:${state.room.code}:${state.me.role}`;
   const freshProgress = () => ({
     stage: 1, viewStage: 1, finalAttempts: 0, hints: 0, startedAt: Date.now(), decisionMistakes: 0,
-    decisions: [], handoffs: { stage1: false, stage3: false }, evidencePicks: [], finalAnswers: {}
+    decisions: [], handoffs: { stage1: false, stage3: false }, evidencePicks: [], finalAnswers: {}, hintUsage: { 1: 0, 2: 0, 3: 0 }
   });
   const readProgress = (state) => {
     try {
       const parsed = JSON.parse(localStorage.getItem(progressKey(state)) || '{}');
       const base = freshProgress();
+      const hintUsage = {
+        1: Math.max(0, Math.min(2, Number(parsed.hintUsage?.[1]) || 0)),
+        2: Math.max(0, Math.min(2, Number(parsed.hintUsage?.[2]) || 0)),
+        3: Math.max(0, Math.min(2, Number(parsed.hintUsage?.[3]) || 0))
+      };
+      const hints = hintUsage[1] + hintUsage[2] + hintUsage[3];
       return {
         ...base, ...parsed,
         stage: Math.min(3, Math.max(1, Number(parsed.stage) || 1)),
         viewStage: Math.min(3, Math.max(1, Number(parsed.viewStage) || Number(parsed.stage) || 1)),
         finalAttempts: Math.max(0, Number(parsed.finalAttempts) || 0),
-        hints: Math.max(0, Math.min(data.hints.length, Number(parsed.hints) || 0)),
+        hints,
+        hintUsage,
         startedAt: Number(parsed.startedAt) || Date.now(),
         decisionMistakes: Math.max(0, Number(parsed.decisionMistakes) || 0),
         decisions: Array.isArray(parsed.decisions) ? parsed.decisions : [],
@@ -256,6 +268,7 @@
     } catch { return freshProgress(); }
   };
   const saveProgress = (state, progress) => localStorage.setItem(progressKey(state), JSON.stringify(progress));
+  const hintCount = (progress) => (Number(progress.hintUsage?.[1]) || 0) + (Number(progress.hintUsage?.[2]) || 0) + (Number(progress.hintUsage?.[3]) || 0);
 
   const evidenceHtml = (item, index) => {
     const paragraphs = (item.body || []).map((text) => `<p>${escapeHtml(text)}</p>`).join('');
@@ -284,8 +297,8 @@
   const decisionHtml = (progress) => {
     const solved = progress.decisions.includes(DECISION.correct);
     const first = progress.decisions[0] || '';
-    if (solved) return `<section class="case2317-decision"><p class="case2317-eyebrow">Оперативный запрос · этап 2</p><h3>${escapeHtml(DECISION.title)}</h3><div class="case2317-decision-feedback is-right">${escapeHtml(DECISION.feedback.service)}</div><div class="case2317-drop"><small>Новый пакет материалов</small><strong>SVC-407 · служебный лифт · LOADING-B1</strong></div></section>`;
-    if (first && first !== DECISION.correct) return `<section class="case2317-decision"><p class="case2317-eyebrow">Первый запрос исчерпан</p><h3>${escapeHtml(DECISION.title)}</h3><div class="case2317-decision-feedback is-wrong">${escapeHtml(DECISION.feedback[first])}</div><p>Чтобы не застрять, можно сделать второй запрос по служебной инфраструктуре. Он откроет следующий пакет, но ошибка уже учтена в результате.</p><div class="case2317-actions"><button class="case2317-button is-primary" type="button" data-action="decision" data-decision="service">Второй запрос: служебный маршрут</button></div></section>`;
+    if (solved) return `<section class="case2317-decision"><p class="case2317-eyebrow">Оперативный запрос · этап 2</p><h3>${escapeHtml(DECISION.title)}</h3><div class="case2317-decision-feedback is-right">${escapeHtml(DECISION.feedback.service)}</div><div class="case2317-drop"><small>Новый пакет материалов</small><strong>Полный журнал служебного доступа открыт в этапе 3</strong></div></section>`;
+    if (first && first !== DECISION.correct) return `<section class="case2317-decision"><p class="case2317-eyebrow">Первый запрос исчерпан</p><h3>${escapeHtml(DECISION.title)}</h3><div class="case2317-decision-feedback is-wrong">${escapeHtml(DECISION.feedback[first])}</div><p>Чтобы не застрять, можно сделать второй запрос по служебной инфраструктуре. Он откроет следующий пакет, но ошибка уже учтена в результате.</p><div class="case2317-actions"><button class="case2317-button is-primary" type="button" data-action="decision" data-decision="service">Второй запрос: служебный доступ</button></div></section>`;
     return `<section class="case2317-decision"><p class="case2317-eyebrow">Оперативный запрос · этап 2</p><h3>${escapeHtml(DECISION.title)}</h3><p>${escapeHtml(DECISION.lead)}</p><div class="case2317-decision-options">${DECISION.options.map((opt) => `<button class="case2317-decision-option" type="button" data-action="decision" data-decision="${opt.id}"><strong>${escapeHtml(opt.title)}</strong>${escapeHtml(opt.text)}</button>`).join('')}</div></section>`;
   };
   const stageReady = (progress, stage) => {
@@ -299,8 +312,8 @@
     const next = stage.id === 1
       ? 'Изучите три материала. Один из кодов на вашем экране получает смысл только после сверки с напарником.'
       : stage.id === 2
-        ? 'Отделите три вопроса: где настоящий 407, как из него выйти и была ли тревога случайной. Затем вместе выберите первый срочный запрос.'
-        : 'Докажите отдельно путь футляра и участие Елены. Не подменяйте доказательство мотивом или принадлежностью токена.';
+        ? 'Отделите три вопроса: где настоящий 407, куда ведут косвенные следы и была ли тревога случайной. Затем вместе выберите первый срочный запрос.'
+        : 'Используйте открытый журнал доступа: докажите отдельно путь футляра и участие Елены. Не подменяйте доказательство мотивом или принадлежностью токена.';
     return `<aside class="case407-guidance" aria-label="Ход расследования"><div><small>Ход расследования</small><strong>${ready ? (stage.id < 3 ? 'Этап доказан' : 'Можно собирать заключение') : 'Что делать сейчас'}</strong></div><p>${ready ? (stage.id < 3 ? 'Следующий пакет материалов доступен кнопкой внизу этапа.' : 'Финальная форма открыта после совместной сверки.') : escapeHtml(next)}</p><span>${ready ? '✓' : `${stage.id}/3`}</span></aside>`;
   };
 
@@ -315,7 +328,9 @@
     const canAdvance = stageReady(progress, progress.stage);
     const nextAvailable = progress.stage < 3 && progress.viewStage === progress.stage && canAdvance;
     const atFinal = progress.stage === 3 && progress.viewStage === 3 && stageReady(progress, 3);
-    const hintText = progress.hints > 0 ? data.hints[progress.hints - 1] : '';
+    const stageHints = HINTS_BY_STAGE[stage.id] || [];
+    const usedStageHints = Math.max(0, Math.min(stageHints.length, Number(progress.hintUsage?.[stage.id]) || 0));
+    const hintText = usedStageHints > 0 ? stageHints[usedStageHints - 1] : '';
     const special = progress.viewStage === 1 ? handoffHtml(state, progress, 1) : progress.viewStage === 2 ? decisionHtml(progress) : handoffHtml(state, progress, 3);
     shell(`
       ${topbar(state, progress)}
@@ -326,8 +341,8 @@
       ${special}
       <div class="case2317-crosscheck"><strong>Не пересылайте экран.</strong><p>Скажите напарнику, что именно вы считаете доказанным, и попросите назвать факт с его стороны, который подтверждает или разрушает ваш вывод.</p></div>
       ${message ? `<div class="case2317-feedback is-wrong">${escapeHtml(message)}</div>` : ''}
-      ${hintText ? `<div class="case2317-hint"><strong>Подсказка ${progress.hints}:</strong> ${escapeHtml(hintText)}</div>` : ''}
-      <div class="case2317-stage-actions"><button class="case2317-button" data-action="hint" ${progress.hints >= data.hints.length ? 'disabled' : ''}>Нужна подсказка</button>${nextAvailable ? `<button class="case2317-button is-primary" data-action="next-stage">Получить новые материалы</button>` : (!canAdvance && progress.viewStage === progress.stage ? '<span class="case2317-marker-note">Сначала завершите совместное действие этого этапа.</span>' : '')}</div>
+      ${hintText ? `<div class="case2317-hint"><strong>Подсказка этапа ${stage.id} · ${usedStageHints}/${stageHints.length}:</strong> ${escapeHtml(hintText)}</div>` : ''}
+      <div class="case2317-stage-actions"><button class="case2317-button" data-action="hint" ${usedStageHints >= stageHints.length ? 'disabled' : ''}>Нужна подсказка</button>${nextAvailable ? `<button class="case2317-button is-primary" data-action="next-stage">Получить новые материалы</button>` : (!canAdvance && progress.viewStage === progress.stage ? '<span class="case2317-marker-note">Сначала завершите совместное действие этого этапа.</span>' : '')}</div>
       </section>${atFinal ? finalHtml(progress) : ''}
     `);
   };
@@ -475,6 +490,7 @@
     }
     busy = true;
     const elapsedSeconds = Math.max(1, Math.min(21600, Math.round((Date.now() - progress.startedAt) / 1000)));
+    progress.hints = hintCount(progress); saveProgress(roomState, progress);
     const attemptsForScore = Math.max(1, progress.finalAttempts + progress.decisionMistakes);
     try {
       const next = await api({ action: 'complete', code: roomState.room.code, elapsedSeconds, hintsUsed: progress.hints, attempts: attemptsForScore, firstAnswerCorrect: progress.finalAttempts === 1 && progress.decisionMistakes === 0 });
@@ -508,7 +524,19 @@
     else if (action === 'share-result') shareResult(target);
     else if (action === 'stage' && roomState) { const p = readProgress(roomState); const requested = Number(target.dataset.stage); if (requested >= 1 && requested <= p.stage) { p.viewStage = requested; saveProgress(roomState, p); renderGame(roomState); } }
     else if (action === 'next-stage' && roomState) { const p = readProgress(roomState); if (p.stage < 3 && stageReady(p, p.stage)) { p.stage += 1; p.viewStage = p.stage; saveProgress(roomState, p); track('coop_407_stage_opened', { room_code: roomState.room.code, stage: p.stage }); renderGame(roomState); window.scrollTo({ top: 0, behavior: 'smooth' }); } }
-    else if (action === 'hint' && roomState) { const p = readProgress(roomState); if (p.hints < data.hints.length) { p.hints += 1; saveProgress(roomState, p); track('coop_407_hint', { room_code: roomState.room.code, hint: p.hints }); renderGame(roomState); } }
+    else if (action === 'hint' && roomState) {
+      const p = readProgress(roomState);
+      const stageId = p.viewStage;
+      const stageHints = HINTS_BY_STAGE[stageId] || [];
+      const used = Math.max(0, Math.min(stageHints.length, Number(p.hintUsage?.[stageId]) || 0));
+      if (used < stageHints.length) {
+        p.hintUsage[stageId] = used + 1;
+        p.hints = hintCount(p);
+        saveProgress(roomState, p);
+        track('coop_407_hint', { room_code: roomState.room.code, stage: stageId, hint_in_stage: used + 1, total_hints: p.hints });
+        renderGame(roomState);
+      }
+    }
   });
   root.addEventListener('change', (event) => {
     if (!roomState) return;
