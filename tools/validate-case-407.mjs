@@ -21,7 +21,7 @@ const titles = new Set();
 let materialCount = 0;
 for (const [index, stage] of data.stages.entries()) {
   expect(stage.id === index + 1, `stage ${index + 1} id/order mismatch`);
-  expect(stage.objective?.length > 60, `stage ${stage.id} needs a clear objective`);
+  expect(stage.objective?.length > 80, `stage ${stage.id} needs a clear objective`);
   for (const role of ['investigator', 'analyst']) {
     const materials = stage[role];
     expect(Array.isArray(materials) && materials.length === 3, `stage ${stage.id}/${role} must contain three materials`);
@@ -31,21 +31,26 @@ for (const [index, stage] of data.stages.entries()) {
       expect(!titles.has(material.title), `duplicate evidence title: ${material.title}`);
       titles.add(material.title);
       const substance = [...(material.body || []), ...(material.facts || []), ...(material.messages || []).flat()].join(' ');
-      expect(substance.length > 90, `material “${material.title}” is too thin`);
+      expect(substance.length > 110, `material “${material.title}” is too thin`);
     }
   }
 }
 expect(materialCount === 18, `expected 18 materials, got ${materialCount}`);
 
-expect(data.final?.questions?.length === 3, 'the final must contain three reconstruction questions');
-const expectedAnswers = new Map([['room', '409'], ['alarm', 'duress'], ['sequence', 'staged']]);
+expect(data.final?.questions?.length === 4, 'the final must contain four reconstruction questions');
+const expectedAnswers = new Map([
+  ['room', '409'],
+  ['alarm', 'duress'],
+  ['route', 'service'],
+  ['sequence', 'collusion'],
+]);
 for (const question of data.final.questions) {
   const values = new Set(question.options.map(([value]) => value));
   expect(values.has(question.answer), `answer for “${question.id}” is not present in its options`);
   expect(expectedAnswers.get(question.id) === question.answer, `canonical answer changed for “${question.id}”`);
 }
-expect(data.hints?.length >= 5, 'progressive hint ladder is incomplete');
-expect(data.reveal?.body?.length >= 5 && data.reveal.closing, 'personalized fair-play debrief is incomplete');
+expect(data.hints?.length >= 6, 'progressive hint ladder is incomplete');
+expect(data.reveal?.body?.length >= 5 && data.reveal.closing, 'fair-play debrief is incomplete');
 
 const roleText = (role) => JSON.stringify(data.stages.map((stage) => stage[role]));
 const handoffs = [
@@ -55,6 +60,25 @@ const handoffs = [
   ['Аналитик получает BR-220 от Следователя', roleText('investigator'), 'BR-220'],
 ];
 for (const [label, source, token] of handoffs) expect(source.includes(token), `${label}: source token is absent`);
+
+const stage1 = JSON.stringify(data.stages[0]);
+for (const earlySpoiler of ['SVC-407', 'HK-44', 'LOADING-B1', 'цифру 9', 'служебный лифт']) {
+  expect(!stage1.includes(earlySpoiler), `stage 1 reveals the central escape mechanism too early: ${earlySpoiler}`);
+}
+expect(stage1.includes('H-409') && stage1.includes('L-409'), 'stage 1 must contain complementary room identifiers');
+
+const stage2 = JSON.stringify(data.stages[1]);
+for (const marker of ['SVC-407', 'HK-44', 'LOADING-B1', 'цифру 9', 'Владелец токена ≠ обязательно его носитель']) {
+  expect(stage2.includes(marker), `stage 2 missing escape/intent marker: ${marker}`);
+}
+
+const stage3 = JSON.stringify(data.stages[2]);
+for (const marker of ['BR-220', 'NIGHT-MGR', 'ER-02', '94 секунды', '31 800 евро', 'ЛОЖЬ ≠ ВИНОВНОСТЬ']) {
+  expect(stage3.includes(marker), `stage 3 missing accomplice/sapphire marker: ${marker}`);
+}
+for (const confession of ['HK-44 у меня', 'Футляр BR-220 войдёт', 'В аэропорту разделимся', 'масса в багажном отсеке']) {
+  expect(!stage3.includes(confession), `stage 3 contains an over-explicit or implausible clue: ${confession}`);
+}
 
 const allStory = JSON.stringify(data);
 for (const marker of ['COPY-2', 'S-407', 'SVC-407', 'NIGHT-MGR', '94 секунды', 'ЛОЖЬ ≠ ВИНОВНОСТЬ']) {
@@ -66,9 +90,18 @@ for (const stale of ['D-2147', 'Q7-29', 'RB-17', '4F-7719', 'special:2317', 'В�
 
 const runtime = read('assets/case-407.js');
 for (const marker of [
-  'functions/v1/coop-407', "expected: 'L-409'", "expected: 'H-409'", "expected: 'HK-44'", "expected: 'BR-220'",
-  "correct: 'service'", "new Set(['room_swap', 'duress', 'service_route'])", 'data-case407-app',
+  'functions/v1/coop-407',
+  "expected: 'L-409'", "expected: 'H-409'", "expected: 'HK-44'", "expected: 'BR-220'",
+  "correct: 'service'",
+  "new Set(['room', 'intent', 'route', 'sapphire', 'accomplice'])",
+  'mysterylogic:407:v2:',
+  'Выберите 5 опорных доказательств',
+  'reconstruction + evidence + coordination + discipline',
+  'не доказывает, кто именно нёс токен',
+  'data-case407-app',
 ]) expect(runtime.includes(marker), `runtime contract is missing: ${marker}`);
+expect(!runtime.includes("new Set(['room_swap', 'duress', 'service_route'])"), 'old rigid three-evidence final still exists');
+expect(!runtime.includes('teamwork = 25'), 'teamwork score must not be hard-coded');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
 for (const marker of ['noindex,follow', 'case407-catalog', 'room-407-evidence.webp', 'href="407/"']) {
@@ -90,10 +123,12 @@ expect(image.toString('ascii', 0, 4) === 'RIFF' && image.toString('ascii', 8, 12
 
 console.log(JSON.stringify({
   case: data.title,
+  logicVersion: 2,
   stages: data.stages.length,
   materials: materialCount,
   finalQuestions: data.final.questions.length,
   handoffs: handoffs.length,
+  finalEvidenceGroups: 5,
   imageBytes: image.length,
   fairPlay: 'passed',
 }, null, 2));
