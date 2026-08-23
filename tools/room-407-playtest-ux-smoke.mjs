@@ -57,17 +57,18 @@ try {
   const { stdout: dom } = await runChrome([...args, '--dump-dom', url]);
   const required = [
     'data-ready="1"', 'data-strong-passed="1"',
-    'Сначала сообщите Аналитику заводской H-код',
+    'Назовите Аналитику H-код с обратной стороны таблички',
+    'связанный L-код замка',
     'каждый подтвердите тот же вариант на своём экране',
-    'не заменяет независимое доказательство личного действия Елены',
+    'общий план, но не личное действие Елены',
     'data-playtest-evidence-error="1"',
     'В наборе нет независимого доказательства личного действия Елены'
   ];
   for (const marker of required) if (!dom.includes(marker)) throw new Error(`playtest UX DOM missing ${marker}`);
   const stat = fs.statSync(screenshot);
   if (stat.size < 40_000) throw new Error(`playtest UX screenshot too small: ${stat.size}`);
-  fs.writeFileSync(path.join(outDir,'report.json'), JSON.stringify({ revision:'4.2', weakFinalBlocked:true, strongFinalPassedPlaytestGate:true, sameDecisionCopy:true, hToLFlow:true, screenshot:path.basename(screenshot), bytes:stat.size }, null, 2));
-  console.log(JSON.stringify({ revision:'4.2', weakFinalBlocked:true, strongFinalPassedPlaytestGate:true, sameDecisionCopy:true, hToLFlow:true, screenshotBytes:stat.size }, null, 2));
+  fs.writeFileSync(path.join(outDir,'report.json'), JSON.stringify({ revision:'4.2', weakFinalBlocked:true, strongFinalPassedPlaytestGate:true, sameDecisionCopy:true, hToLFlow:true, playerCopySimplified:true, screenshot:path.basename(screenshot), bytes:stat.size }, null, 2));
+  console.log(JSON.stringify({ revision:'4.2', weakFinalBlocked:true, strongFinalPassedPlaytestGate:true, sameDecisionCopy:true, hToLFlow:true, playerCopySimplified:true, screenshotBytes:stat.size }, null, 2));
 } finally {
   await new Promise((resolve)=>server.close(resolve));
 }
