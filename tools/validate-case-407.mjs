@@ -71,7 +71,7 @@ expect(!runtime.includes('teamwork = 25'), 'teamwork score must not be hard-code
 expect(!runtime.includes("mysterylogic:407:v2:"), 'stale v2 progress key remains');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
-for (const marker of ['noindex,follow','case407-catalog','room-407-evidence.webp','href="407/"','case-407-plaque-code-v2.js','case-407-evidence-v3.css','case-407-evidence-finalize.js',"const VERSION = '1.5.3'"]) expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
+for (const marker of ['noindex,follow','case407-catalog','room-407-evidence.webp','href="407/"','case-407-plaque-code-v2.js','case-407-evidence-v3.css','case-407-evidence-finalize.js',"const VERSION = '1.6.0'"]) expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
 expect(!postprocess.includes('case-407-evidence-v2-hydrate.js'), 'redundant evidence hydration runtime is still loaded');
 
 const edge = read('supabase/functions/coop-407/index.ts');
