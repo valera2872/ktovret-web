@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.4';
+const VERSION='1.0.5';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const estimate=(difficulty='Среднее')=>/слож/i.test(difficulty)?8:/лег/i.test(difficulty)?5:7;
+const wave=()=>Array.from({length:35},()=>'<i aria-hidden="true"></i>').join('');
 
 function addClass(html,className){
   return html.replace(/<body(?: class="([^"]*)")?([^>]*)>/,(_,classes='',rest='')=>`<body class="${[classes,className].filter(Boolean).join(' ').trim()}"${rest}>`);
@@ -23,8 +24,7 @@ function formats(){
   return `<p class="ref-section-label" id="games">Выберите формат расследования</p><section class="ref-format-grid ml-material-formats" aria-labelledby="games"><a class="ref-format-card" href="./detektivnye-igry-dlya-dvoih/"><div class="ref-format-copy"><small>Для двоих</small><h3>Последний звонок<br>в 23:17</h3><p>Совместное расследование.<br>2 игрока · 45–60 минут</p></div>${materialCrop(src,'mat-format-1','Телефон 112, карта и материалы двух следователей','eager')}<span class="ref-format-link">Играть вдвоём →</span></a><a class="ref-format-card" href="./kto-vret/"><div class="ref-format-copy"><small>Серия дел</small><h3>Кто врёт?</h3><p>Короткие логические дела<br>в удобном формате.</p></div><div class="ml-native-photo-stage">${materialCrop(src,'mat-format-2 ml-who-photo-card','Блокнот с показаниями и лупа','eager')}</div><span class="ref-format-link">Открыть серию →</span></a><a class="ref-format-card" href="./tom-1/"><div class="ref-format-copy"><small>Архив</small><h3>Первый том</h3><p>Полный архив · 15 бесплатных дел<br>+ 85 дел в одном томе.</p></div>${materialCrop(src,'mat-format-3','Первый том Mystery Logic и архивные папки','eager')}<span class="ref-format-link">Посмотреть том →</span></a></section>`;
 }
 function materials(){
-  const src='./assets/reference-home-lower.webp';
-  return `<p class="ref-section-label">С чем вы будете работать</p><section class="ref-material-grid ml-material-evidence"><article class="ref-material"><h3>Запись 112</h3>${materialCrop(src,'mat-evidence-1','Запись экстренного звонка 112')}</article><article class="ref-material"><h3>Камера</h3>${materialCrop(src,'mat-evidence-2','Кадр камеры наблюдения')}</article><article class="ref-material"><h3>Переписка</h3>${materialCrop(src,'mat-evidence-3','Фрагмент переписки')}</article><article class="ref-material"><h3>Протокол</h3>${materialCrop(src,'mat-evidence-4','Протокол осмотра')}</article></section>`;
+  return `<p class="ref-section-label">С чем вы будете работать</p><section class="ref-material-grid ml-live-evidence" data-material-ui="live-evidence"><article class="ref-material"><h3>Запись 112</h3><div class="ref-wave" aria-label="Форма аудиосигнала">${wave()}</div><div class="ref-player"><span class="ref-play">▶</span><span>00:00 / 01:12</span></div></article><article class="ref-material"><h3>Камера</h3><div class="ref-camera-mini" role="img" aria-label="Кадр камеры C17 в 23:17:41"></div></article><article class="ref-material"><h3>Переписка</h3><div class="ref-chat-bubble">Ты где?<small style="float:right">23:12 ✓✓</small></div><div class="ref-chat-bubble">Буду через 10 минут<small style="float:right">23:12 ✓✓</small></div></article><article class="ref-material"><h3>Протокол</h3><div class="ref-protocol"><strong>ПРОТОКОЛ ОСМОТРА</strong><span></span></div></article></section>`;
 }
 function manifesto(){
   return `<section class="ref-manifesto" id="method"><div><h2>Честная детективная задача уважает игрока.</h2><p>Все необходимые сведения есть в материалах дела. Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки.<br>Определить правильную последовательность событий можно только сопоставив факты.</p></div><div class="ref-seal">ML</div></section>`;
@@ -57,7 +57,7 @@ function patchHome(siteRoot){
   const lower=/<section class="ref-snapshot ref-home-lower"[\s\S]*?<\/section><section class="ref-sr-only" id="method"[\s\S]*?<\/section>/;
   if(!lower.test(html)) throw new Error('material v4: homepage reference snapshot not found');
   html=html.replace(lower,homeLower());
-  if(!html.includes('data-material-ui="home-lower"')||html.includes('class="ref-snapshot ref-home-lower"')) throw new Error('material v4: homepage remained a screenshot');
+  if(!html.includes('data-material-ui="home-lower"')||!html.includes('data-material-ui="live-evidence"')||html.includes('class="ref-snapshot ref-home-lower"')) throw new Error('material v4: homepage remained a screenshot');
   fs.writeFileSync(file,html);
 }
 function patchCatalog(siteRoot,cases){
