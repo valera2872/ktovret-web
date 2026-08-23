@@ -28,7 +28,7 @@ for (const marker of ['directParagraphs', 'fillArtifact', 'case407-transcript', 
 for (const marker of ['.case407-plaque-grid', '.case407-cctv-strip', '.case407-plan-canvas', '.case407-code-line', '.case407-network-grid', '.case407-audit-row', '.case407-access-path', '.case407-car-dash', '.case407-phone', '@media(max-width:760px)']) expect(css.includes(marker), `stylesheet missing ${marker}`);
 for (const marker of ['grid-template-columns:repeat(2,minmax(0,1fr))', 'font-size:11px', '.case407-access-camera']) expect(overrides.includes(marker), `readability overrides missing ${marker}`);
 
-for (const marker of ['case-407-evidence-v2.css', 'case-407-evidence-v3.css', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', "const VERSION = '1.5.2'"]) expect(postprocess.includes(marker), `generated case page does not load ${marker}`);
+for (const marker of ['case-407-evidence-v2.css', 'case-407-evidence-v3.css', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', "const VERSION = '1.5.3'"]) expect(postprocess.includes(marker), `generated case page does not load ${marker}`);
 expect(!postprocess.includes('case-407-evidence-v2-hydrate.js'), 'removed legacy hydration layer is still loaded');
 
 const story = JSON.stringify(data);
