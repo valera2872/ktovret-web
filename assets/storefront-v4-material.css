@@ -9,20 +9,24 @@
 .ml-mat-crop:after,.ml-archive-crop:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(222,178,101,.08);background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(0,0,0,.035));mix-blend-mode:soft-light}
 .ml-mat-crop img,.ml-archive-crop img{position:absolute;left:0;top:0;display:block;max-width:none;height:auto;filter:contrast(1.055) saturate(1.025);transform-origin:0 0;backface-visibility:hidden}
 
-/* Format cards: crop only the material/art part from the accepted v4 mockup.
-   Text above and CTA below stay native and crisp. */
+/* The accepted big photographic compositions remain photographic.
+   Only the three small format illustrations use their genuine vector originals,
+   avoiding obvious compression blur in the most visible card row. */
 .ml-material-formats .ref-format-card{background:#06131d}
 .ml-material-formats .ml-mat-crop{height:188px;margin-top:auto;border-top:1px solid rgba(197,140,58,.08)}
-.ml-material-formats .mat-format-1 img{width:341.3%;transform:translate(-4.1%,-34.0%)}
-.ml-material-formats .mat-format-3 img{width:341.3%;transform:translate(-63.6%,-29.4%)}
+.ml-material-formats .mat-format-1,.ml-material-formats .mat-format-3,.ml-native-photo-stage{position:relative;background-color:#071019;background-repeat:no-repeat;background-position:center;background-size:cover}
+.ml-material-formats .mat-format-1{background-image:url("./reference-format-2317.svg")}
+.ml-material-formats .mat-format-3{background-image:url("./reference-format-volume.svg")}
+.ml-material-formats .mat-format-1>img,.ml-material-formats .mat-format-3>img{display:none!important}
+.ml-material-formats .mat-format-1:before,.ml-material-formats .mat-format-3:before,.ml-native-photo-stage:after{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;background:repeating-linear-gradient(17deg,rgba(219,188,139,.045) 0 1px,transparent 1px 4px),radial-gradient(circle at 24% 27%,rgba(222,187,126,.08),transparent 31%),radial-gradient(circle at 74% 68%,rgba(0,0,0,.16),transparent 38%);mix-blend-mode:soft-light;opacity:.72}
+.ml-material-formats .mat-format-1:after,.ml-material-formats .mat-format-3:after{z-index:3}
 
-/* Keep the accepted photographic notebook/loupe at almost native crop scale.
-   The surrounding stage preserves the original card proportion without enlarging the photo. */
-.ml-native-photo-stage{height:188px;margin-top:auto;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 52% 46%,rgba(154,117,69,.08),transparent 46%),#06131d;border-top:1px solid rgba(197,140,58,.08)}
-.ml-native-photo-stage .ml-who-photo-card{width:305px;max-width:88%;height:178px;margin:0;border:1px solid rgba(197,140,58,.10);box-shadow:0 14px 24px rgba(0,0,0,.22)}
-.ml-native-photo-stage .ml-who-photo-card img{width:359.7%;filter:contrast(1.08) saturate(1.02);transform:translate(-34.6%,-29.4%)}
+/* Who card: same accepted notebook/loupe composition, but from the true vector source.
+   Material grain is added separately, so there is no raster ghost text. */
+.ml-native-photo-stage{height:188px;margin-top:auto;display:grid;place-items:center;overflow:hidden;background-image:url("./reference-format-who.svg");border-top:1px solid rgba(197,140,58,.08);box-shadow:inset 0 0 0 1px rgba(197,140,58,.04)}
+.ml-native-photo-stage .ml-who-photo-card{display:none!important}
 
-/* Evidence row: retain the photographic evidence, but hide raster headings inherited from the source board. */
+/* Evidence row stays photographic; the blur there reads as source material rather than UI text. */
 .ml-material-evidence .ref-material{padding-bottom:14px;background:#06141e}
 .ml-material-evidence .ml-mat-crop{height:96px;border:1px solid rgba(197,140,58,.16);border-radius:2px;background:#08121a}
 .ml-material-evidence .ml-mat-crop:before{content:"";position:absolute;z-index:3;left:0;right:0;top:0;height:25px;pointer-events:none;background:linear-gradient(180deg,#06141e 0 68%,rgba(6,20,30,.96) 78%,rgba(6,20,30,0) 100%)}
@@ -33,7 +37,7 @@
 .ml-material-evidence .mat-evidence-4 img{transform:translate(-74.7%,-65.0%)}
 
 /* Archive cards: original evidence/photo crop + crisp live number and access badge.
-   The two masks remove the old raster number/badge baked into the reference collage. */
+   The masks remove the old raster number/badge baked into the reference collage. */
 .ml-material-archive{margin-bottom:20px}
 .ml-material-case{background:#06131c}
 .ml-material-case .ml-archive-crop{height:150px;position:relative;overflow:hidden;background:#071019}
@@ -52,7 +56,7 @@
 .ml-live-badge{right:7px;top:7px;padding:5px 9px;border-radius:3px;background:#173c23;color:#d9edcf;font:10px/1.1 Arial,sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.03)}
 .ml-live-badge.locked{background:#15324e;color:#d8e5ed}
 
-/* Кто врёт? product hero — same accepted photo, kept almost 1:1 with its source crop. */
+/* Кто врёт? product hero keeps the accepted photographic notebook/loupe close to 1:1 source scale. */
 .ref-who-v4.ref-storefront-material .ref-who-art{width:min(100%,390px);padding:0 12px 18px}
 .ref-who-v4.ref-storefront-material .mat-format-who-hero{width:310px;max-width:100%;aspect-ratio:1.44;margin:0 auto;border:1px solid rgba(197,140,58,.42);border-radius:4px;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-.55deg)}
 .ref-who-v4.ref-storefront-material .mat-format-who-hero img{width:359.7%;filter:contrast(1.08) saturate(1.02);transform:translate(-34.6%,-29.7%)}
@@ -70,7 +74,6 @@
 @media(max-width:700px){
  .ref-storefront-material .ml-material-home-lower{margin-top:8px}
  .ml-material-formats .ml-mat-crop,.ml-native-photo-stage{height:205px}
- .ml-native-photo-stage .ml-who-photo-card{width:min(305px,88%);height:180px}
  .ml-material-evidence .ml-mat-crop{height:118px}
  .ml-material-case .ml-archive-crop{height:170px}
  .ref-who-v4.ref-storefront-material .ref-who-art{padding-left:0;padding-right:0}
