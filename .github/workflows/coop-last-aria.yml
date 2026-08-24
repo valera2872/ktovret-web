@@ -43,6 +43,7 @@ jobs:
           node --check assets/case-aria.js
           node --check assets/case-aria-materials-v2.js
           test -s assets/case-aria-materials-v2.css
+          test -s assets/case-aria-layout-v2.css
           node --check tools/import-mobile/two-player-last-aria-postprocess.mjs
           node --check tools/import-mobile/seo-ctr-modernization.mjs
           node --check tools/validate-case-last-aria.mjs
@@ -69,6 +70,7 @@ jobs:
           grep -q 'case-aria-fairplay-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-materials-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-layout-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-materials-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'casearia-catalog' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="2317/"' detektivnye-igry-dlya-dvoih/index.html
