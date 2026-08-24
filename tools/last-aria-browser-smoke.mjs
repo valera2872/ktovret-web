@@ -58,7 +58,7 @@ const browser=spawn(chrome,[
 let browserStderr='';
 browser.stderr.on('data',(chunk)=>browserStderr+=String(chunk));
 const wsUrl=await (async()=>{
-  const deadline=Date.now()+15_000;
+  const deadline=Date.now()+30_000;
   while(Date.now()<deadline){
     if(browser.exitCode!==null)throw new Error(`Chrome exited before CDP startup (${browser.exitCode}): ${browserStderr.slice(-1200)}`);
     try{
@@ -144,19 +144,26 @@ try{
       if(!dom.includes(roleTitle)||!dom.includes(`Пакет ${item.stage} / 3`))throw new Error(`${item.name}: role/stage shell missing`);
       const cards=(dom.match(/class="casearia-evidence /g)||[]).length,artifacts=(dom.match(/class="aria-artifact /g)||[]).length;
       if(cards!==3||artifacts!==3||!dom.includes('data-materialized-v2="1"'))throw new Error(`${item.name}: materialized evidence mismatch cards=${cards} artifacts=${artifacts}`);
+      if(item.stage===1&&(!dom.includes('служебные маршруты и события у архива')||dom.includes('Не считайте голос в интеркоме')))throw new Error(`${item.name}: stage1 spoiler-neutral objective missing`);
       if(item.stage===1&&item.role==='creator'&&(!dom.includes('14–17 секунд')||!dom.includes('дверного контакта уже открытой двери')))throw new Error('door-to-door STAIR-18 timing missing');
       if(item.stage===1&&item.role==='guest'&&(!dom.includes('1,7 м')||!dom.includes('5,2–6,1 секунды')))throw new Error('archive retrieval reconstruction missing');
+      if(item.stage===2&&(!dom.includes('физические следы, временные окна и технические данные')||!dom.includes('технические данные о сообщениях')))throw new Error(`${item.name}: stage2 neutral decision copy missing`);
       if(item.stage===2&&item.role==='guest')for(const marker of ['состояние ARMED','Q-17B','+10,0','+16,0','+23,0','присутствие человека у панели уже не требуется'])if(!dom.includes(marker))throw new Error(`analyst playback-chain marker missing: ${marker}`);
+      if(item.stage===3&&!dom.includes('события критического окна у архива и дальнейший путь партитуры'))throw new Error(`${item.name}: stage3 spoiler-neutral objective missing`);
       if(item.stage===3&&item.role==='creator'&&(!dom.includes('31 × 24 × 0,8 см')||!dom.includes('38 × 29 × 6,4 см')))throw new Error('score-to-case physical fit missing');
       if(item.stage===3&&item.role==='guest'&&(!dom.includes('RFI-1')||!dom.includes('LOCAL-ARM')))throw new Error('stage3 technical containment/arm evidence missing');
     }
-    if(item.mode==='final')for(const marker of ['casearia-final-form','name="evidence"','Что произошло в 21:49?','Отметьте шесть ключевых связок','B-3 + P-771','PB-2 + TAKE-6 + C-2','cue-trigger Q-17B','безымянный ключ того же профиля изъят при нём','RFI-1 + MS-1908 + T-6M'])if(!dom.includes(marker))throw new Error(`final proof marker missing: ${marker}`);
+    if(item.mode==='final'){
+      for(const marker of ['casearia-final-form','name="evidence"','Что произошло в 21:49?','Отметьте шесть ключевых связок','B-3 + BR-06 + P-771','PB-2 + TAKE-6 + C-2 + Q-17B','заявка на дубликат, журнал возврата и изъятый безымянный ключ','RFI-1 + MS-1908 + T-6M'])if(!dom.includes(marker))throw new Error(`final proof marker missing: ${marker}`);
+      for(const forbidden of ['Михаил разобрал PR-17','голос дирижёра был заранее записан','совпадают с туфлей, изъятой у Михаила','Михаил заказал дубликат','личного кофра Михаила'])if(dom.includes(forbidden))throw new Error(`final proof board leaks answer: ${forbidden}`);
+      if(!dom.includes('Нужны независимые цепочки по хронологии, источникам сообщений'))throw new Error('neutral final synthesis lead missing');
+    }
     if(item.mode==='reveal')for(const marker of ['Заключение следственной группы','Партитуру украли','Маэстро расследования','21:48:54','C-2','Q-17B','+10/+16/+23','RFI-1','5,2–6,1 секунды'])if(!dom.includes(marker))throw new Error(`reveal marker missing: ${marker}`);
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,capture:'chrome-devtools-protocol',views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,final:true,reveal:true,capture:'chrome-devtools-protocol',minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.3',playbackCueTriggered:true,capture:'chrome-devtools-protocol',views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.3',playbackCueTriggered:true,final:true,reveal:true,capture:'chrome-devtools-protocol',minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{
   try{await cdp('Browser.close',{},null,3000);}catch{browser.kill('SIGKILL');}
   try{ws.close();}catch{}
