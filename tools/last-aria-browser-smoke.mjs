@@ -27,7 +27,7 @@ const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta nam
  };
  window.__ariaSmoke={role,stage,mode,code};
 })();
-</script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria.js"></script><script src="/assets/case-aria-materials-v2.js"></script><script>
+</script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria-investigator-v14.js"></script><script src="/assets/case-aria.js"></script><script src="/assets/case-aria-materials-v2.js"></script><script>
 setTimeout(()=>{
  const s=window.__ariaSmoke;
  if(s.mode==='final') document.querySelector('[data-action="next-stage"]')?.click();
@@ -71,14 +71,19 @@ try{
     if(item.mode==='final'){
       if(!dom.includes('casearia-final-form')||!dom.includes('name="evidence"'))throw new Error('final proof board missing');
       if(!dom.includes('Что произошло в 21:49?'))throw new Error('final question screen missing');
+      if(!dom.includes('Отметьте шесть ключевых связок'))throw new Error('investigator-grade six-link proof instruction missing');
+      if(!dom.includes('B-3 + P-771'))throw new Error('personal sabotage chain missing from final board');
+      if(!dom.includes('PB-2 + TAKE-6 + C-2'))throw new Error('playback operator chain missing from final board');
+      if(!dom.includes('безымянный ключ того же профиля изъят при нём'))throw new Error('physical K-12 custody link missing from final board');
     }
     if(item.mode==='reveal'){
       if(!dom.includes('Заключение следственной группы')||!dom.includes('Партитуру украли'))throw new Error('reveal missing');
       if(!dom.includes('Маэстро расследования'))throw new Error('pair rank missing');
+      if(!dom.includes('21:48:54')||!dom.includes('C-2'))throw new Error('playback operator proof missing before debrief conclusion');
     }
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{await new Promise((resolve)=>server.close(resolve));}
