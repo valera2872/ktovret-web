@@ -1,0 +1,98 @@
+name: Live smoke Mystery Logic Last Aria backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/coop-last-aria-live.yml'
+      - 'supabase/functions/coop-last-aria/**'
+      - 'assets/case-aria.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-last-aria:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Live two-player room contract
+        env:
+          ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-last-aria
+        run: |
+          node <<'NODE'
+          const { randomBytes } = require('node:crypto');
+
+          (async () => {
+            const endpoint = process.env.ENDPOINT;
+            const origin = 'https://mysterylogic.com';
+            const creatorKey = randomBytes(24).toString('hex');
+            const guestKey = randomBytes(24).toString('hex');
+
+            const post = async (body, expected = 200) => {
+              const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', origin },
+                body: JSON.stringify(body),
+              });
+              const text = await response.text();
+              let payload = {};
+              try { payload = JSON.parse(text); } catch {}
+              if (response.status !== expected) {
+                throw new Error(`${body.action}: HTTP ${response.status} ${text}`);
+              }
+              return payload;
+            };
+
+            const created = await post({ action: 'create', browserKey: creatorKey, playerName: 'CI Stage Investigator' }, 201);
+            if (created.me?.role !== 'creator' || created.room?.caseId !== 'special:last-aria') {
+              throw new Error('create contract mismatch');
+            }
+
+            const code = created.room.code;
+            const preview = await post({ action: 'preview', browserKey: guestKey, code });
+            if (preview.roomFull || !preview.creatorName || preview.room?.caseTitle !== 'Последняя ария') {
+              throw new Error('preview contract mismatch');
+            }
+
+            const joined = await post({ action: 'join', browserKey: guestKey, code, playerName: 'CI Technical Analyst' });
+            if (!joined.bothJoined || joined.me?.role !== 'guest') {
+              throw new Error('join contract mismatch');
+            }
+
+            const startedCreator = await post({ action: 'start', browserKey: creatorKey, code });
+            const startedGuest = await post({ action: 'start', browserKey: guestKey, code });
+            if (!startedCreator.me?.started || !startedGuest.me?.started) {
+              throw new Error('start contract mismatch');
+            }
+
+            const first = await post({
+              action: 'complete', browserKey: creatorKey, code,
+              elapsedSeconds: 1180, hintsUsed: 1, attempts: 2, firstAnswerCorrect: false,
+            });
+            if (first.bothCompleted) throw new Error('room completed before second player');
+
+            const second = await post({
+              action: 'complete', browserKey: guestKey, code,
+              elapsedSeconds: 1260, hintsUsed: 0, attempts: 1, firstAnswerCorrect: true,
+            });
+            if (!second.bothCompleted) throw new Error('room did not complete');
+            if (second.results?.creator?.name !== 'CI Stage Investigator' || second.results?.guest?.name !== 'CI Technical Analyst') {
+              throw new Error('result contract mismatch');
+            }
+            const serialized = JSON.stringify(second);
+            if (serialized.includes('creator_key_hash') || serialized.includes('player_key_hash')) {
+              throw new Error('private hashes leaked');
+            }
+
+            console.log(`coop-last-aria live contract passed for room ${code}`);
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
