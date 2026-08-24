@@ -34,15 +34,22 @@ const theories = {
   romanCredentialTransfer: {
     claim: 'RB-17 использовал другой человек, а Роман оказался рядом позже.',
     blockers: [
-      ['CAM-S2 лично показывает Романа у автомобиля до поездки', ux.includes('CAM-S2 · 23:30:52') && ux.includes('Роман лично входит в техническую зону')],
+      ['CAM-S2 лично показывает Романа у автомобиля до поездки', ux.includes('CAM-S2 · 23:30:52') && ux.includes('автомобиль Веры мигает габаритами и отпирается')],
       ['после поездки Роман лично виден на пешеходной камере', all.includes('23:55:04') && all.includes('Романа Белова')]
+    ]
+  },
+  unrelatedKeyFob: {
+    claim: 'Марина передала Роману посторонний брелок, не связанный с автомобилем Веры.',
+    blockers: [
+      ['CAM-S1 фиксирует отличительный оранжевый хлястик на переданном брелоке', ux.includes('чёрный ключ-брелок с оранжевым тканевым хлястиком')],
+      ['CAM-S2 показывает тот же хлястик и отпирание автомобиля Веры', ux.includes('брелок с тем же оранжевым хлястиком') && ux.includes('автомобиль Веры мигает габаритами и отпирается')]
     ]
   },
   romanActedIndependently: {
     claim: 'Роман действительно переставил машину, но это не было частью плана Веры и Марины.',
     blockers: [
       ['черновик Веры заранее требует увести отслеживаемую машину отдельным ложным маршрутом', all.includes('серую надо увезти отдельно') && all.includes('Марина сказала, что с машиной разберутся')],
-      ['CAM-S1 лично фиксирует передачу ключа Мариной Роману', ux.includes('CAM-S1 · 23:27:14') && ux.includes('Марина Соболева') && ux.includes('передаёт Роману Белову чёрный ключ-брелок')]
+      ['CAM-S1 лично фиксирует передачу ключа Мариной Роману', ux.includes('CAM-S1 · 23:27:14') && ux.includes('Марина Соболева') && ux.includes('передаёт Роману Белову')]
     ]
   },
   marinaAbductedVera: {
@@ -63,7 +70,7 @@ const theories = {
   randomServiceWorker: {
     claim: 'Машину Веры переставил случайный сотрудник технической службы.',
     blockers: [
-      ['CAM-S1/S2 связывают ключ и Романа до начала поездки', ux.includes('CAM-S1 · 23:27:14') && ux.includes('CAM-S2 · 23:30:52')],
+      ['CAM-S1/S2 связывают конкретный ключ и Романа до начала поездки', ux.includes('CAM-S1 · 23:27:14') && ux.includes('CAM-S2 · 23:30:52') && ux.includes('автомобиль Веры мигает габаритами и отпирается')],
       ['Роман лично возвращается от места оставленной машины', all.includes('23:49:16') && all.includes('23:55:04')]
     ]
   }
@@ -78,5 +85,5 @@ console.log(JSON.stringify({
   logicVersion: data.logicVersion,
   proofRevision: data.proofRevision,
   theoriesRejected: Object.fromEntries(Object.entries(theories).map(([id, t]) => [id, { claim: t.claim, blockers: t.blockers.length }])),
-  verdict: 'principal alternate explanations, including unrelated Roman action, are contradicted by independent evidence'
+  verdict: 'principal alternate explanations, including unrelated Roman action and unrelated key fob, are contradicted by independent evidence'
 }, null, 2));
