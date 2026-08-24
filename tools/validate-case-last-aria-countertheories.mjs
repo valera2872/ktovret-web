@@ -11,7 +11,7 @@ const expect=(condition,message)=>{if(!condition)throw new Error(`Last Aria coun
 const context={window:{}};
 vm.runInNewContext(read('assets/case-aria-data.js'),context);
 vm.runInNewContext(read('assets/case-aria-fairplay-v2.js'),context);
-vm.runInNewContext(read('assets/case-aria-investigator-v14.js'),context);
+vm.runInNewContext(read('assets/case-aria-investigator-v15.js'),context);
 const data=context.window.MLCaseAria;
 const s1=JSON.stringify(data.stages[0]),s2=JSON.stringify(data.stages[1]),s3=JSON.stringify(data.stages[2]),reveal=data.reveal.body.join(' ');
 
@@ -20,7 +20,7 @@ const theories={
     claim:'Сценический менеджер Илья сам продлил blackout и использовал темноту для кражи.',
     blockers:[
       ['SAFE-L/R требуют непрерывного физического удержания',s1.includes('непрерывное одновременное давление SAFE-L/R')&&s3.includes('одновременного давления двух рук')],
-      ['архив открыт внутри того же окна',s1.includes('21:49:31.604')],
+      ['архив открыт внутри того же окна, когда Илья зафиксирован на SAFE',s1.includes('21:49:31.604')],
       ['индивидуальный след архива и K-12 ведут к Михаилу, а не к Илье',s2.includes('HEEL-43C')&&s2.includes('Михаила Карева')&&s2.includes('K-12')]
     ]
   },
@@ -45,7 +45,7 @@ const theories={
     blockers:[
       ['Максим вводит пять независимых ручных команд на LX-4',s3.includes('пять независимых команд на LX-4')],
       ['его обувь 44, а индивидуальный след и изъятая пара Михаила — 43',s3.includes('обувь 44 размера')&&s2.includes('правый след обуви 43 размера')&&s2.includes('изъятой пары')],
-      ['K-12 и T-6M дают независимые физические цепочки к Михаилу',s2.includes('K-12')&&s3.includes('безымянный латунный дубликат')&&s3.includes('T-6M')&&s3.includes('MS-1908')]
+      ['K-12 и изолированный RFI-1/T-6M дают независимые физические цепочки к Михаилу',s2.includes('K-12')&&s3.includes('безымянный латунный дубликат')&&s3.includes('RFI-1')&&s3.includes('MS-1908')]
     ]
   },
   mikhailVoiceWasLive:{
@@ -63,14 +63,14 @@ const theories={
       ['камера фиксирует Михаила с разобранным PR-17 у ячейки BR-06',s3.includes('18:40:12')&&s3.includes('рукоять PR-17 разобрана')&&s3.includes('ячейку BR-06')],
       ['после Михаила PR-17 опломбирован P-771 и до сцены открытого доступа больше нет',s3.includes('пломбу P-771')&&s3.includes('21:44')&&s3.includes('целостность пломбы')],
       ['BR-06 исчезает сразу после его доступа и находится внутри PR-17',s3.includes('18:47')&&s3.includes('BR-06')&&s1.includes('BR-06')],
-      ['Михаил заранее знал SAFE-процедуру, а K-12 и подготовка TAKE-6 существовали до травмы',s1.includes('17:32')&&s1.includes('Михаил Карев')&&s2.includes('K-12')&&s3.includes('21:48:54')]
+      ['Михаил заранее знал 39–43-секундную SAFE-процедуру, а K-12 и TAKE-6 подготовлены до травмы',s1.includes('39–43 секунды')&&s1.includes('Михаил Карев')&&s2.includes('K-12')&&s3.includes('21:48:54')]
     ]
   },
   playbackQueuedByAccomplice:{
     claim:'TAKE-6 поставил в очередь другой человек; Михаил не создавал аудиоалиби.',
     blockers:[
-      ['технический журнал связывает постановку TAKE-6 с C-2 ровно в 21:48:54',s3.includes('21:48:54')&&s3.includes('C-2')],
-      ['C-2 — физически закреплённая на дирижёрском подиуме панель без удалённого входа',s3.includes('стационарная cue-панель')&&s3.includes('удалённого входа у неё нет')],
+      ['технический журнал связывает постановку TAKE-6 с C-2 и LOCAL-ARM ровно в 21:48:54',s3.includes('21:48:54')&&s3.includes('C-2')&&s3.includes('LOCAL-ARM')],
+      ['C-2 закреплена на дирижёрском подиуме, без remote и scheduler',s3.includes('стационарная cue-панель')&&s3.includes('нет сетевого удалённого входа')&&s3.includes('встроенного планировщика')],
       ['камера в 21:48:53–21:48:55 показывает у панели только Михаила и его руку',s3.includes('21:48:53')&&s3.includes('21:48:55')&&s3.includes('только Михаила')]
     ]
   },
@@ -79,7 +79,8 @@ const theories={
     blockers:[
       ['та же индивидуализированная пара находится на Михаиле непосредственно до и сразу после blackout и изъята у него с краской из ямы',s2.includes('21:49:09')&&s2.includes('21:50:05.6')&&s2.includes('треугольный скол')&&s2.includes('свежая матовая чёрная краска')],
       ['K-12 заказан Михаилом, а безымянный архивный дубликат физически изъят при нём',s2.includes('Заявку подписал Михаил Карев')&&s3.includes('безымянный латунный дубликат архивного ключа')],
-      ['T-6M закрыт под его подиумом, после blackout лично открыт Михаилом и далее никем не открывается до обнаружения MS-1908 внутри',s3.includes('закрытым кодовым замком')&&s3.includes('21:51:24')&&s3.includes('никто другой его не открывает')&&s3.includes('MS-1908')]
+      ['после blackout Михаил сам приносит новую кремовую папку и кладёт её в закрытый T-6M; далее кофр никто не открывает',s3.includes('21:50:07')&&s3.includes('кремовую папку')&&s3.includes('21:51:24')&&s3.includes('никто другой его не открывает')],
+      ['RFI-1 изолирует T-6M от любых соседних тегов и MS-1908 отвечает только с кофром внутри',s3.includes('экранированный RFID-инспекционный шкаф RFI-1')&&s3.includes('единственным кофром внутри')&&s3.includes('контрольный пустой скан снова даёт ноль')]
     ]
   }
 };
@@ -89,11 +90,13 @@ for(const [id,theory] of Object.entries(theories)){
   expect(theory.blockers.length>=3,`${id} has too few independent blockers`);
 }
 
-for(const marker of ['BR-06','P-771','PB-2','TAKE-6','C-2','HEEL-43C','K-12','MS-1908','T-6M','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
+for(const marker of ['BR-06','P-771','PB-2','TAKE-6','C-2','HEEL-43C','K-12','MS-1908','T-6M','RFI-1','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
 expect(reveal.includes('совокупности физической, временной и технической цепочек'),'debrief does not state multi-evidence standard');
 expect(data.final.requiredGroups.length===6&&data.final.requiredGroups.includes('culprit-sabotage'),'final gate does not require personal sabotage link');
 
 console.log(JSON.stringify({
   theoriesRejected:Object.fromEntries(Object.entries(theories).map(([id,t])=>[id,{claim:t.claim,independentBlockers:t.blockers.length}])),
-  verdict:'eight principal alternatives are contradicted by independent pre-final facts'
+  isolatedRfidContainment:true,
+  routeSlackProtected:true,
+  verdict:'eight principal alternatives are contradicted by independent pre-final investigator v1.5 facts'
 },null,2));
