@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repo = path.resolve(here, '..');
+const read = (file) => fs.readFileSync(path.join(repo, file), 'utf8');
+const expect = (condition, message) => { if (!condition) throw new Error(`23:17 counter-theory validation failed: ${message}`); };
+const ctx = { window: {} };
+vm.runInNewContext(read('assets/case-2317-data.js'), ctx);
+vm.runInNewContext(read('assets/case-2317-detective-v3.js'), ctx);
+vm.runInNewContext(read('assets/case-2317-timeline-v31.js'), ctx);
+const data = ctx.window.MLCase2317;
+const all = JSON.stringify(data);
+const ux = read('assets/case-2317-ux-v3.js');
+
+const theories = {
+  ilyaCarWithoutIlya: {
+    claim: 'Машина Ильи была у дома, но самого Ильи там не было.',
+    blockers: [
+      ['Q7-29 лично показывает Илью', ux.includes('Илья Кравцов лично выходит из водительской двери')],
+      ['маяк независимо связан с приложением Ильи', all.includes('4F-7719') && all.includes('запрос координат маяка в 23:05:48')]
+    ]
+  },
+  veraDroveOwnCar: {
+    claim: 'Вера сама переставила автомобиль и потом вернулась к Марине.',
+    blockers: [
+      ['Вера непрерывно видна в кафе 23:43:51–23:45:12', all.includes('23:43:51–23:45:12')],
+      ['автомобиль одновременно движется в 23:44:36', all.includes('23:44:36') && all.includes('SP-3')]
+    ]
+  },
+  romanCredentialTransfer: {
+    claim: 'RB-17 и телефон Романа использовал другой человек.',
+    blockers: [
+      ['CAM-S2 лично показывает Романа у автомобиля до поездки', ux.includes('CAM-S2 · 23:30:52') && ux.includes('Роман Белов лично')],
+      ['после поездки Роман лично виден на пешеходной камере', all.includes('23:55:04') && all.includes('Роман Белов')]
+    ]
+  },
+  marinaAbductedVera: {
+    claim: 'Марина могла увезти Веру против её воли, а план Б был прикрытием.',
+    blockers: [
+      ['план с Мариной существовал заранее', all.includes('План существовал до звонка')],
+      ['Вера лично видна вместе с Мариной в кафе', all.includes('Вера в кафе') && all.includes('Марина и Вера')],
+      ['Вера сама подтверждает безопасность в 00:18', all.includes('00:18:32') && all.includes('подтверждает безопасность')]
+    ]
+  },
+  laterHarmAfterPhoneOff: {
+    claim: 'Вера была с Мариной в 23:44, но после выключения телефона с ней могло что-то произойти.',
+    blockers: [
+      ['00:16 дорожная камера лично показывает Веру', all.includes('00:16') && all.includes('Вера на пассажирском месте')],
+      ['00:18 подтверждённый звонок Веры', all.includes('00:18:32') && all.includes('Голос Веры совпадает')]
+    ]
+  },
+  randomServiceWorker: {
+    claim: 'Машину Веры переставил случайный сотрудник технической службы.',
+    blockers: [
+      ['CAM-S2 показывает Романа до начала поездки', ux.includes('CAM-S2') && ux.includes('садится за руль автомобиля Веры')],
+      ['Роман лично возвращается от места оставленной машины', all.includes('23:49:16') && all.includes('23:55:04')]
+    ]
+  }
+};
+
+for (const [id, theory] of Object.entries(theories)) {
+  const failed = theory.blockers.filter(([, ok]) => !ok).map(([label]) => label);
+  expect(failed.length === 0, `${id} remains viable; missing: ${failed.join('; ')}`);
+}
+
+console.log(JSON.stringify({
+  logicVersion: data.logicVersion,
+  proofRevision: data.proofRevision,
+  theoriesRejected: Object.fromEntries(Object.entries(theories).map(([id, t]) => [id, { claim: t.claim, blockers: t.blockers.length }])),
+  verdict: 'principal alternate explanations are contradicted by independent evidence'
+}, null, 2));
