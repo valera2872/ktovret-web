@@ -13,6 +13,7 @@ const SAFE_STAGE1_OBJECTIVE='Сведите по секундам удар, сц
 const SAFE_STAGE2_OBJECTIVE='Сопоставьте физические следы, журналы доступа и технические данные с показаниями участников. Ищите совпадения, которые подтверждаются независимым материалом напарника.';
 
 const replaceRequired=(source,from,to,label)=>{
+  if(source.includes(to)) return source;
   if(!source.includes(from)) throw new Error(`Last Aria spoiler hardening source drift: ${label}`);
   return source.replace(from,to);
 };
