@@ -21,9 +21,17 @@ jobs:
       - name: Validate client and dossier syntax
         run: |
           node --check assets/case-2317-data.js
+          node --check assets/case-2317-detective-v3.js
+          node --check assets/case-2317-timeline-v31.js
           node --check assets/case-2317.js
+          node --check assets/case-2317-ux-v3.js
           node --check assets/case-2317-runtime.js
           node --check tools/import-mobile/two-player-2317-postprocess.mjs
+          node --check tools/validate-case-2317-detective-v3.mjs
+          node --check tools/validate-case-2317-countertheories-v3.mjs
+          node --check tools/validate-case-2317-playtest-v3.mjs
+          node --check tools/room-2317-detective-visual-smoke.mjs
+          node --check tools/room-2317-playtest-ux-smoke.mjs
       - name: Validate v2 product boundary
         run: |
           grep -q "id: 'special:2317'" assets/case-2317-data.js
@@ -35,6 +43,9 @@ jobs:
           grep -q 'Короткая дуэль · 10–15 минут' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q 'case-2317-v2.css' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q 'case-2317-runtime.js' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'case-2317-detective-v3.js' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'case-2317-timeline-v31.js' tools/import-mobile/two-player-2317-postprocess.mjs
+          grep -q 'case-2317-ux-v3.js' tools/import-mobile/two-player-2317-postprocess.mjs
           grep -q "functions/v1/coop-2317" assets/case-2317.js
           grep -q "const CASE_ID = 'special:2317'" supabase/functions/coop-2317/index.ts
           ! grep -q "functions/v1/coop-2317" assets/duel-room.js
@@ -48,6 +59,24 @@ jobs:
           grep -q "SpeechSynthesisUtterance" assets/case-2317-runtime.js
           grep -q "Аудиореконструкция линии 112" assets/case-2317-runtime.js
           ! grep -q "call-112-2317.mp3" assets/case-2317-runtime.js
+      - name: Adversarial Holmes-Poirot validation
+        run: node tools/validate-case-2317-detective-v3.mjs
+      - name: Reject principal counter-theories
+        run: node tools/validate-case-2317-countertheories-v3.mjs
+      - name: Blind two-role playtest regression
+        run: node tools/validate-case-2317-playtest-v3.mjs
+      - name: Browser smoke cooperative UX
+        run: node tools/room-2317-playtest-ux-smoke.mjs
+      - name: Render role-specific evidence packets
+        run: node tools/room-2317-detective-visual-smoke.mjs
+      - name: Upload 23:17 v3 screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-2317-detective-v3
+          path: |
+            artifacts/room-2317-detective-v3/
+            artifacts/room-2317-playtest-ux/
+          retention-days: 7
       - name: Live room contract smoke
         env:
           ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-2317
@@ -60,11 +89,7 @@ jobs:
             const k1 = randomBytes(24).toString('hex');
             const k2 = randomBytes(24).toString('hex');
             const post = async (body, expected = 200) => {
-              const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'content-type': 'application/json', origin },
-                body: JSON.stringify(body),
-              });
+              const response = await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(body) });
               const text = await response.text();
               let payload = {};
               try { payload = JSON.parse(text); } catch {}
