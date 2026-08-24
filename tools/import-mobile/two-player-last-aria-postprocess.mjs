@@ -35,6 +35,7 @@ const specialPage=()=>`<!doctype html>
   <main class="casearia-shell" data-casearia-app>
     <section class="casearia-paywall-status"><span class="casearia-paywall-spinner"></span><strong>Загружаем дело…</strong></section>
   </main>
+  <script src="../../assets/case-aria-paid-auth.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-storefront.js?v=${VERSION}"></script>
 </body>
 </html>`;
