@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/coop-last-aria-live.yml'
       - 'supabase/functions/coop-last-aria/**'
+      - 'supabase/migrations/*last_aria*'
       - 'assets/case-aria.js'
   workflow_dispatch:
 
