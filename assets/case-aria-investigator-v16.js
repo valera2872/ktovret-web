@@ -129,9 +129,10 @@
   data.final.requiredGroups=['sabotage','culprit-sabotage','alibi','identity','access','possession'];
 
   if(typeof document!=='undefined'&&typeof MutationObserver!=='undefined'){
+    const proofLeadCopy='Отметьте шесть ключевых связок. Недостаточно доказать сам факт саботажа — нужно отдельно связать его с обвиняемым и подтвердить остальные независимые цепочки.';
     const polish=()=>{
       const proofLead=document.querySelector('.casearia-proof-board > p');
-      if(proofLead) proofLead.textContent='Отметьте шесть ключевых связок. Недостаточно доказать сам факт саботажа — нужно отдельно связать его с обвиняемым и подтвердить остальные независимые цепочки.';
+      if(proofLead&&proofLead.textContent!==proofLeadCopy) proofLead.textContent=proofLeadCopy;
     };
     const observer=new MutationObserver(polish);
     observer.observe(document.documentElement,{subtree:true,childList:true});
