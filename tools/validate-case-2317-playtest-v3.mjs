@@ -27,7 +27,7 @@ expect(!s1i.includes('Илья Кравцов лично выходит'), 'Inve
 expect(s1a.includes('Личность водителя на этом пакете не установлена'), 'Analyst packet no longer preserves car/person uncertainty');
 expect(!s1a.includes('Илья Кравцов лично выходит'), 'Analyst receives personal Ilya identity before partner exchange');
 
-expect(s2i.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе'), 'Investigator lost personal Vera timestamp');
+expect(s2i.includes('В 23:44:36 Вера всё ещё остаётся в кадре кафе'), 'Investigator lost personal Vera timestamp');
 expect(!s2i.includes('SP-3'), 'Investigator also sees car location and can solve stage 2 alone');
 expect(s2a.includes('23:44:36 — камера SP-3'), 'Analyst lost exact car timestamp');
 expect(!s2a.includes('идентифицирует Марину Соболеву и Веру Лебедеву'), 'Analyst also sees personal Vera identification and can solve stage 2 alone');
