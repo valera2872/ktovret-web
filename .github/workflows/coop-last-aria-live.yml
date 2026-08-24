@@ -1,13 +1,6 @@
-name: Live smoke Mystery Logic Last Aria backend
+name: Live smoke Mystery Logic Last Aria paid backend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/coop-last-aria-live.yml'
-      - 'supabase/functions/coop-last-aria/**'
-      - 'supabase/migrations/*last_aria*'
-      - 'assets/case-aria.js'
   workflow_dispatch:
 
 permissions:
@@ -22,7 +15,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Live two-player room contract
+      - name: Live paid room boundary
         env:
           ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-last-aria
         run: |
@@ -32,66 +25,50 @@ jobs:
           (async () => {
             const endpoint = process.env.ENDPOINT;
             const origin = 'https://mysterylogic.com';
-            const creatorKey = randomBytes(24).toString('hex');
-            const guestKey = randomBytes(24).toString('hex');
+            const browserKey = randomBytes(24).toString('hex');
 
-            const post = async (body, expected = 200) => {
+            const options = await fetch(endpoint, {
+              method: 'OPTIONS',
+              headers: { origin, 'access-control-request-method': 'POST', 'access-control-request-headers': 'authorization, content-type' },
+            });
+            if (options.status !== 204) throw new Error(`OPTIONS: HTTP ${options.status}`);
+            const allowedHeaders = String(options.headers.get('access-control-allow-headers') || '');
+            if (!allowedHeaders.includes('authorization') || !allowedHeaders.includes('content-type')) {
+              throw new Error(`OPTIONS missing paid auth headers: ${allowedHeaders}`);
+            }
+
+            const postCreate = async (authorization = '') => {
+              const headers = { 'content-type': 'application/json', origin };
+              if (authorization) headers.authorization = authorization;
               const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'content-type': 'application/json', origin },
-                body: JSON.stringify(body),
+                headers,
+                body: JSON.stringify({ action: 'create', browserKey, playerName: 'Paid boundary smoke' }),
               });
               const text = await response.text();
               let payload = {};
               try { payload = JSON.parse(text); } catch {}
-              if (response.status !== expected) {
-                throw new Error(`${body.action}: HTTP ${response.status} ${text}`);
-              }
-              return payload;
+              return { response, text, payload };
             };
 
-            const created = await post({ action: 'create', browserKey: creatorKey, playerName: 'CI Stage Investigator' }, 201);
-            if (created.me?.role !== 'creator' || created.room?.caseId !== 'special:last-aria') {
-              throw new Error('create contract mismatch');
+            const anonymous = await postCreate();
+            if (anonymous.response.status !== 402 || anonymous.payload.error !== 'payment_required') {
+              throw new Error(`anonymous create must be 402 payment_required, got ${anonymous.response.status} ${anonymous.text}`);
             }
 
-            const code = created.room.code;
-            const preview = await post({ action: 'preview', browserKey: guestKey, code });
-            if (preview.roomFull || !preview.creatorName || preview.room?.caseTitle !== 'Последняя ария') {
-              throw new Error('preview contract mismatch');
+            const bogus = await postCreate(`Bearer ml_aria_${'A'.repeat(43)}`);
+            if (bogus.response.status !== 402 || bogus.payload.error !== 'payment_required') {
+              throw new Error(`bogus entitlement must be 402 payment_required, got ${bogus.response.status} ${bogus.text}`);
             }
 
-            const joined = await post({ action: 'join', browserKey: guestKey, code, playerName: 'CI Technical Analyst' });
-            if (!joined.bothJoined || joined.me?.role !== 'guest') {
-              throw new Error('join contract mismatch');
-            }
-
-            const startedCreator = await post({ action: 'start', browserKey: creatorKey, code });
-            const startedGuest = await post({ action: 'start', browserKey: guestKey, code });
-            if (!startedCreator.me?.started || !startedGuest.me?.started) {
-              throw new Error('start contract mismatch');
-            }
-
-            const first = await post({
-              action: 'complete', browserKey: creatorKey, code,
-              elapsedSeconds: 1180, hintsUsed: 1, attempts: 2, firstAnswerCorrect: false,
+            const forbiddenOrigin = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', origin: 'https://example.invalid' },
+              body: JSON.stringify({ action: 'create', browserKey, playerName: 'Origin smoke' }),
             });
-            if (first.bothCompleted) throw new Error('room completed before second player');
+            if (forbiddenOrigin.status !== 403) throw new Error(`foreign origin must be 403, got ${forbiddenOrigin.status}`);
 
-            const second = await post({
-              action: 'complete', browserKey: guestKey, code,
-              elapsedSeconds: 1260, hintsUsed: 0, attempts: 1, firstAnswerCorrect: true,
-            });
-            if (!second.bothCompleted) throw new Error('room did not complete');
-            if (second.results?.creator?.name !== 'CI Stage Investigator' || second.results?.guest?.name !== 'CI Technical Analyst') {
-              throw new Error('result contract mismatch');
-            }
-            const serialized = JSON.stringify(second);
-            if (serialized.includes('creator_key_hash') || serialized.includes('player_key_hash')) {
-              throw new Error('private hashes leaked');
-            }
-
-            console.log(`coop-last-aria live contract passed for room ${code}`);
+            console.log('coop-last-aria paid production boundary passed');
           })().catch((error) => {
             console.error(error);
             process.exit(1);
