@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applyTwoPlayerLastAria } from './two-player-last-aria-postprocess.mjs';
 
-const VERSION='1.1.0';
+const VERSION='1.0.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASES=[
   {path:'detektivnye-igry-dlya-dvoih/2317/index.html',markers:['data-case2317-app','case2317-boot']},
