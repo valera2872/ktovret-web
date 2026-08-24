@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { applyTwoPlayerLastAria } from './two-player-last-aria-postprocess.mjs';
 
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASES=[
   {path:'detektivnye-igry-dlya-dvoih/2317/index.html',markers:['data-case2317-app','case2317-boot']},
   {path:'detektivnye-igry-dlya-dvoih/407/index.html',markers:['data-case407-app','case407-room-mark']},
+  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','casearia-cover']},
 ];
 
 function addBodyClassAndMarker(html,className){
@@ -44,18 +46,19 @@ function patchFile(file,{root,caseMarkers=[]}){
   html=html.replace(/<header class="ml-header ml-shell(?: case2317-header)?">[\s\S]*?<\/header>/,header(root));
   if(!/class="ref-header ref-wrap(?:\s|\")/.test(html)) html=html.replace(/<body[^>]*>/,match=>`${match}${header(root)}`);
   if(!/class="ref-footer ref-wrap(?:\s|\")/.test(html)) html=html.replace('</body>',`${footer(root)}</body>`);
-  const required=['data-coop-v4="1.0.0"','storefront-reference.css','coop-v4.css'];
-  if(caseMarkers.length) required.push(...caseMarkers); else required.push('data-duel-room-app','coop-case-feature','case407-catalog');
+  const required=[`data-coop-v4="${VERSION}"`,'storefront-reference.css','coop-v4.css'];
+  if(caseMarkers.length) required.push(...caseMarkers); else required.push('data-duel-room-app','coop-case-feature','case407-catalog','casearia-catalog');
   for(const marker of required) if(!html.includes(marker)) throw new Error(`Co-op v4 missing ${marker}: ${path.relative(process.cwd(),file)}`);
   if(!/class="ref-header ref-wrap(?:\s|\")/.test(html)||!/class="ref-footer ref-wrap(?:\s|\")/.test(html)) throw new Error(`Co-op v4 shell missing: ${path.relative(process.cwd(),file)}`);
   fs.writeFileSync(file,html);
 }
 
 export function applyCoopV4(siteRoot){
+  const aria=applyTwoPlayerLastAria(siteRoot);
   const landing=path.join(siteRoot,LANDING);
   if(!fs.existsSync(landing)) throw new Error('Co-op v4 landing missing');
   for(const entry of CASES) if(!fs.existsSync(path.join(siteRoot,entry.path))) throw new Error(`Co-op v4 case missing: ${entry.path}`);
   patchFile(landing,{root:'../'});
   for(const entry of CASES) patchFile(path.join(siteRoot,entry.path),{root:'../../',caseMarkers:entry.markers});
-  return {pages:1+CASES.length,version:VERSION};
+  return {pages:1+CASES.length,version:VERSION,lastAria:aria};
 }
