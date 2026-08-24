@@ -40,7 +40,7 @@ try{
   if(!dom.includes('data-overflow="false"'))throw new Error(`${stage.id}/${role}/${vp.name}: horizontal overflow`);
   if((dom.match(/case2317-evidence/g)||[]).length < 2)throw new Error(`${stage.id}/${role}/${vp.name}: evidence missing`);
   if(stage.id===1&&role==='analyst'&&(!dom.includes('Личность водителя на этом пакете не установлена')||dom.includes('Илья Кравцов лично выходит')))throw new Error('stage1 analyst identity leak');
-  if(stage.id===2&&role==='investigator'&&(!dom.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе')||dom.includes('SP-3')))throw new Error('stage2 investigator does not own only Vera half of overlap');
+  if(stage.id===2&&role==='investigator'&&(!dom.includes('В 23:44:36 Вера всё ещё остаётся в кадре кафе')||dom.includes('SP-3')))throw new Error('stage2 investigator does not own only Vera half of overlap');
   if(stage.id===2&&role==='analyst'&&(!dom.includes('23:44:36 — камера SP-3')||!dom.includes('Личность второй посетительницы — у Следователя')||dom.includes('идентифицирует Марину Соболеву и Веру Лебедеву')))throw new Error('stage2 analyst does not own only car half of overlap');
   if(stage.id===3&&role==='investigator'&&(!dom.includes('Серийный номер — 4F-7719')||!dom.includes('серую надо увезти отдельно')||dom.includes('оставлю серую до утра')||dom.includes('он покажет, куда я уехала')))throw new Error('stage3 investigator physical tracker/decoy rationale missing or contradictory');
   if(stage.id===3&&role==='analyst'){
