@@ -45,9 +45,8 @@ const server=http.createServer((request,response)=>{
 });
 const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
 const runChrome=(args)=>new Promise((resolve,reject)=>{const child=spawn(chrome,args,{stdio:['ignore','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',(c)=>stdout+=c);child.stderr.on('data',(c)=>stderr+=c);child.on('error',reject);child.on('close',(code)=>code===0?resolve({stdout,stderr}):reject(new Error(`Chrome ${code}: ${stderr.slice(-1200)}`)));});
-const cases=[];
-for(const role of ['creator','guest'])for(const stage of [1,2,3])cases.push({role,stage,mode:'stage',name:`${role}-stage${stage}`});
-cases.push({role:'creator',stage:3,mode:'final',name:'creator-final'});cases.push({role:'guest',stage:3,mode:'reveal',name:'guest-reveal'});
+const cases=[];for(const role of ['creator','guest'])for(const stage of [1,2,3])cases.push({role,stage,mode:'stage',name:`${role}-stage${stage}`});
+cases.push({role:'creator',stage:3,mode:'final',name:'creator-final'},{role:'guest',stage:3,mode:'reveal',name:'guest-reveal'});
 const report=[];
 try{
   for(const item of cases){
@@ -60,35 +59,26 @@ try{
     if(!dom.includes('Последняя ария'))throw new Error(`${item.name}: case title missing`);
     if(item.mode==='stage'){
       const roleTitle=item.role==='creator'?'Сценический следователь':'Технический аналитик';
-      if(!dom.includes(roleTitle))throw new Error(`${item.name}: role title missing`);
-      if(!dom.includes(`Пакет ${item.stage} / 3`))throw new Error(`${item.name}: stage label missing`);
-      const cards=(dom.match(/class="casearia-evidence /g)||[]).length;
-      if(cards!==3)throw new Error(`${item.name}: expected 3 evidence cards, got ${cards}`);
-      const artifacts=(dom.match(/class="aria-artifact /g)||[]).length;
-      if(artifacts!==3)throw new Error(`${item.name}: expected 3 materialized artifacts, got ${artifacts}`);
-      if(!dom.includes('data-materialized-v2="1"'))throw new Error(`${item.name}: materialized evidence marker missing`);
+      if(!dom.includes(roleTitle)||!dom.includes(`Пакет ${item.stage} / 3`))throw new Error(`${item.name}: role/stage shell missing`);
+      const cards=(dom.match(/class="casearia-evidence /g)||[]).length,artifacts=(dom.match(/class="aria-artifact /g)||[]).length;
+      if(cards!==3||artifacts!==3||!dom.includes('data-materialized-v2="1"'))throw new Error(`${item.name}: materialized evidence mismatch cards=${cards} artifacts=${artifacts}`);
       if(item.stage===1&&item.role==='creator'&&(!dom.includes('14–17 секунд')||!dom.includes('дверного контакта уже открытой двери')))throw new Error('door-to-door STAIR-18 timing missing');
       if(item.stage===1&&item.role==='guest'&&(!dom.includes('1,7 м')||!dom.includes('5,2–6,1 секунды')))throw new Error('archive retrieval reconstruction missing');
+      if(item.stage===2&&item.role==='guest'){
+        for(const marker of ['состояние ARMED','Q-17B','+10,0','+16,0','+23,0','присутствие человека у панели уже не требуется'])if(!dom.includes(marker))throw new Error(`analyst playback-chain marker missing: ${marker}`);
+      }
       if(item.stage===3&&item.role==='creator'&&(!dom.includes('31 × 24 × 0,8 см')||!dom.includes('38 × 29 × 6,4 см')))throw new Error('score-to-case physical fit missing');
-      if(item.stage===3&&item.role==='guest'&&!dom.includes('RFI-1'))throw new Error('isolated RFID inspection evidence missing');
+      if(item.stage===3&&item.role==='guest'&&(!dom.includes('RFI-1')||!dom.includes('LOCAL-ARM')))throw new Error('stage3 technical containment/arm evidence missing');
     }
     if(item.mode==='final'){
-      if(!dom.includes('casearia-final-form')||!dom.includes('name="evidence"'))throw new Error('final proof board missing');
-      if(!dom.includes('Что произошло в 21:49?'))throw new Error('final question screen missing');
-      if(!dom.includes('Отметьте шесть ключевых связок'))throw new Error('investigator-grade six-link proof instruction missing');
-      if(!dom.includes('B-3 + P-771'))throw new Error('personal sabotage chain missing from final board');
-      if(!dom.includes('PB-2 + TAKE-6 + C-2'))throw new Error('playback operator chain missing from final board');
-      if(!dom.includes('безымянный ключ того же профиля изъят при нём'))throw new Error('physical K-12 custody link missing from final board');
-      if(!dom.includes('RFI-1 + MS-1908 + T-6M'))throw new Error('isolated possession proof missing from final board');
+      for(const marker of ['casearia-final-form','name="evidence"','Что произошло в 21:49?','Отметьте шесть ключевых связок','B-3 + P-771','PB-2 + TAKE-6 + C-2','cue-trigger Q-17B','безымянный ключ того же профиля изъят при нём','RFI-1 + MS-1908 + T-6M'])if(!dom.includes(marker))throw new Error(`final proof marker missing: ${marker}`);
     }
     if(item.mode==='reveal'){
-      if(!dom.includes('Заключение следственной группы')||!dom.includes('Партитуру украли'))throw new Error('reveal missing');
-      if(!dom.includes('Маэстро расследования'))throw new Error('pair rank missing');
-      if(!dom.includes('21:48:54')||!dom.includes('C-2')||!dom.includes('RFI-1')||!dom.includes('5,2–6,1 секунды'))throw new Error('investigator v1.6 proof missing from debrief');
+      for(const marker of ['Заключение следственной группы','Партитуру украли','Маэстро расследования','21:48:54','C-2','Q-17B','+10/+16/+23','RFI-1','5,2–6,1 секунды'])if(!dom.includes(marker))throw new Error(`reveal marker missing: ${marker}`);
     }
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{await new Promise((resolve)=>server.close(resolve));}
