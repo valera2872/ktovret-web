@@ -38,14 +38,15 @@ expect(s2a.includes('Владение меткой не устанавливае
 expect(!s3a.includes('садится за руль автомобиля Веры'), 'Analyst receives service-camera conclusion belonging to Investigator exchange');
 expect(s3a.includes('Начало маршрута и передача ключа — у Следователя'), 'Analyst does not know a partner-owned start/coordination proof exists');
 expect(!s3i.includes('4F-7719 = «CAR-V»'), 'Investigator receives Analyst device lookup before exchange');
-expect(s3i.includes('Марина сказала, что с машиной разберутся отдельно'), 'Investigator lacks pre-event reason for a separate car route');
+expect(s3i.includes('серую надо увезти отдельно') && s3i.includes('Марина сказала, что с машиной разберутся'), 'Investigator lacks pre-event decoy-car rationale');
 
 for (const banned of [
   'Отгоню её машину, маяк пусть едет отдельно',
   'Маршрут согласуется с тем, что он отогнал автомобиль Веры',
   'ложная картина похищения вообще возникла',
   'машину парковал более высокий водитель',
-  'оставлю серую до утра'
+  'оставлю серую до утра',
+  'если маяк настоящий, он покажет, куда я уехала'
 ]) {
   expect(!JSON.stringify(data).includes(banned), `author conclusion or contradiction leaked into v3 materials: ${banned}`);
 }
@@ -76,6 +77,7 @@ console.log(JSON.stringify({
   stage2RequiresBothRoles: true,
   roleLeakStage3: false,
   handoffCausality: true,
+  decoyCarMotivationCoherent: true,
   romanCoordinationProved: true,
   forcedDecisionCopy: false,
   preSolvedRoman: false,
