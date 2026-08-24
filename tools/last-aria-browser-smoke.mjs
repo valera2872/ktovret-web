@@ -32,8 +32,9 @@ const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta nam
 </script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria-investigator-v16.js"></script><script src="/assets/case-aria.js"></script><script src="/assets/case-aria-materials-v2.js"></script><script>
 setTimeout(()=>{
  const s=window.__ariaSmoke;
+ if(s.mode==='create') document.querySelector('[data-action="create-open"]')?.click();
  if(s.mode==='final') document.querySelector('[data-action="next-stage"]')?.click();
- setTimeout(()=>{if(document.querySelector('.casearia-evidence-grid,.casearia-final-form,.casearia-reveal'))document.body.dataset.smokeReady='1';},260);
+ setTimeout(()=>{if(document.querySelector('.casearia-cover,[data-player-name],.casearia-evidence-grid,.casearia-final-form,.casearia-reveal'))document.body.dataset.smokeReady='1';},260);
 },300);
 </script></body></html>`;
 fs.writeFileSync(path.join(outDir,'index.html'),html);
@@ -130,20 +131,36 @@ const capture=async(item,url)=>{
   }
 };
 
-const cases=[];for(const role of ['creator','guest'])for(const stage of [1,2,3])cases.push({role,stage,mode:'stage',name:`${role}-stage${stage}`});
+const cases=[
+  {role:'creator',stage:1,mode:'home',name:'creator-home'},
+  {role:'creator',stage:1,mode:'create',name:'creator-create'},
+];
+for(const role of ['creator','guest'])for(const stage of [1,2,3])cases.push({role,stage,mode:'stage',name:`${role}-stage${stage}`});
 cases.push({role:'creator',stage:3,mode:'final',name:'creator-final'},{role:'guest',stage:3,mode:'reveal',name:'guest-reveal'});
 const report=[];
 try{
   for(const item of cases){
-    const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?room=ABCDEFGH&role=${item.role}&stage=${item.stage}&mode=${item.mode}`;
+    const withRoom=!['home','create'].includes(item.mode);
+    const query=new URLSearchParams({role:item.role,stage:String(item.stage),mode:item.mode});
+    if(withRoom) query.set('room','ABCDEFGH');
+    const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?${query.toString()}`;
     const {dom,screenshot}=await capture(item,url);
     if(!dom.includes('data-smoke-ready="1"'))throw new Error(`${item.name}: ready marker missing from captured DOM`);
     if(!dom.includes('Последняя ария'))throw new Error(`${item.name}: case title missing`);
+    if(item.mode==='home'){
+      if(!dom.includes('У каждого участника есть своя версия этих событий.'))throw new Error('post-purchase cover neutral copy missing');
+      for(const forbidden of ['пока все слышали голос дирижёра','голос дирижёра в оркестровой яме'])if(dom.includes(forbidden))throw new Error(`post-purchase cover spoiler leaked: ${forbidden}`);
+    }
+    if(item.mode==='create'){
+      if(!dom.includes('Создать комнату')||!dom.includes('свет, служебные системы, замки, архив'))throw new Error('creator pre-room neutral role copy missing');
+      if(dom.includes('свет, интерком, замки, архив'))throw new Error('creator pre-room intercom priming leaked');
+    }
     if(item.mode==='stage'){
       const roleTitle=item.role==='creator'?'Сценический следователь':'Технический аналитик';
       if(!dom.includes(roleTitle)||!dom.includes(`Пакет ${item.stage} / 3`))throw new Error(`${item.name}: role/stage shell missing`);
       const cards=(dom.match(/class="casearia-evidence /g)||[]).length,artifacts=(dom.match(/class="aria-artifact /g)||[]).length;
       if(cards!==3||artifacts!==3||!dom.includes('data-materialized-v2="1"'))throw new Error(`${item.name}: materialized evidence mismatch cards=${cards} artifacts=${artifacts}`);
+      if(item.role==='guest'&&dom.includes('Световой пульт, интерком, замки, архив и технические журналы'))throw new Error(`${item.name}: role summary primes intercom before evidence`);
       if(item.stage===1&&(!dom.includes('служебные маршруты и события у архива')||dom.includes('Не считайте голос в интеркоме')))throw new Error(`${item.name}: stage1 spoiler-neutral objective missing`);
       if(item.stage===1&&item.role==='creator'&&(!dom.includes('14–17 секунд')||!dom.includes('дверного контакта уже открытой двери')))throw new Error('door-to-door STAIR-18 timing missing');
       if(item.stage===1&&item.role==='guest'&&(!dom.includes('1,7 м')||!dom.includes('5,2–6,1 секунды')))throw new Error('archive retrieval reconstruction missing');
@@ -162,8 +179,8 @@ try{
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.3',playbackCueTriggered:true,capture:'chrome-devtools-protocol',views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.3',playbackCueTriggered:true,final:true,reveal:true,capture:'chrome-devtools-protocol',minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,preInvestigationViews:2,stageViews:6,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.4',playbackCueTriggered:true,capture:'chrome-devtools-protocol',views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,preInvestigationViews:2,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.4',playbackCueTriggered:true,final:true,reveal:true,capture:'chrome-devtools-protocol',minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{
   try{await cdp('Browser.close',{},null,3000);}catch{browser.kill('SIGKILL');}
   try{ws.close();}catch{}
