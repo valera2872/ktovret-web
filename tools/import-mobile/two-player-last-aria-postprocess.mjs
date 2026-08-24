@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
 const VERSION='1.4.0';
-const SPOILER_AUDIT_REVISION='1.2';
+const SPOILER_AUDIT_REVISION='1.3';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 const INVESTIGATOR_RUNTIME='case-aria-investigator-v16.js';
@@ -16,6 +16,17 @@ const SAFE_GAME_COVER='Генеральная репетиция. Настоящ
 const SAFE_FINAL_LEAD='Ответьте на четыре вопроса и выберите не просто подозрительные, а доказательные материалы. Нужны независимые цепочки по хронологии, источникам сообщений, личности у архива, доступу и физической связи с оригиналом.';
 const SAFE_FINAL_WRONG='Версия пока не выдерживает все временные и физические ограничения. Перепроверьте хронологию и то, какие материалы действительно устанавливают местонахождение участников.';
 const SAFE_FINAL_PROOF='Ответ выглядит верно, но доказательная конструкция неполна. Нужны независимые материалы по хронологии, источникам сообщений, личности у архива, доступу и физической связи с оригиналом.';
+const SAFE_DECISION_LEAD='После обмена фактами выберите линию, которая лучше всего связывает физические следы, временные окна и технические данные.';
+const SAFE_DECISION_CONDUCTOR='Его показания, технические данные и след из архива требуют независимой сверки.';
+const SAFE_DECISION_FEEDBACK='Эта линия связывает два независимых противоречия: технические данные о сообщениях и физический след между оркестровой ямой и архивом.';
+
+const SAFE_EVIDENCE={
+  checkout:'B-3 + BR-06 + P-771: мастерская, пломба и путь PR-17 до сцены',
+  playback:'PB-2 + TAKE-6 + C-2 + Q-17B: трассировка трёх фраз и cue-событий',
+  footprint:'HEEL-43C + CRESCENT-43: ремонт, два дефекта подошвы и свежая краска',
+  key:'K-12: заявка на дубликат, журнал возврата и изъятый безымянный ключ',
+  tag:'RFI-1 + MS-1908 + T-6M: контрольные RFID-сканы изолированного контейнера',
+};
 
 const replaceRequired=(source,from,to,label)=>{
   if(source.includes(to)) return source;
@@ -66,6 +77,14 @@ function hardenRuntimeCopy(siteRoot){
   data=replaceRequired(data,"title: 'PB — это Playback Bus, а не микрофон'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'",'stage 2 routing title');
   data=replaceRequired(data,"title: 'Три фразы — не живой эфир'","title: 'PB-2: технический экспорт трёх фраз'",'stage 2 audio title');
   data=replaceRequired(data,"title: 'Почему голос Михаила не является алиби?'","title: 'Что следует из материалов о голосе Михаила?'",'final voice question');
+  data=replaceRequired(data,"lead: 'После обмена фактами выберите линию, которая способна одновременно проверить личность в архиве и ложное алиби.'",`lead: '${SAFE_DECISION_LEAD}'`,'stage 2 decision lead');
+  data=replaceRequired(data,"{ id: 'conductor', title: 'Дирижёр', text: 'Его голос слышали, но источник PB-2 и след из архива требуют независимой проверки.' }",`{ id: 'conductor', title: 'Дирижёр', text: '${SAFE_DECISION_CONDUCTOR}' }`,'stage 2 conductor option');
+  data=replaceRequired(data,"conductor: 'Эта линия объединяет два независимых противоречия: голос оказывается записью, а след обуви ведёт от оркестровой ямы к архиву.'",`conductor: '${SAFE_DECISION_FEEDBACK}'`,'stage 2 conductor feedback');
+  data=replaceRequired(data,"{ id: 'checkout', group: 'sabotage', label: '18:36–18:45: PR-17 находился у Михаила' }",`{ id: 'checkout', group: 'sabotage', label: '${SAFE_EVIDENCE.checkout}' }`,'raw checkout evidence label');
+  data=replaceRequired(data,"{ id: 'playback', group: 'alibi', label: 'PB-2 + TAKE-6: голос дирижёра был заранее записан' }",`{ id: 'playback', group: 'alibi', label: '${SAFE_EVIDENCE.playback}' }`,'raw playback evidence label');
+  data=replaceRequired(data,"{ id: 'footprint', group: 'identity', label: 'HEEL-43C: след из архива совпадает с обувью Михаила' }",`{ id: 'footprint', group: 'identity', label: '${SAFE_EVIDENCE.footprint}' }`,'raw footprint evidence label');
+  data=replaceRequired(data,"{ id: 'key', group: 'access', label: 'K-12: Михаил заранее заказал невозвращённый дубликат' }",`{ id: 'key', group: 'access', label: '${SAFE_EVIDENCE.key}' }`,'raw key evidence label');
+  data=replaceRequired(data,"{ id: 'tag', group: 'possession', label: 'MS-1908 + T-6M: оригинал находится в личном кофре Михаила' }",`{ id: 'tag', group: 'possession', label: '${SAFE_EVIDENCE.tag}' }`,'raw tag evidence label');
   fs.writeFileSync(dataFile,data);
 
   let fairplay=fs.readFileSync(fairplayFile,'utf8');
@@ -90,6 +109,11 @@ function hardenRuntimeCopy(siteRoot){
     "audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",
     'investigator stage 2 audio title',
   );
+  investigator=replaceRequired(investigator,"if(checkout){ checkout.group='culprit-sabotage'; checkout.label='B-3 + P-771: Михаил разобрал PR-17 у BR-06, после чего кинжал опломбировали до сцены'; }",`if(checkout){ checkout.group='culprit-sabotage'; checkout.label='${SAFE_EVIDENCE.checkout}'; }`,'investigator checkout evidence label');
+  investigator=replaceRequired(investigator,"if(playback) playback.label='PB-2 + TAKE-6 + C-2: физический LOCAL-ARM, затем cue-trigger Q-17B';",`if(playback) playback.label='${SAFE_EVIDENCE.playback}';`,'investigator playback evidence label');
+  investigator=replaceRequired(investigator,"if(footprint) footprint.label='HEEL-43C: индивидуальный след и краска совпадают с туфлей, изъятой у Михаила';",`if(footprint) footprint.label='${SAFE_EVIDENCE.footprint}';`,'investigator footprint evidence label');
+  investigator=replaceRequired(investigator,"if(key) key.label='K-12: Михаил заказал дубликат; безымянный ключ того же профиля изъят при нём';",`if(key) key.label='${SAFE_EVIDENCE.key}';`,'investigator key evidence label');
+  investigator=replaceRequired(investigator,"if(tag) tag.label='RFI-1 + MS-1908 + T-6M: оригинал отвечает из изолированного личного кофра Михаила';",`if(tag) tag.label='${SAFE_EVIDENCE.tag}';`,'investigator tag evidence label');
   fs.writeFileSync(investigatorFile,investigator);
 
   let game=fs.readFileSync(gameFile,'utf8');
@@ -193,11 +217,12 @@ function validateSpoilerBoundary(siteRoot){
   const storefront=fs.readFileSync(path.join(siteRoot,'assets/case-aria-storefront.js'),'utf8');
 
   for(const forbidden of ['весь театр слышал его голос','Как человек мог открыть архив','голос из оркестровой ямы']) if(landing.includes(forbidden)) throw new Error(`Last Aria public teaser spoiler leaked: ${forbidden}`);
-  for(const forbidden of ['почему голос человека, которого все слышали','Не считайте голос в интеркоме','Отделите ложные алиби от физического присутствия','техническое происхождение голоса','ложное присутствие в яме','PB-2 ещё не означает живой микрофон','Почему голос Михаила не является алиби?']) if(data.includes(forbidden)) throw new Error(`Last Aria runtime directive spoiler leaked: ${forbidden}`);
+  for(const forbidden of ['почему голос человека, которого все слышали','Не считайте голос в интеркоме','Отделите ложные алиби от физического присутствия','техническое происхождение голоса','ложное присутствие в яме','PB-2 ещё не означает живой микрофон','Почему голос Михаила не является алиби?','способна одновременно проверить личность в архиве и ложное алиби','Его голос слышали, но источник PB-2','голос оказывается записью']) if(data.includes(forbidden)) throw new Error(`Last Aria runtime directive spoiler leaked: ${forbidden}`);
+  for(const forbidden of ['18:36–18:45: PR-17 находился у Михаила','голос дирижёра был заранее записан','след из архива совпадает с обувью Михаила','Михаил заранее заказал невозвращённый дубликат','оригинал находится в личном кофре Михаила']) if(data.includes(forbidden)) throw new Error(`Last Aria raw final-board answer leak: ${forbidden}`);
   for(const forbidden of ['как соотносятся звук, маршруты и доступ','отделяйте прямое наблюдение от вывода о местонахождении человека']) if(fairplay.includes(forbidden)) throw new Error(`Last Aria fair-play directive spoiler leaked: ${forbidden}`);
-  if(investigator.includes("audio.title='TAKE-6: физически вооружённый макрос, привязанный к Q-17B';")) throw new Error('Last Aria stage 2 title reveals playback mechanism before reading evidence');
+  for(const forbidden of ["audio.title='TAKE-6: физически вооружённый макрос, привязанный к Q-17B';","checkout.label='B-3 + P-771: Михаил разобрал PR-17","совпадают с туфлей, изъятой у Михаила","Михаил заказал дубликат; безымянный ключ","личного кофра Михаила';"]) if(investigator.includes(forbidden)) throw new Error(`Last Aria final-board answer leak: ${forbidden}`);
   for(const forbidden of ['пока все слышали голос дирижёра','голос дирижёра в оркестровой яме','Нужны независимые цепочки: саботаж, ложное алиби','Проверьте алиби, которое существует только как звук','Нужны независимые материалы о саботаже, ложном алиби']) if(game.includes(forbidden)) throw new Error(`Last Aria game-shell spoiler leaked: ${forbidden}`);
-  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,SAFE_STAGE3_OBJECTIVE,SAFE_GAME_COVER,SAFE_FINAL_LEAD,SAFE_FINAL_WRONG,SAFE_FINAL_PROOF,"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","title: 'Что следует из материалов о голосе Михаила?'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${game}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
+  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,SAFE_STAGE3_OBJECTIVE,SAFE_GAME_COVER,SAFE_FINAL_LEAD,SAFE_FINAL_WRONG,SAFE_FINAL_PROOF,SAFE_DECISION_LEAD,SAFE_DECISION_CONDUCTOR,SAFE_DECISION_FEEDBACK,...Object.values(SAFE_EVIDENCE),"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","title: 'Что следует из материалов о голосе Михаила?'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${game}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
 
   const prePurchase=`${catalogCard}\n${specialPage()}`.toLowerCase();
   for(const forbidden of ['голос','интерком','pb-2','mic-c','take-6','playback']) if(prePurchase.includes(forbidden)) throw new Error(`Last Aria pre-purchase copy reveals solution channel: ${forbidden}`);
