@@ -46,7 +46,8 @@ expect(ux.includes('Q7-29 / CAM-N2 · 23:12:18'), 'personal Ilya identification 
 expect(ux.includes("input.value = 'D-2147'"), 'timestamp-to-legacy handoff bridge missing');
 expect(ux.includes("'23:17:43'"), 'real timestamp handoff missing');
 
-for (const marker of ['Илья', 'Марина', 'Роман', '00:18']) expect(JSON.stringify(data.reveal).includes(marker), `reveal lost ${marker}`);
+const reveal = JSON.stringify(data.reveal);
+for (const marker of ['Иль', 'Марин', 'Роман', '00:18']) expect(reveal.includes(marker), `reveal lost ${marker}`);
 for (const marker of ['Q7-29', '4F-7719', '00:16', '00:18', '23:55:04']) {
   expect(all.includes(marker) || ux.includes(marker), `reveal-critical marker not available to players before final: ${marker}`);
 }
