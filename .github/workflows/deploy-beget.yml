@@ -1,0 +1,230 @@
+name: Deploy Mystery Logic to Beget
+
+on:
+  workflow_run:
+    workflows: ["Build Mystery Logic production bundle for Beget"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Successful production-bundle workflow run ID; leave empty to use latest successful main run"
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: mysterylogic-beget-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-beget:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Resolve validated production bundle
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            run_id="$EVENT_RUN_ID"
+            head_sha="$EVENT_HEAD_SHA"
+          else
+            run_id="$INPUT_RUN_ID"
+            if [ -z "$run_id" ]; then
+              run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow production-beget.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')"
+            fi
+            test -n "$run_id" || { echo "No successful production bundle run found" >&2; exit 1; }
+            head_sha="$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json headSha --jq '.headSha')"
+          fi
+          test -n "$run_id"
+          test -n "$head_sha"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "release=${head_sha:0:12}" >> "$GITHUB_OUTPUT"
+          echo "Using production bundle run $run_id for $head_sha"
+
+      - name: Download validated Beget artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.source.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name mysterylogic-beget-production --dir artifact
+          test -s artifact/mysterylogic-beget-production.zip
+
+      - name: Unpack and revalidate deployment payload
+        env:
+          RELEASE: ${{ steps.source.outputs.release }}
+        run: |
+          set -euo pipefail
+          mkdir -p production-web
+          unzip -q artifact/mysterylogic-beget-production.zip -d production-web
+          test -f production-web/index.html
+          test -f production-web/.htaccess
+          test -f production-web/tom-1/index.html
+          test -f production-web/detektivnye-igry-dlya-dvoih/index.html
+          test -f production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' production-web/index.html
+          grep -Fq 'Последняя ария' production-web/detektivnye-igry-dlya-dvoih/index.html
+          grep -Fq 'case-aria-investigator-v16.js' production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -Fq "?v=$RELEASE" production-web/index.html
+          test ! -d production-web/supabase
+          test ! -d production-web/tools
+          test ! -d production-web/tests
+          echo "Payload revalidated for release $RELEASE"
+
+      - name: Check Beget deployment configuration
+        id: config
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PATH: ${{ secrets.BEGET_PATH }}
+          BEGET_PORT: ${{ secrets.BEGET_PORT }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "$BEGET_HOST" ] || missing+=(BEGET_HOST)
+          [ -n "$BEGET_USER" ] || missing+=(BEGET_USER)
+          [ -n "$BEGET_PASSWORD" ] || missing+=(BEGET_PASSWORD)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Beget auto-deploy is installed but not armed. Missing Actions secrets: ${missing[*]}. Optional: BEGET_PATH (default mysterylogic.com/public_html), BEGET_PORT (default 22)."
+            exit 0
+          fi
+          remote_path="${BEGET_PATH:-mysterylogic.com/public_html}"
+          port="${BEGET_PORT:-22}"
+          [ -n "$remote_path" ] && [ "$remote_path" != "/" ] || { echo "Unsafe BEGET_PATH" >&2; exit 1; }
+          case "$port" in (*[!0-9]*|'') echo "Invalid BEGET_PORT" >&2; exit 1;; esac
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          echo "remote_path=$remote_path" >> "$GITHUB_OUTPUT"
+          echo "port=$port" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare encrypted SSH transport
+        if: steps.config.outputs.configured == 'true'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass rsync
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          ssh-keyscan -T 10 -p "$BEGET_PORT" -H "$BEGET_HOST" >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Guard target and create rollback archive
+        if: steps.config.outputs.configured == 'true'
+        id: backup
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+          RELEASE: ${{ steps.source.outputs.release }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          target="$BEGET_USER@$BEGET_HOST"
+          backup_name="mysterylogic-${RELEASE}-$(date -u +%Y%m%dT%H%M%SZ).tgz"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$target" \
+            "set -eu; test -d '$BEGET_PATH'; test -f '$BEGET_PATH/index.html'; grep -Eqi 'Mystery Logic|Детективные игры|Кто врёт' '$BEGET_PATH/index.html'; mkdir -p \"\$HOME/.mysterylogic-deploy-backups\"; tar -C '$BEGET_PATH' -czf \"\$HOME/.mysterylogic-deploy-backups/$backup_name\" ."
+          echo "backup_name=$backup_name" >> "$GITHUB_OUTPUT"
+          echo "Beget target guard passed; rollback archive created"
+
+      - name: Deploy validated runtime to Beget
+        if: steps.config.outputs.configured == 'true'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          target="$BEGET_USER@$BEGET_HOST"
+          rsync -az --delete-delay --delay-updates \
+            --exclude='.well-known/' --exclude='.well-known/***' \
+            --exclude='.user.ini' \
+            -e "sshpass -e ssh -p $BEGET_PORT -o StrictHostKeyChecking=yes -o ConnectTimeout=15" \
+            production-web/ "$target:$BEGET_PATH/"
+
+      - name: Smoke live Mystery Logic
+        if: steps.config.outputs.configured == 'true'
+        id: smoke
+        env:
+          RELEASE: ${{ steps.source.outputs.release }}
+        run: |
+          set -euo pipefail
+          fetch() { curl --fail --silent --show-error --location --retry 5 --retry-delay 2 --connect-timeout 10 --max-time 30 "$1"; }
+          fetch 'https://mysterylogic.com/' > /tmp/home.html
+          fetch 'https://mysterylogic.com/tom-1/' > /tmp/tom1.html
+          fetch 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/' > /tmp/duo.html
+          fetch 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' > /tmp/aria.html
+          grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' /tmp/home.html
+          grep -Fq "?v=$RELEASE" /tmp/home.html
+          grep -Fq 'Открыть 85 дел за 99 ₽' /tmp/tom1.html
+          grep -Fq 'Последняя ария' /tmp/duo.html
+          grep -Fq 'case-aria-investigator-v16.js' /tmp/aria.html
+          grep -Fq 'noindex,follow' /tmp/aria.html
+          echo "Live Mystery Logic smoke passed for $RELEASE"
+
+      - name: Roll back automatically if live smoke fails
+        if: failure() && steps.config.outputs.configured == 'true' && steps.backup.outputs.backup_name != '' && steps.smoke.outcome == 'failure'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+          BACKUP_NAME: ${{ steps.backup.outputs.backup_name }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          target="$BEGET_USER@$BEGET_HOST"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$target" \
+            "set -eu; tar -xzf \"\$HOME/.mysterylogic-deploy-backups/$BACKUP_NAME\" -C '$BEGET_PATH'"
+          echo "::error::Live smoke failed; previous files were restored from $BACKUP_NAME"
+
+      - name: Prune old rollback archives
+        if: success() && steps.config.outputs.configured == 'true'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          target="$BEGET_USER@$BEGET_HOST"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$target" \
+            'set -eu; dir="$HOME/.mysterylogic-deploy-backups"; test -d "$dir" || exit 0; ls -1t "$dir"/mysterylogic-*.tgz 2>/dev/null | tail -n +6 | while IFS= read -r old; do rm -f "$old"; done'
+
+      - name: Deployment summary
+        if: always()
+        env:
+          CONFIGURED: ${{ steps.config.outputs.configured }}
+          RELEASE: ${{ steps.source.outputs.release }}
+          RUN_ID: ${{ steps.source.outputs.run_id }}
+        run: |
+          if [ "$CONFIGURED" = "true" ]; then
+            echo "Beget deployment attempted for release $RELEASE from validated bundle run $RUN_ID"
+          else
+            echo "Beget deployment workflow is installed. Add BEGET_HOST, BEGET_USER and BEGET_PASSWORD Actions secrets to arm it; BEGET_PATH and BEGET_PORT are optional."
+          fi
