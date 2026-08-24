@@ -35,9 +35,13 @@ expect(s2a.includes('Личность второй посетительницы 
 expect(!s2i.includes('RB-17'), 'Investigator receives Analyst service credential without exchange/context');
 expect(s2a.includes('Владение меткой не устанавливает'), 'Analyst packet pre-solves RB-17 owner/carrier inference');
 
+expect(s3i.includes('Серийный номер — 4F-7719'), 'Investigator no longer owns physical tracker serial');
+expect(!s3i.includes('4F-7719 = «CAR-V»'), 'Investigator receives Analyst device lookup before exchange');
+expect(!s3a.includes('4F-7719'), 'Analyst sees physical tracker serial before partner handoff');
+expect(!s3a.includes('23:05:48'), 'Analyst sees targeted tracker history before partner handoff');
+expect(s3a.includes('Для совпадения нужен серийный номер от Следователя'), 'Analyst packet does not require partner serial');
 expect(!s3a.includes('садится за руль автомобиля Веры'), 'Analyst receives service-camera conclusion belonging to Investigator exchange');
 expect(s3a.includes('Начало маршрута и передача ключа — у Следователя'), 'Analyst does not know a partner-owned start/coordination proof exists');
-expect(!s3i.includes('4F-7719 = «CAR-V»'), 'Investigator receives Analyst device lookup before exchange');
 expect(s3i.includes('серую надо увезти отдельно') && s3i.includes('Марина сказала, что с машиной разберутся'), 'Investigator lacks pre-event decoy-car rationale');
 
 for (const banned of [
@@ -57,11 +61,14 @@ expect(ux.includes('Q7-29: личность водителя установле�
 expect(ux.includes('CAM-S1 · 23:27:14'), 'stage3 exchange does not prove key transfer');
 expect(ux.includes('CAM-S2 · 23:30:52'), 'stage3 exchange does not prove Roman at car');
 expect(ux.includes('CAM-S1/S2: ключ передан, Роман лично у автомобиля'), 'stage3 handoff payoff does not establish coordination plus identity');
+expect(ux.includes('Точный поиск по 4F-7719'), 'Analyst serial handoff has no targeted lookup payoff');
+expect(ux.includes('запрос координат в 23:05:48'), 'Analyst serial handoff does not expose tracking history');
+expect(ux.includes('4F-7719: физический маяк совпал с «CAR-V»'), 'Analyst serial handoff result is weak');
 expect(ux.includes('Одна линия даст наиболее сильный новый факт'), 'stage2 decision still tells players which request is correct');
 expect(!ux.includes('Алиби Ильи уже разрушено камерами и системой доступа'), 'old forced decision feedback remains in v3 UX');
 
 for (const marker of [
-  'Илья лично у дома и независимо связан с маяком',
+  'Илья лично у дома и физический маяк совпадает с его «CAR-V»',
   'Вера лично с Мариной и подтверждает безопасность',
   'ключ передан Роману, он лично связан с началом и концом маршрута машины'
 ]) expect(ux.includes(marker), `final evidence categories missing: ${marker}`);
@@ -75,6 +82,7 @@ console.log(JSON.stringify({
   case: data.title,
   roleLeakStage1: false,
   stage2RequiresBothRoles: true,
+  trackerSerialRequiresPartner: true,
   roleLeakStage3: false,
   handoffCausality: true,
   decoyCarMotivationCoherent: true,
