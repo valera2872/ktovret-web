@@ -1,6 +1,11 @@
 name: Deploy Mystery Logic to Beget
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-beget.yml'
+      - 'ops/beget-auto-deploy.md'
   workflow_run:
     workflows: ["Build Mystery Logic production bundle for Beget"]
     types: [completed]
@@ -20,10 +25,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  definition-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate deploy safety contract
+        run: |
+          set -euo pipefail
+          file=.github/workflows/deploy-beget.yml
+          grep -Fq 'workflow_run:' "$file"
+          grep -Fq 'mysterylogic-beget-production' "$file"
+          grep -Fq 'secrets.BEGET_HOST' "$file"
+          grep -Fq 'secrets.BEGET_USER' "$file"
+          grep -Fq 'secrets.BEGET_PASSWORD' "$file"
+          grep -Fq 'rollback archive' "$file"
+          grep -Fq 'rsync -az --delete-delay --delay-updates' "$file"
+          grep -Fq "--exclude='.well-known/'" "$file"
+          grep -Fq 'Roll back automatically if deploy or live smoke fails' "$file"
+          grep -Fq 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' "$file"
+          test -f ops/beget-auto-deploy.md
+          ! grep -Eqi 'BEGET_(PASSWORD|HOST|USER):[[:space:]]+[^$]' "$file"
+
   deploy-beget:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -149,6 +176,7 @@ jobs:
 
       - name: Deploy validated runtime to Beget
         if: steps.config.outputs.configured == 'true'
+        id: deploy
         env:
           BEGET_HOST: ${{ secrets.BEGET_HOST }}
           BEGET_USER: ${{ secrets.BEGET_USER }}
@@ -185,8 +213,8 @@ jobs:
           grep -Fq 'noindex,follow' /tmp/aria.html
           echo "Live Mystery Logic smoke passed for $RELEASE"
 
-      - name: Roll back automatically if live smoke fails
-        if: failure() && steps.config.outputs.configured == 'true' && steps.backup.outputs.backup_name != '' && steps.smoke.outcome == 'failure'
+      - name: Roll back automatically if deploy or live smoke fails
+        if: failure() && steps.config.outputs.configured == 'true' && steps.backup.outputs.backup_name != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
         env:
           BEGET_HOST: ${{ secrets.BEGET_HOST }}
           BEGET_USER: ${{ secrets.BEGET_USER }}
@@ -200,7 +228,7 @@ jobs:
           target="$BEGET_USER@$BEGET_HOST"
           sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$target" \
             "set -eu; tar -xzf \"\$HOME/.mysterylogic-deploy-backups/$BACKUP_NAME\" -C '$BEGET_PATH'"
-          echo "::error::Live smoke failed; previous files were restored from $BACKUP_NAME"
+          echo "::error::Deployment failed; previous files were restored from $BACKUP_NAME"
 
       - name: Prune old rollback archives
         if: success() && steps.config.outputs.configured == 'true'
