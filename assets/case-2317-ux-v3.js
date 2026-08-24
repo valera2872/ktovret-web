@@ -44,8 +44,8 @@
       if (!done) setText(copy, 'У Аналитика есть ID метки технического шлагбаума. Получите его и запросите исходные сервисные камеры перед открытием.');
       if (input && input.placeholder !== 'ID сервисной метки') input.placeholder = 'ID сервисной метки';
       if (done) {
-        setText(copy, 'CAM-S1 · 23:27:14: Марина Соболева у сервисной двери передаёт Роману Белову чёрный ключ-брелок; лица обоих открыты. CAM-S2 · 23:30:52: Роман лично входит в техническую зону и садится за руль автомобиля Веры. В 23:31:44 шлагбаум открывается RB-17.');
-        setText(result, 'CAM-S1/S2: ключ передан, Роман лично у автомобиля');
+        setText(copy, 'CAM-S1 · 23:27:14: Марина Соболева у сервисной двери передаёт Роману Белову чёрный ключ-брелок с оранжевым тканевым хлястиком; лица обоих открыты. CAM-S2 · 23:30:52: Роман нажимает брелок с тем же оранжевым хлястиком — автомобиль Веры мигает габаритами и отпирается, после чего Роман садится за руль. В 23:31:44 шлагбаум открывается RB-17.');
+        setText(result, 'CAM-S1/S2: переданный брелок открывает машину Веры');
       }
     }
 
@@ -93,7 +93,7 @@
     const labels = {
       ilya_camera: 'Q7-29 + 4F-7719: Илья лично у дома и физический маяк совпадает с его «CAR-V»',
       tracker: '00:16 + 00:18: Вера лично с Мариной и подтверждает безопасность',
-      roman_route: 'CAM-S1/S2 + пешие камеры: ключ передан Роману, он лично связан с началом и концом маршрута машины',
+      roman_route: 'CAM-S1/S2 + пешие камеры: переданный Мариной брелок открывает машину, Роман связан с началом и концом её маршрута',
       tea: '23:43: операция по карте Марины в кафе «Север»',
       seat: 'Кресло автомобиля отодвинуто на 11 см',
       draft: 'Черновик Веры: отслеживаемая машина должна уйти ложным маршрутом'
@@ -161,5 +161,5 @@
   };
   new MutationObserver(schedulePatch).observe(root, { childList: true, subtree: true });
   patch();
-  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.6', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, serialHandoffRequired: true, legacyCodeHidden: true, idempotentDomPatch: true });
+  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.7', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, transferredKeyProved: true, serialHandoffRequired: true, legacyCodeHidden: true, idempotentDomPatch: true });
 })();
