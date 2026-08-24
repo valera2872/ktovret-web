@@ -15,7 +15,7 @@ const data=context.window.MLCaseAria;
 expect(data?.id==='special:last-aria','case id mismatch');
 expect(data.title==='Последняя ария','title mismatch');
 expect(data.logicVersion===1,'logic version mismatch');
-expect(data.proofRevision==='1.2'&&data.coopRevision==='1.2','fair-play revision missing');
+expect(data.proofRevision==='1.3'&&data.coopRevision==='1.3','fair-play revision missing');
 expect(data.stages?.length===3,'expected three stages');
 const materialCount=data.stages.reduce((sum,stage)=>sum+(stage.creator?.length||0)+(stage.guest?.length||0),0);
 expect(materialCount===18,`expected 18 materials, got ${materialCount}`);
@@ -37,15 +37,28 @@ const all=JSON.stringify(data);
 const stage1=JSON.stringify(data.stages[0]);
 const stage2=JSON.stringify(data.stages[1]);
 const stage3=JSON.stringify(data.stages[2]);
-expect(stage1.includes('21:49:12.000')&&stage1.includes('21:49:31.604'),'critical blackout/archive timestamps missing');
+expect(stage1.includes('21:49:12.000')&&stage1.includes('21:49:31.604')&&stage1.includes('21:49:43.117')&&stage1.includes('21:50:04.188'),'critical blackout/archive timestamps missing');
 expect(stage1.includes('16–20 секунд')&&stage1.includes('не менее 58 секунд'),'physical route bounds missing');
 expect(data.handoffs.creator[1].result.includes('19,6 секунды'),'physical overlap inference missing');
+const blackoutStart=21*3600+49*60+12;
+const archiveOpen=21*3600+49*60+31.604;
+const archiveClose=21*3600+49*60+43.117;
+const workingLight=21*3600+50*60+4.188;
+const outbound=archiveOpen-blackoutStart;
+const archiveDwell=archiveClose-archiveOpen;
+const returnWindow=workingLight-archiveClose;
+const blackoutWindow=workingLight-blackoutStart;
+expect(outbound>=16&&outbound<=20,`outbound STAIR-18 timing impossible: ${outbound.toFixed(3)}s`);
+expect(returnWindow>=20,`return STAIR-18 lacks conservative 20s window: ${returnWindow.toFixed(3)}s`);
+expect(20+archiveDwell+20<=blackoutWindow,`full round trip cannot fit blackout: need ${(40+archiveDwell).toFixed(3)}s, have ${blackoutWindow.toFixed(3)}s`);
 expect(stage1.includes('SAFE-L')&&stage1.includes('SAFE-R'),'stage-manager physical hold missing');
 expect(stage2.includes('PB-2')&&stage2.includes('TAKE-6')&&stage2.includes('MIC-C'),'recorded alibi proof incomplete');
 expect(stage2.includes('HEEL-43C')&&stage2.includes('CRESCENT-43'),'shoeprint cross-check incomplete');
 expect(stage2.includes('K-12')&&stage2.includes('15:06'),'duplicate key chain incomplete');
 expect(stage3.includes('BR-06')&&stage3.includes('18:36')&&stage3.includes('18:45'),'prop opportunity proof incomplete');
+expect(stage3.includes('B-3')&&stage3.includes('P-771')&&stage3.includes('18:47'),'sealed prop chain of custody incomplete');
 expect(stage3.includes('MS-1908')&&stage3.includes('T-6M'),'physical possession chain incomplete');
+expect(stage3.includes('20:57')&&stage3.includes('21:51:24')&&stage3.includes('21:53'),'T-6M post-blackout custody chain incomplete');
 expect(stage3.includes('42 000 EUR')&&stage3.includes('M.KAREV'),'pre-event motive corroboration missing');
 expect(stage3.includes('SAFE-L')&&stage3.includes('фойе')&&stage3.includes('LX-4'),'alternative suspect positions missing');
 
@@ -58,7 +71,6 @@ expect(data.final.questions.find((q)=>q.id==='anton')?.answer==='victim','victim
 
 const preFinal=[stage1,stage2,stage3].join(' ');
 for(const marker of ['BR-06','Q-17B','SAFE-L','SAFE-R','TAKE-6','PB-2','MIC-C','K-12','HEEL-43C','MS-1908','T-6M','A. Stein']) expect(preFinal.includes(marker),`reveal marker ${marker} absent before final`);
-
 expect(stage1.includes('Само обозначение PB-2')||stage1.includes('Само обозначение'),'PB source caveat missing');
 expect(stage2.includes('Сам по себе размер обуви человека не идентифицирует'),'shoe size identity caveat missing');
 expect(stage3.includes('вина следует не из мотива')===false,'reveal language leaked into evidence');
@@ -67,4 +79,4 @@ expect(all.includes('опер')||all.includes('театр'),'opera setting missi
 expect(all.includes('партитур')&&all.includes('интерком')&&all.includes('реквизит'),'distinct analog/theatrical evidence mix missing');
 expect(!data.brief.lead.includes('автомобил')&&!data.brief.lead.includes('гостини'),'case premise drifted toward existing products');
 
-console.log(JSON.stringify({id:data.id,logicVersion:data.logicVersion,proofRevision:data.proofRevision,coopRevision:data.coopRevision,stages:data.stages.length,materials:materialCount,handoffs:6,requiredProofGroups:data.final.requiredGroups.length,verdict:'fair-play structure, physical timing and cross-role boundaries validated'},null,2));
+console.log(JSON.stringify({id:data.id,logicVersion:data.logicVersion,proofRevision:data.proofRevision,coopRevision:data.coopRevision,stages:data.stages.length,materials:materialCount,handoffs:6,requiredProofGroups:data.final.requiredGroups.length,outboundSeconds:Number(outbound.toFixed(3)),archiveDwellSeconds:Number(archiveDwell.toFixed(3)),returnWindowSeconds:Number(returnWindow.toFixed(3)),verdict:'fair-play structure, full physical round trip and cross-role boundaries validated'},null,2));
