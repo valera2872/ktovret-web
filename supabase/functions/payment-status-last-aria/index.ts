@@ -7,8 +7,8 @@ import {
   sha256,
   validAccessToken,
   validUuid,
-} from '../_shared/payment.ts';
-import { tbankConfigReady } from '../_shared/tbank.ts';
+} from '../_shared/last-aria-payment.ts';
+import { tbankConfigReady } from '../_shared/last-aria-tbank.ts';
 import {
   LAST_ARIA_PRODUCT_ID,
   refreshLastAriaTbankOrder,
