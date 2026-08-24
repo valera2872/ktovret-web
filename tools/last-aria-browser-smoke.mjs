@@ -13,6 +13,7 @@ const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bi
 const chrome=chromeCandidates.find((candidate)=>fs.existsSync(candidate));
 if(!chrome)throw new Error(`Chrome/Chromium not found: ${chromeCandidates.join(', ')}`);
 if(typeof WebSocket!=='function')throw new Error('Node WebSocket API is unavailable');
+const pause=(ms)=>new Promise((resolve)=>setTimeout(resolve,ms));
 
 const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/mysterylogic.css"><link rel="stylesheet" href="/assets/premium.css"><link rel="stylesheet" href="/assets/case-aria.css"><link rel="stylesheet" href="/assets/case-aria-materials-v2.css"><link rel="stylesheet" href="/assets/case-aria-layout-v2.css"></head><body class="casearia-body"><main class="casearia-shell" data-casearia-app></main>
 <script>
@@ -47,24 +48,27 @@ const server=http.createServer((request,response)=>{
 const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
 
 const profile=fs.mkdtempSync(path.join(outDir,'.chrome-cdp-profile-'));
+const debugPort=9222;
 const browser=spawn(chrome,[
   '--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--disable-background-mode',
   '--disable-component-update','--disable-default-apps','--disable-domain-reliability','--disable-extensions','--disable-sync','--metrics-recording-only',
   '--no-first-run','--safebrowsing-disable-auto-update','--disable-features=OptimizationHints,MediaRouter,PushMessaging,NotificationTriggers,Translate',
-  `--user-data-dir=${profile}`,'--remote-debugging-port=0','about:blank'
+  '--remote-allow-origins=*',`--user-data-dir=${profile}`,`--remote-debugging-port=${debugPort}`,'about:blank'
 ],{stdio:['ignore','ignore','pipe']});
 let browserStderr='';
-const wsUrl=await new Promise((resolve,reject)=>{
-  let settled=false;
-  const timer=setTimeout(()=>{if(!settled){settled=true;reject(new Error(`Chrome CDP startup timeout: ${browserStderr.slice(-1200)}`));}},15_000);
-  browser.stderr.on('data',(chunk)=>{
-    const text=String(chunk);browserStderr+=text;
-    const match=browserStderr.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-    if(match&&!settled){settled=true;clearTimeout(timer);resolve(match[1]);}
-  });
-  browser.on('error',(error)=>{if(!settled){settled=true;clearTimeout(timer);reject(error);}});
-  browser.on('close',(code)=>{if(!settled){settled=true;clearTimeout(timer);reject(new Error(`Chrome exited before CDP startup (${code}): ${browserStderr.slice(-1200)}`));}});
-});
+browser.stderr.on('data',(chunk)=>browserStderr+=String(chunk));
+const wsUrl=await (async()=>{
+  const deadline=Date.now()+15_000;
+  while(Date.now()<deadline){
+    if(browser.exitCode!==null)throw new Error(`Chrome exited before CDP startup (${browser.exitCode}): ${browserStderr.slice(-1200)}`);
+    try{
+      const response=await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+      if(response.ok){const info=await response.json();if(info.webSocketDebuggerUrl)return info.webSocketDebuggerUrl;}
+    }catch{}
+    await pause(100);
+  }
+  throw new Error(`Chrome CDP endpoint timeout: ${browserStderr.slice(-1200)}`);
+})();
 
 const ws=await new Promise((resolve,reject)=>{
   const socket=new WebSocket(wsUrl);
@@ -88,7 +92,6 @@ const cdp=(method,params={},sessionId=null,timeoutMs=10_000)=>new Promise((resol
   pending.set(id,{resolve,reject,timer,method});
   ws.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));
 });
-const pause=(ms)=>new Promise((resolve)=>setTimeout(resolve,ms));
 const evaluate=async(sessionId,expression)=>{
   const result=await cdp('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true},sessionId);
   if(result.exceptionDetails)throw new Error(`Runtime.evaluate failed: ${result.exceptionDetails.text||'unknown error'}`);
