@@ -19,8 +19,8 @@ const ux = read('assets/case-2317-ux-v3.js');
 const generator = read('tools/import-mobile/two-player-2317-postprocess.mjs');
 
 expect(data.logicVersion === 3, 'logicVersion is not 3');
-expect(data.proofRevision === '3.4', 'proofRevision is not 3.4');
-expect(data.coopRevision === '3.4', 'coopRevision is not 3.4');
+expect(data.proofRevision === '3.5', 'proofRevision is not 3.5');
+expect(data.coopRevision === '3.5', 'coopRevision is not 3.5');
 expect(data.stages.length === 3, 'stage count changed');
 expect(data.final.questions.length === 4, 'final must ask four independent conclusions');
 
@@ -28,6 +28,8 @@ const s1 = JSON.stringify(data.stages[0]);
 const s2i = JSON.stringify(data.stages[1].investigator);
 const s2a = JSON.stringify(data.stages[1].analyst);
 const s2 = JSON.stringify(data.stages[1]);
+const s3i = JSON.stringify(data.stages[2].investigator);
+const s3a = JSON.stringify(data.stages[2].analyst);
 const s3 = JSON.stringify(data.stages[2]);
 
 expect(s1.includes('23:17:43'), '112 door sound timestamp missing');
@@ -47,6 +49,10 @@ expect(s3.includes('00:18:32') && s3.includes('00:16'), 'post-23:47 Vera safety 
 expect(s3.includes('повторный звонок по карточке обращения'), 'safety material title is still conclusion-leading');
 expect(!s3.includes('Таким образом, безопасность Веры подтверждена'), 'safety material still pre-solves its own conclusion');
 expect(s3.includes('LTE/GNSS') && s3.includes('BLE'), 'tracker technology remains internally ambiguous');
+expect(s3i.includes('Серийный номер — 4F-7719'), 'physical tracker serial missing from Investigator');
+expect(!s3a.includes('4F-7719'), 'Analyst packet leaks physical tracker serial before handoff');
+expect(!s3a.includes('23:05:48'), 'Analyst packet leaks targeted tracking history before handoff');
+expect(s3a.includes('Для совпадения нужен серийный номер от Следователя'), 'Analyst packet does not require partner serial');
 expect(s3.includes('серую надо увезти отдельно') && s3.includes('Марина сказала, что с машиной разберутся'), 'pre-event decoy-car rationale is missing');
 expect(!s3.includes('оставлю серую до утра'), 'old draft contradicts the separate-car plan');
 expect(!s3.includes('если маяк настоящий, он покажет, куда я уехала'), 'draft still contains impossible tracker logic');
@@ -57,6 +63,7 @@ expect(!ux.includes('Отгоню её машину, маяк пусть еде�
 expect(ux.includes('CAM-S1 · 23:27:14') && ux.includes('передаёт Роману Белову чёрный ключ-брелок'), 'Roman coordination/key custody proof missing');
 expect(ux.includes('CAM-S2 · 23:30:52'), 'independent Roman-at-car visual proof missing');
 expect(ux.includes('Q7-29 / CAM-N2 · 23:12:18'), 'personal Ilya identification missing');
+expect(ux.includes('Точный поиск по 4F-7719') && ux.includes('запрос координат в 23:05:48'), 'tracker serial handoff payoff missing');
 expect(ux.includes("input.value = 'D-2147'"), 'timestamp-to-legacy handoff bridge missing');
 expect(ux.includes("'23:17:43'"), 'real timestamp handoff missing');
 
@@ -86,6 +93,7 @@ console.log(JSON.stringify({
   vehicleOwnerEqualsPerson: false,
   credentialOwnerEqualsPerson: false,
   stage2CrossRoleOverlap: true,
+  trackerSerialCrossRole: true,
   veraSafetyBeforeFinal: true,
   romanCoordinationProved: true,
   decoyCarMotivationCoherent: true,
