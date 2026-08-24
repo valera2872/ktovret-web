@@ -13,7 +13,7 @@ const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bi
 const chrome=chromeCandidates.find((candidate)=>fs.existsSync(candidate));
 if(!chrome)throw new Error(`Chrome/Chromium not found: ${chromeCandidates.join(', ')}`);
 
-const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/mysterylogic.css"><link rel="stylesheet" href="/assets/premium.css"><link rel="stylesheet" href="/assets/case-aria.css"><link rel="stylesheet" href="/assets/case-aria-materials-v2.css"></head><body class="casearia-body"><main class="casearia-shell" data-casearia-app></main>
+const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/mysterylogic.css"><link rel="stylesheet" href="/assets/premium.css"><link rel="stylesheet" href="/assets/case-aria.css"><link rel="stylesheet" href="/assets/case-aria-materials-v2.css"><link rel="stylesheet" href="/assets/case-aria-layout-v2.css"></head><body class="casearia-body"><main class="casearia-shell" data-casearia-app></main>
 <script>
 (()=>{
  const q=new URLSearchParams(location.search),role=q.get('role')||'creator',stage=Number(q.get('stage')||1),mode=q.get('mode')||'stage',code='ABCDEFGH';
@@ -79,6 +79,6 @@ try{
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{await new Promise((resolve)=>server.close(resolve));}
