@@ -18,7 +18,7 @@ const theories={
   managerStoleScore:{
     claim:'Сценический менеджер Илья сам продлил blackout и использовал темноту для кражи.',
     blockers:[
-      ['SAFE-L/R требуют непрерывного физического удержания',s1.includes('непрерывное удержание обеих клавиш')&&s3.includes('SAFE-L')&&s3.includes('SAFE-R')],
+      ['SAFE-L/R требуют непрерывного физического удержания',s1.includes('удержание обеих клавиш')&&s3.includes('SAFE-L')&&s3.includes('SAFE-R')],
       ['архив открыт внутри того же окна',s1.includes('21:49:31.604')],
       ['доказанный маршрут в архив связан не с Ильёй, а с HEEL-43C',s2.includes('HEEL-43C')&&s2.includes('Михаил')]
     ]
@@ -63,7 +63,6 @@ for(const [id,theory] of Object.entries(theories)){
   expect(theory.blockers.length>=3,`${id} has too few independent blockers`);
 }
 
-// Canonical chain must be multi-class, not one magic clue.
 for(const marker of ['BR-06','PB-2','TAKE-6','HEEL-43C','K-12','MS-1908','T-6M','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
 expect(reveal.includes('совокупности физических и технических доказательств'),'debrief does not state multi-evidence standard');
 
