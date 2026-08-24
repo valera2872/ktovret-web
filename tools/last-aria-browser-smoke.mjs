@@ -25,7 +25,7 @@ const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta nam
    const view={ok:true,room:{code,caseId:'special:last-aria',caseTitle:'Последняя ария',casePath:'/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/'},me:{role,name:role==='creator'?'Алексей':'Марина',started:true,completed:both},opponent:{joined:true,role:other,name:other==='creator'?'Алексей':'Марина',started:true,completed:both},bothJoined:true,bothCompleted:both,results:both?{creator:{name:'Алексей',elapsedSeconds:2780,hintsUsed:1,attempts:1,firstAnswerCorrect:true},guest:{name:'Марина',elapsedSeconds:2910,hintsUsed:0,attempts:1,firstAnswerCorrect:true}}:null};
    return new Response(JSON.stringify(view),{status:200,headers:{'content-type':'application/json'}});
  };
- window.__ariaSmoke={role,stage,mode};
+ window.__ariaSmoke={role,stage,mode,code};
 })();
 </script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria.js"></script><script>
 setTimeout(()=>{
@@ -51,7 +51,7 @@ cases.push({role:'creator',stage:3,mode:'final',name:'creator-final'});cases.pus
 const report=[];
 try{
   for(const item of cases){
-    const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?role=${item.role}&stage=${item.stage}&mode=${item.mode}`;
+    const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?room=ABCDEFGH&role=${item.role}&stage=${item.stage}&mode=${item.mode}`;
     const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--window-size=390,1600','--virtual-time-budget=1700'];
     const screenshot=path.join(outDir,`${item.name}.png`);
     await runChrome([...common,`--screenshot=${screenshot}`,url]);
