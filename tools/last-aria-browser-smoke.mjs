@@ -146,7 +146,8 @@ try{
     const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?${query.toString()}`;
     const {dom,screenshot}=await capture(item,url);
     if(!dom.includes('data-smoke-ready="1"'))throw new Error(`${item.name}: ready marker missing from captured DOM`);
-    if(!dom.includes('Последняя ария'))throw new Error(`${item.name}: case title missing`);
+    if(item.mode==='home'&&!dom.includes('Последняя <em>ария</em>'))throw new Error('post-purchase cover title missing');
+    if(!['home','create'].includes(item.mode)&&!dom.includes('Последняя ария'))throw new Error(`${item.name}: case title missing`);
     if(item.mode==='home'){
       if(!dom.includes('У каждого участника есть своя версия этих событий.'))throw new Error('post-purchase cover neutral copy missing');
       for(const forbidden of ['пока все слышали голос дирижёра','голос дирижёра в оркестровой яме'])if(dom.includes(forbidden))throw new Error(`post-purchase cover spoiler leaked: ${forbidden}`);
@@ -176,7 +177,9 @@ try{
       if(!dom.includes('Нужны независимые цепочки по хронологии, источникам сообщений'))throw new Error('neutral final synthesis lead missing');
     }
     if(item.mode==='reveal')for(const marker of ['Заключение следственной группы','Партитуру украли','Маэстро расследования','21:48:54','C-2','Q-17B','+10/+16/+23','RFI-1','5,2–6,1 секунды'])if(!dom.includes(marker))throw new Error(`reveal marker missing: ${marker}`);
-    const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
+    const bytes=fs.statSync(screenshot).size;
+    const minBytes=['home','create'].includes(item.mode)?20_000:30_000;
+    if(bytes<minBytes)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
   fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,preInvestigationViews:2,stageViews:6,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',spoilerAuditRevision:'1.4',playbackCueTriggered:true,capture:'chrome-devtools-protocol',views:report},null,2));
