@@ -1,0 +1,14 @@
+/* Last Aria mobile investigation layout polish */
+@media(max-width:760px){
+  .casearia-room-top{grid-template-columns:72px minmax(0,1fr) minmax(0,.72fr)!important;top:0!important;gap:1px!important}
+  .casearia-room-top>span{min-width:0;padding:7px 8px!important}
+  .casearia-room-top small{font-size:.46rem!important;letter-spacing:.08em!important;white-space:nowrap}
+  .casearia-room-top strong{margin-top:2px!important;font-size:.61rem!important;line-height:1.2!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .casearia-brief{gap:14px!important;padding:22px 18px!important}
+  .casearia-brief h1{font-size:2.35rem!important;line-height:.94!important}
+  .casearia-brief>div>p:last-child{font-size:.83rem!important;line-height:1.58!important}
+  .casearia-brief aside{padding:12px 0 0!important;border-left:0!important;border-top:1px solid rgba(232,200,138,.18)!important}
+  .casearia-evidence header{padding:17px 17px 12px!important}
+  .casearia-evidence-body{padding:14px 17px!important}
+  .casearia-facts{padding:0 17px 17px!important}
+}
