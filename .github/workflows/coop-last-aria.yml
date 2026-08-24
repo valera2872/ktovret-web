@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate source syntax and backend boundary
+      - name: Validate source syntax and paid boundary
         working-directory: web
         run: |
           node --check assets/case-aria-data.js
@@ -43,8 +43,11 @@ jobs:
           node --check assets/case-aria-investigator-v16.js
           node --check assets/case-aria.js
           node --check assets/case-aria-materials-v2.js
+          node --check assets/case-aria-storefront.js
+          node --check assets/case-aria-paid-auth.js
           test -s assets/case-aria-materials-v2.css
           test -s assets/case-aria-layout-v2.css
+          test -s assets/case-aria-storefront.css
           node --check tools/import-mobile/two-player-last-aria-postprocess.mjs
           node --check tools/import-mobile/seo-ctr-modernization.mjs
           node --check tools/validate-case-last-aria.mjs
@@ -52,6 +55,18 @@ jobs:
           node --check tools/validate-coop-last-aria-backend.mjs
           node --check tools/last-aria-browser-smoke.mjs
           grep -q "functions/v1/coop-last-aria" assets/case-aria.js
+          grep -q "const PRICE_RUB = 299" assets/case-aria-storefront.js
+          grep -q "const PRODUCT_ID = 'last_aria'" assets/case-aria-storefront.js
+          grep -q "create-checkout-last-aria" assets/case-aria-storefront.js
+          grep -q "payment-status-last-aria" assets/case-aria-storefront.js
+          grep -q "LAST_ARIA_PRODUCT_ID = 'last_aria'" supabase/functions/_shared/last-aria-commerce.ts
+          grep -q "LAST_ARIA_PRICE_RUB = 299" supabase/functions/_shared/last-aria-commerce.ts
+          grep -q "amount !== 29900" supabase/functions/create-checkout-last-aria/index.ts
+          grep -q "tbank-webhook-last-aria" supabase/functions/create-checkout-last-aria/index.ts
+          grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/payment-status-last-aria/index.ts
+          grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/tbank-webhook-last-aria/index.ts
+          grep -q "productId:'volume1'" assets/paid-access-config.js
+          grep -q "VOLUME1_PRICE_RUB" supabase/functions/create-checkout/index.ts
       - name: Validate backend transport contract
         working-directory: web
         run: node tools/validate-coop-last-aria-backend.mjs
@@ -64,23 +79,22 @@ jobs:
       - name: Generate full public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Validate generated Last Aria route and three-case catalog
+      - name: Validate generated paid Last Aria route and catalog
         working-directory: web
         run: |
           test -f detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'name="robots" content="noindex,follow"' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-data.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-fairplay-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-investigator-v16.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          ! grep -q 'case-aria-investigator-v15.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-materials-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-layout-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-materials-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-storefront.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-paid-auth.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-storefront.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          ! grep -q '<script src="../../assets/case-aria-data.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          ! grep -q '<script src="../../assets/case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'casearia-catalog' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="2317/"' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="407/"' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="poslednyaya-ariya/"' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'Купить дело — 299 ₽' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'второй игрок бесплатно' detektivnye-igry-dlya-dvoih/index.html
           ! grep -q 'poslednyaya-ariya' sitemap.xml
           ! grep -q 'ложное аудиоалиби' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
       - name: Validate CTR-first SEO modernization

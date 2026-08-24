@@ -9,9 +9,11 @@ const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylo
 const CASE_ID = 'special:last-aria';
 const CASE_TITLE = 'Последняя ария';
 const CASE_PATH = '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/';
+const PRODUCT_ID = 'last_aria';
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
 const BROWSER_KEY_RE = /^[a-f0-9]{48}$/;
+const ACCESS_TOKEN_RE = /^ml_[a-z0-9]+_[A-Za-z0-9_-]{32,160}$/;
 const roomSelect = 'id,code,case_id,case_title,case_path,creator_key_hash,status,created_at,expires_at';
 const playerSelect = 'id,room_id,role,player_key_hash,player_name,joined_at,started_at,elapsed_seconds,hints_used,attempts,first_answer_correct,completed_at';
 
@@ -78,7 +80,7 @@ Deno.serve(async (req: Request) => {
   const allowedOrigin = !origin || configuredOrigins.includes(origin);
   if (req.method === 'OPTIONS') {
     if (!allowedOrigin) return new Response(null, { status: 403 });
-    return new Response(null, { status: 204, headers: { ...(origin ? { 'access-control-allow-origin': origin } : {}), 'access-control-allow-headers': 'content-type', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-max-age': '600', vary: 'Origin' } });
+    return new Response(null, { status: 204, headers: { ...(origin ? { 'access-control-allow-origin': origin } : {}), 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-max-age': '600', vary: 'Origin' } });
   }
   if (!allowedOrigin) return json(403, { error: 'origin_not_allowed' });
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
@@ -91,6 +93,23 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
   if (action === 'create') {
+    const auth = req.headers.get('authorization') || '';
+    const accessToken = auth.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() || '';
+    if (!ACCESS_TOKEN_RE.test(accessToken)) return json(402, { error: 'payment_required' }, origin);
+    const accessTokenHash = await sha256(accessToken);
+    const entitlementResult = await admin
+      .from('access_entitlements')
+      .select('status,expires_at,revoked_at')
+      .eq('token_hash', accessTokenHash)
+      .eq('product_id', PRODUCT_ID)
+      .maybeSingle();
+    if (entitlementResult.error) return json(503, { error: 'entitlement_lookup_failed' }, origin);
+    const entitlement = entitlementResult.data;
+    const entitled = entitlement?.status === 'active'
+      && !entitlement?.revoked_at
+      && (!entitlement?.expires_at || new Date(entitlement.expires_at) > new Date());
+    if (!entitled) return json(402, { error: 'payment_required' }, origin);
+
     const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString(), dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const hourResult = await admin.from('duel_rooms').select('id', { count: 'exact', head: true }).eq('creator_key_hash', browserKeyHash).gte('created_at', hourAgo);
     const dayResult = await admin.from('duel_rooms').select('id', { count: 'exact', head: true }).eq('creator_key_hash', browserKeyHash).gte('created_at', dayAgo);
