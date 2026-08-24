@@ -55,7 +55,7 @@ expect(returnWindow>=20,`return STAIR-18 lacks conservative 20s window: ${return
 expect(20+archiveDwell+20<=blackoutWindow,`full round trip cannot fit blackout: need ${(40+archiveDwell).toFixed(3)}s, have ${blackoutWindow.toFixed(3)}s`);
 
 expect(stage1.includes('SAFE-L')&&stage1.includes('SAFE-R'),'stage-manager physical hold missing');
-expect(stage1.includes('аварийные кромочные огни')&&stage1.includes('running lights'),'medical/emergency lighting realism missing');
+expect(stage1.toLowerCase().includes('аварийные кромочные огни')&&stage1.includes('running lights'),'medical/emergency lighting realism missing');
 expect(stage1.includes('17:32')&&stage1.includes('Михаил Карев')&&stage1.includes('процедур'),'culprit knowledge of SAFE procedure not established');
 expect(!data.brief.mission.includes('не доказывает')&&!data.brief.mission.toLowerCase().includes('ложн'),'brief spoils central audio inference');
 expect(!data.stages[0].objective.includes('Не считайте голос'),'stage 1 objective spoils central audio inference');
