@@ -40,6 +40,7 @@ jobs:
         run: |
           node --check assets/case-aria-data.js
           node --check assets/case-aria-fairplay-v2.js
+          node --check assets/case-aria-investigator-v14.js
           node --check assets/case-aria.js
           node --check assets/case-aria-materials-v2.js
           test -s assets/case-aria-materials-v2.css
@@ -70,6 +71,7 @@ jobs:
           grep -q 'name="robots" content="noindex,follow"' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-data.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-fairplay-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-investigator-v14.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-materials-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-layout-v2.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
@@ -79,6 +81,7 @@ jobs:
           grep -q 'href="407/"' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="poslednyaya-ariya/"' detektivnye-igry-dlya-dvoih/index.html
           ! grep -q 'poslednyaya-ariya' sitemap.xml
+          ! grep -q 'ложное аудиоалиби' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
       - name: Validate CTR-first SEO modernization
         working-directory: web
         run: |
