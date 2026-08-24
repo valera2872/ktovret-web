@@ -75,7 +75,7 @@ const report=[];
 try{
   for(const item of cases){
     const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?room=ABCDEFGH&role=${item.role}&stage=${item.stage}&mode=${item.mode}`;
-    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--disable-background-mode','--disable-component-update','--disable-default-apps','--disable-domain-reliability','--disable-extensions','--disable-sync','--metrics-recording-only','--no-first-run','--safebrowsing-disable-auto-update','--disable-features=OptimizationHints,MediaRouter,PushMessaging,NotificationTriggers,Translate','--force-device-scale-factor=1','--window-size=390,1600','--virtual-time-budget=1900'];
+    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--disable-background-mode','--disable-component-update','--disable-default-apps','--disable-domain-reliability','--disable-extensions','--disable-sync','--metrics-recording-only','--no-first-run','--safebrowsing-disable-auto-update','--disable-features=OptimizationHints,MediaRouter,PushMessaging,NotificationTriggers,Translate','--force-device-scale-factor=1','--window-size=390,1600','--timeout=5000','--virtual-time-budget=1900'];
     const screenshot=path.join(outDir,`${item.name}.png`);
     await runChrome([...common,`--screenshot=${screenshot}`,url],`${item.name}/screenshot`);
     const {stdout:dom}=await runChrome([...common,'--dump-dom',url],`${item.name}/dom`);
