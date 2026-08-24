@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { applySeoCtrModernization } from './seo-ctr-modernization.mjs';
 
-const VERSION='1.0.7';
+const VERSION='1.0.8';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html){
@@ -51,5 +52,6 @@ export function applyStorefrontVolumeSales(siteRoot,cases){
   const before=fs.readFileSync(file,'utf8');
   const after=patchVolume(before,cases);
   fs.writeFileSync(file,after);
-  return {pages:1,version:VERSION};
+  const seo=applySeoCtrModernization(siteRoot);
+  return {pages:1,version:VERSION,seoCtrPages:seo.pages,seoCtrHomeTitle:seo.homeTitle};
 }
