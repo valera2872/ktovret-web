@@ -54,7 +54,7 @@ const screenChecks=[
   {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:20,markers:['data-screen="S20"','ВЫВОД КОМИССИИ','ЧТО УСТАНОВИЛА КОМИССИЯ'],forbidden:['Рой Эбсари','manslaughter']},
   {screen:23,markers:['data-screen="S23"','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter'],forbidden:[]},
-  {screen:24,markers:['data-screen="S24"','РЕЕСТР ИСТОЧНИКОВ','archives.novascotia.ca'],forbidden:[]},
+  {screen:24,markers:['data-screen="S24"','Реестр источников','archives.novascotia.ca'],forbidden:[]},
 ];
 const results=[];
 
