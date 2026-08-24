@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION='1.2.4';
+const VERSION='1.2.5';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 
@@ -36,7 +36,7 @@ const specialPage=()=>`<!doctype html>
   </main>
   <script src="../../assets/case-aria-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-fairplay-v2.js?v=${VERSION}"></script>
-  <script src="../../assets/case-aria-investigator-v15.js?v=${VERSION}"></script>
+  <script src="../../assets/case-aria-investigator-v16.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-materials-v2.js?v=${VERSION}"></script>
 </body>
@@ -74,5 +74,5 @@ export function applyTwoPlayerLastAria(siteRoot){
   ensureDir(caseDir);
   fs.writeFileSync(path.join(caseDir,'index.html'),specialPage());
   patchLanding(siteRoot);
-  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.5'};
+  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6'};
 }
