@@ -11,13 +11,13 @@ const expect=(condition,message)=>{if(!condition)throw new Error(`Last Aria vali
 const context={window:{}};
 vm.runInNewContext(read('assets/case-aria-data.js'),context,{filename:'case-aria-data.js'});
 vm.runInNewContext(read('assets/case-aria-fairplay-v2.js'),context,{filename:'case-aria-fairplay-v2.js'});
-vm.runInNewContext(read('assets/case-aria-investigator-v14.js'),context,{filename:'case-aria-investigator-v14.js'});
+vm.runInNewContext(read('assets/case-aria-investigator-v15.js'),context,{filename:'case-aria-investigator-v15.js'});
 const data=context.window.MLCaseAria;
 expect(data?.id==='special:last-aria','case id mismatch');
 expect(data.title==='Последняя ария','title mismatch');
 expect(data.logicVersion===1,'logic version mismatch');
-expect(data.proofRevision==='1.4'&&data.coopRevision==='1.4','investigator fair-play revision missing');
-expect(context.window.MLAriaInvestigatorV14?.revision==='1.4','investigator proof layer missing');
+expect(data.proofRevision==='1.5'&&data.coopRevision==='1.5','investigator fair-play revision missing');
+expect(context.window.MLAriaInvestigatorV15?.revision==='1.5','investigator v1.5 proof layer missing');
 expect(data.stages?.length===3,'expected three stages');
 const materialCount=data.stages.reduce((sum,stage)=>sum+(stage.creator?.length||0)+(stage.guest?.length||0),0);
 expect(materialCount===18,`expected 18 materials, got ${materialCount}`);
@@ -40,8 +40,8 @@ const stage1=JSON.stringify(data.stages[0]);
 const stage2=JSON.stringify(data.stages[1]);
 const stage3=JSON.stringify(data.stages[2]);
 expect(stage1.includes('21:49:12.000')&&stage1.includes('21:49:31.604')&&stage1.includes('21:49:43.117')&&stage1.includes('21:50:04.188'),'critical blackout/archive timestamps missing');
-expect(stage1.includes('16–20 секунд')&&stage1.includes('не менее 58 секунд'),'physical route bounds missing');
-expect(data.handoffs.creator[1].result.includes('19,6 секунды'),'physical overlap inference missing');
+expect(stage1.includes('14–17 секунд')&&stage1.includes('не менее 58 секунд'),'investigator route bounds missing');
+expect(stage1.includes('14,2')&&stage1.includes('15,6')&&stage1.includes('16,8'),'control walk measurements missing');
 const blackoutStart=21*3600+49*60+12;
 const archiveOpen=21*3600+49*60+31.604;
 const archiveClose=21*3600+49*60+43.117;
@@ -50,13 +50,19 @@ const outbound=archiveOpen-blackoutStart;
 const archiveDwell=archiveClose-archiveOpen;
 const returnWindow=workingLight-archiveClose;
 const blackoutWindow=workingLight-blackoutStart;
-expect(outbound>=16&&outbound<=20,`outbound STAIR-18 timing impossible: ${outbound.toFixed(3)}s`);
-expect(returnWindow>=20,`return STAIR-18 lacks conservative 20s window: ${returnWindow.toFixed(3)}s`);
-expect(20+archiveDwell+20<=blackoutWindow,`full round trip cannot fit blackout: need ${(40+archiveDwell).toFixed(3)}s, have ${blackoutWindow.toFixed(3)}s`);
+const routeMin=14,routeMax=17;
+const departureDelayMin=outbound-routeMax;
+const departureDelayMax=outbound-routeMin;
+const fullSlowTrip=routeMax+archiveDwell+routeMax;
+const fullSlack=blackoutWindow-fullSlowTrip;
+expect(departureDelayMin>=2&&departureDelayMax<=6,`STAIR-18 requires implausible reaction delay: ${departureDelayMin.toFixed(3)}–${departureDelayMax.toFixed(3)}s`);
+expect(returnWindow-routeMax>=4,`return STAIR-18 lacks usable slack: ${(returnWindow-routeMax).toFixed(3)}s`);
+expect(fullSlack>=6,`full round trip is still edge-timed: ${fullSlack.toFixed(3)}s slack`);
+expect(data.handoffs.creator[1].result.includes('2,6–5,6 секунды'),'reaction-window inference missing');
 
 expect(stage1.includes('SAFE-L')&&stage1.includes('SAFE-R'),'stage-manager physical hold missing');
 expect(stage1.toLowerCase().includes('аварийные кромочные огни')&&stage1.includes('running lights'),'medical/emergency lighting realism missing');
-expect(stage1.includes('17:32')&&stage1.includes('Михаил Карев')&&stage1.includes('процедур'),'culprit knowledge of SAFE procedure not established');
+expect(stage1.includes('39–43 секунды')&&stage1.includes('Михаил Карев'),'culprit knowledge of SAFE duration not established');
 expect(!data.brief.mission.includes('не доказывает')&&!data.brief.mission.toLowerCase().includes('ложн'),'brief spoils central audio inference');
 expect(!data.stages[0].objective.includes('Не считайте голос'),'stage 1 objective spoils central audio inference');
 
@@ -69,12 +75,16 @@ expect(stage2.includes('K-12')&&stage2.includes('15:06'),'duplicate key chain in
 
 expect(stage3.includes('BR-06')&&stage3.includes('18:36')&&stage3.includes('18:45'),'prop opportunity proof incomplete');
 expect(stage3.includes('B-3')&&stage3.includes('P-771')&&stage3.includes('18:47'),'sealed prop chain of custody incomplete');
-expect(stage3.includes('21:48:54')&&stage3.includes('C-2'),'playback queue source missing before reveal');
+expect(stage3.includes('21:48:54')&&stage3.includes('C-2')&&stage3.includes('LOCAL-ARM'),'playback local-arm source missing before reveal');
+expect(stage3.includes('нет сетевого удалённого входа')&&stage3.includes('встроенного планировщика'),'playback device could still be remotely/scheduled triggered');
 expect(stage3.includes('21:48:53')&&stage3.includes('cue-панел'),'independent camera link to playback operator missing');
-expect(data.handoffs.creator[3].expected==='C-2'&&data.handoffs.creator[3].result.includes('Ложное аудиоалиби теперь связано с человеком'),'playback device-to-person handoff missing');
+expect(data.handoffs.creator[3].expected==='C-2'&&data.handoffs.creator[3].result.includes('LOCAL-ARM'),'playback device-to-person handoff missing');
 expect(stage3.includes('безымянный латунный дубликат архивного ключа'),'physical key seized from culprit missing');
+expect(stage3.includes('21:50:07')&&stage3.includes('кремовую папку'),'post-archive object route to T-6M missing');
+expect(stage3.includes('RFI-1')&&stage3.includes('экранированный RFID-инспекционный шкаф'),'isolated RFID containment proof missing');
+expect(stage3.includes('пустой')&&stage3.includes('Других предметов в камере'),'RFI-1 controls do not exclude nearby-tag coincidence');
 expect(stage3.includes('MS-1908')&&stage3.includes('T-6M'),'physical possession chain incomplete');
-expect(stage3.includes('20:57')&&stage3.includes('21:51:24')&&stage3.includes('21:53'),'T-6M post-blackout custody chain incomplete');
+expect(stage3.includes('20:57')&&stage3.includes('21:51:24')&&stage3.includes('21:53'),'T-6M custody chain incomplete');
 expect(stage3.includes('закрытым кодовым замком'),'T-6M pre-blackout lock state missing');
 expect(stage3.includes('42 000 EUR')&&stage3.includes('M.KAREV'),'pre-event motive corroboration missing');
 expect(stage3.includes('SAFE-L')&&stage3.includes('фойе')&&stage3.includes('LX-4'),'alternative suspect positions missing');
@@ -84,14 +94,15 @@ for(const group of data.final?.requiredGroups||[]) expect(groups.has(group),`req
 expect(JSON.stringify(data.final.requiredGroups)===JSON.stringify(['sabotage','culprit-sabotage','alibi','identity','access','possession']),'final proof gate does not separately require sabotage occurrence and culprit link');
 expect(data.final.evidence.find((item)=>item.id==='checkout')?.group==='culprit-sabotage','personal sabotage evidence is not a separate required group');
 expect((data.final?.requiredGroups||[]).length===6,'final proof board must require six independent links');
-expect(data.final.evidence.find((item)=>item.id==='playback')?.label.includes('C-2'),'final audio evidence does not link playback device to person');
+expect(data.final.evidence.find((item)=>item.id==='playback')?.label.includes('LOCAL-ARM'),'final audio evidence does not link physical arm action');
 expect(data.final.evidence.find((item)=>item.id==='key')?.label.includes('изъят при нём'),'final access evidence lacks physical key custody');
+expect(data.final.evidence.find((item)=>item.id==='tag')?.label.includes('RFI-1'),'final possession evidence still relies on tag proximity');
 for(const q of data.final?.questions||[]) expect(q.answer&&q.options.some(([id])=>id===q.answer),`final question ${q.id} has invalid answer`);
 expect(data.final.questions.find((q)=>q.id==='culprit')?.answer==='mikhail','canonical culprit changed');
 expect(data.final.questions.find((q)=>q.id==='anton')?.answer==='victim','victim role changed');
 
 const preFinal=[stage1,stage2,stage3].join(' ');
-for(const marker of ['BR-06','Q-17B','SAFE-L','SAFE-R','TAKE-6','PB-2','MIC-C','K-12','HEEL-43C','MS-1908','T-6M','A. Stein','C-2']) expect(preFinal.includes(marker),`reveal marker ${marker} absent before final`);
+for(const marker of ['BR-06','Q-17B','SAFE-L','SAFE-R','TAKE-6','PB-2','MIC-C','K-12','HEEL-43C','MS-1908','T-6M','A. Stein','C-2','RFI-1']) expect(preFinal.includes(marker),`reveal marker ${marker} absent before final`);
 expect(stage1.includes('Само обозначение PB-2')||stage1.includes('Само обозначение'),'PB source caveat missing');
 expect(stage2.includes('Сам по себе размер 43 человека не идентифицирует'),'shoe identity caveat missing');
 expect(stage3.includes('Сам журнал фиксирует устройство, а не лицо оператора'),'device-to-person caveat missing for C-2');
@@ -100,7 +111,8 @@ expect(!JSON.stringify(data.stages).includes('ключ доказывает, ч�
 expect(all.includes('опер')||all.includes('театр'),'opera setting missing');
 expect(all.includes('партитур')&&all.includes('интерком')&&all.includes('реквизит'),'distinct analog/theatrical evidence mix missing');
 expect(!data.brief.lead.includes('автомобил')&&!data.brief.lead.includes('гостини'),'case premise drifted toward existing products');
-expect(read('tools/import-mobile/two-player-last-aria-postprocess.mjs').includes('case-aria-investigator-v14.js'),'generated route does not load investigator proof layer');
+const postprocess=read('tools/import-mobile/two-player-last-aria-postprocess.mjs');
+expect(postprocess.includes('case-aria-investigator-v15.js')&&!postprocess.includes('case-aria-investigator-v14.js'),'generated route does not use only investigator v1.5');
 
 console.log(JSON.stringify({
   id:data.id,
@@ -114,9 +126,13 @@ console.log(JSON.stringify({
   outboundSeconds:Number(outbound.toFixed(3)),
   archiveDwellSeconds:Number(archiveDwell.toFixed(3)),
   returnWindowSeconds:Number(returnWindow.toFixed(3)),
+  departureDelaySeconds:[Number(departureDelayMin.toFixed(3)),Number(departureDelayMax.toFixed(3))],
+  conservativeRoundTripSlackSeconds:Number(fullSlack.toFixed(3)),
+  isolatedRfidContainment:true,
+  localPlaybackArm:true,
   centralTwistSpoilerRemoved:true,
   playbackOperatorLinked:true,
   individualizedFootwear:true,
   emergencyLightingRealism:true,
-  verdict:'investigator-grade fair-play, full physical round trip, six-link final proof gate and cross-role boundaries validated'
+  verdict:'investigator v1.5: realistic route slack, isolated custody, six-link final proof gate and fair-play cross-role boundaries validated'
 },null,2));
