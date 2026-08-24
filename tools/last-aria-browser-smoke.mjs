@@ -98,7 +98,7 @@ const evaluate=async(sessionId,expression)=>{
   return result.result?.value;
 };
 const capture=async(item,url)=>{
-  const {targetId}=await cdp('Target.createTarget',{url:'about:blank',width:390,height:1600});
+  const {targetId}=await cdp('Target.createTarget',{url:'about:blank'});
   const {sessionId}=await cdp('Target.attachToTarget',{targetId,flatten:true});
   try{
     await cdp('Page.enable',{},sessionId);
