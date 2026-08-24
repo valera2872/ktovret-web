@@ -85,7 +85,8 @@ jobs:
             if (second.results?.creator?.name !== 'CI Stage Investigator' || second.results?.guest?.name !== 'CI Technical Analyst') {
               throw new Error('result contract mismatch');
             }
-            if ('creator_key_hash' in JSON.stringify(second) || 'player_key_hash' in JSON.stringify(second)) {
+            const serialized = JSON.stringify(second);
+            if (serialized.includes('creator_key_hash') || serialized.includes('player_key_hash')) {
               throw new Error('private hashes leaked');
             }
 
