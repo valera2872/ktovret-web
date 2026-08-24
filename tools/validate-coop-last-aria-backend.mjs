@@ -16,10 +16,16 @@ const requiredAria = [
   "const CASE_ID = 'special:last-aria'",
   "const CASE_TITLE = 'Последняя ария'",
   "const CASE_PATH = '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/'",
+  "const PRODUCT_ID = 'last_aria'",
   "const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/",
   "const BROWSER_KEY_RE = /^[a-f0-9]{48}$/",
+  "const ACCESS_TOKEN_RE = /^ml_[a-z0-9]+_[A-Za-z0-9_-]{32,160}$/",
   "admin.from('duel_rooms')",
   "admin.from('duel_room_players')",
+  "from('access_entitlements')",
+  ".eq('product_id', PRODUCT_ID)",
+  "if (!ACCESS_TOKEN_RE.test(accessToken)) return json(402, { error: 'payment_required' }",
+  "if (!entitled) return json(402, { error: 'payment_required' }",
   "if (room.case_id !== CASE_ID) return 'wrong_case'",
   "if (action === 'create')",
   "if (action === 'preview')",
@@ -43,7 +49,7 @@ const requiredAria = [
   "bothCompleted",
   "results: bothCompleted",
   "'access-control-allow-methods': 'POST, OPTIONS'",
-  "'access-control-allow-headers': 'content-type'",
+  "'access-control-allow-headers': 'authorization, content-type'",
   "configuredOrigins.includes(origin)",
 ];
 for (const marker of requiredAria) expect(aria.includes(marker), `missing ${marker}`);
@@ -52,8 +58,8 @@ const actionNames = [...aria.matchAll(/if \(action === '([^']+)'\)/g)].map((matc
 const expectedActions = ['create', 'preview', 'join', 'status', 'start', 'complete'];
 expect(JSON.stringify(actionNames) === JSON.stringify(expectedActions), `unexpected action surface: ${actionNames.join(', ')}`);
 
-// The production-proven Room 407 function is the reference transport contract.
-// Last Aria may format code differently, but security/rate/stat limits and table model must stay aligned.
+// The production-proven Room 407 function remains the reference for room transport.
+// Last Aria adds exactly one stricter boundary: creator room creation requires a paid entitlement.
 const sharedMarkers = [
   "const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'",
   "const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/",
@@ -91,11 +97,14 @@ expect(serializedView.includes('me: { role: me.role, name: me.player_name') && s
 
 console.log(JSON.stringify({
   caseId: 'special:last-aria',
+  productId: 'last_aria',
+  creatorRequiresPaidEntitlement: true,
+  guestRequiresPayment: false,
   actions: expectedActions,
   roomTtlDays: 7,
   rateLimit: { perHour: 8, perDay: 24 },
   statsLimits: { elapsedSeconds: 21600, hints: 10, attempts: 20 },
-  databaseModel: ['duel_rooms', 'duel_room_players'],
-  reference: 'coop-407 production transport contract',
-  verdict: 'backend source is deploy-ready; production function remains intentionally undeployed',
+  databaseModel: ['duel_rooms', 'duel_room_players', 'access_entitlements'],
+  reference: 'coop-407 production transport contract + paid creator gate',
+  verdict: 'backend source is ready for paid Last Aria deployment',
 }, null, 2));
