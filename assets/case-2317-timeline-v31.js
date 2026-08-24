@@ -61,6 +61,7 @@
   if (typeof document === 'undefined') return;
   const root = document.querySelector('[data-case2317-app]');
   if (!root) return;
+  const setText = (node, text) => { if (node && node.textContent !== text) node.textContent = text; };
   const roomCode = () => (new URL(location.href).searchParams.get('room') || 'preview').trim().toUpperCase();
   const role = () => (root.querySelector('.case2317-role-label b')?.textContent || '').includes('Аналитик') ? 'guest' : 'creator';
   const stage = () => {
@@ -98,20 +99,20 @@
         actions.insertAdjacentElement('beforebegin', box);
       }
       const text = HINTS[role()]?.[s]?.[count - 1] || '';
-      box.innerHTML = `<strong>Подсказка ${count}:</strong> ${text}`;
+      const html = `<strong>Подсказка ${count}:</strong> ${text}`;
+      if (box.innerHTML !== html) box.innerHTML = html;
     } else box?.remove();
     const button = actions.querySelector('[data-action="hint"]');
     if (button) {
       button.disabled = count >= 2;
-      button.textContent = count === 0 ? 'Нужна подсказка' : count === 1 ? 'Ещё одна подсказка' : 'Подсказки этапа использованы';
+      setText(button, count === 0 ? 'Нужна подсказка' : count === 1 ? 'Ещё одна подсказка' : 'Подсказки этапа использованы');
     }
   };
   const patchDecision = () => {
     root.querySelectorAll('.case2317-decision').forEach((section) => {
       if (!(section.querySelector('h3')?.textContent || '').includes('Куда направить срочный запрос')) return;
       const copy = [...section.children].find((node) => node.tagName === 'P' && !node.classList.contains('case2317-eyebrow'));
-      const text = 'Сначала договоритесь с напарником об одном запросе; затем каждый подтвердите тот же вариант на своём экране. Выбирайте линию, которая закрывает самый опасный пробел в текущей реконструкции.';
-      if (copy && copy.textContent !== text) copy.textContent = text;
+      setText(copy, 'Сначала договоритесь с напарником об одном запросе; затем каждый подтвердите тот же вариант на своём экране. Выбирайте линию, которая закрывает самый опасный пробел в текущей реконструкции.');
     });
   };
   root.addEventListener('click', (event) => {
