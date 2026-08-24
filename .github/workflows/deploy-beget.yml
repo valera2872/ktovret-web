@@ -41,7 +41,7 @@ jobs:
           grep -Fq 'secrets.BEGET_PASSWORD' "$file"
           grep -Fq 'rollback archive' "$file"
           grep -Fq 'rsync -az --delete-delay --delay-updates' "$file"
-          grep -Fq "--exclude='.well-known/'" "$file"
+          grep -Fq -- "--exclude='.well-known/'" "$file"
           grep -Fq 'Roll back automatically if deploy or live smoke fails' "$file"
           grep -Fq 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' "$file"
           test -f ops/beget-auto-deploy.md
