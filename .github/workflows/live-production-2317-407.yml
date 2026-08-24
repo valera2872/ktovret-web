@@ -1,0 +1,58 @@
+name: Live production smoke 23:17 + 407
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  live-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live Mystery Logic production
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://mysterylogic.com'
+          UA='Mozilla/5.0 MysteryLogic-Live-Smoke/1.0'
+          get() { curl -A "$UA" -fsSL --retry 4 --retry-delay 2 --max-time 25 "$1"; }
+
+          get "$BASE/detektivnye-igry-dlya-dvoih/" > /tmp/root.html
+          get "$BASE/detektivnye-igry-dlya-dvoih/2317/" > /tmp/2317.html
+          get "$BASE/detektivnye-igry-dlya-dvoih/407/" > /tmp/407.html
+          get "$BASE/assets/case-2317-timeline-v31.js" > /tmp/2317-timeline.js
+          get "$BASE/assets/case-2317-ux-v3.js" > /tmp/2317-ux.js
+          get "$BASE/assets/case-407-detective-audit-v4.js" > /tmp/407-audit.js
+          get "$BASE/assets/case-407-detective-proof-v4.js" > /tmp/407-proof.js
+
+          grep -q 'href="2317/"' /tmp/root.html
+          grep -q 'href="407/"' /tmp/root.html
+
+          grep -q 'case-2317-detective-v3.js' /tmp/2317.html
+          grep -q 'case-2317-timeline-v31.js' /tmp/2317.html
+          grep -q 'case-2317-ux-v3.js' /tmp/2317.html
+          grep -q "data.proofRevision = '3.5'" /tmp/2317-timeline.js
+          grep -q "data.coopRevision = '3.5'" /tmp/2317-timeline.js
+          grep -q 'Автомобиль задуман как ложный маршрут' /tmp/2317-timeline.js
+          grep -q 'переданный брелок открывает машину Веры' /tmp/2317-ux.js
+          grep -q '4F-7719: физический маяк совпал' /tmp/2317-ux.js
+
+          grep -q 'case-407-detective-audit-v4.js' /tmp/407.html
+          grep -q 'case-407-detective-proof-v4.js' /tmp/407.html
+          grep -q 'case-407-playtest-ux-v42.js' /tmp/407.html
+          grep -q 'case-407-detective-visual-v4.js' /tmp/407.html
+          grep -q 'case-407-evidence-v3.css' /tmp/407.html
+          grep -q 'data.logicVersion = 4' /tmp/407-audit.js
+          grep -q 'H-7C4' /tmp/407-audit.js
+          grep -q 'NS-17' /tmp/407-proof.js
+          grep -q '01:14:26' /tmp/407-proof.js
+
+          echo 'LIVE ROOT:'
+          grep -oE 'href="(2317|407)/"' /tmp/root.html | sort -u
+          echo 'LIVE 23:17 SHA256:'
+          sha256sum /tmp/2317-timeline.js /tmp/2317-ux.js
+          echo 'LIVE 407 SHA256:'
+          sha256sum /tmp/407-audit.js /tmp/407-proof.js
+          echo 'Mystery Logic live production smoke passed.'
