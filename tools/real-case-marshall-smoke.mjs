@@ -19,7 +19,7 @@ const html=fs.readFileSync(htmlFile,'utf8');
 const js=fs.readFileSync(jsFile,'utf8');
 const css=fs.readFileSync(cssFile,'utf8');
 
-for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css','real-case-marshall.js','Архивное дело №71-05']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
+for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css','real-case-marshall.js','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
 for(const forbidden of ['<img','sitemap.xml','data-seo-prerender']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
 for(const marker of ['MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
 const screenIds=[...js.matchAll(/\{id:'(S\d\d)'/g)].map(match=>match[1]);
@@ -46,26 +46,45 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
 });
 const dimensions=(file)=>{const bytes=fs.readFileSync(file);return {width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 const viewports=[{name:'desktop',width:1440,height:1200},{name:'mobile',width:390,height:844}];
+const screenChecks=[
+  {screen:0,markers:['data-screen="S00"','АРХИВНОЕ ДЕЛО №71-05','Начать расследование'],forbidden:['Дональд Маршалл','Рой Эбсари','Сэнди Сил','manslaughter']},
+  {screen:3,markers:['data-screen="S03"','ПЕРВОЕ ПОКАЗАНИЕ','СВИДЕТЕЛЬ A — ПЕРВОЕ ПОКАЗАНИЕ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:10,markers:['data-screen="S10"','rc-split','Статус изменения','СВИДЕТЕЛЬ B: ЧТО ИЗМЕНИЛОСЬ?'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:15,markers:['data-screen="S15"','ВЕРСИЯ ОБВИНЕНИЯ','ПАПКА ОБВИНЕНИЯ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:20,markers:['data-screen="S20"','ВЫВОД КОМИССИИ','ЧТО УСТАНОВИЛА КОМИССИЯ'],forbidden:['Рой Эбсари','manslaughter']},
+  {screen:23,markers:['data-screen="S23"','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter'],forbidden:[]},
+  {screen:24,markers:['data-screen="S24"','РЕЕСТР ИСТОЧНИКОВ','archives.novascotia.ca'],forbidden:[]},
+];
 const results=[];
+
+const assertDom=(check,viewport,dom)=>{
+  for(const marker of [...check.markers,'data-rc-overflow="false"']) if(!dom.includes(marker)) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: DOM missing ${marker}`);
+  for(const spoiler of check.forbidden) if(dom.includes(spoiler)) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: premature spoiler ${spoiler}`);
+  if(check.screen===0&&dom.includes('rc-document">')) throw new Error(`${viewport}: evidence document rendered before start`);
+  if(check.screen<24&&dom.includes('href="https://archives.novascotia.ca')) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: source link opened before final ledger`);
+};
 
 try{
   for(const viewport of viewports){
-    const url=`http://127.0.0.1:${port}/${route}`;
-    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1',`--window-size=${viewport.width},${viewport.height}`,'--virtual-time-budget=1600'];
-    const screenshot=path.join(outDir,`opening-${viewport.name}.png`);
-    await runChrome([...common,`--screenshot=${screenshot}`,url]);
-    const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
-    for(const marker of ['data-screen="S00"','АРХИВНОЕ ДЕЛО №71-05','Начать расследование','data-rc-overflow="false"']) if(!dom.includes(marker)) throw new Error(`${viewport.name}: DOM missing ${marker}`);
-    for(const spoiler of ['Дональд Маршалл','Рой Эбсари','Сэнди Сил','manslaughter']) if(dom.includes(spoiler)) throw new Error(`${viewport.name}: opening spoiler leaked into rendered DOM: ${spoiler}`);
-    if(dom.includes('rc-document">')) throw new Error(`${viewport.name}: evidence document rendered before start`);
-    const size=dimensions(screenshot);
-    if(size.width!==viewport.width||size.height!==viewport.height||size.bytes<18_000) throw new Error(`${viewport.name}: bad screenshot ${JSON.stringify(size)}`);
-    results.push({viewport:viewport.name,...size,screenshot:path.basename(screenshot)});
+    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1',`--window-size=${viewport.width},${viewport.height}`,'--virtual-time-budget=1800'];
+    for(const check of screenChecks){
+      const url=`http://127.0.0.1:${port}/${route}?smokeScreen=${check.screen}`;
+      const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
+      assertDom(check,viewport.name,dom);
+      if([0,10,23].includes(check.screen)){
+        const screenshot=path.join(outDir,`screen-${String(check.screen).padStart(2,'0')}-${viewport.name}.png`);
+        await runChrome([...common,`--screenshot=${screenshot}`,url]);
+        const size=dimensions(screenshot);
+        if(size.width!==viewport.width||size.height!==viewport.height||size.bytes<18_000) throw new Error(`S${check.screen}/${viewport.name}: bad screenshot ${JSON.stringify(size)}`);
+        results.push({screen:check.screen,viewport:viewport.name,...size,screenshot:path.basename(screenshot)});
+      }
+    }
   }
 }finally{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.1.0',route,screens:screenIds.length,chrome,results};
+const report={version:'0.1.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),chrome,results};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
