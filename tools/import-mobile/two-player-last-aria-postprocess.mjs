@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION='1.2.2';
+const VERSION='1.2.3';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 
@@ -32,10 +32,11 @@ const specialPage=()=>`<!doctype html>
     <nav class="ml-nav"><a href="../">Игры для двоих</a><a href="../../dela/">Другие дела</a></nav>
   </header>
   <main class="casearia-shell" data-casearia-app>
-    <section class="casearia-cover"><div class="casearia-cover-copy"><p class="casearia-eyebrow">Дело ML-AR17 · доступ открыт</p><h1>Последняя <em>ария</em></h1><p>Оперный театр. Настоящая рана от бутафорского кинжала. Пятьдесят две секунд сценического затемнения. И оригинальная партитура, исчезнувшая из закрытого архива.</p></div><div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div></section>
+    <section class="casearia-cover"><div class="casearia-cover-copy"><p class="casearia-eyebrow">Дело ML-AR17 · доступ открыт</p><h1>Последняя <em>ария</em></h1><p>Оперный театр. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды сценического затемнения. И оригинальная партитура, исчезнувшая из закрытого архива.</p></div><div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div></section>
   </main>
   <script src="../../assets/case-aria-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-fairplay-v2.js?v=${VERSION}"></script>
+  <script src="../../assets/case-aria-investigator-v14.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-materials-v2.js?v=${VERSION}"></script>
 </body>
@@ -73,5 +74,5 @@ export function applyTwoPlayerLastAria(siteRoot){
   ensureDir(caseDir);
   fs.writeFileSync(path.join(caseDir,'index.html'),specialPage());
   patchLanding(siteRoot);
-  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true,compactMobileHeader:true};
+  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true};
 }
