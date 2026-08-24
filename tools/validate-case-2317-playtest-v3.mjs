@@ -62,7 +62,8 @@ expect(ux.includes('В записи отмечен звук двери в 23:17:
 expect(ux.includes("includes('D-2147')"), 'legacy D-2147 toast detector missing');
 expect(ux.includes('CAM-S1 · 23:27:14'), 'stage3 exchange does not prove key transfer');
 expect(ux.includes('CAM-S2 · 23:30:52'), 'stage3 exchange does not prove Roman at car');
-expect(ux.includes('CAM-S1/S2: ключ передан, Роман лично у автомобиля'), 'stage3 handoff payoff does not establish coordination plus identity');
+expect(ux.includes('брелок с тем же оранжевым хлястиком') && ux.includes('автомобиль Веры мигает габаритами и отпирается'), 'stage3 handoff does not prove transferred fob opens Vera car');
+expect(ux.includes('CAM-S1/S2: переданный брелок открывает машину Веры'), 'stage3 handoff payoff does not establish coordination plus access');
 expect(ux.includes('Точный поиск по 4F-7719'), 'Analyst serial handoff has no targeted lookup payoff');
 expect(ux.includes('запрос координат в 23:05:48'), 'Analyst serial handoff does not expose tracking history');
 expect(ux.includes('4F-7719: физический маяк совпал с «CAR-V»'), 'Analyst serial handoff result is weak');
@@ -72,7 +73,7 @@ expect(!ux.includes('Алиби Ильи уже разрушено камера�
 for (const marker of [
   'Илья лично у дома и физический маяк совпадает с его «CAR-V»',
   'Вера лично с Мариной и подтверждает безопасность',
-  'ключ передан Роману, он лично связан с началом и концом маршрута машины'
+  'переданный Мариной брелок открывает машину, Роман связан с началом и концом её маршрута'
 ]) expect(ux.includes(marker), `final evidence categories missing: ${marker}`);
 
 expect(legacy.includes("const EVIDENCE_CORRECT = new Set(['ilya_camera', 'tracker', 'roman_route'])"), 'legacy evidence IDs changed unexpectedly');
@@ -90,6 +91,7 @@ console.log(JSON.stringify({
   handoffCausality: true,
   decoyCarMotivationCoherent: true,
   romanCoordinationProved: true,
+  transferredFobOpensVeraCar: true,
   forcedDecisionCopy: false,
   preSolvedRoman: false,
   realFinalUsesCheckboxes: true,
