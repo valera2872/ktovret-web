@@ -58,6 +58,7 @@
 
   data.reveal.body[2] = 'RB-17 сама по себе не устанавливает личность. CAM-S2 лично фиксирует Романа у автомобиля Веры перед открытием шлагбаума, а камеры Сервисного проезда затем фиксируют его пеший возврат. Одновременно в 23:44:36 Вера всё ещё находится на фронтальной камере кафе, поэтому сама вести автомобиль она не могла.';
 
+  if (typeof document === 'undefined') return;
   const root = document.querySelector('[data-case2317-app]');
   if (!root) return;
   const roomCode = () => (new URL(location.href).searchParams.get('room') || 'preview').trim().toUpperCase();
