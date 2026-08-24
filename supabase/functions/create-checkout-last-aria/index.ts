@@ -9,12 +9,12 @@ import {
   validAccessToken,
   validEmail,
   validUuid,
-} from '../_shared/payment.ts';
+} from '../_shared/last-aria-payment.ts';
 import {
   amountToKopecks,
   tbankConfigReady,
   tbankRequest,
-} from '../_shared/tbank.ts';
+} from '../_shared/last-aria-tbank.ts';
 import {
   LAST_ARIA_DESCRIPTION,
   LAST_ARIA_PRICE_RUB,
