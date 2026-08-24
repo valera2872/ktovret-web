@@ -16,7 +16,7 @@ if (!chrome) throw new Error('Chrome/Chromium not found');
 const ctx = { window: {} };
 for (const file of ['assets/case-2317-data.js','assets/case-2317-detective-v3.js','assets/case-2317-timeline-v31.js']) vm.runInNewContext(fs.readFileSync(path.join(siteRoot,file),'utf8'), ctx, { filename:file });
 const data = ctx.window.MLCase2317;
-if (data.logicVersion !== 3 || data.proofRevision !== '3.4' || data.coopRevision !== '3.4') throw new Error('23:17 v3.4 overlays did not apply');
+if (data.logicVersion !== 3 || data.proofRevision !== '3.5' || data.coopRevision !== '3.5') throw new Error('23:17 v3.5 overlays did not apply');
 
 const esc=(v='')=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 const card=(item,index)=>`<article class="case2317-evidence" data-index="${String(index+1).padStart(2,'0')}"><span class="tag">${esc(item.tag)}</span><h3>${esc(item.title)}</h3>${(item.body||[]).map(t=>`<p>${esc(t)}</p>`).join('')}${(item.messages||[]).map(([n,t])=>`<div class="case2317-message"><b>${esc(n)}</b>${esc(t)}</div>`).join('')}${item.quote?`<blockquote>${esc(item.quote)}</blockquote>`:''}${(item.facts||[]).length?`<div class="case2317-facts">${item.facts.map(f=>`<span>${esc(f)}</span>`).join('')}</div>`:''}${item.stamp?`<span class="case2317-stamp">${esc(item.stamp)}</span>`:''}</article>`;
@@ -42,8 +42,11 @@ try{
   if(stage.id===1&&role==='analyst'&&(!dom.includes('Личность водителя на этом пакете не установлена')||dom.includes('Илья Кравцов лично выходит')))throw new Error('stage1 analyst identity leak');
   if(stage.id===2&&role==='investigator'&&(!dom.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе')||dom.includes('SP-3')))throw new Error('stage2 investigator does not own only Vera half of overlap');
   if(stage.id===2&&role==='analyst'&&(!dom.includes('23:44:36 — камера SP-3')||!dom.includes('Личность второй посетительницы — у Следователя')||dom.includes('идентифицирует Марину Соболеву и Веру Лебедеву')))throw new Error('stage2 analyst does not own only car half of overlap');
-  if(stage.id===3&&role==='investigator'&&(!dom.includes('серую надо увезти отдельно')||!dom.includes('Марина сказала, что с машиной разберутся')||dom.includes('оставлю серую до утра')||dom.includes('он покажет, куда я уехала')))throw new Error('stage3 decoy-car rationale missing or contradictory');
-  if(stage.id===3&&role==='analyst'&&(!dom.includes('00:18:32')||!dom.includes('23:55:04')||!dom.includes('повторный звонок по карточке обращения')))throw new Error('stage3 closing proof missing or title leading');
+  if(stage.id===3&&role==='investigator'&&(!dom.includes('Серийный номер — 4F-7719')||!dom.includes('серую надо увезти отдельно')||dom.includes('оставлю серую до утра')||dom.includes('он покажет, куда я уехала')))throw new Error('stage3 investigator physical tracker/decoy rationale missing or contradictory');
+  if(stage.id===3&&role==='analyst'){
+    if(!dom.includes('Для совпадения нужен серийный номер от Следователя')||!dom.includes('23:55:04')||!dom.includes('повторный звонок по карточке обращения'))throw new Error('stage3 analyst closing packet incomplete');
+    if(dom.includes('4F-7719')||dom.includes('23:05:48'))throw new Error('stage3 analyst serial/history leaks before handoff');
+  }
   const d=dims(shot);if(d.width!==vp.width||d.height!==vp.height||d.bytes<24000)throw new Error(`${stage.id}/${role}/${vp.name}: bad screenshot`);
   results.push({stage:stage.id,role,viewport:vp.name,...d,screenshot:path.basename(shot)});
  }
