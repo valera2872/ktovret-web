@@ -11,7 +11,7 @@ const expect=(condition,message)=>{if(!condition)throw new Error(`Last Aria coun
 const context={window:{}};
 vm.runInNewContext(read('assets/case-aria-data.js'),context);
 vm.runInNewContext(read('assets/case-aria-fairplay-v2.js'),context);
-vm.runInNewContext(read('assets/case-aria-investigator-v15.js'),context);
+vm.runInNewContext(read('assets/case-aria-investigator-v16.js'),context);
 const data=context.window.MLCaseAria;
 const s1=JSON.stringify(data.stages[0]),s2=JSON.stringify(data.stages[1]),s3=JSON.stringify(data.stages[2]),reveal=data.reveal.body.join(' ');
 
@@ -79,7 +79,7 @@ const theories={
     blockers:[
       ['та же индивидуализированная пара находится на Михаиле непосредственно до и сразу после blackout и изъята у него с краской из ямы',s2.includes('21:49:09')&&s2.includes('21:50:05.6')&&s2.includes('треугольный скол')&&s2.includes('свежая матовая чёрная краска')],
       ['K-12 заказан Михаилом, а безымянный архивный дубликат физически изъят при нём',s2.includes('Заявку подписал Михаил Карев')&&s3.includes('безымянный латунный дубликат архивного ключа')],
-      ['после blackout Михаил сам приносит новую кремовую папку и кладёт её в закрытый T-6M; далее кофр никто не открывает',s3.includes('21:50:07')&&s3.includes('кремовую папку')&&s3.includes('21:51:24')&&s3.includes('никто другой его не открывает')],
+      ['после blackout Михаил сам приносит новую кремовую папку и кладёт её в T-6M; размеры физически совместимы, далее кофр никто не открывает',s3.includes('21:50:07')&&s3.includes('31 × 24 × 0,8 см')&&s3.includes('38 × 29 × 6,4 см')&&s3.includes('21:51:24')&&s3.includes('никто другой его не открывает')],
       ['RFI-1 изолирует T-6M от любых соседних тегов и MS-1908 отвечает только с кофром внутри',s3.includes('экранированный RFID-инспекционный шкаф RFI-1')&&s3.includes('единственным кофром внутри')&&s3.includes('контрольный пустой скан снова даёт ноль')]
     ]
   }
@@ -91,12 +91,16 @@ for(const [id,theory] of Object.entries(theories)){
 }
 
 for(const marker of ['BR-06','P-771','PB-2','TAKE-6','C-2','HEEL-43C','K-12','MS-1908','T-6M','RFI-1','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
+expect(s1.includes('дверного контакта уже открытой двери')&&s1.includes('5,2–6,1 секунды'),'route/retrieval reconstruction lacks physical closure');
 expect(reveal.includes('совокупности физической, временной и технической цепочек'),'debrief does not state multi-evidence standard');
 expect(data.final.requiredGroups.length===6&&data.final.requiredGroups.includes('culprit-sabotage'),'final gate does not require personal sabotage link');
 
 console.log(JSON.stringify({
   theoriesRejected:Object.fromEntries(Object.entries(theories).map(([id,t])=>[id,{claim:t.claim,independentBlockers:t.blockers.length}])),
+  doorToDoorTiming:true,
+  measuredArchiveRetrieval:true,
+  physicalFolderFit:true,
   isolatedRfidContainment:true,
   routeSlackProtected:true,
-  verdict:'eight principal alternatives are contradicted by independent pre-final investigator v1.5 facts'
+  verdict:'eight principal alternatives are contradicted by independent pre-final investigator v1.6 facts'
 },null,2));
