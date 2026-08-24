@@ -42,7 +42,7 @@ try{
   if(stage.id===1&&role==='analyst'&&(!dom.includes('Личность водителя на этом пакете не установлена')||dom.includes('Илья Кравцов лично выходит')))throw new Error('stage1 analyst identity leak');
   if(stage.id===2&&role==='investigator'&&(!dom.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе')||dom.includes('SP-3')))throw new Error('stage2 investigator does not own only Vera half of overlap');
   if(stage.id===2&&role==='analyst'&&(!dom.includes('23:44:36 — камера SP-3')||!dom.includes('Личность второй посетительницы — у Следователя')||dom.includes('идентифицирует Марину Соболеву и Веру Лебедеву')))throw new Error('stage2 analyst does not own only car half of overlap');
-  if(stage.id===3&&role==='investigator'&&(!dom.includes('Марина сказала, что с машиной разберутся отдельно')||dom.includes('оставлю серую до утра')))throw new Error('stage3 plan rationale missing or contradictory');
+  if(stage.id===3&&role==='investigator'&&(!dom.includes('серую надо увезти отдельно')||!dom.includes('Марина сказала, что с машиной разберутся')||dom.includes('оставлю серую до утра')||dom.includes('он покажет, куда я уехала')))throw new Error('stage3 decoy-car rationale missing or contradictory');
   if(stage.id===3&&role==='analyst'&&(!dom.includes('00:18:32')||!dom.includes('23:55:04')||!dom.includes('повторный звонок по карточке обращения')))throw new Error('stage3 closing proof missing or title leading');
   const d=dims(shot);if(d.width!==vp.width||d.height!==vp.height||d.bytes<24000)throw new Error(`${stage.id}/${role}/${vp.name}: bad screenshot`);
   results.push({stage:stage.id,role,viewport:vp.name,...d,screenshot:path.basename(shot)});
