@@ -79,14 +79,15 @@ for (const marker of sharedMarkers) {
   expect(aria.includes(marker), `Last Aria drifted from production transport contract at ${marker}`);
 }
 
-const publicStart = aria.indexOf('const publicMetrics');
-const publicEnd = aria.indexOf('Deno.serve');
-expect(publicStart >= 0 && publicEnd > publicStart, 'cannot isolate public response builders');
-const publicSurface = aria.slice(publicStart, publicEnd);
-expect(!publicSurface.includes('SUPABASE_SERVICE_ROLE_KEY'), 'service-role key must never enter a public response builder');
-expect(!publicSurface.includes('creator_key_hash'), 'creator hash must never be serialized into public room view');
-expect(!publicSurface.includes('player_key_hash'), 'player hash must never be serialized into public player view');
-expect(publicSurface.includes('caseId: CASE_ID') && publicSurface.includes('caseTitle: CASE_TITLE') && publicSurface.includes('casePath: CASE_PATH'), 'public room identity fields missing');
+const responseStart = aria.indexOf("return {\n    ok: true,");
+const responseEnd = aria.indexOf("\n  };\n};\n\nDeno.serve", responseStart);
+expect(responseStart >= 0 && responseEnd > responseStart, 'cannot isolate serialized buildView response');
+const serializedView = aria.slice(responseStart, responseEnd);
+expect(!serializedView.includes('SUPABASE_SERVICE_ROLE_KEY'), 'service-role key must never be serialized');
+expect(!serializedView.includes('creator_key_hash'), 'creator hash must never be serialized into public room view');
+expect(!serializedView.includes('player_key_hash'), 'player hash must never be serialized into public player view');
+expect(serializedView.includes('caseId: CASE_ID') && serializedView.includes('caseTitle: CASE_TITLE') && serializedView.includes('casePath: CASE_PATH'), 'public room identity fields missing');
+expect(serializedView.includes('me: { role: me.role, name: me.player_name') && serializedView.includes('opponent:'), 'public player projection missing');
 
 console.log(JSON.stringify({
   caseId: 'special:last-aria',
