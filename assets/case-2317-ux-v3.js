@@ -50,8 +50,12 @@
     }
 
     if (s === 3 && r === 'guest') {
-      if (!done) setText(copy, 'Следователь нашёл серийный номер маяка под автомобилем. Получите его и проверьте резервную копию телефона Ильи.');
-      if (done) setText(result, '4F-7719 найден в приложении Ильи');
+      if (!done) setText(copy, 'Следователь нашёл серийный номер физического маяка под автомобилем. Получите номер и выполните точный поиск по резервной копии телефона Ильи.');
+      if (input && input.placeholder !== 'Серийный номер маяка') input.placeholder = 'Серийный номер маяка';
+      if (done) {
+        setText(copy, 'Точный поиск по 4F-7719: в приложении мониторинга Ильи устройство записано как «CAR-V». История карточки показывает запрос координат в 23:05:48, а последний сохранённый экран в 23:06 — карту квартала Веры. Физический маяк и запись резервной копии совпадают по серийному номеру.');
+        setText(result, '4F-7719: физический маяк совпал с «CAR-V»');
+      }
     }
   };
 
@@ -87,12 +91,12 @@
 
   const patchFinal = (scope) => {
     const labels = {
-      ilya_camera: 'Q7-29 + 4F-7719: Илья лично у дома и независимо связан с маяком',
+      ilya_camera: 'Q7-29 + 4F-7719: Илья лично у дома и физический маяк совпадает с его «CAR-V»',
       tracker: '00:16 + 00:18: Вера лично с Мариной и подтверждает безопасность',
       roman_route: 'CAM-S1/S2 + пешие камеры: ключ передан Роману, он лично связан с началом и концом маршрута машины',
       tea: '23:43: операция по карте Марины в кафе «Север»',
       seat: 'Кресло автомобиля отодвинуто на 11 см',
-      draft: 'Черновик Веры: отслеживаемая машина не должна вести к месту отъезда'
+      draft: 'Черновик Веры: отслеживаемая машина должна уйти ложным маршрутом'
     };
     scope.querySelectorAll('input[name="evidence"]').forEach((input) => {
       const text = labels[input.value];
@@ -148,5 +152,5 @@
   };
   new MutationObserver(schedulePatch).observe(root, { childList: true, subtree: true });
   patch();
-  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.4', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, idempotentDomPatch: true });
+  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.5', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, serialHandoffRequired: true, idempotentDomPatch: true });
 })();
