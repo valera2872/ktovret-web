@@ -27,22 +27,29 @@ const theories = {
   veraDroveOwnCar: {
     claim: 'Вера сама переставила автомобиль и потом вернулась к Марине.',
     blockers: [
-      ['Вера непрерывно видна в кафе 23:43:51–23:45:12', all.includes('23:43:51–23:45:12')],
-      ['автомобиль одновременно движется в 23:44:36', all.includes('23:44:36') && all.includes('SP-3')]
+      ['Следователь лично видит Веру в кафе в 23:44:36', all.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе')],
+      ['Аналитик одновременно видит автомобиль на SP-3', all.includes('23:44:36 — камера SP-3')]
     ]
   },
   romanCredentialTransfer: {
-    claim: 'RB-17 и телефон Романа использовал другой человек.',
+    claim: 'RB-17 использовал другой человек, а Роман оказался рядом позже.',
     blockers: [
-      ['CAM-S2 лично показывает Романа у автомобиля до поездки', ux.includes('CAM-S2 · 23:30:52') && ux.includes('Роман Белов лично')],
-      ['после поездки Роман лично виден на пешеходной камере', all.includes('23:55:04') && all.includes('Роман Белов')]
+      ['CAM-S2 лично показывает Романа у автомобиля до поездки', ux.includes('CAM-S2 · 23:30:52') && ux.includes('Роман лично входит в техническую зону')],
+      ['после поездки Роман лично виден на пешеходной камере', all.includes('23:55:04') && all.includes('Романа Белова')]
+    ]
+  },
+  romanActedIndependently: {
+    claim: 'Роман действительно переставил машину, но это не было частью плана Веры и Марины.',
+    blockers: [
+      ['черновик Веры заранее говорит, что Марина решит вопрос с машиной отдельно', all.includes('Марина сказала, что с машиной разберутся отдельно')],
+      ['CAM-S1 лично фиксирует передачу ключа Мариной Роману', ux.includes('CAM-S1 · 23:27:14') && ux.includes('Марина Соболева') && ux.includes('передаёт Роману Белову чёрный ключ-брелок')]
     ]
   },
   marinaAbductedVera: {
     claim: 'Марина могла увезти Веру против её воли, а план Б был прикрытием.',
     blockers: [
       ['план с Мариной существовал заранее', all.includes('План существовал до звонка')],
-      ['Вера лично видна вместе с Мариной в кафе', all.includes('23:43:51–23:45:12') && all.includes('Марина и Вера')],
+      ['Вера лично видна вместе с Мариной в кафе', all.includes('23:43:51–23:45:12') && all.includes('идентифицирует Марину Соболеву и Веру Лебедеву')],
       ['Вера сама подтверждает безопасность в 00:18', all.includes('00:18:32') && all.includes('безопасном месте')]
     ]
   },
@@ -56,7 +63,7 @@ const theories = {
   randomServiceWorker: {
     claim: 'Машину Веры переставил случайный сотрудник технической службы.',
     blockers: [
-      ['CAM-S2 показывает Романа до начала поездки', ux.includes('CAM-S2') && ux.includes('садится за руль автомобиля Веры')],
+      ['CAM-S1/S2 связывают ключ и Романа до начала поездки', ux.includes('CAM-S1 · 23:27:14') && ux.includes('CAM-S2 · 23:30:52')],
       ['Роман лично возвращается от места оставленной машины', all.includes('23:49:16') && all.includes('23:55:04')]
     ]
   }
@@ -71,5 +78,5 @@ console.log(JSON.stringify({
   logicVersion: data.logicVersion,
   proofRevision: data.proofRevision,
   theoriesRejected: Object.fromEntries(Object.entries(theories).map(([id, t]) => [id, { claim: t.claim, blockers: t.blockers.length }])),
-  verdict: 'principal alternate explanations are contradicted by independent evidence'
+  verdict: 'principal alternate explanations, including unrelated Roman action, are contradicted by independent evidence'
 }, null, 2));
