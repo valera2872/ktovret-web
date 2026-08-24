@@ -58,6 +58,8 @@ for (const banned of [
 expect(ux.includes('точное время этого звука'), 'stage1 audio handoff is not based on an observable fact');
 expect(ux.includes('23:17:43.6'), 'stage1 timestamp cross-check does not return matching event');
 expect(ux.includes('Q7-29: личность водителя установлена'), 'stage1 camera exchange has no meaningful cross-role payoff');
+expect(ux.includes('В записи отмечен звук двери в 23:17:43'), 'legacy D-2147 toast is not masked for Investigator');
+expect(ux.includes("includes('D-2147')"), 'legacy D-2147 toast detector missing');
 expect(ux.includes('CAM-S1 · 23:27:14'), 'stage3 exchange does not prove key transfer');
 expect(ux.includes('CAM-S2 · 23:30:52'), 'stage3 exchange does not prove Roman at car');
 expect(ux.includes('CAM-S1/S2: ключ передан, Роман лично у автомобиля'), 'stage3 handoff payoff does not establish coordination plus identity');
@@ -81,6 +83,7 @@ expect(data.final.questions.find((q) => q.id === 'sequence')?.answer === 'escape
 console.log(JSON.stringify({
   case: data.title,
   roleLeakStage1: false,
+  legacyDoorCodeHidden: true,
   stage2RequiresBothRoles: true,
   trackerSerialRequiresPartner: true,
   roleLeakStage3: false,
