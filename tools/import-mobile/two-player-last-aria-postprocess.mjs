@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION='1.2.0';
+const VERSION='1.2.1';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 
@@ -20,6 +20,7 @@ const specialPage=()=>`<!doctype html>
   <link rel="stylesheet" href="../../assets/premium.css?v=1.1.0">
   <link rel="stylesheet" href="../../assets/case-aria.css?v=${VERSION}">
   <link rel="stylesheet" href="../../assets/case-aria-materials-v2.css?v=${VERSION}">
+  <link rel="stylesheet" href="../../assets/case-aria-layout-v2.css?v=${VERSION}">
   <meta property="og:title" content="Онлайн-расследование «Последняя ария» — детективная игра">
   <meta property="og:description" content="Два игрока получают разные материалы театрального дела. Выясните, кто превратил настоящий несчастный случай в идеальное алиби для кражи.">
   <meta property="og:type" content="website">
@@ -72,5 +73,5 @@ export function applyTwoPlayerLastAria(siteRoot){
   ensureDir(caseDir);
   fs.writeFileSync(path.join(caseDir,'index.html'),specialPage());
   patchLanding(siteRoot);
-  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true};
+  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,version:VERSION,materializedEvidence:true,compactMobileHeader:true};
 }
