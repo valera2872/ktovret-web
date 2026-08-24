@@ -92,32 +92,39 @@ const cdp=(method,params={},sessionId=null,timeoutMs=10_000)=>new Promise((resol
   pending.set(id,{resolve,reject,timer,method});
   ws.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));
 });
-const evaluate=async(sessionId,expression)=>{
-  const result=await cdp('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true},sessionId);
-  if(result.exceptionDetails)throw new Error(`Runtime.evaluate failed: ${result.exceptionDetails.text||'unknown error'}`);
-  return result.result?.value;
+const readDom=async(sessionId)=>{
+  const {root}=await cdp('DOM.getDocument',{depth:1,pierce:true},sessionId,5000);
+  const htmlNode=root?.children?.find((node)=>node.nodeName==='HTML');
+  if(!htmlNode?.nodeId)throw new Error('DOM.getDocument returned no HTML node');
+  const {outerHTML}=await cdp('DOM.getOuterHTML',{nodeId:htmlNode.nodeId},sessionId,5000);
+  return String(outerHTML||'');
 };
 const capture=async(item,url)=>{
+  console.log(`[last-aria-browser] ${item.name}: open`);
   const {targetId}=await cdp('Target.createTarget',{url:'about:blank'});
   const {sessionId}=await cdp('Target.attachToTarget',{targetId,flatten:true});
   try{
     await cdp('Page.enable',{},sessionId);
-    await cdp('Runtime.enable',{},sessionId);
+    await cdp('DOM.enable',{},sessionId);
     await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:1600,deviceScaleFactor:1,mobile:false},sessionId);
     await cdp('Page.navigate',{url},sessionId);
-    const deadline=Date.now()+10_000;
-    let ready=false;
+    await pause(700);
+    const deadline=Date.now()+5000;
+    let dom='';
     while(Date.now()<deadline){
-      ready=Boolean(await evaluate(sessionId,'document.body?.dataset?.smokeReady === "1"'));
-      if(ready)break;
-      await pause(100);
+      dom=await readDom(sessionId);
+      if(dom.includes('data-smoke-ready="1"'))break;
+      await pause(150);
     }
-    if(!ready)throw new Error(`${item.name}: UI did not become ready within 10s`);
-    const dom=String(await evaluate(sessionId,'document.documentElement.outerHTML')||'');
+    if(!dom.includes('data-smoke-ready="1"'))throw new Error('UI did not become ready within 5s');
+    console.log(`[last-aria-browser] ${item.name}: ready`);
     const shot=await cdp('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false},sessionId,15_000);
     const screenshot=path.join(outDir,`${item.name}.png`);
     fs.writeFileSync(screenshot,Buffer.from(shot.data||'','base64'));
+    console.log(`[last-aria-browser] ${item.name}: captured ${fs.statSync(screenshot).size} bytes`);
     return {dom,screenshot};
+  }catch(error){
+    throw new Error(`${item.name}: ${error.message}`);
   }finally{
     await cdp('Target.closeTarget',{targetId}).catch(()=>{});
   }
