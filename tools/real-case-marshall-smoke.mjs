@@ -21,7 +21,7 @@ const css=fs.readFileSync(cssFile,'utf8');
 
 for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css','real-case-marshall.js','Архивное дело №71-05']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
 for(const forbidden of ['<img','sitemap.xml','data-seo-prerender']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
-for(const marker of ['MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','transcription']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
+for(const marker of ['MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
 const screenIds=[...js.matchAll(/\{id:'(S\d\d)'/g)].map(match=>match[1]);
 if(screenIds.length!==26||screenIds[0]!=='S00'||screenIds.at(-1)!=='S25') throw new Error(`expected S00..S25, got ${screenIds.length}: ${screenIds.join(',')}`);
 for(const marker of ['.rc-screen','.rc-document','.rc-split','@media(max-width:620px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
