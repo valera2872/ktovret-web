@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
 const VERSION='1.4.0';
-const SPOILER_AUDIT_REVISION='1.3';
+const SPOILER_AUDIT_REVISION='1.4';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 const INVESTIGATOR_RUNTIME='case-aria-investigator-v16.js';
@@ -12,6 +12,8 @@ const SAFE_MISSION='Установите, кто подготовил сабот
 const SAFE_STAGE1_OBJECTIVE='Сведите по секундам удар, сценическое затемнение, служебные маршруты и события у архива. Отмечайте только то, что подтверждается материалами вашего пакета.';
 const SAFE_STAGE2_OBJECTIVE='Сопоставьте физические следы, журналы доступа и технические данные с показаниями участников. Ищите совпадения, которые подтверждаются независимым материалом напарника.';
 const SAFE_STAGE3_OBJECTIVE='Теперь свяжите подготовку травмы, события критического окна у архива и дальнейший путь партитуры. Мотив и причастность должны подтверждаться независимыми материалами.';
+const SAFE_ROLE_SHORT='Световой пульт, служебные системы, замки, архив и технические журналы';
+const SAFE_ROLE_CREATE='свет, служебные системы, замки, архив';
 const SAFE_GAME_COVER='Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И партитура 1908 года, исчезнувшая из закрытого архива. У каждого участника есть своя версия этих событий.';
 const SAFE_FINAL_LEAD='Ответьте на четыре вопроса и выберите не просто подозрительные, а доказательные материалы. Нужны независимые цепочки по хронологии, источникам сообщений, личности у архива, доступу и физической связи с оригиналом.';
 const SAFE_FINAL_WRONG='Версия пока не выдерживает все временные и физические ограничения. Перепроверьте хронологию и то, какие материалы действительно устанавливают местонахождение участников.';
@@ -19,6 +21,7 @@ const SAFE_FINAL_PROOF='Ответ выглядит верно, но доказ�
 const SAFE_DECISION_LEAD='После обмена фактами выберите линию, которая лучше всего связывает физические следы, временные окна и технические данные.';
 const SAFE_DECISION_CONDUCTOR='Его показания, технические данные и след из архива требуют независимой сверки.';
 const SAFE_DECISION_FEEDBACK='Эта линия связывает два независимых противоречия: технические данные о сообщениях и физический след между оркестровой ямой и архивом.';
+const SAFE_HINT_EMPTY='Подсказки направляют к нужным материалам и учитываются в итоговом ранге.';
 
 const SAFE_EVIDENCE={
   checkout:'B-3 + BR-06 + P-771: мастерская, пломба и путь PR-17 до сцены',
@@ -43,6 +46,7 @@ function hardenRuntimeCopy(siteRoot){
   for(const file of [dataFile,fairplayFile,investigatorFile,gameFile,storefrontFile]) if(!fs.existsSync(file)) throw new Error(`Last Aria runtime missing: ${path.relative(siteRoot,file)}`);
 
   let data=fs.readFileSync(dataFile,'utf8');
+  data=replaceRequired(data,"short: 'Световой пульт, интерком, замки, архив и технические журналы'",`short: '${SAFE_ROLE_SHORT}'`,'technical role pre-investigation copy');
   data=replaceRequired(
     data,
     "mission: 'Установите, кто подготовил саботаж, кто использовал темноту для входа в архив и почему голос человека, которого все слышали в оркестровой яме, не доказывает, что он там находился.'",
@@ -117,6 +121,8 @@ function hardenRuntimeCopy(siteRoot){
   fs.writeFileSync(investigatorFile,investigator);
 
   let game=fs.readFileSync(gameFile,'utf8');
+  game=replaceRequired(game,'<small>свет, интерком, замки, архив</small>',`<small>${SAFE_ROLE_CREATE}</small>`,'technical role create-screen copy');
+  game=replaceRequired(game,'<p>Подсказки не раскрывают ответ и учитываются в итоговом ранге.</p>',`<p>${SAFE_HINT_EMPTY}</p>`,'empty hint disclosure');
   game=replaceRequired(
     game,
     'Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И партитура 1908 года, исчезнувшая из закрытого архива, пока все слышали голос дирижёра в оркестровой яме.',
@@ -217,12 +223,12 @@ function validateSpoilerBoundary(siteRoot){
   const storefront=fs.readFileSync(path.join(siteRoot,'assets/case-aria-storefront.js'),'utf8');
 
   for(const forbidden of ['весь театр слышал его голос','Как человек мог открыть архив','голос из оркестровой ямы']) if(landing.includes(forbidden)) throw new Error(`Last Aria public teaser spoiler leaked: ${forbidden}`);
-  for(const forbidden of ['почему голос человека, которого все слышали','Не считайте голос в интеркоме','Отделите ложные алиби от физического присутствия','техническое происхождение голоса','ложное присутствие в яме','PB-2 ещё не означает живой микрофон','Почему голос Михаила не является алиби?','способна одновременно проверить личность в архиве и ложное алиби','Его голос слышали, но источник PB-2','голос оказывается записью']) if(data.includes(forbidden)) throw new Error(`Last Aria runtime directive spoiler leaked: ${forbidden}`);
+  for(const forbidden of ['Световой пульт, интерком, замки, архив и технические журналы','почему голос человека, которого все слышали','Не считайте голос в интеркоме','Отделите ложные алиби от физического присутствия','техническое происхождение голоса','ложное присутствие в яме','PB-2 ещё не означает живой микрофон','Почему голос Михаила не является алиби?','способна одновременно проверить личность в архиве и ложное алиби','Его голос слышали, но источник PB-2','голос оказывается записью']) if(data.includes(forbidden)) throw new Error(`Last Aria runtime directive spoiler leaked: ${forbidden}`);
   for(const forbidden of ['18:36–18:45: PR-17 находился у Михаила','голос дирижёра был заранее записан','след из архива совпадает с обувью Михаила','Михаил заранее заказал невозвращённый дубликат','оригинал находится в личном кофре Михаила']) if(data.includes(forbidden)) throw new Error(`Last Aria raw final-board answer leak: ${forbidden}`);
   for(const forbidden of ['как соотносятся звук, маршруты и доступ','отделяйте прямое наблюдение от вывода о местонахождении человека']) if(fairplay.includes(forbidden)) throw new Error(`Last Aria fair-play directive spoiler leaked: ${forbidden}`);
   for(const forbidden of ["audio.title='TAKE-6: физически вооружённый макрос, привязанный к Q-17B';","checkout.label='B-3 + P-771: Михаил разобрал PR-17","совпадают с туфлей, изъятой у Михаила","Михаил заказал дубликат; безымянный ключ","личного кофра Михаила';"]) if(investigator.includes(forbidden)) throw new Error(`Last Aria final-board answer leak: ${forbidden}`);
-  for(const forbidden of ['пока все слышали голос дирижёра','голос дирижёра в оркестровой яме','Нужны независимые цепочки: саботаж, ложное алиби','Проверьте алиби, которое существует только как звук','Нужны независимые материалы о саботаже, ложном алиби']) if(game.includes(forbidden)) throw new Error(`Last Aria game-shell spoiler leaked: ${forbidden}`);
-  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,SAFE_STAGE3_OBJECTIVE,SAFE_GAME_COVER,SAFE_FINAL_LEAD,SAFE_FINAL_WRONG,SAFE_FINAL_PROOF,SAFE_DECISION_LEAD,SAFE_DECISION_CONDUCTOR,SAFE_DECISION_FEEDBACK,...Object.values(SAFE_EVIDENCE),"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","title: 'Что следует из материалов о голосе Михаила?'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${game}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
+  for(const forbidden of ['<small>свет, интерком, замки, архив</small>','Подсказки не раскрывают ответ и учитываются в итоговом ранге.','пока все слышали голос дирижёра','голос дирижёра в оркестровой яме','Нужны независимые цепочки: саботаж, ложное алиби','Проверьте алиби, которое существует только как звук','Нужны независимые материалы о саботаже, ложном алиби']) if(game.includes(forbidden)) throw new Error(`Last Aria game-shell spoiler leaked: ${forbidden}`);
+  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,SAFE_STAGE3_OBJECTIVE,SAFE_ROLE_SHORT,SAFE_ROLE_CREATE,SAFE_HINT_EMPTY,SAFE_GAME_COVER,SAFE_FINAL_LEAD,SAFE_FINAL_WRONG,SAFE_FINAL_PROOF,SAFE_DECISION_LEAD,SAFE_DECISION_CONDUCTOR,SAFE_DECISION_FEEDBACK,...Object.values(SAFE_EVIDENCE),"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","title: 'Что следует из материалов о голосе Михаила?'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${game}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
 
   const prePurchase=`${catalogCard}\n${specialPage()}`.toLowerCase();
   for(const forbidden of ['голос','интерком','pb-2','mic-c','take-6','playback']) if(prePurchase.includes(forbidden)) throw new Error(`Last Aria pre-purchase copy reveals solution channel: ${forbidden}`);
