@@ -1,9 +1,9 @@
-import { formatAmount } from './payment.ts';
+import { formatAmount } from './last-aria-payment.ts';
 import {
   amountToKopecks,
   tbankPaymentMatchesOrder,
   tbankRequest,
-} from './tbank.ts';
+} from './last-aria-tbank.ts';
 
 export const LAST_ARIA_PRODUCT_ID = 'last_aria';
 export const LAST_ARIA_PRICE_RUB = 299;
