@@ -1,0 +1,100 @@
+name: Validate Mystery Logic Last Aria
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  validate-last-aria:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          path: web
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "KTOVRET_SOURCE_TOKEN is required" && exit 1)
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate source syntax and backend boundary
+        working-directory: web
+        run: |
+          node --check assets/case-aria-data.js
+          node --check assets/case-aria-fairplay-v2.js
+          node --check assets/case-aria.js
+          node --check tools/import-mobile/two-player-last-aria-postprocess.mjs
+          node --check tools/import-mobile/seo-ctr-modernization.mjs
+          node --check tools/validate-case-last-aria.mjs
+          node --check tools/validate-case-last-aria-countertheories.mjs
+          node --check tools/last-aria-browser-smoke.mjs
+          grep -q "CASE_ID = 'special:last-aria'" supabase/functions/coop-last-aria/index.ts
+          grep -q "CASE_PATH = '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/'" supabase/functions/coop-last-aria/index.ts
+          grep -q "functions/v1/coop-last-aria" assets/case-aria.js
+      - name: Adversarial Holmes-Poirot validation
+        working-directory: web
+        run: node tools/validate-case-last-aria.mjs
+      - name: Reject principal counter-theories
+        working-directory: web
+        run: node tools/validate-case-last-aria-countertheories.mjs
+      - name: Generate full public site
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Validate generated Last Aria route and three-case catalog
+        working-directory: web
+        run: |
+          test -f detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'name="robots" content="noindex,follow"' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-data.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria-fairplay-v2.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -q 'casearia-catalog' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'href="2317/"' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'href="407/"' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'href="poslednyaya-ariya/"' detektivnye-igry-dlya-dvoih/index.html
+          ! grep -q 'poslednyaya-ariya' sitemap.xml
+      - name: Validate CTR-first SEO modernization
+        working-directory: web
+        run: |
+          grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' index.html
+          grep -Fq '15 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.' index.html
+          grep -Fq '<h1>Детективные<br>игры онлайн</h1>' index.html
+          grep -Fq '>Играть бесплатно</a>' index.html
+          grep -Fq '>Для двоих</a>' index.html
+          grep -Fq '>Все дела</a>' index.html
+          grep -Fq '>Как играть</a>' index.html
+          ! grep -Eqi '<title>[^<]*Mystery Logic' index.html
+          grep -Fq '<title>Детективные игры для двоих онлайн — играть бесплатно</title>' detektivnye-igry-dlya-dvoih/index.html
+          grep -Fq '<title>Онлайн-детективы — выбрать дело и начать расследование</title>' dela/index.html
+          grep -Fq '<title>Кто врёт? — бесплатная детективная игра онлайн</title>' kto-vret/index.html
+          grep -Fq '<title>Онлайн-расследование «Последний звонок в 23:17» — детективная игра</title>' detektivnye-igry-dlya-dvoih/2317/index.html
+          grep -Fq '<title>Онлайн-расследование «Номер 407» — детективная игра</title>' detektivnye-igry-dlya-dvoih/407/index.html
+          grep -Fq '<title>Онлайн-расследование «Последняя ария» — детективная игра</title>' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+      - name: Browser smoke both roles, final and reveal
+        working-directory: web
+        run: node tools/last-aria-browser-smoke.mjs
+      - name: Upload Last Aria screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-aria-browser-smoke
+          path: web/artifacts/last-aria-browser/
+          retention-days: 14
+          if-no-files-found: error
