@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 
@@ -33,6 +33,7 @@ const specialPage=()=>`<!doctype html>
     <section class="casearia-cover"><div class="casearia-cover-copy"><p class="casearia-eyebrow">Дело ML-AR17 · доступ открыт</p><h1>Последняя <em>ария</em></h1><p>Оперный театр. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И оригинальная партитура, исчезнувшая из закрытого архива.</p></div><div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div></section>
   </main>
   <script src="../../assets/case-aria-data.js?v=${VERSION}"></script>
+  <script src="../../assets/case-aria-fairplay-v2.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria.js?v=${VERSION}"></script>
 </body>
 </html>`;
