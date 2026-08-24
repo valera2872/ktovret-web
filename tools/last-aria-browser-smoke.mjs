@@ -8,10 +8,7 @@ import { fileURLToPath } from 'node:url';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const repo=path.resolve(here,'..');
 const outDir=path.join(repo,'artifacts','last-aria-browser');
-const chromeProfile=path.join(outDir,'.chrome-profile');
 fs.mkdirSync(outDir,{recursive:true});
-fs.rmSync(chromeProfile,{recursive:true,force:true});
-fs.mkdirSync(chromeProfile,{recursive:true});
 const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].filter(Boolean);
 const chrome=chromeCandidates.find((candidate)=>fs.existsSync(candidate));
 if(!chrome)throw new Error(`Chrome/Chromium not found: ${chromeCandidates.join(', ')}`);
@@ -48,23 +45,27 @@ const server=http.createServer((request,response)=>{
 });
 const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
 const runChrome=(args,label)=>new Promise((resolve,reject)=>{
-  const child=spawn(chrome,args,{stdio:['ignore','pipe','pipe']});
+  const profile=fs.mkdtempSync(path.join(outDir,'.chrome-profile-'));
+  const finalArgs=[`--user-data-dir=${profile}`,...args];
+  const child=spawn(chrome,finalArgs,{stdio:['ignore','pipe','pipe']});
   let stdout='',stderr='',settled=false;
+  const cleanup=()=>fs.rmSync(profile,{recursive:true,force:true});
   const timer=setTimeout(()=>{
     if(settled)return;
     settled=true;
     child.kill('SIGKILL');
+    cleanup();
     reject(new Error(`${label}: Chrome exceeded 25s hard timeout; stderr=${stderr.slice(-1200)}`));
   },25_000);
   child.stdout.on('data',(c)=>stdout+=c);
   child.stderr.on('data',(c)=>stderr+=c);
   child.on('error',(error)=>{
     if(settled)return;
-    settled=true;clearTimeout(timer);reject(error);
+    settled=true;clearTimeout(timer);cleanup();reject(error);
   });
   child.on('close',(code)=>{
     if(settled)return;
-    settled=true;clearTimeout(timer);
+    settled=true;clearTimeout(timer);cleanup();
     code===0?resolve({stdout,stderr}):reject(new Error(`${label}: Chrome ${code}: ${stderr.slice(-1200)}`));
   });
 });
@@ -74,7 +75,7 @@ const report=[];
 try{
   for(const item of cases){
     const url=`http://127.0.0.1:${port}/artifacts/last-aria-browser/index.html?room=ABCDEFGH&role=${item.role}&stage=${item.stage}&mode=${item.mode}`;
-    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--disable-component-update','--disable-default-apps','--disable-extensions','--disable-sync','--metrics-recording-only','--no-first-run','--safebrowsing-disable-auto-update',`--user-data-dir=${chromeProfile}`,'--force-device-scale-factor=1','--window-size=390,1600','--virtual-time-budget=1900'];
+    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-background-networking','--disable-background-mode','--disable-component-update','--disable-default-apps','--disable-domain-reliability','--disable-extensions','--disable-sync','--metrics-recording-only','--no-first-run','--safebrowsing-disable-auto-update','--disable-features=OptimizationHints,MediaRouter,PushMessaging,NotificationTriggers,Translate','--force-device-scale-factor=1','--window-size=390,1600','--virtual-time-budget=1900'];
     const screenshot=path.join(outDir,`${item.name}.png`);
     await runChrome([...common,`--screenshot=${screenshot}`,url],`${item.name}/screenshot`);
     const {stdout:dom}=await runChrome([...common,'--dump-dom',url],`${item.name}/dom`);
@@ -104,7 +105,4 @@ try{
   }
   fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,views:report},null,2));
   console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',playbackCueTriggered:true,final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
-}finally{
-  await new Promise((resolve)=>server.close(resolve));
-  fs.rmSync(chromeProfile,{recursive:true,force:true});
-}
+}finally{await new Promise((resolve)=>server.close(resolve));}
