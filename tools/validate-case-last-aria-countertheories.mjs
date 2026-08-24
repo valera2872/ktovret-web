@@ -55,6 +55,15 @@ const theories={
       ['три фразы совпадают с предсобытийной TAKE-6',s2.includes('TAKE-6')&&s2.includes('сделанной накануне')],
       ['физический след ведёт от архива к обуви Михаила',s2.includes('HEEL-43C')&&s2.includes('концертные туфли дирижёра Михаила')]
     ]
+  },
+  unknownSaboteurMikhailOpportunist:{
+    claim:'Кинжал испортил неизвестный человек, а Михаил лишь случайно воспользовался неожиданно длинным blackout для отдельной кражи.',
+    blockers:[
+      ['камера фиксирует Михаила с разобранным PR-17 у ячейки BR-06',s3.includes('18:40:12')&&s3.includes('рукоять PR-17 разобрана')&&s3.includes('ячейку BR-06')],
+      ['после Михаила PR-17 опломбирован P-771 и до сцены доступа больше нет',s3.includes('пломбу P-771')&&s3.includes('21:44')&&s3.includes('целостность пломбы')],
+      ['BR-06 исчезает сразу после его доступа и находится внутри PR-17',s3.includes('18:47')&&s3.includes('BR-06')&&s1.includes('BR-06')],
+      ['кража готовилась заранее: K-12, ложное аудиоалиби и покупатель существуют до травмы',s2.includes('K-12')&&s2.includes('TAKE-6')&&s3.includes('42 000 EUR')]
+    ]
   }
 };
 for(const [id,theory] of Object.entries(theories)){
@@ -63,10 +72,10 @@ for(const [id,theory] of Object.entries(theories)){
   expect(theory.blockers.length>=3,`${id} has too few independent blockers`);
 }
 
-for(const marker of ['BR-06','PB-2','TAKE-6','HEEL-43C','K-12','MS-1908','T-6M','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
+for(const marker of ['BR-06','P-771','PB-2','TAKE-6','HEEL-43C','K-12','MS-1908','T-6M','42 000 EUR']) expect((s1+s2+s3).includes(marker),`canonical chain lacks ${marker}`);
 expect(reveal.includes('совокупности физических и технических доказательств'),'debrief does not state multi-evidence standard');
 
 console.log(JSON.stringify({
   theoriesRejected:Object.fromEntries(Object.entries(theories).map(([id,t])=>[id,{claim:t.claim,independentBlockers:t.blockers.length}])),
-  verdict:'five principal alternatives are contradicted by independent pre-final facts'
+  verdict:'six principal alternatives are contradicted by independent pre-final facts'
 },null,2));
