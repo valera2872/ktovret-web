@@ -1,0 +1,39 @@
+name: Real case Marshall prototype
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'realnye-dela/arhiv-71-05/**'
+      - 'assets/real-case-marshall.*'
+      - 'tools/real-case-marshall-smoke.mjs'
+      - '.github/workflows/real-case-marshall.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate prototype JavaScript
+        run: |
+          node --check assets/real-case-marshall.js
+          node --check tools/real-case-marshall-smoke.mjs
+
+      - name: Validate source-locked responsive opening
+        run: node tools/real-case-marshall-smoke.mjs
+
+      - name: Upload prototype smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-marshall-smoke
+          path: artifacts/real-case-marshall
+          retention-days: 7
