@@ -79,9 +79,14 @@ for (const marker of sharedMarkers) {
   expect(aria.includes(marker), `Last Aria drifted from production transport contract at ${marker}`);
 }
 
-expect(!aria.includes('SUPABASE_SERVICE_ROLE_KEY:'), 'service-role key must never be serialized into a response');
-expect(!aria.includes('creator_key_hash:'), 'creator hash must never be serialized into public room view');
-expect(!aria.includes('player_key_hash:'), 'player hash must never be serialized into public player view');
+const publicStart = aria.indexOf('const publicMetrics');
+const publicEnd = aria.indexOf('Deno.serve');
+expect(publicStart >= 0 && publicEnd > publicStart, 'cannot isolate public response builders');
+const publicSurface = aria.slice(publicStart, publicEnd);
+expect(!publicSurface.includes('SUPABASE_SERVICE_ROLE_KEY'), 'service-role key must never enter a public response builder');
+expect(!publicSurface.includes('creator_key_hash'), 'creator hash must never be serialized into public room view');
+expect(!publicSurface.includes('player_key_hash'), 'player hash must never be serialized into public player view');
+expect(publicSurface.includes('caseId: CASE_ID') && publicSurface.includes('caseTitle: CASE_TITLE') && publicSurface.includes('casePath: CASE_PATH'), 'public room identity fields missing');
 
 console.log(JSON.stringify({
   caseId: 'special:last-aria',
