@@ -8,6 +8,7 @@
   const TOKEN_KEY = 'mysterylogic:last-aria:access-token';
   const ORDER_KEY = 'mysterylogic:last-aria:last-order-id';
   const REQUEST_KEY = 'mysterylogic:last-aria:checkout-request-id';
+  const ROOM_CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
   const root = document.querySelector('[data-casearia-app]');
   if (!root) return;
 
@@ -96,7 +97,7 @@
         <div class="casearia-cover-copy">
           <p class="casearia-eyebrow">Премиальное дело ML-AR17 · 2 игрока · 55–75 минут</p>
           <h1>Последняя <em>ария</em></h1>
-          <p>Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунд темноты. И оригинальная партитура 1908 года, исчезнувшая из закрытого архива.</p>
+          <p>Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И оригинальная партитура 1908 года, исчезнувшая из закрытого архива.</p>
           <div class="casearia-paywall-facts"><span>18 материалов</span><span>2 разные роли</span><span>3 этапа</span><span>6 обменов уликами</span></div>
         </div>
         <div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div>
@@ -234,7 +235,8 @@
   };
 
   const params = new URLSearchParams(location.search);
-  if (params.get('room')) {
+  const roomCode = String(params.get('room') || '').trim().toUpperCase();
+  if (ROOM_CODE_RE.test(roomCode)) {
     bootGame();
     return;
   }
