@@ -1,0 +1,112 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repo = path.resolve(here, '..');
+const read = (file) => fs.readFileSync(path.join(repo, file), 'utf8');
+const expect = (condition, message) => { if (!condition) throw new Error(`Room 407 detective-v4 validation failed: ${message}`); };
+
+const context = { window: {} };
+vm.runInNewContext(read('assets/case-407-data.js'), context, { filename: 'case-407-data.js' });
+vm.runInNewContext(read('assets/case-407-detective-audit-v4.js'), context, { filename: 'case-407-detective-audit-v4.js' });
+vm.runInNewContext(read('assets/case-407-detective-proof-v4.js'), context, { filename: 'case-407-detective-proof-v4.js' });
+const data = context.window.MLCase407;
+expect(data?.logicVersion === 4, 'effective story is not logicVersion 4');
+expect(data?.proofRevision === '4.1', 'proof hardening layer did not apply');
+expect(data.stages?.length === 3, 'expected three stages');
+
+const s1i = JSON.stringify(data.stages[0].investigator);
+const s1a = JSON.stringify(data.stages[0].analyst);
+const s2 = JSON.stringify(data.stages[1]);
+const s3 = JSON.stringify(data.stages[2]);
+
+expect(!data.stages[0].investigator[0].alt.includes('ключ-карта'), 'photo alt still presents Marta key-card in false room');
+expect(!s1i.includes('На столе — телефон Марты, её ключ-карта'), 'impossible key-card remains on false-room table');
+expect(s1i.includes('Ключ-карты Марты здесь нет'), 'key-card contradiction is not explicitly resolved');
+
+for (const legacy of ['H-409', 'L-409', 'L-407', 'S-407']) expect(!s1a.includes(legacy), `stage1 Analyst leaks numeric legacy identifier ${legacy}`);
+for (const publicId of ['L-6B2', 'L-4A8', 'S-8D1']) expect(s1a.includes(publicId), `stage1 Analyst missing opaque identifier ${publicId}`);
+expect(s1i.includes('H-7C4'), 'Investigator missing opaque plaque code H-7C4');
+expect(!s1a.includes('H-7C4'), 'Analyst sees Investigator-only H-7C4 before exchange');
+expect(s1a.includes('физический номер узла закрыт'), 'Analyst registry does not preserve cross-role uncertainty');
+
+expect(data.stages[2].title === 'Последние четыре минуты', 'stage3 title gives away accomplice premise');
+expect(!data.stages[2].objective.includes('Елен'), 'stage3 objective names the solution before evidence review');
+expect(!data.stages[2].objective.includes('помог'), 'stage3 objective presupposes an accomplice');
+
+expect(s2.includes('последнюю цифру на +1'), 'duress mechanism is not the realistic PIN-variation model');
+for (const bad of ['добавить цифру 9', 'код +9', 'цифру 9']) expect(!s2.includes(bad), `obsolete +9 duress mechanic remains: ${bad}`);
+expect(s2.includes('само по себе не исключает принуждение'), 'duress clue overclaims voluntary participation');
+expect(!s2.includes('Он физически не перемещается'), 'Wi-Fi association overclaims exact phone location');
+expect(s2.includes('не даёт точной координаты'), 'Wi-Fi limitation is not stated');
+expect(s2.includes('выведена из продажи'), 'vacant-room opportunity is not established');
+expect(s2.includes('00:51:50'), 'phone placement timestamp is missing');
+expect(!s2.includes('через восемь секунд после входа Елены'), 'Investigator packet pre-solves the cross-role phone chronology');
+
+for (const marker of ['NS-17', '23:50', 'BR-220']) expect(s3.includes(marker), `sealed sapphire chain missing ${marker}`);
+expect(s3.includes('23:51 сейф с футляром закрыт') && s3.includes('ни одного открытия до события 01:12'), 'Denis early-theft alternative is not excluded by safe log');
+expect(s3.includes('фрагмент пломбы NS-17'), 'trolley does not contain unique seal evidence');
+expect(s3.includes('01:14:26') && s3.includes('01:13:58') && s3.includes('01:16:32'), 'HK-44/C4 simultaneity facts are incomplete');
+expect(!s3.includes('Значит, в 01:14 она физически не могла держать HK-44'), 'access report pre-solves the token-transfer deduction');
+expect(s3.includes('за рулём находится Елена Раева'), 'Elena is not personally identified as driver');
+expect(s3.includes('сам по себе не различает человека и предмет'), 'passenger-seat sensor is still overclaimed');
+expect(s3.includes('MO-W1'), 'Marta watch timing is missing from vehicle exit sequence');
+expect(!s3.includes('Bluetooth-журнал'), 'unsupported vehicle Bluetooth inference returned');
+expect(s3.includes('не попадают в поле камеры погрузочной двери'), 'B1 camera field-of-view contradiction is unresolved');
+expect(s3.includes('22:48 · Марта') && s3.includes('22:49 · Елена') && s3.includes('22:51 · Марта'), 'pre-event message timestamps are missing');
+expect(s3.includes('отправленных вечером до событий'), 'message chronology is not explicitly pre-event');
+
+const messages = data.stages[2].analyst[2].messages.flat().join(' ');
+for (const confession of ['HK-44', 'BR-220', 'Северная звезда', 'SVC-407']) expect(!messages.includes(confession), `message thread becomes a confession via ${confession}`);
+expect(s3.includes('дубликат экспортной оценки') && s3.includes('без действующего сертификата'), 'specific sapphire monetization motive is missing');
+expect(s3.includes('непрерывное алиби исключает'), 'Denis exclusion is not physically grounded');
+
+const finalSequence = data.final.questions.find((question) => question.id === 'sequence');
+expect(finalSequence?.answer === 'collusion', 'canonical final sequence changed');
+expect(data.final.intro.includes('владельца токена') && data.final.intro.includes('мотив'), 'final does not warn against identity/motive inference errors');
+expect(data.reveal.body.some((line) => line.includes('камера G1') && line.includes('лично за рулём')), 'debrief does not distinguish owner evidence from personal identity evidence');
+expect(data.reveal.body.some((line) => line.includes('сейф оставался закрытым') && line.includes('ранней кражи Денисом')), 'debrief does not close Denis early-theft alternative');
+
+const bridge = read('assets/case-407-plaque-code-v2.js');
+for (const marker of ["legacy: 'S-407', public: 'S-8D1'", "legacy: 'L-409', public: 'L-6B2'", "legacy: 'L-407', public: 'L-4A8'", "legacy: 'H-409', public: 'H-7C4'"]) expect(bridge.includes(marker), `identifier bridge missing ${marker}`);
+expect(bridge.includes('duress-вариация персонального PIN'), 'runtime final-label compatibility does not remove obsolete +9 claim');
+
+const visual = read('assets/case-407-detective-visual-v4.js');
+for (const marker of ['•••••6', '•••••7', 'не идентифицирует человека', 'BR-220 / NS-17', 'ВОДИТЕЛЬ: E. RAEVA', 'MO-W1: OFFLINE 01:27', 'УДАЛЁННАЯ ПЕРЕПИСКА', 'grid-template-columns:1fr 24px 1fr 24px 1fr']) expect(visual.includes(marker), `v4 visual evidence missing ${marker}`);
+expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'unsupported vehicle Bluetooth proof remains in visual layer');
+
+const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
+expect(postprocess.includes("const VERSION = '1.6.0'"), 'production case bundle is not v1.6.0');
+for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
+const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js'].map((marker) => postprocess.indexOf(marker));
+expect(order.every((position, i) => position >= 0 && (i === 0 || position > order[i - 1])), 'production script load order is wrong');
+expect(!postprocess.includes('case-407-photo-cleanup-v4.css'), 'obsolete photo overlay is still loaded in production');
+expect(!fs.existsSync(path.join(repo, 'assets/case-407-photo-cleanup-v4.css')), 'obsolete photo overlay file remains');
+expect(!fs.existsSync(path.join(repo, 'tools/room-407-photo-inpaint.py')), 'temporary photo cleanup generator remains');
+const sceneImage = fs.readFileSync(path.join(repo, 'assets/room-407-evidence.webp'));
+expect(sceneImage.length > 70_000, 'cleaned scene photo is unexpectedly small');
+
+console.log(JSON.stringify({
+  case: data.title,
+  logicVersion: data.logicVersion,
+  proofRevision: data.proofRevision,
+  playtestRevision: data.playtestRevision,
+  impossibleKeyCard: false,
+  opaqueStage1Ids: true,
+  neutralStage3: true,
+  realisticDuress: true,
+  wifiLocationCaveat: true,
+  sealedSapphireChain: 'BR-220 + NS-17 + locked safe',
+  denisEarlyTheftExcluded: true,
+  tokenTransferInferable: true,
+  crossRoleInferencePreSolved: false,
+  elenaPersonallyIdentified: true,
+  passengerSensorNotIdentity: true,
+  b1CameraFovClosed: true,
+  preEventMessages: true,
+  scenePhotoCleanedAtSource: true,
+  productionVersion: '1.6.0'
+}, null, 2));
