@@ -20,14 +20,14 @@ const html=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta nam
  const other=role==='creator'?'guest':'creator';
  localStorage.setItem('mysterylogic:challenge:client-key','a'.repeat(48));
  localStorage.setItem('mysterylogic:last-aria:v1:'+code+':'+role,JSON.stringify({stage,hintsUsed:0,attempts:0,firstAnswerCorrect:null,startedAt:Date.now()-1800000,handoffs:{[stage]:true},decision:stage===2?'conductor':'',finalAccepted:mode==='reveal'}));
- window.fetch=async(_url,opts={})=>{
+ window.fetch=async()=>{
    const both=mode==='reveal';
    const view={ok:true,room:{code,caseId:'special:last-aria',caseTitle:'Последняя ария',casePath:'/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/'},me:{role,name:role==='creator'?'Алексей':'Марина',started:true,completed:both},opponent:{joined:true,role:other,name:other==='creator'?'Алексей':'Марина',started:true,completed:both},bothJoined:true,bothCompleted:both,results:both?{creator:{name:'Алексей',elapsedSeconds:2780,hintsUsed:1,attempts:1,firstAnswerCorrect:true},guest:{name:'Марина',elapsedSeconds:2910,hintsUsed:0,attempts:1,firstAnswerCorrect:true}}:null};
    return new Response(JSON.stringify(view),{status:200,headers:{'content-type':'application/json'}});
  };
  window.__ariaSmoke={role,stage,mode,code};
 })();
-</script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria-investigator-v15.js"></script><script src="/assets/case-aria.js"></script><script src="/assets/case-aria-materials-v2.js"></script><script>
+</script><script src="/assets/case-aria-data.js"></script><script src="/assets/case-aria-fairplay-v2.js"></script><script src="/assets/case-aria-investigator-v16.js"></script><script src="/assets/case-aria.js"></script><script src="/assets/case-aria-materials-v2.js"></script><script>
 setTimeout(()=>{
  const s=window.__ariaSmoke;
  if(s.mode==='final') document.querySelector('[data-action="next-stage"]')?.click();
@@ -67,7 +67,9 @@ try{
       const artifacts=(dom.match(/class="aria-artifact /g)||[]).length;
       if(artifacts!==3)throw new Error(`${item.name}: expected 3 materialized artifacts, got ${artifacts}`);
       if(!dom.includes('data-materialized-v2="1"'))throw new Error(`${item.name}: materialized evidence marker missing`);
-      if(item.stage===1&&item.role==='creator'&&!dom.includes('14–17 секунд'))throw new Error('STAIR-18 investigator timing missing');
+      if(item.stage===1&&item.role==='creator'&&(!dom.includes('14–17 секунд')||!dom.includes('дверного контакта уже открытой двери')))throw new Error('door-to-door STAIR-18 timing missing');
+      if(item.stage===1&&item.role==='guest'&&(!dom.includes('1,7 м')||!dom.includes('5,2–6,1 секунды')))throw new Error('archive retrieval reconstruction missing');
+      if(item.stage===3&&item.role==='creator'&&(!dom.includes('31 × 24 × 0,8 см')||!dom.includes('38 × 29 × 6,4 см')))throw new Error('score-to-case physical fit missing');
       if(item.stage===3&&item.role==='guest'&&!dom.includes('RFI-1'))throw new Error('isolated RFID inspection evidence missing');
     }
     if(item.mode==='final'){
@@ -82,11 +84,11 @@ try{
     if(item.mode==='reveal'){
       if(!dom.includes('Заключение следственной группы')||!dom.includes('Партитуру украли'))throw new Error('reveal missing');
       if(!dom.includes('Маэстро расследования'))throw new Error('pair rank missing');
-      if(!dom.includes('21:48:54')||!dom.includes('C-2')||!dom.includes('RFI-1'))throw new Error('investigator proof missing from debrief');
+      if(!dom.includes('21:48:54')||!dom.includes('C-2')||!dom.includes('RFI-1')||!dom.includes('5,2–6,1 секунды'))throw new Error('investigator v1.6 proof missing from debrief');
     }
     const bytes=fs.statSync(screenshot).size;if(bytes<30_000)throw new Error(`${item.name}: screenshot too small ${bytes}`);
     report.push({...item,bytes});
   }
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.5',views:report},null,2));
-  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.5',final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({screens:report.length,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',views:report},null,2));
+  console.log(JSON.stringify({screens:report.length,stageViews:6,materializedStageArtifacts:18,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',final:true,reveal:true,minBytes:Math.min(...report.map((x)=>x.bytes))},null,2));
 }finally{await new Promise((resolve)=>server.close(resolve));}
