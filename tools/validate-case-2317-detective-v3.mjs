@@ -47,8 +47,9 @@ expect(s3.includes('00:18:32') && s3.includes('00:16'), 'post-23:47 Vera safety 
 expect(s3.includes('повторный звонок по карточке обращения'), 'safety material title is still conclusion-leading');
 expect(!s3.includes('Таким образом, безопасность Веры подтверждена'), 'safety material still pre-solves its own conclusion');
 expect(s3.includes('LTE/GNSS') && s3.includes('BLE'), 'tracker technology remains internally ambiguous');
-expect(s3.includes('Марина сказала, что с машиной разберутся отдельно'), 'pre-event rationale for separating the car is missing');
+expect(s3.includes('серую надо увезти отдельно') && s3.includes('Марина сказала, что с машиной разберутся'), 'pre-event decoy-car rationale is missing');
 expect(!s3.includes('оставлю серую до утра'), 'old draft contradicts the separate-car plan');
+expect(!s3.includes('если маяк настоящий, он покажет, куда я уехала'), 'draft still contains impossible tracker logic');
 expect(data.stages[2].title === 'Последний маршрут', 'stage 3 title is still leading');
 expect(!data.stages[2].objective.includes('ложная картина похищения'), 'stage 3 objective still spoils conclusion');
 expect(!all.includes('Маршрут согласуется с тем, что он отогнал автомобиль Веры'), 'analyst material still pre-solves Roman deduction');
@@ -60,7 +61,7 @@ expect(ux.includes("input.value = 'D-2147'"), 'timestamp-to-legacy handoff bridg
 expect(ux.includes("'23:17:43'"), 'real timestamp handoff missing');
 
 const reveal = JSON.stringify(data.reveal);
-for (const marker of ['Иль', 'Марин', 'Роман', '00:18', 'CAM-S1']) expect(reveal.includes(marker), `reveal lost ${marker}`);
+for (const marker of ['Иль', 'Марин', 'Роман', '00:18', 'CAM-S1', 'ложное направление']) expect(reveal.includes(marker), `reveal lost ${marker}`);
 for (const marker of ['Q7-29', '4F-7719', '00:16', '00:18', '23:55:04']) {
   expect(all.includes(marker) || ux.includes(marker), `reveal-critical marker not available to players before final: ${marker}`);
 }
@@ -87,6 +88,7 @@ console.log(JSON.stringify({
   stage2CrossRoleOverlap: true,
   veraSafetyBeforeFinal: true,
   romanCoordinationProved: true,
+  decoyCarMotivationCoherent: true,
   draftContradictionRemoved: true,
   deductionCopyNeutral: true,
   stage3Spoiler: false,
