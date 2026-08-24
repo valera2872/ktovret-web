@@ -5,6 +5,7 @@ import { ensureDir } from './common.mjs';
 const VERSION='1.3.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
+const INVESTIGATOR_RUNTIME='case-aria-investigator-v16.js';
 
 const specialPage=()=>`<!doctype html>
 <html lang="ru">
@@ -72,5 +73,5 @@ export function applyTwoPlayerLastAria(siteRoot){
   ensureDir(caseDir);
   fs.writeFileSync(path.join(caseDir,'index.html'),specialPage());
   patchLanding(siteRoot);
-  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,priceRub:299,productId:'last_aria',creatorPays:true,guestPays:false,version:VERSION,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6'};
+  return {route:CASE_ROUTE,title:'Последняя ария',indexed:false,materials:18,priceRub:299,productId:'last_aria',creatorPays:true,guestPays:false,version:VERSION,materializedEvidence:true,compactMobileHeader:true,investigatorProofGate:true,investigatorRevision:'1.6',investigatorRuntime:INVESTIGATOR_RUNTIME};
 }
