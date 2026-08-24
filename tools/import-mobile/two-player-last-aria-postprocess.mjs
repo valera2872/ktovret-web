@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION='1.2.1';
+const VERSION='1.2.2';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 
@@ -13,7 +13,7 @@ const specialPage=()=>`<!doctype html>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07080a">
   <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Последняя ария — большое асимметричное детективное расследование для двух игроков: саботаж на сцене, ложное аудиоалиби и кража партитуры.">
+  <meta name="description" content="Последняя ария — большое асимметричное детективное расследование для двух игроков: травма на сцене, противоречивые алиби и кража партитуры.">
   <link rel="canonical" href="https://mysterylogic.com/${CASE_ROUTE}/">
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/mysterylogic.css">
@@ -22,7 +22,7 @@ const specialPage=()=>`<!doctype html>
   <link rel="stylesheet" href="../../assets/case-aria-materials-v2.css?v=${VERSION}">
   <link rel="stylesheet" href="../../assets/case-aria-layout-v2.css?v=${VERSION}">
   <meta property="og:title" content="Онлайн-расследование «Последняя ария» — детективная игра">
-  <meta property="og:description" content="Два игрока получают разные материалы театрального дела. Выясните, кто превратил настоящий несчастный случай в идеальное алиби для кражи.">
+  <meta property="og:description" content="Два игрока получают разные материалы театрального дела. Сведите сценический тайминг, доступ в архив, звук и физические следы в одну доказательную версию.">
   <meta property="og:type" content="website">
   <title>Онлайн-расследование «Последняя ария» — детективная игра</title>
 </head>
@@ -32,7 +32,7 @@ const specialPage=()=>`<!doctype html>
     <nav class="ml-nav"><a href="../">Игры для двоих</a><a href="../../dela/">Другие дела</a></nav>
   </header>
   <main class="casearia-shell" data-casearia-app>
-    <section class="casearia-cover"><div class="casearia-cover-copy"><p class="casearia-eyebrow">Дело ML-AR17 · доступ открыт</p><h1>Последняя <em>ария</em></h1><p>Оперный театр. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И оригинальная партитура, исчезнувшая из закрытого архива.</p></div><div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div></section>
+    <section class="casearia-cover"><div class="casearia-cover-copy"><p class="casearia-eyebrow">Дело ML-AR17 · доступ открыт</p><h1>Последняя <em>ария</em></h1><p>Оперный театр. Настоящая рана от бутафорского кинжала. Пятьдесят две секунд сценического затемнения. И оригинальная партитура, исчезнувшая из закрытого архива.</p></div><div class="casearia-stage-visual" aria-hidden="true"><span class="casearia-curtain left"></span><span class="casearia-curtain right"></span><div class="casearia-score"><small>ORIGINAL SCORE · 1908</small><strong>OPUS XVII</strong><i></i><i></i><i></i><b>21:49</b></div><div class="casearia-cue">BLACKOUT<br><strong>00:52</strong></div></div></section>
   </main>
   <script src="../../assets/case-aria-data.js?v=${VERSION}"></script>
   <script src="../../assets/case-aria-fairplay-v2.js?v=${VERSION}"></script>
@@ -47,7 +47,7 @@ const catalogCard=`
     <div class="casearia-catalog-copy">
       <p class="ml-kicker">Большое дело · совершенно другой жанр</p>
       <h2 id="casearia-title">Последняя ария</h2>
-      <p class="casearia-catalog-lead">Во время генеральной репетиции бутафорский кинжал ранит тенора по-настоящему. Аварийный blackout длится 52 секунды. Когда свет возвращается, из закрытого нотного архива исчезает оригинальная партитура 1908 года.</p>
+      <p class="casearia-catalog-lead">Во время генеральной репетиции бутафорский кинжал ранит тенора по-настоящему. Сценический blackout длится 52 секунды. Когда рабочий свет возвращается, из закрытого нотного архива исчезает оригинальная партитура 1908 года.</p>
       <div class="casearia-catalog-question">Как человек мог открыть архив, если в те же секунды весь театр слышал его голос из оркестровой ямы?</div>
       <div class="casearia-catalog-facts"><span>2 игрока</span><span>разные роли</span><span>55–75 минут</span><span>18 материалов</span><span>театр и закулисье</span></div>
       <a class="coop-primary" href="poslednyaya-ariya/">Открыть дело «Последняя ария»</a>
