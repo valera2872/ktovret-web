@@ -115,11 +115,20 @@
     });
   };
 
+  const patchLegacyToast = () => {
+    document.querySelectorAll('.case2317-toast').forEach((node) => {
+      if ((node.textContent || '').includes('D-2147')) {
+        setText(node, 'В записи отмечен звук двери в 23:17:43. Передайте Аналитику точное время.');
+      }
+    });
+  };
+
   const patch = () => {
     root.querySelectorAll('.case2317-handoff').forEach(patchHandoff);
     root.querySelectorAll('.case2317-decision').forEach(patchDecision);
     patchFinal(root);
     patchAudioUi(root);
+    patchLegacyToast();
   };
 
   root.addEventListener('click', (event) => {
@@ -152,5 +161,5 @@
   };
   new MutationObserver(schedulePatch).observe(root, { childList: true, subtree: true });
   patch();
-  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.5', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, serialHandoffRequired: true, idempotentDomPatch: true });
+  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.6', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, serialHandoffRequired: true, legacyCodeHidden: true, idempotentDomPatch: true });
 })();
