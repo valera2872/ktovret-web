@@ -48,10 +48,12 @@ jobs:
           node --check tools/import-mobile/seo-ctr-modernization.mjs
           node --check tools/validate-case-last-aria.mjs
           node --check tools/validate-case-last-aria-countertheories.mjs
+          node --check tools/validate-coop-last-aria-backend.mjs
           node --check tools/last-aria-browser-smoke.mjs
-          grep -q "CASE_ID = 'special:last-aria'" supabase/functions/coop-last-aria/index.ts
-          grep -q "CASE_PATH = '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/'" supabase/functions/coop-last-aria/index.ts
           grep -q "functions/v1/coop-last-aria" assets/case-aria.js
+      - name: Validate backend transport contract
+        working-directory: web
+        run: node tools/validate-coop-last-aria-backend.mjs
       - name: Adversarial Holmes-Poirot validation
         working-directory: web
         run: node tools/validate-case-last-aria.mjs
