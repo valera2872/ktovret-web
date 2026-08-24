@@ -39,7 +39,7 @@ expect(s1.includes('Личность водителя на этом пакете
 expect(s1.includes('не позволяет определить рост или личность водителя'), 'seat-position overclaim returned');
 expect(s2.includes('Владение меткой не устанавливает'), 'credential-owner caveat missing');
 
-expect(s2i.includes('23:44:36 — Вера всё ещё остаётся в кадре кафе'), 'Investigator half of Vera/car overlap missing');
+expect(s2i.includes('В 23:44:36 Вера всё ещё остаётся в кадре кафе'), 'Investigator half of Vera/car overlap missing');
 expect(!s2i.includes('SP-3'), 'Investigator owns both halves of stage2 deduction');
 expect(s2a.includes('23:44:36 — камера SP-3'), 'Analyst half of Vera/car overlap missing');
 expect(!s2a.includes('идентифицирует Марину Соболеву и Веру Лебедеву'), 'Analyst owns both halves of stage2 deduction');
