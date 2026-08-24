@@ -19,7 +19,7 @@ const ux = read('assets/case-2317-ux-v3.js');
 const generator = read('tools/import-mobile/two-player-2317-postprocess.mjs');
 
 expect(data.logicVersion === 3, 'logicVersion is not 3');
-expect(data.proofRevision === '3.1', 'proofRevision is not 3.1');
+expect(data.proofRevision === '3.2', 'proofRevision is not 3.2');
 expect(data.stages.length === 3, 'stage count changed');
 expect(data.final.questions.length === 4, 'final must ask four independent conclusions');
 
@@ -30,12 +30,14 @@ const s3 = JSON.stringify(data.stages[2]);
 expect(s1.includes('23:17:43'), '112 door sound timestamp missing');
 expect(s2.includes('23:17:43.6') && s2.includes('23:21:06'), 'door events are not separated into two timestamps');
 expect(!s2.includes('23:21:06 — служебная дверь внутреннего двора открыта гостевым QR Марины Соболевой. Звуковой профиль совпадает'), 'old impossible sound-to-door mapping returned');
-expect(s1.includes('Автомобиль ≠ Илья'), 'vehicle/person caveat missing');
+expect(s1.includes('Личность водителя на этом пакете не установлена'), 'vehicle/person uncertainty missing');
 expect(s1.includes('не позволяет определить рост или личность водителя'), 'seat-position overclaim returned');
 expect(s2.includes('Владение меткой не устанавливает'), 'credential-owner caveat missing');
 expect(s2.includes('23:43:51–23:45:12') && s2.includes('23:44:36'), 'Vera/car simultaneous overlap missing');
-expect(s2.includes('Маршруты физически разделены'), 'Vera cannot drive car conclusion not established');
+expect(s2.includes('одновременная фиксация автомобиля') && s2.includes('Сопоставьте два источника по времени'), 'overlap facts no longer leave deduction to players');
 expect(s3.includes('00:18:32') && s3.includes('00:16'), 'post-23:47 Vera safety proof missing before final');
+expect(s3.includes('повторный звонок по карточке обращения'), 'safety material title is still conclusion-leading');
+expect(!s3.includes('Таким образом, безопасность Веры подтверждена'), 'safety material still pre-solves its own conclusion');
 expect(s3.includes('LTE/GNSS') && s3.includes('BLE'), 'tracker technology remains internally ambiguous');
 expect(data.stages[2].title === 'Последний маршрут', 'stage 3 title is still leading');
 expect(!data.stages[2].objective.includes('ложная картина похищения'), 'stage 3 objective still spoils conclusion');
@@ -57,7 +59,7 @@ for (const hint of data.hints) {
 }
 
 expect(generator.includes('case-2317-detective-v3.js'), 'production generator does not load detective v3');
-expect(generator.includes('case-2317-timeline-v31.js'), 'production generator does not load timeline v3.1');
+expect(generator.includes('case-2317-timeline-v31.js'), 'production generator does not load timeline/proof overlay');
 expect(generator.includes('case-2317-ux-v3.js'), 'production generator does not load UX v3');
 expect(generator.indexOf('case-2317-data.js') < generator.indexOf('case-2317-detective-v3.js'), 'data/v3 load order wrong');
 expect(generator.indexOf('case-2317-detective-v3.js') < generator.indexOf('case-2317.js'), 'v3 must patch data before runtime');
@@ -73,6 +75,7 @@ console.log(JSON.stringify({
   credentialOwnerEqualsPerson: false,
   veraCarOverlap: true,
   veraSafetyBeforeFinal: true,
+  deductionCopyNeutral: true,
   stage3Spoiler: false,
   romanConfessionRemovedFromV3: true,
   productionLoadOrder: 'passed'
