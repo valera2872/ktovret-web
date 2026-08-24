@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
 const VERSION='1.4.0';
-const SPOILER_AUDIT_REVISION='1.0';
+const SPOILER_AUDIT_REVISION='1.1';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya';
 const INVESTIGATOR_RUNTIME='case-aria-investigator-v16.js';
@@ -11,6 +11,7 @@ const INVESTIGATOR_RUNTIME='case-aria-investigator-v16.js';
 const SAFE_MISSION='Установите, кто подготовил саботаж, кто воспользовался критическим окном у архива и где оказался оригинал партитуры. Восстановите события по независимым материалам и не принимайте заявления участников за установленный факт.';
 const SAFE_STAGE1_OBJECTIVE='Сведите по секундам удар, сценическое затемнение, служебные маршруты и события у архива. Отмечайте только то, что подтверждается материалами вашего пакета.';
 const SAFE_STAGE2_OBJECTIVE='Сопоставьте физические следы, журналы доступа и технические данные с показаниями участников. Ищите совпадения, которые подтверждаются независимым материалом напарника.';
+const SAFE_GAME_COVER='Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И партитура 1908 года, исчезнувшая из закрытого архива. У каждого участника есть своя версия этих событий.';
 
 const replaceRequired=(source,from,to,label)=>{
   if(source.includes(to)) return source;
@@ -22,8 +23,9 @@ function hardenRuntimeCopy(siteRoot){
   const dataFile=path.join(siteRoot,'assets/case-aria-data.js');
   const fairplayFile=path.join(siteRoot,'assets/case-aria-fairplay-v2.js');
   const investigatorFile=path.join(siteRoot,'assets',INVESTIGATOR_RUNTIME);
+  const gameFile=path.join(siteRoot,'assets/case-aria.js');
   const storefrontFile=path.join(siteRoot,'assets/case-aria-storefront.js');
-  for(const file of [dataFile,fairplayFile,investigatorFile,storefrontFile]) if(!fs.existsSync(file)) throw new Error(`Last Aria runtime missing: ${path.relative(siteRoot,file)}`);
+  for(const file of [dataFile,fairplayFile,investigatorFile,gameFile,storefrontFile]) if(!fs.existsSync(file)) throw new Error(`Last Aria runtime missing: ${path.relative(siteRoot,file)}`);
 
   let data=fs.readFileSync(dataFile,'utf8');
   data=replaceRequired(
@@ -78,6 +80,15 @@ function hardenRuntimeCopy(siteRoot){
     'investigator stage 2 audio title',
   );
   fs.writeFileSync(investigatorFile,investigator);
+
+  let game=fs.readFileSync(gameFile,'utf8');
+  game=replaceRequired(
+    game,
+    'Генеральная репетиция. Настоящая рана от бутафорского кинжала. Пятьдесят две секунды темноты. И партитура 1908 года, исчезнувшая из закрытого архива, пока все слышали голос дирижёра в оркестровой яме.',
+    SAFE_GAME_COVER,
+    'post-purchase game cover',
+  );
+  fs.writeFileSync(gameFile,game);
 
   let storefront=fs.readFileSync(storefrontFile,'utf8');
   storefront=replaceRequired(storefront,"const version = '1.3.0';",`const version = '${VERSION}';`,'dynamic runtime cache version');
@@ -149,13 +160,15 @@ function validateSpoilerBoundary(siteRoot){
   const data=fs.readFileSync(path.join(siteRoot,'assets/case-aria-data.js'),'utf8');
   const fairplay=fs.readFileSync(path.join(siteRoot,'assets/case-aria-fairplay-v2.js'),'utf8');
   const investigator=fs.readFileSync(path.join(siteRoot,'assets',INVESTIGATOR_RUNTIME),'utf8');
+  const game=fs.readFileSync(path.join(siteRoot,'assets/case-aria.js'),'utf8');
   const storefront=fs.readFileSync(path.join(siteRoot,'assets/case-aria-storefront.js'),'utf8');
 
   for(const forbidden of ['весь театр слышал его голос','Как человек мог открыть архив','голос из оркестровой ямы']) if(landing.includes(forbidden)) throw new Error(`Last Aria public teaser spoiler leaked: ${forbidden}`);
   for(const forbidden of ['почему голос человека, которого все слышали','Не считайте голос в интеркоме','Отделите ложные алиби от физического присутствия','техническое происхождение голоса','PB-2 ещё не означает живой микрофон']) if(data.includes(forbidden)) throw new Error(`Last Aria runtime directive spoiler leaked: ${forbidden}`);
   for(const forbidden of ['как соотносятся звук, маршруты и доступ','отделяйте прямое наблюдение от вывода о местонахождении человека']) if(fairplay.includes(forbidden)) throw new Error(`Last Aria fair-play directive spoiler leaked: ${forbidden}`);
   if(investigator.includes("audio.title='TAKE-6: физически вооружённый макрос, привязанный к Q-17B';")) throw new Error('Last Aria stage 2 title reveals playback mechanism before reading evidence');
-  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
+  for(const forbidden of ['пока все слышали голос дирижёра','голос дирижёра в оркестровой яме']) if(game.includes(forbidden)) throw new Error(`Last Aria post-purchase cover spoiler leaked: ${forbidden}`);
+  for(const marker of [SAFE_MISSION,SAFE_STAGE1_OBJECTIVE,SAFE_STAGE2_OBJECTIVE,SAFE_GAME_COVER,"tag: 'Интерком · экспорт'","title: 'Схема маршрутизации MIC-C / PB-1 / PB-2'","audio.title='PB-2 / TAKE-6: журнал маршрутизации и cue-событий';",`const version = '${VERSION}';`]) if(!`${data}\n${fairplay}\n${investigator}\n${game}\n${storefront}`.includes(marker)) throw new Error(`Last Aria spoiler-safe runtime marker missing: ${marker}`);
 
   const prePurchase=`${catalogCard}\n${specialPage()}`.toLowerCase();
   for(const forbidden of ['голос','интерком','pb-2','mic-c','take-6','playback']) if(prePurchase.includes(forbidden)) throw new Error(`Last Aria pre-purchase copy reveals solution channel: ${forbidden}`);
