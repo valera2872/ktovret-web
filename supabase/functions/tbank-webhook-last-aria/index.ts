@@ -1,10 +1,10 @@
-import { adminClient } from '../_shared/payment.ts';
+import { adminClient } from '../_shared/last-aria-payment.ts';
 import {
   TBANK_TERMINAL_KEY,
   amountToKopecks,
   tbankConfigReady,
   verifyTbankToken,
-} from '../_shared/tbank.ts';
+} from '../_shared/last-aria-tbank.ts';
 import {
   LAST_ARIA_PRODUCT_ID,
   finalizeLastAriaRefund,
