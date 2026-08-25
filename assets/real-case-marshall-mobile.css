@@ -15,5 +15,6 @@
   .rc-title{font-size:clamp(2.15rem,10vw,3.2rem);line-height:.97;overflow-wrap:normal;word-break:normal;hyphens:none}
   .rc-screen[data-screen="S00"] .rc-title{white-space:normal;font-size:clamp(2.25rem,11vw,3.2rem);overflow-wrap:normal;word-break:normal}
   .rc-screen-inner{overflow:hidden}
+  .rc-screen[data-screen="S22"] .rc-textarea{min-height:190px;resize:none}
   .ml-brand-strip-nav a:first-child{display:none}
 }
