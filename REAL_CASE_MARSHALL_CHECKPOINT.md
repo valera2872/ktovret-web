@@ -9,9 +9,10 @@ Checkpoint date: 2026-08-25
 - Branch: `feature/real-case-marshall-prototype`
 - Base: `main`
 - `main` is intentionally untouched. Do not merge until the user completes the first manual product walkthrough.
-- Final fully tested **code head**: `b11cb0ef1323b99c5712666dcd2e976df4523ccd`.
-- That code head passed **13/13 GitHub Actions workflows**.
-- This file is the durable continuation point. If conversation context is lost, resume from this checkpoint and the tested code head above rather than chat memory.
+- Final fully tested **code head**: `68383cf8f61d038708803855febe8f5b5cd794ad`.
+- All **13 required workflows passed** on that code head. A separate unrelated `Live Last Aria Release Gate` was `skipped`, not failed.
+- Dedicated `Real case Marshall prototype` run **#54** passed JavaScript validation, functional smoke and the full 52-screen premium visual audit.
+- This file is the durable continuation point. A later branch head may differ only because of this documentation checkpoint; resume from the tested code head above plus this file.
 
 ## Source of truth
 
@@ -28,15 +29,15 @@ Hard rules:
 7. Redline changes are discovered by the player, not pre-highlighted.
 8. `S17` — `ВЫ БЫ ПОДПИСАЛИ ЭТУ ВЕРСИЮ?` — is the key independent decision **before** reinvestigation and Royal Commission material.
 9. Do not reorder S20/S22 merely because S22 is later written synthesis; the independent fair-play decision already happened at S17.
-10. Evidence status must distinguish original witness claim / our transcription or extract / prosecution theory / reinvestigation evidence / Royal Commission finding.
-11. Commercial Nova Scotia Archives facsimile rights are not cleared. Prototype uses source-grounded extracts/transcriptions + our analytic UI + later official links; no fake facsimiles.
+10. Evidence status must distinguish original witness claim / transcription or extract / prosecution theory / reinvestigation evidence / Royal Commission finding.
+11. Commercial Nova Scotia Archives facsimile rights are not cleared. Use source-grounded extracts/transcriptions + original analytic UI + later official links; no fake facsimiles.
 12. Documentary tone only: no blood, red-string boards, police-tape cosplay or victory animation.
-13. Auto-save notebook/tags/progress.
+13. Auto-save notebook/progress.
 14. Checkpoints score evidentiary discipline. Premature/unsupported positions may lose points but are recorded and allowed to proceed; do not turn the case into a retry-until-correct school quiz.
 
 ## Product visual bar — explicit user decision
 
-The user explicitly requires the first playable version to look **premium-premium now**, not after a later redesign.
+The first playable version must look **premium-premium now**, not after a later redesign.
 
 Acceptance criteria for every S00–S25 screen:
 
@@ -48,7 +49,7 @@ Acceptance criteria for every S00–S25 screen:
 - desktop and mobile reviewed separately;
 - first-contact clarity, suspense and emotional pull without compromising nonfiction credibility.
 
-Reference quality bar: strongest presentation lessons from True Crime Games / ProfileDetective / Saint Twins, without copying their visual language. Mystery Logic should feel cleaner, more deliberate and more premium.
+Reference quality bar: strongest presentation lessons from True Crime Games / ProfileDetective / Saint Twins, without copying their visual language.
 
 ## Working route
 
@@ -58,17 +59,17 @@ Reference quality bar: strongest presentation lessons from True Crime Games / Pr
 - not in sitemap/catalogue
 - independent from payment, 15/85, `23:17`, Room 407 and Last Aria
 
-## Gameplay implemented
+## Gameplay structure
 
 - `S00–S02`: entry / case brief / first 72 hours
 - `S03–S07`: three early witness materials, early evidence board, C1 with 2+ citations
 - `S08–S14`: changed June 4 statements, two redline comparisons, common-pattern audit, C2
-- `S15–S17`: Crown Statement of Facts, prosecution-file audit, then independent `Вы бы подписали эту версию?` decision with 3+ citations including M08 and at least one early source
+- `S15–S17`: Crown Statement of Facts, prosecution-file audit, then independent sign-off decision with 3+ citations including M08 + one early source
 - `S18–S21`: 11-year jump, RCMP reinvestigation, reopened alternative line, Royal Commission findings, investigation-failure audit
 - `S22`: written evidentiary synthesis with 5+ citations
 - `S23`: real case/name/legal-outcome reveal
 - `S24`: source ledger with official links
-- `S25`: systemic epilogue
+- `S25`: systemic epilogue + post-case evidence-work score
 
 LocalStorage autosave, notebook, revisiting unlocked materials, spoiler locks and reset are implemented.
 
@@ -82,7 +83,7 @@ LocalStorage autosave, notebook, revisiting unlocked materials, spoiler locks an
 - Investigation audit — 20
 - Final synthesis — 10
 
-`assets/real-case-marshall-source-meta.js` provides precise provenance/status boundaries for M01/M02/M03/M05/M06/M08/M10/M11/M12/M13. M08 is explicitly prosecution theory, not established fact. M02 deliberately uses the Commission record reproducing Exhibit 16 p.22; do not “correct” that URL merely because it is a later record.
+`assets/real-case-marshall-source-meta.js` provides provenance/status boundaries for M01/M02/M03/M05/M06/M08/M10/M11/M12/M13. M08 is explicitly prosecution theory, not established fact. M02 deliberately uses the Commission record reproducing Exhibit 16 p.22.
 
 `assets/real-case-marshall-v13-guards.js` adds:
 
@@ -91,82 +92,100 @@ LocalStorage autosave, notebook, revisiting unlocked materials, spoiler locks an
 - S17: minimum 3 citations, including M08 + at least one early M01/M02/M03
 - S21: minimum 3 citations
 - reset integration for guard state
-- synchronous initial decoration + `queueMicrotask` on rerenders to avoid the CI race previously found
+- synchronous initial decoration + `queueMicrotask` on rerenders
 
-S07/S14 record unsupported/categorical player positions and continue; full-credit reasoning earns points rather than forcing a retry.
+S07/S14 record unsupported/categorical player positions and continue; full-credit reasoning earns points rather than forcing retries.
 
 ## Reopened file depth
 
 S19 preserves identity as `Мужчина X` while separately presenting three v13-grounded later materials:
 
-1. Ten days after conviction: a later witness said the other man inflicted the fatal stab — labelled as a witness statement, not final fact.
-2. 1974: a family member reported seeing that man wash apparent blood from a knife — labelled as a later report requiring verification.
-3. 1982 reinvestigation: physical material concerning the knife — labelled as reinvestigation evidence, not the later Commission conclusion.
+1. Ten days after conviction: later witness statement naming the other man as stabber — witness claim, not final fact.
+2. 1974: family report of apparent blood being washed from a knife — later report requiring verification.
+3. 1982 reinvestigation: physical material concerning the knife — reinvestigation evidence, not later Commission conclusion.
 
-S23 preserves the v13 endpoint that Roy Ebsary's manslaughter conviction followed three trials.
+S23 preserves that Roy Ebsary's manslaughter conviction followed three trials.
 
-## Premium visual layer now implemented
+## Premium art direction
 
-New file: `assets/real-case-marshall-premium.css`.
+`assets/real-case-marshall-premium.css` supplies the main documentary art direction:
 
-It is a visual-only art-direction layer and does not alter facts or progression. Key changes:
-
-- more editorial dark documentary background and restrained texture;
-- tighter brand/header and thin progress line;
+- restrained dark editorial environment;
 - premium frame/shadow system;
-- S00 ghost `71—05` archival motif and stronger hero composition;
-- refined serif display typography and hierarchy;
-- more physical warm-paper/document treatment;
+- S00 archival `71—05` motif;
+- refined display typography;
+- warm physical paper/document treatment;
 - less dashboard-like sidebar/material list;
-- numbered, more editorial choices instead of generic form cards;
-- refined citation controls, textarea, timeline, reveal and score treatment;
-- mobile-specific density/spacing improvements;
-- subtle reduced-motion-safe entrance animation.
+- numbered editorial choices;
+- refined citations, textarea, timeline, reveal and mobile density;
+- reduced-motion-safe entrance animation.
 
-The opening route still has one focus: top navigation and duplicate notebook were removed earlier; S00–S02 hide the working sidebar.
+`assets/real-case-marshall-final-polish.css` adds the final emotional hierarchy:
 
-## Player-facing presentation cleanup
+- S18 is a real temporal rupture with a large restrained `11 ЛЕТ` motif;
+- S23 is a single-column human/factual reveal;
+- numeric score is **hidden on S23** so it does not compete with the death, wrongful conviction and 11 years of imprisonment;
+- score belongs to S25, after the factual outcome, as evaluation of evidence discipline;
+- S22 mobile textarea is treated as a deliberate writing field rather than a utility control;
+- redundant legacy fact-grid is force-hidden on passive evidence-reading screens.
 
-New file: `assets/real-case-marshall-presentation.js`.
+## Player-facing reading flow
 
-It removes development/prototype language from the actual player experience after every core render without changing source/game logic:
+`assets/real-case-marshall-presentation.js` removes development language and fake interaction while preserving runtime compatibility.
 
-- S00 eyebrow: `Реальное уголовное дело · 1971` instead of `... · прототип`;
-- footer: `Автосохранение включено` instead of exposing runtime version;
-- reset: `Сбросить прогресс` with clean confirmation `Сбросить весь прогресс расследования?`;
-- S25: `Расследование завершено.` instead of `Вы завершили прототип...`.
+Player-facing cleanup:
 
-Route `<title>` is now `Архивное дело №71-05 — Mystery Logic`; meta description also no longer calls the experience a prototype.
+- no visible `прототип` language;
+- no runtime version in footer;
+- clean reset wording;
+- S23 CTA is `Открыть официальные источники`;
+- S24 uses normal documentary provenance language;
+- S25 distinguishes score from actual completion state.
 
-The sidecar uses MutationObserver + `queueMicrotask` so the cleanup survives the core's full `innerHTML` rerenders. It calls `MLRealCase7105.reset()` so existing v13 guard-reset wrapping remains intact.
+Important UX decision from the internal walkthrough:
+
+`S03/S04/S05/S09/S11` originally repeated the document text as mandatory checkboxes. That felt like a school test and added no investigative decision. The player-facing layer now:
+
+- internally checks those legacy inputs only for old-runtime compatibility;
+- hides the duplicated checkbox grid completely;
+- presents the source as a document to read;
+- adds a restrained reading prompt;
+- keeps real interaction where it matters: S06/S07, S10/S12, S16/S17, S19/S21 and S22.
+
+Second statements are not pre-highlighted: the player is told that comparison happens on the next screen.
+
+## CI regressions caught during this pass
+
+Do not erase these lessons:
+
+1. A non-idempotent S24 presentation text replacement caused a MutationObserver loop. Fixed by only mutating when content actually differs.
+2. An early S25 polish rule mistook the always-visible score card for completed state and disabled `Завершить дело` before the user clicked it. Smoke run #50 caught this. Fixed by distinguishing the score card from the separate completion feedback created after the actual click.
+3. HTML `hidden` on the redundant fact grid was overridden by author `display:grid`; full visual audit exposed this. Fixed with `.rc-fact-grid[hidden]{display:none!important}`.
+
+These are examples of why both functional smoke and visual audit must remain mandatory.
 
 ## Full visual audit system
 
-New file: `tools/real-case-marshall-visual-audit.mjs`.
-
-The dedicated Marshall workflow now captures **all 26 screens** at:
+`tools/real-case-marshall-visual-audit.mjs` renders **all 26 screens** at:
 
 - desktop `1440×1200`
 - mobile `390×844`
 
-Total = **52 browser-rendered screenshots** per dedicated run, in addition to the functional smoke screenshots.
+Total = **52 browser screenshots** per dedicated run, in addition to functional smoke screenshots.
 
-The 52-screen audit was manually reviewed after the premium layer. Findings:
+Latest run #54 after all fixes passed the complete 52-screen audit. Fresh manual review confirmed:
 
-- overall visual system holds consistently across S00–S25;
-- paper/document screens S03/S04/S05/S09/S11/S15 are particularly strong;
-- S17 independent sign-off screen reads clean, serious and premium;
-- S24 source ledger is structured and visually credible;
-- no obvious systemic wrapping/overflow regression appeared in the contact-sheet review;
-- fresh S00 mobile and S25 mobile were separately re-opened after the presentation cleanup and confirmed free of visible `прототип`/version dev copy.
-
-Potential later micro-polish only if the actual playthrough shows need: S18 could become slightly more cinematic; mobile S22 textarea could be marginally less utility-like. These are not blockers and should not trigger decorative redesign without gameplay evidence.
+- S03 is now a clean document-reading screen without repeated checkboxes;
+- S18 has a stronger time-jump hierarchy;
+- S23 has a strong factual reveal with no score competing for attention;
+- S25 keeps the post-case evidence-work score while `Завершить дело` remains active until the actual completion click;
+- no new systemic wrapping/overflow regression was found.
 
 ## CI / verification — current clean baseline
 
-Final tested code head: `b11cb0ef1323b99c5712666dcd2e976df4523ccd`.
+Final tested code head: `68383cf8f61d038708803855febe8f5b5cd794ad`.
 
-Result: **13/13 workflows passed**:
+Required workflows: **13/13 successful**:
 
 - Validate and deploy Mystery Logic web
 - Build Mystery Logic production bundle for Beget
@@ -180,30 +199,28 @@ Result: **13/13 workflows passed**:
 - Validate Mystery Logic Last Aria
 - Visual smoke Mystery Logic co-op cases
 - Visual smoke Mystery Logic approved storefront reference
-- Real case Marshall prototype — run #37
+- Real case Marshall prototype — run #54
 
-Dedicated run #37 passed JavaScript validation, functional responsive smoke, full 52-screen premium visual capture and artifact upload.
+A separate `Live Last Aria Release Gate` appeared in the check suite and was `skipped`; it is unrelated to this real-case branch and is not a failure.
 
-Current workflow syntax validation includes:
+Dedicated run #54 passed:
 
-- `assets/real-case-marshall.js`
-- `assets/real-case-marshall-source-meta.js`
-- `assets/real-case-marshall-v13-guards.js`
-- `assets/real-case-marshall-presentation.js`
-- `tools/real-case-marshall-smoke.mjs`
-- `tools/real-case-marshall-visual-audit.mjs`
+- JavaScript validation;
+- source-locked responsive functional smoke;
+- full 52-screen premium visual audit;
+- artifact upload.
 
 ## Deliberately not changed yet
 
-Do not add mechanics merely because v13 could be read slightly differently before observing real player friction. Example: S05 currently marks important facts and S06 performs cross-source synthesis; this is not a blocker.
+Do not add mechanics merely because v13 could be interpreted slightly differently before real player feedback. The next signal should come from the user's actual walkthrough, not speculative feature accumulation.
 
-Visual problems, however, are not deferred: if the first manual playthrough exposes any screen below the premium bar, fix it immediately rather than accumulating a later redesign pass.
+Small copy details such as whether S03 CTA should remain `Зафиксировать и продолжить` or become more literal can be judged during the real playthrough; do not restart a redesign cycle for that alone.
 
 ## Exact next action
 
 1. Keep PR #97 **draft** and `main` untouched.
-2. Update PR #97 body to reference tested code head `b11cb0e…`, premium CSS/presentation layer, full 52-screen visual audit and 13/13 CI.
-3. Then begin the user's **first true end-to-end S00–S25 gameplay walkthrough**. The user has not previously played or product-critiqued this case.
+2. Update PR #97 body to reference tested code head `68383cf8…`, run #54, the reading-flow cleanup, reveal hierarchy and 13 required green workflows.
+3. Then hand the current route to the user for the **first true end-to-end S00–S25 gameplay walkthrough**. The user has not previously played or product-critiqued this case.
 4. During that walkthrough judge gameplay and visual quality together: first-contact clarity, suspense, comprehension, document density, whether choices feel investigative rather than school-like, emotional peaks at S15/S17/S19/S23, and desktop/mobile presentation.
 5. Do not merge until the user accepts the product after that walkthrough.
 
