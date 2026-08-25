@@ -16,6 +16,38 @@
   color:var(--rc-muted,#9fb0c1);
 }
 
+/* S06 is a synthesis, not a sorting exercise. */
+.rc-screen[data-screen="S06"] .rc-board[hidden]{display:none!important}
+.rc-synthesis{
+  display:grid;
+  gap:12px;
+  max-width:820px;
+  margin:28px 0 8px;
+}
+.rc-synthesis-item{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr);
+  gap:20px;
+  align-items:start;
+  padding:18px 20px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+  box-shadow:inset 2px 0 0 rgba(234,211,156,.24);
+}
+.rc-synthesis-item small{
+  padding-top:2px;
+  color:var(--rc-premium-gold-soft,#ead39c);
+  font-size:.66rem;
+  font-weight:700;
+  letter-spacing:.12em;
+}
+.rc-synthesis-item strong{
+  color:#e4e9ed;
+  font-size:.98rem;
+  font-weight:500;
+  line-height:1.55;
+}
+
 /* S18 is a genuine temporal rupture, not a routine transition card. */
 .rc-screen[data-screen="S18"]::after{
   content:"11 ЛЕТ";
@@ -83,6 +115,10 @@
 
 @media(max-width:620px){
   .rc-reading-prompt{margin-top:20px;padding-top:13px;font-size:.7rem}
+  .rc-synthesis{gap:10px;margin-top:22px}
+  .rc-synthesis-item{grid-template-columns:1fr;gap:7px;padding:16px 15px}
+  .rc-synthesis-item small{font-size:.62rem}
+  .rc-synthesis-item strong{font-size:.92rem;line-height:1.5}
   .rc-screen[data-screen="S18"]::after{right:-12px;bottom:10px;font-size:7.3rem;opacity:.025}
   .rc-screen[data-screen="S18"] .rc-screen-inner{padding-top:46px}
   .rc-screen[data-screen="S18"] .rc-title{font-size:clamp(3.4rem,17vw,5rem)}
