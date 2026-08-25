@@ -27,6 +27,7 @@ jobs:
 
       - name: Validate prototype JavaScript
         run: |
+          node --check assets/real-case-marshall-investigation.js
           node --check assets/real-case-marshall.js
           node --check assets/real-case-marshall-source-meta.js
           node --check assets/real-case-marshall-v13-guards.js
@@ -34,10 +35,10 @@ jobs:
           node --check tools/real-case-marshall-smoke.mjs
           node --check tools/real-case-marshall-visual-audit.mjs
 
-      - name: Validate source-locked responsive opening
+      - name: Validate investigator-driven responsive flow
         run: node tools/real-case-marshall-smoke.mjs
 
-      - name: Capture full premium visual audit
+      - name: Capture investigator graph visual audit
         run: node tools/real-case-marshall-visual-audit.mjs
 
       - name: Upload prototype smoke
