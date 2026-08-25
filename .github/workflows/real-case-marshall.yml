@@ -30,6 +30,7 @@ jobs:
           node --check assets/real-case-marshall.js
           node --check assets/real-case-marshall-source-meta.js
           node --check assets/real-case-marshall-v13-guards.js
+          node --check assets/real-case-marshall-presentation.js
           node --check tools/real-case-marshall-smoke.mjs
           node --check tools/real-case-marshall-visual-audit.mjs
 
