@@ -1,5 +1,9 @@
-.rc-frame:has(.rc-materials .rc-side-empty){grid-template-columns:minmax(0,1fr)}
-.rc-frame:has(.rc-materials .rc-side-empty) .rc-side{display:none}
+.rc-frame:has(.rc-screen[data-screen="S00"]),
+.rc-frame:has(.rc-screen[data-screen="S01"]),
+.rc-frame:has(.rc-screen[data-screen="S02"]){grid-template-columns:minmax(0,1fr)}
+.rc-frame:has(.rc-screen[data-screen="S00"]) .rc-side,
+.rc-frame:has(.rc-screen[data-screen="S01"]) .rc-side,
+.rc-frame:has(.rc-screen[data-screen="S02"]) .rc-side{display:none}
 
 @media(max-width:620px){
   .rc-topline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px}
