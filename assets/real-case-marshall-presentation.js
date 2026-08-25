@@ -6,6 +6,7 @@
   if(!app) return;
 
   const PASSIVE_EVIDENCE=new Set(['S03','S04','S05','S09','S11']);
+  const S24_COPY='Все ключевые материалы связаны с официальным архивом Новой Шотландии и документами Royal Commission. В расследовании использованы текстовые выписки и сопоставление источников; ниже — реестр официальных ссылок.';
 
   const makeEvidenceReadingFlow=(screen)=>{
     if(!PASSIVE_EVIDENCE.has(screen)) return;
@@ -20,8 +21,8 @@
         input.checked=true;
         input.dispatchEvent(new Event('change',{bubbles:true}));
       });
-      grid.hidden=true;
-      grid.setAttribute('aria-hidden','true');
+      if(!grid.hidden) grid.hidden=true;
+      if(grid.getAttribute('aria-hidden')!=='true') grid.setAttribute('aria-hidden','true');
     }
 
     const screenNode=app.querySelector(`.rc-screen[data-screen="${screen}"]`);
@@ -56,7 +57,7 @@
 
     if(screen==='S24'){
       const copy=app.querySelector('.rc-screen[data-screen="S24"] .rc-copy p');
-      if(copy) copy.textContent='Все ключевые материалы связаны с официальным архивом Новой Шотландии и документами Royal Commission. В расследовании использованы текстовые выписки и сопоставление источников; ниже — реестр официальных ссылок.';
+      if(copy&&copy.textContent!==S24_COPY) copy.textContent=S24_COPY;
     }
 
     const autosave=app.querySelector('.rc-footer-actions span');
@@ -72,10 +73,8 @@
       }
       if(feedback){
         const button=app.querySelector('.rc-screen[data-screen="S25"] [data-action="primary"]');
-        if(button){
-          button.textContent='Дело завершено';
-          button.disabled=true;
-        }
+        if(button&&button.textContent!=='Дело завершено') button.textContent='Дело завершено';
+        if(button&&!button.disabled) button.disabled=true;
       }
     }
   };
