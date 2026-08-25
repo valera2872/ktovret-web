@@ -9,7 +9,7 @@ Checkpoint date: 2026-08-25
 - Branch: `feature/real-case-marshall-prototype`
 - Base: `main`
 - `main` is intentionally untouched. Do not merge until manual product review.
-- Code head immediately before this checkpoint commit: `6cd06533278ca10a38b2cb7f6c9621699daee6a5`.
+- Final tested code head before this documentation checkpoint: `eccb8c785268b6ae9bc2be9a2f72d986c99a712b`.
 - This file is the durable continuation point. If a conversation ends, resume from the branch head containing this checkpoint, not from chat memory.
 
 ## Source of truth
@@ -32,6 +32,22 @@ Core rules:
 12. Documentary visual tone only: no blood, red-string boards, police-tape cosplay, or victory animation.
 13. Auto-save notebook/tags/progress.
 14. Checkpoints score evidentiary discipline. A premature/unsupported conclusion may lose points but must not force the player to keep clicking until the game receives its preferred answer.
+
+## Product visual bar — explicit user decision
+
+The first playable product review must already look **premium-premium**. Visual quality is not deferred to a later cosmetic pass.
+
+For every S00–S25 screen, judge and fix before acceptance:
+
+- editorial typography and hierarchy;
+- composition and whitespace;
+- document-card treatment and material legibility;
+- restrained, documentary atmosphere rather than game-admin UI;
+- premium microinteractions and state changes;
+- desktop and mobile separately;
+- first-contact clarity and emotional pull without sacrificing nonfiction credibility.
+
+Reference level: use the strongest presentation lessons from True Crime Games / ProfileDetective / Saint Twins as a quality bar, without copying their visual language. Mystery Logic should feel cleaner, more deliberate and more premium.
 
 ## Working route
 
@@ -103,29 +119,49 @@ S19 no longer compresses the reopened case to one vague sentence. While the true
 
 S23 also preserves the v13 endpoint that Ebsary's manslaughter conviction followed three trials.
 
-## Entry / visual rules
+## Entry / visual rules already implemented
 
 - Top route navigation (`Другие дела` and duplicate header notebook) was removed so the case entry has one focus.
 - S00–S02 already hide the working sidebar on desktop and mobile.
 - The in-case notebook remains once the working investigation UI is relevant.
 - JS cache versions were bumped after the v13/core update so product review does not accidentally load stale runtime code.
+- Mobile title wrapping was hardened at final code head `eccb8c7…`; S21 now renders `ГДЕ СЛОМАЛОСЬ / РАССЛЕДОВАНИЕ?` cleanly instead of breaking inside the word.
 
-## CI / smoke state
+## CI / smoke state — final tested code head
 
-The dedicated workflow now watches `assets/real-case-marshall*.js`, not only the original core file, and syntax-checks:
+Dedicated workflow watches `assets/real-case-marshall*.js`, not only the original core file, and syntax-checks:
 
 - `assets/real-case-marshall.js`
 - `assets/real-case-marshall-source-meta.js`
 - `assets/real-case-marshall-v13-guards.js`
 - `tools/real-case-marshall-smoke.mjs`
 
-The smoke now checks S00/S03/S04/S07/S10/S15/S16/S19/S20/S21/S23/S24 on desktop and mobile, including noindex/spoiler/source-link/overflow boundaries, provenance labels, source-citation UI, reopened-file depth, cache versions, v13 choice semantics and the 30/25/15/20/10 score distribution.
+The smoke checks S00/S03/S04/S07/S10/S15/S16/S19/S20/S21/S23/S24 on desktop and mobile, including noindex/spoiler/source-link/overflow boundaries, provenance labels, source-citation UI, reopened-file depth, cache versions, v13 choice semantics and the 30/25/15/20/10 score distribution.
+
+Final result for tested code head `eccb8c785268b6ae9bc2be9a2f72d986c99a712b`: **12/12 GitHub Actions workflows passed**.
+
+Passed workflows include:
+
+- Validate and deploy Mystery Logic web
+- Build Mystery Logic production bundle for Beget
+- Validate Mystery Logic SEO expansion
+- Validate Mystery Logic legal shell
+- Validate Mystery Logic global stats
+- Validate Mystery Logic challenge
+- Validate Mystery Logic 23:17 co-op case
+- Validate Mystery Logic Room 407
+- Validate Mystery Logic Last Aria
+- Visual smoke Mystery Logic co-op cases
+- Visual smoke Mystery Logic approved storefront reference
+- Real case Marshall prototype — run #29
+
+The run #29 screenshot artifact was manually reviewed after the mobile typography fix. S21 mobile title is clean; a contact-sheet review of S00/S07/S10/S15/S19/S21/S23 mobile showed no obvious new wrapping/overflow regression. This is smoke-level visual verification only, **not** the full premium product review.
 
 Historical CI note:
 
 - Original prototype head `3600b18e…` passed 12/12.
 - Provenance/v13 head `dac360f…` fixed the initial requestAnimationFrame smoke race and `Real case Marshall prototype` run #24 passed successfully.
-- At the moment this checkpoint was written, final code head `6cd0653…` had started its new 12-workflow run; several fast checks were already green and the dedicated real-case run was still in progress. The exact final CI result must be verified on the checkpoint branch head before declaring the prototype ready for walkthrough.
+- Final tested code head `eccb8c7…` is the current clean code baseline.
 
 ## Important correction preserved
 
@@ -142,14 +178,15 @@ Commercial embedding of Nova Scotia Archives facsimile scans is not cleared here
 
 ## Deliberately not expanded further before product review
 
-The remaining differences are small interaction-detail questions rather than blockers. Example: S05 currently asks the player to mark important facts and then S06 performs the cross-source synthesis; v13 could be read as asking S05 itself to mark matching/differing details. Do not add more mechanics until the full prototype is played end-to-end and the user reports where actual friction or boredom occurs.
+The remaining differences are small interaction-detail questions rather than blockers. Example: S05 currently asks the player to mark important facts and then S06 performs the cross-source synthesis; v13 could be read as asking S05 itself to mark matching/differing details. Do not add mechanics merely to satisfy a theoretical reading before observing the end-to-end flow. However, **visual deficiencies are not deferred**: anything below the premium bar should be corrected during the first full screen-by-screen review.
 
 ## Exact next action
 
-1. Verify all 12 CI workflows on the current branch head containing this checkpoint.
-2. If green, update PR #97 body with the current implementation/CI facts.
-3. Keep PR #97 draft and `main` untouched.
-4. Then perform the user's manual full product walkthrough of `realnye-dela/arhiv-71-05/`, focusing on first-contact clarity, suspense, document density, whether choices feel investigative rather than school-like, and whether S15/S17/S19 deliver the intended emotional peaks.
+1. Keep PR #97 draft and `main` untouched.
+2. Update PR #97 body to reference tested code head `eccb8c7…`, v13 guards/provenance/scoring and 12/12 final CI.
+3. Perform the first full S00–S25 product walkthrough, not merely a smoke check.
+4. Review every screen simultaneously for gameplay and premium visual quality: first-contact clarity, suspense, document density, hierarchy, whitespace, mobile/desktop composition, microinteractions and whether choices feel investigative rather than school-like.
+5. Fix visual defects immediately rather than accumulating a later redesign pass.
 
 ## Safety rule for continuation
 
