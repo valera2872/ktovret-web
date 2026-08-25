@@ -1,12 +1,46 @@
 (()=>{
   'use strict';
 
-  const VERSION='0.1.1';
+  const VERSION='0.2.0';
   const app=document.querySelector('[data-realcase-app]');
   if(!app) return;
 
+  const PASSIVE_EVIDENCE=new Set(['S03','S04','S05','S09','S11']);
+
+  const makeEvidenceReadingFlow=(screen)=>{
+    if(!PASSIVE_EVIDENCE.has(screen)) return;
+
+    /* The core originally required players to tick a minimum number of lines that
+       simply repeated the document above. Preserve internal state compatibility,
+       but remove that fake interaction from the player-facing experience. */
+    const grid=app.querySelector(`.rc-screen[data-screen="${screen}"] .rc-fact-grid`);
+    if(grid){
+      grid.querySelectorAll('input[data-fact]').forEach(input=>{
+        if(input.checked) return;
+        input.checked=true;
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+      grid.hidden=true;
+      grid.setAttribute('aria-hidden','true');
+    }
+
+    const screenNode=app.querySelector(`.rc-screen[data-screen="${screen}"]`);
+    const actions=screenNode?.querySelector('.rc-actions');
+    if(screenNode&&actions&&!screenNode.querySelector('[data-reading-flow]')){
+      const note=document.createElement('p');
+      note.className='rc-reading-prompt';
+      note.dataset.readingFlow='true';
+      note.textContent=screen==='S09'||screen==='S11'
+        ?'Читайте это как новую версию показания. На следующем экране вы сами сопоставите её с первой — изменения заранее не подсвечены.'
+        :'Читайте материал отдельно от остальных. Если деталь требует возврата, сохраните её в блокнот; сводить версии будем после первых трёх источников.';
+      actions.before(note);
+    }
+  };
+
   const polish=()=>{
     const screen=app.querySelector('.rc-screen')?.dataset.screen||'';
+
+    makeEvidenceReadingFlow(screen);
 
     if(screen==='S00'){
       const eyebrow=app.querySelector('.rc-screen[data-screen="S00"] .rc-eyebrow');
@@ -59,5 +93,5 @@
   },true);
 
   polish();
-  window.MLRealCase7105Presentation={version:VERSION,polish};
+  window.MLRealCase7105Presentation={version:VERSION,polish,passiveEvidence:[...PASSIVE_EVIDENCE]};
 })();
