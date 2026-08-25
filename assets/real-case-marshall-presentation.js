@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='0.2.0';
+  const VERSION='0.1.1';
   const app=document.querySelector('[data-realcase-app]');
   if(!app) return;
 
