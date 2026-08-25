@@ -25,22 +25,10 @@
     });
   };
 
-  const patchFinalEvidenceLabels = (scope) => {
-    scope.querySelectorAll('input[name="evidence"][value="shared_plan"]').forEach((input) => {
-      const label = input.closest('label');
-      if (!label) return;
-      const textNode = [...label.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim());
-      const suffix = ' · общий план, но не личное действие Елены';
-      if (textNode && !textNode.nodeValue.includes('не личное действие Елены')) textNode.nodeValue = `${textNode.nodeValue.trim()}${suffix}`;
-      else if (!label.textContent.includes('не личное действие Елены')) label.append(document.createTextNode(suffix));
-    });
-  };
-
   const scan = (scope = root) => {
     if (!(scope instanceof Element)) return;
     patchStage1Handoff(scope);
     patchDecision(scope);
-    patchFinalEvidenceLabels(scope);
   };
 
   root.addEventListener('submit', (event) => {
@@ -54,7 +42,7 @@
     const feedback = document.createElement('div');
     feedback.className = 'case2317-feedback is-wrong';
     feedback.dataset.playtestEvidenceError = '1';
-    feedback.textContent = 'В наборе нет независимого доказательства личного действия Елены. Переписка, билеты и общий мотив показывают план, но для обвинения нужен отдельный факт её действия в критическое окно.';
+    feedback.textContent = 'В наборе не хватает независимого материала, который подтверждает личное действие в критическое окно. Общий план, мотив или принадлежность доступа сами по себе такого действия не доказывают.';
     const actions = form.querySelector('.case2317-actions');
     (actions || form).insertAdjacentElement(actions ? 'beforebegin' : 'beforeend', feedback);
     feedback.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -67,5 +55,5 @@
   }).observe(root, { childList: true, subtree: true });
 
   scan();
-  window.ML407PlaytestUX = Object.freeze({ revision: '4.2', independentElenaActionRequired: true, pairedDecisionCopy: true });
+  window.ML407PlaytestUX = Object.freeze({ revision: '4.3', independentPersonalActionRequired: true, pairedDecisionCopy: true, spoilerNeutralFeedback: true });
 })();
