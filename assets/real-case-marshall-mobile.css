@@ -1,3 +1,6 @@
+.rc-frame:has(.rc-materials .rc-side-empty){grid-template-columns:minmax(0,1fr)}
+.rc-frame:has(.rc-materials .rc-side-empty) .rc-side{display:none}
+
 @media(max-width:620px){
   .rc-topline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px}
   .rc-case-id{min-width:0;align-items:flex-start;gap:7px;font-size:.67rem;line-height:1.4;letter-spacing:.08em}
