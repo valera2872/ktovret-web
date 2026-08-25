@@ -1,12 +1,30 @@
 (()=>{
   'use strict';
 
-  const VERSION='0.1.1';
+  const VERSION='0.1.2';
   const app=document.querySelector('[data-realcase-app]');
   if(!app) return;
 
   const PASSIVE_EVIDENCE=new Set(['S03','S04','S05','S09','S11']);
   const S24_COPY='Все ключевые материалы связаны с официальным архивом Новой Шотландии и документами Royal Commission. В расследовании использованы текстовые выписки и сопоставление источников; ниже — реестр официальных ссылок.';
+  const ACTION_LABELS={
+    S06:'Зафиксировать карту фактов',
+    S07:'Зафиксировать рабочую версию',
+    S10:'Зафиксировать изменения',
+    S12:'Зафиксировать изменения',
+    S13:'Зафиксировать общий сдвиг',
+    S14:'Зафиксировать рабочий вывод',
+    S16:'Зафиксировать слабые места',
+    S17:'Зафиксировать решение по файлу',
+    S19:'Обновить рабочую версию',
+    S21:'Зафиксировать причины провала',
+    S22:'Передать итоговое заключение'
+  };
+  const EYEBROW_LABELS={
+    S07:'Рабочий вывод · ранний файл',
+    S14:'Рабочий вывод · после повторных допросов',
+    S21:'Аудит расследования'
+  };
 
   const makeEvidenceReadingFlow=(screen)=>{
     if(!PASSIVE_EVIDENCE.has(screen)) return;
@@ -36,6 +54,52 @@
         :'Читайте материал отдельно от остальных. Если деталь требует возврата, сохраните её в блокнот; сводить версии будем после первых трёх источников.';
       actions.before(note);
     }
+  };
+
+  const investigatorFeedback=(screen)=>{
+    const node=app.querySelector(`.rc-screen[data-screen="${screen}"] .rc-feedback`);
+    if(!node) return;
+    const current=node.textContent.trim();
+    let next='';
+
+    if(screen==='S06'){
+      if(current.startsWith('Подтверждено документами:')&&current.includes('Пересмотрите')) next='В карте пока не сходятся несколько тезисов. Вернитесь к первым трём материалам: отделите одиночное сообщение, повторение в независимых источниках и противоречие.';
+      else if(current.startsWith('Подтверждено документами:')) next='Карта раннего файла собрана: повторяющиеся сведения отделены от одиночных и противоречащих.';
+    }
+
+    if(screen==='S10'||screen==='S12'){
+      if(current.startsWith('Сверено с документами:')&&current.includes('Для перехода')) next='Сверка ещё неполна. Найдите минимум четыре изменения между первой и второй версиями: что добавилось, исчезло, изменилось или осталось прежним.';
+      else if(current.startsWith('Сверено с документами:')) next='Сравнение зафиксировано. Изменение показаний отделено от объяснения его причин.';
+    }
+
+    if(screen==='S13'&&current.startsWith('Нужно выбрать только те общие направления')) next='В общей картине есть лишний или неподтверждённый сдвиг. Оставьте только направления, которые действительно повторяются у обоих свидетелей.';
+
+    if(screen==='S16'&&current.startsWith('Выберите только проблемы')) next='Не все отмеченные пункты подтверждаются открытым файлом. Оставьте только сведения, которые действительно были ослаблены, переобъяснены или вытеснены из обвинительной версии.';
+    if(screen==='S21'&&current.startsWith('Выберите только проблемы')) next='Проверьте каждую отмеченную причину по материалам. Оставьте только те сбои расследования, которые подтверждаются открытым файлом.';
+
+    if(screen==='S17'){
+      if(current.startsWith('Нужны позиция, короткое объяснение')) next='Чтобы подписать решение, сформулируйте позицию, короткое обоснование и приложите минимум три материала.';
+      else if(current.startsWith('Позиция дисциплинированно отделяет')) next='Решение зафиксировано. Вы отделили недостаточность обвинительной версии от догадки о другом преступнике.';
+      else if(current.startsWith('Вы можете защищать эту позицию')) next='Решение зафиксировано. Теперь оно должно выдержать вопрос: почему ранние противоречия и изменения показаний не подрывают обвинительную версию?';
+    }
+
+    if(screen==='S19'&&current.startsWith('Обновите выводы только там')) next='Новая информация меняет не всё. Обновите только те рабочие выводы, доказательный вес которых действительно изменился.';
+
+    if(screen==='S22'&&current.startsWith('Финальное заключение должно содержать')) next='Заключение пока не опирается на весь файл. Дайте развёрнутый вывод и приложите минимум пять материалов в обоснование.';
+
+    if(next&&next!==current) node.textContent=next;
+  };
+
+  const investigatorTone=(screen)=>{
+    const screenNode=app.querySelector(`.rc-screen[data-screen="${screen}"]`);
+    if(!screenNode) return;
+    const action=ACTION_LABELS[screen];
+    const button=screenNode.querySelector('[data-action="primary"]');
+    if(action&&button&&button.textContent!==action) button.textContent=action;
+    const eyebrow=EYEBROW_LABELS[screen];
+    const eyebrowNode=screenNode.querySelector('.rc-eyebrow');
+    if(eyebrow&&eyebrowNode&&eyebrowNode.textContent!==eyebrow) eyebrowNode.textContent=eyebrow;
+    investigatorFeedback(screen);
   };
 
   const polishFinalScreen=()=>{
@@ -69,6 +133,7 @@
     const screen=app.querySelector('.rc-screen')?.dataset.screen||'';
 
     makeEvidenceReadingFlow(screen);
+    investigatorTone(screen);
 
     if(screen==='S00'){
       const eyebrow=app.querySelector('.rc-screen[data-screen="S00"] .rc-eyebrow');
@@ -109,5 +174,5 @@
   },true);
 
   polish();
-  window.MLRealCase7105Presentation={version:VERSION,polish,passiveEvidence:[...PASSIVE_EVIDENCE]};
+  window.MLRealCase7105Presentation={version:VERSION,polish,passiveEvidence:[...PASSIVE_EVIDENCE],actionLabels:{...ACTION_LABELS}};
 })();
