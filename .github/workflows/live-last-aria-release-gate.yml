@@ -26,12 +26,13 @@ jobs:
         shell: bash
         run: |
           node <<'NODE'
+          const {createHash}=await import('node:crypto');
           const sha=String(process.env.PR_HEAD_SHA||'').trim();
           if(!/^[0-9a-f]{40}$/i.test(sha)) throw new Error('PR head SHA missing');
           const endpoint=process.env.ENDPOINT, origin=process.env.ORIGIN;
           const lastAriaToken=`ml_gate_${sha}`;
           const volumeToken=`ml_volume_${sha}`;
-          const key=(salt)=>require('node:crypto').createHash('sha256').update(`${sha}:${salt}`).digest('hex').slice(0,48);
+          const key=(salt)=>createHash('sha256').update(`${sha}:${salt}`).digest('hex').slice(0,48);
           const creator=key('creator'),guest=key('guest'),third=key('third'),outsider=key('outsider');
           const expect=(ok,message)=>{if(!ok)throw new Error(message);};
           async function call(body,browserKey,{token,expected}={}){
