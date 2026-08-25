@@ -29,6 +29,7 @@
   };
   let state=load();
   const save=()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  const resetGuardState=()=>{localStorage.removeItem(STORAGE_KEY);state={};};
   const currentId=()=>app.querySelector('.rc-screen[data-screen]')?.dataset.screen||'';
   const selected=(screenId)=>Array.isArray(state[screenId])?state[screenId]:[];
 
@@ -131,6 +132,12 @@
   };
 
   app.addEventListener('click',(event)=>{
+    const resetButton=event.target.closest('[data-action="reset"]');
+    if(resetButton&&app.contains(resetButton)){
+      resetGuardState();
+      return;
+    }
+
     const button=event.target.closest('[data-action="primary"]');
     if(!button||!app.contains(button)) return;
     const screenId=currentId();
@@ -139,6 +146,11 @@
     event.stopPropagation();
     event.stopImmediatePropagation();
   },true);
+
+  if(window.MLRealCase7105?.reset){
+    const coreReset=window.MLRealCase7105.reset.bind(window.MLRealCase7105);
+    window.MLRealCase7105.reset=()=>{resetGuardState();coreReset();};
+  }
 
   let scheduled=false;
   const decorate=()=>{
@@ -156,5 +168,5 @@
   new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
   schedule();
 
-  window.MLRealCase7105V13Guards={version:'0.2.0',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}])),reopenDetails:true,revealPrecision:true};
+  window.MLRealCase7105V13Guards={version:'0.2.1',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}])),reopenDetails:true,revealPrecision:true,resetGuardState};
 })();
