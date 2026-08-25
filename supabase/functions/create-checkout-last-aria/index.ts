@@ -22,9 +22,25 @@ import {
   LAST_ARIA_RECEIPT_NAME,
   lastAriaAmountValue,
 } from '../_shared/last-aria-commerce.ts';
+import {
+  REVIEW_DISCOUNT_PRICE_RUB,
+  REVIEW_DISCOUNT_RUB,
+  normalizeReviewDiscountCode,
+  releaseReviewDiscountReservation,
+  reserveReviewDiscount,
+  reviewDiscountAmountValue,
+} from '../_shared/last-aria-review-discount.ts';
 
 const OFFER_VERSION = '2026-08-16';
-const PRIVACY_VERSION = '2026-08-16';
+const PRIVACY_VERSION = '2026-08-26';
+
+const discountErrors = new Set([
+  'review_discount_invalid',
+  'review_discount_used',
+  'review_discount_expired',
+  'review_discount_already_used',
+  'review_discount_in_use',
+]);
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -45,6 +61,7 @@ Deno.serve(async (req: Request) => {
   const language = String(body.language || '').toLowerCase() === 'en' ? 'en' : 'ru';
   const offerAccepted = body.offerAccepted === true;
   const privacyAcknowledged = body.privacyAcknowledged === true;
+  const reviewDiscountCode = normalizeReviewDiscountCode(body.reviewDiscountCode);
 
   if (!validAccessToken(accessToken)) return json(400, { error: 'invalid_access_token' }, origin);
   if (!validUuid(requestId)) return json(400, { error: 'invalid_request_id' }, origin);
@@ -63,9 +80,72 @@ Deno.serve(async (req: Request) => {
   returnUrl.hash = '';
   returnUrl.search = '';
 
-  const amountValue = lastAriaAmountValue();
-  const amount = amountToKopecks(LAST_ARIA_PRICE_RUB);
-  if (!amountValue || amount !== 29900) return json(503, { error: 'payment_service_not_configured' }, origin);
+  if (LAST_ARIA_PRICE_RUB !== 299 || REVIEW_DISCOUNT_RUB !== 50 || REVIEW_DISCOUNT_PRICE_RUB !== 249) {
+    return json(503, { error: 'payment_service_not_configured' }, origin);
+  }
+
+  const tokenHash = await sha256(accessToken);
+  const customerEmailHash = await sha256(email);
+  const admin = adminClient();
+
+  const { data: existing, error: existingError } = await admin
+    .from('payment_orders')
+    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,amount_value,customer_email_hash,metadata')
+    .eq('client_request_id', requestId)
+    .maybeSingle();
+  if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
+  if (existing) {
+    if (existing.token_hash !== tokenHash || existing.product_id !== LAST_ARIA_PRODUCT_ID) {
+      return json(409, { error: 'request_id_conflict' }, origin);
+    }
+    if (existing.customer_email_hash && existing.customer_email_hash !== customerEmailHash) {
+      return json(409, { error: 'request_id_conflict' }, origin);
+    }
+    if (existing.payment_provider && existing.payment_provider !== 'tbank') {
+      return json(409, { error: 'request_provider_conflict' }, origin);
+    }
+    if (existing.confirmation_url) {
+      return json(200, {
+        ok: true,
+        reused: true,
+        orderId: existing.id,
+        status: existing.status,
+        paymentId: existing.provider_payment_id,
+        confirmationUrl: existing.confirmation_url,
+        amountRub: Number(existing.amount_value),
+        discountRub: Math.max(0, LAST_ARIA_PRICE_RUB - Number(existing.amount_value)),
+      }, origin);
+    }
+  }
+
+  const orderId = existing?.id || crypto.randomUUID();
+  let reward: any = null;
+  if (reviewDiscountCode) {
+    try {
+      reward = await reserveReviewDiscount(admin, reviewDiscountCode, orderId, customerEmailHash);
+    } catch (error: any) {
+      const code = String(error?.message || 'review_discount_invalid');
+      return json(discountErrors.has(code) ? 409 : 503, { error: code }, origin);
+    }
+  }
+
+  const amountRub = reward ? REVIEW_DISCOUNT_PRICE_RUB : LAST_ARIA_PRICE_RUB;
+  const amountValue = reward ? reviewDiscountAmountValue() : lastAriaAmountValue();
+  const amount = amountToKopecks(amountRub);
+  if (!amountValue || amount !== (reward ? 24900 : 29900)) {
+    if (reward) await releaseReviewDiscountReservation(admin, orderId).catch(() => {});
+    return json(503, { error: 'payment_service_not_configured' }, origin);
+  }
+
+  if (existing && Number(existing.amount_value) !== Number(amountValue)) {
+    if (reward) await releaseReviewDiscountReservation(admin, orderId).catch(() => {});
+    return json(409, { error: 'request_amount_conflict' }, origin);
+  }
+  const existingRewardId = String(existing?.metadata?.review_discount_reward_id || '');
+  if (existing && existingRewardId !== String(reward?.id || '')) {
+    if (reward) await releaseReviewDiscountReservation(admin, orderId).catch(() => {});
+    return json(409, { error: 'request_discount_conflict' }, origin);
+  }
 
   const receipt = {
     Email: email,
@@ -81,36 +161,6 @@ Deno.serve(async (req: Request) => {
     }],
   };
 
-  const tokenHash = await sha256(accessToken);
-  const customerEmailHash = await sha256(email);
-  const admin = adminClient();
-
-  const { data: existing, error: existingError } = await admin
-    .from('payment_orders')
-    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url')
-    .eq('client_request_id', requestId)
-    .maybeSingle();
-  if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
-  if (existing) {
-    if (existing.token_hash !== tokenHash || existing.product_id !== LAST_ARIA_PRODUCT_ID) {
-      return json(409, { error: 'request_id_conflict' }, origin);
-    }
-    if (existing.payment_provider && existing.payment_provider !== 'tbank') {
-      return json(409, { error: 'request_provider_conflict' }, origin);
-    }
-    if (existing.confirmation_url) {
-      return json(200, {
-        ok: true,
-        reused: true,
-        orderId: existing.id,
-        status: existing.status,
-        paymentId: existing.provider_payment_id,
-        confirmationUrl: existing.confirmation_url,
-      }, origin);
-    }
-  }
-
-  const orderId = existing?.id || crypto.randomUUID();
   const acceptedAt = new Date().toISOString();
   const successUrl = new URL(returnUrl.href);
   successUrl.searchParams.set('payment_return', '1');
@@ -123,6 +173,20 @@ Deno.serve(async (req: Request) => {
   const notificationUrl = `${SUPABASE_URL}/functions/v1/tbank-webhook-last-aria`;
 
   if (!existing) {
+    const metadata: Record<string, unknown> = {
+      source: 'web_checkout',
+      product_id: LAST_ARIA_PRODUCT_ID,
+      payment_provider: 'tbank',
+      list_price_rub: LAST_ARIA_PRICE_RUB,
+      charged_price_rub: amountRub,
+      discount_rub: reward ? REVIEW_DISCOUNT_RUB : 0,
+      offer_version: OFFER_VERSION,
+      offer_accepted_at: acceptedAt,
+      privacy_version: PRIVACY_VERSION,
+      privacy_acknowledged_at: acceptedAt,
+    };
+    if (reward?.id) metadata.review_discount_reward_id = reward.id;
+
     const { error: insertError } = await admin.from('payment_orders').insert({
       id: orderId,
       product_id: LAST_ARIA_PRODUCT_ID,
@@ -140,17 +204,12 @@ Deno.serve(async (req: Request) => {
       offer_accepted_at: acceptedAt,
       privacy_version: PRIVACY_VERSION,
       privacy_acknowledged_at: acceptedAt,
-      metadata: {
-        source: 'web_checkout',
-        product_id: LAST_ARIA_PRODUCT_ID,
-        payment_provider: 'tbank',
-        offer_version: OFFER_VERSION,
-        offer_accepted_at: acceptedAt,
-        privacy_version: PRIVACY_VERSION,
-        privacy_acknowledged_at: acceptedAt,
-      },
+      metadata,
     });
-    if (insertError) return json(503, { error: 'order_create_failed' }, origin);
+    if (insertError) {
+      if (reward) await releaseReviewDiscountReservation(admin, orderId).catch(() => {});
+      return json(503, { error: 'order_create_failed' }, origin);
+    }
   }
 
   try {
@@ -179,13 +238,22 @@ Deno.serve(async (req: Request) => {
     }).eq('id', orderId);
     if (updateError) throw updateError;
 
-    return json(200, { ok: true, orderId, paymentId, status: 'pending', confirmationUrl }, origin);
+    return json(200, {
+      ok: true,
+      orderId,
+      paymentId,
+      status: 'pending',
+      confirmationUrl,
+      amountRub,
+      discountRub: reward ? REVIEW_DISCOUNT_RUB : 0,
+    }, origin);
   } catch (error: any) {
     await admin.from('payment_orders').update({
       status: 'failed',
       failure_code: String(error?.code || error?.message || 'payment_create_failed').slice(0, 120),
       updated_at: new Date().toISOString(),
     }).eq('id', orderId);
+    if (reward) await releaseReviewDiscountReservation(admin, orderId).catch(() => {});
     return json(502, { error: 'payment_create_failed' }, origin);
   }
 });
