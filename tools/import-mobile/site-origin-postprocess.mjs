@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SITE_ORIGIN, STAGING_ORIGIN, siteUrl } from './site-config.mjs';
+import { applyLastAriaFinalNeutral } from './last-aria-final-neutral-postprocess.mjs';
 
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.json']);
 
@@ -57,6 +58,9 @@ export function registerSiteOriginFinalizer() {
   const entry = path.basename(process.argv[1] || '');
   if (entry !== 'import-mobile-cases.mjs') return false;
   const siteRoot = path.resolve(readArg('site', '.'));
-  process.once('beforeExit', () => applySiteOrigin(siteRoot));
+  process.once('beforeExit', () => {
+    applyLastAriaFinalNeutral(siteRoot);
+    applySiteOrigin(siteRoot);
+  });
   return true;
 }
