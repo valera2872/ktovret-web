@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/2317';
 
@@ -51,6 +51,7 @@ const specialPage = () => `<!doctype html>
   <script src="../../assets/case-2317.js?v=${VERSION}"></script>
   <script src="../../assets/case-2317-ux-v3.js?v=${VERSION}"></script>
   <script src="../../assets/case-2317-runtime.js?v=${VERSION}"></script>
+  <script src="../../assets/case-2317-release-gate-v1.js?v=${VERSION}"></script>
 </body>
 </html>`;
 
@@ -110,7 +111,7 @@ const feature = `
 
       <div class="coop-evidence-strip">
         <div class="coop-evidence-paper"><small>112 · 23:17:08</small><strong>«Он приехал. Я вижу его машину…»</strong><span>аудиореконструкция звонка</span></div>
-        <div class="coop-evidence-map"><i></i><i></i><i></i><b>23:44</b><span>телефон и автомобиль расходятся</span></div>
+        <div class="coop-evidence-map"><i></i><i></i><i></i><b>23:44</b><span>цифровой след требует сверки</span></div>
         <div class="coop-evidence-chat"><small>22:41</small><p>Если он появится —<br><b>выход Б.</b> Я рядом.</p><span>переписка</span></div>
       </div>
 
@@ -142,13 +143,16 @@ const patchLanding = (siteRoot) => {
   }
   html = html.replace(/\s*<section class="duel-hero">[\s\S]*?<\/section>\s*(?=<section class="duel-app-shell")/, `\n${landingHero}\n${feature}\n`);
   if (!html.includes('coop-case-feature')) throw new Error('23:17 landing patch failed');
+  if (html.includes('телефон и автомобиль расходятся')) throw new Error('23:17 public spoiler boundary regressed');
   fs.writeFileSync(file, html);
 };
 
 export function applyTwoPlayer2317(siteRoot) {
   const caseDir = path.join(siteRoot, CASE_ROUTE);
   ensureDir(caseDir);
-  fs.writeFileSync(path.join(caseDir, 'index.html'), specialPage());
+  const page = specialPage();
+  if (!page.includes('case-2317-release-gate-v1.js')) throw new Error('23:17 release-gate runtime missing');
+  fs.writeFileSync(path.join(caseDir, 'index.html'), page);
   patchLanding(siteRoot);
   return { route: CASE_ROUTE, title: 'Последний звонок в 23:17', indexed: false };
 }

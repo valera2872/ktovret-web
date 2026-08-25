@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 
-const VERSION = '1.6.0';
+const VERSION = '1.7.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
 const CASE_ROUTE = 'detektivnye-igry-dlya-dvoih/407';
 
@@ -60,6 +60,7 @@ const specialPage = () => `<!doctype html>
   <script src="../../assets/case-407-evidence-v2.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-evidence-finalize.js?v=${VERSION}"></script>
   <script src="../../assets/case-407-detective-visual-v4.js?v=${VERSION}"></script>
+  <script src="../../assets/case-407-release-gate-v1.js?v=${VERSION}"></script>
 </body>
 </html>`;
 
@@ -70,7 +71,7 @@ const catalogCard = `
           <p class="ml-kicker">Новое большое дело · премиальный формат</p>
           <h2 id="case407-title">Номер 407</h2>
           <p class="case407-catalog-lead">В 01:12 сейф гостиничного номера подаёт тихую тревогу. Через четыре минуты охрана находит запертую пустую комнату, телефон хранительницы и футляр без сапфира. Камера коридора не видела выхода.</p>
-          <div class="case407-catalog-question">Из какого номера на самом деле исчезла Марта — и почему охрана искала не за той дверью?</div>
+          <div class="case407-catalog-question">Почему камера, электронные журналы и осмотр комнаты не складываются в одну непротиворечивую картину?</div>
           <div class="case407-catalog-facts"><span>2 игрока</span><span>разные улики</span><span>50–70 минут</span><span>18 материалов</span><span>без регистрации</span></div>
           <a class="coop-primary" href="407/">Открыть дело «Номер 407»</a>
         </div>
@@ -84,13 +85,16 @@ const patchLanding = (siteRoot) => {
   if (!html.includes('case-407.css')) html = html.replace('</head>', `  <link rel="stylesheet" href="../assets/case-407.css?v=${VERSION}">\n</head>`);
   if (!html.includes('case407-catalog')) html = html.replace(/(\s*<section class="coop-how"[^>]*>)/, `\n${catalogCard}\n$1`);
   for (const marker of ['case407-catalog', 'href="407/"', 'Номер 407']) if (!html.includes(marker)) throw new Error(`407 landing patch missing ${marker}`);
+  for (const forbidden of ['Из какого номера на самом деле исчезла Марта', 'охрана искала не за той дверью']) if (html.includes(forbidden)) throw new Error(`407 public spoiler boundary regressed: ${forbidden}`);
   fs.writeFileSync(file, html);
 };
 
 export function applyTwoPlayer407(siteRoot) {
   const caseDir = path.join(siteRoot, CASE_ROUTE);
   ensureDir(caseDir);
-  fs.writeFileSync(path.join(caseDir, 'index.html'), specialPage());
+  const page = specialPage();
+  if (!page.includes('case-407-release-gate-v1.js')) throw new Error('407 release-gate runtime missing');
+  fs.writeFileSync(path.join(caseDir, 'index.html'), page);
   patchLanding(siteRoot);
   return { route: CASE_ROUTE, title: 'Номер 407', indexed: false, materials: 18 };
 }

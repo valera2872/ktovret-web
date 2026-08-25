@@ -1,0 +1,67 @@
+name: Live two-player Full Release Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-room-abuse-gate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - slug: '2317'
+            case_id: 'special:2317'
+            endpoint: 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-2317'
+          - slug: '407'
+            case_id: 'special:407'
+            endpoint: 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-407'
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run live room and abuse flow
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          CASE_SLUG: ${{ matrix.slug }}
+          CASE_ID: ${{ matrix.case_id }}
+          ENDPOINT: ${{ matrix.endpoint }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const { createHash } = await import('node:crypto');
+          const sha=String(process.env.HEAD_SHA||'').trim();
+          const slug=String(process.env.CASE_SLUG||'').trim();
+          const caseId=String(process.env.CASE_ID||'').trim();
+          const endpoint=String(process.env.ENDPOINT||'').trim();
+          if(!sha||!slug||!caseId||!endpoint) throw new Error('gate configuration missing');
+          const key=(salt)=>createHash('sha256').update(`${sha}:${slug}:${salt}`).digest('hex').slice(0,48);
+          const creator=key('creator'),guest=key('guest'),third=key('third'),outsider=key('outsider');
+          const expect=(ok,message)=>{if(!ok)throw new Error(message);};
+          async function call(body,browserKey,expected=200){
+            const response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json',origin:'https://mysterylogic.com'},body:JSON.stringify({...body,browserKey})});
+            let data={};try{data=await response.json();}catch{}
+            expect(response.status===expected,`${slug}/${body.action}: expected ${expected}, got ${response.status} ${JSON.stringify(data)}`);
+            return data;
+          }
+          const created=await call({action:'create',playerName:`RG ${slug} Creator`},creator,201);
+          expect(created.room?.caseId===caseId,'wrong case id');
+          expect(created.me?.role==='creator','creator role mismatch');
+          const code=created.room?.code;expect(/^[A-HJ-NP-Z2-9]{8}$/.test(code||''),'bad room code');
+          const preview=await call({action:'preview',code},guest);expect(preview.roomFull===false,'fresh room full');
+          const joined=await call({action:'join',code,playerName:`RG ${slug} Guest`},guest);expect(joined.bothJoined===true&&joined.me?.role==='guest','guest join failed');
+          const fullPreview=await call({action:'preview',code},third);expect(fullPreview.roomFull===true,'full room not reported');
+          const thirdJoin=await call({action:'join',code,playerName:`RG ${slug} Third`},third,409);expect(thirdJoin.error==='room_full','third player accepted');
+          const outside=await call({action:'status',code},outsider,403);expect(outside.error==='not_joined','outsider read room');
+          await call({action:'start',code},creator);await call({action:'start',code},guest);
+          const invalid=await call({action:'complete',code,elapsedSeconds:0,hintsUsed:0,attempts:1,firstAnswerCorrect:true},creator,400);expect(invalid.error==='invalid_stats','invalid completion stats accepted');
+          const first=await call({action:'complete',code,elapsedSeconds:1800,hintsUsed:1,attempts:2,firstAnswerCorrect:false},creator);expect(first.bothCompleted===false,'room completed before guest');
+          const second=await call({action:'complete',code,elapsedSeconds:1920,hintsUsed:0,attempts:1,firstAnswerCorrect:true},guest);expect(second.bothCompleted===true,'room did not complete');
+          const refreshed=await call({action:'status',code},creator);expect(refreshed.bothCompleted===true&&refreshed.opponent?.completed===true,'completion refresh unstable');
+          console.log(JSON.stringify({verdict:'LIVE_TWO_PLAYER_GATE_PASS',head:sha,slug,caseId,roomCode:code,guestFree:true,thirdBlocked:true,outsiderBlocked:true,invalidStatsBlocked:true,bothCompleted:true,refreshStable:true},null,2));
+          NODE
