@@ -71,7 +71,8 @@ expect(!runtime.includes('teamwork = 25'), 'teamwork score must not be hard-code
 expect(!runtime.includes("mysterylogic:407:v2:"), 'stale v2 progress key remains');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
-for (const marker of ['noindex,follow','case407-catalog','room-407-evidence.webp','href="407/"','case-407-plaque-code-v2.js','case-407-evidence-v3.css','case-407-evidence-finalize.js',"const VERSION = '1.6.0'"]) expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
+for (const marker of ['noindex,follow','case407-catalog','room-407-evidence.webp','href="407/"','case-407-plaque-code-v2.js','case-407-evidence-v3.css','case-407-evidence-finalize.js','case-407-release-gate-v1.js',"const VERSION = '1.7.0'"]) expect(postprocess.includes(marker), `page generator is missing: ${marker}`);
+expect(postprocess.indexOf('case-407-release-gate-v1.js') > postprocess.indexOf('case-407-detective-visual-v4.js'), 'release gate layer must load last');
 expect(!postprocess.includes('case-407-evidence-v2-hydrate.js'), 'redundant evidence hydration runtime is still loaded');
 
 const edge = read('supabase/functions/coop-407/index.ts');
@@ -80,4 +81,4 @@ const migration = read('supabase/migrations/20260823172500_allow_room_407_case_p
 for (const marker of ['duel_rooms_case_path_format','/detektivnye-igry-dlya-dvoih/2317/','/detektivnye-igry-dlya-dvoih/407/']) expect(migration.includes(marker), `room path allowlist migration is missing: ${marker}`);
 const image = fs.readFileSync(path.join(repo, 'assets/room-407-evidence.webp'));
 expect(image.length > 30_000, 'evidence image is suspiciously small'); expect(image.toString('ascii',0,4) === 'RIFF' && image.toString('ascii',8,12) === 'WEBP', 'evidence image is not WebP');
-console.log(JSON.stringify({ case:data.title, logicVersion:3, stages:data.stages.length, materials:materialCount, finalQuestions:data.final.questions.length, handoffs:handoffs.length, roleLeakChecks:4, stageScopedHints:6, finalEvidenceGroups:5, imageBytes:image.length, fairPlay:'passed' }, null, 2));
+console.log(JSON.stringify({ case:data.title, logicVersion:3, stages:data.stages.length, materials:materialCount, finalQuestions:data.final.questions.length, handoffs:handoffs.length, roleLeakChecks:4, stageScopedHints:6, finalEvidenceGroups:5, imageBytes:image.length, fairPlay:'passed', releaseGateLayer:true }, null, 2));
