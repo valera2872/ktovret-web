@@ -91,19 +91,19 @@
 
   const patchFinal = (scope) => {
     const labels = {
-      ilya_camera: 'Q7-29 + 4F-7719: Илья лично у дома и физический маяк совпадает с его «CAR-V»',
-      tracker: '00:16 + 00:18: Вера лично с Мариной и подтверждает безопасность',
-      roman_route: 'CAM-S1/S2 + пешие камеры: переданный Мариной брелок открывает машину, Роман связан с началом и концом её маршрута',
-      tea: '23:43: операция по карте Марины в кафе «Север»',
-      seat: 'Кресло автомобиля отодвинуто на 11 см',
-      draft: 'Черновик Веры: отслеживаемая машина должна уйти ложным маршрутом'
+      ilya_camera: 'Q7-29 · исходный кадр CAM-N2, 23:12:18',
+      tracker: '4F-7719 · физический маяк и карточка резервной копии',
+      roman_route: 'CAM-S1/S2 + SP-3 · сервисная зона и последующий маршрут',
+      tea: 'Кафе «Север» · операция по карте и фототаблица',
+      seat: 'Осмотр автомобиля · кресло, зеркало и грунт',
+      draft: 'Черновик Веры · 22:52'
     };
     scope.querySelectorAll('input[name="evidence"]').forEach((input) => {
       const text = labels[input.value];
       if (text) setText(input.closest('label')?.querySelector('span'), text);
     });
-    setText(scope.querySelector('.case2317-final-evidence h3'), 'Выберите 3 доказательные цепочки');
-    setText(scope.querySelector('.case2317-final-evidence > p'), 'Нужна одна независимая цепочка на каждый критический тезис: Илья, безопасность Веры и участие Романа. Косвенный факт не заменяет личную идентификацию и связь с действием.');
+    setText(scope.querySelector('.case2317-final-evidence h3'), 'Выберите 3 опорных материала');
+    setText(scope.querySelector('.case2317-final-evidence > p'), 'Выберите три материала, которые в совокупности лучше всего выдерживают альтернативные объяснения. Не дублируйте один и тот же тезис несколькими косвенными фактами.');
   };
 
   const patchAudioUi = (scope) => {
@@ -161,5 +161,5 @@
   };
   new MutationObserver(schedulePatch).observe(root, { childList: true, subtree: true });
   patch();
-  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.7', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, transferredKeyProved: true, serialHandoffRequired: true, legacyCodeHidden: true, idempotentDomPatch: true });
+  window.ML2317DetectiveV3 = Object.freeze({ revision: '3.7', fairPlay: true, personalIdentityRequired: true, coordinationProved: true, transferredKeyProved: true, serialHandoffRequired: true, legacyCodeHidden: true, idempotentDomPatch: true, spoilerNeutralFinal: true });
 })();
