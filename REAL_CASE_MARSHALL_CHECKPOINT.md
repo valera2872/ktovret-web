@@ -1,220 +1,301 @@
 # Mystery Logic — real case Marshall checkpoint
 
-Checkpoint date: 2026-08-25
+Checkpoint date: 2026-08-26
 
 ## Repository state
 
 - Repository: `valera2872/ktovret-web`
-- Draft PR: `#97` — `feat: real-case Marshall documentary prototype`
+- Draft PR: `#97`
 - Branch: `feature/real-case-marshall-prototype`
 - Base: `main`
-- `main` is intentionally untouched. Do not merge until the user completes the first true manual walkthrough and explicitly accepts the product.
-- Final fully tested **code head**: `23a56a21aa614e760afec5ef4fff2846e378ded4`.
-- On that head all required project workflows are green; the dedicated real-case workflow is `Real case Marshall prototype` **run #58**.
-- Run #58 passed JavaScript validation, smoke v0.7.0, full 52-screen premium visual audit and artifact upload.
-- Artifact: `real-case-marshall-smoke`, id `9565296076`.
-- This file is the durable continuation point. A later branch head may differ only because of this documentation checkpoint.
+- `main` is intentionally untouched. Do not merge without explicit user approval.
+- Final fully tested **v2 code head**: `6677b507a354cf57596f367c2e9aa993c6e49f06`.
+- Dedicated workflow: `Real case Marshall prototype` **run #70** — success.
+- Artifact: `real-case-marshall-smoke`, id `9584764475`.
+- On the same head **15 project workflows succeeded**. `Live Last Aria Release Gate` was skipped as inapplicable, not failed.
+- Any later branch head may differ only because of this checkpoint / PR documentation.
 
-## Critical history correction
+## Critical product pivot from the first real user walkthrough
 
-The user has **not yet played or product-critiqued this case**. Internal screenshot/smoke review is not player validation. Do not invent prior player decisions or say that the user already approved the gameplay.
+The user actually began playing the old linear version and immediately exposed the central product problem.
 
-## Source of truth
+First, S00 was unclear. More importantly, S06 (`Разделите тезисы по силе подтверждения...`) made the user stop; they said this was the point where they would quit and ask for a refund.
 
-Canonical product/source specification: `real_cases_research_database_v13.xlsx` from the project File Library. Preserve v13 unless a later explicit product decision overrides it.
+Then the user identified the deeper problem: the player did not feel like an investigator. The old flow showed a finished archive in a fixed S00→S25 sequence, expected the player to remember witness material and then classify / agree with conclusions. It felt like watching an interactive documentary rather than conducting an investigation.
 
-Hard rules:
+The user explicitly requested a redesign where the investigator chooses what to do, whom to question, which line to follow and may reach dead ends. Important discoveries must be recorded automatically rather than memorized.
 
-1. Real non-fiction case; no invented evidence, details, facsimiles or archive material.
-2. 26 screens `S00–S25`.
-3. Player audits evidence/investigation reliability; task is not to guess the offender.
-4. Names, place and final legal outcome stay hidden until the final reveal.
-5. Frozen-date progression: future material is not visible before its checkpoint.
-6. One evidence source at a time; no evidence-card dashboard.
-7. Redline changes are discovered by the player, not pre-highlighted.
-8. `S17` — `ВЫ БЫ ПОДПИСАЛИ ЭТУ ВЕРСИЮ?` — is the key independent decision **before** reinvestigation and Royal Commission material.
-9. S20 before S22 is intentional: independent fair-play judgment already happened at S17.
-10. Evidence status must distinguish original witness claim / transcription or extract / prosecution theory / reinvestigation evidence / Royal Commission finding.
-11. Nova Scotia Archives facsimile commercial rights are not cleared. Use source-grounded extracts/transcriptions + original analytic UI + later official links; no fake facsimiles.
-12. Documentary tone only: no blood, red-string boards, police-tape cosplay or victory animation.
-13. Auto-save notebook/progress.
-14. Interpretive positions may lose points but are recorded and allowed to continue; do not create retry-until-correct school-quiz behaviour. Objective document-comparison gates may remain where v13 requires them.
+This feedback **overrides the old v13 screen/mechanics architecture**. v13 remains source-of-truth for historical facts, provenance and evidentiary boundaries, not for the former linear quiz UX.
 
-## Product visual bar — explicit user decision
+## New governing product rule
 
-The first playable version must look **premium-premium now**, not after a later redesign.
+The core loop is now:
 
-Acceptance bar across S00–S25:
+`происшествие → ВАШИ ДЕЙСТВИЯ? → выбранное следственное действие → реальный source-grounded result → auto case-board update → newly available actions`
 
-- editorial typography and hierarchy;
-- strong composition and whitespace;
-- premium document/paper treatment and legibility;
-- serious documentary atmosphere rather than admin/dashboard UI;
-- restrained premium microinteractions;
-- desktop and mobile reviewed separately;
-- first-contact clarity, suspense and emotional pull without compromising nonfiction credibility.
+The player chooses the route. Historical events still happen on their real dates, but they do not force a single reading order.
 
-Reference quality bar: strongest presentation lessons from True Crime Games / ProfileDetective / Saint Twins, without copying their visual language.
+No fabricated evidence, witness dialogue, suspects, physical findings or alternate-history outcomes are allowed. If an action has no documented resolution, the result remains an open / insufficiently checked line rather than inventing an answer.
 
-## Working route
+## New route implementation
+
+Working route remains:
 
 `realnye-dela/arhiv-71-05/`
 
 - `noindex,follow`
 - not in sitemap/catalogue
-- independent from payment, 15/85, `23:17`, Room 407 and Last Aria
+- independent from payment, 15/85, 23:17, Room 407 and Last Aria
 
-## Gameplay structure
+The route now loads only:
 
-- `S00–S02`: entry / case brief / first 72 hours
-- `S03–S07`: three early witness materials, early evidence map, C1 with 2+ citations
-- `S08–S14`: changed June 4 statements, two redline comparisons, common-pattern audit, C2
-- `S15–S17`: Crown Statement of Facts, prosecution-file audit, independent sign-off with 3+ citations including M08 + one early source
-- `S18–S21`: 11-year jump, RCMP reinvestigation, reopened alternative line, Royal Commission findings, investigation-failure audit
-- `S22`: written evidentiary synthesis with 5+ citations
-- `S23`: real case/name/legal-outcome reveal
-- `S24`: official source ledger
-- `S25`: systemic epilogue + post-case evidence-work score
+- `assets/real-case-marshall-investigation.js?v=2.0.0`
+- `assets/real-case-marshall-investigation.css?v=2.0.0`
 
-LocalStorage autosave, notebook, revisiting unlocked materials, spoiler locks and reset are implemented.
+It no longer loads the old linear runtime / v13 guards / presentation sidecar. Those old files remain in the repository as archival/reference implementation until v2 is accepted.
 
-## v13 scoring / source discipline
+New LocalStorage key:
 
-100-point matrix remains exactly:
+`ml-realcase-71-05-investigation-v2`
 
-- Document comparison — 30
-- Source discipline — 25
-- Alternative hypotheses — 15
-- Investigation audit — 20
-- Final synthesis — 10
+## Investigator-driven v2 gameplay
 
-Citation guards remain:
+### Opening
 
-- S07: minimum 2 citations from M01/M02/M03
-- S16: minimum 3 citations
-- S17: minimum 3 citations including M08 + at least one early source
-- S21: minimum 3 citations
+Player receives only the anonymized incident:
 
-S07/S14 record unsupported/categorical positions and continue. Objective redline/comparison/audit requirements remain source-grounded v13 gates.
+- late night;
+- city park;
+- two teenagers wounded with a knife;
+- one dies, one survives;
+- offender unknown;
+- names/place/outcome hidden.
 
-## Non-fiction provenance
+The role is explicit: the player leads the check and chooses what to inspect / whom to question / which line to keep open. The interface states that history is not being rewritten and that only source-grounded material is used.
 
-`assets/real-case-marshall-source-meta.js` defines provenance/status for M01/M02/M03/M05/M06/M08/M10/M11/M12/M13. M08 is explicitly prosecution theory, not established fact. M02 deliberately uses the Commission record reproducing Exhibit 16 p.22.
+### First free actions
 
-S19 preserves identity as `Мужчина X` while separately presenting:
+On the first desk the player sees **`Ваши действия?`**, not a next-page button. Initial choices include:
 
-1. ten-days-after-conviction later witness statement;
-2. 1974 family report about apparent blood on a knife;
-3. 1982 reinvestigation physical material concerning the knife.
+- `Осмотреть место происшествия`
+- `Допросить выжившего`
+- `Найти свидетелей в районе парка`
 
-These remain labelled according to evidentiary status rather than presented as final fact. S23 preserves that Roy Ebsary's manslaughter conviction followed three trials.
+No mandatory order.
 
-## Premium art direction
+### Witness discovery and questioning
 
-`assets/real-case-marshall-premium.css` + `assets/real-case-marshall-final-polish.css` provide the premium documentary layer:
+After finding witnesses, player chooses among:
 
-- restrained dark editorial archive environment;
-- warm physical paper/document treatment;
-- less dashboard-like sidebar/material list;
-- numbered editorial choices and refined citations;
-- S00 archival `71—05` motif;
-- S18 strong temporal rupture with `11 ЛЕТ` motif;
-- S23 single-column human/factual reveal with numeric score hidden;
-- score moved to S25, after the human outcome, as evidence-discipline evaluation;
-- mobile typography/density and S22 writing-field treatment;
-- redundant legacy fact-grid force-hidden on passive evidence screens.
+- Witness A — first statement;
+- Witness B — first statement;
+- Witnesses C/D — joint statement.
 
-## Player-facing reading flow
+Inside a witness material, the interface asks **what the player wants to clarify**. Example question topics:
 
-`assets/real-case-marshall-presentation.js` version `0.1.2` removes development language and fake interaction while preserving runtime compatibility.
+- Кто ещё был рядом?
+- Вы видели сам удар?
+- Вы можете опознать этих мужчин?
+- Куда они направились?
 
-Passive evidence screens `S03/S04/S05/S09/S11` no longer ask players to tick checkbox copies of the document text. Legacy inputs are filled only for old-runtime compatibility, hidden from the player, and the screen reads as evidence. Real interaction remains on comparison, audit and judgment screens.
+These are navigation choices over the preserved written source. Responses are source-grounded summaries, not generated dialogue.
 
-No player-visible `прототип` or runtime version remains. S23 CTA is `Открыть официальные источники`; S24 uses documentary provenance language; S25 separates score from actual completion state.
+### Auto case board
 
-## Investigator-tone pass — latest product cleanup
+The player is never required to memorize earlier pages.
 
-The final autonomous pass changed **presentation language only**. It did not change v13 thresholds, scoring, correct comparisons or source facts.
+Significant discoveries automatically enter `ДОСКА ДЕЛА` with:
 
-Key CTAs now read:
+- evidence/lead status;
+- concise conclusion;
+- evidentiary limitation;
+- source id / source title.
 
-- S06 `Зафиксировать карту фактов`
-- S07 `Зафиксировать рабочую версию`
-- S10/S12 `Зафиксировать изменения`
-- S13 `Зафиксировать общий сдвиг`
-- S14 `Зафиксировать рабочий вывод`
-- S16 `Зафиксировать слабые места`
-- S17 `Зафиксировать решение по файлу`
-- S19 `Обновить рабочую версию`
-- S21 `Зафиксировать причины провала`
-- S22 `Передать итоговое заключение`
+Board examples:
 
-Eyebrows were also made less quiz-like: S07 `Рабочий вывод · ранний файл`, S14 `Рабочий вывод · после повторных допросов`, S21 `Аудит расследования`.
+- scene not secured/searched;
+- survivor points to two other men;
+- Witness A links knife to one of the other men;
+- Witness B sees two men running to a white Volkswagen;
+- Witness B's first statement does not describe the stabbing;
+- C/D independently describe two men;
+- witness limitation / contradiction / prosecution theory / later reinvestigation findings.
 
-Failure/success feedback on S06/S10/S12/S13/S16/S17/S19/S21/S22 is now framed as evidence work: incomplete map, incomplete comparison, unsupported shift, weak point not grounded in file, decision needing support, etc., rather than `выберите правильный ответ` language.
+Desktop keeps the board visible as an independent scrollable rail. Mobile exposes it through `Доска дела N`.
 
-## Smoke v0.7.0
+### Open investigative lines
 
-`tools/real-case-marshall-smoke.mjs` now treats investigator tone as a regression contract.
+The player can choose to check lines such as:
 
-It asserts the new CTAs/eyebrows on key screens in desktop and mobile DOM, keeps spoiler/source/overflow checks, and reports `investigatorTone:true`. Screenshot checkpoints now include S00/S03/S06/S07/S10/S13/S16/S17/S19/S21/S22/S23/S24 in both viewports.
+- `Проверить двух других мужчин`
+- `Проверить белый Volkswagen`
 
-## Visual verification — run #58
+If the current source packet cannot identify somebody or close the line, the game says so. It does not invent a plate, suspect or result.
 
-Dedicated run #58 on tested code head `23a56a2…` passed:
+### 4 June historical event
 
-- JavaScript validation;
-- source-locked responsive smoke v0.7.0;
-- full premium visual audit: **26 screens × desktop/mobile = 52 screenshots**;
-- artifact upload.
+After enough early investigative work, history advances and the desk announces:
 
-The latest artifact was manually spot-checked after investigator-tone changes. S06, S17, S21, S10 and S22 were reviewed across desktop/mobile where relevant. New labels fit without obvious wrapping/overflow regression and the visual system still reads as one premium documentary product.
+`В деле появились новые показания`
 
-## CI regressions previously caught and fixed
+The player then chooses when to open the second statements of Witness A / B and when to compare them with the earlier versions.
 
-Preserve these lessons:
+The old five-row dropdown/redline quiz has been removed. Comparison itself records the meaningful contradiction on the board.
 
-1. S24 non-idempotent text replacement caused a MutationObserver loop — fixed.
-2. S25 score card was once mistaken for completed state and disabled `Завершить дело` too early — fixed.
-3. HTML `hidden` on legacy fact grid was overridden by CSS `display:grid` — fixed with explicit force-hide.
+The player can separately choose:
 
-Functional smoke + visual audit must remain mandatory.
+`Выяснить, почему показания изменились`
 
-## CI / verification — current clean baseline
+At that historical point, the game correctly refuses to jump ahead to the later Commission explanation. It records only that the reason was not independently resolved in the contemporary file.
 
-Final tested code head: `23a56a21aa614e760afec5ef4fff2846e378ded4`.
+### Crown file and independent decision
 
-All required project checks on that head are complete and successful, including:
+Player opens the Crown Statement of Facts as a **prosecution theory**, not established fact.
 
-- Validate and deploy Mystery Logic web
-- Build Mystery Logic production bundle for Beget
-- Validate Mystery Logic SEO expansion
-- Validate Mystery Logic legal shell
-- Validate Mystery Logic global stats
-- Validate Mystery Logic challenge
-- Validate Mystery Logic Case Release Gate standard
-- Validate Mystery Logic 23:17 co-op case
-- Validate Mystery Logic Room 407
-- Validate Mystery Logic Last Aria
-- Visual smoke Mystery Logic co-op cases
-- Visual smoke Mystery Logic approved storefront reference
-- Real case Marshall prototype — run #58
+Then the game asks:
 
-## Preview/deployment boundary discovered
+`Что вы делаете с этим файлом?`
 
-`.github/workflows/pages.yml` validates PR heads but its `deploy` job does **not** deploy pull-request heads. Deployment checks out `main`. Therefore a successful PR workflow does not imply a public branch-preview URL. Do not invent one and do not use `/deploy-ktovret-web` expecting a PR preview: the existing deploy path publishes `main`.
+Options include:
 
-Before the user's walkthrough, provide a safe way to open this exact tested head without merging. Prefer an isolated temporary/static preview or a portable local preview; do not alter production or `main` merely to get a link.
+- support the prosecution version;
+- return the file for additional investigation;
+- keep the two-other-men line open.
+
+No citation-memory quiz. The complete case board remains beside the decision. An optional one-sentence reason may be written but is not required.
+
+The player's decision is preserved separately from history; the historical case still proceeds as it actually did.
+
+### Later lines / reinvestigation
+
+After the historical conviction, player can choose which later signals to inspect:
+
+- new eyewitness statement ten days after conviction;
+- 1974 report concerning a knife;
+- 1982 RCMP reinvestigation.
+
+Identity stays `Мужчина X` until reveal.
+
+Royal Commission findings remain distinct from reinvestigation evidence.
+
+### Reveal / sources / epilogue
+
+Only after Commission stage does v2 reveal:
+
+- Donald Marshall Jr.;
+- Sandy Seale;
+- Sydney, Nova Scotia;
+- Roy Ebsary;
+- Marshall's 11 years imprisonment;
+- Ebsary manslaughter conviction after three trials.
+
+The reveal also shows the player's own pre-reveal decision.
+
+Official source ledger and systemic epilogue follow. Numeric game score was removed from the new core; the ending emphasizes the player's investigative route rather than a school-style grade.
+
+## Non-fiction boundaries
+
+Canonical historical/source packet: `real_cases_research_database_v13.xlsx` in File Library.
+
+Preserve:
+
+- witness claim vs fact distinction;
+- first vs second statement distinction;
+- Crown theory vs established fact;
+- reinvestigation evidence vs Royal Commission finding;
+- no fake facsimiles / commercial archive scans without clearance;
+- no invented dialogue or procedural result;
+- no claim that repetition automatically proves truth;
+- no premature statement that police pressure caused changes before the later official finding is opened;
+- names / exact outcome hidden until reveal.
+
+## Source-grounded key facts used by v2
+
+- Royal Commission found the first responding officers did not cordon/search the scene or question witnesses there; nobody remained to protect the scene after the victim was taken to hospital.
+- Witness A first statement described two other men and attributed the knife/stabbing to one of them; A could not identify the men by face.
+- Witness B first statement described two men running from the direction of screams and entering a white Volkswagen; it did not make B an eyewitness to the stabbing.
+- C/D independently described two other men in/near the park but did not claim to witness the stabbing.
+- On 4 June A and B materially changed their accounts toward directly incriminating the survivor.
+- A's second statement also retained the survivor's reference to `the 2 fellows`, creating an internal tension in that document.
+- Crown Statement of Facts built its prosecution theory around the later accounts.
+- Later evidence included a new witness ten days after conviction, a 1974 family report concerning a knife, and 1982 reinvestigation evidence.
+- Royal Commission later found the incriminating second statements untrue and linked them to police suggestions/pressure; it also found broader systemic failures.
+- Final reveal remains sourced to Commission findings.
+
+## CI / visual verification — v2 clean baseline
+
+Final tested v2 code head:
+
+`6677b507a354cf57596f367c2e9aa993c6e49f06`
+
+Dedicated `Real case Marshall prototype` **run #70** passed:
+
+1. JavaScript syntax validation.
+2. Investigator-driven browser smoke.
+3. New graph visual audit.
+4. Artifact upload.
+
+Smoke v2 verifies:
+
+- new route loads only v2 engine/style;
+- free-action desk exists;
+- witness-selection state exists;
+- 4 June event exists;
+- pre-trial decision state exists;
+- later-line state exists;
+- reveal exists;
+- names / Roy Ebsary do not appear in pre-reveal DOM;
+- old quiz language such as `Проверить классификацию`, `2+ источника`, `Статус изменения` and `подтвердить минимум четыре изменения` is forbidden;
+- desktop/mobile screenshots render without the old horizontal-overflow regression.
+
+Visual audit now covers 11 graph states × 2 viewports = **22 screenshots**:
+
+- opening
+- desk
+- witnesses
+- June 4
+- contradictions
+- decision
+- later
+- Commission
+- reveal
+- sources
+- epilogue
+
+Manually spot-checked from run #70:
+
+- opening desktop/mobile;
+- first free-action desk desktop/mobile;
+- witness-choice desk;
+- pre-trial decision desktop/mobile;
+- later-lines desk;
+- reveal desktop/mobile.
+
+No obvious layout break or systemic overflow was found. The first desk clearly reads as player agency rather than a reading sequence.
+
+On the same tested head, 15 project workflows completed successfully, including main web validation, production bundle, SEO, legal, global stats, challenge, release gates, co-op visual smoke, Room 407, Last Aria and the dedicated Marshall workflow. `Live Last Aria Release Gate` was skipped as unrelated.
+
+## Regression lessons to preserve
+
+From the old version:
+
+- MutationObserver presentation changes must be idempotent.
+- Completion state must not be inferred from a visible score card.
+- CSS can override HTML `hidden`; visual smoke is mandatory.
+
+From the first real user walkthrough:
+
+- Do not confuse interaction with agency.
+- Do not make the player memorize documents before a later quiz.
+- Do not turn source comparison into dropdown taxonomy.
+- The primary recurring question should be `Что вы делаете дальше?`, not `Выберите правильную классификацию`.
+- A premium visual shell cannot rescue a spectator role.
 
 ## Exact next action
 
-1. Keep PR #97 **draft** and `main` untouched.
-2. Update PR #97 body to reference tested code head `23a56a2…`, investigator-tone pass, smoke v0.7.0, run #58 and green checks.
-3. Stop autonomous product redesign. The next meaningful signal must come from the user's first actual playthrough.
-4. Provide the user a safe preview of this exact tested head without merging to `main`.
-5. User then performs the **first true S00–S25 walkthrough** and comments naturally while playing. Do not give them a checklist in advance that biases their experience.
-6. Fix issues found during that real playthrough; merge only after explicit acceptance.
-
-## Continuation safety rule
-
-If conversation context becomes constrained, update this checkpoint before further changes. Never rely only on chat memory for handoff.
+1. Keep PR #97 draft and `main` untouched.
+2. Give the user an isolated preview of exact tested v2 head `6677b507…`.
+3. User begins a fresh manual walkthrough from the opening.
+4. Collect reactions naturally while the user plays, especially whether the new desk creates a real feeling of conducting the investigation.
+5. Fix actual gameplay/visual failures found in that walkthrough.
+6. Do not merge until explicit user acceptance.
