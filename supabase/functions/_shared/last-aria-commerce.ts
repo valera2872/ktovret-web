@@ -4,6 +4,10 @@ import {
   tbankPaymentMatchesOrder,
   tbankRequest,
 } from './last-aria-tbank.ts';
+import {
+  releaseReviewDiscountReservation,
+  settleReviewDiscountForOrder,
+} from './last-aria-review-discount.ts';
 
 export const LAST_ARIA_PRODUCT_ID = 'last_aria';
 export const LAST_ARIA_PRICE_RUB = 299;
@@ -16,6 +20,8 @@ export const lastAriaAmountKopecks = () => amountToKopecks(LAST_ARIA_PRICE_RUB);
 const activateEntitlement = async (admin: any, order: any, payment: any) => {
   if (!tbankPaymentMatchesOrder(payment, order)) throw new Error('payment_order_mismatch');
   if (String(payment.Status || '') !== 'CONFIRMED') throw new Error('payment_not_confirmed');
+
+  await settleReviewDiscountForOrder(admin, order);
 
   const paymentId = String(payment.PaymentId || '');
   const now = new Date().toISOString();
@@ -88,6 +94,7 @@ export const refreshLastAriaTbankOrder = async (admin: any, order: any) => {
     await admin.from('payment_orders').update({
       status: 'canceled', provider_status: providerStatus, canceled_at: now, updated_at: now,
     }).eq('id', order.id).neq('status', 'paid');
+    await releaseReviewDiscountReservation(admin, order.id);
     return { ...order, status: order.status === 'paid' ? 'paid' : 'canceled', provider_status: providerStatus };
   }
 
