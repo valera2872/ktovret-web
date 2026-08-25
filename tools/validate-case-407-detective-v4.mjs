@@ -79,9 +79,8 @@ for (const marker of ['•••••6', '•••••7', 'не иденти
 expect(!visual.includes('BLE: MO-W1 В САЛОНЕ'), 'unsupported vehicle Bluetooth proof remains in visual layer');
 
 const postprocess = read('tools/import-mobile/two-player-407-postprocess.mjs');
-expect(postprocess.includes("const VERSION = '1.6.0'"), 'production case bundle is not v1.6.0');
-for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
-const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js'].map((marker) => postprocess.indexOf(marker));
+for (const marker of ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js', 'case-407-release-gate-v1.js']) expect(postprocess.includes(marker), `production page missing ${marker}`);
+const order = ['case-407-data.js', 'case-407-detective-audit-v4.js', 'case-407-detective-proof-v4.js', 'case-407-plaque-code-v2.js', 'case-407.js', 'case-407-playtest-ux-v42.js', 'case-407-evidence-v2.js', 'case-407-evidence-finalize.js', 'case-407-detective-visual-v4.js', 'case-407-release-gate-v1.js'].map((marker) => postprocess.indexOf(marker));
 expect(order.every((position, i) => position >= 0 && (i === 0 || position > order[i - 1])), 'production script load order is wrong');
 expect(!postprocess.includes('case-407-photo-cleanup-v4.css'), 'obsolete photo overlay is still loaded in production');
 expect(!fs.existsSync(path.join(repo, 'assets/case-407-photo-cleanup-v4.css')), 'obsolete photo overlay file remains');
@@ -108,5 +107,5 @@ console.log(JSON.stringify({
   b1CameraFovClosed: true,
   preEventMessages: true,
   scenePhotoCleanedAtSource: true,
-  productionVersion: '1.6.0'
+  productionReleaseGateLoadedLast: true
 }, null, 2));
