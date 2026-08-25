@@ -29,12 +29,12 @@ const css=fs.readFileSync(cssFile,'utf8');
 const mobileCss=fs.readFileSync(mobileCssFile,'utf8');
 const premiumCss=fs.readFileSync(premiumCssFile,'utf8');
 
-for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css?v=0.2.0','real-case-marshall-mobile.css?v=0.2.1','real-case-marshall-premium.css?v=0.1.0','real-case-marshall.js?v=0.2.0','real-case-marshall-source-meta.js?v=0.2.1','real-case-marshall-v13-guards.js?v=0.2.2','real-case-marshall-presentation.js?v=0.1.1','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
+for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css?v=0.2.0','real-case-marshall-mobile.css?v=0.2.1','real-case-marshall-premium.css?v=0.1.0','real-case-marshall.js?v=0.2.0','real-case-marshall-source-meta.js?v=0.2.1','real-case-marshall-v13-guards.js?v=0.2.2','real-case-marshall-presentation.js?v=0.1.2','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
 for(const forbidden of ['<img','sitemap.xml','data-seo-prerender','ml-brand-strip-nav']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
 for(const marker of ["const VERSION='0.2.0'",'MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц','Позиция зафиксирована. Она делает более сильный вывод','это отражено в доказательной оценке']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
 for(const marker of ["version:'0.2.1'",'MLRealCase7105SourceMeta','Exhibit 16, p. 22','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','queueMicrotask(decorate)','Представлена сокращённая текстовая выписка']) if(!sourceMeta.includes(marker)) throw new Error(`source metadata missing marker: ${marker}`);
 for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08','data-v13-reopen-details','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','после трёх судебных процессов','resetGuardState','queueMicrotask(decorate)']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
-for(const marker of ["const VERSION='0.1.1'",'MLRealCase7105Presentation','Реальное уголовное дело · 1971','Настоящее дело','Открыть официальные источники','официальным архивом Новой Шотландии','Сбросить весь прогресс расследования?','Дело завершено']) if(!presentation.includes(marker)) throw new Error(`presentation layer missing marker: ${marker}`);
+for(const marker of ["const VERSION='0.1.2'",'MLRealCase7105Presentation','Реальное уголовное дело · 1971','Настоящее дело','Открыть официальные источники','официальным архивом Новой Шотландии','Сбросить весь прогресс расследования?','Дело завершено','Зафиксировать карту фактов','Зафиксировать рабочую версию','Зафиксировать изменения','Зафиксировать общий сдвиг','Зафиксировать слабые места','Зафиксировать решение по файлу','Обновить рабочую версию','Зафиксировать причины провала','Передать итоговое заключение','Рабочий вывод · ранний файл','Аудит расследования']) if(!presentation.includes(marker)) throw new Error(`presentation layer missing marker: ${marker}`);
 for(const marker of ['.rc-screen','.rc-document','.rc-split','@media(max-width:620px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
 for(const marker of ['data-screen="S22"','.rc-textarea','min-height:190px','resize:none']) if(!mobileCss.includes(marker)) throw new Error(`mobile polish missing marker: ${marker}`);
 for(const marker of ['Premium documentary art direction','data-screen="S00"','rc-premium-gold-soft','.rc-choice span::before']) if(!premiumCss.includes(marker)) throw new Error(`premium styles missing marker: ${marker}`);
@@ -70,14 +70,18 @@ const screenChecks=[
   {screen:0,markers:['data-screen="S00"','АРХИВНОЕ ДЕЛО №71-05','Реальное уголовное дело · 1971','Начать расследование'],forbidden:['Дональд Маршалл','Рой Эбсари','Сэнди Сил','manslaughter','ml-brand-strip-nav']},
   {screen:3,markers:['data-screen="S03"','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','Exhibit Book Volume 12','Представлена сокращённая текстовая выписка','СВИДЕТЕЛЬ A — ПЕРВОЕ ПОКАЗАНИЕ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:4,markers:['data-screen="S04"','Exhibit 16, p. 22','воспроизведённое в материалах Royal Commission'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:7,markers:['data-screen="S07"','data-v13-citations="S07"','Материалы в обоснование · минимум 2','M01 · первое показание A','M03 · совместное показание C/D'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:10,markers:['data-screen="S10"','rc-split','Статус изменения','СВИДЕТЕЛЬ B: ЧТО ИЗМЕНИЛОСЬ?'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:6,markers:['data-screen="S06"','ЧТО У НАС ЕСТЬ НА САМОМ ДЕЛЕ?','Зафиксировать карту фактов'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:7,markers:['data-screen="S07"','Рабочий вывод · ранний файл','data-v13-citations="S07"','Материалы в обоснование · минимум 2','M01 · первое показание A','M03 · совместное показание C/D','Зафиксировать рабочую версию'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:10,markers:['data-screen="S10"','rc-split','Статус изменения','СВИДЕТЕЛЬ B: ЧТО ИЗМЕНИЛОСЬ?','Зафиксировать изменения'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:13,markers:['data-screen="S13"','ДВА СВИДЕТЕЛЯ МЕНЯЮТ ВЕРСИЮ','Зафиксировать общий сдвиг'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:14,markers:['data-screen="S14"','Рабочий вывод · после повторных допросов','Зафиксировать рабочий вывод'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:15,markers:['data-screen="S15"','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПАПКА ОБВИНЕНИЯ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:16,markers:['data-screen="S16"','data-v13-citations="S16"','Источники для аудита · минимум 3','M08 · версия обвинения'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ','data-v13-reopen-details="true"','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','Мужчина X'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:16,markers:['data-screen="S16"','data-v13-citations="S16"','Источники для аудита · минимум 3','M08 · версия обвинения','Зафиксировать слабые места'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:17,markers:['data-screen="S17"','ВЫ БЫ ПОДПИСАЛИ ЭТУ ВЕРСИЮ?','Зафиксировать решение по файлу'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ','data-v13-reopen-details="true"','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','Мужчина X','Обновить рабочую версию'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:20,markers:['data-screen="S20"','ВЫВОД КОМИССИИ · ТЕКСТОВАЯ ВЫПИСКА','ЧТО УСТАНОВИЛА КОМИССИЯ'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:21,markers:['data-screen="S21"','data-v13-citations="S21"','Источники выводов · минимум 3','M11 · вывод Royal Commission'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:22,markers:['data-screen="S22"','ВАШЕ ЗАКЛЮЧЕНИЕ','Материалы в обоснование · минимум 5'],forbidden:['Рой Эбсари','manslaughter']},
+  {screen:21,markers:['data-screen="S21"','Аудит расследования','data-v13-citations="S21"','Источники выводов · минимум 3','M11 · вывод Royal Commission','Зафиксировать причины провала'],forbidden:['Рой Эбсари','manslaughter']},
+  {screen:22,markers:['data-screen="S22"','ВАШЕ ЗАКЛЮЧЕНИЕ','Материалы в обоснование · минимум 5','Передать итоговое заключение'],forbidden:['Рой Эбсари','manslaughter']},
   {screen:23,markers:['data-screen="S23"','Настоящее дело','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter','после трёх судебных процессов','Открыть официальные источники'],forbidden:[]},
   {screen:24,markers:['data-screen="S24"','Реестр источников','официальным архивом Новой Шотландии','archives.novascotia.ca','data-source-provenance'],forbidden:[]},
   {screen:25,markers:['data-screen="S25"','ПОЧЕМУ ЭТО ПРОИЗОШЛО','Завершить дело'],forbidden:[]},
@@ -100,7 +104,7 @@ try{
       const url=`http://127.0.0.1:${port}/${route}?smokeScreen=${check.screen}`;
       const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
       assertDom(check,viewport.name,dom);
-      if([0,3,7,10,15,19,21,22,23,24].includes(check.screen)){
+      if([0,3,6,7,10,13,16,17,19,21,22,23,24].includes(check.screen)){
         const screenshot=path.join(outDir,`screen-${String(check.screen).padStart(2,'0')}-${viewport.name}.png`);
         await runChrome([...common,`--screenshot=${screenshot}`,url]);
         const size=dimensions(screenshot);
@@ -113,6 +117,6 @@ try{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.6.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,playerFacingCopy:true,premiumVisualLayer:true,v13CitationGuards:true,v13ChoiceSemantics:true,scoringMatrix:'30/25/15/20/10',reopenedFileDepth:true,revealPrecision:true,chrome,results};
+const report={version:'0.7.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,playerFacingCopy:true,premiumVisualLayer:true,investigatorTone:true,v13CitationGuards:true,v13ChoiceSemantics:true,scoringMatrix:'30/25/15/20/10',reopenedFileDepth:true,revealPrecision:true,chrome,results};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
