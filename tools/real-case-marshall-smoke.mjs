@@ -21,7 +21,7 @@ const css=fs.readFileSync(cssFile,'utf8');
 
 for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall-investigation.css?v=2.0.0','real-case-marshall-investigation.js?v=2.0.0','Архивное дело №71-05']) if(!html.includes(marker)) throw new Error(`route missing v2 marker: ${marker}`);
 for(const forbidden of ['real-case-marshall.js?v=','real-case-marshall-v13-guards.js','real-case-marshall-presentation.js','sitemap.xml','data-seo-prerender']) if(html.includes(forbidden)) throw new Error(`route still loads legacy surface: ${forbidden}`);
-for(const marker of ["const VERSION='2.0.0'",'ml-realcase-71-05-investigation-v2','Ваши действия?','Осмотреть место происшествия','Допросить выжившего','Найти свидетелей в районе парка','Допросить свидетеля A','Допросить свидетеля B','Допросить свидетелей C/D','Что вы хотите уточнить','Запоминать ничего не нужно','Crown Statement of Facts','Мужчина X','Royal Commission','Donald Marshall Jr.','Roy Ebsary','window.MLRealCase7105Investigation','smokeStage']) if(!js.includes(marker)) throw new Error(`engine missing marker: ${marker}`);
+for(const marker of ["const VERSION='2.0.0'",'ml-realcase-71-05-investigation-v2','Ваши действия?','Осмотреть место происшествия','Допросить выжившего','Найти свидетелей в районе парка','Допросить свидетеля A','Допросить свидетеля B','Допросить свидетелей C/D','Выберите, что хотите уточнить','Запоминать ничего не нужно','Crown Statement of Facts','Мужчина X','Royal Commission','Donald Marshall Jr.','Roy Ebsary','window.MLRealCase7105Investigation','smokeStage']) if(!js.includes(marker)) throw new Error(`engine missing marker: ${marker}`);
 for(const forbidden of ['Проверить классификацию','2+ источника','Статус изменения','Для перехода нужно подтвердить минимум четыре изменения']) if(js.includes(forbidden)) throw new Error(`legacy quiz language leaked into v2 engine: ${forbidden}`);
 for(const marker of ['.ri-action-grid','.ri-action-card','.ri-board','.ri-topic-list','.ri-decision','.ri-reveal','@media(max-width:780px)']) if(!css.includes(marker)) throw new Error(`v2 styles missing marker: ${marker}`);
 
@@ -53,7 +53,7 @@ const dump=async(stage='')=>{
 const requireMarkers=(label,dom,markers,forbidden=[])=>{
   for(const marker of markers) if(!dom.includes(marker)) throw new Error(`${label}: DOM missing ${marker}`);
   for(const marker of forbidden) if(dom.includes(marker)) throw new Error(`${label}: spoiler/legacy marker visible: ${marker}`);
-  if(dom.includes('data-rc-overflow="true"')||dom.includes('data-rc-overflow="true"')) throw new Error(`${label}: horizontal overflow marker`);
+  if(dom.includes('data-rc-overflow="true"')) throw new Error(`${label}: horizontal overflow marker`);
 };
 
 try{
