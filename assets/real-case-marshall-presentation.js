@@ -61,6 +61,48 @@
     }
   };
 
+  const simplifyEarlySynthesis=(screen)=>{
+    if(screen!=='S06') return;
+    const screenNode=app.querySelector('.rc-screen[data-screen="S06"]');
+    if(!screenNode) return;
+
+    /* S06 used to be a five-row classification exercise. It added cognitive work
+       without adding an investigative decision. Keep the old runtime state valid,
+       but show the player a concise synthesis and reserve the actual decision for S07. */
+    const expected={eb1:'multi',eb2:'single',eb3:'single',eb4:'conflict',eb5:'multi'};
+    const board=screenNode.querySelector('.rc-board');
+    if(board){
+      board.querySelectorAll('select[data-board]').forEach(select=>{
+        const value=expected[select.dataset.board];
+        if(value&&select.value!==value){
+          select.value=value;
+          select.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+      });
+      if(!board.hidden) board.hidden=true;
+      board.style.display='none';
+      board.setAttribute('aria-hidden','true');
+    }
+
+    const copy=screenNode.querySelector('.rc-copy');
+    if(copy&&copy.textContent.trim()!=='После трёх первых материалов рабочая картина выглядит так:'){
+      copy.innerHTML='<p>После трёх первых материалов рабочая картина выглядит так:</p>';
+    }
+
+    if(copy&&!screenNode.querySelector('[data-early-synthesis]')){
+      const synthesis=document.createElement('div');
+      synthesis.className='rc-synthesis';
+      synthesis.dataset.earlySynthesis='true';
+      synthesis.innerHTML=`
+        <div class="rc-synthesis-item"><small>ПОВТОРЯЕТСЯ</small><strong>Несколько ранних свидетелей независимо упоминают двух других мужчин возле парка.</strong></div>
+        <div class="rc-synthesis-item"><small>ОДИН ИСТОЧНИК</small><strong>Один свидетель прямо говорит, что нож был у одного из этих мужчин.</strong></div>
+        <div class="rc-synthesis-item"><small>В РАННЕМ ФАЙЛЕ НЕТ</small><strong>Прямого свидетельства, что выживший подросток нанёс удар.</strong></div>`;
+      copy.after(synthesis);
+    }
+
+    screenNode.querySelectorAll('.rc-feedback').forEach(node=>node.remove());
+  };
+
   const investigatorFeedback=(screen)=>{
     const node=app.querySelector(`.rc-screen[data-screen="${screen}"] .rc-feedback`);
     if(!node) return;
@@ -138,6 +180,7 @@
     const screen=app.querySelector('.rc-screen')?.dataset.screen||'';
 
     makeEvidenceReadingFlow(screen);
+    simplifyEarlySynthesis(screen);
     investigatorTone(screen);
 
     if(screen==='S00'){
