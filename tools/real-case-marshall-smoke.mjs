@@ -27,7 +27,7 @@ for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app
 for(const forbidden of ['<img','sitemap.xml','data-seo-prerender','ml-brand-strip-nav']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
 for(const marker of ['MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
 for(const marker of ['MLRealCase7105SourceMeta','Exhibit 16, p. 22','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА']) if(!sourceMeta.includes(marker)) throw new Error(`source metadata missing marker: ${marker}`);
-for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
+for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08','data-v13-reopen-details','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','после трёх судебных процессов']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
 const screenIds=[...js.matchAll(/\{id:'(S\d\d)'/g)].map(match=>match[1]);
 if(screenIds.length!==26||screenIds[0]!=='S00'||screenIds.at(-1)!=='S25') throw new Error(`expected S00..S25, got ${screenIds.length}: ${screenIds.join(',')}`);
 for(const marker of ['.rc-screen','.rc-document','.rc-split','@media(max-width:620px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
@@ -60,10 +60,10 @@ const screenChecks=[
   {screen:10,markers:['data-screen="S10"','rc-split','Статус изменения','СВИДЕТЕЛЬ B: ЧТО ИЗМЕНИЛОСЬ?'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:15,markers:['data-screen="S15"','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПАПКА ОБВИНЕНИЯ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:16,markers:['data-screen="S16"','data-v13-citations="S16"','Источники для аудита · минимум 3','M08 · версия обвинения'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
+  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ','data-v13-reopen-details="true"','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','Мужчина X'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
   {screen:20,markers:['data-screen="S20"','ВЫВОД КОМИССИИ · ТЕКСТОВАЯ ВЫПИСКА','ЧТО УСТАНОВИЛА КОМИССИЯ'],forbidden:['Рой Эбсари','manslaughter']},
   {screen:21,markers:['data-screen="S21"','data-v13-citations="S21"','Источники выводов · минимум 3','M11 · вывод Royal Commission'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:23,markers:['data-screen="S23"','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter'],forbidden:[]},
+  {screen:23,markers:['data-screen="S23"','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter','после трёх судебных процессов'],forbidden:[]},
   {screen:24,markers:['data-screen="S24"','Реестр источников','archives.novascotia.ca','data-source-provenance'],forbidden:[]},
 ];
 const results=[];
@@ -82,7 +82,7 @@ try{
       const url=`http://127.0.0.1:${port}/${route}?smokeScreen=${check.screen}`;
       const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
       assertDom(check,viewport.name,dom);
-      if([0,7,10,15,21,23].includes(check.screen)){
+      if([0,7,10,15,19,21,23].includes(check.screen)){
         const screenshot=path.join(outDir,`screen-${String(check.screen).padStart(2,'0')}-${viewport.name}.png`);
         await runChrome([...common,`--screenshot=${screenshot}`,url]);
         const size=dimensions(screenshot);
@@ -95,6 +95,6 @@ try{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.3.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,v13CitationGuards:true,chrome,results};
+const report={version:'0.4.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,v13CitationGuards:true,reopenedFileDepth:true,revealPrecision:true,chrome,results};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
