@@ -9,21 +9,30 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const expect = (ok, message) => { if (!ok) throw new Error(message); };
 const includesAll = (text, markers, label) => markers.forEach((marker) => expect(text.includes(marker), `${label}: missing ${marker}`));
 const excludesAll = (text, markers, label) => markers.forEach((marker) => expect(!text.includes(marker), `${label}: forbidden ${marker}`));
+const between = (text, start, end, label) => {
+  const a = text.indexOf(start), b = text.indexOf(end, a + start.length);
+  expect(a >= 0 && b > a, `${label}: template bounds missing`);
+  return text.slice(a, b);
+};
 
 const p2317 = read('tools/import-mobile/two-player-2317-postprocess.mjs');
 const p407 = read('tools/import-mobile/two-player-407-postprocess.mjs');
 const r2317 = read('assets/case-2317-release-gate-v1.js');
 const r407 = read('assets/case-407-release-gate-v1.js');
 const ux407 = read('assets/case-407-playtest-ux-v42.js');
+const public2317 = between(p2317, 'const feature = `', 'const patchLanding', '23:17 public boundary');
+const public407 = between(p407, 'const catalogCard = `', 'const patchLanding', '407 public boundary');
 
-excludesAll(p2317, [
+excludesAll(public2317, [
   'телефон и автомобиль расходятся'
 ], '23:17 public boundary');
+includesAll(public2317, [
+  'цифровой след требует сверки'
+], '23:17 public boundary');
 includesAll(p2317, [
-  'цифровой след требует сверки',
   'case-2317-release-gate-v1.js',
   "23:17 public spoiler boundary regressed"
-], '23:17 public boundary');
+], '23:17 release wiring');
 expect(p2317.indexOf('case-2317-release-gate-v1.js') > p2317.indexOf('case-2317-runtime.js'), '23:17 release layer must load last');
 
 includesAll(r2317, [
@@ -41,15 +50,17 @@ excludesAll(r2317, [
   'Разделите три маршрута: телефон Веры'
 ], '23:17 release runtime');
 
-excludesAll(p407, [
+excludesAll(public407, [
   'Из какого номера на самом деле исчезла Марта',
   'охрана искала не за той дверью'
 ], '407 public boundary');
+includesAll(public407, [
+  'Почему камера, электронные журналы и осмотр комнаты не складываются'
+], '407 public boundary');
 includesAll(p407, [
-  'Почему камера, электронные журналы и осмотр комнаты не складываются',
   'case-407-release-gate-v1.js',
   '407 public spoiler boundary regressed'
-], '407 public boundary');
+], '407 release wiring');
 expect(p407.indexOf('case-407-release-gate-v1.js') > p407.indexOf('case-407-detective-visual-v4.js'), '407 release layer must load last');
 
 includesAll(r407, [
