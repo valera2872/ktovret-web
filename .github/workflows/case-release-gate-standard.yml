@@ -26,11 +26,11 @@ jobs:
           node --check tools/validate-release-gate-record.mjs
           grep -q 'Полный Release Gate' CASE_RELEASE_GATE.md
           grep -q 'G9. Production Artifact Audit' CASE_RELEASE_GATE.md
-          grep -q 'Release Gate 10/10 PASS' CASE_RELEASE_GATE.md
+          grep -q 'Release Gate: 10/10 PASS' CASE_RELEASE_GATE.md
       - name: Validate committed case gate records
         shell: bash
         run: |
-          mapfile -t records < <(find release-gates -maxdepth 1 -type f -name '*.md' ! -name 'TEMPLATE.md' -print | sort)
+          mapfile -t records < <(find release-gates -maxdepth 1 -type f -name '*.md' ! -name 'TEMPLATE.md' ! -name 'README.md' -print | sort)
           if ((${#records[@]})); then
             node tools/validate-release-gate-record.mjs "${records[@]}"
           else
