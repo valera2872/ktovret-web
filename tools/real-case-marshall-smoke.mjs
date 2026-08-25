@@ -2,49 +2,28 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const siteRoot=process.env.SITE_ROOT?path.resolve(process.env.SITE_ROOT):path.resolve(here,'..');
 const route='realnye-dela/arhiv-71-05/index.html';
 const htmlFile=path.join(siteRoot,route);
-const jsFile=path.join(siteRoot,'assets/real-case-marshall.js');
-const sourceMetaFile=path.join(siteRoot,'assets/real-case-marshall-source-meta.js');
-const guardFile=path.join(siteRoot,'assets/real-case-marshall-v13-guards.js');
-const presentationFile=path.join(siteRoot,'assets/real-case-marshall-presentation.js');
-const cssFile=path.join(siteRoot,'assets/real-case-marshall.css');
-const mobileCssFile=path.join(siteRoot,'assets/real-case-marshall-mobile.css');
-const premiumCssFile=path.join(siteRoot,'assets/real-case-marshall-premium.css');
+const jsFile=path.join(siteRoot,'assets/real-case-marshall-investigation.js');
+const cssFile=path.join(siteRoot,'assets/real-case-marshall-investigation.css');
 const outDir=path.join(siteRoot,'artifacts','real-case-marshall');
 fs.mkdirSync(outDir,{recursive:true});
 
-for(const file of [htmlFile,jsFile,sourceMetaFile,guardFile,presentationFile,cssFile,mobileCssFile,premiumCssFile]) if(!fs.existsSync(file)) throw new Error(`missing prototype file: ${path.relative(siteRoot,file)}`);
+for(const file of [htmlFile,jsFile,cssFile]) if(!fs.existsSync(file)) throw new Error(`missing v2 file: ${path.relative(siteRoot,file)}`);
 const html=fs.readFileSync(htmlFile,'utf8');
 const js=fs.readFileSync(jsFile,'utf8');
-const sourceMeta=fs.readFileSync(sourceMetaFile,'utf8');
-const guards=fs.readFileSync(guardFile,'utf8');
-const presentation=fs.readFileSync(presentationFile,'utf8');
 const css=fs.readFileSync(cssFile,'utf8');
-const mobileCss=fs.readFileSync(mobileCssFile,'utf8');
-const premiumCss=fs.readFileSync(premiumCssFile,'utf8');
 
-for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css?v=0.2.0','real-case-marshall-mobile.css?v=0.2.1','real-case-marshall-premium.css?v=0.1.0','real-case-marshall.js?v=0.2.0','real-case-marshall-source-meta.js?v=0.2.1','real-case-marshall-v13-guards.js?v=0.2.2','real-case-marshall-presentation.js?v=0.1.2','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
-for(const forbidden of ['<img','sitemap.xml','data-seo-prerender','ml-brand-strip-nav']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
-for(const marker of ["const VERSION='0.2.0'",'MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц','Позиция зафиксирована. Она делает более сильный вывод','это отражено в доказательной оценке']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
-for(const marker of ["version:'0.2.1'",'MLRealCase7105SourceMeta','Exhibit 16, p. 22','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','queueMicrotask(decorate)','Представлена сокращённая текстовая выписка']) if(!sourceMeta.includes(marker)) throw new Error(`source metadata missing marker: ${marker}`);
-for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08','data-v13-reopen-details','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','после трёх судебных процессов','resetGuardState','queueMicrotask(decorate)']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
-for(const marker of ["const VERSION='0.1.2'",'MLRealCase7105Presentation','Реальное уголовное дело · 1971','Настоящее дело','Открыть официальные источники','официальным архивом Новой Шотландии','Сбросить весь прогресс расследования?','Дело завершено','Зафиксировать карту фактов','Зафиксировать рабочую версию','Зафиксировать изменения','Зафиксировать общий сдвиг','Зафиксировать слабые места','Зафиксировать решение по файлу','Обновить рабочую версию','Зафиксировать причины провала','Передать итоговое заключение','Рабочий вывод · ранний файл','Аудит расследования']) if(!presentation.includes(marker)) throw new Error(`presentation layer missing marker: ${marker}`);
-for(const marker of ['.rc-screen','.rc-document','.rc-split','@media(max-width:620px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
-for(const marker of ['data-screen="S22"','.rc-textarea','min-height:190px','resize:none']) if(!mobileCss.includes(marker)) throw new Error(`mobile polish missing marker: ${marker}`);
-for(const marker of ['Premium documentary art direction','data-screen="S00"','rc-premium-gold-soft','.rc-choice span::before']) if(!premiumCss.includes(marker)) throw new Error(`premium styles missing marker: ${marker}`);
-
-const screenIds=[...js.matchAll(/\{id:'(S\d\d)'/g)].map(match=>match[1]);
-if(screenIds.length!==26||screenIds[0]!=='S00'||screenIds.at(-1)!=='S25') throw new Error(`expected S00..S25, got ${screenIds.length}: ${screenIds.join(',')}`);
-const screenChunk=(id)=>js.match(new RegExp(`\\{id:'${id}'[\\s\\S]*?(?=\\n    \\{id:'S|\\n  \\];)`))?.[0]||'';
-if(!screenChunk('S21').includes('points:15')) throw new Error('S21 must carry 15 investigation-audit points');
-if(!screenChunk('S22').includes('points:10')) throw new Error('S22 must carry 10 final-synthesis points');
-if(!js.includes("state.answers[`${screen.id}:feedbackType`]='';\n    save();\n    return true;")) throw new Error('choice checkpoints must record unsupported positions without forcing a retry');
+for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall-investigation.css?v=2.0.0','real-case-marshall-investigation.js?v=2.0.0','Архивное дело №71-05']) if(!html.includes(marker)) throw new Error(`route missing v2 marker: ${marker}`);
+for(const forbidden of ['real-case-marshall.js?v=','real-case-marshall-v13-guards.js','real-case-marshall-presentation.js','sitemap.xml','data-seo-prerender']) if(html.includes(forbidden)) throw new Error(`route still loads legacy surface: ${forbidden}`);
+for(const marker of ["const VERSION='2.0.0'",'ml-realcase-71-05-investigation-v2','Ваши действия?','Осмотреть место происшествия','Допросить выжившего','Найти свидетелей в районе парка','Допросить свидетеля A','Допросить свидетеля B','Допросить свидетелей C/D','Что вы хотите уточнить','Запоминать ничего не нужно','Crown Statement of Facts','Мужчина X','Royal Commission','Donald Marshall Jr.','Roy Ebsary','window.MLRealCase7105Investigation','smokeStage']) if(!js.includes(marker)) throw new Error(`engine missing marker: ${marker}`);
+for(const forbidden of ['Проверить классификацию','2+ источника','Статус изменения','Для перехода нужно подтвердить минимум четыре изменения']) if(js.includes(forbidden)) throw new Error(`legacy quiz language leaked into v2 engine: ${forbidden}`);
+for(const marker of ['.ri-action-grid','.ri-action-card','.ri-board','.ri-topic-list','.ri-decision','.ri-reveal','@media(max-width:780px)']) if(!css.includes(marker)) throw new Error(`v2 styles missing marker: ${marker}`);
 
 const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].filter(Boolean);
 const chrome=chromeCandidates.find(candidate=>fs.existsSync(candidate));
@@ -55,7 +34,7 @@ const server=http.createServer((request,response)=>{
   const relative=decodeURIComponent(url.pathname).replace(/^\/+/, '');
   const filePath=path.resolve(siteRoot,relative||'index.html');
   if(!filePath.startsWith(`${siteRoot}${path.sep}`)||!fs.existsSync(filePath)) return response.writeHead(404).end('Not found');
-  response.setHeader('Content-Type',contentTypes.get(path.extname(filePath))||'application/octet-stream');
+  response.setHeader('Content-Type',contentTypes.get(path.extname(filePath).toLowerCase())||'application/octet-stream');
   response.end(fs.readFileSync(filePath));
 });
 const port=await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve(server.address().port));});
@@ -65,58 +44,46 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
   child.on('close',code=>code===0?resolve({stdout,stderr}):reject(new Error(`Chrome exited ${code}: ${stderr.slice(-1800)}`)));
 });
 const dimensions=(file)=>{const bytes=fs.readFileSync(file);return {width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
-const viewports=[{name:'desktop',width:1440,height:1200},{name:'mobile',width:390,height:844}];
-const screenChecks=[
-  {screen:0,markers:['data-screen="S00"','АРХИВНОЕ ДЕЛО №71-05','Реальное уголовное дело · 1971','Начать расследование'],forbidden:['Дональд Маршалл','Рой Эбсари','Сэнди Сил','manslaughter','ml-brand-strip-nav']},
-  {screen:3,markers:['data-screen="S03"','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','Exhibit Book Volume 12','Представлена сокращённая текстовая выписка','СВИДЕТЕЛЬ A — ПЕРВОЕ ПОКАЗАНИЕ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:4,markers:['data-screen="S04"','Exhibit 16, p. 22','воспроизведённое в материалах Royal Commission'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:6,markers:['data-screen="S06"','ЧТО У НАС ЕСТЬ НА САМОМ ДЕЛЕ?','Зафиксировать карту фактов'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:7,markers:['data-screen="S07"','Рабочий вывод · ранний файл','data-v13-citations="S07"','Материалы в обоснование · минимум 2','M01 · первое показание A','M03 · совместное показание C/D','Зафиксировать рабочую версию'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:10,markers:['data-screen="S10"','rc-split','Статус изменения','СВИДЕТЕЛЬ B: ЧТО ИЗМЕНИЛОСЬ?','Зафиксировать изменения'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:13,markers:['data-screen="S13"','ДВА СВИДЕТЕЛЯ МЕНЯЮТ ВЕРСИЮ','Зафиксировать общий сдвиг'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:14,markers:['data-screen="S14"','Рабочий вывод · после повторных допросов','Зафиксировать рабочий вывод'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:15,markers:['data-screen="S15"','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПАПКА ОБВИНЕНИЯ'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:16,markers:['data-screen="S16"','data-v13-citations="S16"','Источники для аудита · минимум 3','M08 · версия обвинения','Зафиксировать слабые места'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:17,markers:['data-screen="S17"','ВЫ БЫ ПОДПИСАЛИ ЭТУ ВЕРСИЮ?','Зафиксировать решение по файлу'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:19,markers:['data-screen="S19"','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','СВИДЕТЕЛЬ B БОЛЬШЕ НЕ ОЧЕВИДЕЦ','data-v13-reopen-details="true"','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','Мужчина X','Обновить рабочую версию'],forbidden:['Дональд Маршалл','Рой Эбсари','manslaughter']},
-  {screen:20,markers:['data-screen="S20"','ВЫВОД КОМИССИИ · ТЕКСТОВАЯ ВЫПИСКА','ЧТО УСТАНОВИЛА КОМИССИЯ'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:21,markers:['data-screen="S21"','Аудит расследования','data-v13-citations="S21"','Источники выводов · минимум 3','M11 · вывод Royal Commission','Зафиксировать причины провала'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:22,markers:['data-screen="S22"','ВАШЕ ЗАКЛЮЧЕНИЕ','Материалы в обоснование · минимум 5','Передать итоговое заключение'],forbidden:['Рой Эбсари','manslaughter']},
-  {screen:23,markers:['data-screen="S23"','Настоящее дело','Donald Marshall Jr. / Sandy Seale','Рой Эбсари','manslaughter','после трёх судебных процессов','Открыть официальные источники'],forbidden:[]},
-  {screen:24,markers:['data-screen="S24"','Реестр источников','официальным архивом Новой Шотландии','archives.novascotia.ca','data-source-provenance'],forbidden:[]},
-  {screen:25,markers:['data-screen="S25"','ПОЧЕМУ ЭТО ПРОИЗОШЛО','Завершить дело'],forbidden:[]},
-];
-const results=[];
-
-const hasVisiblePrototypeCopy=(dom)=>/>[^<]*прототип[^<]*</i.test(dom);
-const assertDom=(check,viewport,dom)=>{
-  for(const marker of [...check.markers,'data-rc-overflow="false"']) if(!dom.includes(marker)) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: DOM missing ${marker}`);
-  for(const spoiler of check.forbidden) if(dom.includes(spoiler)) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: premature spoiler ${spoiler}`);
-  if(hasVisiblePrototypeCopy(dom)) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: player-visible prototype copy leaked into DOM`);
-  if(check.screen===0&&dom.includes('rc-document">')) throw new Error(`${viewport}: evidence document rendered before start`);
-  if(check.screen<24&&dom.includes('href="https://archives.novascotia.ca')) throw new Error(`S${String(check.screen).padStart(2,'0')}/${viewport}: source link opened before final ledger`);
+const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--virtual-time-budget=1800'];
+const dump=async(stage='')=>{
+  const query=stage?`?smokeStage=${stage}`:'';
+  const {stdout}=await runChrome([...common,'--dump-dom',`http://127.0.0.1:${port}/${route}${query}`]);
+  return stdout;
+};
+const requireMarkers=(label,dom,markers,forbidden=[])=>{
+  for(const marker of markers) if(!dom.includes(marker)) throw new Error(`${label}: DOM missing ${marker}`);
+  for(const marker of forbidden) if(dom.includes(marker)) throw new Error(`${label}: spoiler/legacy marker visible: ${marker}`);
+  if(dom.includes('data-rc-overflow="true"')||dom.includes('data-rc-overflow="true"')) throw new Error(`${label}: horizontal overflow marker`);
 };
 
 try{
-  for(const viewport of viewports){
-    const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1',`--window-size=${viewport.width},${viewport.height}`,'--virtual-time-budget=2400'];
-    for(const check of screenChecks){
-      const url=`http://127.0.0.1:${port}/${route}?smokeScreen=${check.screen}`;
-      const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
-      assertDom(check,viewport.name,dom);
-      if([0,3,6,7,10,13,16,17,19,21,22,23,24].includes(check.screen)){
-        const screenshot=path.join(outDir,`screen-${String(check.screen).padStart(2,'0')}-${viewport.name}.png`);
-        await runChrome([...common,`--screenshot=${screenshot}`,url]);
-        const size=dimensions(screenshot);
-        if(size.width!==viewport.width||size.height!==viewport.height||size.bytes<18_000) throw new Error(`S${check.screen}/${viewport.name}: bad screenshot ${JSON.stringify(size)}`);
-        results.push({screen:check.screen,viewport:viewport.name,...size,screenshot:path.basename(screenshot)});
-      }
+  const opening=await dump();
+  requireMarkers('opening',opening,['НОЧЬ. ПАРК.','Принять дело','Вы ведёте проверку.'],['Donald Marshall','Roy Ebsary','Рой Эбсари','Проверить классификацию']);
+  const desk=await dump('desk');
+  requireMarkers('desk',desk,['Ваши действия?','Осмотреть место происшествия','Допросить выжившего','Найти свидетелей в районе парка','ДОСКА ДЕЛА','Запоминать ничего не нужно'],['Donald Marshall','Roy Ebsary','Рой Эбсари','2+ источника']);
+  const witnesses=await dump('witnesses');
+  requireMarkers('witnesses',witnesses,['Допросить свидетеля A','Допросить свидетеля B','Допросить свидетелей C/D'],['Donald Marshall','Roy Ebsary','Рой Эбсари']);
+  const june4=await dump('june4');
+  requireMarkers('june4',june4,['ИСТОРИЧЕСКОЕ СОБЫТИЕ','В деле появились новые показания','Повторно допросить свидетеля B','Повторно допросить свидетеля A'],['Donald Marshall','Roy Ebsary','Рой Эбсари']);
+  const decision=await dump('decision');
+  requireMarkers('decision',decision,['Что вы делаете с этим файлом?','Поддержать обвинительную версию','Вернуть дело на дополнительную проверку','Не закрывать линию двух других мужчин'],['Donald Marshall','Roy Ebsary','Рой Эбсари']);
+  const later=await dump('later');
+  requireMarkers('later',later,['Приговор вынесен','Проверить сообщение нового очевидца','Проверить сообщение о ноже','Открыть материалы RCMP 1982'],['Donald Marshall','Roy Ebsary','Рой Эбсари']);
+  const reveal=await dump('reveal');
+  requireMarkers('reveal',reveal,['Donald Marshall Jr.','Sandy Seale','Roy Ebsary','11 лет','manslaughter']);
+
+  for(const viewport of [{name:'desktop',width:1440,height:1200},{name:'mobile',width:390,height:844}]){
+    for(const stage of ['desk','june4','decision','later','reveal']){
+      const screenshot=path.join(outDir,`v2-${stage}-${viewport.name}.png`);
+      await runChrome([...common,`--window-size=${viewport.width},${viewport.height}`,`--screenshot=${screenshot}`,`http://127.0.0.1:${port}/${route}?smokeStage=${stage}`]);
+      const size=dimensions(screenshot);
+      if(size.width!==viewport.width||size.height!==viewport.height||size.bytes<15_000) throw new Error(`${stage}/${viewport.name}: bad screenshot ${JSON.stringify(size)}`);
     }
   }
 }finally{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.7.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,playerFacingCopy:true,premiumVisualLayer:true,investigatorTone:true,v13CitationGuards:true,v13ChoiceSemantics:true,scoringMatrix:'30/25/15/20/10',reopenedFileDepth:true,revealPrecision:true,chrome,results};
+const report={version:'2.0.0',route,mode:'investigator-graph',agency:true,memorizationGate:false,quizClassification:false,spoilerBoundary:true,stages:['opening','desk','witnesses','june4','decision','later','reveal'],screenshots:10};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
