@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'realnye-dela/arhiv-71-05/**'
-      - 'assets/real-case-marshall.js'
+      - 'assets/real-case-marshall*.js'
       - 'assets/real-case-marshall*.css'
       - 'tools/real-case-marshall-smoke.mjs'
       - '.github/workflows/real-case-marshall.yml'
@@ -27,6 +27,8 @@ jobs:
       - name: Validate prototype JavaScript
         run: |
           node --check assets/real-case-marshall.js
+          node --check assets/real-case-marshall-source-meta.js
+          node --check assets/real-case-marshall-v13-guards.js
           node --check tools/real-case-marshall-smoke.mjs
 
       - name: Validate source-locked responsive opening
