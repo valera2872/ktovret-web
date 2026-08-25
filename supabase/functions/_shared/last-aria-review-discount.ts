@@ -3,28 +3,57 @@ import { formatAmount } from './last-aria-payment.ts';
 export const REVIEW_DISCOUNT_RUB = 50;
 export const REVIEW_DISCOUNT_PRICE_RUB = 249;
 export const REVIEW_DISCOUNT_TTL_DAYS = 7;
-export const REVIEW_DISCOUNT_RESERVATION_MINUTES = 30;
+export const REVIEW_DISCOUNT_ORPHAN_MINUTES = 15;
 
 const PROMO_RE = /^ML-[A-HJ-NP-Z2-9]{4}(?:-[A-HJ-NP-Z2-9]{4}){3}$/;
+const RELEASEABLE_ORDER_STATUSES = new Set(['failed', 'canceled', 'refunded']);
 
 export const normalizeReviewDiscountCode = (value: unknown) => String(value || '').trim().toUpperCase();
 export const validReviewDiscountCode = (value: unknown) => PROMO_RE.test(normalizeReviewDiscountCode(value));
 export const reviewDiscountAmountValue = () => formatAmount(REVIEW_DISCOUNT_PRICE_RUB);
 
-const staleCutoffIso = () => new Date(Date.now() - REVIEW_DISCOUNT_RESERVATION_MINUTES * 60_000).toISOString();
+const canReleaseReservation = async (admin: any, reward: any) => {
+  const reservedOrderId = String(reward?.reserved_order_id || '');
+  if (!reservedOrderId) return true;
 
-const cleanupStaleEmailReservation = async (admin: any, emailHash: string) => {
+  const { data: order, error } = await admin
+    .from('payment_orders')
+    .select('id,status')
+    .eq('id', reservedOrderId)
+    .maybeSingle();
+  if (error) throw new Error('review_discount_order_lookup_failed');
+  if (order) return RELEASEABLE_ORDER_STATUSES.has(String(order.status || ''));
+
+  const reservedAt = reward?.reserved_at ? new Date(reward.reserved_at).getTime() : 0;
+  return Boolean(reservedAt && reservedAt <= Date.now() - REVIEW_DISCOUNT_ORPHAN_MINUTES * 60_000);
+};
+
+const releaseReward = async (admin: any, reward: any) => {
+  const reservedOrderId = String(reward?.reserved_order_id || '');
+  if (!reservedOrderId) return;
   const { error } = await admin
     .from('review_discount_rewards')
-    .update({
-      reserved_order_id: null,
-      reserved_at: null,
-      claimed_email_hash: null,
-    })
+    .update({ reserved_order_id: null, reserved_at: null, claimed_email_hash: null })
+    .eq('id', reward.id)
+    .eq('reserved_order_id', reservedOrderId)
+    .is('used_at', null);
+  if (error) throw new Error('review_discount_release_failed');
+};
+
+const resolveEmailClaim = async (admin: any, emailHash: string) => {
+  const { data: claim, error } = await admin
+    .from('review_discount_rewards')
+    .select('*')
     .eq('claimed_email_hash', emailHash)
-    .is('used_at', null)
-    .lt('reserved_at', staleCutoffIso());
-  if (error) throw new Error('review_discount_cleanup_failed');
+    .maybeSingle();
+  if (error) throw new Error('review_discount_lookup_failed');
+  if (!claim) return null;
+  if (claim.used_at) return claim;
+  if (await canReleaseReservation(admin, claim)) {
+    await releaseReward(admin, claim);
+    return null;
+  }
+  return claim;
 };
 
 export const reserveReviewDiscount = async (
@@ -35,8 +64,6 @@ export const reserveReviewDiscount = async (
 ) => {
   const code = normalizeReviewDiscountCode(codeInput);
   if (!validReviewDiscountCode(code)) throw new Error('review_discount_invalid');
-
-  await cleanupStaleEmailReservation(admin, emailHash);
 
   let { data: reward, error: lookupError } = await admin
     .from('review_discount_rewards')
@@ -50,15 +77,8 @@ export const reserveReviewDiscount = async (
   if (new Date(reward.expires_at).getTime() <= Date.now()) throw new Error('review_discount_expired');
 
   if (reward.reserved_order_id && reward.reserved_order_id !== orderId) {
-    const reservedAt = reward.reserved_at ? new Date(reward.reserved_at).getTime() : 0;
-    if (reservedAt && reservedAt <= Date.now() - REVIEW_DISCOUNT_RESERVATION_MINUTES * 60_000) {
-      const { error: releaseError } = await admin
-        .from('review_discount_rewards')
-        .update({ reserved_order_id: null, reserved_at: null, claimed_email_hash: null })
-        .eq('id', reward.id)
-        .eq('reserved_order_id', reward.reserved_order_id)
-        .is('used_at', null);
-      if (releaseError) throw new Error('review_discount_cleanup_failed');
+    if (await canReleaseReservation(admin, reward)) {
+      await releaseReward(admin, reward);
       reward = { ...reward, reserved_order_id: null, reserved_at: null, claimed_email_hash: null };
     } else {
       throw new Error('review_discount_in_use');
@@ -70,12 +90,7 @@ export const reserveReviewDiscount = async (
     return reward;
   }
 
-  const { data: emailClaim, error: emailClaimError } = await admin
-    .from('review_discount_rewards')
-    .select('id,used_at,reserved_order_id,reserved_at')
-    .eq('claimed_email_hash', emailHash)
-    .maybeSingle();
-  if (emailClaimError) throw new Error('review_discount_lookup_failed');
+  const emailClaim = await resolveEmailClaim(admin, emailHash);
   if (emailClaim?.used_at) throw new Error('review_discount_already_used');
   if (emailClaim?.reserved_order_id) throw new Error('review_discount_in_use');
 
@@ -135,10 +150,6 @@ export const settleReviewDiscountForOrder = async (admin: any, order: any) => {
   if (String(reward.reserved_order_id || '') !== String(order.id || '')) throw new Error('review_discount_not_reserved');
   if (!order.customer_email_hash || reward.claimed_email_hash !== order.customer_email_hash) {
     throw new Error('review_discount_email_mismatch');
-  }
-  if (new Date(reward.expires_at).getTime() <= Date.now()) {
-    // A discount that was valid and reserved at checkout remains valid for that payment session.
-    // Expiry prevents new reservations; it does not invalidate an already-created bank payment.
   }
 
   const now = new Date().toISOString();
