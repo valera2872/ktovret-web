@@ -9,7 +9,8 @@ Checkpoint date: 2026-08-25
 - Branch: `feature/real-case-marshall-prototype`
 - Base: `main`
 - `main` is intentionally untouched. Do not merge until manual product review.
-- Checkpoint created immediately after commit `c72d91437c50ccc5fa6d5cc6a7c6d5f820924745`.
+- Code head immediately before this checkpoint commit: `6cd06533278ca10a38b2cb7f6c9621699daee6a5`.
+- This file is the durable continuation point. If a conversation ends, resume from the branch head containing this checkpoint, not from chat memory.
 
 ## Source of truth
 
@@ -30,6 +31,7 @@ Core rules:
 11. Prototype may use source-grounded text and original analytic UI. Nova Scotia Archives facsimiles remain a separate commercial-rights issue.
 12. Documentary visual tone only: no blood, red-string boards, police-tape cosplay, or victory animation.
 13. Auto-save notebook/tags/progress.
+14. Checkpoints score evidentiary discipline. A premature/unsupported conclusion may lose points but must not force the player to keep clicking until the game receives its preferred answer.
 
 ## Working route
 
@@ -42,30 +44,88 @@ Core rules:
 ## Implemented gameplay
 
 - `S00–S02`: clean entry / case brief / first 72 hours
-- `S03–S07`: three early witness materials, early evidence board, first checkpoint
-- `S08–S14`: changed June 4 statements, two redline comparisons, common-pattern audit, checkpoint
-- `S15–S17`: Crown Statement of Facts, prosecution-file audit, `Вы бы подписали эту версию?` with 3+ citations
-- `S18–S21`: 11-year jump, RCMP reinvestigation, Royal Commission findings, investigation-failure audit
+- `S03–S07`: three early witness materials, early evidence board, C1 with 2+ source citations
+- `S08–S14`: changed June 4 statements, two redline comparisons, common-pattern audit, C2
+- `S15–S17`: Crown Statement of Facts, prosecution-file audit with sources, `Вы бы подписали эту версию?` with 3+ citations including M08 and at least one early source
+- `S18–S21`: 11-year jump, RCMP reinvestigation, reopened alternative line, Royal Commission findings, investigation-failure audit with sources
 - `S22`: written evidentiary conclusion with 5+ citations
 - `S23`: real case/name/legal-outcome reveal
 - `S24`: source ledger with official links
 - `S25`: systemic epilogue
 
-100-point evidence-audit scoring, localStorage autosave, notebook, revisiting unlocked materials and spoiler locks are implemented.
+LocalStorage autosave, notebook, revisiting unlocked materials and spoiler locks are implemented.
 
-## Changes made after previous checkpoint (`3600b18e…`)
+## v13 scoring now aligned
 
-1. Removed the top navigation (`Другие дела` / duplicate header notebook) from the real-case route so first contact keeps one visual focus. The in-case notebook remains available after the working interface appears.
-2. Confirmed opening `S00–S02` already hide the right working sidebar on desktop and mobile via `real-case-marshall-mobile.css`.
-3. Added `assets/real-case-marshall-source-meta.js` as a non-invasive source-provenance layer. It does not change game facts or progression.
-4. The provenance layer keeps witnesses anonymised during play while explicitly distinguishing:
-   - original statement + textual extract;
-   - original statement reproduced by the Commission;
-   - prosecution theory + textual extract;
-   - reinvestigation evidence + textual extract;
-   - Royal Commission finding.
-5. Added exact provenance boundaries for M01/M02/M03/M05/M06/M08/M10/M11/M12/M13. In particular M02 is correctly described as Exhibit 16 p.22 reproduced in the Commission record; the current Commission-record URL is deliberate, not a mistaken source.
-6. Strengthened `tools/real-case-marshall-smoke.mjs` to require the provenance layer, reject the entry navigation, and test provenance/status markers on S03/S04/S15/S19/S20/S24.
+The 100-point evidence-audit score now matches the v13 dimension matrix:
+
+- Document comparison — 30
+- Source discipline — 25
+- Alternative hypotheses — 15
+- Investigation audit — 20
+- Final synthesis — 10
+
+`S07` and `S14` now record the player's chosen position and continue even if it is too categorical. Full-credit reasoning earns the points; unsupported certainty is preserved as the player's answer and reflected in the score instead of becoming a quiz retry gate.
+
+## Source provenance layer
+
+`assets/real-case-marshall-source-meta.js` is loaded after the core runtime. It changes labels/provenance only; it does not invent facts or change progression.
+
+It keeps witnesses anonymised during play while distinguishing:
+
+- original statement + textual extract;
+- original statement reproduced by the Commission;
+- prosecution theory + textual extract;
+- reinvestigation evidence + textual extract;
+- Royal Commission finding;
+- official outcome/systemic finding after reveal.
+
+Exact provenance boundaries are present for M01/M02/M03/M05/M06/M08/M10/M11/M12/M13. M02 is deliberately sourced through the Commission record reproducing Exhibit 16 p.22; do not 'correct' that URL merely because it is a later hearing/Commission record.
+
+## v13 validation layer
+
+`assets/real-case-marshall-v13-guards.js` supplies requirements that the original prototype runtime omitted:
+
+- S07: minimum 2 citations from M01/M02/M03.
+- S16: minimum 3 source citations for the prosecution-file audit.
+- S17: existing 3-citation requirement is strengthened to require M08 and at least one early source M01/M02/M03.
+- S21: minimum 3 source citations for investigation-failure findings.
+- Guard state is cleared together with the core reset, including programmatic `MLRealCase7105.reset()`.
+- Initial guard decoration is synchronous; later rerenders use `queueMicrotask`, avoiding the headless/browser race found by CI.
+
+## Reopened file depth restored
+
+S19 no longer compresses the reopened case to one vague sentence. While the true identity remains hidden as `Мужчина X`, the player receives three separately labelled later materials grounded in v13:
+
+1. Ten days after conviction: a new witness statement naming the other man as the stabber (presented as a witness claim, not final fact).
+2. 1974: a family report that the man was seen washing apparent blood from a knife (presented as a later report requiring verification).
+3. 1982 reinvestigation: physical material concerning the knife (presented as reinvestigation evidence, not the later Commission conclusion).
+
+S23 also preserves the v13 endpoint that Ebsary's manslaughter conviction followed three trials.
+
+## Entry / visual rules
+
+- Top route navigation (`Другие дела` and duplicate header notebook) was removed so the case entry has one focus.
+- S00–S02 already hide the working sidebar on desktop and mobile.
+- The in-case notebook remains once the working investigation UI is relevant.
+- JS cache versions were bumped after the v13/core update so product review does not accidentally load stale runtime code.
+
+## CI / smoke state
+
+The dedicated workflow now watches `assets/real-case-marshall*.js`, not only the original core file, and syntax-checks:
+
+- `assets/real-case-marshall.js`
+- `assets/real-case-marshall-source-meta.js`
+- `assets/real-case-marshall-v13-guards.js`
+- `tools/real-case-marshall-smoke.mjs`
+
+The smoke now checks S00/S03/S04/S07/S10/S15/S16/S19/S20/S21/S23/S24 on desktop and mobile, including noindex/spoiler/source-link/overflow boundaries, provenance labels, source-citation UI, reopened-file depth, cache versions, v13 choice semantics and the 30/25/15/20/10 score distribution.
+
+Historical CI note:
+
+- Original prototype head `3600b18e…` passed 12/12.
+- Provenance/v13 head `dac360f…` fixed the initial requestAnimationFrame smoke race and `Real case Marshall prototype` run #24 passed successfully.
+- At the moment this checkpoint was written, final code head `6cd0653…` had started its new 12-workflow run; several fast checks were already green and the dedicated real-case run was still in progress. The exact final CI result must be verified on the checkpoint branch head before declaring the prototype ready for walkthrough.
 
 ## Important correction preserved
 
@@ -80,13 +140,17 @@ Commercial embedding of Nova Scotia Archives facsimile scans is not cleared here
 - official source links revealed at the appropriate stage;
 - no fake archival facsimiles.
 
-## Next actions
+## Deliberately not expanded further before product review
 
-1. Run/verify the updated real-case smoke and full PR CI on the current head.
-2. Manually inspect S00, S03/S04, S10, S15, S19/S20, S23/S24 on desktop and mobile after provenance decoration.
-3. Audit the implementation against v13 screen script/fact ledger for any remaining quiet simplifications, especially interpretive-feedback language and the fidelity of the prosecution/reinvestigation source summaries.
-4. Only after that decide whether PR #97 is ready for the user's full product walkthrough.
+The remaining differences are small interaction-detail questions rather than blockers. Example: S05 currently asks the player to mark important facts and then S06 performs the cross-source synthesis; v13 could be read as asking S05 itself to mark matching/differing details. Do not add more mechanics until the full prototype is played end-to-end and the user reports where actual friction or boredom occurs.
+
+## Exact next action
+
+1. Verify all 12 CI workflows on the current branch head containing this checkpoint.
+2. If green, update PR #97 body with the current implementation/CI facts.
+3. Keep PR #97 draft and `main` untouched.
+4. Then perform the user's manual full product walkthrough of `realnye-dela/arhiv-71-05/`, focusing on first-contact clarity, suspense, document density, whether choices feel investigative rather than school-like, and whether S15/S17/S19 deliver the intended emotional peaks.
 
 ## Safety rule for continuation
 
-If conversation context becomes constrained, update this checkpoint with the latest head SHA, CI result, completed changes and exact next action before continuing elsewhere.
+If conversation context becomes constrained, update this checkpoint again before making more code changes. Never rely only on a chat summary for the next handoff.
