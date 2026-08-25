@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='0.1.0';
+  const VERSION='0.1.1';
   const app=document.querySelector('[data-realcase-app]');
   if(!app) return;
 
@@ -11,6 +11,18 @@
     if(screen==='S00'){
       const eyebrow=app.querySelector('.rc-screen[data-screen="S00"] .rc-eyebrow');
       if(eyebrow&&eyebrow.textContent!=='Реальное уголовное дело · 1971') eyebrow.textContent='Реальное уголовное дело · 1971';
+    }
+
+    if(screen==='S23'){
+      const eyebrow=app.querySelector('.rc-screen[data-screen="S23"] .rc-eyebrow');
+      if(eyebrow&&eyebrow.textContent!=='Настоящее дело') eyebrow.textContent='Настоящее дело';
+      const button=app.querySelector('.rc-screen[data-screen="S23"] [data-action="primary"]');
+      if(button&&button.textContent!=='Открыть официальные источники') button.textContent='Открыть официальные источники';
+    }
+
+    if(screen==='S24'){
+      const copy=app.querySelector('.rc-screen[data-screen="S24"] .rc-copy p');
+      if(copy) copy.textContent='Все ключевые материалы связаны с официальным архивом Новой Шотландии и документами Royal Commission. В расследовании использованы текстовые выписки и сопоставление источников; ниже — реестр официальных ссылок.';
     }
 
     const autosave=app.querySelector('.rc-footer-actions span');
@@ -23,6 +35,13 @@
       const feedback=app.querySelector('.rc-screen[data-screen="S25"] .rc-feedback.is-good');
       if(feedback&&feedback.innerHTML.includes('Вы завершили прототип документального дела.')){
         feedback.innerHTML=feedback.innerHTML.replace('Вы завершили прототип документального дела.','Расследование завершено.');
+      }
+      if(feedback){
+        const button=app.querySelector('.rc-screen[data-screen="S25"] [data-action="primary"]');
+        if(button){
+          button.textContent='Дело завершено';
+          button.disabled=true;
+        }
       }
     }
   };
