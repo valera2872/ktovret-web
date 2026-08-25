@@ -1,0 +1,38 @@
+name: Validate Mystery Logic Case Release Gate standard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate-standard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate standard assets
+        run: |
+          test -s CASE_RELEASE_GATE.md
+          test -s release-gates/TEMPLATE.md
+          node --check tools/validate-release-gate-record.mjs
+          grep -q 'Полный Release Gate' CASE_RELEASE_GATE.md
+          grep -q 'G9. Production Artifact Audit' CASE_RELEASE_GATE.md
+          grep -q 'Release Gate: 10/10 PASS' CASE_RELEASE_GATE.md
+      - name: Validate committed case gate records
+        shell: bash
+        run: |
+          mapfile -t records < <(find release-gates -maxdepth 1 -type f -name '*.md' ! -name 'TEMPLATE.md' ! -name 'README.md' -print | sort)
+          if ((${#records[@]})); then
+            node tools/validate-release-gate-record.mjs "${records[@]}"
+          else
+            echo 'No committed case Release Gate records yet; template/validator are valid.'
+          fi
