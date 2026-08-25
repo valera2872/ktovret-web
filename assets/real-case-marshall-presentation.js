@@ -38,6 +38,33 @@
     }
   };
 
+  const polishFinalScreen=()=>{
+    const screenNode=app.querySelector('.rc-screen[data-screen="S25"]');
+    if(!screenNode) return;
+
+    const feedbacks=[...screenNode.querySelectorAll('.rc-feedback.is-good')];
+    const scoreCard=feedbacks.find(node=>node.innerHTML.includes('Вы завершили прототип документального дела.')||node.dataset.scoreCard==='true');
+    if(scoreCard){
+      if(scoreCard.dataset.scoreCard!=='true') scoreCard.dataset.scoreCard='true';
+      if(scoreCard.innerHTML.includes('Вы завершили прототип документального дела.')){
+        scoreCard.innerHTML=scoreCard.innerHTML
+          .replace('Вы завершили прототип документального дела. Итоговая оценка:','Качество работы с источниками:')
+          .replace('Она отражает не угадывание имени, а дисциплину работы с источниками.','Оценка отражает доказательную дисциплину, а не угадывание имени.');
+      }
+    }
+
+    const completion=feedbacks.find(node=>node!==scoreCard&&node.textContent.includes('Прогресс сохранён на этом устройстве.'));
+    const button=screenNode.querySelector('[data-action="primary"]');
+    if(completion){
+      if(completion.textContent!=='Расследование завершено. Прогресс сохранён на этом устройстве.') completion.textContent='Расследование завершено. Прогресс сохранён на этом устройстве.';
+      if(button&&button.textContent!=='Дело завершено') button.textContent='Дело завершено';
+      if(button&&!button.disabled) button.disabled=true;
+    }else if(button){
+      if(button.textContent!=='Завершить дело') button.textContent='Завершить дело';
+      if(button.disabled) button.disabled=false;
+    }
+  };
+
   const polish=()=>{
     const screen=app.querySelector('.rc-screen')?.dataset.screen||'';
 
@@ -66,17 +93,7 @@
     const reset=app.querySelector('[data-action="reset"]');
     if(reset&&reset.textContent!=='Сбросить прогресс') reset.textContent='Сбросить прогресс';
 
-    if(screen==='S25'){
-      const feedback=app.querySelector('.rc-screen[data-screen="S25"] .rc-feedback.is-good');
-      if(feedback&&feedback.innerHTML.includes('Вы завершили прототип документального дела.')){
-        feedback.innerHTML=feedback.innerHTML.replace('Вы завершили прототип документального дела.','Расследование завершено.');
-      }
-      if(feedback){
-        const button=app.querySelector('.rc-screen[data-screen="S25"] [data-action="primary"]');
-        if(button&&button.textContent!=='Дело завершено') button.textContent='Дело завершено';
-        if(button&&!button.disabled) button.disabled=true;
-      }
-    }
+    if(screen==='S25') polishFinalScreen();
   };
 
   const observer=new MutationObserver(()=>queueMicrotask(polish));
