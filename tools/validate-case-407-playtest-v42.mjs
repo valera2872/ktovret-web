@@ -14,7 +14,7 @@ vm.runInNewContext(read('assets/case-407-data.js'), context, { filename: 'case-4
 vm.runInNewContext(read('assets/case-407-detective-audit-v4.js'), context, { filename: 'case-407-detective-audit-v4.js' });
 vm.runInNewContext(read('assets/case-407-detective-proof-v4.js'), context, { filename: 'case-407-detective-proof-v4.js' });
 const data = context.window.MLCase407;
-expect(data?.playtestRevision === '4.2', 'playtest revision 4.2 did not apply');
+expect(data?.playtestRevision === '4.2', 'story playtest revision 4.2 did not apply');
 
 const s1i = JSON.stringify(data.stages[0].investigator);
 const s2i = JSON.stringify(data.stages[1].investigator);
@@ -35,28 +35,37 @@ expect(!chat.includes('сигнал') && !chat.includes('лифт'), 'recovered 
 
 const ux = read('assets/case-407-playtest-ux-v42.js');
 for (const marker of [
-  "revision: '4.2'",
+  "revision: '4.3'",
   'каждый подтвердите тот же вариант на своём экране',
   'Назовите Аналитику H-код с обратной стороны таблички',
   'связанный L-код замка',
   "picks.includes('night_mgr')",
-  'общий план, но не личное действие Елены'
+  'не хватает независимого материала, который подтверждает личное действие в критическое окно',
+  'Общий план, мотив или принадлежность доступа сами по себе такого действия не доказывают',
+  'spoilerNeutralFeedback: true'
 ]) expect(ux.includes(marker), `co-op UX hardening missing: ${marker}`);
+for (const forbidden of [
+  'общий план, но не личное действие Елены',
+  'В наборе нет независимого доказательства личного действия Елены'
+]) expect(!ux.includes(forbidden), `co-op UX still names Elena-specific final conclusion: ${forbidden}`);
 
 const generator = read('tools/import-mobile/two-player-407-postprocess.mjs');
 expect(generator.includes('case-407-playtest-ux-v42.js'), 'production generator does not load playtest UX hardening');
 expect(generator.indexOf('case-407.js') < generator.indexOf('case-407-playtest-ux-v42.js'), 'playtest UX loads before main runtime');
 expect(generator.indexOf('case-407-playtest-ux-v42.js') < generator.indexOf('case-407-evidence-v2.js'), 'playtest UX load order is unexpected');
+expect(generator.indexOf('case-407-detective-visual-v4.js') < generator.indexOf('case-407-release-gate-v1.js'), 'spoiler-neutral release layer must load last');
 
 console.log(JSON.stringify({
   case: data.title,
   playtestRevision: data.playtestRevision,
+  uxRevision: '4.3',
   roleInferenceLeakStage1: false,
   roleInferenceLeakStage2: false,
   stage2RequestTelegraph: false,
   stage3TokenDeductionPreSolved: false,
   stage3ChatNarratesRoute: false,
   pairedDecisionCopy: true,
-  independentElenaActionRequiredAtFinal: true,
+  independentPersonalActionRequiredAtFinal: true,
+  spoilerNeutralFeedback: true,
   playerCopySimplified: true
 }, null, 2));
