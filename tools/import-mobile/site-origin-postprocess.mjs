@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SITE_ORIGIN, STAGING_ORIGIN, siteUrl } from './site-config.mjs';
-import { applyLastAriaFinalNeutral, prepareLastAriaFinalNeutral } from './last-aria-final-neutral-postprocess.mjs';
+import { applyLastAriaFinalNeutral } from './last-aria-final-neutral-postprocess.mjs';
 
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.json']);
+const PRODUCTION_ORIGIN = 'https://mysterylogic.com/';
 
 const walk = (root) => {
   const files = [];
@@ -16,6 +17,18 @@ const walk = (root) => {
   }
   return files;
 };
+
+function removeInternalReleaseGateAssets(siteRoot) {
+  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { removed: false };
+  const releaseGateFile = path.join(siteRoot, 'CASE_RELEASE_GATE.md');
+  const releaseGateDir = path.join(siteRoot, 'release-gates');
+  fs.rmSync(releaseGateFile, { force: true });
+  fs.rmSync(releaseGateDir, { recursive: true, force: true });
+  if (fs.existsSync(releaseGateFile) || fs.existsSync(releaseGateDir)) {
+    throw new Error('Production runtime still contains internal Release Gate assets');
+  }
+  return { removed: true };
+}
 
 export function applySiteOrigin(siteRoot) {
   const files = walk(siteRoot);
@@ -58,10 +71,10 @@ export function registerSiteOriginFinalizer() {
   const entry = path.basename(process.argv[1] || '');
   if (entry !== 'import-mobile-cases.mjs') return false;
   const siteRoot = path.resolve(readArg('site', '.'));
-  prepareLastAriaFinalNeutral(siteRoot);
   process.once('beforeExit', () => {
     applyLastAriaFinalNeutral(siteRoot);
     applySiteOrigin(siteRoot);
+    removeInternalReleaseGateAssets(siteRoot);
   });
   return true;
 }
