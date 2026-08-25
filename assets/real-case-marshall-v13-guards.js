@@ -163,10 +163,10 @@
   const schedule=()=>{
     if(scheduled) return;
     scheduled=true;
-    requestAnimationFrame(decorate);
+    queueMicrotask(decorate);
   };
   new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
-  schedule();
+  decorate();
 
-  window.MLRealCase7105V13Guards={version:'0.2.1',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}])),reopenDetails:true,revealPrecision:true,resetGuardState};
+  window.MLRealCase7105V13Guards={version:'0.2.2',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}])),reopenDetails:true,revealPrecision:true,resetGuardState};
 })();
