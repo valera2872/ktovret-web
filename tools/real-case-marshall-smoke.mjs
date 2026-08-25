@@ -23,13 +23,17 @@ const sourceMeta=fs.readFileSync(sourceMetaFile,'utf8');
 const guards=fs.readFileSync(guardFile,'utf8');
 const css=fs.readFileSync(cssFile,'utf8');
 
-for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css','real-case-marshall.js','real-case-marshall-source-meta.js','real-case-marshall-v13-guards.js','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
+for(const marker of ['name="robots" content="noindex,follow"','data-realcase-app','real-case-marshall.css','real-case-marshall.js?v=0.2.0','real-case-marshall-source-meta.js?v=0.2.0','real-case-marshall-v13-guards.js?v=0.2.2','Архивное дело №71-05','smokeScreen']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
 for(const forbidden of ['<img','sitemap.xml','data-seo-prerender','ml-brand-strip-nav']) if(html.includes(forbidden)) throw new Error(`prototype route unexpectedly contains ${forbidden}`);
-for(const marker of ['MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
+for(const marker of ["const VERSION='0.2.0'",'MLRealCase7105','STORAGE_KEY','sourceIds','S00','S25','ВЕРСИЯ ОБВИНЕНИЯ','ВЫВОД КОМИССИИ','транскрипц','Позиция зафиксирована. Она делает более сильный вывод','это отражено в доказательной оценке']) if(!js.includes(marker)) throw new Error(`runtime missing marker: ${marker}`);
 for(const marker of ['MLRealCase7105SourceMeta','Exhibit 16, p. 22','ОРИГИНАЛЬНОЕ ПОКАЗАНИЕ · ТЕКСТОВАЯ ВЫПИСКА','ВЕРСИЯ ОБВИНЕНИЯ · ТЕКСТОВАЯ ВЫПИСКА','не установленный судом или комиссией факт','ПОВТОРНОЕ РАССЛЕДОВАНИЕ · ТЕКСТОВАЯ ВЫПИСКА']) if(!sourceMeta.includes(marker)) throw new Error(`source metadata missing marker: ${marker}`);
-for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08','data-v13-reopen-details','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','после трёх судебных процессов']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
+for(const marker of ['MLRealCase7105V13Guards','S07:{min:2','S16:{min:3','S21:{min:3',"screenId==='S17'","citations.includes('M08')",'минимум один ранний материал и M08','data-v13-reopen-details','10 дней после приговора','1974 год','ФИЗИЧЕСКИЙ МАТЕРИАЛ','после трёх судебных процессов','resetGuardState','queueMicrotask(decorate)']) if(!guards.includes(marker)) throw new Error(`v13 guard missing marker: ${marker}`);
 const screenIds=[...js.matchAll(/\{id:'(S\d\d)'/g)].map(match=>match[1]);
 if(screenIds.length!==26||screenIds[0]!=='S00'||screenIds.at(-1)!=='S25') throw new Error(`expected S00..S25, got ${screenIds.length}: ${screenIds.join(',')}`);
+const screenChunk=(id)=>js.match(new RegExp(`\\{id:'${id}'[\\s\\S]*?(?=\\n    \\{id:'S|\\n  \\];)`))?.[0]||'';
+if(!screenChunk('S21').includes('points:15')) throw new Error('S21 must carry 15 investigation-audit points');
+if(!screenChunk('S22').includes('points:10')) throw new Error('S22 must carry 10 final-synthesis points');
+if(!js.includes("state.answers[`${screen.id}:feedbackType`]='';\n    save();\n    return true;")) throw new Error('choice checkpoints must record unsupported positions without forcing a retry');
 for(const marker of ['.rc-screen','.rc-document','.rc-split','@media(max-width:620px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
 
 const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].filter(Boolean);
@@ -95,6 +99,6 @@ try{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.4.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,v13CitationGuards:true,reopenedFileDepth:true,revealPrecision:true,chrome,results};
+const report={version:'0.5.0',route,screens:screenIds.length,checkedScreens:screenChecks.map(item=>item.screen),sourceProvenance:true,v13CitationGuards:true,v13ChoiceSemantics:true,scoringMatrix:'30/25/15/20/10',reopenedFileDepth:true,revealPrecision:true,chrome,results};
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
