@@ -12,7 +12,7 @@
   .rc-case-id strong{white-space:nowrap;flex:0 0 auto}
   .rc-case-id span{min-width:0}
   .rc-stage-meta{white-space:nowrap;font-size:.69rem;line-height:1.4}
-  .rc-title{font-size:clamp(2.25rem,11vw,3.2rem);line-height:.97;overflow-wrap:anywhere}
+  .rc-title{font-size:clamp(2.15rem,10vw,3.2rem);line-height:.97;overflow-wrap:normal;word-break:normal;hyphens:none}
   .rc-screen[data-screen="S00"] .rc-title{white-space:normal;font-size:clamp(2.25rem,11vw,3.2rem);overflow-wrap:normal;word-break:normal}
   .rc-screen-inner{overflow:hidden}
   .ml-brand-strip-nav a:first-child{display:none}
