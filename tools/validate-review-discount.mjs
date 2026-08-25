@@ -17,7 +17,7 @@ const migration=read('supabase/migrations/20260826010500_review_discount_rewards
 
 has(app,'review-discount.js?v=${assetVersion}','shared short-case review loader');
 has(review,'За <strong>любой честный отзыв</strong>','rating-neutral reward copy');
-has(review,"comment.length < 20",'client review threshold');
+has(review,"trim().length < 20",'client review threshold');
 has(review,"publicationConsent: Boolean",'separate publication consent');
 has(review,"mysterylogic:last-aria:review-reward:v1",'reward handoff storage');
 
