@@ -1,0 +1,62 @@
+name: Live Last Aria Release Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-room-gate:
+    if: startsWith(github.head_ref, 'audit/last-aria-full-release-gate-')
+    runs-on: ubuntu-latest
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/coop-last-aria
+      ORIGIN: https://mysterylogic.com
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Allow temporary audit entitlement to be provisioned
+        run: sleep 20
+      - name: Run live paid-room and abuse flow
+        shell: bash
+        run: |
+          node <<'NODE'
+          const {createHash}=await import('node:crypto');
+          const sha=String(process.env.PR_HEAD_SHA||'').trim();
+          if(!/^[0-9a-f]{40}$/i.test(sha)) throw new Error('PR head SHA missing');
+          const endpoint=process.env.ENDPOINT, origin=process.env.ORIGIN;
+          const lastAriaToken=`ml_gate_${sha}`;
+          const volumeToken=`ml_volume_${sha}`;
+          const key=(salt)=>createHash('sha256').update(`${sha}:${salt}`).digest('hex').slice(0,48);
+          const creator=key('creator'),guest=key('guest'),third=key('third'),outsider=key('outsider');
+          const expect=(ok,message)=>{if(!ok)throw new Error(message);};
+          async function call(body,browserKey,{token,expected}={}){
+            const headers={'content-type':'application/json','origin':origin};
+            if(token)headers.authorization=`Bearer ${token}`;
+            const response=await fetch(endpoint,{method:'POST',headers,body:JSON.stringify({...body,browserKey})});
+            let data={};try{data=await response.json();}catch{}
+            if(expected!=null)expect(response.status===expected,`${body.action}: expected ${expected}, got ${response.status} ${JSON.stringify(data)}`);
+            return {status:response.status,data};
+          }
+          const noPay=await call({action:'create',playerName:'Gate No Pay'},creator,{expected:402});
+          expect(noPay.data.error==='payment_required','no-token create bypassed payment');
+          const wrong=await call({action:'create',playerName:'Gate Wrong Product'},creator,{token:volumeToken,expected:402});
+          expect(wrong.data.error==='payment_required','volume1 entitlement opened Last Aria');
+          const created=await call({action:'create',playerName:'Gate Creator'},creator,{token:lastAriaToken,expected:201});
+          const code=created.data?.room?.code;expect(/^[A-HJ-NP-Z2-9]{8}$/.test(code||''),'invalid room code');
+          const preview=await call({action:'preview',code},guest,{expected:200});expect(preview.data?.roomFull===false,'fresh room full');
+          const joined=await call({action:'join',code,playerName:'Gate Guest'},guest,{expected:200});expect(joined.data?.bothJoined===true,'guest join failed');
+          const full=await call({action:'join',code,playerName:'Gate Third'},third,{expected:409});expect(full.data.error==='room_full','third player accepted');
+          const outside=await call({action:'status',code},outsider,{expected:403});expect(outside.data.error==='not_joined','outsider read room');
+          await call({action:'start',code},creator,{expected:200});await call({action:'start',code},guest,{expected:200});
+          const invalid=await call({action:'complete',code,elapsedSeconds:0,hintsUsed:0,attempts:1,firstAnswerCorrect:true},creator,{expected:400});expect(invalid.data.error==='invalid_stats','invalid stats accepted');
+          const cdone=await call({action:'complete',code,elapsedSeconds:2700,hintsUsed:1,attempts:2,firstAnswerCorrect:false},creator,{expected:200});expect(cdone.data?.bothCompleted===false,'completed too early');
+          const gdone=await call({action:'complete',code,elapsedSeconds:2820,hintsUsed:0,attempts:1,firstAnswerCorrect:true},guest,{expected:200});expect(gdone.data?.bothCompleted===true,'both completion failed');
+          const status=await call({action:'status',code},creator,{expected:200});expect(status.data?.bothCompleted===true&&status.data?.opponent?.completed===true,'refresh state unstable');
+          console.log(JSON.stringify({verdict:'LIVE_LAST_ARIA_ROOM_GATE_PASS',head:sha,roomCode:code,noPaymentBlocked:true,wrongProductBlocked:true,paidCreatorCreated:true,guestFree:true,thirdPlayerBlocked:true,outsiderBlocked:true,invalidStatsBlocked:true,bothCompleted:true,refreshStable:true},null,2));
+          NODE
