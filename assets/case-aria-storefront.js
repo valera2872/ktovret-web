@@ -3,12 +3,16 @@
 
   const PRODUCT_ID = 'last_aria';
   const PRICE_RUB = 299;
+  const REVIEW_DISCOUNT_RUB = 50;
+  const REVIEW_PRICE_RUB = 249;
   const CHECKOUT_ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout-last-aria';
   const STATUS_ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status-last-aria';
   const TOKEN_KEY = 'mysterylogic:last-aria:access-token';
   const ORDER_KEY = 'mysterylogic:last-aria:last-order-id';
   const REQUEST_KEY = 'mysterylogic:last-aria:checkout-request-id';
+  const REVIEW_REWARD_KEY = 'mysterylogic:last-aria:review-reward:v1';
   const ROOM_CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
+  const REVIEW_CODE_RE = /^ML-[A-HJ-NP-Z2-9]{4}(?:-[A-HJ-NP-Z2-9]{4}){3}$/;
   const root = document.querySelector('[data-casearia-app]');
   if (!root) return;
 
@@ -22,6 +26,28 @@
   const track = (event, params = {}) => {
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event, page_type: 'last_aria_storefront', ...params }); } catch {}
     try { if (typeof window.ym === 'function') window.ym(111664459, 'reachGoal', event, { page_type: 'last_aria_storefront', ...params }); } catch {}
+  };
+
+  const injectDiscountStyles = () => {
+    if (document.querySelector('[data-aria-review-discount-styles]')) return;
+    const style = document.createElement('style');
+    style.dataset.ariaReviewDiscountStyles = 'true';
+    style.textContent = `
+      .casearia-paywall-price.is-discounted{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.casearia-paywall-price.is-discounted s{color:rgba(224,231,238,.45);font-size:1rem;text-decoration-thickness:1px}.casearia-paywall-price.is-discounted strong{color:#f4d99f}.casearia-review-discount{margin:14px 0 0;padding:12px 14px;border:1px solid rgba(214,181,116,.35);border-radius:14px;background:rgba(214,181,116,.09);color:rgba(245,232,204,.9);font-size:.86rem;line-height:1.45}.casearia-review-discount b{color:#fff}.casearia-review-discount code{color:#f4d99f;font-weight:800;letter-spacing:.04em}`;
+    document.head.appendChild(style);
+  };
+  injectDiscountStyles();
+
+  const activeReviewReward = () => {
+    let value = null;
+    try { value = JSON.parse(localStorage.getItem(REVIEW_REWARD_KEY) || 'null'); } catch {}
+    const code = String(value?.code || '').trim().toUpperCase();
+    const expiresAt = String(value?.expiresAt || '');
+    if (!REVIEW_CODE_RE.test(code) || !expiresAt || new Date(expiresAt).getTime() <= Date.now()) {
+      if (value) localStorage.removeItem(REVIEW_REWARD_KEY);
+      return null;
+    }
+    return { code, expiresAt };
   };
 
   const randomToken = () => {
@@ -92,6 +118,8 @@
 
   const renderPaywall = (message = '') => {
     booting = false;
+    const reward = activeReviewReward();
+    const checkoutPrice = reward ? REVIEW_PRICE_RUB : PRICE_RUB;
     root.innerHTML = `
       <section class="casearia-cover casearia-paywall-cover">
         <div class="casearia-cover-copy">
@@ -107,13 +135,15 @@
           <p class="casearia-eyebrow">Полный доступ</p>
           <h2>Одно дело — одна покупка</h2>
           <p>Покупает только тот, кто создаёт комнату. Второй игрок входит по приглашению бесплатно со своего устройства.</p>
-          <div class="casearia-paywall-price"><strong>${PRICE_RUB} ₽</strong><span>за всё расследование</span></div>
+          ${reward
+            ? `<div class="casearia-paywall-price is-discounted"><s>${PRICE_RUB} ₽</s><strong>${REVIEW_PRICE_RUB} ₽</strong><span>за всё расследование</span></div><div class="casearia-review-discount"><b>Скидка за ваш отзыв: −${REVIEW_DISCOUNT_RUB} ₽</b><br>Код <code>${esc(reward.code)}</code> будет проверен сервером при создании платежа.</div>`
+            : `<div class="casearia-paywall-price"><strong>${PRICE_RUB} ₽</strong><span>за всё расследование</span></div>`}
         </div>
         <div class="casearia-paywall-checkout">
           <label class="casearia-field"><span>E-mail для электронного чека</span><input type="email" data-aria-email autocomplete="email" placeholder="name@example.com"></label>
           <label class="casearia-paywall-check"><input type="checkbox" data-aria-offer> <span>Принимаю <a href="../../offer/" target="_blank" rel="noopener">Публичную оферту</a></span></label>
           <label class="casearia-paywall-check"><input type="checkbox" data-aria-privacy> <span>Ознакомился с <a href="../../privacy/" target="_blank" rel="noopener">Политикой конфиденциальности</a></span></label>
-          <button class="casearia-button is-primary casearia-paywall-buy" data-aria-buy>Купить дело — ${PRICE_RUB} ₽</button>
+          <button class="casearia-button is-primary casearia-paywall-buy" data-aria-buy>Купить дело — ${checkoutPrice} ₽</button>
           <p class="casearia-paywall-note" data-aria-payment-note data-kind="${message ? 'error' : ''}">${esc(message || 'Оплата проходит на защищённой странице T‑Bank. После оплаты дело откроется автоматически.')}</p>
         </div>
       </section>
@@ -155,6 +185,7 @@
             language: 'ru',
             offerAccepted: true,
             privacyAcknowledged: true,
+            reviewDiscountCode: reward?.code || '',
           }),
           cache: 'no-store',
           credentials: 'omit',
@@ -164,14 +195,24 @@
         if (!response.ok) throw new Error(body.error || `http_${response.status}`);
         if (!body.orderId || !body.confirmationUrl) throw new Error('invalid_checkout_response');
         localStorage.setItem(ORDER_KEY, body.orderId);
-        track('last_aria_checkout_created', { price: PRICE_RUB, product_id: PRODUCT_ID, order_id: body.orderId });
+        const chargedPrice = Number(body.amountRub || checkoutPrice);
+        track('last_aria_checkout_created', { price: chargedPrice, discount_rub: Number(body.discountRub || 0), product_id: PRODUCT_ID, order_id: body.orderId });
         setNote('Переходим на защищённую страницу T‑Bank…', 'ok');
         location.assign(body.confirmationUrl);
       } catch (error) {
+        const discountFailures = new Set(['review_discount_invalid', 'review_discount_used', 'review_discount_expired', 'review_discount_already_used', 'review_discount_in_use']);
+        if (discountFailures.has(error.message)) {
+          localStorage.removeItem(REVIEW_REWARD_KEY);
+          busy = false;
+          renderPaywall('Скидка уже использована, истекла или сейчас привязана к другому платежу. Цена возвращена к 299 ₽.');
+          return;
+        }
         const messages = {
           payment_service_not_configured: 'Оплата временно недоступна.',
           payment_create_failed: 'T‑Bank не создал платёж. Попробуйте ещё раз.',
           invalid_email: 'Проверьте e-mail.',
+          request_amount_conflict: 'Не удалось применить скидку к этому запросу. Попробуйте ещё раз.',
+          request_discount_conflict: 'Не удалось применить скидку к этому запросу. Попробуйте ещё раз.',
         };
         setNote(messages[error.message] || 'Не удалось начать оплату. Попробуйте ещё раз.', 'error');
         busy = false;
@@ -188,7 +229,8 @@
     try {
       const result = await paymentStatus(token, orderId);
       if (result.status === 'paid' && result.entitled) {
-        track('last_aria_access_restored', { product_id: PRODUCT_ID });
+        if (Number(result.discountRub || 0) > 0) localStorage.removeItem(REVIEW_REWARD_KEY);
+        track('last_aria_access_restored', { product_id: PRODUCT_ID, price: Number(result.amountRub || PRICE_RUB) });
         await bootGame({ token });
         return true;
       }
@@ -215,13 +257,14 @@
         const result = await paymentStatus(token, orderId);
         if (result.status === 'paid' && result.entitled) {
           localStorage.setItem(ORDER_KEY, orderId);
-          track('last_aria_purchase_completed', { price: PRICE_RUB, product_id: PRODUCT_ID, order_id: orderId });
+          if (Number(result.discountRub || 0) > 0) localStorage.removeItem(REVIEW_REWARD_KEY);
+          track('last_aria_purchase_completed', { price: Number(result.amountRub || PRICE_RUB), discount_rub: Number(result.discountRub || 0), product_id: PRODUCT_ID, order_id: orderId });
           try { history.replaceState({}, '', location.pathname); } catch {}
           await bootGame({ token });
           return true;
         }
         if (result.status === 'canceled') {
-          renderPaywall('Платёж не выполнен. Деньги не списаны.');
+          renderPaywall('Платёж не выполнен. Деньги не списаны. Скидка снова доступна для следующей попытки.');
           return true;
         }
         if (result.status === 'refunded') {
