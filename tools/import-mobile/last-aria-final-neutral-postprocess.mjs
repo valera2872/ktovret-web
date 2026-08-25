@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const REVISION='1.7.0';
+const BASE_RUNTIME_VERSION='1.4.0';
 const CASE_PAGE='detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html';
 const INVESTIGATOR='assets/case-aria-investigator-v16.js';
 const STOREFRONT='assets/case-aria-storefront.js';
@@ -15,6 +16,17 @@ const OLD_SEQUENCE_ANTON='Антон инсценирует ранение → �
 
 const patch=`\n;(() => {\n  'use strict';\n  const data=window.MLCaseAria;\n  if(!data?.final?.questions) return;\n  const voice=data.final.questions.find((question)=>question.id==='voice');\n  if(voice){\n    voice.title='${NEUTRAL_VOICE_TITLE}';\n    voice.options=[\n      ['recording','PB-2 передавал TAKE-6, тогда как MIC-C в это окно не имел входного сигнала'],\n      ['distance','MIC-C оставался живым, а PB-2 лишь дублировал тот же сигнал с задержкой'],\n      ['parallel','PB-2 и MIC-C не позволяют установить, был ли источник живым или заранее сохранённым'],\n      ['witness','Технические данные не определяют источник; его можно установить только по показаниям очевидцев']\n    ];\n  }\n  const sequence=data.final.questions.find((question)=>question.id==='sequence');\n  if(sequence){\n    sequence.title='${NEUTRAL_SEQUENCE_TITLE}';\n    sequence.options=[\n      ['canonical','PR-17 изменён до сцены → реальная травма запускает SAFE → вооружённая TAKE-6 срабатывает от Q-17B → K-12 открывает архив → MS-1908 затем фиксируется внутри T-6M'],\n      ['manager','PR-17 изменён до сцены → реальная травма запускает SAFE → сценический менеджер передаёт K-12 сообщнику → PB-2 запускается из техзоны → MS-1908 позже оказывается внутри T-6M'],\n      ['anton','PR-17 изменён до сцены → реальная травма запускает SAFE → другой человек использует K-12 и обувь 43-го размера → после рабочего света MS-1908 подбрасывают в T-6M'],\n      ['archivist','PR-17 изменён до сцены → реальная травма запускает SAFE → архивист пользуется законным доступом во время blackout → PB-2 маскирует движение → скан рядом с T-6M ошибочно принимают за содержимое кофра']\n    ];\n  }\n  window.MLAriaFinalNeutral=Object.freeze({revision:'${REVISION}',voiceNeutral:true,balancedSequence:true});\n})();\n`;
 
+export function prepareLastAriaFinalNeutral(siteRoot){
+  const storefrontFile=path.join(siteRoot,STOREFRONT);
+  if(!fs.existsSync(storefrontFile)) return {prepared:false};
+  let storefront=fs.readFileSync(storefrontFile,'utf8');
+  if(storefront.includes(`const version = '${REVISION}';`)){
+    storefront=storefront.replace(`const version = '${REVISION}';`,`const version = '${BASE_RUNTIME_VERSION}';`);
+    fs.writeFileSync(storefrontFile,storefront);
+  }
+  return {prepared:true};
+}
+
 export function applyLastAriaFinalNeutral(siteRoot){
   const pageFile=path.join(siteRoot,CASE_PAGE);
   const investigatorFile=path.join(siteRoot,INVESTIGATOR);
@@ -27,12 +39,12 @@ export function applyLastAriaFinalNeutral(siteRoot){
   fs.writeFileSync(investigatorFile,investigator);
 
   let storefront=fs.readFileSync(storefrontFile,'utf8');
-  storefront=storefront.replace("const version = '1.4.0';",`const version = '${REVISION}';`);
+  storefront=storefront.replace(`const version = '${BASE_RUNTIME_VERSION}';`,`const version = '${REVISION}';`);
   if(!storefront.includes(`const version = '${REVISION}';`)) throw new Error('Last Aria final-neutral cache revision was not applied to storefront');
   fs.writeFileSync(storefrontFile,storefront);
 
   let page=fs.readFileSync(pageFile,'utf8');
-  page=page.replaceAll('?v=1.4.0',`?v=${REVISION}`);
+  page=page.replaceAll(`?v=${BASE_RUNTIME_VERSION}`,`?v=${REVISION}`);
   fs.writeFileSync(pageFile,page);
 
   const combined=`${investigator}\n${storefront}\n${page}`;
