@@ -32,7 +32,7 @@ import {
 } from '../_shared/last-aria-review-discount.ts';
 
 const OFFER_VERSION = '2026-08-16';
-const PRIVACY_VERSION = '2026-08-26';
+const PRIVACY_VERSION = '2026-08-16';
 
 const discountErrors = new Set([
   'review_discount_invalid',
