@@ -1,11 +1,16 @@
 (()=>{
   'use strict';
 
-  const VERSION='0.1.2';
+  const VERSION='0.1.3';
   const app=document.querySelector('[data-realcase-app]');
   if(!app) return;
 
   const PASSIVE_EVIDENCE=new Set(['S03','S04','S05','S09','S11']);
+  const S00_COPY=[
+    'Это реальное уголовное дело 1971 года. Все ключевые обстоятельства взяты из официальных материалов.',
+    'Имена, точное место и исход дела скрыты до финала, чтобы вы не знали заранее, чем всё закончилось.',
+    'Вы получите материалы дела по очереди: первые показания, повторные допросы и версию обвинения. Сравнивайте их и решите сами: достаточно ли оснований, чтобы обвинить человека.'
+  ];
   const S24_COPY='Все ключевые материалы связаны с официальным архивом Новой Шотландии и документами Royal Commission. В расследовании использованы текстовые выписки и сопоставление источников; ниже — реестр официальных ссылок.';
   const ACTION_LABELS={
     S06:'Зафиксировать карту фактов',
@@ -138,6 +143,11 @@
     if(screen==='S00'){
       const eyebrow=app.querySelector('.rc-screen[data-screen="S00"] .rc-eyebrow');
       if(eyebrow&&eyebrow.textContent!=='Реальное уголовное дело · 1971') eyebrow.textContent='Реальное уголовное дело · 1971';
+      const paragraphs=[...app.querySelectorAll('.rc-screen[data-screen="S00"] .rc-copy p')];
+      S00_COPY.forEach((text,index)=>{
+        const node=paragraphs[index];
+        if(node&&node.textContent!==text) node.textContent=text;
+      });
     }
 
     if(screen==='S23'){
