@@ -70,6 +70,44 @@
     }));
   };
 
+  const renderReopenEvidence=()=>{
+    const screen=app.querySelector('.rc-screen[data-screen="S19"]');
+    if(!screen||screen.querySelector('[data-v13-reopen-details]')) return;
+    const choices=screen.querySelector('.rc-choice-list');
+    const documentCard=screen.querySelector('.rc-document');
+    if(!choices||!documentCard) return;
+
+    const block=document.createElement('section');
+    block.className='rc-ledger';
+    block.dataset.v13ReopenDetails='true';
+    block.setAttribute('aria-label','Новые материалы после осуждения');
+    block.innerHTML=`
+      <article class="rc-ledger-item">
+        <div class="rc-ledger-top"><strong>10 дней после приговора</strong><span>ПОЗДНЕЕ СВИДЕТЕЛЬСКОЕ ЗАЯВЛЕНИЕ</span></div>
+        <p>Новый свидетель заявил, что видел, как «Мужчина X» нанёс смертельный удар. На этом этапе это новое свидетельское заявление, а не установленный комиссией факт.</p>
+      </article>
+      <article class="rc-ledger-item">
+        <div class="rc-ledger-top"><strong>1974 год</strong><span>СООБЩЕНИЕ ИЗ СЕМЬИ МУЖЧИНЫ X</span></div>
+        <p>Член семьи Мужчины X сообщила, что в ночь убийства видела, как он отмывал с ножа следы, похожие на кровь. Это позднее свидетельское сообщение, которое требовало проверки.</p>
+      </article>
+      <article class="rc-ledger-item">
+        <div class="rc-ledger-top"><strong>Повторное расследование 1982 года</strong><span>ФИЗИЧЕСКИЙ МАТЕРИАЛ</span></div>
+        <p>Повторное расследование собрало физические данные, указывавшие на использование ножа Мужчины X при нападении. Финальный вывод Royal Commission всё ещё закрыт.</p>
+      </article>`;
+    choices.before(block);
+  };
+
+  const refineFinalReveal=()=>{
+    const screen=app.querySelector('.rc-screen[data-screen="S23"]');
+    if(!screen||screen.dataset.v13RevealPrecision==='true') return;
+    screen.querySelectorAll('.rc-reveal-card .rc-copy p').forEach(paragraph=>{
+      if(paragraph.textContent.includes('Эбсари был осуждён за manslaughter.')){
+        paragraph.textContent=paragraph.textContent.replace('Эбсари был осуждён за manslaughter.','Эбсари был осуждён за manslaughter после трёх судебных процессов.');
+      }
+    });
+    screen.dataset.v13RevealPrecision='true';
+  };
+
   const validateGuard=(screenId)=>{
     if(REQUIREMENTS[screenId]){
       const config=REQUIREMENTS[screenId];
@@ -107,6 +145,8 @@
     scheduled=false;
     const screenId=currentId();
     if(REQUIREMENTS[screenId]) renderCitationRequirement(screenId);
+    if(screenId==='S19') renderReopenEvidence();
+    if(screenId==='S23') refineFinalReveal();
   };
   const schedule=()=>{
     if(scheduled) return;
@@ -116,5 +156,5 @@
   new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
   schedule();
 
-  window.MLRealCase7105V13Guards={version:'0.1.0',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}]))};
+  window.MLRealCase7105V13Guards={version:'0.2.0',requirements:Object.fromEntries(Object.entries(REQUIREMENTS).map(([id,value])=>[id,{min:value.min,materials:[...value.materials]}])),reopenDetails:true,revealPrecision:true};
 })();
