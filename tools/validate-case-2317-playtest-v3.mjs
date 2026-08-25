@@ -23,7 +23,7 @@ const s1i = stage(1,'investigator'), s1a = stage(1,'analyst');
 const s2i = stage(2,'investigator'), s2a = stage(2,'analyst');
 const s3i = stage(3,'investigator'), s3a = stage(3,'analyst');
 
-expect(s1i.includes('Личность водителя на этом пакете не установлена'), 'Investigator starts with vehicle/person assumption already solved');
+expect(s1i.includes('не позволяет определить рост или личность водителя') && s1i.includes('Личность водителя пока не установлена'), 'Investigator starts with vehicle/person assumption already solved');
 expect(!s1i.includes('Q7-29'), 'Investigator has Analyst camera package before handoff');
 expect(s1a.includes('Q7-29') && !s1a.includes('23:17:43.6'), 'Analyst stage1 packet does not preserve asymmetric dependency');
 expect(!s2i.includes('SP-3') && s2a.includes('SP-3'), 'stage2 car route is not role-asymmetric');
