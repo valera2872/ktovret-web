@@ -8,6 +8,7 @@ on:
       - 'assets/real-case-marshall*.js'
       - 'assets/real-case-marshall*.css'
       - 'tools/real-case-marshall-smoke.mjs'
+      - 'tools/real-case-marshall-visual-audit.mjs'
       - '.github/workflows/real-case-marshall.yml'
   workflow_dispatch:
 
@@ -30,9 +31,13 @@ jobs:
           node --check assets/real-case-marshall-source-meta.js
           node --check assets/real-case-marshall-v13-guards.js
           node --check tools/real-case-marshall-smoke.mjs
+          node --check tools/real-case-marshall-visual-audit.mjs
 
       - name: Validate source-locked responsive opening
         run: node tools/real-case-marshall-smoke.mjs
+
+      - name: Capture full premium visual audit
+        run: node tools/real-case-marshall-visual-audit.mjs
 
       - name: Upload prototype smoke
         uses: actions/upload-artifact@v4
