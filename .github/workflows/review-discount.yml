@@ -1,0 +1,41 @@
+name: Validate review discount funnel
+
+on:
+  pull_request:
+    paths:
+      - 'ktovret-game/assets/app.js'
+      - 'ktovret-game/assets/review-discount.js'
+      - 'assets/case-aria-storefront.js'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'tools/validate-review-discount.mjs'
+      - '.github/workflows/review-discount.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ktovret-game/assets/app.js'
+      - 'ktovret-game/assets/review-discount.js'
+      - 'assets/case-aria-storefront.js'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'tools/validate-review-discount.mjs'
+      - '.github/workflows/review-discount.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          node --check ktovret-game/assets/app.js
+          node --check ktovret-game/assets/review-discount.js
+          node --check assets/case-aria-storefront.js
+      - name: Review discount contracts
+        run: node tools/validate-review-discount.mjs
