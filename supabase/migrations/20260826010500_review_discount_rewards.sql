@@ -28,7 +28,7 @@ create table if not exists public.review_discount_rewards (
   discount_value numeric(10,2) not null default 50.00 check (discount_value = 50.00),
   discounted_price numeric(10,2) not null default 249.00 check (discounted_price = 249.00),
   expires_at timestamptz not null,
-  reserved_order_id uuid null references public.payment_orders(id) on delete set null,
+  reserved_order_id uuid null,
   reserved_at timestamptz null,
   claimed_email_hash text null check (claimed_email_hash is null or claimed_email_hash ~ '^[a-f0-9]{64}$'),
   used_order_id uuid null references public.payment_orders(id) on delete set null,
