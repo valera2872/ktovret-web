@@ -1,5 +1,20 @@
 /* Final emotional hierarchy for the documentary reveal. Visual only. */
 
+/* Document-reading screens should feel like reading evidence, not completing a form. */
+.rc-reading-prompt{
+  max-width:760px;
+  margin:26px 0 0;
+  padding:15px 0 0;
+  border-top:1px solid rgba(23,35,49,.12);
+  color:rgba(23,35,49,.58);
+  font-size:.76rem;
+  line-height:1.6;
+}
+.rc-screen:not(.is-paper) .rc-reading-prompt{
+  border-top-color:rgba(255,255,255,.08);
+  color:var(--rc-muted,#9fb0c1);
+}
+
 /* S18 is a genuine temporal rupture, not a routine transition card. */
 .rc-screen[data-screen="S18"]::after{
   content:"11 ЛЕТ";
@@ -66,6 +81,7 @@
 }
 
 @media(max-width:620px){
+  .rc-reading-prompt{margin-top:20px;padding-top:13px;font-size:.7rem}
   .rc-screen[data-screen="S18"]::after{right:-12px;bottom:10px;font-size:7.3rem;opacity:.025}
   .rc-screen[data-screen="S18"] .rc-screen-inner{padding-top:46px}
   .rc-screen[data-screen="S18"] .rc-title{font-size:clamp(3.4rem,17vw,5rem)}
