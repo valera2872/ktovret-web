@@ -29,6 +29,8 @@ const requiredPasses=[
   'First-time-user pass',
 ];
 
+const escapeRegExp=(value)=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+
 let failed=false;
 for(const file of files){
   const rel=path.normalize(file);
@@ -40,12 +42,12 @@ for(const file of files){
   if(!/Production artifact SHA-256:\s*`[0-9a-f]{64}`/i.test(text)) errors.push('missing production SHA-256');
   if(!/Content changed after G0:\s*`NO`/i.test(text)) errors.push('Content changed after G0 must be NO');
   for(const gate of requiredGates){
-    const escaped=gate.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    if(!new RegExp(`\\|\\s*${escaped}\\s*\\|\\s*PASS\\s*\\|`,'i').test(text)) errors.push(`${gate} is not PASS`);
+    const pattern='\\|\\s*'+escapeRegExp(gate)+'\\s*\\|\\s*PASS\\s*\\|';
+    if(!new RegExp(pattern,'i').test(text)) errors.push(`${gate} is not PASS`);
   }
   for(const pass of requiredPasses){
-    const escaped=pass.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    if(!new RegExp(`-\\s*${escaped}:\\s*\\`PASS\\``,'i').test(text)) errors.push(`${pass} is not PASS`);
+    const pattern='-\\s*'+escapeRegExp(pass)+':\\s*`PASS`';
+    if(!new RegExp(pattern,'i').test(text)) errors.push(`${pass} is not PASS`);
   }
   if(/\b(NOT RUN|UNKNOWN)\b/i.test(text)) errors.push('record still contains NOT RUN/UNKNOWN');
   if(!/READY TO PUBLISH\s*·\s*Release Gate 10\/10 PASS/i.test(text)) errors.push('final READY TO PUBLISH verdict missing');
