@@ -1,6 +1,7 @@
 /* Final emotional hierarchy for the documentary reveal. Visual only. */
 
 /* Document-reading screens should feel like reading evidence, not completing a form. */
+.rc-fact-grid[hidden]{display:none!important}
 .rc-reading-prompt{
   max-width:760px;
   margin:26px 0 0;
