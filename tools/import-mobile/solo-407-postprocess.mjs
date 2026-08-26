@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir } from './common.mjs';
 import { siteUrl } from './site-config.mjs';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const HUB = 'detektivnye-igry-dlya-odnogo';
 const CASE = `${HUB}/407`;
 let finalizerRegistered = false;
