@@ -127,7 +127,7 @@
     ]
   };
 
-  const cleanState = () => ({ started:false, stage:1, unlocked:[], opened:[], pinned:[], checkpoints:{}, hintsUsed:0, currentHint:'', finalAnswers:{}, solved:false });
+  const cleanState = () => ({ started:false, stage:1, unlocked:[], opened:[], pinned:[], checkpoints:{}, hintsUsed:0, hintsByStage:{}, currentHint:'', finalAnswers:{}, solved:false });
   const load = () => { try { return { ...cleanState(), ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }; } catch { return cleanState(); } };
   let state = load();
   const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -224,7 +224,14 @@
     const nav = event.target.closest('[data-stage-nav]');
     if (nav && !nav.disabled) { state.stage = Number(nav.dataset.stageNav); state.currentHint = ''; save(); render(); return; }
     const hint = event.target.closest('[data-hint]');
-    if (hint) { const list = hints[state.stage] || []; state.currentHint = list[Math.min(state.hintsUsed, list.length - 1)] || 'Перепроверьте, что именно доказывает каждый источник, а чего он не доказывает.'; state.hintsUsed += 1; save(); emit('solo_hint', { stage:state.stage, hintsUsed:state.hintsUsed }); render(); return; }
+    if (hint) {
+      const list = hints[state.stage] || [];
+      const used = Number(state.hintsByStage?.[state.stage] || 0);
+      state.currentHint = list[Math.min(used, list.length - 1)] || 'Перепроверьте, что именно доказывает каждый источник, а чего он не доказывает.';
+      state.hintsByStage = { ...(state.hintsByStage || {}), [state.stage]: used + 1 };
+      state.hintsUsed += 1;
+      save(); emit('solo_hint', { stage:state.stage, stageHintNumber:used + 1, hintsUsed:state.hintsUsed }); render(); return;
+    }
     const hintClose = event.target.closest('[data-hint-close]');
     if (hintClose) { state.currentHint = ''; save(); render(); return; }
     const reset = event.target.closest('[data-reset]');
