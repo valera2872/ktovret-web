@@ -49,8 +49,13 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     if(mode==='final'){
       const final=document.querySelector('.solo407-final');
       if(!final) throw new Error('final screen missing');
-      final.scrollIntoView({block:'start'});
+      const brief=document.querySelector('.solo407-brief');
+      const stage=document.querySelector('.solo407-stage-card');
+      if(brief) brief.style.display='none';
+      if(stage) stage.style.display='none';
+      window.scrollTo(0,0);
       await wait(120);
+      if(final.getBoundingClientRect().top > 80) throw new Error('final visual framing failed');
       document.body.dataset.ready='final';
       return;
     }
