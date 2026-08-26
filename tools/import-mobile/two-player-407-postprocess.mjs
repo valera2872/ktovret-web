@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
+import { applySolo407 } from './solo-407-postprocess.mjs';
 
 const VERSION = '1.7.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
@@ -96,5 +97,6 @@ export function applyTwoPlayer407(siteRoot) {
   if (!page.includes('case-407-release-gate-v1.js')) throw new Error('407 release-gate runtime missing');
   fs.writeFileSync(path.join(caseDir, 'index.html'), page);
   patchLanding(siteRoot);
-  return { route: CASE_ROUTE, title: 'Номер 407', indexed: false, materials: 18 };
+  const solo = applySolo407(siteRoot);
+  return { route: CASE_ROUTE, title: 'Номер 407', indexed: false, materials: 18, soloHub: solo.hub, soloRoute: solo.route };
 }

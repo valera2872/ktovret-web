@@ -1,0 +1,37 @@
+name: Validate Mystery Logic Solo 407
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-solo-407:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate solo source syntax
+        run: |
+          node --check assets/case-407-solo.js
+          node --check tools/import-mobile/solo-407-postprocess.mjs
+          node --check tools/import-mobile/two-player-407-postprocess.mjs
+          node --check tools/validate-solo-407.mjs
+          node --check tools/solo-407-browser-smoke.mjs
+      - name: Validate solo product and generated integration
+        run: node tools/validate-solo-407.mjs
+      - name: Black-box solo flow and premium visual smoke
+        run: node tools/solo-407-browser-smoke.mjs
+      - name: Upload solo desktop and mobile screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: solo-407-premium-visual-smoke
+          path: artifacts/solo-407/
+          retention-days: 7

@@ -84,7 +84,10 @@ jobs:
           grep -q '15 дел' dela/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
-          grep -q '"indexableUrls": 112' assets/generated/import-report.json
+          grep -q '"indexableUrls": 113' assets/generated/import-report.json
+          grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
+          grep -q 'solo407-home-switch' index.html
+          test -f detektivnye-igry-dlya-odnogo/index.html
       - name: Render approved reference pages
         working-directory: web
         run: node tools/archive-visual-smoke.mjs
