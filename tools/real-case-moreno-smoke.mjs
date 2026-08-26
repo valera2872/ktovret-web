@@ -10,19 +10,25 @@ const root=process.env.SITE_ROOT?path.resolve(process.env.SITE_ROOT):path.resolv
 const route='realnye-dela/pozharnaya-lestnica-1991/index.html';
 const htmlFile=path.join(root,route);
 const jsFile=path.join(root,'assets','real-case-moreno-slice.js');
+const polishJsFile=path.join(root,'assets','real-case-moreno-polish.js');
 const cssFile=path.join(root,'assets','real-case-moreno-slice.css');
+const polishCssFile=path.join(root,'assets','real-case-moreno-polish.css');
 const outDir=path.join(root,'artifacts','real-case-moreno');
 fs.mkdirSync(outDir,{recursive:true});
 
-for(const file of [htmlFile,jsFile,cssFile]) if(!fs.existsSync(file)) throw new Error(`missing slice file: ${path.relative(root,file)}`);
+for(const file of [htmlFile,jsFile,polishJsFile,cssFile,polishCssFile]) if(!fs.existsSync(file)) throw new Error(`missing slice file: ${path.relative(root,file)}`);
 const html=fs.readFileSync(htmlFile,'utf8');
 const js=fs.readFileSync(jsFile,'utf8');
+const polishJs=fs.readFileSync(polishJsFile,'utf8');
 const css=fs.readFileSync(cssFile,'utf8');
+const polishCss=fs.readFileSync(polishCssFile,'utf8');
 
-for(const marker of ['name="robots" content="noindex,follow"','data-moreno-app','real-case-moreno-slice.css?v=0.1.0','real-case-moreno-slice.js?v=0.1.0','Дело на пожарной лестнице']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
+for(const marker of ['name="robots" content="noindex,follow"','data-moreno-app','real-case-moreno-slice.css?v=0.1.0','real-case-moreno-polish.css?v=0.1.0','real-case-moreno-slice.js?v=0.1.0','real-case-moreno-polish.js?v=0.1.0','Дело на пожарной лестнице']) if(!html.includes(marker)) throw new Error(`route missing marker: ${marker}`);
 for(const marker of ["const VERSION='0.1.0'",'ml-realcase-moreno-slice-v1','initialTheory','trajectoryZone','occupantsAssessment','alibiAssessment','lineInterpretations','strongestEvidence','finalDecision','КАК ЭТО МОГЛО ПРОИЗОЙТИ?','ОТКУДА МОГЛИ СТРЕЛЯТЬ?','КОГО МОЖНО ИСКЛЮЧИТЬ?','Я СПАЛ В КРЕСЛЕ','КАКИЕ ДВЕ ЛИНИИ ВЫ ПРОВЕРИТЕ?','СОБЕРИТЕ ВЕРСИЮ','РОДНИ ДЭНИЕЛС','window.MLMorenoSlice']) if(!js.includes(marker)) throw new Error(`engine missing marker: ${marker}`);
+for(const marker of ['data.sceneIntro','ms-scene-intro','Патриция Морено · 17 лет','4 человека','следов нет']) if(!polishJs.includes(marker.replace('data.sceneIntro','data.sceneIntro'))&&!(marker==='data.sceneIntro'&&polishJs.includes('dataset.sceneIntro'))) throw new Error(`polish missing marker: ${marker}`);
 for(const forbidden of ['Свидетель A','Свидетель B','Свидетель C','Свидетель D','2+ источника','Проверить классификацию','Статус изменения','минимум пять материалов']) if(js.includes(forbidden)) throw new Error(`legacy archive-quiz language leaked: ${forbidden}`);
 for(const marker of ['.ms-opening','.ms-scene','.ms-zone','.ms-interstitial','.ms-people','.ms-alibi','.ms-line-grid','.ms-board','.ms-evidence-pick','.ms-reveal','@media(max-width:780px)']) if(!css.includes(marker)) throw new Error(`styles missing marker: ${marker}`);
+for(const marker of ['.ms-scene-intro','.ms-scene-intro-photo','.ms-scene-intro-facts','.ms-opening-visual{order:-1']) if(!polishCss.includes(marker)) throw new Error(`polish styles missing marker: ${marker}`);
 
 const chromeCandidates=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].filter(Boolean);
 const chrome=chromeCandidates.find(candidate=>fs.existsSync(candidate));
@@ -58,7 +64,7 @@ try{
   const opening=await dump();
   check('opening',opening,['ДЕВУШКА НА ПОЖАРНОЙ ЛЕСТНИЦЕ','Патрицию Морено','Войти в квартиру','capture_3.jpg'],['Rodney Daniels','РОДНИ ДЭНИЕЛС']);
   const scene=await dump('scene');
-  check('scene',scene,['КАК ЭТО МОГЛО ПРОИЗОЙТИ?','Линия снаружи','Линия из квартиры','Несчастный случай / самострел','Проверить версию по сцене'],['Rodney Daniels','РОДНИ ДЭНИЕЛС']);
+  check('scene',scene,['КАК ЭТО МОГЛО ПРОИЗОЙТИ?','data-scene-intro="true"','Патриция Морено · 17 лет','4 человека','Линия снаружи','Линия из квартиры','Несчастный случай / самострел','Проверить версию по сцене'],['Rodney Daniels','РОДНИ ДЭНИЕЛС']);
   const trajectory=await dump('trajectory');
   check('trajectory',trajectory,['ОТКУДА МОГЛИ СТРЕЛЯТЬ?','ЗОНА A','дверной проём','нисходящее направление пули','Материалы на столе'],['Rodney Daniels','РОДНИ ДЭНИЕЛС']);
   const trajectoryResult=await dump('trajectoryResult');
@@ -77,6 +83,6 @@ try{
   await new Promise(resolve=>server.close(resolve));
 }
 
-const report={version:'0.1.0',route,mode:'deduction-vertical-slice',stages:9,coreLoop:['hypothesis','spatial deduction','constraint','alibi evaluation','selective evidence checks','pre-reveal decision'],legacyArchiveQuiz:false,spoilerBoundary:true};
+const report={version:'0.1.0',route,mode:'deduction-vertical-slice',stages:9,coreLoop:['hypothesis','spatial deduction','constraint','alibi evaluation','selective evidence checks','pre-reveal decision'],legacyArchiveQuiz:false,spoilerBoundary:true,firstContactVisuals:true};
 fs.writeFileSync(path.join(outDir,'smoke-report.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
