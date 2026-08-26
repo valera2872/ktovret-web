@@ -12,7 +12,7 @@ import {
   REVIEW_DISCOUNT_TTL_DAYS,
 } from '../_shared/last-aria-review-discount.ts';
 
-const REVIEWER_TOKEN_RE = /^ml_review_[A-Za-z0-9_-]{32,160}$/;
+const BROWSER_KEY_RE = /^[a-f0-9]{48}$/;
 const CASE_ID_RE = /^[A-Za-z0-9:_-]{3,160}$/;
 const PROMO_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const DIFFICULTIES = new Set(['too_easy', 'just_right', 'too_hard']);
@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
   let body: any = {};
   try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }, origin); }
 
-  const reviewerToken = String(body.reviewerToken || '').trim();
+  const browserKey = String(body.browserKey || '').trim();
   const caseId = String(body.caseId || '').trim();
   const rating = Number(body.rating);
   const comment = String(body.comment || '').trim();
@@ -50,16 +50,28 @@ Deno.serve(async (req: Request) => {
   const displayName = cleanOptionalName(body.displayName);
   const publicationConsent = body.publicationConsent === true;
 
-  if (!REVIEWER_TOKEN_RE.test(reviewerToken)) return json(400, { error: 'invalid_reviewer_token' }, origin);
+  if (!BROWSER_KEY_RE.test(browserKey)) return json(400, { error: 'invalid_browser_key' }, origin);
   if (!CASE_ID_RE.test(caseId)) return json(400, { error: 'invalid_case_id' }, origin);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return json(400, { error: 'invalid_rating' }, origin);
   if (comment.length < 20) return json(400, { error: 'review_too_short' }, origin);
   if (comment.length > 2000) return json(400, { error: 'review_too_long' }, origin);
 
-  const reviewerKeyHash = await sha256(reviewerToken);
+  const reviewerKeyHash = await sha256(browserKey);
   const admin = adminClient();
-  const now = new Date().toISOString();
 
+  // Reward identity is the same browser key already used by case-stats.
+  // A review can be stored and rewarded only after this exact browser/case pair
+  // has an immutable first-completion row on the server.
+  const { data: completion, error: completionError } = await admin
+    .from('case_first_results')
+    .select('completed_at')
+    .eq('case_id', caseId)
+    .eq('player_key_hash', reviewerKeyHash)
+    .maybeSingle();
+  if (completionError) return json(503, { error: 'completion_lookup_failed' }, origin);
+  if (!completion?.completed_at) return json(409, { error: 'case_completion_required' }, origin);
+
+  const now = new Date().toISOString();
   const { data: review, error: reviewError } = await admin
     .from('case_reviews')
     .upsert({
