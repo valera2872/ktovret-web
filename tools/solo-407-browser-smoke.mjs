@@ -46,7 +46,14 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     await expectHint('Принадлежность пропуска');
     document.body.dataset.hintsProgressive='true';
     await checkpoint('owner');
-    if(mode==='final'){ document.body.dataset.ready='final'; return; }
+    if(mode==='final'){
+      const final=document.querySelector('.solo407-final');
+      if(!final) throw new Error('final screen missing');
+      final.scrollIntoView({block:'start'});
+      await wait(120);
+      document.body.dataset.ready='final';
+      return;
+    }
     finalSelect({room:'407',alarm:'force',route:'window',sequence:'denis'}); document.querySelector('[data-final]').requestSubmit(); await wait(60);
     const feedback=document.querySelector('.solo407-final-feedback')?.textContent||'';
     document.body.dataset.wrongNeutral=String(feedback.includes('Я не покажу, какое именно звено')&&!appText().includes('Дело закрыто'));
@@ -73,8 +80,8 @@ try{
     ['entry-mobile.png','entry','--window-size=390,1100'],
     ['desk-desktop.png','desk','--window-size=1440,1400'],
     ['desk-mobile.png','desk','--window-size=390,1800'],
-    ['final-desktop.png','final','--window-size=1440,2400'],
-    ['final-mobile.png','final','--window-size=390,3400'],
+    ['final-desktop.png','final','--window-size=1440,1800'],
+    ['final-mobile.png','final','--window-size=390,2600'],
   ];
   for(const [name,mode,size] of shots){ const file=path.join(outDir,name); await runChrome([...common,size,`--screenshot=${file}`,`${base}?mode=${mode}`]); if(fs.statSync(file).size<35_000) throw new Error(`${name} too small`); }
   const {stdout:dom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve`]);
