@@ -16,35 +16,52 @@
     2: { initial: ['s2-i0','s2-a0'], requests: ['s2-i1','s2-a1','s2-i2','s2-a2'] },
     3: { initial: ['s3-a0','s3-i0'], requests: ['s3-a1','s3-i1','s3-a2','s3-i2'] },
   };
+
+  const soloStages = {
+    1: {
+      title: 'Первые двадцать минут',
+      objective: 'Восстановите последние двадцать минут до тревоги. Сначала установите, описывают ли камера, дверь, сейф и электронный журнал одну и ту же физическую точку.'
+    },
+    2: {
+      title: 'След после тревоги',
+      objective: 'Проверьте, что можно доказать о перемещениях после 01:12. Разделяйте маршрут человека, маршрут устройств и свойства физического пространства; часть служебных данных пока доступна только фрагментами.'
+    },
+    3: {
+      title: 'Последние подтверждения',
+      objective: 'Срочный запрос дал точный служебный маршрут. Проверьте, что он доказывает сам по себе, где прошёл футляр и какие действия можно независимо привязать к конкретному человеку.'
+    }
+  };
+
   const checkpoints = {
     1: {
       question: 'Какой вывод уже можно считать доказанным?',
       options: [
-        ['camera','Камера C4 дала сбой и пропустила выход Марты.'],
-        ['ids','Надпись на двери и физический контроллер нельзя считать одним идентификатором без сверки.'],
-        ['service','Марта уже доказанно покинула этаж через служебную зону.'],
-        ['denis','Денис Левин переставил номерные таблички.'],
+        ['camera','Камера C4 исправно фиксировала обе двери, поэтому надписи на них точно соответствуют физическим комнатам.'],
+        ['ids','Надпись на двери, H-код таблички и L-код контроллера требуют отдельной сверки перед выводом о физической комнате.'],
+        ['service','Материалы уже подтверждают, что Марта покинула этаж через скрытый служебный проход после тревоги.'],
+        ['denis','Следы отвёртки и спор с Мартой уже позволяют связать перестановку табличек именно с Денисом Левиным.'],
       ], answer: 'ids'
     },
     2: {
       question: 'Что независимо подтверждают материалы второго этапа?',
       options: [
-        ['forced','Марту заставили оставить телефон и вызвать тревогу.'],
-        ['same','Телефон и часы Марты всё время двигались вместе.'],
-        ['zones','После тревоги часы уходят в закрытые служебные зоны, пока телефон остаётся наверху; у физического 407 есть служебный выход.'],
-        ['token','Елена лично несла HK-44 по всему маршруту.'],
+        ['forced','Правильный код тревоги и оставленный телефон доказывают, что Марту принудили участвовать в происходящем.'],
+        ['same','Сеансы телефона и часов показывают один и тот же маршрут Марты от номера до закрытой зоны B1.'],
+        ['zones','Телефон остаётся наверху, часы уходят в закрытые зоны, а физический 407 имеет отдельный служебный выход.'],
+        ['token','Маршрут закрытых зон уже доказывает, что мастер-токен HK-44 всё время находился у Елены Раевой.'],
       ], answer: 'zones'
     },
     3: {
       question: 'Какой вывод нельзя строить только на журнале HK-44?',
       options: [
-        ['route','Что был использован маршрут SVC-407 → служебный лифт → LOADING-B1.'],
-        ['owner','Что именно Елена держала токен в руке на каждом событии доступа.'],
-        ['time','Что события доступа пришлись на окно 01:14–01:19.'],
-        ['b1','Что маршрут заканчивается в зоне B1.'],
+        ['route','Журнал HK-44 подтверждает последовательность SVC-407 → служебный лифт → LOADING-B1 в заданном окне.'],
+        ['owner','Журнал HK-44 сам по себе не доказывает, что владелец токена физически прошёл за ним весь маршрут.'],
+        ['time','Журнал HK-44 подтверждает, что все три события доступа пришлись на окно между 01:14 и 01:19.'],
+        ['b1','Журнал HK-44 подтверждает, что цепочка служебного доступа заканчивается открытием зоны LOADING-B1.'],
       ], answer: 'owner'
     }
   };
+
   const hints = {
     1: [
       'Разведите четыре идентификатора: надпись на двери, H-код таблички, L-код контроллера и номер сейфа.',
@@ -57,6 +74,56 @@
     3: [
       'Принадлежность пропуска не равна доказанному действию владельца. Ищите независимое цифровое действие.',
       'Ложь подозреваемого сама по себе не доказывает причастность к критическому окну.'
+    ]
+  };
+
+  const soloFinal = {
+    intro: 'Соберите причинно-следственную версию. Она должна одновременно объяснить, какую комнату осмотрела охрана, природу тревоги, путь после 01:12 и чьи действия независимо подтверждаются материалами.',
+    questions: [
+      {
+        id: 'room',
+        title: 'Какой физический номер охрана осмотрела в 01:16?',
+        options: [
+          ['407','Физический 407: табличка, контроллер и номер сейфа указывали на одну комнату.'],
+          ['409','Физический 409: на его двери стояла переставленная табличка «407», поэтому охрана открыла другую комнату.'],
+          ['405','Физический 405: старый план люкса показывает переход, из-за которого охрана ошиблась дверью.'],
+          ['unknown','Физический номер установить нельзя: камера и электронные журналы расходятся без достаточной независимой сверки.']
+        ],
+        answer: '409'
+      },
+      {
+        id: 'alarm',
+        title: 'Что лучше всего объясняет тревогу S-407 в 01:12?',
+        options: [
+          ['force','Сейф открыли под физическим принуждением: правильный код ввели, чтобы не повредить замок.'],
+          ['mistake','Тревогу вызвала ошибка при вводе: дополнительная цифра не была осознанным сигналом.'],
+          ['duress','Правильный код ввели намеренно и добавили цифру 9, чтобы запустить тихую тревогу.'],
+          ['remote','Тревогу отправили удалённо через служебную систему, а ввод кода лишь совпал по времени.']
+        ],
+        answer: 'duress'
+      },
+      {
+        id: 'route',
+        title: 'Какой маршрут после 01:12 лучше всего подтверждён материалами?',
+        options: [
+          ['window','Через окно и внешнюю аварийную лестницу, оставаясь вне поля коридорной камеры.'],
+          ['service','Через служебную дверь физического 407, внутренний лифт и закрытую зону B1.'],
+          ['corridor','Через гостевой коридор в короткий технический интервал, когда запись камеры была недоступна.'],
+          ['never_left','Этаж никто не покидал до прихода охраны; сетевые события относятся только к оставленным устройствам.']
+        ],
+        answer: 'service'
+      },
+      {
+        id: 'sequence',
+        title: 'Какая версия лучше всего объясняет подготовку сцены и вывоз футляра?',
+        options: [
+          ['denis','Денис организовал кражу, а несвязанные нарушения Марты и Елены создали впечатление общего плана.'],
+          ['elena_force','Один сотрудник подготовил подмену и заставил Марту действовать, после чего самостоятельно вывез футляр.'],
+          ['collusion','Марта и сотрудник заранее согласовали постановку, служебный маршрут и вывоз футляра после тревоги.'],
+          ['security','Охрана провела Марту через коридор и скрыла запись, а служебные события относятся к другой операции.']
+        ],
+        answer: 'collusion'
+      }
     ]
   };
 
@@ -111,7 +178,7 @@
     const plan = plans[stage];
     const ids = plan.initial.concat(plan.requests.filter((id) => state.unlocked.includes(id)));
     const available = plan.requests.filter((id) => !state.unlocked.includes(id));
-    const stageData = data.stages.find((s) => s.id === stage);
+    const stageData = soloStages[stage];
     return `<section class="solo407-stage-card">
       <div class="solo407-stage-heading"><div><p class="solo407-kicker">Этап ${stage} из 3</p><h2>${esc(stageData.title)}</h2><p>${esc(stageData.objective)}</p></div><div class="solo407-stage-count">${openedCountFor(stage)} / ${stageTotal(stage)}</div></div>
       <div class="solo407-evidence-list">${ids.map((id) => renderMaterial(byId[id])).join('')}</div>
@@ -123,8 +190,8 @@
   function renderFinal() {
     if (!allStagesComplete()) return '';
     if (state.solved) return `<section class="solo407-reveal"><p class="solo407-kicker">Дело закрыто</p><h2>${esc(data.reveal.title)}</h2>${data.reveal.body.map((p) => `<p>${esc(p)}</p>`).join('')}<p class="solo407-closing">${esc(data.reveal.closing)}</p><a class="solo407-primary" href="../">Другие расследования для одного</a></section>`;
-    return `<section class="solo407-final"><p class="solo407-kicker">Финальное заключение</p><h2>Соберите версию, которая объясняет всю цепочку</h2><p>${esc(data.final.intro)}</p><div class="solo407-proof-meter"><strong>${state.pinned.length}</strong><span>материалов на вашей доске доказательств</span><small>Рекомендуем оставить 5–7 самых сильных. Это не подсказка к ответу.</small></div>
-      <form data-final>${data.final.questions.map((q,qi) => `<fieldset><legend>${qi+1}. ${esc(q.title)}</legend>${q.options.map(([v,t]) => `<label><input type="radio" name="${esc(q.id)}" value="${esc(v)}" required><span>${esc(t)}</span></label>`).join('')}</fieldset>`).join('')}<button class="solo407-primary" type="submit">Передать заключение</button></form><div class="solo407-final-feedback" hidden></div></section>`;
+    return `<section class="solo407-final"><p class="solo407-kicker">Финальное заключение</p><h2>Соберите версию, которая объясняет всю цепочку</h2><p>${esc(soloFinal.intro)}</p><div class="solo407-proof-meter"><strong>${state.pinned.length}</strong><span>материалов на вашей доске доказательств</span><small>Рекомендуем оставить 5–7 самых сильных. Это не подсказка к ответу.</small></div>
+      <form data-final>${soloFinal.questions.map((q,qi) => `<fieldset><legend>${qi+1}. ${esc(q.title)}</legend>${q.options.map(([v,t]) => `<label><input type="radio" name="${esc(q.id)}" value="${esc(v)}" required><span>${esc(t)}</span></label>`).join('')}</fieldset>`).join('')}<button class="solo407-primary" type="submit">Передать заключение</button></form><div class="solo407-final-feedback" hidden></div></section>`;
   }
 
   function renderDesk() {
@@ -132,7 +199,7 @@
     const progress = Math.round((state.opened.length / ordered.length) * 100);
     root.innerHTML = `<div class="solo407-desk">
       <aside class="solo407-rail"><p class="solo407-kicker">Дело ML-0407 · solo</p><h1>Номер 407</h1><p>Вы — единственный следователь. Материалы приходят по мере ваших запросов.</p><div class="solo407-progress"><i style="width:${progress}%"></i></div><small>${state.opened.length} из ${ordered.length} материалов изучено</small>
-      <nav>${[1,2,3].map((n) => `<button type="button" data-stage-nav="${n}" ${n > state.stage ? 'disabled' : ''} class="${n === state.stage ? 'is-active' : ''}"><span>0${n}</span><b>${esc(data.stages[n-1].title)}</b>${stageComplete(n) ? '<em>✓</em>' : ''}</button>`).join('')}</nav>
+      <nav>${[1,2,3].map((n) => `<button type="button" data-stage-nav="${n}" ${n > state.stage ? 'disabled' : ''} class="${n === state.stage ? 'is-active' : ''}"><span>0${n}</span><b>${esc(soloStages[n].title)}</b>${stageComplete(n) ? '<em>✓</em>' : ''}</button>`).join('')}</nav>
       <button type="button" class="solo407-hint-button" data-hint>Нужен ориентир</button>${state.currentHint ? `<div class="solo407-hint-panel"><small>Ориентир · без раскрытия ответа</small><p>${esc(state.currentHint)}</p><button type="button" data-hint-close>Закрыть</button></div>` : ''}<button type="button" class="solo407-reset" data-reset>Начать дело заново</button></aside>
       <div class="solo407-work"><section class="solo407-brief"><p class="solo407-kicker">${esc(data.brief.kicker)}</p><h2>Что произошло</h2><p>${esc(data.brief.lead)}</p><div><strong>Задача</strong><span>Восстановите непротиворечивую цепочку событий и отделите доказанное от предположений.</span></div></section>${renderStage(state.stage)}${renderFinal()}</div>
       <aside class="solo407-board"><p class="solo407-kicker">Доска доказательств</p><h3>Ваши опорные материалы</h3>${state.pinned.length ? state.pinned.map((id) => `<button type="button" data-open="${id}"><span>${esc(byId[id]?.tag || '')}</span><strong>${esc(byId[id]?.title || '')}</strong></button>`).join('') : '<p>Пока пусто. Открывайте материалы и отмечайте те, на которых строите версию.</p>'}</aside>
@@ -174,10 +241,10 @@
     }
     const final = event.target.closest('[data-final]');
     if (final) {
-      event.preventDefault(); const fd = new FormData(final); let score = 0; data.final.questions.forEach((q) => { if (fd.get(q.id) === q.answer) score += 1; });
+      event.preventDefault(); const fd = new FormData(final); let score = 0; soloFinal.questions.forEach((q) => { if (fd.get(q.id) === q.answer) score += 1; });
       const feedback = final.parentElement.querySelector('.solo407-final-feedback');
-      if (score === data.final.questions.length) { state.solved = true; save(); emit('solo_complete', { score, hintsUsed:state.hintsUsed }); render(); }
-      else if (feedback) { feedback.hidden = false; feedback.innerHTML = `<strong>${score} из ${data.final.questions.length} звеньев выдерживают проверку.</strong><span>Я не покажу, какое именно слабое: иначе это станет подсказкой. Вернитесь к доске доказательств и проверьте всю цепочку.</span>`; emit('solo_final_attempt', { score }); }
+      if (score === soloFinal.questions.length) { state.solved = true; save(); emit('solo_complete', { score, hintsUsed:state.hintsUsed }); render(); }
+      else if (feedback) { feedback.hidden = false; feedback.innerHTML = `<strong>Версия пока не выдерживает все материалы.</strong><span>Я не покажу, какое именно звено слабое: иначе это станет подсказкой. Вернитесь к доске доказательств и проверьте всю цепочку.</span>`; emit('solo_final_attempt', { score }); }
     }
   });
 
