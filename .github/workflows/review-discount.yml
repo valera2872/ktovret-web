@@ -1,0 +1,104 @@
+name: Validate review discount funnel
+
+on:
+  pull_request:
+    paths:
+      - 'ktovret-game/assets/app.js'
+      - 'ktovret-game/assets/review-discount.js'
+      - 'assets/case-aria-storefront.js'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'tools/validate-review-discount.mjs'
+      - '.github/workflows/review-discount.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ktovret-game/assets/app.js'
+      - 'ktovret-game/assets/review-discount.js'
+      - 'assets/case-aria-storefront.js'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
+      - 'tools/validate-review-discount.mjs'
+      - '.github/workflows/review-discount.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          node --check ktovret-game/assets/app.js
+          node --check ktovret-game/assets/review-discount.js
+          node --check assets/case-aria-storefront.js
+      - name: Review discount contracts
+        run: node tools/validate-review-discount.mjs
+      - name: Live completion and abuse flow
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const { createHash } = await import('node:crypto');
+          const pr=String(process.env.PR_NUMBER||'').trim();
+          if(!/^\d+$/.test(pr)) throw new Error('PR number missing');
+          const statsEndpoint='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-stats';
+          const reviewEndpoint='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/review-discount';
+          const origin='https://mysterylogic.com';
+          const key=(salt)=>createHash('sha256').update(`review-pr:${pr}:${salt}`).digest('hex').slice(0,48);
+          const successKey=key('success');
+          const blockedKey=key('blocked');
+          const caseId=`audit_review_pr_${pr}`;
+          const casePath='/delo/audit-review-discount/';
+          const expect=(ok,message)=>{if(!ok)throw new Error(message);};
+          async function post(url,body,expected){
+            const response=await fetch(url,{method:'POST',headers:{'content-type':'application/json',origin},body:JSON.stringify(body)});
+            let data={};try{data=await response.json();}catch{}
+            expect(response.status===expected,`expected ${expected}, got ${response.status}: ${JSON.stringify(data)}`);
+            return data;
+          }
+
+          const blocked=await post(reviewEndpoint,{
+            browserKey:blockedKey,caseId,rating:5,
+            comment:'Audit request without a recorded completion.',
+            difficulty:'just_right',publicationConsent:false,
+          },409);
+          expect(blocked.error==='case_completion_required','review without completion was not blocked');
+
+          await post(statsEndpoint,{
+            action:'complete',browserKey:successKey,caseId,casePath,
+            elapsedSeconds:180,hintsUsed:0,attempts:1,firstAnswerCorrect:true,
+          },200);
+
+          const first=await post(reviewEndpoint,{
+            browserKey:successKey,caseId,rating:1,
+            comment:'Audit one-star review proving reward is rating-neutral.',
+            difficulty:'too_hard',displayName:'RG Review Audit',publicationConsent:false,
+          },200);
+          expect(first.rewardEligible===true,'completed case did not receive reward');
+          expect(first.reward?.discountRub===50,'wrong reward amount');
+          expect(first.reward?.priceRub===249,'wrong discounted price');
+          expect(/^ML-[A-HJ-NP-Z2-9]{4}(?:-[A-HJ-NP-Z2-9]{4}){3}$/.test(first.reward?.code||''),'bad reward code');
+
+          const second=await post(reviewEndpoint,{
+            browserKey:successKey,caseId,rating:2,
+            comment:'Audit repeat review must reuse the same single reward.',
+            difficulty:'just_right',displayName:'RG Review Audit',publicationConsent:false,
+          },200);
+          expect(second.rewardEligible===true,'existing unused reward should remain available');
+          expect(second.reward?.code===first.reward?.code,'repeat review minted a second reward');
+
+          console.log(JSON.stringify({
+            verdict:'LIVE_REVIEW_DISCOUNT_PASS',pr,caseId,
+            noCompletionBlocked:true,oneStarRewarded:true,
+            discountRub:first.reward.discountRub,priceRub:first.reward.priceRub,
+            repeatRewardStable:true,
+          },null,2));
+          NODE

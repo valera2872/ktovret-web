@@ -70,6 +70,8 @@ Deno.serve(async (req: Request) => {
       status: refreshed.status,
       entitled,
       productId: LAST_ARIA_PRODUCT_ID,
+      amountRub: Number(order.amount_value),
+      discountRub: Math.max(0, 299 - Number(order.amount_value)),
     }, origin);
   } catch (error: any) {
     return json(503, { error: String(error?.message || 'payment_status_failed').slice(0, 120) }, origin);

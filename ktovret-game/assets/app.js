@@ -145,6 +145,11 @@
   };
   document.head.appendChild(core);
 
+  const reviewDiscount = document.createElement('script');
+  reviewDiscount.src = new URL(`review-discount.js?v=${assetVersion}`, currentScript.src).href;
+  reviewDiscount.async = false;
+  document.head.appendChild(reviewDiscount);
+
   const globalStats = document.createElement('script');
   globalStats.src = new URL(`global-stats-client.js?v=${assetVersion}`, currentScript.src).href;
   globalStats.async = false;

@@ -56,12 +56,15 @@ jobs:
           node --check tools/last-aria-browser-smoke.mjs
           grep -q "functions/v1/coop-last-aria" assets/case-aria.js
           grep -q "const PRICE_RUB = 299" assets/case-aria-storefront.js
+          grep -q "const REVIEW_PRICE_RUB = 249" assets/case-aria-storefront.js
           grep -q "const PRODUCT_ID = 'last_aria'" assets/case-aria-storefront.js
           grep -q "create-checkout-last-aria" assets/case-aria-storefront.js
           grep -q "payment-status-last-aria" assets/case-aria-storefront.js
           grep -q "LAST_ARIA_PRODUCT_ID = 'last_aria'" supabase/functions/_shared/last-aria-commerce.ts
           grep -q "LAST_ARIA_PRICE_RUB = 299" supabase/functions/_shared/last-aria-commerce.ts
-          grep -q "amount !== 29900" supabase/functions/create-checkout-last-aria/index.ts
+          grep -q "LAST_ARIA_PRICE_RUB !== 299" supabase/functions/create-checkout-last-aria/index.ts
+          grep -q "REVIEW_DISCOUNT_PRICE_RUB !== 249" supabase/functions/create-checkout-last-aria/index.ts
+          grep -q "amount !== (reward ? 24900 : 29900)" supabase/functions/create-checkout-last-aria/index.ts
           grep -q "tbank-webhook-last-aria" supabase/functions/create-checkout-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/payment-status-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/tbank-webhook-last-aria/index.ts
