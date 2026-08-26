@@ -7,6 +7,7 @@ const lacks=(source,text,label)=>must(!source.includes(text),`Forbidden ${label}
 
 const app=read('ktovret-game/assets/app.js');
 const review=read('ktovret-game/assets/review-discount.js');
+const statsClient=read('ktovret-game/assets/global-stats-client.js');
 const storefront=read('assets/case-aria-storefront.js');
 const checkout=read('supabase/functions/create-checkout-last-aria/index.ts');
 const status=read('supabase/functions/payment-status-last-aria/index.ts');
@@ -20,7 +21,16 @@ has(review,'За <strong>любой честный отзыв</strong>','rating-
 has(review,"trim().length < 20",'client review threshold');
 has(review,"publicationConsent: Boolean",'separate publication consent');
 has(review,"mysterylogic:last-aria:review-reward:v1",'reward handoff storage');
+has(review,"const CLIENT_KEY_STORAGE = 'mysterylogic:challenge:client-key'",'shared completion identity');
+has(statsClient,"const CLIENT_KEY_STORAGE = 'mysterylogic:challenge:client-key'",'case-stats completion identity');
+has(review,'browserKey: browserKey()','completion key submitted with review');
+lacks(review,'reviewerToken: reviewerToken()','detached reviewer identity');
 
+has(endpoint,'if (!BROWSER_KEY_RE.test(browserKey))','server browser-key validation');
+has(endpoint,".from('case_first_results')",'server completion lookup');
+has(endpoint,".eq('case_id', caseId)",'completion case binding');
+has(endpoint,".eq('player_key_hash', reviewerKeyHash)",'completion browser binding');
+has(endpoint,"if (!completion?.completed_at) return json(409, { error: 'case_completion_required' }",'reward blocked without completion');
 has(endpoint,'if (!Number.isInteger(rating) || rating < 1 || rating > 5)','server rating validation');
 has(endpoint,'if (comment.length < 20)','server substantive review threshold');
 has(endpoint,"publication_consent: publicationConsent",'server publication consent storage');
@@ -51,7 +61,7 @@ has(migration,'alter table public.case_reviews enable row level security','revie
 has(migration,'alter table public.review_discount_rewards enable row level security','reward RLS');
 has(migration,'revoke all on table public.case_reviews from public, anon, authenticated','review direct-access revoke');
 has(migration,'revoke all on table public.review_discount_rewards from public, anon, authenticated','reward direct-access revoke');
-has(migration,'reviewer_key_hash text not null unique','one reward per reviewer token');
+has(migration,'reviewer_key_hash text not null unique','one reward per completion browser');
 has(migration,'claimed_email_hash text null','email claim lock');
 
 console.log('Review discount funnel contract PASS');
