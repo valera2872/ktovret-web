@@ -11,8 +11,13 @@ const two407 = fs.readFileSync('tools/import-mobile/two-player-407-postprocess.m
 const checks = [
   [solo.includes("STORAGE_KEY = 'ml:solo:407:v1'"),'stable solo storage'],
   [solo.includes("answer: 'ids'") && solo.includes("answer: 'zones'") && solo.includes("answer: 'owner'"),'three neutral checkpoints'],
-  [solo.includes('score === data.final.questions.length'),'no reveal before full solution'],
-  [solo.includes('Я не покажу, какое именно слабое'),'non-nudging final feedback'],
+  [solo.includes("title: 'Первые двадцать минут'") && solo.includes("title: 'След после тревоги'") && solo.includes("title: 'Последние подтверждения'"),'spoiler-neutral stage headings'],
+  [solo.includes('const soloFinal =') && solo.includes('чьи действия независимо подтверждаются материалами'),'spoiler-neutral final framing'],
+  [!solo.includes("title: 'Кто помог Марте'") && !solo.includes('роль Елены в вывозе Марты и сапфира'),'old answer-leading copy removed from solo runtime'],
+  [!solo.includes('stageData = data.stages') && !solo.includes('data.final.intro') && !solo.includes('data.final.questions.map'),'solo presentation isolated from answer-leading source copy'],
+  [solo.includes('score === soloFinal.questions.length'),'no reveal before full solution'],
+  [solo.includes('Версия пока не выдерживает все материалы.') && solo.includes('Я не покажу, какое именно звено слабое'),'non-nudging final feedback'],
+  [!solo.includes('${score} из ${soloFinal.questions.length}') && !solo.includes('${score} из ${data.final.questions.length}'),'wrong final does not leak score'],
   [solo.includes('solo407-hint-panel') && !solo.includes('alert('),'premium inline hints'],
   [post.includes('Детективные игры и квесты онлайн для одного — бесплатно'),'SEO title'],
   [post.includes('Напарник не требуется'),'clear solo promise'],
@@ -50,4 +55,4 @@ try {
   ]) if(!ok) throw new Error(`Solo generated integration failed: ${label}`);
 } finally { fs.rmSync(tmp,{recursive:true,force:true}); }
 
-console.log(JSON.stringify({solo407:true, checkpoints:3, materials:18, roomless:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true},null,2));
+console.log(JSON.stringify({solo407:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true},null,2));
