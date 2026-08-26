@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { applySolo407, finalizeSolo407 } from './import-mobile/solo-407-postprocess.mjs';
+
+const solo = fs.readFileSync('assets/case-407-solo.js','utf8');
+const css = fs.readFileSync('assets/case-407-solo.css','utf8');
+const post = fs.readFileSync('tools/import-mobile/solo-407-postprocess.mjs','utf8');
+const two407 = fs.readFileSync('tools/import-mobile/two-player-407-postprocess.mjs','utf8');
+const checks = [
+  [solo.includes("STORAGE_KEY = 'ml:solo:407:v1'"),'stable solo storage'],
+  [solo.includes("answer: 'ids'") && solo.includes("answer: 'zones'") && solo.includes("answer: 'owner'"),'three neutral checkpoints'],
+  [solo.includes('score === data.final.questions.length'),'no reveal before full solution'],
+  [solo.includes('Я не покажу, какое именно слабое'),'non-nudging final feedback'],
+  [solo.includes('solo407-hint-panel') && !solo.includes('alert('),'premium inline hints'],
+  [post.includes('Детективные игры и квесты онлайн для одного — бесплатно'),'SEO title'],
+  [post.includes('Напарник не требуется'),'clear solo promise'],
+  [post.includes('solo407-format-switch'),'two-player rescue switch'],
+  [post.includes('solo407-home-switch'),'home 1/2-player chooser'],
+  [css.includes('.solo407-entry-visual') && css.includes('.solo407-desk'),'premium entry and desk styling'],
+  [two407.includes("./solo-407-postprocess.mjs") && two407.includes('applySolo407(siteRoot)'),'generator integration'],
+];
+for (const [ok,label] of checks) if (!ok) throw new Error(`Solo 407 validation failed: ${label}`);
+for (const forbidden of ['Сверьтесь с напарником','отправьте второму игроку','создайте комнату']) if (solo.toLowerCase().includes(forbidden.toLowerCase())) throw new Error(`Solo runtime contains co-op language: ${forbidden}`);
+
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'ml-solo-407-'));
+try {
+  fs.mkdirSync(path.join(tmp,'detektivnye-igry-dlya-dvoih'),{recursive:true});
+  fs.mkdirSync(path.join(tmp,'assets/generated'),{recursive:true});
+  fs.writeFileSync(path.join(tmp,'detektivnye-igry-dlya-dvoih/index.html'),'<!doctype html><html><head></head><body><main><h1>Для двоих</h1></main></body></html>');
+  fs.writeFileSync(path.join(tmp,'index.html'),'<!doctype html><html><head></head><body><main><h1>Mystery Logic</h1></main></body></html>');
+  fs.writeFileSync(path.join(tmp,'sitemap.xml'),'<?xml version="1.0"?><urlset><url><loc>https://valera2872.github.io/ktovret-web/</loc></url></urlset>');
+  fs.writeFileSync(path.join(tmp,'assets/generated/import-report.json'),JSON.stringify({indexableUrls:1},null,2));
+  const result=applySolo407(tmp); finalizeSolo407(tmp);
+  const hub=fs.readFileSync(path.join(tmp,'detektivnye-igry-dlya-odnogo/index.html'),'utf8');
+  const game=fs.readFileSync(path.join(tmp,'detektivnye-igry-dlya-odnogo/407/index.html'),'utf8');
+  const duo=fs.readFileSync(path.join(tmp,'detektivnye-igry-dlya-dvoih/index.html'),'utf8');
+  const home=fs.readFileSync(path.join(tmp,'index.html'),'utf8');
+  const sitemap=fs.readFileSync(path.join(tmp,'sitemap.xml'),'utf8');
+  const report=JSON.parse(fs.readFileSync(path.join(tmp,'assets/generated/import-report.json'),'utf8'));
+  for(const [ok,label] of [
+    [result.materials===18,'18 source materials'],
+    [hub.includes('1 игрок')&&hub.includes('Напарник не требуется'),'solo hub promise'],
+    [game.includes('data-solo407-app')&&game.includes('case-407-solo.js'),'solo case runtime'],
+    [duo.includes('solo407-format-switch'),'two-player rescue'],
+    [home.includes('solo407-home-switch')&&home.includes('Расследовать одному')&&home.includes('Расследовать вдвоём'),'home format chooser'],
+    [sitemap.includes('/detektivnye-igry-dlya-odnogo/'),'solo hub in sitemap'],
+    [report.soloMaterials===18&&report.soloCaseRoute==='detektivnye-igry-dlya-odnogo/407','solo report'],
+  ]) if(!ok) throw new Error(`Solo generated integration failed: ${label}`);
+} finally { fs.rmSync(tmp,{recursive:true,force:true}); }
+
+console.log(JSON.stringify({solo407:true, checkpoints:3, materials:18, roomless:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true},null,2));
