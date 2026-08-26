@@ -6,7 +6,7 @@
   if (!root || !currentScript?.src || !window.KtoVretWeb?.case?.id) return;
 
   const ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/review-discount';
-  const REVIEWER_KEY = 'mysterylogic:reviewer-token:v1';
+  const CLIENT_KEY_STORAGE = 'mysterylogic:challenge:client-key';
   const REWARD_KEY = 'mysterylogic:last-aria:review-reward:v1';
   const ariaUrl = new URL('../../detektivnye-igry-dlya-dvoih/poslednyaya-ariya/', currentScript.src).href;
   let rating = 0;
@@ -22,21 +22,18 @@
     try { if (typeof window.ym === 'function') window.ym(111664459, 'reachGoal', event, { page_type: 'short_case_review', ...params }); } catch {}
   };
 
-  const makeToken = () => {
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-    let binary = '';
-    for (const value of bytes) binary += String.fromCharCode(value);
-    return `ml_review_${btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/g, '')}`;
+  const randomKey = () => {
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
   };
 
-  const reviewerToken = () => {
-    let token = localStorage.getItem(REVIEWER_KEY) || '';
-    if (!/^ml_review_[A-Za-z0-9_-]{32,160}$/.test(token)) {
-      token = makeToken();
-      localStorage.setItem(REVIEWER_KEY, token);
+  const browserKey = () => {
+    let value = localStorage.getItem(CLIENT_KEY_STORAGE) || '';
+    if (!/^[a-f0-9]{48}$/.test(value)) {
+      value = randomKey();
+      localStorage.setItem(CLIENT_KEY_STORAGE, value);
     }
-    return token;
+    return value;
   };
 
   const saveReward = (reward) => {
@@ -106,7 +103,7 @@
       <div class="ktv-review-offer"><span aria-hidden="true">✦</span><div><strong>«Последняя ария» — 249 ₽ вместо 299 ₽</strong><br><small>Одноразовая скидка действует 7 дней.</small></div></div>
       <div class="ktv-review-field"><span>Ваша оценка</span><div class="ktv-review-stars" role="group" aria-label="Оценка дела">${[1,2,3,4,5].map((value) => `<button class="ktv-review-star" type="button" data-review-rating="${value}" aria-label="${value} из 5" aria-pressed="false">★</button>`).join('')}</div></div>
       <label class="ktv-review-field"><span>Короткий отзыв</span><textarea data-review-comment maxlength="2000" placeholder="Например: где было интересно, что оказалось слишком лёгким или что мешало разобраться..."></textarea></label>
-      <p class="ktv-review-note">Для скидки достаточно содержательного отзыва от 20 символов. Не указывайте телефон, e-mail и другие личные данные.</p>
+      <p class="ktv-review-note">Для скидки достаточно содержательного отзыва от 20 символов после завершённого дела. Не указывайте телефон, e-mail и другие личные данные.</p>
       <div class="ktv-review-field"><span>Сложность</span><div class="ktv-review-difficulty">${[['too_easy','Слишком легко'],['just_right','В самый раз'],['too_hard','Слишком сложно']].map(([value,label]) => `<button class="ktv-review-pill" type="button" data-review-difficulty="${value}" aria-pressed="false">${label}</button>`).join('')}</div></div>
       <label class="ktv-review-field"><span>Имя или псевдоним <small>(необязательно)</small></span><input data-review-name maxlength="80" autocomplete="nickname" placeholder="Например: Алексей"></label>
       <label class="ktv-review-check"><input type="checkbox" data-review-publish><span>Разрешаю после модерации опубликовать этот отзыв и указанный псевдоним на Mystery Logic. Это не влияет на получение скидки.</span></label>
@@ -153,7 +150,7 @@
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            reviewerToken: reviewerToken(),
+            browserKey: browserKey(),
             caseId: String(window.KtoVretWeb.case.id || ''),
             rating,
             comment: String(comment?.value || '').trim(),
@@ -179,6 +176,8 @@
         const messages = {
           review_too_short: 'Добавьте ещё немного текста — для скидки нужно минимум 20 символов.',
           invalid_rating: 'Выберите оценку от 1 до 5.',
+          case_completion_required: 'Не удалось подтвердить завершение этого дела. Проверьте соединение, обновите страницу результата и попробуйте ещё раз.',
+          completion_lookup_failed: 'Не удалось проверить завершение дела. Попробуйте ещё раз.',
           review_save_failed: 'Не удалось сохранить отзыв. Попробуйте ещё раз.',
         };
         status.textContent = messages[error.message] || 'Не удалось отправить отзыв. Попробуйте ещё раз.';
