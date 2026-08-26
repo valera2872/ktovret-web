@@ -49,12 +49,14 @@ jobs:
           node --check tools/import-mobile/load-active.mjs
           node --check tools/import-mobile/two-player-room-postprocess.mjs
           node --check tools/import-mobile/seo-ctr-modernization.mjs
+          node --check tools/import-mobile/solo-407-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
           node --check assets/duel-room.js
+          node --check assets/case-407-solo.js
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
 
-      - name: Validate spoiler-safe 112 URL boundary
+      - name: Validate spoiler-safe 113 URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -65,13 +67,16 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 112
-          grep -q '"indexableUrls": 112' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 113
+          grep -q '"indexableUrls": 113' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
+          grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
+          grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
+          grep -q '"soloMaterials": 18' assets/generated/import-report.json
           grep -q '"sourceCommit": "a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd"' assets/generated/import-report.json
           grep -R -q 'Павел ошибается: в 18:10 он пользовался не личной картой, а ключом' ru/cases/*/index.html
           grep -q 'Все необходимые сведения есть в материалах дела' index.html
@@ -80,6 +85,10 @@ jobs:
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test -f detektivnye-igry-dlya-dvoih/index.html
+          test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f detektivnye-igry-dlya-odnogo/407/index.html
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
 
       - name: Validate two-player room UX boundary
         working-directory: web
@@ -89,6 +98,7 @@ jobs:
           grep -q 'data-duel-room-app' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'Создайте комнату' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'Ответы друг друга скрыты до финала' detektivnye-igry-dlya-dvoih/index.html
+          grep -q 'solo407-format-switch' detektivnye-igry-dlya-dvoih/index.html
           test "$(grep -rl 'data-duel-storage-isolation' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
@@ -105,5 +115,6 @@ jobs:
             web/golovolomki-onlayn/index.html
             web/zagadki-na-logiku-dlya-vzroslyh/index.html
             web/detektivnye-igry-dlya-dvoih/index.html
+            web/detektivnye-igry-dlya-odnogo/index.html
             web/ru/cases
           retention-days: 7
