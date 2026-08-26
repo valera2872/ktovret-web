@@ -31,7 +31,7 @@ function setDescription(html,description){
   return out;
 }
 function sitelinkHeader(){
-  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="./" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация"><a href="./delo/chetyre-vhoda-v-arhiv/">Играть бесплатно</a><a data-nav-coop href="./detektivnye-igry-dlya-dvoih/">Для двоих</a><a href="./dela/">Все дела</a><a href="#method">Как играть</a></nav><a class="ref-login ref-dossier-cta" href="./tom-1/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Первый том</a></header>`;
+  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="./" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация"><a href="./delo/chetyre-vhoda-v-arhiv/">Играть бесплатно</a><a data-nav-solo href="./detektivnye-igry-dlya-odnogo/">Для одного</a><a data-nav-coop href="./detektivnye-igry-dlya-dvoih/">Для двоих</a><a href="./dela/">Все дела</a><a href="#method">Как играть</a></nav><a class="ref-login ref-dossier-cta" href="./tom-1/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Первый том</a></header>`;
 }
 function patchHome(siteRoot){
   const file=path.join(siteRoot,'index.html');
@@ -44,7 +44,7 @@ function patchHome(siteRoot){
     out=out.replace(/<p class="ref-home-lead">[\s\S]*?<\/p>/,`<p class="ref-home-lead">${HOME_DESCRIPTION}</p>`);
     return out;
   });
-  if(!html.includes(HOME_TITLE)||!html.includes(HOME_DESCRIPTION)||!html.includes('>Играть бесплатно</a>')||!html.includes('>Для двоих</a>')||!html.includes('>Все дела</a>')||!html.includes('>Как играть</a>')||!html.includes('data-functional-nav="v2"')) throw new Error('CTR SEO homepage patch failed');
+  if(!html.includes(HOME_TITLE)||!html.includes(HOME_DESCRIPTION)||!html.includes('>Играть бесплатно</a>')||!html.includes('data-nav-solo href="./detektivnye-igry-dlya-odnogo/">Для одного</a>')||!html.includes('>Для двоих</a>')||!html.includes('>Все дела</a>')||!html.includes('>Как играть</a>')||!html.includes('data-functional-nav="v2"')) throw new Error('CTR SEO homepage patch failed');
   if(/<title>[^<]*Mystery Logic/i.test(html)) throw new Error('CTR SEO homepage title still contains brand');
   write(file,html);
 }
