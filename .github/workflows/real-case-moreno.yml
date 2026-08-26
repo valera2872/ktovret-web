@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'realnye-dela/pozharnaya-lestnica-1991/**'
-      - 'assets/real-case-moreno-slice.*'
+      - 'assets/real-case-moreno-*'
       - 'tools/real-case-moreno-*.mjs'
       - '.github/workflows/real-case-moreno.yml'
   workflow_dispatch:
@@ -24,6 +24,7 @@ jobs:
       - name: Validate JavaScript
         run: |
           node --check assets/real-case-moreno-slice.js
+          node --check assets/real-case-moreno-polish.js
           node --check tools/real-case-moreno-smoke.mjs
           node --check tools/real-case-moreno-visual-audit.mjs
       - name: Validate deduction-first browser flow
