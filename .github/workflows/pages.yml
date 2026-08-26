@@ -84,6 +84,7 @@ jobs:
           node --check assets/catalog-experience.js
           node --check assets/analytics-events.js
           node --check assets/duel-room.js
+          node --check assets/case-407-solo.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/preview-editorial.mjs
           node --check tools/responsive-smoke.mjs
@@ -95,6 +96,7 @@ jobs:
           node --check tools/import-mobile/seo-native-postprocess.mjs
           node --check tools/import-mobile/seo-wordstat-expansion.mjs
           node --check tools/import-mobile/two-player-room-postprocess.mjs
+          node --check tools/import-mobile/solo-407-postprocess.mjs
           node --check tools/import-mobile/site-config.mjs
           node --check tools/import-mobile/site-origin-postprocess.mjs
           test ! -f tools/import-mobile/load.mjs || node --check tools/import-mobile/load.mjs
@@ -129,6 +131,9 @@ jobs:
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test -f detektivnye-igry-dlya-dvoih/index.html
+          test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f detektivnye-igry-dlya-odnogo/407/index.html
+          grep -q '<meta name="robots" content="noindex,follow">' detektivnye-igry-dlya-odnogo/407/index.html
           grep -q '"totalCases": 100' assets/generated/import-report.json
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
@@ -140,6 +145,9 @@ jobs:
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
+          grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
+          grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
+          grep -q '"soloMaterials": 18' assets/generated/import-report.json
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -l 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
           if test -f assets/premium.css; then
@@ -152,13 +160,15 @@ jobs:
             test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
             test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
             grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
-            grep -q '"indexableUrls": 112' assets/generated/import-report.json
-            test "$(grep -c '<url>' sitemap.xml)" -eq 112
+            grep -q '"indexableUrls": 113' assets/generated/import-report.json
+            test "$(grep -c '<url>' sitemap.xml)" -eq 113
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
             grep -q '<loc>https://valera2872.github.io/ktovret-web/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/golovolomki-onlayn/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/zagadki-na-logiku-dlya-vzroslyh/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
+            ! grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
           fi
 
       - name: Render SEO-native case in mobile and desktop Chrome
@@ -183,6 +193,8 @@ jobs:
           test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'data-premium-seo-teaser' editorial/ru/cases/*/index.html | wc -l)" -eq 85
           test -f editorial/ru/besplatnye-detektivnye-dela/index.html
+          test -f editorial/detektivnye-igry-dlya-odnogo/index.html
+          test -f editorial/detektivnye-igry-dlya-odnogo/407/index.html
           rm -rf editorial
 
       - name: Validate PHP and sitemap
@@ -198,10 +210,14 @@ jobs:
           test -f assets/generated/cases-index.json
           test -f assets/generated/cases-index.js
           test -f assets/duel-room.js
+          test -f assets/case-407-solo.js
           test -f ktovret-game/assets/duel-room-client.js
           test -f tom-1/index.html
+          test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f detektivnye-igry-dlya-odnogo/407/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"indexableUrls": 113' assets/generated/import-report.json
           test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
@@ -219,8 +235,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO case routes: **100 indexable /ru/cases/ pages (15 playable + 85 spoiler-safe teasers)**\n- Wordstat hubs: **3 new intent pages**\n- Sitemap: **112 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
-            })
+              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO case routes: **100 indexable /ru/cases/ pages (15 playable + 85 spoiler-safe teasers)**\n- Wordstat hubs: **3 intent pages**\n- Solo investigations: **1 indexable hub / Room 407 runtime noindex**\n- Sitemap: **113 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
+            });
 
   deploy:
     if: >-
