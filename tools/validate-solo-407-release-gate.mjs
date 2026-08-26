@@ -53,7 +53,7 @@ expect(final.questions.map((q) => q.answer).join('|') === '409|duress|service|co
 
 // G2 — adversarial countertheories receive explicit evidence, not author fiat.
 includesAll(data, [
-  'окно закрыто изнутри, следов борьбы нет',
+  'Окно закрыто изнутри, следов борьбы нет',
   'Камера исправна; пропусков в гостевом коридоре нет',
   'сам журнал не доказывает, кто держал его в руке',
   'не даёт ему физической возможности оказаться в служебной зоне отеля после 01:12',
@@ -111,6 +111,7 @@ includesAll(browserSmoke, [
   "alarm:'duress'",
   "route:'service'",
   "sequence:'collusion'",
+  'data-hints-progressive="true"',
   'fullSolve:true'
 ], 'G6 black-box flow');
 
