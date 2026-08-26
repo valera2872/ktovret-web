@@ -46,6 +46,7 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     await expectHint('Принадлежность пропуска');
     document.body.dataset.hintsProgressive='true';
     await checkpoint('owner');
+    if(mode==='final'){ document.body.dataset.ready='final'; return; }
     finalSelect({room:'407',alarm:'force',route:'window',sequence:'denis'}); document.querySelector('[data-final]').requestSubmit(); await wait(60);
     const feedback=document.querySelector('.solo407-final-feedback')?.textContent||'';
     document.body.dataset.wrongNeutral=String(feedback.includes('Я не покажу, какое именно звено')&&!appText().includes('Дело закрыто'));
@@ -66,16 +67,18 @@ const port=await new Promise((resolve,reject)=>{server.once('error',reject);serv
 const runChrome=(args)=>new Promise((resolve,reject)=>{const child=spawn(chrome,args,{stdio:['ignore','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',c=>stdout+=c);child.stderr.on('data',c=>stderr+=c);child.on('error',reject);child.on('close',code=>code===0?resolve({stdout,stderr}):reject(new Error(`Chrome exited ${code}: ${stderr.slice(-1200)}`)));});
 try{
   const base=`http://127.0.0.1:${port}/artifacts/solo-407/index.html`;
-  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--virtual-time-budget=4000'];
+  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--virtual-time-budget=5000'];
   const shots=[
     ['entry-desktop.png','entry','--window-size=1440,1000'],
     ['entry-mobile.png','entry','--window-size=390,1100'],
     ['desk-desktop.png','desk','--window-size=1440,1400'],
     ['desk-mobile.png','desk','--window-size=390,1800'],
+    ['final-desktop.png','final','--window-size=1440,2400'],
+    ['final-mobile.png','final','--window-size=390,3400'],
   ];
   for(const [name,mode,size] of shots){ const file=path.join(outDir,name); await runChrome([...common,size,`--screenshot=${file}`,`${base}?mode=${mode}`]); if(fs.statSync(file).size<35_000) throw new Error(`${name} too small`); }
   const {stdout:dom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve`]);
   for(const marker of ['data-ready="solved"','data-solved="true"','data-hints-progressive="true"','data-wrong-neutral="true"','data-wrong-score-hidden="true"','data-roomless="true"','Охрана раскрыла не ту дверь']) if(!dom.includes(marker)) throw new Error(`solo solve DOM missing ${marker}`);
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407:true,entry:true,desk:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true,screenshots:shots.map(x=>x[0])},null,2));
-  console.log(JSON.stringify({solo407:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407:true,entry:true,desk:true,final:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true,screenshots:shots.map(x=>x[0])},null,2));
+  console.log(JSON.stringify({solo407:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true,visualStates:['entry','desk','final']},null,2));
 }finally{await new Promise(resolve=>server.close(resolve));}
