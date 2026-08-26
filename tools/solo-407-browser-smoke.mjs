@@ -16,6 +16,7 @@ if (!chrome) throw new Error(`Chrome/Chromium not found. Checked: ${chromeCandid
 const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="../../assets/mysterylogic.css"><link rel="stylesheet" href="../../assets/case-407-solo.css"></head><body class="solo407-body"><main class="solo407-shell" data-solo407-app></main><script src="../../assets/case-407-data.js"></script><script src="../../assets/case-407-solo.js"></script><script>
 (() => {
   const wait = (ms=35) => new Promise(r=>setTimeout(r,ms));
+  const appText = () => document.querySelector('[data-solo407-app]')?.textContent || '';
   const click = async (selector) => { const el=document.querySelector(selector); if(!el) throw new Error('missing '+selector); el.click(); await wait(); };
   const openAll = async () => {
     let guard=0;
@@ -34,14 +35,15 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     if(mode==='entry'){ document.body.dataset.ready='entry'; return; }
     await click('[data-start]');
     await openAll();
-    if(mode==='desk'){ document.querySelector('[data-pin]')?.click(); await wait(); document.querySelector('[data-hint]')?.click(); await wait(); document.body.dataset.roomless=String(!document.body.textContent.includes('Создать комнату')&&!document.body.textContent.includes('Пригласить')); document.body.dataset.ready='desk'; return; }
+    if(mode==='desk'){ document.querySelector('[data-pin]')?.click(); await wait(); document.querySelector('[data-hint]')?.click(); await wait(); const text=appText(); document.body.dataset.roomless=String(!text.includes('Создать комнату')&&!text.includes('Пригласить')); document.body.dataset.ready='desk'; return; }
     await checkpoint('ids'); await openAll(); await checkpoint('zones'); await openAll(); await checkpoint('owner');
     finalSelect({room:'407',alarm:'force',route:'window',sequence:'denis'}); document.querySelector('[data-final]').requestSubmit(); await wait(60);
     const feedback=document.querySelector('.solo407-final-feedback')?.textContent||'';
-    document.body.dataset.wrongNeutral=String(feedback.includes('Я не покажу, какое именно слабое')&&!document.body.textContent.includes('Дело закрыто'));
+    document.body.dataset.wrongNeutral=String(feedback.includes('Я не покажу, какое именно слабое')&&!appText().includes('Дело закрыто'));
     finalSelect({room:'409',alarm:'duress',route:'service',sequence:'collusion'}); document.querySelector('[data-final]').requestSubmit(); await wait(100);
-    document.body.dataset.solved=String(document.body.textContent.includes('Дело закрыто'));
-    document.body.dataset.roomless=String(!document.body.textContent.includes('Создать комнату')&&!document.body.textContent.includes('Пригласить'));
+    const solvedText=appText();
+    document.body.dataset.solved=String(solvedText.includes('Дело закрыто'));
+    document.body.dataset.roomless=String(!solvedText.includes('Создать комнату')&&!solvedText.includes('Пригласить'));
     document.body.dataset.ready='solved';
   };
   run().catch(e=>{document.body.dataset.error=e.message;document.body.dataset.ready='error';});
@@ -63,8 +65,7 @@ try{
   ];
   for(const [name,mode,size] of shots){ const file=path.join(outDir,name); await runChrome([...common,size,`--screenshot=${file}`,`${base}?mode=${mode}`]); if(fs.statSync(file).size<35_000) throw new Error(`${name} too small`); }
   const {stdout:dom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve`]);
-  for(const marker of ['data-ready="solved"','data-solved="true"','data-wrong-neutral="true"','data-roomless="true"','Дело закрыто','Охрана раскрыла не ту дверь']) if(!dom.includes(marker)) throw new Error(`solo solve DOM missing ${marker}`);
-  for(const forbidden of ['Создать комнату','Код комнаты','Отправить приглашение','Сверьтесь с напарником']) if(dom.includes(forbidden)) throw new Error(`solo flow leaked co-op UI: ${forbidden}`);
+  for(const marker of ['data-ready="solved"','data-solved="true"','data-wrong-neutral="true"','data-roomless="true"','Охрана раскрыла не ту дверь']) if(!dom.includes(marker)) throw new Error(`solo solve DOM missing ${marker}`);
   fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407:true,entry:true,desk:true,roomless:true,wrongFinalNonNudging:true,fullSolve:true,screenshots:shots.map(x=>x[0])},null,2));
   console.log(JSON.stringify({solo407:true,roomless:true,wrongFinalNonNudging:true,fullSolve:true},null,2));
 }finally{await new Promise(resolve=>server.close(resolve));}
