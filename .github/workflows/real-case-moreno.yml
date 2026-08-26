@@ -23,17 +23,16 @@ jobs:
           node-version: 22
       - name: Validate JavaScript
         run: |
-          node --check assets/real-case-moreno-slice.js
-          node --check assets/real-case-moreno-polish.js
+          node --check assets/real-case-moreno-investigator.js
           node --check tools/real-case-moreno-smoke.mjs
           node --check tools/real-case-moreno-visual-audit.mjs
-      - name: Validate deduction-first browser flow
+      - name: Validate investigator-driven browser flow
         run: node tools/real-case-moreno-smoke.mjs
       - name: Capture premium visual audit
         run: node tools/real-case-moreno-visual-audit.mjs
       - name: Upload slice audit
         uses: actions/upload-artifact@v4
         with:
-          name: real-case-moreno-slice-audit
+          name: real-case-moreno-investigator-audit
           path: artifacts/real-case-moreno
           retention-days: 7
