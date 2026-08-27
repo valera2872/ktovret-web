@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07111d">
+  <meta name="theme-color" content="#07111b">
   <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Экспериментальный вертикальный срез Mystery Logic: реальное cold case расследование, где линии открываются только после решений игрока.">
+  <meta name="description" content="Эксперимент Mystery Logic: реальное cold case расследование без меню готовых следственных ходов.">
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/mysterylogic.css">
-  <link rel="stylesheet" href="../../assets/real-case-moreno-investigator-v3.css?v=0.3.0">
-  <link rel="stylesheet" href="../../assets/real-case-moreno-investigator-v3-polish.css?v=0.3.0">
+  <link rel="stylesheet" href="../../assets/real-case-moreno-sandbox.css?v=0.4.0">
   <title>Дело на пожарной лестнице — Mystery Logic</title>
 </head>
 <body class="moreno-body">
@@ -19,14 +18,14 @@
         <span class="ml-brand-mark">ML</span>
         <span class="ml-brand-copy"><strong>Mystery Logic</strong><small>Real cases lab</small></span>
       </a>
-      <span class="moreno-header-note">cold case · вы ведёте расследование</span>
+      <span class="moreno-header-note">cold case · investigative sandbox</span>
     </div>
   </header>
   <main class="moreno-app" data-moreno-app aria-live="polite">
-    <section class="moreno-loading"><strong>Открываем дело…</strong></section>
+    <section class="moreno-loading"><strong>Открываем материалы дела…</strong></section>
   </main>
   <noscript><div class="moreno-noscript">Для расследования нужен JavaScript.</div></noscript>
-  <script src="../../assets/real-case-moreno-investigator-v3.js?v=0.3.0"></script>
+  <script src="../../assets/real-case-moreno-sandbox.js?v=0.4.0"></script>
   <script>setTimeout(()=>{document.body.dataset.rcOverflow=String(document.documentElement.scrollWidth>window.innerWidth+1)},700)</script>
 </body>
 </html>
