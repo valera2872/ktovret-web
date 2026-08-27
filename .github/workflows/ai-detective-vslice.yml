@@ -25,3 +25,20 @@ jobs:
         run: node --check assets/ai-detective-vslice.js
       - name: Canon and release boundary
         run: node tests/ai-detective-vslice-contract.mjs
+      - name: Live Pages-origin Edge Function smoke
+        env:
+          ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -D /tmp/headers.txt \
+            -o /tmp/body.json \
+            'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1' \
+            -H 'Origin: https://valera2872.github.io' \
+            -H "Authorization: Bearer $ANON_KEY" \
+            -H "apikey: $ANON_KEY" \
+            -H 'Content-Type: application/json' \
+            --data '{"action":"interrogate","session_id":"ci-pages-origin-0001","suspect_id":"anton","question":"Кто знал время отключения камеры?","evidence_id":"E02","history":[]}'
+          tr -d '\r' < /tmp/headers.txt | grep -Fiq 'access-control-allow-origin: https://valera2872.github.io'
+          grep -Fq '"mode":"scripted"' /tmp/body.json
+          grep -Fq '"reply"' /tmp/body.json
