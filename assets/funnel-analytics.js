@@ -5,8 +5,12 @@
   const VISITOR_KEY = 'mysterylogic:challenge:client-key';
   const SESSION_KEY = 'mysterylogic:funnel:session:v1';
   const METRIKA_ID = 111664459;
+  const METRIKA_EVENTS = new Set([
+    'format_choice', 'game_open', 'game_accept', 'game_complete', 'review_submit',
+    'checkout_open', 'checkout_start', 'checkout_success', 'no_action_45s',
+  ]);
 
-  if (location.pathname.startsWith('/admin/')) return;
+  if (location.pathname.startsWith('/admin/') || navigator.webdriver) return;
 
   const randomHex = (bytes) => Array.from(crypto.getRandomValues(new Uint8Array(bytes)), (value) =>
     value.toString(16).padStart(2, '0')).join('');
@@ -85,6 +89,7 @@
   let maxScroll = 0;
 
   const metrika = (eventName, metadata = {}) => {
+    if (!METRIKA_EVENTS.has(eventName)) return;
     try {
       if (typeof window.ym === 'function') {
         window.ym(METRIKA_ID, 'reachGoal', `ml_${eventName}`, {
