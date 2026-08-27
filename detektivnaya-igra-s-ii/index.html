@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#061019">
+  <meta name="robots" content="noindex,follow">
+  <meta name="description" content="Эксперимент Mystery Logic: детективная игра с ИИ, где подозреваемым можно задавать любые вопросы, а факты дела остаются неизменными.">
+  <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/mysterylogic.css">
+  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.0">
+  <title>Детективная игра с ИИ — эксперимент Mystery Logic</title>
+</head>
+<body class="aid-body">
+  <header class="aid-topbar">
+    <a class="aid-brand" href="../" aria-label="Mystery Logic — главная">
+      <span class="aid-brand-mark">ML</span>
+      <span><strong>Mystery Logic</strong><small>AI interrogation experiment</small></span>
+    </a>
+    <div class="aid-topmeta"><span class="aid-dot"></span> Эксперимент · не опубликован</div>
+  </header>
+
+  <main class="aid-app" data-ai-detective>
+    <section class="aid-intro" data-view="intro">
+      <div class="aid-intro-copy">
+        <p class="aid-kicker">Дело AI-01 · 21:31</p>
+        <h1>Архив погас<br>на восемь минут.</h1>
+        <p class="aid-lead">За это время из закрытого фонда исчез оригинал письма 1912 года. Дверь открыли служебной картой. Камера не работала. Трое людей знали достаточно, чтобы оказаться под подозрением.</p>
+        <div class="aid-rule"><strong>Здесь нет списка готовых вопросов.</strong><span>Вы сами решаете, кого допрашивать, что предъявлять и когда версия уже выдерживает проверку.</span></div>
+        <button class="aid-primary" type="button" data-action="start">Принять дело</button>
+      </div>
+      <aside class="aid-case-stamp" aria-label="Карточка дела">
+        <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Письмо №12/1912</strong></div>
+        <div class="aid-stamp-line"><span>ПОСЛЕДНИЙ ДОСТУП</span><strong>21:31:14</strong></div>
+        <div class="aid-stamp-line"><span>СИГНАЛ КАМЕРЫ</span><strong>нет 21:27–21:35</strong></div>
+        <div class="aid-stamp-seal">Ваша задача — установить, чья версия не выдерживает фактов.</div>
+      </aside>
+    </section>
+
+    <section class="aid-workspace" data-view="workspace" hidden>
+      <aside class="aid-panel aid-evidence-panel">
+        <div class="aid-panel-head">
+          <p class="aid-kicker">Материалы</p>
+          <h2>Что уже установлено</h2>
+        </div>
+        <div class="aid-evidence-list" data-evidence-list></div>
+        <p class="aid-panel-hint">Нажмите на материал, чтобы приложить его к следующему вопросу.</p>
+      </aside>
+
+      <section class="aid-interrogation">
+        <div class="aid-suspect-strip" data-suspect-strip></div>
+        <div class="aid-room-head">
+          <div>
+            <p class="aid-kicker">Допрос</p>
+            <h2 data-suspect-name>—</h2>
+            <p data-suspect-role>—</p>
+          </div>
+          <div class="aid-room-status" data-room-status>Запись включена</div>
+        </div>
+
+        <div class="aid-transcript" data-transcript aria-live="polite"></div>
+
+        <form class="aid-composer" data-composer>
+          <div class="aid-attachment" data-attachment hidden>
+            <span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button>
+          </div>
+          <label class="aid-sr-only" for="aid-question">Ваш вопрос</label>
+          <textarea id="aid-question" maxlength="420" rows="2" placeholder="Спросите своими словами… например: «Кто знал точное время отключения камеры?»" required></textarea>
+          <div class="aid-composer-actions">
+            <span data-turn-counter>0 / 12 вопросов</span>
+            <button class="aid-send" type="submit">Задать вопрос</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="aid-panel aid-notes-panel">
+        <div class="aid-panel-head">
+          <p class="aid-kicker">Следственный блокнот</p>
+          <h2>Зацепки</h2>
+        </div>
+        <div class="aid-notes" data-notes>
+          <p class="aid-empty-note">Пока ничего. Значимые сведения будут фиксироваться здесь, но вывод игра за вас не сделает.</p>
+        </div>
+        <div class="aid-theory-box">
+          <p class="aid-kicker">Когда будете готовы</p>
+          <button class="aid-secondary" type="button" data-action="theory">Собрать версию</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="aid-theory" data-view="theory" hidden>
+      <button class="aid-back" type="button" data-action="back">← Вернуться к допросам</button>
+      <div class="aid-theory-grid">
+        <div>
+          <p class="aid-kicker">Ваша версия</p>
+          <h2>Кто использовал отключение камеры?</h2>
+          <p>Выберите человека и зафиксируйте, на какой цепочке фактов держится ваша версия. Игра не требует «правильной формулировки» — только чтобы доказательства действительно сходились.</p>
+        </div>
+        <form class="aid-theory-form" data-theory-form>
+          <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
+          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Например: карта доступа + знание окна отключения + противоречие в местонахождении…" required></textarea></label>
+          <button class="aid-primary" type="submit">Проверить версию</button>
+        </form>
+      </div>
+      <div class="aid-verdict" data-verdict hidden></div>
+    </section>
+  </main>
+
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Экспериментальная механика · факты фиксированы, диалог свободный</span></footer>
+  <script src="../assets/ai-detective-vslice.js?v=0.1.0" defer></script>
+</body>
+</html>
