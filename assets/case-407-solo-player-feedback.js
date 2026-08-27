@@ -22,25 +22,41 @@
     return 1;
   };
 
-  const contextHtml = (compact = false) => `
-    <section class="solo407-context" data-solo407-context>
-      <p class="solo407-context-kicker">${compact ? 'Вводные перед стартом' : 'Кто есть кто · без спойлеров'}</p>
-      <h3>Сначала — люди и пространство</h3>
-      <div class="solo407-cast">
-        <div class="solo407-person"><b>МО</b><div><strong>Марта Орлова</strong><span>Хранительница сапфира «Северная звезда». Она отвечает за ценность и исчезает после тихой тревоги.</span></div></div>
-        <div class="solo407-person"><b>ЕР</b><div><strong>Елена Раева</strong><span>Ночной менеджер отеля. По должности имеет мастер-доступ и сопровождает охрану при тревоге.</span></div></div>
-        <div class="solo407-person"><b>ПЗ</b><div><strong>Павел Зорин</strong><span>Начальник ночной смены охраны. Именно его группа первой открывает комнату после сигнала.</span></div></div>
-        <div class="solo407-person"><b>ДЛ</b><div><strong>Денис Левин</strong><span>Оценщик сапфира. Незадолго до исчезновения спорил с Мартой; его роль ещё нужно проверить.</span></div></div>
-      </div>
-      <div class="solo407-relation-note"><strong>Связь Марты и Елены на старте — рабочая.</strong> Марта отвечает за сапфир, Елена — за ночную работу отеля и служебный доступ. Всё остальное устанавливается только по материалам дела.</div>
+  const sceneHtml = () => `
       <div class="solo407-scene" aria-label="Упрощённая схема коридора">
         <div class="solo407-scene-door"><strong>Дверь «407»</strong><span>табличка в коридоре</span></div>
         <div class="solo407-scene-door"><strong>Дверь «409»</strong><span>соседняя дверь</span></div>
         <div class="solo407-scene-camera">Камера C4<br>видит обе двери</div>
         <div class="solo407-scene-lift">Лифты →</div>
         <p class="solo407-scene-caption">Схема показывает только то, что видно в коридоре. Не считайте номер на табличке доказанным физическим номером комнаты.</p>
-      </div>
-    </section>`;
+      </div>`;
+
+  const contextHtml = (compact = false) => {
+    if (compact) return `
+      <section class="solo407-context solo407-context-compact" data-solo407-context>
+        <p class="solo407-context-kicker">Перед стартом · без спойлеров</p>
+        <h3>Два человека, которых важно знать сразу</h3>
+        <div class="solo407-cast">
+          <div class="solo407-person"><b>МО</b><div><strong>Марта Орлова</strong><span>Хранительница сапфира «Северная звезда». Именно она исчезает после тревоги.</span></div></div>
+          <div class="solo407-person"><b>ЕР</b><div><strong>Елена Раева</strong><span>Ночной менеджер отеля. Имеет служебный доступ и сопровождает охрану при тревоге.</span></div></div>
+        </div>
+        ${sceneHtml()}
+      </section>`;
+
+    return `
+      <section class="solo407-context" data-solo407-context>
+        <p class="solo407-context-kicker">Кто есть кто · без спойлеров</p>
+        <h3>Люди и пространство</h3>
+        <div class="solo407-cast">
+          <div class="solo407-person"><b>МО</b><div><strong>Марта Орлова</strong><span>Хранительница сапфира «Северная звезда». Она отвечает за ценность и исчезает после тихой тревоги.</span></div></div>
+          <div class="solo407-person"><b>ЕР</b><div><strong>Елена Раева</strong><span>Ночной менеджер отеля. По должности имеет мастер-доступ и сопровождает охрану при тревоге.</span></div></div>
+          <div class="solo407-person"><b>ПЗ</b><div><strong>Павел Зорин</strong><span>Начальник ночной смены охраны. Именно его группа первой открывает комнату после сигнала.</span></div></div>
+          <div class="solo407-person"><b>ДЛ</b><div><strong>Денис Левин</strong><span>Оценщик сапфира. Незадолго до исчезновения спорил с Мартой; его роль ещё нужно проверить.</span></div></div>
+        </div>
+        <div class="solo407-relation-note"><strong>Связь Марты и Елены на старте — рабочая.</strong> Марта отвечает за сапфир, Елена — за ночную работу отеля и служебный доступ. Всё остальное устанавливается только по материалам дела.</div>
+        ${sceneHtml()}
+      </section>`;
+  };
 
   const codeGuideHtml = () => `
     <details class="solo407-code-guide" data-solo407-code-guide open>
