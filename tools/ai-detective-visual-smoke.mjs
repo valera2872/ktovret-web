@@ -111,9 +111,11 @@ try{
   }
   cdp.close();
 } finally {
-  chromeProc.kill('SIGTERM');
+  const exited=chromeProc.exitCode===null?new Promise(resolve=>chromeProc.once('exit',resolve)):Promise.resolve();
+  if(chromeProc.exitCode===null)chromeProc.kill('SIGTERM');
+  await Promise.race([exited,sleep(1500)]);
   await new Promise(resolve=>server.close(resolve));
-  fs.rmSync(profile,{recursive:true,force:true});
+  try{fs.rmSync(profile,{recursive:true,force:true,maxRetries:8,retryDelay:100})}catch(err){console.warn(`Chrome profile cleanup skipped: ${err?.code||err}`)}
 }
 
 fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({pageUrl,chrome,results},null,2));
