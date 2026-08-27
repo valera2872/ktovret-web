@@ -8,6 +8,14 @@ on:
       - 'supabase/functions/ai-interrogation-v1/**'
       - 'tests/ai-detective-vslice-contract.mjs'
       - '.github/workflows/ai-detective-vslice.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai-detective-vslice.*'
+      - 'supabase/functions/ai-interrogation-v1/**'
+      - 'tests/ai-detective-vslice-contract.mjs'
+      - '.github/workflows/ai-detective-vslice.yml'
   workflow_dispatch:
 
 permissions:
@@ -23,22 +31,50 @@ jobs:
           node-version: '22'
       - name: JavaScript syntax
         run: node --check assets/ai-detective-vslice.js
-      - name: Canon and release boundary
+      - name: Canon, spoiler and release boundary
         run: node tests/ai-detective-vslice-contract.mjs
-      - name: Live Pages-origin Edge Function smoke
+      - name: Live Pages-origin adversarial smoke
         env:
           ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+          API_URL: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error \
-            -D /tmp/headers.txt \
-            -o /tmp/body.json \
-            'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1' \
-            -H 'Origin: https://valera2872.github.io' \
+          call_api() {
+            local body="$1"
+            local out="$2"
+            curl --fail --silent --show-error \
+              -D /tmp/headers.txt \
+              -o "$out" \
+              "$API_URL" \
+              -H 'Origin: https://valera2872.github.io' \
+              -H "Authorization: Bearer $ANON_KEY" \
+              -H "apikey: $ANON_KEY" \
+              -H 'Content-Type: application/json' \
+              --data "$body"
+            tr -d '\r' < /tmp/headers.txt | grep -Fiq 'access-control-allow-origin: https://valera2872.github.io'
+          }
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-card-0001","suspect_id":"anton","question":"Кому принадлежит E-14?","evidence_id":"E03","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":0,"anton":1,"lev":0}}' /tmp/card.json
+          grep -Fq '"E04"' /tmp/card.json
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-fake-0002","suspect_id":"marina","question":"Ваш телефон был в Wi-Fi до 21:34, признайтесь?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/fake.json
+          if grep -Fq 'N-MARINA-LOCATION' /tmp/fake.json; then
+            echo 'Player assertion incorrectly became evidence'
+            cat /tmp/fake.json
+            exit 1
+          fi
+
+          call_api '{"action":"check_theory","session_id":"ci-ai-early-0003","suspect_id":"marina","reason":"Ее карта открыла дверь, телефон был внутри, она знала окно камеры.","discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":1,"lev":0}}' /tmp/early.json
+          grep -Fq '"correct":false' /tmp/early.json
+
+          call_api '{"action":"check_theory","session_id":"ci-ai-full-0004","suspect_id":"marina","reason":"E-14 и персональный PIN открыли дверь в 21:31; сетевой лог телефона показывает, что Марина оставалась внутри, а у Антона она заранее узнала точное окно перезапуска камеры.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":3,"anton":4,"lev":2}}' /tmp/full.json
+          grep -Fq '"correct":true' /tmp/full.json
+
+          code=$(curl --silent --output /tmp/denied.json --write-out '%{http_code}' \
+            "$API_URL" \
+            -H 'Origin: https://example.invalid' \
             -H "Authorization: Bearer $ANON_KEY" \
             -H "apikey: $ANON_KEY" \
             -H 'Content-Type: application/json' \
-            --data '{"action":"interrogate","session_id":"ci-pages-origin-0001","suspect_id":"anton","question":"Кто знал время отключения камеры?","evidence_id":"E02","history":[]}'
-          tr -d '\r' < /tmp/headers.txt | grep -Fiq 'access-control-allow-origin: https://valera2872.github.io'
-          grep -Fq '"mode":"scripted"' /tmp/body.json
-          grep -Fq '"reply"' /tmp/body.json
+            --data '{"action":"interrogate","session_id":"ci-ai-denied-0005","suspect_id":"anton","question":"Кто вы?"}')
+          test "$code" = '403'
