@@ -31,6 +31,6 @@ for (const relative of ['index.html', 'ru/cases/test-case/index.html', 'sitemap.
   assert.ok(!text.includes(staging), `${relative} still contains staging origin`);
   assert.ok(text.includes(production), `${relative} did not switch to production origin`);
 }
-assert.equal(fs.readFileSync(path.join(fixture, 'robots.txt'), 'utf8'), `User-agent: *\nAllow: /\n\nSitemap: ${production}sitemap.xml\n`);
+assert.equal(fs.readFileSync(path.join(fixture, 'robots.txt'), 'utf8'), `User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: ${production}sitemap.xml\n`);
 fs.rmSync(fixture, { recursive: true, force: true });
 console.log('site origin 1.9 smoke passed: staging -> mysterylogic.com with robots/sitemap/canonical migration');
