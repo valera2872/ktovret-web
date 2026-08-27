@@ -70,4 +70,9 @@ must('tools/import-mobile/coop-v4-postprocess.mjs', [
   'cognitive-last-aria.js',
 ]);
 
+must('tools/import-mobile/site-origin-postprocess.mjs', [
+  'Disallow: /admin/',
+  "path.join(siteRoot, 'robots.txt')",
+]);
+
 console.log('Cognitive Release Gate static contracts: OK');
