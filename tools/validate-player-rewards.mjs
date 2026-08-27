@@ -28,15 +28,15 @@ must(!rewardClient.includes("localStorage.setItem(LAST_ARIA_TOKEN_KEY"), 'reward
 
 must(admin.includes('noindex,nofollow,noarchive'), 'reward admin must remain noindex');
 must(admin.includes('data-reward-create-form') && admin.includes('data-reward-list'), 'reward admin controls missing');
+must(admin.includes('Копировать готовое сообщение'), 'reward admin ready-message affordance missing');
 must(adminClient.includes('/functions/v1/reward-admin'), 'reward admin endpoint missing');
 must(adminClient.includes('assets/generated/cases-index.json'), 'reward admin must load generated premium catalog');
-must(adminClient.includes('Копировать готовое сообщение'), 'reward admin ready-message affordance missing');
 
 must(rewardAccess.includes("metadata?.source !== 'player_reward'"), 'public reward endpoint must reject ordinary purchase entitlements');
 must(rewardAccess.includes("crypto.subtle.digest"), 'public reward endpoint must hash codes');
 must(rewardAccess.includes(".from('case_reviews')"), 'reward feedback must flow into case_reviews');
 must(rewardAccess.includes("moderation_status: 'pending'"), 'reward feedback must enter moderation');
-must(!rewardAccess.includes('SUPABASE_SERVICE_ROLE_KEY\"'), 'service role key must not be hardcoded');
+must(rewardAccess.includes("Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')"), 'service role key must come from server environment');
 
 must(rewardAdmin.includes(".from('review_moderation_access')"), 'reward admin must reuse owner authorization');
 must(rewardAdmin.includes("source: 'player_reward'"), 'reward entitlement source marker missing');
