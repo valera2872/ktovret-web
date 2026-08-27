@@ -8,7 +8,7 @@ const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASES=[
   {path:'detektivnye-igry-dlya-dvoih/2317/index.html',markers:['data-case2317-app','case2317-boot']},
   {path:'detektivnye-igry-dlya-dvoih/407/index.html',markers:['data-case407-app','case407-room-mark'],cognitive:'cognitive-coop-407.js'},
-  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js']},
+  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js'],cognitive:'cognitive-last-aria.js'},
 ];
 
 function addBodyClassAndMarker(html,className){
