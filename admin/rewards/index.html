@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111d">
+  <title>Mystery Logic — благодарственные доступы</title>
+  <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
+  <link rel="stylesheet" href="../../assets/reward-admin.css?v=1.0.0">
+</head>
+<body class="mla-body">
+  <main class="mla-shell">
+    <header class="mla-header">
+      <a class="mla-brand" href="../../"><span>ML</span><strong>Mystery Logic</strong></a>
+      <div><small>Внутренняя панель</small><h1>Благодарственные доступы</h1></div>
+    </header>
+
+    <section class="mla-login" data-admin-login>
+      <p class="mla-kicker">Доступ владельца</p>
+      <h2>Введите ключ администратора</h2>
+      <p>Используется тот же ключ MLADM, что и в панели отзывов. Он хранится только до закрытия этой вкладки.</p>
+      <form data-admin-login-form>
+        <label><span>Ключ</span><input type="password" autocomplete="off" spellcheck="false" data-admin-token placeholder="MLADM-…"></label>
+        <button type="submit">Открыть панель</button>
+      </form>
+      <p class="mla-error" data-admin-login-error role="alert"></p>
+    </section>
+
+    <section class="mla-app" data-admin-app hidden>
+      <div class="mla-toolbar">
+        <nav class="mla-tabs" aria-label="Внутренние разделы">
+          <a class="mlra-navlink" href="../reviews/">Отзывы и воронка</a>
+          <span class="mlra-navlink" aria-current="page">Бонус-доступы</span>
+        </nav>
+        <div class="mla-toolbar-actions">
+          <button type="button" class="mla-quiet" data-admin-refresh>Обновить</button>
+          <button type="button" class="mla-quiet" data-admin-lock>Закрыть доступ</button>
+        </div>
+      </div>
+
+      <div class="mlra-grid">
+        <section class="mlra-card">
+          <p class="mla-kicker">Новый персональный подарок</p>
+          <h2>Выдать премиальное дело</h2>
+          <p class="mlra-copy">Создай код для конкретного игрока. Полный код будет показан только один раз; в базе хранится только SHA‑256.</p>
+          <form class="mlra-form" data-reward-create-form>
+            <label class="mlra-field"><span>Что открыть</span><select data-reward-target><option value="last_aria">Последняя ария · премиальное дело для двоих</option><optgroup label="Премиальные дела первого тома" data-volume-options></optgroup></select></label>
+            <label class="mlra-field"><span>Срок доступа</span><select data-reward-expiry><option value="30">30 дней</option><option value="90" selected>90 дней</option><option value="365">1 год</option><option value="0">Без ограничения срока</option></select></label>
+            <label class="mlra-field"><span>Моя пометка — игрок её не увидит</span><textarea maxlength="1000" data-reward-note placeholder="Например: нашёл баг финала 23:17, письмо 27 августа"></textarea></label>
+            <button class="mlra-create" type="submit" data-reward-create>Создать благодарственный код</button>
+            <p class="mlra-status" data-reward-create-status role="status"></p>
+          </form>
+          <section class="mlra-result" data-reward-created hidden>
+            <h3>Код создан — сохрани или отправь сейчас</h3>
+            <code class="mlra-code" data-created-code></code>
+            <div class="mlra-result-actions">
+              <button class="mlra-small" type="button" data-copy-code>Копировать код</button>
+              <button class="mlra-small" type="button" data-copy-message>Копировать готовое сообщение</button>
+            </div>
+            <p class="mlra-status" data-copy-status></p>
+          </section>
+        </section>
+
+        <section class="mlra-card">
+          <div class="mlra-list-head">
+            <div><p class="mla-kicker">История выдач</p><h2>Кому уже открывали</h2></div>
+            <p>Полные коды после создания не показываются.</p>
+          </div>
+          <div class="mlra-list" data-reward-list></div>
+          <div class="mlra-empty" data-reward-empty hidden>Пока нет выданных благодарственных доступов.</div>
+          <p class="mlra-status" data-reward-list-status></p>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script src="../../assets/reward-admin.js?v=1.0.0" defer></script>
+</body>
+</html>

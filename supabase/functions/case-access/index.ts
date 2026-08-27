@@ -77,6 +77,13 @@ Deno.serve(async (req: Request) => {
   if (entitlement.starts_at && new Date(entitlement.starts_at) > now) return json(403, { error: 'access_not_started' }, origin);
   if (entitlement.expires_at && new Date(entitlement.expires_at) <= now) return json(403, { error: 'access_expired' }, origin);
 
+  if (entitlement.metadata?.source === 'player_reward') {
+    const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
+      ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || ''))
+      : [String(entitlement.metadata?.case_id || '')];
+    if (!allowedCaseIds.includes(caseId)) return json(403, { error: 'reward_wrong_case' }, origin);
+  }
+
   const { data: paidCase, error: caseError } = await admin
     .from('paid_case_payloads')
     .select('case_id,product_id,language,payload,payload_version')
@@ -102,6 +109,7 @@ Deno.serve(async (req: Request) => {
     payload_version: paidCase.payload_version,
     metadata: {
       source: 'case_access',
+      access_source: entitlement.metadata?.source || 'purchase',
       source_origin: origin || null,
     },
   });

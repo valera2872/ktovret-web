@@ -7,12 +7,15 @@
   const REVIEW_PRICE_RUB = 249;
   const CHECKOUT_ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout-last-aria';
   const STATUS_ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status-last-aria';
+  const REWARD_ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/reward-access';
   const TOKEN_KEY = 'mysterylogic:last-aria:access-token';
   const ORDER_KEY = 'mysterylogic:last-aria:last-order-id';
   const REQUEST_KEY = 'mysterylogic:last-aria:checkout-request-id';
   const REVIEW_REWARD_KEY = 'mysterylogic:last-aria:review-reward:v1';
+  const PLAYER_REWARD_KEY = 'mysterylogic:reward:last-aria';
   const ROOM_CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/;
   const REVIEW_CODE_RE = /^ML-[A-HJ-NP-Z2-9]{4}(?:-[A-HJ-NP-Z2-9]{4}){3}$/;
+  const PLAYER_REWARD_CODE_RE = /^ml_reward_(?:[A-HJ-NP-Z2-9]{4}-){6}[A-HJ-NP-Z2-9]{4}$/i;
   const root = document.querySelector('[data-casearia-app]');
   if (!root) return;
 
@@ -100,6 +103,20 @@
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
       body: JSON.stringify({ orderId }),
+      cache: 'no-store',
+      credentials: 'omit',
+    });
+    let body = {};
+    try { body = await response.json(); } catch {}
+    if (!response.ok) throw new Error(body.error || `http_${response.status}`);
+    return body;
+  };
+
+  const playerRewardStatus = async (code) => {
+    const response = await fetch(REWARD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'status', code }),
       cache: 'no-store',
       credentials: 'omit',
     });
@@ -222,6 +239,26 @@
     sync();
   };
 
+  const restorePlayerReward = async () => {
+    const rewardCode = localStorage.getItem(PLAYER_REWARD_KEY) || '';
+    if (!PLAYER_REWARD_CODE_RE.test(rewardCode)) return false;
+    try {
+      const result = await playerRewardStatus(rewardCode);
+      if (result?.reward?.productId !== PRODUCT_ID || result?.reward?.caseId !== 'special:last-aria') {
+        localStorage.removeItem(PLAYER_REWARD_KEY);
+        return false;
+      }
+      track('last_aria_reward_access_restored', { product_id: PRODUCT_ID, access_source: 'player_reward' });
+      await bootGame({ token: rewardCode });
+      return true;
+    } catch (error) {
+      if (['reward_invalid', 'reward_revoked', 'reward_expired'].includes(error.message)) {
+        localStorage.removeItem(PLAYER_REWARD_KEY);
+      }
+      return false;
+    }
+  };
+
   const restore = async () => {
     const token = localStorage.getItem(TOKEN_KEY) || '';
     const orderId = localStorage.getItem(ORDER_KEY) || '';
@@ -286,8 +323,11 @@
 
   reconcileReturn().then((handled) => {
     if (handled) return;
-    restore().then((restored) => {
-      if (!restored) renderPaywall();
+    restorePlayerReward().then((rewardRestored) => {
+      if (rewardRestored) return;
+      restore().then((restored) => {
+        if (!restored) renderPaywall();
+      });
     });
   });
 })();

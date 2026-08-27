@@ -1,0 +1,40 @@
+name: Validate player reward access
+
+on:
+  push:
+    branches:
+      - main
+      - feature/player-reward-access
+  pull_request:
+    paths:
+      - 'bonus/**'
+      - 'admin/rewards/**'
+      - 'assets/reward-access.*'
+      - 'assets/reward-admin.*'
+      - 'assets/paid-access-client.js'
+      - 'assets/case-aria-storefront.js'
+      - 'supabase/functions/reward-access/**'
+      - 'supabase/functions/reward-admin/**'
+      - 'supabase/functions/case-access/**'
+      - 'tools/validate-player-rewards.mjs'
+      - '.github/workflows/player-rewards.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-player-rewards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check browser clients
+        run: |
+          node --check assets/reward-access.js
+          node --check assets/reward-admin.js
+          node --check assets/paid-access-client.js
+          node --check assets/case-aria-storefront.js
+      - name: Validate reward contracts
+        run: node tools/validate-player-rewards.mjs

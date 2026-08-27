@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,follow,noarchive">
+  <meta name="theme-color" content="#06101b">
+  <title>Благодарственный доступ — Mystery Logic</title>
+  <meta name="description" content="Активация персонального благодарственного доступа Mystery Logic.">
+  <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/reward-access.css?v=1.0.0">
+</head>
+<body>
+  <main class="mlr-shell">
+    <a class="mlr-brand" href="../"><span>ML</span><strong>Mystery Logic</strong></a>
+
+    <section class="mlr-hero">
+      <div>
+        <p class="mlr-kicker">Спасибо за вклад в Mystery Logic</p>
+        <h1>Для внимательных игроков</h1>
+        <p class="mlr-lead">Если вы помогли нам заметить ошибку, прислали полезную обратную связь или особенно внимательно прошли расследование, мы можем открыть вам премиальное дело в знак благодарности.</p>
+      </div>
+      <div class="mlr-seal" aria-hidden="true"><div><strong>ML</strong><small>персональный доступ игрока</small></div></div>
+    </section>
+
+    <section class="mlr-card mlr-activate" data-reward-activate>
+      <div class="mlr-copy">
+        <p class="mlr-kicker">Персональный код</p>
+        <h2>Активировать подарок</h2>
+        <p>Код привязан к конкретному премиальному расследованию. После активации доступ сохранится в этом браузере на срок, указанный при выдаче.</p>
+        <ol class="mlr-steps">
+          <li><b>1</b><span>Введите код, который прислала команда Mystery Logic.</span></li>
+          <li><b>2</b><span>Мы проверим, какое дело вам открыто.</span></li>
+          <li><b>3</b><span>Откройте расследование — оплачивать его не нужно.</span></li>
+        </ol>
+      </div>
+      <div class="mlr-formwrap">
+        <form data-reward-form>
+          <label class="mlr-field"><span>Благодарственный код</span><input class="mlr-code" type="text" autocomplete="off" spellcheck="false" data-reward-code placeholder="ml_reward_…"></label>
+          <button class="mlr-button" type="submit" data-reward-submit>Активировать доступ</button>
+          <p class="mlr-note" data-reward-note role="status"></p>
+        </form>
+        <p class="mlr-fine">Код не является скидочным купоном и не требует банковской карты. Он открывает только тот доступ, который был выдан именно вам.</p>
+      </div>
+    </section>
+
+    <section class="mlr-card mlr-result" data-reward-result hidden>
+      <div class="mlr-result-head">
+        <div><p class="mlr-kicker">Доступ подтверждён</p><h2 data-reward-title>Премиальное дело</h2></div>
+        <span class="mlr-badge">Подарок активирован</span>
+      </div>
+      <p data-reward-description>Дело открыто в этом браузере.</p>
+      <div class="mlr-result-meta" data-reward-meta></div>
+      <div class="mlr-result-actions">
+        <a class="mlr-button" href="#" data-reward-open>Открыть расследование</a>
+        <button class="mlr-button is-secondary" type="button" data-reward-feedback-open>После игры оставить отзыв</button>
+      </div>
+    </section>
+
+    <section class="mlr-card mlr-feedback" data-reward-feedback hidden>
+      <p class="mlr-kicker">Обратная связь</p>
+      <h2>Расскажите, как прошло расследование</h2>
+      <p>Отзыв не обязан быть положительным. Особенно полезны места, где было непонятно, скучно, слишком сложно или что-то работало не так.</p>
+      <form data-feedback-form>
+        <div class="mlr-field"><span>Общая оценка</span><div class="mlr-stars" role="radiogroup" aria-label="Оценка от 1 до 5">
+          <label><input type="radio" name="rating" value="1"><span>1</span></label>
+          <label><input type="radio" name="rating" value="2"><span>2</span></label>
+          <label><input type="radio" name="rating" value="3"><span>3</span></label>
+          <label><input type="radio" name="rating" value="4"><span>4</span></label>
+          <label><input type="radio" name="rating" value="5"><span>5</span></label>
+        </div></div>
+        <label class="mlr-field"><span>Сложность</span><select data-feedback-difficulty><option value="">Не указывать</option><option value="too_easy">Слишком легко</option><option value="just_right">В самый раз</option><option value="too_hard">Слишком сложно</option></select></label>
+        <label class="mlr-field"><span>Что вы заметили?</span><textarea data-feedback-comment maxlength="2000" placeholder="Что понравилось, где запутались, что стоит исправить или усилить…"></textarea></label>
+        <label class="mlr-field"><span>Имя или псевдоним — необязательно</span><input type="text" maxlength="80" data-feedback-name placeholder="Например: Анна"></label>
+        <label class="mlr-check"><input type="checkbox" data-feedback-consent><span>Разрешаю опубликовать этот отзыв на сайте. Если не отмечать — отзыв увидит только команда Mystery Logic.</span></label>
+        <button class="mlr-button" type="submit" data-feedback-submit>Отправить обратную связь</button>
+        <p class="mlr-note" data-feedback-note role="status"></p>
+      </form>
+    </section>
+
+    <footer class="mlr-footer"><span>© Mystery Logic</span><span><a href="../privacy/">Конфиденциальность</a> · <a href="../contacts/">Контакты</a></span></footer>
+  </main>
+  <script src="../assets/reward-access.js?v=1.0.0" defer></script>
+</body>
+</html>
