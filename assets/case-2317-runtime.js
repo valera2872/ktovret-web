@@ -207,11 +207,95 @@
     }
   }, true);
 
+  const FINAL_EVIDENCE = new Set(['ilya_camera', 'tracker', 'roman_route']);
+  const finalInlineFeedback = (form, message, detail = '') => {
+    let box = form.querySelector('[data-final-inline-feedback]');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'case2317-feedback is-wrong';
+      box.dataset.finalInlineFeedback = '1';
+      box.setAttribute('role', 'alert');
+      box.setAttribute('tabindex', '-1');
+      const actions = form.querySelector('.case2317-actions');
+      if (actions) actions.before(box); else form.appendChild(box);
+    }
+    box.innerHTML = `<strong>Заключение пока не принято.</strong><p>${message}</p>${detail ? `<p><b>${detail}</b></p>` : ''}<p>Ваш выбор сохранён — измените только то, что хотите пересмотреть.</p>`;
+    requestAnimationFrame(() => {
+      box.focus({ preventScroll: true });
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
+
+  const trackFinalDiagnostic = (label, attempt, evidenceCorrect) => {
+    try {
+      window.MysteryLogicFunnel?.track?.('diagnostic_choice', {
+        case_id: 'coop:2317',
+        choice: 'coop:2317:final-wrong',
+        label,
+        position: 3,
+        attempt,
+        evidence_correct: evidenceCorrect
+      }, 'coop-cognitive');
+    } catch {}
+    try {
+      window.ym?.(111664459, 'reachGoal', 'coop_2317_final_wrong', {
+        page_type: 'coop_2317',
+        room_code: roomCode(),
+        attempt,
+        evidence_correct: evidenceCorrect
+      });
+    } catch {}
+  };
+
   root.addEventListener('submit', (event) => {
     if (!event.target.matches?.('[data-final-form]')) return;
+    const form = event.target;
     const progress = readProgress();
     progress.decisionMistakes = Math.min(2, Number(progress.decisionMistakes) || 0);
     if ((Number(progress.finalAttempts) || 0) >= 18) progress.finalAttempts = 17;
+
+    const fd = new FormData(form);
+    const questions = Array.isArray(window.MLCase2317?.final?.questions) ? window.MLCase2317.final.questions : [];
+    const picks = fd.getAll('evidence');
+    progress.evidencePicks = picks;
+
+    const unanswered = questions.some((question) => !fd.get(question.id));
+    if (unanswered) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      saveProgress(progress);
+      finalInlineFeedback(form, 'Ответьте на все вопросы реконструкции. Незаполненные пункты отмечать отдельно не нужно — ваши уже выбранные ответы останутся на месте.');
+      return;
+    }
+    if (picks.length !== 3) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      saveProgress(progress);
+      finalInlineFeedback(form, 'Для общего заключения нужно ровно три опорных материала. Сейчас выбрано: ' + picks.length + '.');
+      return;
+    }
+
+    const answersCorrect = questions.every((question) => fd.get(question.id) === question.answer);
+    const evidenceCorrect = picks.length === FINAL_EVIDENCE.size && picks.every((id) => FINAL_EVIDENCE.has(id));
+    if (!answersCorrect || !evidenceCorrect) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      progress.finalAttempts = (Number(progress.finalAttempts) || 0) + 1;
+      saveProgress(progress);
+      const attempt = progress.finalAttempts;
+      const message = evidenceCorrect
+        ? 'Три опорных материала выбраны убедительно, но в самой реконструкции остаётся противоречие. Сверьте ответы о людях и маршрутах с напарником.'
+        : 'Среди трёх опорных материалов есть факт, который поддерживает историю, но не доказывает ключевую реконструкцию. Ищите три независимые опоры, а не несколько косвенных фактов об одном и том же.';
+      const detail = attempt >= 3
+        ? (evidenceCorrect
+          ? 'Более точная подсказка: разделите три линии — кто находился у дома Веры, кто физически получил доступ к её автомобилю и что доказывает маяк.'
+          : 'Более точная подсказка: сильная тройка должна отдельно подтверждать присутствие Ильи у дома, связь маяка с Ильёй и доказанный маршрут автомобиля Веры через сервисную зону.')
+        : '';
+      finalInlineFeedback(form, message, detail);
+      trackFinalDiagnostic(message, attempt, evidenceCorrect);
+      return;
+    }
+
     saveProgress(progress);
   }, true);
 
