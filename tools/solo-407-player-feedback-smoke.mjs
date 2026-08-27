@@ -52,7 +52,7 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     await openAll();
     await wait(100);
     const stage2Text=document.querySelector('[data-solo407-app]')?.textContent||'';
-    if(!stage2Text.includes('служебная Wi‑Fi зона'))throw new Error('stage-2 Wi-Fi code is not human-readable');
+    if(!stage2Text.includes('служебная Wi‑Fi зона STAFF‑4'))throw new Error('stage-2 Wi-Fi code is not human-readable');
     if(/\b\d{2}:\d{2}:\d{2}\b/.test(stage2Text))throw new Error('seconds still visible on stage 2');
 
     await checkpoint('zones');
@@ -63,7 +63,7 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     await wait(100);
     const text=document.querySelector('[data-solo407-app]')?.textContent||'';
     if(/\b\d{2}:\d{2}:\d{2}\b/.test(text))throw new Error('seconds still visible');
-    for(const marker of ['HK‑44 [мастер‑токен]','LOADING‑B1 [погрузочная зона]'])if(!text.includes(marker))throw new Error('human-readable code missing '+marker);
+    for(const marker of ['мастер‑токен HK‑44','погрузочная зона LOADING‑B1'])if(!text.includes(marker))throw new Error('human-readable code missing '+marker);
     if(!text.includes('К пройденным этапам можно возвращаться'))throw new Error('navigation explanation missing');
     document.body.dataset.playerFeedback='pass';
   }catch(error){document.body.dataset.playerFeedback='fail';document.body.dataset.error=error.message;}
