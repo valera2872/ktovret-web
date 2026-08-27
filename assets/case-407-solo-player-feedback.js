@@ -83,7 +83,7 @@
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     for (const node of nodes) {
-      if (node.parentElement?.closest?.('[data-solo407-context], [data-solo407-code-guide]')) continue;
+      if (node.parentElement?.closest?.('[data-solo407-context], [data-solo407-code-guide], [data-solo407-recall]')) continue;
       const next = humanize(node.nodeValue);
       if (next !== node.nodeValue) node.nodeValue = next;
     }
@@ -121,6 +121,14 @@
     }
   };
 
+  const injectRecall = () => {
+    const cart = root.querySelector('[data-evidence="s3-i0"]');
+    if (!cart || cart.querySelector('[data-solo407-recall]')) return;
+    const head = cart.querySelector('.solo407-evidence-head');
+    if (!head) return;
+    head.insertAdjacentHTML('afterend', '<div class="solo407-recall" data-solo407-recall><strong>Напоминание из этапа 2.</strong> Ночная горничная Нина Круглова видела бельевую тележку у служебной зоны четвёртого этажа около 01:05 и отметила, что ночью её там обычно не оставляют.</div>');
+  };
+
   const injectContext = () => {
     const entryCopy = root.querySelector('.solo407-entry-copy');
     if (entryCopy && !entryCopy.querySelector('[data-solo407-context]')) {
@@ -138,6 +146,7 @@
       const heading = stageCard.querySelector('.solo407-stage-heading');
       if (heading) heading.insertAdjacentHTML('afterend', codeGuideHtml());
     }
+    injectRecall();
   };
 
   let scheduled = false;
