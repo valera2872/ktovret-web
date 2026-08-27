@@ -1,0 +1,22 @@
+name: Validate 23:17 final feedback
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  final-feedback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate runtime syntax
+        run: node --check assets/case-2317-runtime.js
+      - name: Validate final feedback contract
+        run: node tools/validate-2317-final-feedback.mjs
