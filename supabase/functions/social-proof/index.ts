@@ -27,13 +27,14 @@ const gameKeyFromPath = (raw = '') => {
 const publicReviewKey = (caseId = '') => {
   const value = String(caseId || '').trim();
   if (!value || /^audit_/i.test(value)) return '';
-  if (['last_aria', 'last-aria', 'poslednyaya-ariya'].includes(value)) return 'last_aria';
-  if (['solo-407', 'solo_407'].includes(value)) return 'solo-407';
-  if (['coop-407', 'coop_407'].includes(value)) return 'coop-407';
-  if (['coop-2317', 'coop_2317', '2317'].includes(value)) return 'coop-2317';
+  if (['last_aria', 'last-aria', 'poslednyaya-ariya', 'special:last-aria', 'coop:last-aria'].includes(value)) return 'last_aria';
+  if (['solo-407', 'solo_407', 'solo:407'].includes(value)) return 'solo-407';
+  if (['coop-407', 'coop_407', 'coop:407', 'special:407'].includes(value)) return 'coop-407';
+  if (['coop-2317', 'coop_2317', 'coop:2317', '2317', 'special:2317'].includes(value)) return 'coop-2317';
   return `case:${value}`;
 };
 
+const automatedPlayer = (name = '') => /^(?:CI|RG)\b/i.test(String(name || '').trim());
 type Proof = { reviewCount: number; ratingTotal: number; playerKeys: Set<string> };
 
 Deno.serve(async (req: Request) => {
@@ -62,8 +63,8 @@ Deno.serve(async (req: Request) => {
     return proof.get(key)!;
   };
 
-  // Ratings are deliberately moderation-gated. Pending/rejected rows and CI audit rows
-  // can never affect public stars or public review counts.
+  // Public rating is owner-moderated. Pending/rejected reviews and CI audit rows
+  // cannot affect either the average stars or the displayed review count.
   const { data: reviews, error: reviewsError } = await admin
     .from('case_reviews')
     .select('case_id,rating')
@@ -79,32 +80,55 @@ Deno.serve(async (req: Request) => {
     item.ratingTotal += rating;
   }
 
-  // Short cases have immutable one-row-per-browser first-completion records.
-  const { data: shortCompletions, error: shortError } = await admin
-    .from('case_first_results')
-    .select('case_id,player_key_hash')
-    .limit(50000);
-  if (shortError) return json(503, { error: 'short_stats_read_failed' }, origin);
-  for (const row of shortCompletions || []) {
-    const key = publicReviewKey(row.case_id);
-    const player = String(row.player_key_hash || '');
-    if (!key || !player || /^case:audit_/i.test(key)) continue;
-    ensure(key).playerKeys.add(player);
-  }
-
-  // Long solo/co-op games record completion in the common funnel. Count unique visitors,
-  // not page views or button presses, so the public number means completed players.
-  const { data: completions, error: completionError } = await admin
+  // Clean browser funnel: funnel-analytics.js exits immediately for navigator.webdriver,
+  // so these are suitable public completion counts for short cases and Solo 407.
+  const { data: funnelCompletions, error: funnelError } = await admin
     .from('site_funnel_events')
-    .select('visitor_key_hash,page_path')
+    .select('visitor_key_hash,page_path,metadata')
     .eq('event_name', 'game_complete')
     .limit(50000);
-  if (completionError) return json(503, { error: 'completion_stats_read_failed' }, origin);
-  for (const row of completions || []) {
-    const key = gameKeyFromPath(row.page_path);
+  if (funnelError) return json(503, { error: 'funnel_stats_read_failed' }, origin);
+  for (const row of funnelCompletions || []) {
     const player = String(row.visitor_key_hash || '');
-    if (!key || !player) continue;
-    ensure(key).playerKeys.add(player);
+    if (!player) continue;
+    const gameKey = gameKeyFromPath(row.page_path);
+    if (gameKey === 'solo-407') {
+      ensure(gameKey).playerKeys.add(player);
+      continue;
+    }
+    if (/^\/(?:delo|ru\/cases)\//.test(String(row.page_path || ''))) {
+      const caseId = String(row.metadata?.case_id || '').trim();
+      const key = publicReviewKey(caseId);
+      if (key && key.startsWith('case:')) ensure(key).playerKeys.add(player);
+    }
+  }
+
+  // Co-op completion is authoritative in duel_room_players. Release gates also complete
+  // rooms against production, so CI*/RG* players are explicitly excluded from public proof.
+  const { data: rooms, error: roomsError } = await admin
+    .from('duel_rooms')
+    .select('id,case_path')
+    .limit(50000);
+  if (roomsError) return json(503, { error: 'room_stats_read_failed' }, origin);
+  const roomKey = new Map<string, string>();
+  for (const room of rooms || []) {
+    const key = gameKeyFromPath(room.case_path);
+    if (key) roomKey.set(String(room.id), key);
+  }
+
+  if (roomKey.size) {
+    const { data: players, error: playersError } = await admin
+      .from('duel_room_players')
+      .select('room_id,player_key_hash,player_name,completed_at')
+      .not('completed_at', 'is', null)
+      .limit(50000);
+    if (playersError) return json(503, { error: 'coop_stats_read_failed' }, origin);
+    for (const row of players || []) {
+      const key = roomKey.get(String(row.room_id));
+      const player = String(row.player_key_hash || '');
+      if (!key || !player || automatedPlayer(row.player_name)) continue;
+      ensure(key).playerKeys.add(player);
+    }
   }
 
   const items: Record<string, unknown> = {};
