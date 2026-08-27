@@ -135,12 +135,19 @@
 
   const classifyClick = (node) => {
     const action = String(node?.dataset?.action || '');
+    const duelAction = String(node?.dataset?.duelAction || '');
     const label = safeLabel(node);
     const href = hrefInfo(node);
     const metadata = { label };
 
     if (action === 'accept') return ['game_accept', metadata, 'accept-case'];
     if (action === 'submit') return ['game_answer_attempt', metadata, 'submit-answer'];
+
+    if (duelAction) {
+      if (['create', 'join'].includes(duelAction)) return ['game_accept', { ...metadata, choice: duelAction }, `duel-${duelAction}`];
+      if (duelAction === 'start') return ['game_open', metadata, 'duel-start'];
+      if (['show-create', 'focus-code', 'lookup-code'].includes(duelAction)) return ['primary_action', { ...metadata, choice: duelAction }, `duel-${duelAction}`];
+    }
 
     if (node?.matches?.('[data-volume-buy], [data-volume-checkout], [data-checkout-open]')) {
       return ['checkout_open', { ...metadata, product: 'volume1' }, 'volume-checkout'];
@@ -163,6 +170,10 @@
         return ['primary_action', metadata, href.path || href.group];
       }
     }
+
+    if (pageGroup() === 'coop-case' && node?.tagName === 'BUTTON') {
+      return ['primary_action', metadata, 'coop-case-button'];
+    }
     return null;
   };
 
@@ -173,6 +184,16 @@
     if (!classified) return;
     track(classified[0], classified[1], classified[2]);
   }, true);
+
+  window.addEventListener('ml:solo_start', (event) => {
+    track('game_accept', { case_id: event.detail?.caseId || 'solo:407' }, 'solo-start', { dedupe: 'solo-start' });
+  });
+  window.addEventListener('ml:solo_final_attempt', (event) => {
+    track('game_answer_attempt', { case_id: event.detail?.caseId || 'solo:407' }, 'solo-final-attempt');
+  });
+  window.addEventListener('ml:solo_complete', (event) => {
+    track('game_complete', { case_id: event.detail?.caseId || 'solo:407' }, 'solo-complete', { dedupe: 'solo-complete' });
+  });
 
   const inspectRuntime = () => {
     const review = document.querySelector('[data-ktv-review-card]');
