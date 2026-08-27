@@ -25,10 +25,13 @@ jobs:
           node --check tools/import-mobile/two-player-407-postprocess.mjs
           node --check tools/validate-solo-407.mjs
           node --check tools/solo-407-browser-smoke.mjs
+          node --check tools/solo-hub-kto-vret-visual-smoke.mjs
       - name: Validate solo product and generated integration
         run: node tools/validate-solo-407.mjs
       - name: Black-box solo flow and premium visual smoke
         run: node tools/solo-407-browser-smoke.mjs
+      - name: Visual smoke Who Lies showcase on solo hub
+        run: node tools/solo-hub-kto-vret-visual-smoke.mjs
       - name: Upload solo desktop and mobile screenshots
         uses: actions/upload-artifact@v4
         with:

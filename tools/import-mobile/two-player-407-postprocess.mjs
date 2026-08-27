@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir } from './common.mjs';
 import { applySolo407 } from './solo-407-postprocess.mjs';
+import { polishSoloKtoVret } from './solo-hub-kto-vret-polish.mjs';
 
 const VERSION = '1.7.0';
 const LANDING = 'detektivnye-igry-dlya-dvoih/index.html';
@@ -98,5 +99,6 @@ export function applyTwoPlayer407(siteRoot) {
   fs.writeFileSync(path.join(caseDir, 'index.html'), page);
   patchLanding(siteRoot);
   const solo = applySolo407(siteRoot);
+  polishSoloKtoVret(siteRoot);
   return { route: CASE_ROUTE, title: 'Номер 407', indexed: false, materials: 18, soloHub: solo.hub, soloRoute: solo.route };
 }

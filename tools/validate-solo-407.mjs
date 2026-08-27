@@ -6,6 +6,7 @@ import { applySolo407, finalizeSolo407 } from './import-mobile/solo-407-postproc
 
 const solo = fs.readFileSync('assets/case-407-solo.js','utf8');
 const css = fs.readFileSync('assets/case-407-solo.css','utf8');
+const ktoVretCss = fs.readFileSync('assets/solo-hub-kto-vret.css','utf8');
 const post = fs.readFileSync('tools/import-mobile/solo-407-postprocess.mjs','utf8');
 const two407 = fs.readFileSync('tools/import-mobile/two-player-407-postprocess.mjs','utf8');
 const checks = [
@@ -20,10 +21,13 @@ const checks = [
   [!solo.includes('${score} из ${soloFinal.questions.length}') && !solo.includes('${score} из ${data.final.questions.length}'),'wrong final does not leak score'],
   [solo.includes('solo407-hint-panel') && !solo.includes('alert('),'premium inline hints'],
   [post.includes('Детективные игры и квесты онлайн для одного — бесплатно'),'SEO title'],
-  [post.includes('Напарник не требуется'),'clear solo promise'],
+  [post.includes('два формата бесплатно'),'clear two-format solo promise'],
+  [post.includes('solo407-kv') && post.includes('Играть в 15 дел бесплатно'),'Who Lies showcase and CTA'],
+  [post.includes('Четыре входа в архив') && post.includes('Три несинхронных журнала') && post.includes('Пять папок и пустое место'),'Who Lies starter cases'],
   [post.includes('solo407-format-switch'),'two-player rescue switch'],
   [post.includes('solo407-home-switch'),'home 1/2-player chooser'],
   [css.includes('.solo407-entry-visual') && css.includes('.solo407-desk'),'premium entry and desk styling'],
+  [ktoVretCss.includes('.solo407-kv') && ktoVretCss.includes('.solo407-kv-cases') && ktoVretCss.includes('@media'),'premium Who Lies showcase styling'],
   [two407.includes("./solo-407-postprocess.mjs") && two407.includes('applySolo407(siteRoot)'),'generator integration'],
 ];
 for (const [ok,label] of checks) if (!ok) throw new Error(`Solo 407 validation failed: ${label}`);
@@ -46,7 +50,9 @@ try {
   const report=JSON.parse(fs.readFileSync(path.join(tmp,'assets/generated/import-report.json'),'utf8'));
   for(const [ok,label] of [
     [result.materials===18,'18 source materials'],
-    [hub.includes('1 игрок')&&hub.includes('Напарник не требуется'),'solo hub promise'],
+    [hub.includes('1 игрок')&&hub.includes('два формата бесплатно'),'solo hub promise'],
+    [hub.includes('solo407-kv')&&hub.includes('Играть в 15 дел бесплатно'),'Who Lies hub showcase'],
+    [hub.includes('../assets/solo-hub-kto-vret.css?v=1.0.0'),'Who Lies showcase stylesheet'],
     [game.includes('data-solo407-app')&&game.includes('case-407-solo.js'),'solo case runtime'],
     [duo.includes('solo407-format-switch'),'two-player rescue'],
     [home.includes('solo407-home-switch')&&home.includes('Расследовать одному')&&home.includes('Расследовать вдвоём'),'home format chooser'],
@@ -55,4 +61,4 @@ try {
   ]) if(!ok) throw new Error(`Solo generated integration failed: ${label}`);
 } finally { fs.rmSync(tmp,{recursive:true,force:true}); }
 
-console.log(JSON.stringify({solo407:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true},null,2));
+console.log(JSON.stringify({solo407:true, ktoVretShowcase:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true},null,2));
