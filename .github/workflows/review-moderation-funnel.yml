@@ -1,0 +1,92 @@
+name: Validate review moderation and funnel analytics
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin/reviews/**'
+      - 'assets/funnel-analytics.js'
+      - 'assets/review-admin.*'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/inject-funnel-analytics.mjs'
+      - 'tools/import-mobile/funnel-analytics-postprocess.mjs'
+      - 'supabase/functions/funnel-event/**'
+      - 'supabase/functions/review-moderation/**'
+      - 'supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql'
+      - '.github/workflows/review-moderation-funnel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin/reviews/**'
+      - 'assets/funnel-analytics.js'
+      - 'assets/review-admin.*'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/inject-funnel-analytics.mjs'
+      - 'tools/import-mobile/funnel-analytics-postprocess.mjs'
+      - 'supabase/functions/funnel-event/**'
+      - 'supabase/functions/review-moderation/**'
+      - 'supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql'
+      - '.github/workflows/review-moderation-funnel.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JavaScript syntax and static contracts
+        run: |
+          node --check assets/funnel-analytics.js
+          node --check assets/review-admin.js
+          node --check tools/inject-funnel-analytics.mjs
+          node --check tools/import-mobile/funnel-analytics-postprocess.mjs
+          node --check tools/import-mobile-cases.mjs
+          grep -q 'noindex,nofollow,noarchive' admin/reviews/index.html
+          grep -q 'data-admin-login' admin/reviews/index.html
+          grep -q 'data-funnel-panel' admin/reviews/index.html
+          grep -q 'sessionStorage' assets/review-admin.js
+          ! grep -Rq 'MLADM-0wix-9jBId4RQgU0NARr3W1S2pdyT54ZBnRub95oM08' . --exclude='review-moderation-funnel.yml'
+          grep -q 'enable row level security' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
+          grep -q 'revoke all on public.site_funnel_events from anon, authenticated' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
+          grep -q 'revoke all on public.review_moderation_access from anon, authenticated' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
+          grep -q "visitor_key_hash: await sha256(browserKey)" supabase/functions/funnel-event/index.ts
+          grep -q "session_key_hash: await sha256(sessionKey)" supabase/functions/funnel-event/index.ts
+          ! grep -q "reviewer_key_hash" assets/review-admin.js
+
+      - name: Live public funnel and protected moderation contracts
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node <<'NODE'
+          const { createHash } = await import('node:crypto');
+          const pr = String(process.env.PR_NUMBER || '0');
+          const hex = (salt, size) => createHash('sha256').update(`ml-funnel:${pr}:${salt}`).digest('hex').slice(0, size);
+          const origin = 'https://mysterylogic.com';
+          const funnel = await fetch('https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/funnel-event', {
+            method: 'POST',
+            headers: {'content-type':'application/json', origin},
+            body: JSON.stringify({
+              browserKey: hex('browser', 48),
+              sessionKey: hex('session', 40),
+              eventName: 'page_view',
+              pagePath: '/challenge/',
+              pageGroup: 'challenge',
+              target: 'ci-contract',
+              metadata: {source:'ci'},
+            }),
+          });
+          if (funnel.status !== 200) throw new Error(`funnel endpoint ${funnel.status}: ${await funnel.text()}`);
+
+          const moderation = await fetch('https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/review-moderation?status=pending', {
+            headers: {origin, authorization:'Bearer MLADM-this-is-deliberately-not-a-valid-owner-key-0000'},
+          });
+          if (moderation.status !== 401) throw new Error(`moderation auth boundary ${moderation.status}: ${await moderation.text()}`);
+          console.log(JSON.stringify({funnelWrite:true,moderationUnauthorizedBlocked:true}, null, 2));
+          NODE
