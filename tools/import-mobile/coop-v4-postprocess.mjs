@@ -52,9 +52,10 @@ function patchFile(file,{root,caseMarkers=[],cognitive=''}){
   html=html.replace(/<header class="ml-header ml-shell(?: case2317-header)?">[\s\S]*?<\/header>/,header(root));
   if(!/class="ref-header ref-wrap(?:\s|\")/.test(html)) html=html.replace(/<body[^>]*>/,match=>`${match}${header(root)}`);
   if(!/class="ref-footer ref-wrap(?:\s|\")/.test(html)) html=html.replace('</body>',`${footer(root)}</body>`);
+  if(caseMarkers.length) html=addCognitiveScript(html,root,'cognitive-coop-analytics.js');
   html=addCognitiveScript(html,root,cognitive);
   const required=[`data-coop-v4="${VERSION}"`,'storefront-reference.css','coop-v4.css'];
-  if(caseMarkers.length) required.push(...caseMarkers); else required.push('data-duel-room-app','coop-case-feature','case407-catalog','casearia-catalog');
+  if(caseMarkers.length) required.push(...caseMarkers,'cognitive-coop-analytics.js'); else required.push('data-duel-room-app','coop-case-feature','case407-catalog','casearia-catalog');
   if(cognitive) required.push(cognitive);
   for(const marker of required) if(!html.includes(marker)) throw new Error(`Co-op v4 missing ${marker}: ${path.relative(process.cwd(),file)}`);
   if(!/class="ref-header ref-wrap(?:\s|\")/.test(html)||!/class="ref-footer ref-wrap(?:\s|\")/.test(html)) throw new Error(`Co-op v4 shell missing: ${path.relative(process.cwd(),file)}`);
