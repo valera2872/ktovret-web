@@ -112,7 +112,10 @@
 
     const requestedInActualOrder = (state.unlocked || []).filter((id) => plan.requests.includes(id));
     const desired = [...plan.initial, ...requestedInActualOrder];
-    for (const id of desired) {
+    const current = [...list.querySelectorAll('[data-evidence]')].map((card) => card.dataset.evidence);
+    const visibleDesired = desired.filter((id) => current.includes(id));
+    if (current.join('|') === visibleDesired.join('|')) return;
+    for (const id of visibleDesired) {
       const card = list.querySelector(`[data-evidence="${id}"]`);
       if (card) list.appendChild(card);
     }
