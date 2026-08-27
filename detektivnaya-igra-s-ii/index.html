@@ -5,46 +5,46 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#061019">
   <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Эксперимент Mystery Logic: детективная игра с ИИ, где подозреваемым можно задавать любые вопросы, а факты дела остаются неизменными.">
+  <meta name="description" content="Закрытый прототип Mystery Logic: детективное расследование со свободным допросом, где факты дела остаются неизменными.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.0">
-  <title>Детективная игра с ИИ — эксперимент Mystery Logic</title>
+  <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
 </head>
 <body class="aid-body">
   <header class="aid-topbar">
     <a class="aid-brand" href="../" aria-label="Mystery Logic — главная">
       <span class="aid-brand-mark">ML</span>
-      <span><strong>Mystery Logic</strong><small>AI interrogation experiment</small></span>
+      <span><strong>Mystery Logic</strong><small>свободный допрос</small></span>
     </a>
-    <div class="aid-topmeta"><span class="aid-dot"></span> Эксперимент · не опубликован</div>
+    <div class="aid-topmeta"><span class="aid-dot"></span> Закрытый прототип</div>
   </header>
 
   <main class="aid-app" data-ai-detective>
     <section class="aid-intro" data-view="intro">
       <div class="aid-intro-copy">
         <p class="aid-kicker">Дело AI-01 · 21:31</p>
-        <h1>Архив погас<br>на восемь минут.</h1>
-        <p class="aid-lead">За это время из закрытого фонда исчез оригинал письма 1912 года. Дверь открыли служебной картой. Камера не работала. Трое людей знали достаточно, чтобы оказаться под подозрением.</p>
-        <div class="aid-rule"><strong>Здесь нет списка готовых вопросов.</strong><span>Вы сами решаете, кого допрашивать, что предъявлять и когда версия уже выдерживает проверку.</span></div>
+        <h1>Восемь минут<br>без камеры.</h1>
+        <p class="aid-lead">Из закрытого фонда исчез оригинал письма 1912 года. В 21:31 дверь открылась — как раз во время планового перезапуска камеры служебного коридора. Три человека могут объяснить, где были. Проверьте их версии.</p>
+        <div class="aid-rule"><strong>Начните как следователь.</strong><span>Выберите человека и задавайте свои вопросы. Материал можно предъявить собеседнику, если хотите проверить его слова. Новые документы появятся только тогда, когда вы до них доберётесь.</span></div>
         <button class="aid-primary" type="button" data-action="start">Принять дело</button>
       </div>
       <aside class="aid-case-stamp" aria-label="Карточка дела">
         <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Письмо №12/1912</strong></div>
-        <div class="aid-stamp-line"><span>ПОСЛЕДНИЙ ДОСТУП</span><strong>21:31:14</strong></div>
-        <div class="aid-stamp-line"><span>СИГНАЛ КАМЕРЫ</span><strong>нет 21:27–21:35</strong></div>
-        <div class="aid-stamp-seal">Ваша задача — установить, чья версия не выдерживает фактов.</div>
+        <div class="aid-stamp-line"><span>ОКНО ПРОПАЖИ</span><strong>21:24–21:36</strong></div>
+        <div class="aid-stamp-line"><span>КАМЕРА</span><strong>нет сигнала 21:27–21:35</strong></div>
+        <div class="aid-stamp-seal">Ваша задача — установить, кто связан с входом в фонд и чья версия не выдерживает независимой проверки.</div>
       </aside>
     </section>
 
     <section class="aid-workspace" data-view="workspace" hidden>
       <aside class="aid-panel aid-evidence-panel">
         <div class="aid-panel-head">
-          <p class="aid-kicker">Материалы</p>
-          <h2>Что уже установлено</h2>
+          <p class="aid-kicker">Материалы дела</p>
+          <h2>Что подтверждено</h2>
         </div>
         <div class="aid-evidence-list" data-evidence-list></div>
-        <p class="aid-panel-hint">Нажмите на материал, чтобы приложить его к следующему вопросу.</p>
+        <p class="aid-panel-hint">Нажмите на материал, чтобы предъявить его в следующем вопросе. Часть материалов откроется только после проверки показаний.</p>
       </aside>
 
       <section class="aid-interrogation">
@@ -65,9 +65,9 @@
             <span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button>
           </div>
           <label class="aid-sr-only" for="aid-question">Ваш вопрос</label>
-          <textarea id="aid-question" maxlength="420" rows="2" placeholder="Спросите своими словами… например: «Кто знал точное время отключения камеры?»" required></textarea>
+          <textarea id="aid-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
           <div class="aid-composer-actions">
-            <span data-turn-counter>0 / 12 вопросов</span>
+            <span data-turn-counter>0 / 14 вопросов</span>
             <button class="aid-send" type="submit">Задать вопрос</button>
           </div>
         </form>
@@ -93,12 +93,12 @@
       <div class="aid-theory-grid">
         <div>
           <p class="aid-kicker">Ваша версия</p>
-          <h2>Кто использовал отключение камеры?</h2>
-          <p>Выберите человека и зафиксируйте, на какой цепочке фактов держится ваша версия. Игра не требует «правильной формулировки» — только чтобы доказательства действительно сходились.</p>
+          <h2>Кто ответственен за исчезновение письма?</h2>
+          <p>Назовите человека и опишите цепочку фактов. Версия пройдёт проверку только в том случае, если необходимые подтверждения действительно получены вами в ходе расследования.</p>
         </div>
         <form class="aid-theory-form" data-theory-form>
           <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
-          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Например: карта доступа + знание окна отключения + противоречие в местонахождении…" required></textarea></label>
+          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Какие независимые факты связывают человека с фондом в нужное время?" required></textarea></label>
           <button class="aid-primary" type="submit">Проверить версию</button>
         </form>
       </div>
@@ -106,7 +106,7 @@
     </section>
   </main>
 
-  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Экспериментальная механика · факты фиксированы, диалог свободный</span></footer>
-  <script src="../assets/ai-detective-vslice.js?v=0.1.0" defer></script>
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
+  <script src="../assets/ai-detective-vslice.js?v=0.2.0" defer></script>
 </body>
 </html>
