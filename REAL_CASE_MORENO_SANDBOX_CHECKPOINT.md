@@ -6,7 +6,7 @@ v0.1–v0.3 rejected as too guided. v0.4.1 is the current experiment.
 
 ## Core principle
 
-The UI must not enumerate investigative branches. The player receives only the facts already earned and writes the next investigative action in free text.
+The UI must not enumerate investigative branches. The player receives only facts already earned and writes the next investigative action in free text.
 
 ## Interaction
 
@@ -35,7 +35,7 @@ Active assets:
 - `assets/real-case-moreno-sandbox-v41.js?v=0.4.1`
 - `assets/real-case-moreno-sandbox.css?v=0.4.1`
 
-## Tested head before this docs commit
+## Tested code head
 
 `5f9ae68c331939e03909d142149d46277c993a31`
 
@@ -47,6 +47,8 @@ Dedicated workflow run #38: SUCCESS.
 - question-driven independent witness interview: pass
 - full free-text solve path: pass
 - visual audit: 7 states x desktop/mobile = 14 screenshots: pass
+
+The documentation commits after that tested code head do not alter the route or active sandbox assets.
 
 ## Release boundary
 
