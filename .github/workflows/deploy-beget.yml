@@ -44,6 +44,7 @@ jobs:
           grep -Fq -- "--exclude='.well-known/'" "$file"
           grep -Fq 'Roll back automatically if deploy or live smoke fails' "$file"
           grep -Fq 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' "$file"
+          grep -Fq 'https://mysterylogic.com/detektivnaya-igra-s-ii/' "$file"
           test -f ops/beget-auto-deploy.md
           ! grep -Eqi 'BEGET_(PASSWORD|HOST|USER):[[:space:]]+[^$]' "$file"
 
@@ -104,10 +105,18 @@ jobs:
           test -f production-web/tom-1/index.html
           test -f production-web/detektivnye-igry-dlya-dvoih/index.html
           test -f production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          test -f production-web/assets/case-aria-investigator-v16.js
+          test -f production-web/detektivnaya-igra-s-ii/index.html
+          test -f production-web/assets/ai-detective-vslice.css
+          test -f production-web/assets/ai-detective-vslice.js
           grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' production-web/index.html
           grep -Fq 'Последняя ария' production-web/detektivnye-igry-dlya-dvoih/index.html
-          grep -Fq 'case-aria-investigator-v16.js' production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          grep -Fq 'case-aria-storefront.js' production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -Fq "?v=$RELEASE" production-web/index.html
+          grep -Fq '<meta name="robots" content="noindex,follow">' production-web/detektivnaya-igra-s-ii/index.html
+          grep -Fq "ai-detective-vslice.js?v=$RELEASE" production-web/detektivnaya-igra-s-ii/index.html
+          grep -Fq "ai-detective-vslice.css?v=$RELEASE" production-web/detektivnaya-igra-s-ii/index.html
+          ! grep -Fq '<loc>https://mysterylogic.com/detektivnaya-igra-s-ii/</loc>' production-web/sitemap.xml
           test ! -d production-web/supabase
           test ! -d production-web/tools
           test ! -d production-web/tests
@@ -205,12 +214,16 @@ jobs:
           fetch 'https://mysterylogic.com/tom-1/' > /tmp/tom1.html
           fetch 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/' > /tmp/duo.html
           fetch 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' > /tmp/aria.html
+          fetch 'https://mysterylogic.com/detektivnaya-igra-s-ii/' > /tmp/ai-detective.html
           grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' /tmp/home.html
           grep -Fq "?v=$RELEASE" /tmp/home.html
           grep -Fq 'Открыть 85 дел за 99 ₽' /tmp/tom1.html
           grep -Fq 'Последняя ария' /tmp/duo.html
-          grep -Fq 'case-aria-investigator-v16.js' /tmp/aria.html
+          grep -Fq 'case-aria-storefront.js' /tmp/aria.html
           grep -Fq 'noindex,follow' /tmp/aria.html
+          grep -Fq 'Архив погас' /tmp/ai-detective.html
+          grep -Fq 'noindex,follow' /tmp/ai-detective.html
+          grep -Fq "ai-detective-vslice.js?v=$RELEASE" /tmp/ai-detective.html
           echo "Live Mystery Logic smoke passed for $RELEASE"
 
       - name: Roll back automatically if deploy or live smoke fails
