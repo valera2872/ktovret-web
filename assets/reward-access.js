@@ -3,7 +3,7 @@
 
   const ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/reward-access';
   const LAST_REWARD_KEY = 'mysterylogic:player-reward:last';
-  const LAST_ARIA_TOKEN_KEY = 'mysterylogic:last-aria:access-token';
+  const LAST_ARIA_REWARD_KEY = 'mysterylogic:reward:last-aria';
   const REWARD_CODE_RE = /^ml_reward_(?:[A-HJ-NP-Z2-9]{4}-){6}[A-HJ-NP-Z2-9]{4}$/;
 
   const activateForm = document.querySelector('[data-reward-form]');
@@ -77,7 +77,7 @@
       try { localStorage.setItem(`mysterylogic:reward:case:${reward.caseId}`, code); } catch {}
     }
     if (reward.productId === 'last_aria') {
-      try { localStorage.setItem(LAST_ARIA_TOKEN_KEY, code); } catch {}
+      try { localStorage.setItem(LAST_ARIA_REWARD_KEY, code); } catch {}
     }
   };
 
