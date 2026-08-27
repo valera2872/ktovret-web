@@ -36,19 +36,20 @@ class CDP {
   close(){this.ws.close()}
 }
 
+async function waitJson(url,proc,getErr,attempts=120){for(let i=0;i<attempts;i++){try{const r=await fetch(url);if(r.ok)return await r.json()}catch{}if(proc.exitCode!==null)throw new Error(`Chrome exited ${proc.exitCode} before DevTools start:\n${getErr().slice(-4000)}`);await sleep(100)}throw new Error(`DevTools endpoint unavailable: ${url}\n${getErr().slice(-4000)}`)}
 async function evaluate(cdp,expression){const r=await cdp.send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw new Error(`Runtime exception: ${JSON.stringify(r.exceptionDetails)}`);return r.result.value}
 async function capture(cdp,file){const r=await cdp.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false,fromSurface:true});fs.writeFileSync(file,Buffer.from(r.data,'base64'));if(fs.statSync(file).size<10000)throw new Error(`Suspiciously small screenshot: ${file}`)}
 
 const port=await listen();
 const pageUrl=`http://127.0.0.1:${port}/detektivnaya-igra-s-ii/`;
+const debugPort=9333+Math.floor(Math.random()*400);
 const profile=fs.mkdtempSync(path.join(os.tmpdir(),'ml-ai-smoke-'));
-const chromeProc=spawn(chrome,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-address=127.0.0.1','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+const chromeProc=spawn(chrome,['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-address=127.0.0.1',`--remote-debugging-port=${debugPort}`,`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let chromeErr='';chromeProc.stderr.on('data',d=>chromeErr+=d.toString());
-async function discoverDebugPort(){for(let i=0;i<120;i++){const m=chromeErr.match(/:(\d+)\/devtools\/browser\//);if(m)return Number(m[1]);if(chromeProc.exitCode!==null)throw new Error(`Chrome exited ${chromeProc.exitCode} before DevTools start:\n${chromeErr.slice(-4000)}`);await sleep(100)}throw new Error(`Chrome DevTools endpoint not announced:\n${chromeErr.slice(-4000)}`)}
 const results=[];
 
 try{
-  const debugPort=await discoverDebugPort();
+  await waitJson(`http://127.0.0.1:${debugPort}/json/version`,chromeProc,()=>chromeErr);
   const created=await fetch(`http://127.0.0.1:${debugPort}/json/new?${encodeURIComponent(pageUrl)}`,{method:'PUT'}).then(r=>{if(!r.ok)throw new Error(`Cannot create DevTools page: ${r.status}`);return r.json()});
   const cdp=new CDP(created.webSocketDebuggerUrl);await cdp.ready();await cdp.send('Page.enable');await cdp.send('Runtime.enable');
 
@@ -62,7 +63,6 @@ try{
       start:document.querySelector('[data-action="start"]')?.innerText.trim(),
       introVisible:!document.querySelector('[data-view="intro"]')?.hidden,
       overflow:document.documentElement.scrollWidth-window.innerWidth,
-      viewport:[window.innerWidth,window.innerHeight],
       h1Rect:(()=>{const r=document.querySelector('.aid-intro h1')?.getBoundingClientRect();return r&&{left:r.left,right:r.right,top:r.top,bottom:r.bottom}})()
     }))()`);
     if(intro.h1!=='Восемь минут\nбез камеры.')throw new Error(`${vp.name}: unexpected H1 ${JSON.stringify(intro.h1)}`);
