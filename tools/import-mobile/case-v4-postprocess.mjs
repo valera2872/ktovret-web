@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const VERSION='1.0.0';
+const COGNITIVE_VERSION='1.0.0';
 
 function addBodyClass(html,className){
   return html.replace(/<body([^>]*)>/,(_,attrs='')=>{
@@ -19,6 +20,13 @@ function addBodyClass(html,className){
 function addStyle(html,href,needle){
   if(html.includes(needle)) return html;
   return html.replace('</head>',`<link rel="stylesheet" href="${href}">\n</head>`);
+}
+
+function addCognitiveShortCase(html,prefix){
+  if(html.includes('cognitive-short-case.js')) return html;
+  const app=/<script src="[^"]*ktovret-game\/assets\/app\.js[^>]*><\/script>/;
+  if(!app.test(html)) throw new Error('Short-case app runtime missing before cognitive calibration');
+  return html.replace(app,match=>`<script src="${prefix}assets/cognitive-short-case.js?v=${COGNITIVE_VERSION}"></script>${match}`);
 }
 
 function header(){
@@ -51,10 +59,28 @@ export function applyCaseV4(siteRoot){
     if(!html.includes('class="ref-footer ref-wrap"')){
       html=html.replace('</body>',`${footer()}</body>`);
     }
-    const markers=['ktv-case-v4','case-v4.css','case-v4-polish.css','ktv-ref-header','data-ktv-root','window.KtoVretWeb='];
+    html=addCognitiveShortCase(html,'../../');
+    const markers=['ktv-case-v4','case-v4.css','case-v4-polish.css','ktv-ref-header','data-ktv-root','window.KtoVretWeb=','cognitive-short-case.js'];
     for(const marker of markers) if(!html.includes(marker)) throw new Error(`Case v4 missing ${marker}: ${entry.name}`);
     fs.writeFileSync(file,html);
     pages+=1;
   }
+
+  // SEO-native free cases use a deeper route and do not get the V4 chrome,
+  // but the same player-facing cognitive calibration must apply there.
+  const seoRoot=path.join(siteRoot,'ru','cases');
+  if(fs.existsSync(seoRoot)){
+    for(const entry of fs.readdirSync(seoRoot,{withFileTypes:true})){
+      if(!entry.isDirectory()) continue;
+      const file=path.join(seoRoot,entry.name,'index.html');
+      if(!fs.existsSync(file)) continue;
+      let html=fs.readFileSync(file,'utf8');
+      if(!html.includes('window.KtoVretWeb=')||!html.includes('data-ktv-root')) continue;
+      html=addCognitiveShortCase(html,'../../../');
+      if(!html.includes('cognitive-short-case.js')) throw new Error(`SEO case missing cognitive calibration: ${entry.name}`);
+      fs.writeFileSync(file,html);
+    }
+  }
+
   return {pages,version:VERSION};
 }
