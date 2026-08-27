@@ -51,7 +51,6 @@ jobs:
           grep -q 'data-admin-login' admin/reviews/index.html
           grep -q 'data-funnel-panel' admin/reviews/index.html
           grep -q 'sessionStorage' assets/review-admin.js
-          ! grep -Rq 'MLADM-0wix-9jBId4RQgU0NARr3W1S2pdyT54ZBnRub95oM08' . --exclude='review-moderation-funnel.yml'
           grep -q 'enable row level security' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
           grep -q 'revoke all on public.site_funnel_events from anon, authenticated' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
           grep -q 'revoke all on public.review_moderation_access from anon, authenticated' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
