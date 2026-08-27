@@ -8,16 +8,33 @@ const sitemap=fs.readFileSync('sitemap.xml','utf8');
 
 assert.match(html,/name="robots" content="noindex,follow"/,'experimental route must stay noindex');
 assert.match(html,/data-ai-detective/,'AI detective root missing');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.1\.0/,'client asset version missing');
-assert.match(client,/ai-interrogation-v1/,'client must use isolated Edge Function');
-assert.match(client,/MAX_TURNS=12/,'turn cap must remain explicit');
-assert.doesNotMatch(client,/вынесла письмо через служебный коридор/i,'solution leaked into public client');
-assert.doesNotMatch(client,/использовала заранее известное окно перезапуска/i,'solution leaked into public client');
-assert.match(edge,/AI_DETECTIVE_ENABLED/,'AI model must be behind explicit server flag');
-assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
-assert.match(edge,/speakingBrief/,'canon firewall builder missing');
+assert.match(html,/Восемь минут<br>без камеры\./,'first-screen incident must be literal and understandable');
+assert.doesNotMatch(html,/Архив погас/i,'nonsensical archive wording must not return');
+assert.match(html,/ai-detective-vslice\.js\?v=0\.2\.0/,'client asset version must be bumped after flow rewrite');
+assert.match(html,/placeholder="Задайте свой вопрос…"/,'composer must invite free questioning without a suggested solution path');
+assert.doesNotMatch(html,/например:.*Кто знал/i,'first question must not be authored for the player');
+assert.doesNotMatch(html,/Кто использовал отключение камеры\?/i,'theory screen must not presuppose the crime mechanism');
+
+assert.match(client,/MAX_TURNS=14/,'turn cap must remain explicit');
+assert.match(client,/INITIAL_EVIDENCE=\['E01','E02','E03'\]/,'only neutral evidence may be visible at start');
+assert.match(client,/evidenceIds:new Set/,'discovered evidence state is required');
+assert.match(client,/discovered_evidence_ids/,'client must send discovered evidence state to server');
+assert.match(client,/sessionStorage\.setItem\(STORAGE_KEY/,'refresh must preserve the investigation inside the tab');
+assert.doesNotMatch(client,/ответ · защищённый сценарий/i,'implementation mode must not break player immersion');
+assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side');
+
+assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
+assert.match(edge,/evidenceId==="E05"\)notes\.push\(\{id:"N-MARINA-LOCATION"/,'location contradiction must require the actual network log');
+assert.match(edge,/evidenceId==="E03"&&discoveredEvidence\.has\("E04"\)/,'access contradiction must require both door log and established credential ownership');
+assert.match(edge,/discoveredNotes\.has\("N-ANTON-WINDOW"\)/,'Marina cannot be confronted with Anton knowledge before Anton reveals it');
+assert.match(edge,/requiredEvidence=\["E04","E05","E06","E07"\]/,'final theory must include independent checks of all suspects');
+assert.match(edge,/requiredNotes=\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"\]/,'final theory must require actual interrogation discoveries');
+assert.doesNotMatch(edge,/21:29.*Марин|Марин.*21:29/i,'Lev cannot observe Marina after his 21:23 exit');
+assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must remain before his exit');
 assert.match(edge,/Игрок не предъявил документ/,'unverified player claims must not become evidence');
-assert.match(edge,/suspect!=="marina"/,'final verdict must remain server-side');
+assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
+assert.match(edge,/AI_DETECTIVE_ENABLED/,'AI model must remain behind an explicit server flag');
+assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
 assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
 
-console.log('AI detective vertical slice contract: PASS');
+console.log('AI detective preflight contract: PASS');

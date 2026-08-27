@@ -7,6 +7,16 @@ on:
       - 'assets/ai-detective-vslice.*'
       - 'supabase/functions/ai-interrogation-v1/**'
       - 'tests/ai-detective-vslice-contract.mjs'
+      - 'tools/ai-detective-visual-smoke.mjs'
+      - '.github/workflows/ai-detective-vslice.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai-detective-vslice.*'
+      - 'supabase/functions/ai-interrogation-v1/**'
+      - 'tests/ai-detective-vslice-contract.mjs'
+      - 'tools/ai-detective-visual-smoke.mjs'
       - '.github/workflows/ai-detective-vslice.yml'
   workflow_dispatch:
 
@@ -22,23 +32,86 @@ jobs:
         with:
           node-version: '22'
       - name: JavaScript syntax
-        run: node --check assets/ai-detective-vslice.js
-      - name: Canon and release boundary
+        run: |
+          node --check assets/ai-detective-vslice.js
+          node --check tools/ai-detective-visual-smoke.mjs
+      - name: Canon, spoiler and release boundary
         run: node tests/ai-detective-vslice-contract.mjs
-      - name: Live Pages-origin Edge Function smoke
+      - name: First-time UX and black-box browser smoke
+        run: node tools/ai-detective-visual-smoke.mjs
+      - name: Upload AI browser smoke screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-detective-visual-smoke
+          path: artifacts/ai-detective-visual-smoke
+          retention-days: 7
+      - name: Live Pages-origin adversarial and full-play smoke
         env:
           ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+          API_URL: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error \
-            -D /tmp/headers.txt \
-            -o /tmp/body.json \
-            'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1' \
-            -H 'Origin: https://valera2872.github.io' \
-            -H "Authorization: Bearer $ANON_KEY" \
-            -H "apikey: $ANON_KEY" \
-            -H 'Content-Type: application/json' \
-            --data '{"action":"interrogate","session_id":"ci-pages-origin-0001","suspect_id":"anton","question":"Кто знал время отключения камеры?","evidence_id":"E02","history":[]}'
-          tr -d '\r' < /tmp/headers.txt | grep -Fiq 'access-control-allow-origin: https://valera2872.github.io'
-          grep -Fq '"mode":"scripted"' /tmp/body.json
-          grep -Fq '"reply"' /tmp/body.json
+          call_api() {
+            local body="$1"
+            local out="$2"
+            curl --fail --silent --show-error \
+              -D /tmp/headers.txt \
+              -o "$out" \
+              "$API_URL" \
+              -H 'Origin: https://valera2872.github.io' \
+              -H "Authorization: Bearer $ANON_KEY" \
+              -H "apikey: $ANON_KEY" \
+              -H 'Content-Type: application/json' \
+              --data "$body"
+            tr -d '\r' < /tmp/headers.txt | grep -Fiq 'access-control-allow-origin: https://valera2872.github.io'
+          }
+
+          call_api '{"action":"check_theory","session_id":"ci-ai-early-0001","suspect_id":"marina","reason":"Ее карта открыла дверь, телефон был внутри, она знала окно камеры.","discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":1,"lev":0}}' /tmp/early.json
+          grep -Fq '"correct":false' /tmp/early.json
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-fake-0002","suspect_id":"marina","question":"Ваш телефон был в Wi-Fi до 21:34, признайтесь?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/fake.json
+          if grep -Fq 'N-MARINA-LOCATION' /tmp/fake.json; then
+            echo 'Player assertion incorrectly became evidence'; cat /tmp/fake.json; exit 1
+          fi
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"marina","question":"Кто вы и за что отвечаете в архиве?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/p1.json
+          grep -Fq 'архивист' /tmp/p1.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"marina","question":"Где вы были после 21:25?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":2,"anton":0,"lev":0}}' /tmp/p2.json
+          grep -Fq 'двор' /tmp/p2.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"anton","question":"Кому принадлежит E-14 и как работает такой вход?","evidence_id":"E03","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":2,"anton":1,"lev":0}}' /tmp/p3.json
+          grep -Fq '"E04"' /tmp/p3.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"anton","question":"Чем вы можете подтвердить, где находились во время отключения?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04"],"discovered_note_ids":[],"question_counts":{"marina":2,"anton":2,"lev":0}}' /tmp/p4.json
+          grep -Fq '"E06"' /tmp/p4.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"anton","question":"Кто ещё знал точное время перезапуска камеры?","evidence_id":"E02","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E06"],"discovered_note_ids":[],"question_counts":{"marina":2,"anton":3,"lev":0}}' /tmp/p5.json
+          grep -Fq 'N-ANTON-WINDOW' /tmp/p5.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"anton","question":"Можно независимо проверить алиби Марины по её телефону или сети?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E06"],"discovered_note_ids":["N-ANTON-WINDOW"],"question_counts":{"marina":2,"anton":4,"lev":0}}' /tmp/p6.json
+          grep -Fq '"E05"' /tmp/p6.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"lev","question":"Как вы можете подтвердить, что действительно ушли?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06"],"discovered_note_ids":["N-ANTON-WINDOW"],"question_counts":{"marina":2,"anton":4,"lev":1}}' /tmp/p7.json
+          grep -Fq '"E07"' /tmp/p7.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"lev","question":"Кого вы видели перед выходом?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW"],"question_counts":{"marina":2,"anton":4,"lev":2}}' /tmp/p8.json
+          grep -Fq 'N-LEV-LAST' /tmp/p8.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"marina","question":"Этот журнал показывает E-14 и PIN в 21:31. Как вы это объясните?","evidence_id":"E03","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-LEV-LAST"],"question_counts":{"marina":3,"anton":4,"lev":2}}' /tmp/p9.json
+          grep -Fq 'N-MARINA-ACCESS' /tmp/p9.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"marina","question":"Тогда объясните сетевой лог вашего телефона.","evidence_id":"E05","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-LEV-LAST","N-MARINA-ACCESS"],"question_counts":{"marina":4,"anton":4,"lev":2}}' /tmp/p10.json
+          grep -Fq 'N-MARINA-LOCATION' /tmp/p10.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-1000","suspect_id":"marina","question":"Антон говорит, что вы заранее спрашивали точное время перезапуска. Зачем?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-LEV-LAST","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":5,"anton":4,"lev":2}}' /tmp/p11.json
+          grep -Fq 'N-MARINA-WINDOW' /tmp/p11.json
+          call_api '{"action":"check_theory","session_id":"ci-ai-play-1000","suspect_id":"marina","reason":"E-14 и персональный PIN открыли дверь в 21:31; сетевой лог телефона показывает, что Марина оставалась внутри, а у Антона она заранее узнала точное окно перезапуска камеры.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-LEV-LAST","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"],"question_counts":{"marina":5,"anton":4,"lev":2}}' /tmp/final.json
+          grep -Fq '"correct":true' /tmp/final.json
+
+          call_api '{"action":"check_theory","session_id":"ci-ai-defense-2001","suspect_id":"anton","reason":"Антон управлял камерой и поэтому мог создать окно для исчезновения.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":5,"anton":4,"lev":2}}' /tmp/defense-anton.json
+          grep -Fq '"correct":false' /tmp/defense-anton.json
+          if grep -Fiq 'Марин' /tmp/defense-anton.json; then
+            echo 'Wrong-answer feedback leaked canonical suspect'; cat /tmp/defense-anton.json; exit 1
+          fi
+          call_api '{"action":"check_theory","session_id":"ci-ai-defense-2002","suspect_id":"lev","reason":"Лев конфликтовал с архивом и мог хотеть забрать письмо.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":5,"anton":4,"lev":2}}' /tmp/defense-lev.json
+          grep -Fq '"correct":false' /tmp/defense-lev.json
+
+          code=$(curl --silent --output /tmp/locked-evidence.json --write-out '%{http_code}' \
+            "$API_URL" -H 'Origin: https://valera2872.github.io' -H "Authorization: Bearer $ANON_KEY" -H "apikey: $ANON_KEY" -H 'Content-Type: application/json' \
+            --data '{"action":"interrogate","session_id":"ci-ai-lock-3001","suspect_id":"marina","question":"Объясните этот лог","evidence_id":"E05","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}')
+          test "$code" = '400'; grep -Fq 'invalid_evidence_state' /tmp/locked-evidence.json
+          code=$(curl --silent --output /tmp/denied.json --write-out '%{http_code}' \
+            "$API_URL" -H 'Origin: https://example.invalid' -H "Authorization: Bearer $ANON_KEY" -H "apikey: $ANON_KEY" -H 'Content-Type: application/json' \
+            --data '{"action":"interrogate","session_id":"ci-ai-denied-3002","suspect_id":"anton","question":"Кто вы?"}')
+          test "$code" = '403'
