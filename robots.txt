@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: https://valera2872.github.io/ktovret-web/sitemap.xml
