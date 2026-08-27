@@ -24,6 +24,8 @@ For least privilege, prefer a dedicated Beget FTP account restricted to the Myst
 
 Do not put any password, private key, token, or hosting credential in the repository.
 
+**Success semantics are strict:** if any required Beget secret is missing, the deployment workflow fails and production is explicitly marked as **not deployed**. A green `Deploy Mystery Logic to Beget` run therefore means the validated payload was uploaded and the live HTTP smoke completed successfully; a skipped upload can no longer masquerade as a successful production release.
+
 ## Safety gates
 
 Before upload the workflow:
@@ -42,7 +44,8 @@ After upload it performs live HTTP smoke checks for:
 - `/`;
 - `/tom-1/`;
 - `/detektivnye-igry-dlya-dvoih/`;
-- `/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/`.
+- `/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/`;
+- `/detektivnaya-igra-s-ii/` — it must contain the current **«Восемь минут без камеры»** version, must remain `noindex,follow`, must use the current release-stamped client asset, and must not contain the obsolete **«Архив погас»** wording.
 
 If live smoke fails, the previous files are restored from the rollback archive and the workflow fails. Five latest rollback archives are retained.
 
@@ -52,4 +55,4 @@ Automatic: every successful `Build Mystery Logic production bundle for Beget` ru
 
 Manual: run `Deploy Mystery Logic to Beget` from GitHub Actions. A specific successful production bundle run ID can be supplied; if omitted, the latest successful `main` bundle is used.
 
-If the required secrets are not configured yet, the workflow exits without touching Beget and emits a warning listing only the missing secret names.
+If the required secrets are not configured yet, the workflow fails before SSH/upload and lists only the missing secret names. No Beget files are touched.
