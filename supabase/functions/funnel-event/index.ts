@@ -24,9 +24,10 @@ const EVENTS = new Set([
   'no_action_45s',
   'diagnostic_choice',
 ]);
+const BOT_RE = /(?:bot|spider|crawler|headlesschrome|lighthouse|pagespeed|google-inspectiontool|yandexaccessibilitybot)/i;
 
 const cleanOrigin = (value = '') => value.trim().replace(/\/$/, '');
-const allowed = (origin = '') => !origin || origins.includes(cleanOrigin(origin));
+const allowed = (origin = '') => Boolean(origin) && origins.includes(cleanOrigin(origin));
 const cors = (origin = '') => ({
   ...(origin && allowed(origin) ? { 'access-control-allow-origin': cleanOrigin(origin) } : {}),
   'access-control-allow-headers': 'content-type',
@@ -71,6 +72,7 @@ Deno.serve(async (req: Request) => {
       : new Response(null, { status: 403 });
   }
   if (!allowed(origin)) return json(403, { error: 'origin_not_allowed' });
+  if (BOT_RE.test(req.headers.get('user-agent') || '')) return new Response(null, { status: 204, headers: cors(origin) });
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return json(503, { error: 'service_not_configured' }, origin);
 
