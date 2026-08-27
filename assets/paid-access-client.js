@@ -21,6 +21,8 @@
   const tokenInput = panel.querySelector('[data-paid-token]');
   const status = panel.querySelector('[data-paid-status]');
   const storageKey = cfg.tokenStorageKey || 'mysterylogic:volume1:access-token';
+  const rewardStorageKey = `mysterylogic:reward:case:${page.caseId}`;
+  const REWARD_TOKEN_RE = /^ml_reward_/i;
 
   const setStatus = (text, kind = '') => {
     if (!status) return;
@@ -81,7 +83,11 @@
     await loadScript('assets/mobile-scroll-stabilizer.js?v=1.4.1');
 
     window.dispatchEvent(new CustomEvent('mysterylogic:paid-case-unlocked', {
-      detail: { caseId: page.caseId, productId: cfg.productId || 'volume1' },
+      detail: {
+        caseId: page.caseId,
+        productId: cfg.productId || 'volume1',
+        accessSource: REWARD_TOKEN_RE.test(localStorage.getItem(rewardStorageKey) || '') ? 'player_reward' : 'purchase',
+      },
     }));
   };
 
@@ -103,10 +109,11 @@
 
   const unlock = async ({ silent = false } = {}) => {
     const typed = tokenInput?.value?.trim() || '';
-    const stored = localStorage.getItem(storageKey) || '';
-    const token = typed || stored;
+    const rewarded = localStorage.getItem(rewardStorageKey) || '';
+    const purchased = localStorage.getItem(storageKey) || '';
+    const token = typed || rewarded || purchased;
     if (!token) {
-      if (!silent) setStatus('Введите ключ доступа, полученный после покупки.', 'error');
+      if (!silent) setStatus('Введите ключ покупки или благодарственный код.', 'error');
       return false;
     }
 
@@ -114,14 +121,22 @@
     if (!silent) setStatus('Проверяем доступ…');
     try {
       const gameConfig = await fetchPaidCase(token);
-      localStorage.setItem(storageKey, token);
-      setStatus('Доступ подтверждён. Открываем дело…', 'ok');
+      if (REWARD_TOKEN_RE.test(token)) localStorage.setItem(rewardStorageKey, token);
+      else localStorage.setItem(storageKey, token);
+      setStatus(REWARD_TOKEN_RE.test(token)
+        ? 'Бонусный доступ подтверждён. Открываем дело…'
+        : 'Доступ подтверждён. Открываем дело…', 'ok');
       await bootGame(gameConfig);
       return true;
     } catch (error) {
+      if (REWARD_TOKEN_RE.test(token) && error.message === 'reward_wrong_case') {
+        if (typed) setStatus('Этот благодарственный код выдан для другого дела.', 'error');
+        return false;
+      }
       if (!silent) {
         const messages = {
-          access_denied: 'Ключ не даёт доступа к полному тому.',
+          access_denied: 'Ключ не даёт доступа к этому делу.',
+          reward_wrong_case: 'Этот благодарственный код выдан для другого дела.',
           access_revoked: 'Доступ по этому ключу отозван.',
           access_expired: 'Срок доступа закончился.',
           case_not_found: 'Платное дело не найдено на сервере.',
@@ -134,7 +149,9 @@
     }
   };
 
-  if (tokenInput) tokenInput.value = localStorage.getItem(storageKey) || '';
+  const rewarded = localStorage.getItem(rewardStorageKey) || '';
+  const purchased = localStorage.getItem(storageKey) || '';
+  if (tokenInput) tokenInput.value = rewarded || purchased;
   unlockButton?.addEventListener('click', () => unlock());
-  if (localStorage.getItem(storageKey)) unlock({ silent: true });
+  if (rewarded || purchased) unlock({ silent: true });
 })();
