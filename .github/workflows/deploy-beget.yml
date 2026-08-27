@@ -39,12 +39,15 @@ jobs:
           grep -Fq 'secrets.BEGET_HOST' "$file"
           grep -Fq 'secrets.BEGET_USER' "$file"
           grep -Fq 'secrets.BEGET_PASSWORD' "$file"
+          grep -Fq 'Missing required Beget Actions secrets' "$file"
           grep -Fq 'rollback archive' "$file"
           grep -Fq 'rsync -az --delete-delay --delay-updates' "$file"
           grep -Fq -- "--exclude='.well-known/'" "$file"
           grep -Fq 'Roll back automatically if deploy or live smoke fails' "$file"
           grep -Fq 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' "$file"
           grep -Fq 'https://mysterylogic.com/detektivnaya-igra-s-ii/' "$file"
+          grep -Fq 'Восемь минут' "$file"
+          grep -Fq '! grep -Fq '\''Архив погас' "$file"
           test -f ops/beget-auto-deploy.md
           ! grep -Eqi 'BEGET_(PASSWORD|HOST|USER):[[:space:]]+[^$]' "$file"
 
@@ -114,6 +117,8 @@ jobs:
           grep -Fq 'case-aria-storefront.js' production-web/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -Fq "?v=$RELEASE" production-web/index.html
           grep -Fq '<meta name="robots" content="noindex,follow">' production-web/detektivnaya-igra-s-ii/index.html
+          grep -Fq 'Восемь минут<br>без камеры.' production-web/detektivnaya-igra-s-ii/index.html
+          ! grep -Fq 'Архив погас' production-web/detektivnaya-igra-s-ii/index.html
           grep -Fq "ai-detective-vslice.js?v=$RELEASE" production-web/detektivnaya-igra-s-ii/index.html
           grep -Fq "ai-detective-vslice.css?v=$RELEASE" production-web/detektivnaya-igra-s-ii/index.html
           ! grep -Fq '<loc>https://mysterylogic.com/detektivnaya-igra-s-ii/</loc>' production-web/sitemap.xml
@@ -138,8 +143,8 @@ jobs:
           [ -n "$BEGET_PASSWORD" ] || missing+=(BEGET_PASSWORD)
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Beget auto-deploy is installed but not armed. Missing Actions secrets: ${missing[*]}. Optional: BEGET_PATH (default mysterylogic.com/public_html), BEGET_PORT (default 22)."
-            exit 0
+            echo "::error::Missing required Beget Actions secrets: ${missing[*]}. Production was NOT deployed. Optional: BEGET_PATH (default mysterylogic.com/public_html), BEGET_PORT (default 22)."
+            exit 1
           fi
           remote_path="${BEGET_PATH:-mysterylogic.com/public_html}"
           port="${BEGET_PORT:-22}"
@@ -221,7 +226,8 @@ jobs:
           grep -Fq 'Последняя ария' /tmp/duo.html
           grep -Fq 'case-aria-storefront.js' /tmp/aria.html
           grep -Fq 'noindex,follow' /tmp/aria.html
-          grep -Fq 'Архив погас' /tmp/ai-detective.html
+          grep -Fq 'Восемь минут' /tmp/ai-detective.html
+          ! grep -Fq 'Архив погас' /tmp/ai-detective.html
           grep -Fq 'noindex,follow' /tmp/ai-detective.html
           grep -Fq "ai-detective-vslice.js?v=$RELEASE" /tmp/ai-detective.html
           echo "Live Mystery Logic smoke passed for $RELEASE"
@@ -265,7 +271,7 @@ jobs:
           RUN_ID: ${{ steps.source.outputs.run_id }}
         run: |
           if [ "$CONFIGURED" = "true" ]; then
-            echo "Beget deployment attempted for release $RELEASE from validated bundle run $RUN_ID"
+            echo "Beget deployment path executed for release $RELEASE from validated bundle run $RUN_ID. A successful job means live HTTP smoke also passed."
           else
-            echo "Beget deployment workflow is installed. Add BEGET_HOST, BEGET_USER and BEGET_PASSWORD Actions secrets to arm it; BEGET_PATH and BEGET_PORT are optional."
+            echo "Production was NOT deployed to Beget. Configure BEGET_HOST, BEGET_USER and BEGET_PASSWORD Actions secrets; BEGET_PATH and BEGET_PORT are optional."
           fi
