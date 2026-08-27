@@ -6,8 +6,23 @@
   if(!catalog||!Array.isArray(catalog.cases)) return;
 
   const freeCases=Array.isArray(catalog.freeCases)?catalog.freeCases:[];
+  const STARTER_CASE_ID='first_r3_001_four_archive_entries';
+  const starterCase=freeCases.find(item=>item?.id===STARTER_CASE_ID)||freeCases[0]||null;
+  const cognitiveDifficulty={
+    field_r4_009_calendar_month:'Лёгкое',
+    first_r3_004_laptop_two_exits:'Среднее',
+    first_r3_005_card_phone_route:'Среднее',
+    field_r3_001_four_lockers:'Среднее',
+    field_r3_002_courier_route:'Среднее',
+    field_r3_003_call_forwarding:'Среднее',
+    field_r3_004_five_folders:'Среднее',
+    field_r3_005_turnstile_balance:'Среднее',
+    field_r3_006_code_285:'Среднее',
+    field_r3_007_three_time_sources:'Среднее',
+    field_r3_008_bus_full_cycle:'Среднее',
+  };
   const recordMap=new Map();
-  let summary={solvedCount:0,totalCases:freeCases.length,nextCase:freeCases[0]||null,activeCase:null,allSolved:false,rank:'Стажёр бюро'};
+  let summary={solvedCount:0,totalCases:freeCases.length,nextCase:starterCase,activeCase:null,allSolved:false,rank:'Стажёр бюро'};
 
   if(model){
     const records=model.readRecords();
@@ -44,16 +59,16 @@
   }
 
   if(continueLink){
-    const next=summary.nextCase||freeCases[0];
+    const firstVisit=!summary.activeCase&&Number(summary.solvedCount||0)===0;
+    const next=firstVisit?starterCase:(summary.nextCase||starterCase);
     continueLink.href=relativePath(next);
-    continueLink.textContent=summary.allSolved?'Открыть любое дело снова':summary.activeCase?'Продолжить расследование':'Следующее нераскрытое дело';
+    continueLink.textContent=summary.allSolved?'Открыть любое дело снова':summary.activeCase?'Продолжить расследование':firstVisit?'Начать с детективного дела':'Следующее нераскрытое дело';
   }
 
-  const firstFree=freeCases[0];
   const featureLink=document.querySelector('.catalog-feature .ml-button-primary');
-  if(featureLink&&firstFree){
-    featureLink.href=relativePath(firstFree);
-    featureLink.textContent='Открыть первое дело';
+  if(featureLink&&starterCase){
+    featureLink.href=relativePath(starterCase);
+    featureLink.textContent='Начать с дела «Четыре входа в архив»';
   }
 
   const stateFor=(id)=>recordMap.get(id)?.state||{};
@@ -62,6 +77,12 @@
     card.querySelectorAll('.case-state').forEach(node=>node.remove());
     card.classList.remove('is-active');
     if(card.dataset.access!=='free') return;
+    const auditedDifficulty=cognitiveDifficulty[card.dataset.caseId];
+    if(auditedDifficulty){
+      card.dataset.difficulty=auditedDifficulty;
+      const difficultyNode=card.querySelector('.ref-case-meta span');
+      if(difficultyNode) difficultyNode.textContent=auditedDifficulty;
+    }
     const state=stateFor(card.dataset.caseId);
     const solved=state.solved===true;
     const active=state.accepted===true&&!solved;
