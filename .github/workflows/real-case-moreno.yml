@@ -23,16 +23,16 @@ jobs:
           node-version: 22
       - name: Validate JavaScript
         run: |
-          node --check assets/real-case-moreno-sandbox-v41.js
-          node --check tools/real-case-moreno-v41-smoke.mjs
-          node --check tools/real-case-moreno-v41-visual.mjs
-      - name: Validate free-text investigation and interviews
-        run: node tools/real-case-moreno-v41-smoke.mjs
-      - name: Capture v0.4.1 visual audit
-        run: node tools/real-case-moreno-v41-visual.mjs
+          node --check assets/real-case-moreno-ai-v5.js
+          node --check tools/real-case-moreno-v5-smoke.mjs
+          node --check tools/real-case-moreno-v5-visual.mjs
+      - name: Validate AI context and deterministic evidence engine
+        run: node tools/real-case-moreno-v5-smoke.mjs
+      - name: Capture v0.5 visual audit
+        run: node tools/real-case-moreno-v5-visual.mjs
       - name: Upload slice audit
         uses: actions/upload-artifact@v4
         with:
-          name: real-case-moreno-v41-audit
-          path: artifacts/real-case-moreno-v41
+          name: real-case-moreno-v5-audit
+          path: artifacts/real-case-moreno-v5
           retention-days: 7
