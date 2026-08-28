@@ -2,6 +2,13 @@
   'use strict';
 
   const solvedKey = 'mysterylogic:logic:solved:v1';
+  const METRIKA_ID = 111664459;
+  const METRIKA_GOALS = new Map([
+    ['logic_answer_attempt', 'ml_logic_answer_attempt'],
+    ['logic_complete', 'ml_logic_complete'],
+    ['logic_hint_open', 'ml_logic_hint_open'],
+    ['logic_solution_open', 'ml_logic_solution_open'],
+  ]);
   const getSolved = () => {
     try { return new Set(JSON.parse(localStorage.getItem(solvedKey) || '[]')); } catch { return new Set(); }
   };
@@ -10,6 +17,10 @@
   };
   const track = (eventName, metadata = {}, target = '') => {
     try { window.MysteryLogicFunnel?.track?.(eventName, metadata, target); } catch {}
+    try {
+      const goal = METRIKA_GOALS.get(eventName);
+      if (goal && typeof window.ym === 'function') window.ym(METRIKA_ID, 'reachGoal', goal, metadata);
+    } catch {}
   };
 
   const normalize = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -92,9 +103,4 @@
 
   document.querySelectorAll('[data-logic-puzzle]').forEach(bindSolver);
   updateProgress();
-
-  document.addEventListener('click', (event) => {
-    const telegram = event.target.closest?.('[data-telegram-cta]');
-    if (telegram) track('telegram_click', { placement: telegram.dataset.telegramCta || 'logic' }, 't.me/mysterylogic');
-  }, true);
 })();
