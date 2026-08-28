@@ -28,6 +28,15 @@ const newHandoff = [
 if (!source.includes(oldHandoff)) throw new Error('Last Aria adversarial fixture source drift: stage-three handoff marker missing');
 source = source.replace(oldHandoff, newHandoff);
 
+const oldEvidence = "    for(const id of ['checkout','playback','footprint','key','tag'])set('evidence',id);";
+const newEvidence = "    for(const id of ['prop','checkout','playback','footprint','key','tag'])set('evidence',id);";
+if (!source.includes(oldEvidence)) throw new Error('Last Aria adversarial fixture source drift: proof selection marker missing');
+source = source.replace(oldEvidence, newEvidence);
+source = source.replace("assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),5,'wrong final evidence was lost');", "assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),6,'wrong final evidence was lost');");
+source = source.replace("assert.equal(p.evidencePicks.length,5);", "assert.equal(p.evidencePicks.length,6);");
+source = source.replace("assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),5,'evidence draft did not restore after refresh');", "assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),6,'evidence draft did not restore after refresh');");
+source = source.replace("assert.equal(completed.attempts,2,'server completion must receive the decision/final mistake score');", "assert.equal(completed.attempts,3,'server completion must include the decision mistake, rejected final and accepted final attempt');");
+
 fs.writeFileSync(tempFile, source);
 try {
   const result = spawnSync(process.execPath, [tempFile], { stdio: 'inherit', env: process.env });
