@@ -111,6 +111,8 @@
         button.classList.toggle('is-rejected', rejected);
         button.disabled = solved || !handoffDone || rejected;
       }
+      const next = root.querySelector('[data-action="next-stage"]');
+      if (next && visibleStage() === Number(data.decision.stage)) next.disabled = !handoffDone || !solved;
       let note = section.querySelector('[data-aria-decision-note]');
       let text = '';
       if (!handoffDone) text = 'Сначала завершите перекрёстную сверку выше. Решение должно опираться на материалы двух ролей.';
