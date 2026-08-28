@@ -5,13 +5,17 @@ on:
     branches: [feature/logic-expert-review-v2]
     paths:
       - 'docs/logic-expert-review-v2.md'
+      - 'docs/logic-expert-review-v2-extension.md'
       - 'tools/logic-expert-review-v2-validate.mjs'
+      - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - '.github/workflows/logic-expert-review-v2.yml'
   pull_request:
     branches: [main]
     paths:
       - 'docs/logic-expert-review-v2.md'
+      - 'docs/logic-expert-review-v2-extension.md'
       - 'tools/logic-expert-review-v2-validate.mjs'
+      - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - '.github/workflows/logic-expert-review-v2.yml'
 
 permissions:
@@ -26,5 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Prove unique solutions and complexity gates
+      - name: Prove unique solutions and complexity gates 001-012
         run: node tools/logic-expert-review-v2-validate.mjs
+      - name: Prove unique solutions and mechanic gates 013-020
+        run: node tools/logic-expert-review-v2-extension-validate.mjs
