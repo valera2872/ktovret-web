@@ -62,6 +62,10 @@ Deno.serve(async (req: Request) => {
       && !entitlement?.revoked_at
       && (!entitlement?.expires_at || new Date(entitlement.expires_at) > new Date());
 
+    const confirmationUrl = ['creating', 'pending'].includes(String(refreshed.status || ''))
+      ? String(refreshed.confirmation_url || order.confirmation_url || '')
+      : '';
+
     return json(200, {
       ok: true,
       orderId: order.id,
@@ -72,6 +76,7 @@ Deno.serve(async (req: Request) => {
       productId: LAST_ARIA_PRODUCT_ID,
       amountRub: Number(order.amount_value),
       discountRub: Math.max(0, 299 - Number(order.amount_value)),
+      confirmationUrl,
     }, origin);
   } catch (error: any) {
     return json(503, { error: String(error?.message || 'payment_status_failed').slice(0, 120) }, origin);

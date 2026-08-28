@@ -35,10 +35,15 @@ const cleanName = (value: unknown) => String(value || '').replace(/[\u0000-\u001
 const statsFrom = (body: Record<string, unknown>) => {
   const elapsedSeconds = Number(body.elapsedSeconds), hintsUsed = Number(body.hintsUsed), attempts = Number(body.attempts);
   const firstAnswerCorrect = Boolean(body.firstAnswerCorrect);
-  if (!Number.isInteger(elapsedSeconds) || elapsedSeconds < 1 || elapsedSeconds > 21600) return null;
-  if (!Number.isInteger(hintsUsed) || hintsUsed < 0 || hintsUsed > 10) return null;
-  if (!Number.isInteger(attempts) || attempts < 1 || attempts > 20) return null;
-  return { elapsedSeconds, hintsUsed, attempts, firstAnswerCorrect };
+  if (!Number.isInteger(elapsedSeconds) || elapsedSeconds < 1) return null;
+  if (!Number.isInteger(hintsUsed) || hintsUsed < 0) return null;
+  if (!Number.isInteger(attempts) || attempts < 1) return null;
+  return {
+    elapsedSeconds: Math.min(elapsedSeconds, 21600),
+    hintsUsed: Math.min(hintsUsed, 10),
+    attempts: Math.min(attempts, 20),
+    firstAnswerCorrect,
+  };
 };
 const getRoom = async (admin: AdminClient, code: string) => {
   const result = await admin.from('duel_rooms').select(roomSelect).eq('code', code).maybeSingle();
@@ -152,7 +157,9 @@ Deno.serve(async (req: Request) => {
       const joinResult = await admin.from('duel_room_players').insert({ room_id: activeRoom.id, role: 'guest', player_key_hash: browserKeyHash, player_name: cleanName(body.playerName) }).select('id').single();
       if (joinResult.error && joinResult.error.code !== '23505') return json(503, { error: 'join_failed' }, origin);
     }
-    return json(200, await buildView(admin, activeRoom, browserKeyHash), origin);
+    const joinedView = await buildView(admin, activeRoom, browserKeyHash);
+    if ((joinedView as any).error === 'not_joined') return json(409, { error: 'room_full' }, origin);
+    return json(200, joinedView, origin);
   }
   let view = await buildView(admin, activeRoom, browserKeyHash);
   if ((view as any).error === 'not_joined') return json(403, { error: 'not_joined' }, origin);

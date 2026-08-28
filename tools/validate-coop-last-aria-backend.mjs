@@ -42,9 +42,11 @@ const requiredAria = [
   "new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)",
   "(hourResult.count || 0) >= 8",
   "(dayResult.count || 0) >= 24",
-  "elapsedSeconds > 21600",
-  "hintsUsed > 10",
-  "attempts > 20",
+  "elapsedSeconds: Math.min(elapsedSeconds, 21600)",
+  "hintsUsed: Math.min(hintsUsed, 10)",
+  "attempts: Math.min(attempts, 20)",
+  "const joinedView = await buildView(admin, activeRoom, browserKeyHash)",
+  "if ((joinedView as any).error === 'not_joined') return json(409, { error: 'room_full' }",
   "bothJoined",
   "bothCompleted",
   "results: bothCompleted",
@@ -54,12 +56,13 @@ const requiredAria = [
 ];
 for (const marker of requiredAria) expect(aria.includes(marker), `missing ${marker}`);
 
+expect(!aria.includes('elapsedSeconds > 21600'), 'long-running sessions must be clamped, not rejected');
+expect(!aria.includes('attempts > 20'), 'high-attempt sessions must be clamped, not rejected');
+
 const actionNames = [...aria.matchAll(/if \(action === '([^']+)'\)/g)].map((match) => match[1]);
 const expectedActions = ['create', 'preview', 'join', 'status', 'start', 'complete'];
 expect(JSON.stringify(actionNames) === JSON.stringify(expectedActions), `unexpected action surface: ${actionNames.join(', ')}`);
 
-// The production-proven Room 407 function remains the reference for room transport.
-// Last Aria adds exactly one stricter boundary: creator room creation requires a paid entitlement.
 const sharedMarkers = [
   "const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'",
   "const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/",
@@ -72,9 +75,6 @@ const sharedMarkers = [
   "persistSession: false, autoRefreshToken: false",
   "select('id', { count: 'exact', head: true })",
   "new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)",
-  "elapsedSeconds > 21600",
-  "hintsUsed > 10",
-  "attempts > 20",
   "role: 'creator'",
   "role: 'guest'",
   ".is('started_at', null)",
@@ -103,8 +103,10 @@ console.log(JSON.stringify({
   actions: expectedActions,
   roomTtlDays: 7,
   rateLimit: { perHour: 8, perDay: 24 },
-  statsLimits: { elapsedSeconds: 21600, hints: 10, attempts: 20 },
+  persistedStatsLimits: { elapsedSeconds: 21600, hints: 10, attempts: 20 },
+  overflowPolicy: 'clamp client gameplay telemetry instead of blocking a solved case',
+  concurrentJoinPolicy: 'race loser receives room_full instead of a malformed 200 view',
   databaseModel: ['duel_rooms', 'duel_room_players', 'access_entitlements'],
-  reference: 'coop-407 production transport contract + paid creator gate',
-  verdict: 'backend source is ready for paid Last Aria deployment',
+  reference: 'coop-407 production transport contract + paid creator gate + Last Aria resilience boundaries',
+  verdict: 'backend source is ready for resilient paid Last Aria deployment',
 }, null, 2));
