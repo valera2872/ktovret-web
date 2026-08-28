@@ -29,7 +29,10 @@ assert.doesNotMatch(edge,/function fallbackReply/,'production interrogation must
 assert.match(edge,/ai_not_configured/,'missing AI configuration must fail explicitly');
 assert.match(edge,/mode:"ai"/,'successful interrogation must report real AI mode');
 assert.match(edge,/Манера поведения:/,'each witness must receive a persona, not only fact bullets');
-assert.match(edge,/Учитывай историю разговора/,'model must maintain conversational continuity');
+assert.match(edge,/Учитывай стенограмму разговора/,'model must maintain conversational continuity');
+assert.match(edge,/const transcript=history\.slice\(-8\)/,'recent dialogue must be carried into the next AI turn');
+assert.match(edge,/Это только контекст разговора, а не источник новых подтверждённых фактов дела/,'dialogue memory must not become evidence');
+assert.match(edge,/store:false/,'AI dialogue must remain stateless upstream');
 assert.match(edge,/Не повторяй одну и ту же универсальную фразу/,'generic repeated replies must be explicitly prohibited');
 assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
 assert.match(edge,/evidenceId==="E05"\)notes\.push\(\{id:"N-MARINA-LOCATION"/,'location contradiction must require the actual network log');
