@@ -2,7 +2,7 @@
 const root=document.querySelector('[data-ai-detective]');if(!root)return;
 const API_URL='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1';
 const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
-const MAX_TURNS=14;
+const MAX_TURNS=30;
 const STORAGE_KEY='ml_ai_demo_state_v4';
 const VISITOR_KEY='ml_ai_demo_visitor_v1';
 const INITIAL_EVIDENCE=['E01','E02','E03'];
