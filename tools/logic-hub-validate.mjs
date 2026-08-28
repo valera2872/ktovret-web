@@ -54,11 +54,11 @@ function permutations(chars){
 }
 const folderSolutions=permutations('ABCDE').filter(order=>{
   const p=Object.fromEntries([...order].map((x,i)=>[x,i]));
-  return p.C===p.A+1 && p.E<p.B && p.D!==0 && p.D!==4 && Math.abs(p.E-p.A)===2 && p.B>p.C && p.D<p.A;
+  return p.C===p.A+1 && p.D!==0 && p.D!==4 && Math.abs(p.E-p.A)===2 && p.B>p.C && p.D<p.A;
 });
 assert(folderSolutions.length===1&&folderSolutions[0]==='EDACB',`folder puzzle must have exactly one solution, got ${folderSolutions.join(', ')}`);
 
-for(const file of ['assets/logic-hub.css','assets/logic-hub.js','tools/import-mobile/logic-hub-postprocess.mjs']) assert(fs.existsSync(file),`${file} missing`);
+for(const file of ['assets/logic-hub.css','assets/logic-hub.js','assets/logic-sitewide.css','assets/logic-sitewide.js','tools/import-mobile/logic-hub-postprocess.mjs','tools/import-mobile/logic-sitewide-postprocess.mjs']) assert(fs.existsSync(file),`${file} missing`);
 const generator=fs.readFileSync('tools/import-mobile/logic-hub-postprocess.mjs','utf8');
 for(const marker of ['logicheskie-zadachi','data-telegram-cta','logic:lock-507','logic:archive-order','logic:vault-5074']) assert(generator.includes(marker),`generator marker missing: ${marker}`);
 
