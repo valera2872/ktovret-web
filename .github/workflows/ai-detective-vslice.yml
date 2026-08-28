@@ -68,21 +68,21 @@ jobs:
 
           assert_metered_ai() {
             local file="$1"
-            jq -e '.mode == "ai" and (.reply|length) > 10 and .usage.input_tokens > 0 and .usage.output_tokens > 0 and .usage.cost_usd > 0 and .quota.session_remaining >= 0 and .quota.visitor_remaining_today >= 0' "$file"
+            jq -e '.mode == "ai" and (.reply|length) > 10 and .usage.input_tokens > 0 and .usage.output_tokens > 0 and .usage.cost_usd > 0 and .quota.profile == "demo" and .quota.session_remaining >= 0 and .quota.visitor_remaining_today >= 0' "$file"
           }
 
           call_api '{"action":"status","session_id":"ci-ai-status"}' /tmp/status.json
-          jq -e '.ai_ready == true and .metering_ready == true and .model == "gpt-5.6-luna"' /tmp/status.json
+          jq -e '.ai_ready == true and .metering_ready == true and .model == "gpt-5.6-luna" and .quota_profile == "demo" and .session_limit == 30 and .visitor_daily_limit == 60 and .network_daily_limit == 240' /tmp/status.json
 
           call_api '{"action":"interrogate","session_id":"ci-ai-dialogue","suspect_id":"marina","question":"Почему вы вообще выбрали работу в архиве?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/dialogue1.json
           assert_metered_ai /tmp/dialogue1.json
-          jq -e '.quota.session_remaining == 13' /tmp/dialogue1.json
+          jq -e '.quota.session_remaining == 29' /tmp/dialogue1.json
           ! grep -Fq 'Спрашивайте о моём маршруте, работе фонда или доступе' /tmp/dialogue1.json
 
           first_reply=$(jq -r '.reply' /tmp/dialogue1.json | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip(), ensure_ascii=False))')
           call_api "{\"action\":\"interrogate\",\"session_id\":\"ci-ai-dialogue\",\"suspect_id\":\"marina\",\"question\":\"А что именно вам в этой работе нравится?\",\"evidence_id\":\"\",\"history\":[{\"role\":\"user\",\"text\":\"Почему вы вообще выбрали работу в архиве?\"},{\"role\":\"assistant\",\"text\":$first_reply}],\"discovered_evidence_ids\":[\"E01\",\"E02\",\"E03\"],\"discovered_note_ids\":[],\"question_counts\":{\"marina\":2,\"anton\":0,\"lev\":0}}" /tmp/dialogue2.json
           assert_metered_ai /tmp/dialogue2.json
-          jq -e '.quota.session_remaining == 12' /tmp/dialogue2.json
+          jq -e '.quota.session_remaining == 28' /tmp/dialogue2.json
 
           call_api '{"action":"interrogate","session_id":"ci-ai-fake","suspect_id":"marina","question":"Ваш телефон был в Wi-Fi до 21:34, признайтесь?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/fake.json
           assert_metered_ai /tmp/fake.json
