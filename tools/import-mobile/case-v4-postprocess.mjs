@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const VERSION='1.0.0';
-const COGNITIVE_VERSION='1.0.0';
+const COGNITIVE_VERSION='1.1.0';
 
 function addBodyClass(html,className){
   return html.replace(/<body([^>]*)>/,(_,attrs='')=>{

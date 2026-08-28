@@ -31,6 +31,17 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     if(entryButtonStyle.cursor!=='pointer'||entryButtonStyle.borderTopWidth==='0px'||entryButtonStyle.backgroundImage==='none')throw new Error('primary button not visually prominent');
 
     await click('[data-start]');
+    const firstGuide=document.querySelector('[data-solo407-guidance="first"]');
+    if(!firstGuide||!firstGuide.textContent.includes('Начните с места происшествия'))throw new Error('guided first action missing');
+    if(!firstGuide.querySelector('[data-solo407-first-action]'))throw new Error('guided first-action CTA missing');
+    await click('[data-solo407-first-action]');
+    if(document.querySelector('[data-open="s1-i0"]')?.getAttribute('aria-expanded')!=='true')throw new Error('guided first action did not open the scene evidence');
+    await click('[data-open="s1-i1"]');
+    await click('[data-open="s1-a0"]');
+    await wait(80);
+    const nextGuide=document.querySelector('[data-solo407-guidance="requests"]');
+    if(!nextGuide||!nextGuide.textContent.includes('Правильного порядка нет'))throw new Error('next-action guidance missing after initial evidence');
+
     await openAll();
     await checkpoint('ids');
 
@@ -87,6 +98,6 @@ try{
   const screenshot=path.join(outDir,'solo-407-feedback-desktop.png');
   await runChrome([...common,'--window-size=1440,1800',`--screenshot=${screenshot}`,url]);
   if(fs.statSync(screenshot).size<35_000)throw new Error('feedback screenshot too small');
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407PlayerFeedback:true,characterContext:true,sceneDiagram:true,forwardNavigation:true,requestOrder:true,secondsRemoved:true,humanReadableCodes:true,linenCartRecall:true,prominentButtons:true},null,2));
-  console.log(JSON.stringify({solo407PlayerFeedback:true,forwardNavigation:true,requestOrder:true,secondsRemoved:true,humanReadableCodes:true,linenCartRecall:true,prominentButtons:true},null,2));
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407PlayerFeedback:true,characterContext:true,sceneDiagram:true,guidedFirstAction:true,nextActionGuidance:true,forwardNavigation:true,requestOrder:true,secondsRemoved:true,humanReadableCodes:true,linenCartRecall:true,prominentButtons:true},null,2));
+  console.log(JSON.stringify({solo407PlayerFeedback:true,guidedFirstAction:true,nextActionGuidance:true,forwardNavigation:true,requestOrder:true,secondsRemoved:true,humanReadableCodes:true,linenCartRecall:true,prominentButtons:true},null,2));
 }finally{await new Promise(resolve=>server.close(resolve));}
