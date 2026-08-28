@@ -92,15 +92,17 @@ jobs:
           test -f assets/logic-hub.css
           test -f assets/logic-hub.js
           test -f logicheskie-zadachi/index.html
-          test -f logicheskie-zadachi/kod-507/index.html
-          test -f logicheskie-zadachi/poryadok-pyati-papok/index.html
-          test -f logicheskie-zadachi/seyf-5074/index.html
+          test -f logicheskie-zadachi/kod-protokol-6/index.html
+          test -f logicheskie-zadachi/shest-pokazaniy/index.html
+          test -f logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
           grep -q 'data-logic-home-launch' index.html
-          grep -q 'data-logic-puzzle="logic:lock-507"' logicheskie-zadachi/index.html
+          grep -q 'data-logic-puzzle="logic:protocol-six"' logicheskie-zadachi/index.html
+          grep -q 'Разминок<br>не будет' logicheskie-zadachi/index.html
           grep -q 'https://t.me/mysterylogic' logicheskie-zadachi/index.html
           grep -q '"indexableUrls": 117' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
           grep -q '"logicHubPages": 4' assets/generated/import-report.json
+          grep -q '"logicHubVersion": "1.1.0"' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
@@ -130,9 +132,12 @@ jobs:
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-protokol-6/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
           grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
@@ -238,9 +243,9 @@ jobs:
           test -f production-web/detektivnye-igry-dlya-odnogo/index.html
           test -f production-web/detektivnye-igry-dlya-odnogo/407/index.html
           test -f production-web/logicheskie-zadachi/index.html
-          test -f production-web/logicheskie-zadachi/kod-507/index.html
-          test -f production-web/logicheskie-zadachi/poryadok-pyati-papok/index.html
-          test -f production-web/logicheskie-zadachi/seyf-5074/index.html
+          test -f production-web/logicheskie-zadachi/kod-protokol-6/index.html
+          test -f production-web/logicheskie-zadachi/shest-pokazaniy/index.html
+          test -f production-web/logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
           test -f production-web/ktovret-game/assets/app-core.js
           test -f production-web/ktovret-game/assets/challenge-client.js
           grep -q 'data-volume-email' production-web/tom-1/index.html
@@ -252,6 +257,8 @@ jobs:
           grep -q 'data-reference-asset="archive-hero"' production-web/tom-1/index.html
           grep -q 'data-reference-asset="archive-grid"' production-web/tom-1/index.html
           grep -q 'data-logic-home-launch' production-web/index.html
+          grep -q 'data-logic-puzzle="logic:protocol-six"' production-web/logicheskie-zadachi/index.html
+          grep -q 'Разминок<br>не будет' production-web/logicheskie-zadachi/index.html
           grep -q 'https://t.me/mysterylogic' production-web/logicheskie-zadachi/index.html
           grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
           grep -q 'Политика конфиденциальности' production-web/tom-1/index.html
@@ -282,9 +289,12 @@ jobs:
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-protokol-6/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' production-web/sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' production-web/sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' production-web/sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' production-web/sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' production-web/sitemap.xml
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
 
