@@ -4,7 +4,8 @@ import vm from 'node:vm';
 
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
 const loader = read('../assets/case-aria-final-feedback-loader.js');
-const ux = read('../assets/case-aria-investigation-ux.js');
+const ux = read('../assets/case-aria-investigation-ux-v2.js');
+const resilience = read('../assets/case-aria-resilience.js');
 const coopPost = read('./import-mobile/coop-v4-postprocess.mjs');
 
 // Reproduce the premium page's real load order: the protection layer is parsed
@@ -22,7 +23,7 @@ class FakeMutationObserver {
   }
   disconnect() { disconnected = true; }
 }
-const currentScript = { src: 'https://mysterylogic.com/assets/case-aria-final-feedback-loader.js?v=1.0.0' };
+const currentScript = { src: 'https://mysterylogic.com/assets/case-aria-final-feedback-loader.js?v=2.0.0' };
 const sandbox = {
   window: {},
   MutationObserver: FakeMutationObserver,
@@ -49,6 +50,7 @@ assert.match(ux, /data-aria-review-package/, 'Last Aria read-only prior-package 
 assert.match(ux, /data\.stages\.slice\(0, opened\)/, 'Last Aria package navigation must expose every opened stage');
 assert.match(ux, /Ранее открытый пакет/, 'Last Aria prior-package context label is missing');
 assert.match(ux, /Совместная сверка:/, 'Last Aria prior-package review must retain the cross-check result');
+assert.match(ux, /ariaReviewSignature/, 'Last Aria review navigation must be idempotent');
 
 // Stage-two decision must actually be evidence-gated and score mistakes.
 assert.match(ux, /progress\.handoffs\?\.\[data\.decision\.stage\]/, 'Last Aria decision must wait for the cross-role handoff');
@@ -61,10 +63,28 @@ assert.match(ux, /firstAnswerCorrect = false/, 'Last Aria wrong intermediate dec
 assert.match(ux, /coop:last-aria:decision-wrong/, 'Last Aria wrong-decision cognitive telemetry is missing');
 assert.match(ux, /MutationObserver/, 'Last Aria investigation UX must survive dynamic game boot');
 
-// Production generator must ship both delayed final protection and investigation UX.
+// Production-critical regression: the installed observer must only watch root-level
+// screen replacements. Watching the whole subtree makes our own nav/note edits
+// re-trigger the observer indefinitely and can starve the browser main thread.
+assert.match(ux, /observer\.observe\(root, \{ childList: true \}\)/, 'Last Aria installed UX observer must be root-level only');
+assert.doesNotMatch(ux, /const observer = new MutationObserver\(schedule\);\s*observer\.observe\(root, \{ childList: true, subtree: true \}\)/, 'Last Aria installed UX observer must never observe its own subtree mutations');
+
+// Already-started sessions from the legacy any-choice runtime must migrate safely.
+assert.match(resilience, /decision && decision !== data\.decision\.correct/, 'legacy wrong Last Aria decision is not detected');
+assert.match(resilience, /progress\.decision = ''/, 'legacy wrong Last Aria decision must be cleared');
+assert.match(resilience, /progress\.decisionHistory = history/, 'legacy wrong Last Aria line must remain visible as rejected history');
+assert.match(resilience, /progress\.decisionMistakes = Number\(progress\.decisionMistakes \|\| 0\) \+ 1/, 'legacy wrong Last Aria decision must count once');
+assert.match(resilience, /mistakes > 0 && !progress\.decisionPenaltyApplied/, 'Last Aria score normalization must be idempotent');
+assert.match(resilience, /document\.addEventListener\('submit'/, 'Last Aria decision score must not depend on root-listener order');
+assert.match(resilience, /MutationObserver/, 'Last Aria resilience guard must survive dynamic game boot');
+
+// Production generator must ship delayed final protection, stable v2 investigation UX and resilience migration.
 assert.match(coopPost, /finalFeedbackLoader:'case-aria-final-feedback-loader\.js'/, 'Last Aria final-feedback loader is not registered for production');
-assert.match(coopPost, /investigationUx:'case-aria-investigation-ux\.js'/, 'Last Aria investigation UX is not registered for production');
+assert.match(coopPost, /investigationUx:'case-aria-investigation-ux-v2\.js'/, 'Last Aria stable investigation UX v2 is not registered for production');
+assert.doesNotMatch(coopPost, /investigationUx:'case-aria-investigation-ux\.js'/, 'Last Aria production must not inject the looping investigation UX v1');
+assert.match(coopPost, /resilience:'case-aria-resilience\.js'/, 'Last Aria resilience guard is not registered for production');
 assert.match(coopPost, /addScript\(html,root,finalFeedbackLoader,LAST_ARIA_UX_VERSION\)/, 'Last Aria final-feedback loader is not injected');
 assert.match(coopPost, /addScript\(html,root,investigationUx,LAST_ARIA_UX_VERSION\)/, 'Last Aria investigation UX is not injected');
+assert.match(coopPost, /addScript\(html,root,resilience,LAST_ARIA_RESILIENCE_VERSION\)/, 'Last Aria resilience guard is not injected');
 
-console.log('Last Aria delayed-boot and investigation-flow regression gate passed');
+console.log('Last Aria delayed-boot, stable investigation-flow and resumed-progress regression gate passed');
