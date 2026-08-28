@@ -5,13 +5,13 @@ import { applyTwoPlayerLastAria } from './two-player-last-aria-postprocess.mjs';
 const VERSION='1.0.0';
 const COGNITIVE_VERSION='1.0.0';
 const FINAL_FEEDBACK_VERSION='1.0.0';
-const LAST_ARIA_UX_VERSION='1.0.0';
+const LAST_ARIA_UX_VERSION='2.0.0';
 const LAST_ARIA_RESILIENCE_VERSION='1.0.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASES=[
   {path:'detektivnye-igry-dlya-dvoih/2317/index.html',markers:['data-case2317-app','case2317-boot']},
   {path:'detektivnye-igry-dlya-dvoih/407/index.html',markers:['data-case407-app','case407-room-mark'],cognitive:'cognitive-coop-407.js'},
-  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js'],cognitive:'cognitive-last-aria.js',finalFeedback:'case-aria-final-feedback.js',finalFeedbackLoader:'case-aria-final-feedback-loader.js',investigationUx:'case-aria-investigation-ux.js',resilience:'case-aria-resilience.js'},
+  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js'],cognitive:'cognitive-last-aria.js',finalFeedback:'case-aria-final-feedback.js',finalFeedbackLoader:'case-aria-final-feedback-loader.js',investigationUx:'case-aria-investigation-ux-v2.js',resilience:'case-aria-resilience.js'},
 ];
 
 function addBodyClassAndMarker(html,className){
