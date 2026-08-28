@@ -1,0 +1,67 @@
+name: Visual smoke premium logic hub
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
+      - 'tools/logic-visual-smoke.mjs'
+      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - '.github/workflows/logic-visual-smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
+      - 'tools/logic-visual-smoke.mjs'
+      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - '.github/workflows/logic-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+  MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
+
+jobs:
+  visual-logic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "KTOVRET_SOURCE_TOKEN is required" && exit 1)
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          path: web
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate production public library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Render logic desktop and mobile references
+        working-directory: web
+        run: node tools/logic-visual-smoke.mjs
+      - name: Upload logic visual smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-logic-visual-smoke
+          path: web/artifacts/logic-visual-smoke
+          retention-days: 14
+          if-no-files-found: error

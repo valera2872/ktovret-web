@@ -1,0 +1,46 @@
+name: Validate premium logic hub
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
+      - 'tools/logic-hub-validate.mjs'
+      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - '.github/workflows/logic-hub.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
+      - 'tools/logic-hub-validate.mjs'
+      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - '.github/workflows/logic-hub.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  logic-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: |
+          node --check assets/logic-hub.js
+          node --check assets/logic-sitewide.js
+          node --check tools/import-mobile/logic-hub-postprocess.mjs
+          node --check tools/import-mobile/logic-sitewide-postprocess.mjs
+          node --check tools/import-mobile-cases.mjs
+          node --check tools/logic-hub-validate.mjs
+      - name: Validate unique solutions and contracts
+        run: node tools/logic-hub-validate.mjs

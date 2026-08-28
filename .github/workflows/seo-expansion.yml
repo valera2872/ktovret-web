@@ -56,7 +56,7 @@ jobs:
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
 
-      - name: Validate spoiler-safe 113 URL boundary
+      - name: Validate spoiler-safe 117 URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -67,11 +67,14 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 113
-          grep -q '"indexableUrls": 113' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 117
+          grep -q '"indexableUrls": 117' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
+          grep -q '"logicHubPages": 4' assets/generated/import-report.json
+          grep -q '"logicHubVersion": "1.1.0"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
@@ -87,8 +90,19 @@ jobs:
           test -f detektivnye-igry-dlya-dvoih/index.html
           test -f detektivnye-igry-dlya-odnogo/index.html
           test -f detektivnye-igry-dlya-odnogo/407/index.html
+          test -f logicheskie-zadachi/index.html
+          test -f logicheskie-zadachi/kod-protokol-6/index.html
+          test -f logicheskie-zadachi/shest-pokazaniy/index.html
+          test -f logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
           grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           ! grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/kod-protokol-6/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/kod-507/</loc>' sitemap.xml
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/poryadok-pyati-papok/</loc>' sitemap.xml
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/seyf-5074/</loc>' sitemap.xml
 
       - name: Validate two-player room UX boundary
         working-directory: web
@@ -116,5 +130,6 @@ jobs:
             web/zagadki-na-logiku-dlya-vzroslyh/index.html
             web/detektivnye-igry-dlya-dvoih/index.html
             web/detektivnye-igry-dlya-odnogo/index.html
+            web/logicheskie-zadachi
             web/ru/cases
           retention-days: 7

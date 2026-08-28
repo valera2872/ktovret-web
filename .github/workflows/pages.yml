@@ -148,6 +148,8 @@ jobs:
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
           grep -q '"soloMaterials": 18' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
+          grep -q '"logicHubPages": 4' assets/generated/import-report.json
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -l 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
           if test -f assets/premium.css; then
@@ -157,17 +159,25 @@ jobs:
             test -f logicheskie-detektivnye-zadachi/index.html
             test -f kto-vret-igra/index.html
             test -f tom-1/index.html
+            test -f logicheskie-zadachi/index.html
+            test -f logicheskie-zadachi/kod-protokol-6/index.html
+            test -f logicheskie-zadachi/shest-pokazaniy/index.html
+            test -f logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
             test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
             test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
             grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
-            grep -q '"indexableUrls": 113' assets/generated/import-report.json
-            test "$(grep -c '<url>' sitemap.xml)" -eq 113
+            grep -q '"indexableUrls": 117' assets/generated/import-report.json
+            test "$(grep -c '<url>' sitemap.xml)" -eq 117
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
             grep -q '<loc>https://valera2872.github.io/ktovret-web/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/golovolomki-onlayn/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/zagadki-na-logiku-dlya-vzroslyh/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
             grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/</loc>' sitemap.xml
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/kod-protokol-6/</loc>' sitemap.xml
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
+            grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
             ! grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
           fi
 
@@ -195,6 +205,8 @@ jobs:
           test -f editorial/ru/besplatnye-detektivnye-dela/index.html
           test -f editorial/detektivnye-igry-dlya-odnogo/index.html
           test -f editorial/detektivnye-igry-dlya-odnogo/407/index.html
+          test -f editorial/logicheskie-zadachi/index.html
+          test -f editorial/logicheskie-zadachi/kod-protokol-6/index.html
           rm -rf editorial
 
       - name: Validate PHP and sitemap
@@ -215,9 +227,12 @@ jobs:
           test -f tom-1/index.html
           test -f detektivnye-igry-dlya-odnogo/index.html
           test -f detektivnye-igry-dlya-odnogo/407/index.html
+          test -f logicheskie-zadachi/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
-          grep -q '"indexableUrls": 113' assets/generated/import-report.json
+          grep -q '"indexableUrls": 117' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
+          grep -q '"logicHubPages": 4' assets/generated/import-report.json
           test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
           grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
@@ -235,7 +250,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO case routes: **100 indexable /ru/cases/ pages (15 playable + 85 spoiler-safe teasers)**\n- Wordstat hubs: **3 intent pages**\n- Solo investigations: **1 indexable hub / Room 407 runtime noindex**\n- Sitemap: **113 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
+              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO case routes: **100 indexable /ru/cases/ pages (15 playable + 85 spoiler-safe teasers)**\n- Wordstat hubs: **3 intent pages**\n- Expert logic: **3 expert puzzles / 4 indexable logic pages**\n- Solo investigations: **1 indexable hub / Room 407 runtime noindex**\n- Sitemap: **117 indexable URLs**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
             });
 
   deploy:
