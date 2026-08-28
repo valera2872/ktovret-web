@@ -5,9 +5,13 @@ on:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
-      - 'tools/logic-hub-validate.mjs'
-      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/logic-expert-review-v2-validate.mjs'
+      - 'tools/logic-expert-review-v2-extension-validate.mjs'
+      - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/import-mobile/logic-expert-release-data.mjs'
+      - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
@@ -15,9 +19,13 @@ on:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
-      - 'tools/logic-hub-validate.mjs'
-      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/logic-expert-review-v2-validate.mjs'
+      - 'tools/logic-expert-review-v2-extension-validate.mjs'
+      - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/import-mobile/logic-expert-release-data.mjs'
+      - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
@@ -36,11 +44,18 @@ jobs:
           node-version: 22
       - name: Syntax check
         run: |
-          node --check assets/logic-hub.js
+          node --check assets/logic-expert.js
           node --check assets/logic-sitewide.js
-          node --check tools/import-mobile/logic-hub-postprocess.mjs
+          node --check tools/import-mobile/logic-expert-release-data.mjs
+          node --check tools/import-mobile/logic-expert-seo-postprocess.mjs
           node --check tools/import-mobile/logic-sitewide-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
-          node --check tools/logic-hub-validate.mjs
-      - name: Validate unique solutions and contracts
-        run: node tools/logic-hub-validate.mjs
+          node --check tools/logic-expert-review-v2-validate.mjs
+          node --check tools/logic-expert-review-v2-extension-validate.mjs
+          node --check tools/logic-expert-seo-validate.mjs
+      - name: Validate Expert corpus 001-012
+        run: node tools/logic-expert-review-v2-validate.mjs
+      - name: Validate Expert corpus 013-020
+        run: node tools/logic-expert-review-v2-extension-validate.mjs
+      - name: Validate SEO and product boundary
+        run: node tools/logic-expert-seo-validate.mjs

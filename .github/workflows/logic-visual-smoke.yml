@@ -5,9 +5,11 @@ on:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
       - 'tools/logic-visual-smoke.mjs'
-      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-expert-release-data.mjs'
+      - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-visual-smoke.yml'
@@ -15,9 +17,11 @@ on:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
       - 'tools/logic-visual-smoke.mjs'
-      - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-expert-release-data.mjs'
+      - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-visual-smoke.yml'
@@ -55,7 +59,7 @@ jobs:
       - name: Generate production public library
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Render logic desktop and mobile references
+      - name: Render puzzle SEO hubs and Expert tasks
         working-directory: web
         run: node tools/logic-visual-smoke.mjs
       - name: Upload logic visual smoke

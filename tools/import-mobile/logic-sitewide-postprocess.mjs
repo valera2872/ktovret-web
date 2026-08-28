@@ -1,17 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='2.0.0';
 const SKIP_DIRS=new Set(['.git','.github','node_modules','tools','tests','artifacts','docs','ops','supabase','old.bac','admin']);
 
 function relativeAsset(fromDir,asset){return path.relative(fromDir,asset).replaceAll(path.sep,'/');}
 
 function patchRefNav(html){
-  if(!html.includes('class="ref-nav"')||html.includes('data-nav-logic')) return html;
+  if(!html.includes('class="ref-nav"')) return html;
   const dela=html.match(/href="([^"]*?)dela\/"/);
   if(!dela) return html;
-  const href=`${dela[1]}logicheskie-zadachi/`;
-  return html.replace(/(<nav class="ref-nav"[^>]*>[\s\S]*?)(<\/nav>)/,`$1<a data-nav-logic href="${href}">Логические задачи</a>$2`);
+  const href=`${dela[1]}golovolomki-onlayn/`;
+  if(html.includes('data-nav-logic')){
+    return html.replace(/<a data-nav-logic href="[^"]*">[^<]*<\/a>/,`<a data-nav-logic href="${href}">Головоломки</a>`);
+  }
+  return html.replace(/(<nav class="ref-nav"[^>]*>[\s\S]*?)(<\/nav>)/,`$1<a data-nav-logic href="${href}">Головоломки</a>$2`);
 }
 
 export function applyLogicSitewide(siteRoot){
@@ -52,5 +55,6 @@ export function applyLogicSitewide(siteRoot){
   walk(root);
   const home=fs.readFileSync(path.join(root,'index.html'),'utf8');
   if(!home.includes('data-logic-home-launch')||!home.includes('logic-sitewide.css')||!home.includes('data-logic-sitewide')) throw new Error('logic sitewide: homepage launch integration incomplete');
+  if(home.includes('class="ref-nav"')&&!home.includes('>Головоломки</a>')) throw new Error('logic sitewide: homepage puzzle nav missing');
   return {version:VERSION,pages,navPatched,legacyLinksRewritten,homeStyled};
 }

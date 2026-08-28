@@ -84,11 +84,23 @@ jobs:
           grep -q '15 дел' dela/index.html
           grep -q '"freeCases": 15' assets/generated/import-report.json
           grep -q '"premiumCases": 85' assets/generated/import-report.json
-          grep -q '"indexableUrls": 117' assets/generated/import-report.json
-          grep -q '"logicHubPages": 4' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
+          grep -q '"logicHubPages": 23' assets/generated/import-report.json
+          grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
+          grep -q '"logicExpertAdultHub": "zagadki-na-logiku-dlya-vzroslyh/"' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q 'solo407-home-switch' index.html
+          grep -q '>Головоломки</a>' index.html
           test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f golovolomki-onlayn/index.html
+          test -f zagadki-na-logiku-dlya-vzroslyh/index.html
+          test "$(find logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          report_urls="$(node -p "require('./assets/generated/import-report.json').indexableUrls")"
+          sitemap_urls="$(grep -c '<url>' sitemap.xml)"
+          unique_urls="$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)"
+          test "$report_urls" -eq "$sitemap_urls"
+          test "$sitemap_urls" -eq "$unique_urls"
+          test "$sitemap_urls" -ge 133
       - name: Render approved reference pages
         working-directory: web
         run: node tools/archive-visual-smoke.mjs
