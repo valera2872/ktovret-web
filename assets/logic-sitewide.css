@@ -1,0 +1,12 @@
+/* Mystery Logic — logic/community launch surface on the main storefront */
+.ref-logic-launch{width:min(1180px,calc(100% - 32px));margin:clamp(44px,7vw,84px) auto 0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:18px;padding:clamp(28px,5vw,48px);border:1px solid rgba(214,177,109,.24);border-radius:28px;background:radial-gradient(circle at 92% 10%,rgba(214,177,109,.14),transparent 16rem),linear-gradient(145deg,#142e49,#091827);box-shadow:0 24px 70px rgba(0,0,0,.25)}
+.ref-logic-launch h2{max-width:760px;margin:9px 0 0;color:#f7f2e9;font-size:clamp(2rem,5vw,4rem);letter-spacing:-.05em;line-height:1}
+.ref-logic-launch-copy>p:not(.ref-kicker){max-width:690px;margin:18px 0 0;color:#aebdcb;font-size:1.02rem}
+.ref-logic-launch .ref-home-actions{margin-top:25px}
+.ref-logic-launch-proof{display:flex;flex-direction:column;justify-content:space-between;min-height:210px;padding:27px;border-radius:22px;color:#142231;background:linear-gradient(rgba(255,255,255,.28),transparent),#f2eadb;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+.ref-logic-launch-proof strong{font-size:clamp(1.6rem,3vw,2.7rem);letter-spacing:-.04em;line-height:1}
+.ref-logic-launch-proof span{margin-top:22px;color:rgba(20,34,49,.72);font-size:.95rem}
+.ref-nav a[data-nav-logic]{color:#f0d9a0}
+.ref-nav a[data-nav-logic]:hover,.ref-nav a[data-nav-logic]:focus-visible{color:#fff}
+@media(max-width:820px){.ref-logic-launch{grid-template-columns:1fr}.ref-logic-launch-proof{min-height:auto}.ref-nav a[data-nav-logic]{display:none}}
+@media(max-width:560px){.ref-logic-launch{width:min(100% - 22px,1180px);padding:25px 20px;border-radius:23px}.ref-logic-launch .ref-home-actions{display:grid}.ref-logic-launch .ref-btn{width:100%}}
