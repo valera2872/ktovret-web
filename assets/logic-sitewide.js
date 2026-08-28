@@ -21,7 +21,7 @@
       return;
     }
     const path = pathOf(link.getAttribute('href'));
-    if (/^\/logicheskie-zadachi\/?/.test(path)) {
+    if (/^\/(?:golovolomki-onlayn|zagadki-na-logiku-dlya-vzroslyh|logicheskie-zadachi)(?:\/|$)/.test(path)) {
       const placement = link.dataset.logicCta || 'sitewide';
       sendFunnel('logic_hub_open', { placement, target_path: path }, path);
       sendMetrika('ml_logic_hub_open', { placement, target_path: path });
