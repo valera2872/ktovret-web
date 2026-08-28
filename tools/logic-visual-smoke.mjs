@@ -16,9 +16,9 @@ for(const file of [
   'assets/logic-sitewide.css',
   'assets/logic-sitewide.js',
   'logicheskie-zadachi/index.html',
-  'logicheskie-zadachi/kod-507/index.html',
-  'logicheskie-zadachi/poryadok-pyati-papok/index.html',
-  'logicheskie-zadachi/seyf-5074/index.html',
+  'logicheskie-zadachi/kod-protokol-6/index.html',
+  'logicheskie-zadachi/shest-pokazaniy/index.html',
+  'logicheskie-zadachi/arhivnaya-matrica-5x5/index.html',
 ]){
   const full=path.join(siteRoot,file);
   if(!fs.existsSync(full)) throw new Error(`Logic visual smoke prerequisite missing: ${file}`);
@@ -52,13 +52,13 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
 const pngDimensions=(filePath)=>{const bytes=fs.readFileSync(filePath);if(bytes.length<24||bytes.toString('hex',0,8)!=='89504e470d0a1a0a')throw new Error(`${filePath} is not a PNG`);return{width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 
 const captures=[
-  {name:'logic-hub-desktop',path:'/logicheskie-zadachi/',width:1440,height:1200,required:['logic-hero','Логика<br>без догадок','data-logic-puzzle="logic:lock-507"','Стартовая коллекция','Тематические тома','https://t.me/mysterylogic']},
-  {name:'logic-hub-mobile',path:'/logicheskie-zadachi/',width:390,height:844,required:['logic-hero','Логика<br>без догадок','data-logic-puzzle="logic:lock-507"']},
-  {name:'logic-task-desktop',path:'/logicheskie-zadachi/kod-507/',width:1440,height:1200,required:['logic-task-hero','Трёхзначный замок','data-logic-answer-input','Показать пошаговый разбор','https://t.me/mysterylogic']},
-  {name:'logic-task-mobile',path:'/logicheskie-zadachi/kod-507/',width:390,height:844,required:['logic-task-hero','Трёхзначный замок','data-logic-answer-input']},
-  {name:'logic-folders-desktop',path:'/logicheskie-zadachi/poryadok-pyati-papok/',width:1440,height:1200,required:['Пять папок','EDACB','data-logic-answer-input']},
-  {name:'logic-vault-desktop',path:'/logicheskie-zadachi/seyf-5074/',width:1440,height:1200,required:['Сейф: четыре цифры','5074','data-logic-answer-input']},
-  {name:'home-logic-long',path:'/',width:1440,height:3000,required:['data-logic-home-launch','Логические задачи и головоломки','Новые задачи в Telegram','data-nav-logic']},
+  {name:'logic-hub-desktop',path:'/logicheskie-zadachi/',width:1440,height:1200,required:['logic-hero','Разминок<br>не будет','data-logic-puzzle="logic:protocol-six"','Три задачи. Ни одной проходной.','Тематические тома экспертных головоломок','https://t.me/mysterylogic']},
+  {name:'logic-hub-mobile',path:'/logicheskie-zadachi/',width:390,height:844,required:['logic-hero','Разминок<br>не будет','data-logic-puzzle="logic:protocol-six"']},
+  {name:'logic-task-desktop',path:'/logicheskie-zadachi/kod-protokol-6/',width:1440,height:1200,required:['logic-task-hero','Протокол шести цифр','data-logic-answer-input','Показать пошаговый разбор','https://t.me/mysterylogic']},
+  {name:'logic-task-mobile',path:'/logicheskie-zadachi/kod-protokol-6/',width:390,height:844,required:['logic-task-hero','Протокол шести цифр','data-logic-answer-input']},
+  {name:'logic-statements-desktop',path:'/logicheskie-zadachi/shest-pokazaniy/',width:1440,height:1200,required:['Шесть показаний','Ответ: D','data-logic-answer-input','Ровно три из шести показаний истинны']},
+  {name:'logic-matrix-desktop',path:'/logicheskie-zadachi/arhivnaya-matrica-5x5/',width:1440,height:1200,required:['Архивная матрица 5×5','Ответ: ИРИНА','data-logic-answer-input','Кто был с ключом?']},
+  {name:'home-logic-long',path:'/',width:1440,height:3000,required:['data-logic-home-launch','Сложные логические задачи','Новые задачи в Telegram','data-nav-logic']},
 ];
 const results=[];
 const port=await listen();
