@@ -5,16 +5,20 @@ on:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
       - 'tools/logic-hub-validate.mjs'
       - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
   push:
     branches: [main]
     paths:
       - 'assets/logic-hub.*'
+      - 'assets/logic-sitewide.*'
       - 'tools/logic-hub-validate.mjs'
       - 'tools/import-mobile/logic-hub-postprocess.mjs'
+      - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
   workflow_dispatch:
@@ -33,7 +37,9 @@ jobs:
       - name: Syntax check
         run: |
           node --check assets/logic-hub.js
+          node --check assets/logic-sitewide.js
           node --check tools/import-mobile/logic-hub-postprocess.mjs
+          node --check tools/import-mobile/logic-sitewide-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
           node --check tools/logic-hub-validate.mjs
       - name: Validate unique solutions and contracts
