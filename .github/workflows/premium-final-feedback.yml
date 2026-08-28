@@ -1,0 +1,22 @@
+name: Validate premium final feedback
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  final-feedback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Last Aria feedback runtime syntax
+        run: node --check assets/case-aria-final-feedback.js
+      - name: Validate cross-case final feedback contract
+        run: node tools/validate-premium-final-feedback.mjs
