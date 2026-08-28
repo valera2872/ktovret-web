@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 const client=fs.readFileSync('assets/ai-detective-vslice.js','utf8');
 const edge=fs.readFileSync('supabase/functions/ai-interrogation-v1/index.ts','utf8');
+const workflow=fs.readFileSync('.github/workflows/ai-detective-vslice.yml','utf8');
 const sitemap=fs.readFileSync('sitemap.xml','utf8');
 
 assert.match(html,/name="robots" content="noindex,follow"/,'experimental route must stay noindex');
@@ -19,8 +20,17 @@ assert.match(client,/INITIAL_EVIDENCE=\['E01','E02','E03'\]/,'only neutral evide
 assert.match(client,/evidenceIds:new Set/,'discovered evidence state is required');
 assert.match(client,/discovered_evidence_ids/,'client must send discovered evidence state to server');
 assert.match(client,/sessionStorage\.setItem\(STORAGE_KEY/,'refresh must preserve the investigation inside the tab');
+assert.match(client,/ПРИКРЕПЛЕНО/,'evidence attachment needs explicit visible feedback');
 assert.doesNotMatch(client,/ответ · защищённый сценарий/i,'implementation mode must not break player immersion');
 assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side');
+
+const clientAnon=client.match(/const PUBLIC_ANON='([^']+)'/)?.[1];
+const workflowAnon=workflow.match(/ANON_KEY:\s*([^\s]+)/)?.[1];
+assert.ok(clientAnon&&workflowAnon,'browser and live-smoke anon keys must both be present');
+assert.equal(clientAnon,workflowAnon,'browser anon JWT must be exactly the same credential proven by the live smoke');
+const anonPayload=JSON.parse(Buffer.from(clientAnon.split('.')[1],'base64url').toString('utf8'));
+assert.equal(anonPayload.iss,'supabase','browser anon JWT issuer must remain valid for Supabase');
+assert.equal(anonPayload.role,'anon','browser credential must stay anon');
 
 assert.match(edge,/MODEL=Deno\.env\.get\("AI_DETECTIVE_MODEL"\)\|\|"gpt-5\.6-luna"/,'Luna must be the default dialogue model');
 assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
