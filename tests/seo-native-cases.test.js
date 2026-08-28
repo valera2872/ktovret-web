@@ -22,10 +22,12 @@ assert.ok(premiumCases.every((item) => item.seoPublished === false), 'premium pa
 assert.equal(report.seoCasePages, 100, 'all 100 cases need an indexable /ru/cases/ route');
 assert.equal(report.premiumSeoTeaserPages, 85, '85 premium cases need safe teaser pages');
 assert.equal(report.wordstatHubPages, 3, 'three Wordstat expansion hubs are required');
-assert.equal(report.indexableUrls, 113, 'SEO expansion sitemap boundary changed');
+assert.equal(report.indexableUrls, 117, 'SEO expansion + expert logic sitemap boundary changed');
 assert.equal(report.soloHubPage, 'detektivnye-igry-dlya-odnogo');
 assert.equal(report.soloCaseRoute, 'detektivnye-igry-dlya-odnogo/407');
 assert.equal(report.soloMaterials, 18);
+assert.equal(report.logicHubPuzzles, 3);
+assert.equal(report.logicHubPages, 4);
 assert.equal(indexableCollections.length, 1);
 
 const collection = indexableCollections[0];
@@ -110,12 +112,27 @@ for (const route of ['golovolomki-onlayn/','zagadki-na-logiku-dlya-vzroslyh/','d
   assert.ok(sitemap.includes(`<loc>${base}${route}</loc>`), `${route} must be in sitemap`);
 }
 
+const logicRoutes = [
+  'logicheskie-zadachi/',
+  'logicheskie-zadachi/kod-protokol-6/',
+  'logicheskie-zadachi/shest-pokazaniy/',
+  'logicheskie-zadachi/arhivnaya-matrica-5x5/',
+];
+for (const route of logicRoutes) {
+  const file = path.join(root, route, 'index.html');
+  assert.ok(fs.existsSync(file), `${route} expert logic route is missing`);
+  assert.ok(sitemap.includes(`<loc>${base}${route}</loc>`), `${route} expert logic route must be in sitemap`);
+}
+for (const oldRoute of ['logicheskie-zadachi/kod-507/','logicheskie-zadachi/poryadok-pyati-papok/','logicheskie-zadachi/seyf-5074/']) {
+  assert.ok(!sitemap.includes(`<loc>${base}${oldRoute}</loc>`), `${oldRoute} low-difficulty route must stay out of sitemap`);
+}
+
 const soloCaseFile = path.join(root, 'detektivnye-igry-dlya-odnogo', '407', 'index.html');
 assert.ok(fs.existsSync(soloCaseFile), 'solo 407 runtime route is missing');
 assert.ok(fs.readFileSync(soloCaseFile, 'utf8').includes('<meta name="robots" content="noindex,follow">'), 'solo runtime must stay noindex');
 assert.ok(!sitemap.includes(`<loc>${base}detektivnye-igry-dlya-odnogo/407/</loc>`), 'solo runtime must stay out of sitemap');
 
-assert.equal((sitemap.match(/<url>/g) || []).length, 113, 'sitemap must expose exactly 113 indexable URLs');
+assert.equal((sitemap.match(/<url>/g) || []).length, 117, 'sitemap must expose exactly 117 indexable URLs');
 
 for (const event of ['case_view','case_started','answer_selected','answer_correct','answer_wrong','case_completed','next_case_clicked','paywall_viewed','purchase_started']) {
   assert.ok(analytics.includes(`'${event}'`), `analytics event ${event} is missing`);
@@ -123,4 +140,4 @@ for (const event of ['case_view','case_started','answer_selected','answer_correc
 assert.ok(analytics.includes('location.search'));
 assert.ok(analytics.includes("robots.content = 'noindex,follow'"));
 
-console.log('seo expansion tests passed: 100 case SEO routes + existing hubs + solo investigations hub = 113 URLs');
+console.log('seo expansion tests passed: 100 case SEO routes + hubs + expert logic collection = 117 URLs');
