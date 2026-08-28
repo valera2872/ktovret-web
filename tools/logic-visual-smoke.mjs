@@ -12,13 +12,16 @@ fs.mkdirSync(outDir,{recursive:true});
 
 for(const file of [
   'assets/logic-hub.css',
-  'assets/logic-hub.js',
+  'assets/logic-expert-seo.css',
+  'assets/logic-expert.js',
   'assets/logic-sitewide.css',
   'assets/logic-sitewide.js',
+  'golovolomki-onlayn/index.html',
+  'zagadki-na-logiku-dlya-vzroslyh/index.html',
   'logicheskie-zadachi/index.html',
-  'logicheskie-zadachi/kod-protokol-6/index.html',
-  'logicheskie-zadachi/shest-pokazaniy/index.html',
-  'logicheskie-zadachi/arhivnaya-matrica-5x5/index.html',
+  'logicheskie-zadachi/protokol-shesti-cifr/index.html',
+  'logicheskie-zadachi/nonogramma-10x10/index.html',
+  'logicheskie-zadachi/domino-razbienie-4x5/index.html',
 ]){
   const full=path.join(siteRoot,file);
   if(!fs.existsSync(full)) throw new Error(`Logic visual smoke prerequisite missing: ${file}`);
@@ -52,23 +55,24 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
 const pngDimensions=(filePath)=>{const bytes=fs.readFileSync(filePath);if(bytes.length<24||bytes.toString('hex',0,8)!=='89504e470d0a1a0a')throw new Error(`${filePath} is not a PNG`);return{width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 
 const captures=[
-  {name:'logic-hub-desktop',path:'/logicheskie-zadachi/',width:1440,height:1200,required:['logic-hero','Разминок<br>не будет','data-logic-puzzle="logic:protocol-six"','Три задачи. Ни одной проходной.','Тематические тома экспертных головоломок','https://t.me/mysterylogic']},
-  {name:'logic-hub-mobile',path:'/logicheskie-zadachi/',width:390,height:844,required:['logic-hero','Разминок<br>не будет','data-logic-puzzle="logic:protocol-six"']},
-  {name:'logic-task-desktop',path:'/logicheskie-zadachi/kod-protokol-6/',width:1440,height:1200,required:['logic-task-hero','Протокол шести цифр','data-logic-answer-input','Показать пошаговый разбор','https://t.me/mysterylogic']},
-  {name:'logic-task-mobile',path:'/logicheskie-zadachi/kod-protokol-6/',width:390,height:844,required:['logic-task-hero','Протокол шести цифр','data-logic-answer-input']},
-  {name:'logic-statements-desktop',path:'/logicheskie-zadachi/shest-pokazaniy/',width:1440,height:1200,required:['Шесть показаний','Ответ: D','data-logic-answer-input','Ровно три из шести показаний истинны']},
-  {name:'logic-matrix-desktop',path:'/logicheskie-zadachi/arhivnaya-matrica-5x5/',width:1440,height:1200,required:['Архивная матрица 5×5','Ответ: ИРИНА','data-logic-answer-input','Кто был с ключом?']},
-  {name:'home-logic-long',path:'/',width:1440,height:3000,required:['data-logic-home-launch','Сложные логические задачи','Новые задачи в Telegram','data-nav-logic']},
+  {name:'puzzles-main-desktop',path:'/golovolomki-onlayn/',width:1440,height:1400,required:['logic-seo-hero','Сложные головоломки онлайн для взрослых','data-expert-card="expert:001"','20 задач','https://t.me/mysterylogic']},
+  {name:'puzzles-main-mobile',path:'/golovolomki-onlayn/',width:390,height:844,required:['logic-seo-hero','Сложные головоломки онлайн для взрослых','Головоломки']},
+  {name:'puzzles-adult-desktop',path:'/zagadki-na-logiku-dlya-vzroslyh/',width:1440,height:1300,required:['Загадки на логику для взрослых с ответами','Сложные задачи для самостоятельного решения','data-expert-card']},
+  {name:'puzzles-expert-desktop',path:'/logicheskie-zadachi/',width:1440,height:1400,required:['Сложные логические задачи уровня Expert','data-expert-total="20"','data-expert-card="expert:020"']},
+  {name:'puzzle-001-desktop',path:'/logicheskie-zadachi/protokol-shesti-cifr/',width:1440,height:1300,required:['logic-task-hero','Протокол шести цифр','data-expert-input','Показать ответ и разбор','https://t.me/mysterylogic']},
+  {name:'puzzle-001-mobile',path:'/logicheskie-zadachi/protokol-shesti-cifr/',width:390,height:844,required:['logic-task-hero','Протокол шести цифр','data-expert-input']},
+  {name:'puzzle-nonogram-desktop',path:'/logicheskie-zadachi/nonogramma-10x10/',width:1440,height:1300,required:['Нонограмма 10×10','Я решил — показать разбор','1 1 1','data-expert-mode="reveal"']},
+  {name:'home-puzzles-long',path:'/',width:1440,height:3000,required:['data-logic-home-launch','Сложные головоломки онлайн','Открыть головоломки','>Головоломки</a>']},
 ];
 const results=[];
 const port=await listen();
 try{
   for(const capture of captures){
-    const url=`http://127.0.0.1:${port}${capture.path}`;
+    const target=`http://127.0.0.1:${port}${capture.path}`;
     const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--window-size=${capture.width},${capture.height}`,'--virtual-time-budget=2200'];
     const screenshot=path.join(outDir,`${capture.name}.png`);
-    await runChrome([...common,`--screenshot=${screenshot}`,url]);
-    const {stdout:dom}=await runChrome([...common,'--dump-dom',url]);
+    await runChrome([...common,`--screenshot=${screenshot}`,target]);
+    const {stdout:dom}=await runChrome([...common,'--dump-dom',target]);
     for(const marker of capture.required) if(!dom.includes(marker)) throw new Error(`${capture.name}: missing marker ${marker}`);
     if(dom.includes('ReferenceError')||dom.includes('TypeError:')) throw new Error(`${capture.name}: runtime failure detected`);
     const dim=pngDimensions(screenshot);
