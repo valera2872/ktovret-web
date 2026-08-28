@@ -83,6 +83,21 @@
       </div>
     </details>`;
 
+  const firstActionHtml = () => `
+    <section class="solo407-guidance" data-solo407-guidance="first">
+      <p class="solo407-context-kicker">Первый ход</p>
+      <h3>Начните с места происшествия</h3>
+      <p>Сейчас не нужно понимать все коды и строить версию дела. Сначала откройте осмотр комнаты — это даст вам физическую точку опоры.</p>
+      <button type="button" class="solo407-primary solo407-guidance-action" data-solo407-first-action>Открыть «Осмотр комнаты после тревоги»</button>
+    </section>`;
+
+  const chooseActionHtml = () => `
+    <section class="solo407-guidance solo407-guidance-next" data-solo407-guidance="requests">
+      <p class="solo407-context-kicker">Следующий ход</p>
+      <h3>Три стартовых материала изучены</h3>
+      <p>Теперь выберите любую следующую проверку ниже. Правильного порядка нет: задача — постепенно сверить то, что написано на двери, с тем, что знают камера и электронные системы.</p>
+    </section>`;
+
   const humanize = (value) => {
     let text = String(value || '');
     text = text.replace(/\b([0-2]\d:[0-5]\d):[0-5]\d\b/g, '$1');
@@ -117,7 +132,7 @@
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     for (const node of nodes) {
-      if (node.parentElement?.closest?.('[data-solo407-context], [data-solo407-code-guide], [data-solo407-recall]')) continue;
+      if (node.parentElement?.closest?.('[data-solo407-context], [data-solo407-code-guide], [data-solo407-recall], [data-solo407-guidance]')) continue;
       const next = humanize(node.nodeValue);
       if (next !== node.nodeValue) node.nodeValue = next;
     }
@@ -183,6 +198,56 @@
     injectRecall();
   };
 
+  const injectStageGuidance = (state) => {
+    const stage = Number(root.querySelector('[data-stage-nav].is-active')?.dataset?.stageNav || state.stage || 1);
+    const existing = root.querySelector('[data-solo407-guidance]');
+    if (!state.started || stage !== 1) {
+      existing?.remove();
+      return;
+    }
+
+    const opened = new Set(Array.isArray(state.opened) ? state.opened : []);
+    const unlocked = new Set(Array.isArray(state.unlocked) ? state.unlocked : []);
+    const openedAnyInitial = plans[1].initial.some((id) => opened.has(id));
+    const openedAllInitial = plans[1].initial.every((id) => opened.has(id));
+    const requestedAny = plans[1].requests.some((id) => unlocked.has(id));
+    const desired = !openedAnyInitial ? 'first' : (openedAllInitial && !requestedAny ? 'requests' : '');
+
+    if (!desired) {
+      existing?.remove();
+      return;
+    }
+    if (existing?.dataset?.solo407Guidance === desired) return;
+    existing?.remove();
+
+    const stageCard = root.querySelector('.solo407-stage-card');
+    if (!stageCard) return;
+    if (desired === 'first') {
+      const heading = stageCard.querySelector('.solo407-stage-heading');
+      if (heading) heading.insertAdjacentHTML('afterend', firstActionHtml());
+      return;
+    }
+    const requests = stageCard.querySelector('.solo407-requests');
+    if (requests) requests.insertAdjacentHTML('beforebegin', chooseActionHtml());
+  };
+
+  root.addEventListener('click', (event) => {
+    const firstAction = event.target.closest('[data-solo407-first-action]');
+    if (!firstAction) return;
+    const evidence = root.querySelector('[data-open="s1-i0"]');
+    if (!evidence) return;
+    try {
+      window.MysteryLogicFunnel?.track?.('diagnostic_choice', {
+        case_id: 'solo:407',
+        choice: 'guidance:first-material',
+        label: 'Открыл первый материал из навигации',
+        position: 1,
+      }, 'solo-407-guidance');
+    } catch {}
+    evidence.click();
+    requestAnimationFrame(() => root.querySelector('[data-evidence="s1-i0"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
+
   let scheduled = false;
   const apply = () => {
     scheduled = false;
@@ -190,6 +255,7 @@
     injectContext(state);
     fixStageNavigation(state);
     fixEvidenceOrder(state);
+    injectStageGuidance(state);
     humanizeTextNodes();
   };
 

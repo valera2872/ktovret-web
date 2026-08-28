@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const CASE_FILE = 'detektivnye-igry-dlya-odnogo/407/index.html';
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 
 export function applySolo407PlayerFeedback(siteRoot) {
   const file = path.join(siteRoot, CASE_FILE);
