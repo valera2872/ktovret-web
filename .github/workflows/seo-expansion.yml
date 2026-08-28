@@ -59,7 +59,7 @@ jobs:
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
 
-      - name: Validate spoiler-safe 133 URL boundary
+      - name: Validate spoiler-safe 134 URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -70,8 +70,9 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 133
-          grep -q '"indexableUrls": 133' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 134
+          test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 134
+          grep -q '"indexableUrls": 134' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
