@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 const client=fs.readFileSync('assets/ai-detective-vslice.js','utf8');
 const edge=fs.readFileSync('supabase/functions/ai-interrogation-v1/index.ts','utf8');
+const migration=fs.readFileSync('supabase/migrations/20260828135000_ai_detective_server_quotas.sql','utf8');
 const workflow=fs.readFileSync('.github/workflows/ai-detective-vslice.yml','utf8');
 const sitemap=fs.readFileSync('sitemap.xml','utf8');
 
@@ -12,15 +13,24 @@ assert.match(html,/data-ai-detective/,'AI detective root missing');
 assert.match(html,/Восемь минут<br>без камеры\./,'first-screen incident must be literal and understandable');
 assert.doesNotMatch(html,/Архив погас/i,'nonsensical archive wording must not return');
 assert.match(html,/placeholder="Задайте свой вопрос…"/,'composer must invite free questioning without a suggested solution path');
+assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not pretend that audio is being recorded');
+assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
+assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.2/,'quota-aware client must have a fresh cache key');
 assert.doesNotMatch(html,/например:.*Кто знал/i,'first question must not be authored for the player');
 assert.doesNotMatch(html,/Кто использовал отключение камеры\?/i,'theory screen must not presuppose the crime mechanism');
 
-assert.match(client,/MAX_TURNS=14/,'turn cap must remain explicit');
+assert.match(client,/MAX_TURNS=14/,'browser turn cap must remain explicit');
+assert.match(client,/VISITOR_KEY='ml_ai_demo_visitor_v1'/,'persistent anonymous visitor identity is required');
+assert.match(client,/localStorage\.getItem\(VISITOR_KEY\)/,'visitor identity must survive a new tab/session');
+assert.match(client,/visitor_id:state\.visitor/,'every API request must carry the persistent visitor id');
 assert.match(client,/INITIAL_EVIDENCE=\['E01','E02','E03'\]/,'only neutral evidence may be visible at start');
 assert.match(client,/evidenceIds:new Set/,'discovered evidence state is required');
 assert.match(client,/discovered_evidence_ids/,'client must send discovered evidence state to server');
 assert.match(client,/sessionStorage\.setItem\(STORAGE_KEY/,'refresh must preserve the investigation inside the tab');
 assert.match(client,/ПРИКРЕПЛЕНО/,'evidence attachment needs explicit visible feedback');
+assert.match(client,/Допрос идёт/,'idle interrogation status must be truthful');
+assert.doesNotMatch(client,/техническая пауза/i,'server errors must not masquerade as dialogue transcript');
+assert.doesNotMatch(client,/who:'system'/,'technical failures must not be inserted as witness messages');
 assert.doesNotMatch(client,/ответ · защищённый сценарий/i,'implementation mode must not break player immersion');
 assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side');
 
@@ -34,6 +44,7 @@ assert.equal(anonPayload.role,'anon','browser credential must stay anon');
 
 assert.match(edge,/MODEL=Deno\.env\.get\("AI_DETECTIVE_MODEL"\)\|\|"gpt-5\.6-luna"/,'Luna must be the default dialogue model');
 assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
+assert.match(edge,/SUPABASE_SERVICE_ROLE_KEY/,'quota RPCs must use server-only database credentials');
 assert.doesNotMatch(edge,/AI_DETECTIVE_ENABLED/,'a stale feature flag must not silently force scripted dialogue');
 assert.doesNotMatch(edge,/function fallbackReply/,'production interrogation must not silently fall back to canned character replies');
 assert.match(edge,/ai_not_configured/,'missing AI configuration must fail explicitly');
@@ -44,6 +55,26 @@ assert.match(edge,/const transcript=history\.slice\(-8\)/,'recent dialogue must 
 assert.match(edge,/Это только контекст разговора, а не источник новых подтверждённых фактов дела/,'dialogue memory must not become evidence');
 assert.match(edge,/store:false/,'AI dialogue must remain stateless upstream');
 assert.match(edge,/Не повторяй одну и ту же универсальную фразу/,'generic repeated replies must be explicitly prohibited');
+assert.match(edge,/ai_detective_claim_turn/,'OpenAI must be preceded by an atomic server-side quota claim');
+assert.match(edge,/ai_detective_complete_turn/,'successful OpenAI usage must be committed to the database');
+assert.match(edge,/ai_detective_release_turn/,'failed OpenAI calls must release reserved budget');
+assert.match(edge,/input_tokens_details\?\.cached_tokens/,'cached tokens must be measured separately');
+assert.match(edge,/INPUT_USD_PER_M=0\.20/,'current Luna input price must be represented in metering');
+assert.match(edge,/CACHED_INPUT_USD_PER_M=0\.02/,'current Luna cached-input price must be represented in metering');
+assert.match(edge,/OUTPUT_USD_PER_M=1\.20/,'current Luna output price must be represented in metering');
+assert.match(edge,/p_actual_usd:result\.usage\.costUsd/,'actual usage cost must replace the reservation after success');
+assert.doesNotMatch(edge,/SOFT_LIMIT_MAX|buckets=new Map/,'in-memory-only rate limiting is not a production quota');
+
+assert.match(migration,/p_session_limit integer default 14/,'database must enforce the same 14-turn case ceiling');
+assert.match(migration,/p_visitor_daily_limit integer default 30/,'anonymous visitor must have a daily AI-turn ceiling');
+assert.match(migration,/p_network_daily_limit integer default 120/,'network abuse must have a separate daily ceiling');
+assert.match(migration,/p_daily_budget_usd numeric default 0\.50/,'test rollout must have a hard $0.50 daily AI budget');
+assert.match(migration,/p_session_rpm integer default 6/,'a human-scale per-session rate limit is required');
+assert.match(migration,/p_network_rpm integer default 30/,'network-wide burst protection is required');
+assert.match(migration,/status='claimed' and created_at < now\(\) - interval '5 minutes'/,'stale cost reservations must self-heal');
+assert.match(migration,/revoke all on public\.ai_detective_ai_calls from public, anon, authenticated/,'raw AI cost data must not be browser-readable');
+assert.match(migration,/grant execute on function public\.ai_detective_claim_turn[\s\S]*to service_role/,'quota mutation RPC must be service-role only');
+
 assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
 assert.match(edge,/evidenceId==="E05"\)notes\.push\(\{id:"N-MARINA-LOCATION"/,'location contradiction must require the actual network log');
 assert.match(edge,/evidenceId==="E03"&&discoveredEvidence\.has\("E04"\)/,'access contradiction must require both door log and established credential ownership');
@@ -56,4 +87,4 @@ assert.match(edge,/Игрок не предъявил документ/,'unverif
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
 assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
 
-console.log('AI detective live-dialogue contract: PASS');
+console.log('AI detective metered live-dialogue contract: PASS');
