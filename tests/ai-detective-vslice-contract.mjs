@@ -10,7 +10,6 @@ assert.match(html,/name="robots" content="noindex,follow"/,'experimental route m
 assert.match(html,/data-ai-detective/,'AI detective root missing');
 assert.match(html,/Восемь минут<br>без камеры\./,'first-screen incident must be literal and understandable');
 assert.doesNotMatch(html,/Архив погас/i,'nonsensical archive wording must not return');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.2\.0/,'client asset version must be bumped after flow rewrite');
 assert.match(html,/placeholder="Задайте свой вопрос…"/,'composer must invite free questioning without a suggested solution path');
 assert.doesNotMatch(html,/например:.*Кто знал/i,'first question must not be authored for the player');
 assert.doesNotMatch(html,/Кто использовал отключение камеры\?/i,'theory screen must not presuppose the crime mechanism');
@@ -23,6 +22,18 @@ assert.match(client,/sessionStorage\.setItem\(STORAGE_KEY/,'refresh must preserv
 assert.doesNotMatch(client,/ответ · защищённый сценарий/i,'implementation mode must not break player immersion');
 assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side');
 
+assert.match(edge,/MODEL=Deno\.env\.get\("AI_DETECTIVE_MODEL"\)\|\|"gpt-5\.6-luna"/,'Luna must be the default dialogue model');
+assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
+assert.doesNotMatch(edge,/AI_DETECTIVE_ENABLED/,'a stale feature flag must not silently force scripted dialogue');
+assert.doesNotMatch(edge,/function fallbackReply/,'production interrogation must not silently fall back to canned character replies');
+assert.match(edge,/ai_not_configured/,'missing AI configuration must fail explicitly');
+assert.match(edge,/mode:"ai"/,'successful interrogation must report real AI mode');
+assert.match(edge,/Манера поведения:/,'each witness must receive a persona, not only fact bullets');
+assert.match(edge,/Учитывай стенограмму разговора/,'model must maintain conversational continuity');
+assert.match(edge,/const transcript=history\.slice\(-8\)/,'recent dialogue must be carried into the next AI turn');
+assert.match(edge,/Это только контекст разговора, а не источник новых подтверждённых фактов дела/,'dialogue memory must not become evidence');
+assert.match(edge,/store:false/,'AI dialogue must remain stateless upstream');
+assert.match(edge,/Не повторяй одну и ту же универсальную фразу/,'generic repeated replies must be explicitly prohibited');
 assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
 assert.match(edge,/evidenceId==="E05"\)notes\.push\(\{id:"N-MARINA-LOCATION"/,'location contradiction must require the actual network log');
 assert.match(edge,/evidenceId==="E03"&&discoveredEvidence\.has\("E04"\)/,'access contradiction must require both door log and established credential ownership');
@@ -33,8 +44,6 @@ assert.doesNotMatch(edge,/21:29.*Марин|Марин.*21:29/i,'Lev cannot obse
 assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must remain before his exit');
 assert.match(edge,/Игрок не предъявил документ/,'unverified player claims must not become evidence');
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
-assert.match(edge,/AI_DETECTIVE_ENABLED/,'AI model must remain behind an explicit server flag');
-assert.match(edge,/OPENAI_API_KEY/,'model key must remain server-side');
 assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
 
-console.log('AI detective preflight contract: PASS');
+console.log('AI detective live-dialogue contract: PASS');
