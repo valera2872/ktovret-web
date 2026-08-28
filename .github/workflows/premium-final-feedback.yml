@@ -22,7 +22,13 @@ jobs:
         run: node --check assets/case-aria-final-feedback-loader.js
       - name: Validate Last Aria investigation UX syntax
         run: node --check assets/case-aria-investigation-ux.js
+      - name: Validate Last Aria resilience syntax
+        run: node --check assets/case-aria-resilience.js
+      - name: Validate Last Aria adversarial browser syntax
+        run: node --check tools/last-aria-adversarial-e2e.mjs
       - name: Validate cross-case final feedback contract
         run: node tools/validate-premium-final-feedback.mjs
       - name: Validate Last Aria delayed boot and investigation flow
         run: node tools/validate-last-aria-investigation-flow.mjs
+      - name: Adversarial browser playthrough Last Aria
+        run: node tools/last-aria-adversarial-e2e.mjs
