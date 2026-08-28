@@ -25,6 +25,12 @@
 
   const normalize = (value) => String(value || '').trim().toUpperCase().replace(/\s+/g, '');
 
+  function removeDecorativeEmoji() {
+    document.querySelectorAll('.logic-demo h2, .logic-card h3, .logic-task-hero h1').forEach((node) => {
+      node.textContent = node.textContent.replace(/^(?:🔐|🗂️|⌨️)\s*/u, '');
+    });
+  }
+
   function bindSolver(root) {
     const puzzleId = root.dataset.logicPuzzle || '';
     const answer = normalize(root.dataset.logicAnswer || '');
@@ -101,6 +107,7 @@
     });
   }
 
+  removeDecorativeEmoji();
   document.querySelectorAll('[data-logic-puzzle]').forEach(bindSolver);
   updateProgress();
 })();
