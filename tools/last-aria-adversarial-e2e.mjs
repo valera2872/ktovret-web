@@ -19,11 +19,14 @@ const fixture = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><met
 <body class="casearia-body"><main class="casearia-shell" data-casearia-app><section class="casearia-paywall-status"><strong>Загружаем дело…</strong></section></main>
 <script>
 (() => {
+  window.__ariaErrors=[];
+  addEventListener('error',(event)=>window.__ariaErrors.push(String(event.message||event.error||'error')));
+  addEventListener('unhandledrejection',(event)=>window.__ariaErrors.push(String(event.reason||'unhandledrejection')));
   const code='ABCDEFGH', role='creator', other='guest';
   localStorage.setItem('mysterylogic:challenge:client-key','a'.repeat(48));
   const progressKey='mysterylogic:last-aria:v1:'+code+':'+role;
   if(!localStorage.getItem(progressKey)) localStorage.setItem(progressKey,JSON.stringify({stage:2,hintsUsed:0,attempts:0,firstAnswerCorrect:null,startedAt:Date.now()-1800000,handoffs:{1:true,2:true},decision:'manager',finalAccepted:false}));
-  window.__ariaServer={meCompleted:false,opponentCompleted:false,lastComplete:null};
+  window.__ariaServer={meCompleted:false,opponentCompleted:false,lastComplete:null,calls:[]};
   const view=()=>{
     const both=window.__ariaServer.meCompleted&&window.__ariaServer.opponentCompleted;
     const mine=window.__ariaServer.lastComplete||{elapsedSeconds:1800,hintsUsed:0,attempts:1,firstAnswerCorrect:true};
@@ -31,6 +34,7 @@ const fixture = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><met
   };
   window.fetch=async(input,init={})=>{
     let body={}; try{body=JSON.parse(init.body||'{}')}catch{}
+    window.__ariaServer.calls.push({url:String(typeof input==='string'?input:input?.url||''),action:body.action||''});
     if(body.action==='complete'){
       window.__ariaServer.meCompleted=true;
       window.__ariaServer.lastComplete={elapsedSeconds:Number(body.elapsedSeconds),hintsUsed:Number(body.hintsUsed),attempts:Number(body.attempts),firstAnswerCorrect:Boolean(body.firstAnswerCorrect)};
@@ -86,7 +90,9 @@ const evaluate=async(expression)=>{
 const waitFor=async(expression,label,timeout=8000)=>{
   const deadline=Date.now()+timeout;
   while(Date.now()<deadline){try{if(await evaluate(expression))return;}catch{}await pause(100);}
-  throw new Error(`Timed out waiting for ${label}`);
+  let diagnostic={};
+  try{diagnostic=await evaluate(`({href:location.href,text:(document.body?.innerText||'').slice(0,1200),data:!!window.MLCaseAria,resilience:document.querySelector('[data-casearia-app]')?.dataset.caseariaResilienceInstalled||'',scripts:[...document.scripts].map(s=>s.src).filter(Boolean),errors:window.__ariaErrors||[],calls:window.__ariaServer?.calls||[]})`);}catch(error){diagnostic={diagnosticError:String(error)}}
+  throw new Error(`Timed out waiting for ${label}: ${JSON.stringify(diagnostic)}`);
 };
 const click=async(selector)=>evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)});if(!n)return false;n.click();return true;})()`);
 const progress=()=>evaluate(`JSON.parse(localStorage.getItem('mysterylogic:last-aria:v1:ABCDEFGH:creator')||'{}')`);
@@ -98,7 +104,6 @@ try {
   await cdp('Page.navigate',{url:`http://127.0.0.1:${port}/last-aria-adversarial?room=ABCDEFGH`},sessionId);
   await waitFor(`document.querySelector('.casearia-decision') && document.querySelector('[data-casearia-app]')?.dataset.caseariaResilienceInstalled==='1'`,'stage 2 + resilience');
 
-  // A save created by the old any-choice runtime must not remain accepted.
   let p=await progress();
   assert.equal(p.stage,2);
   assert.equal(p.decision,'','legacy wrong decision must be cleared');
@@ -109,26 +114,22 @@ try {
   assert.equal(p.firstAnswerCorrect,false);
   assert.equal(await evaluate(`document.querySelector('[data-action="next-stage"]').disabled`),true,'legacy wrong decision must not unlock stage 3');
 
-  // Earlier packages stay reviewable without rewinding progress.
   assert.equal(await click('[data-aria-review-stage="1"]'),true);
   await waitFor(`document.querySelector('[data-aria-review-package="1"]')`,'package 1 review');
   assert.equal((await progress()).stage,2,'review must not rewind canonical stage');
   await click('[data-aria-review-close]');
 
-  // Correct stage-two line unlocks the next package.
   await click('[data-decision="conductor"]');
   await waitFor(`document.querySelector('[data-action="next-stage"]') && !document.querySelector('[data-action="next-stage"]').disabled`,'correct decision unlock');
   p=await progress(); assert.equal(p.decision,'conductor');
   await click('[data-action="next-stage"]');
   await waitFor(`document.body.textContent.includes('Пакет 3 / 3')`,'stage 3');
 
-  // Complete stage-three handoff and enter the final.
   await evaluate(`(()=>{const i=document.querySelector('[data-handoff-input]');i.value='K-12';document.querySelector('[data-action="handoff-check"]').click();})()`);
   await waitFor(`document.querySelector('.casearia-handoff.is-complete')`,'stage 3 handoff');
   await click('[data-action="next-stage"]');
   await waitFor(`document.querySelector('.casearia-final-form[data-final-form]')`,'final form');
 
-  // Submit a plausible but wrong reconstruction. No selection may disappear.
   await evaluate(`(()=>{
     const f=document.querySelector('[data-final-form]');
     const set=(name,value)=>{const n=f.querySelector('input[name="'+name+'"][value="'+value+'"]');n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));};
@@ -144,21 +145,18 @@ try {
   assert.equal(p.evidencePicks.length,5);
   assert.equal(p.attempts,2,'decision penalty + first wrong final must count exactly twice');
 
-  // Refresh in the middle of the final: draft must survive and restore when final reopens.
   await cdp('Page.reload',{ignoreCache:true},sessionId);
   await waitFor(`document.body.textContent.includes('Пакет 3 / 3') && document.querySelector('[data-action="next-stage"]')`,'resumed stage 3');
   await click('[data-action="next-stage"]');
   await waitFor(`document.querySelector('.casearia-final-form[data-final-form]') && document.querySelector('input[name="final-culprit"][value="ilya"]')?.checked`,'restored final draft');
   assert.equal(await evaluate(`document.querySelectorAll('input[name="evidence"]:checked').length`),5,'evidence draft did not restore after refresh');
 
-  // Correct only the bad answer. Completion should preserve the earlier mistake in score.
   await evaluate(`(()=>{const n=document.querySelector('input[name="final-culprit"][value="mikhail"]');n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[data-final-form]').requestSubmit();})()`);
   await waitFor(`document.body.textContent.includes('Ваше обвинение выдержало проверку')`,'accepted final waiting screen');
   const completed=await evaluate(`window.__ariaServer.lastComplete`);
   assert.equal(completed.attempts,2,'server completion must receive the decision/final mistake score');
   assert.equal(completed.firstAnswerCorrect,false);
 
-  // Once the partner completes, the same client must reveal the joint result.
   await evaluate(`window.__ariaServer.opponentCompleted=true`);
   await click('[data-action="refresh-room"]');
   await waitFor(`document.querySelector('.casearia-reveal') && document.body.textContent.includes('Заключение следственной группы')`,'joint reveal');
