@@ -37,6 +37,18 @@ source = source.replace("assert.equal(p.evidencePicks.length,5);", "assert.equal
 source = source.replace("assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),5,'evidence draft did not restore after refresh');", "assert.equal(await evaluate(`document.querySelectorAll('input[name=\"evidence\"]:checked').length`),6,'evidence draft did not restore after refresh');");
 source = source.replace("assert.equal(completed.attempts,2,'server completion must receive the decision/final mistake score');", "assert.equal(completed.attempts,3,'server completion must include the decision mistake, rejected final and accepted final attempt');");
 
+const oldCleanup = "  fs.rmSync(profile,{recursive:true,force:true});";
+const newCleanup = [
+  "  await new Promise((resolve)=>{",
+  "    if(browser.exitCode!==null) return resolve();",
+  "    const timer=setTimeout(()=>{try{browser.kill('SIGKILL');}catch{} resolve();},2000);",
+  "    browser.once('exit',()=>{clearTimeout(timer);resolve();});",
+  "  });",
+  "  try{fs.rmSync(profile,{recursive:true,force:true,maxRetries:8,retryDelay:100});}catch{}",
+].join('\n');
+if (!source.includes(oldCleanup)) throw new Error('Last Aria adversarial fixture source drift: Chrome profile cleanup marker missing');
+source = source.replace(oldCleanup, newCleanup);
+
 fs.writeFileSync(tempFile, source);
 try {
   const result = spawnSync(process.execPath, [tempFile], { stdio: 'inherit', env: process.env });
