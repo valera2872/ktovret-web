@@ -14,6 +14,8 @@ on:
       - 'tom-1/**'
       - 'detektivnye-igry-dlya-odnogo/**'
       - 'logicheskie-zadachi/**'
+      - 'golovolomki-onlayn/**'
+      - 'zagadki-na-logiku-dlya-vzroslyh/**'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
@@ -89,20 +91,31 @@ jobs:
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
           test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
           grep -q 'Архивы первого тома' dela/index.html
+
+          # Puzzle vertical: 3 SEO hubs + 20 indexable Expert tasks.
           test -f assets/logic-hub.css
-          test -f assets/logic-hub.js
+          test -f assets/logic-expert-seo.css
+          test -f assets/logic-expert.js
           test -f logicheskie-zadachi/index.html
-          test -f logicheskie-zadachi/kod-protokol-6/index.html
-          test -f logicheskie-zadachi/shest-pokazaniy/index.html
-          test -f logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
+          test "$(find logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          test -f logicheskie-zadachi/protokol-shesti-cifr/index.html
+          test -f logicheskie-zadachi/domino-razbienie-4x5/index.html
+          test ! -d logicheskie-zadachi/shest-pokazaniy
+          test ! -d logicheskie-zadachi/arhivnaya-matrica-5x5
           grep -q 'data-logic-home-launch' index.html
-          grep -q 'data-logic-puzzle="logic:protocol-six"' logicheskie-zadachi/index.html
-          grep -q 'Разминок<br>не будет' logicheskie-zadachi/index.html
+          grep -q '>Головоломки</a>' index.html
+          grep -q 'Сложные головоломки онлайн для взрослых' golovolomki-onlayn/index.html
+          grep -q 'Загадки на логику для взрослых с ответами' zagadki-na-logiku-dlya-vzroslyh/index.html
+          grep -q 'Сложные логические задачи уровня Expert' logicheskie-zadachi/index.html
+          test "$(grep -o 'data-expert-card=' logicheskie-zadachi/index.html | wc -l)" -eq 20
+          grep -q 'data-expert-puzzle="expert:001"' logicheskie-zadachi/protokol-shesti-cifr/index.html
           grep -q 'https://t.me/mysterylogic' logicheskie-zadachi/index.html
-          grep -q '"indexableUrls": 117' assets/generated/import-report.json
-          grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
-          grep -q '"logicHubPages": 4' assets/generated/import-report.json
-          grep -q '"logicHubVersion": "1.1.0"' assets/generated/import-report.json
+          grep -q '"indexableUrls": 136' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
+          grep -q '"logicHubPages": 23' assets/generated/import-report.json
+          grep -q '"logicHubVersion": "2.0.0"' assets/generated/import-report.json
+          grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
+          grep -q '"logicExpertAdultHub": "zagadki-na-logiku-dlya-vzroslyh/"' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
@@ -124,7 +137,7 @@ jobs:
           echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
           echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
           echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
-          test "$(grep -c '<url>' sitemap.xml)" -eq 117
+          test "$(grep -c '<url>' sitemap.xml)" -eq 136
           grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki-onlayn/</loc>' sitemap.xml
@@ -132,12 +145,11 @@ jobs:
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-protokol-6/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/protokol-shesti-cifr/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/domino-razbienie-4x5/</loc>' sitemap.xml
+          test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' sitemap.xml | wc -l)" -eq 20
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
           grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
@@ -145,12 +157,15 @@ jobs:
           grep -q "checkoutEnabled:true" assets/paid-access-config.js
           node --check assets/volume-storefront.js
           node --check assets/case-407-solo.js
-          node --check assets/logic-hub.js
-          node --check tools/logic-hub-validate.mjs
-          node --check tools/import-mobile/logic-hub-postprocess.mjs
+          node --check assets/logic-expert.js
+          node --check tools/import-mobile/logic-expert-release-data.mjs
+          node --check tools/import-mobile/logic-expert-seo-postprocess.mjs
+          node --check tools/logic-expert-review-v2-validate.mjs
+          node --check tools/logic-expert-review-v2-extension-validate.mjs
           node --check tools/enable-volume-checkout.mjs
           node --check tools/archive-visual-smoke.mjs
-          node tools/logic-hub-validate.mjs
+          node tools/logic-expert-review-v2-validate.mjs
+          node tools/logic-expert-review-v2-extension-validate.mjs
 
       - name: Render approved production storefront smoke
         working-directory: web
@@ -212,7 +227,9 @@ jobs:
           grep -q "case-407-solo.css?v=${release_version}" production-web/detektivnye-igry-dlya-odnogo/index.html
           grep -q "case-407-solo.js?v=${release_version}" production-web/detektivnye-igry-dlya-odnogo/407/index.html
           grep -q "logic-hub.css?v=${release_version}" production-web/logicheskie-zadachi/index.html
-          grep -q "logic-hub.js?v=${release_version}" production-web/logicheskie-zadachi/index.html
+          grep -q "logic-expert-seo.css?v=${release_version}" production-web/logicheskie-zadachi/index.html
+          grep -q "logic-expert.js?v=${release_version}" production-web/logicheskie-zadachi/index.html
+          grep -q "logic-expert.js?v=${release_version}" production-web/golovolomki-onlayn/index.html
 
       - name: Validate Beget runtime tree
         run: |
@@ -230,7 +247,8 @@ jobs:
           test -f production-web/assets/case-407-solo.css
           test -f production-web/assets/case-407-solo.js
           test -f production-web/assets/logic-hub.css
-          test -f production-web/assets/logic-hub.js
+          test -f production-web/assets/logic-expert-seo.css
+          test -f production-web/assets/logic-expert.js
           test -f production-web/assets/reference-home-hero.webp
           test -f production-web/assets/reference-home-lower.webp
           test -f production-web/assets/reference-archive-hero.webp
@@ -243,9 +261,11 @@ jobs:
           test -f production-web/detektivnye-igry-dlya-odnogo/index.html
           test -f production-web/detektivnye-igry-dlya-odnogo/407/index.html
           test -f production-web/logicheskie-zadachi/index.html
-          test -f production-web/logicheskie-zadachi/kod-protokol-6/index.html
-          test -f production-web/logicheskie-zadachi/shest-pokazaniy/index.html
-          test -f production-web/logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
+          test "$(find production-web/logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          test -f production-web/logicheskie-zadachi/protokol-shesti-cifr/index.html
+          test -f production-web/logicheskie-zadachi/domino-razbienie-4x5/index.html
+          test ! -d production-web/logicheskie-zadachi/shest-pokazaniy
+          test ! -d production-web/logicheskie-zadachi/arhivnaya-matrica-5x5
           test -f production-web/ktovret-game/assets/app-core.js
           test -f production-web/ktovret-game/assets/challenge-client.js
           grep -q 'data-volume-email' production-web/tom-1/index.html
@@ -257,12 +277,14 @@ jobs:
           grep -q 'data-reference-asset="archive-hero"' production-web/tom-1/index.html
           grep -q 'data-reference-asset="archive-grid"' production-web/tom-1/index.html
           grep -q 'data-logic-home-launch' production-web/index.html
-          grep -q 'data-logic-puzzle="logic:protocol-six"' production-web/logicheskie-zadachi/index.html
-          grep -q 'Разминок<br>не будет' production-web/logicheskie-zadachi/index.html
+          grep -q '>Головоломки</a>' production-web/index.html
+          grep -q 'data-expert-puzzle="expert:001"' production-web/logicheskie-zadachi/protokol-shesti-cifr/index.html
           grep -q 'https://t.me/mysterylogic' production-web/logicheskie-zadachi/index.html
           grep -q 'support@mysterylogic.com' production-web/tom-1/index.html
           grep -q 'Политика конфиденциальности' production-web/tom-1/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/golovolomki-onlayn/">' production-web/golovolomki-onlayn/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/zagadki-na-logiku-dlya-vzroslyh/">' production-web/zagadki-na-logiku-dlya-vzroslyh/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/logicheskie-zadachi/">' production-web/logicheskie-zadachi/index.html
           ! grep -q 'name="robots" content="noindex' production-web/tom-1/index.html
           grep -q '<meta name="robots" content="noindex,follow">' production-web/detektivnye-igry-dlya-odnogo/407/index.html
@@ -282,19 +304,18 @@ jobs:
           test "$(grep -rl 'data-seo-prerender' production-web/ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'data-premium-seo-teaser' production-web/ru/cases/*/index.html | wc -l)" -eq 85
           test "$(grep -rl 'noindex,follow' production-web/delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 117
+          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 136
           grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki-onlayn/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/zagadki-na-logiku-dlya-vzroslyh/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-protokol-6/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' production-web/sitemap.xml
-          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' production-web/sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/kod-507/</loc>' production-web/sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/poryadok-pyati-papok/</loc>' production-web/sitemap.xml
-          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/seyf-5074/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/protokol-shesti-cifr/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/domino-razbienie-4x5/</loc>' production-web/sitemap.xml
+          test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' production-web/sitemap.xml | wc -l)" -eq 20
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' production-web/sitemap.xml
+          ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' production-web/sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' production-web/sitemap.xml
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
 
