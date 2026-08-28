@@ -50,13 +50,16 @@ jobs:
           node --check tools/import-mobile/two-player-room-postprocess.mjs
           node --check tools/import-mobile/seo-ctr-modernization.mjs
           node --check tools/import-mobile/solo-407-postprocess.mjs
+          node --check tools/import-mobile/logic-expert-release-data.mjs
+          node --check tools/import-mobile/logic-expert-seo-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
           node --check assets/duel-room.js
           node --check assets/case-407-solo.js
+          node --check assets/logic-expert.js
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
 
-      - name: Validate spoiler-safe 117 URL boundary
+      - name: Validate spoiler-safe 133 URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -67,14 +70,16 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 117
-          grep -q '"indexableUrls": 117' assets/generated/import-report.json
+          test "$(grep -c '<url>' sitemap.xml)" -eq 133
+          grep -q '"indexableUrls": 133' assets/generated/import-report.json
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
-          grep -q '"logicHubPuzzles": 3' assets/generated/import-report.json
-          grep -q '"logicHubPages": 4' assets/generated/import-report.json
-          grep -q '"logicHubVersion": "1.1.0"' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
+          grep -q '"logicHubPages": 23' assets/generated/import-report.json
+          grep -q '"logicHubVersion": "2.0.0"' assets/generated/import-report.json
+          grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
+          grep -q '"logicExpertAdultHub": "zagadki-na-logiku-dlya-vzroslyh/"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
@@ -91,15 +96,21 @@ jobs:
           test -f detektivnye-igry-dlya-odnogo/index.html
           test -f detektivnye-igry-dlya-odnogo/407/index.html
           test -f logicheskie-zadachi/index.html
-          test -f logicheskie-zadachi/kod-protokol-6/index.html
-          test -f logicheskie-zadachi/shest-pokazaniy/index.html
-          test -f logicheskie-zadachi/arhivnaya-matrica-5x5/index.html
+          test "$(find logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          test -f logicheskie-zadachi/protokol-shesti-cifr/index.html
+          test -f logicheskie-zadachi/domino-razbienie-4x5/index.html
+          test ! -d logicheskie-zadachi/shest-pokazaniy
+          test ! -d logicheskie-zadachi/arhivnaya-matrica-5x5
           grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           ! grep -q '<loc>https://valera2872.github.io/ktovret-web/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/golovolomki-onlayn/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/zagadki-na-logiku-dlya-vzroslyh/</loc>' sitemap.xml
           grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/</loc>' sitemap.xml
-          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/kod-protokol-6/</loc>' sitemap.xml
-          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
-          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/protokol-shesti-cifr/</loc>' sitemap.xml
+          grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/domino-razbienie-4x5/</loc>' sitemap.xml
+          test "$(grep -o 'https://valera2872.github.io/ktovret-web/logicheskie-zadachi/[^<]*/' sitemap.xml | wc -l)" -eq 20
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
+          ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/arhivnaya-matrica-5x5/</loc>' sitemap.xml
           ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/kod-507/</loc>' sitemap.xml
           ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/poryadok-pyati-papok/</loc>' sitemap.xml
           ! grep -q '<loc>https://valera2872.github.io/ktovret-web/logicheskie-zadachi/seyf-5074/</loc>' sitemap.xml
