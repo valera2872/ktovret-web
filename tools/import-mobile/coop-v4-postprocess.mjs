@@ -6,11 +6,12 @@ const VERSION='1.0.0';
 const COGNITIVE_VERSION='1.0.0';
 const FINAL_FEEDBACK_VERSION='1.0.0';
 const LAST_ARIA_UX_VERSION='1.0.0';
+const LAST_ARIA_RESILIENCE_VERSION='1.0.0';
 const LANDING='detektivnye-igry-dlya-dvoih/index.html';
 const CASES=[
   {path:'detektivnye-igry-dlya-dvoih/2317/index.html',markers:['data-case2317-app','case2317-boot']},
   {path:'detektivnye-igry-dlya-dvoih/407/index.html',markers:['data-case407-app','case407-room-mark'],cognitive:'cognitive-coop-407.js'},
-  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js'],cognitive:'cognitive-last-aria.js',finalFeedback:'case-aria-final-feedback.js',finalFeedbackLoader:'case-aria-final-feedback-loader.js',investigationUx:'case-aria-investigation-ux.js'},
+  {path:'detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html',markers:['data-casearia-app','case-aria-storefront.js','case-aria-paid-auth.js'],cognitive:'cognitive-last-aria.js',finalFeedback:'case-aria-final-feedback.js',finalFeedbackLoader:'case-aria-final-feedback-loader.js',investigationUx:'case-aria-investigation-ux.js',resilience:'case-aria-resilience.js'},
 ];
 
 function addBodyClassAndMarker(html,className){
@@ -46,7 +47,7 @@ function footer(root){
   return `<footer class="ref-footer ref-wrap"><span>© 2026 Mystery Logic</span><span><a href="${root}dela/">Архив дел</a><a href="${root}detektivnye-igry-dlya-dvoih/">Для двоих</a><a href="${root}tom-1/">Первый том</a><a href="${root}offer/">Условия</a></span></footer>`;
 }
 
-function patchFile(file,{root,caseMarkers=[],cognitive='',finalFeedback='',finalFeedbackLoader='',investigationUx=''}){
+function patchFile(file,{root,caseMarkers=[],cognitive='',finalFeedback='',finalFeedbackLoader='',investigationUx='',resilience=''}){
   let html=fs.readFileSync(file,'utf8');
   html=addStyle(html,`${root}assets/storefront-reference.css?v=4.0.1`,'storefront-reference.css');
   html=addStyle(html,`${root}assets/coop-v4.css?v=${VERSION}`,'coop-v4.css');
@@ -59,12 +60,14 @@ function patchFile(file,{root,caseMarkers=[],cognitive='',finalFeedback='',final
   html=addScript(html,root,finalFeedback,FINAL_FEEDBACK_VERSION);
   html=addScript(html,root,finalFeedbackLoader,LAST_ARIA_UX_VERSION);
   html=addScript(html,root,investigationUx,LAST_ARIA_UX_VERSION);
+  html=addScript(html,root,resilience,LAST_ARIA_RESILIENCE_VERSION);
   const required=[`data-coop-v4="${VERSION}"`,'storefront-reference.css','coop-v4.css'];
   if(caseMarkers.length) required.push(...caseMarkers,'cognitive-coop-analytics.js'); else required.push('data-duel-room-app','coop-case-feature','case407-catalog','casearia-catalog');
   if(cognitive) required.push(cognitive);
   if(finalFeedback) required.push(finalFeedback);
   if(finalFeedbackLoader) required.push(finalFeedbackLoader);
   if(investigationUx) required.push(investigationUx);
+  if(resilience) required.push(resilience);
   for(const marker of required) if(!html.includes(marker)) throw new Error(`Co-op v4 missing ${marker}: ${path.relative(process.cwd(),file)}`);
   if(!/class="ref-header ref-wrap(?:\s|\")/.test(html)||!/class="ref-footer ref-wrap(?:\s|\")/.test(html)) throw new Error(`Co-op v4 shell missing: ${path.relative(process.cwd(),file)}`);
   fs.writeFileSync(file,html);
@@ -76,6 +79,6 @@ export function applyCoopV4(siteRoot){
   if(!fs.existsSync(landing)) throw new Error('Co-op v4 landing missing');
   for(const entry of CASES) if(!fs.existsSync(path.join(siteRoot,entry.path))) throw new Error(`Co-op v4 case missing: ${entry.path}`);
   patchFile(landing,{root:'../'});
-  for(const entry of CASES) patchFile(path.join(siteRoot,entry.path),{root:'../../',caseMarkers:entry.markers,cognitive:entry.cognitive||'',finalFeedback:entry.finalFeedback||'',finalFeedbackLoader:entry.finalFeedbackLoader||'',investigationUx:entry.investigationUx||''});
+  for(const entry of CASES) patchFile(path.join(siteRoot,entry.path),{root:'../../',caseMarkers:entry.markers,cognitive:entry.cognitive||'',finalFeedback:entry.finalFeedback||'',finalFeedbackLoader:entry.finalFeedbackLoader||'',investigationUx:entry.investigationUx||'',resilience:entry.resilience||''});
   return {pages:1+CASES.length,version:VERSION,lastAria:aria};
 }
