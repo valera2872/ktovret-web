@@ -87,6 +87,8 @@
   let reviewSeen = false;
   let completionSeen = false;
   let maxScroll = 0;
+  let lastAriaPaywallSeen = false;
+  const lastAriaPaymentReturn = new URLSearchParams(location.search).get('payment_return') === '1';
 
   const metrika = (eventName, metadata = {}) => {
     if (!METRIKA_EVENTS.has(eventName)) return;
@@ -105,7 +107,7 @@
     if (dedupe && sent.has(dedupe)) return;
     if (dedupe) sent.add(dedupe);
 
-    if (['primary_action', 'format_choice', 'game_open', 'game_accept', 'game_answer_attempt', 'game_complete', 'checkout_open', 'checkout_start', 'diagnostic_choice'].includes(eventName)) {
+    if (['primary_action', 'format_choice', 'game_open', 'game_accept', 'game_answer_attempt', 'game_complete', 'checkout_open', 'checkout_start', 'checkout_success', 'diagnostic_choice'].includes(eventName)) {
       meaningfulAction = true;
     }
 
@@ -149,6 +151,9 @@
       if (['show-create', 'focus-code', 'lookup-code'].includes(duelAction)) return ['primary_action', { ...metadata, choice: duelAction }, `duel-${duelAction}`];
     }
 
+    if (node?.matches?.('[data-aria-buy]')) {
+      return ['checkout_start', { ...metadata, product: 'last_aria' }, 'last-aria-buy'];
+    }
     if (node?.matches?.('[data-volume-buy], [data-volume-checkout], [data-checkout-open]')) {
       return ['checkout_open', { ...metadata, product: 'volume1' }, 'volume-checkout'];
     }
@@ -171,9 +176,10 @@
       }
     }
 
-    if (pageGroup() === 'coop-case' && node?.tagName === 'BUTTON') {
-      return ['primary_action', metadata, 'coop-case-button'];
-    }
+    // Internal co-op gameplay buttons are intentionally NOT counted here.
+    // cognitive-coop-analytics.js records stage/hint/handoff/decision events
+    // with semantic labels. Counting every button as primary_action inflated the
+    // conversion funnel and made gameplay activity look like CTA conversion.
     return null;
   };
 
@@ -218,6 +224,27 @@
     const observer = new MutationObserver(inspectRuntime);
     observer.observe(document.querySelector('[data-ktv-root]'), { childList: true, subtree: true });
     inspectRuntime();
+  }
+
+  const inspectCommerceRuntime = () => {
+    const root = document.querySelector('[data-casearia-app]');
+    if (!root) return;
+    const buy = root.querySelector('[data-aria-buy]');
+    if (buy) {
+      lastAriaPaywallSeen = true;
+      track('checkout_open', { product: 'last_aria', price_rub: Number((buy.textContent || '').match(/(\d+)\s*₽/)?.[1] || 0) || undefined }, 'last-aria-paywall', { dedupe: 'checkout-open-last-aria' });
+      return;
+    }
+    if (lastAriaPaymentReturn && lastAriaPaywallSeen) {
+      track('checkout_success', { product: 'last_aria' }, 'last-aria-payment-return', { dedupe: 'checkout-success-last-aria' });
+    }
+  };
+
+  const commerceRoot = document.querySelector('[data-casearia-app]');
+  if (commerceRoot) {
+    const commerceObserver = new MutationObserver(inspectCommerceRuntime);
+    commerceObserver.observe(commerceRoot, { childList: true, subtree: true });
+    inspectCommerceRuntime();
   }
 
   const onScroll = () => {
