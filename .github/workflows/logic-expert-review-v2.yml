@@ -1,0 +1,30 @@
+name: Validate Logic Expert review v2
+
+on:
+  push:
+    branches: [feature/logic-expert-review-v2]
+    paths:
+      - 'docs/logic-expert-review-v2.md'
+      - 'tools/logic-expert-review-v2-validate.mjs'
+      - '.github/workflows/logic-expert-review-v2.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/logic-expert-review-v2.md'
+      - 'tools/logic-expert-review-v2-validate.mjs'
+      - '.github/workflows/logic-expert-review-v2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-review-corpus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prove unique solutions and complexity gates
+        run: node tools/logic-expert-review-v2-validate.mjs
