@@ -187,14 +187,17 @@
   const schedule = () => {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       scheduled = false;
       renderProgressive();
-    });
+    }, 0);
   };
 
   const observer = new MutationObserver(schedule);
   observer.observe(root, { childList: true, subtree: true });
+  for (const eventName of ['ml:solo_start', 'ml:solo_evidence_open', 'ml:solo_request']) {
+    window.addEventListener(eventName, schedule);
+  }
   window.addEventListener('storage', (event) => {
     if (event.key === STATE_KEY || event.key === DONE_KEY) schedule();
   });
