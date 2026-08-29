@@ -74,19 +74,12 @@
     return false;
   };
 
-  const factHtml = (evidence) => {
-    const facts = Array.isArray(evidence?.facts) ? evidence.facts : [];
-    const fallback = [
-      'Телефон Марты остался в комнате',
-      'Сейф открыт без повреждений',
-      'Окно закрыто изнутри',
-      'Следов борьбы нет',
-    ];
-    const merged = [...facts];
-    if (!merged.some((fact) => /окн/i.test(fact))) merged.push(fallback[2]);
-    if (!merged.some((fact) => /борьб/i.test(fact))) merged.push(fallback[3]);
-    return merged.slice(0, 4).map((fact) => `<li>${fact}</li>`).join('');
-  };
+  const factHtml = () => [
+    'Телефон Марты остался в комнате',
+    'Сейф открыт без повреждений',
+    'Окно закрыто изнутри',
+    'Следов борьбы нет',
+  ].map((fact) => `<li>${fact}</li>`).join('');
 
   const introHtml = (evidence) => `
     <section class="solo407-progressive" data-solo407-progressive data-progressive-step="scene" data-progressive-signature="scene" aria-label="Первичный осмотр номера 407">
@@ -123,7 +116,7 @@
           <div>
             <p class="solo407-kicker">Зафиксировано без интерпретаций</p>
             <h1>Что известно прямо сейчас</h1>
-            <ul>${factHtml(evidence)}</ul>
+            <ul>${factHtml()}</ul>
           </div>
         </div>
         <div class="solo407-progressive-next">
