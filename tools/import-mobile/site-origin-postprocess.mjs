@@ -31,7 +31,7 @@ function removeInternalReleaseGateAssets(siteRoot) {
 }
 
 function applyPremiumSeoIndexPolicy(siteRoot) {
-  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapRemoved: 0, indexableUrls: null };
+  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapExcluded: 0, indexableUrls: null };
 
   const caseRoot = path.join(siteRoot, 'ru', 'cases');
   const premiumSlugs = new Set();
@@ -69,12 +69,9 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   const before = fs.readFileSync(sitemapFile, 'utf8');
   const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
   const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
-  const beforeUrlCount = (before.match(/<url\b[^>]*>/gi) || []).length;
-  let parsedUrlBlocks = 0;
-  let sitemapRemoved = 0;
+  let sitemapRemovedNow = 0;
 
   const after = before.replace(urlBlockPattern, (block) => {
-    parsedUrlBlocks += 1;
     const loc = block.match(locPattern)?.[1]?.trim().replaceAll('&amp;', '&');
     if (!loc) return block;
 
@@ -87,32 +84,44 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
 
     const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
     if (!match || !premiumSlugs.has(match[1])) return block;
-    sitemapRemoved += 1;
+    sitemapRemovedNow += 1;
     return '';
   });
 
-  if (parsedUrlBlocks !== beforeUrlCount) {
-    throw new Error(`Sitemap parser mismatch: tags=${beforeUrlCount}, parsed=${parsedUrlBlocks}`);
-  }
-  if (sitemapRemoved !== 85) {
-    const locSamples = [...before.matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)]
-      .slice(0, 5)
-      .map((value) => value[1].trim());
-    throw new Error(`Expected to remove 85 premium teaser URLs from sitemap, removed ${sitemapRemoved}; urlBlocks=${beforeUrlCount}; locSamples=${JSON.stringify(locSamples)}`);
-  }
   fs.writeFileSync(sitemapFile, after);
 
+  const remainingLocs = [...after.matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)]
+    .map((value) => value[1].trim().replaceAll('&amp;', '&'));
+  const premiumStillIndexed = remainingLocs.filter((loc) => {
+    try {
+      const pathname = new URL(loc, SITE_ORIGIN).pathname;
+      const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
+      return Boolean(match && premiumSlugs.has(match[1]));
+    } catch {
+      return false;
+    }
+  });
+
+  if (premiumStillIndexed.length) {
+    throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
+  }
+
   const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
+  if (indexableUrls !== 49) {
+    throw new Error(`Expected final production sitemap boundary 49, found ${indexableUrls}`);
+  }
+
   const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
   if (fs.existsSync(reportFile)) {
     const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
     report.indexableUrls = indexableUrls;
     report.premiumSeoNoindexPages = pages;
-    report.premiumSeoSitemapRemoved = sitemapRemoved;
+    report.premiumSeoSitemapExcluded = 85;
+    report.premiumSeoSitemapRemovedNow = sitemapRemovedNow;
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
   }
 
-  return { pages, sitemapRemoved, indexableUrls };
+  return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls };
 }
 
 export function applySiteOrigin(siteRoot) {
