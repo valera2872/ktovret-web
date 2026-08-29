@@ -34,7 +34,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapRemoved: 0, indexableUrls: null };
 
   const caseRoot = path.join(siteRoot, 'ru', 'cases');
-  const premiumRouteSuffixes = new Set();
+  const premiumSlugs = new Set();
   let pages = 0;
 
   if (fs.existsSync(caseRoot)) {
@@ -47,7 +47,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
 
       const canonical = html.match(/<link rel="canonical" href="([^"]+)">/i)?.[1];
       if (!canonical) throw new Error(`Premium SEO teaser has no canonical: ru/cases/${entry.name}/`);
-      premiumRouteSuffixes.add(`/ru/cases/${entry.name}/`);
+      premiumSlugs.add(entry.name);
 
       if (!/<meta name="robots" content="noindex,follow">/i.test(html)) {
         html = html.replace(
@@ -60,33 +60,49 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     }
   }
 
-  if (pages !== 85 || premiumRouteSuffixes.size !== 85) {
-    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, routes=${premiumRouteSuffixes.size}`);
+  if (pages !== 85 || premiumSlugs.size !== 85) {
+    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, slugs=${premiumSlugs.size}`);
   }
 
   const sitemapFile = path.join(siteRoot, 'sitemap.xml');
   if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
   const before = fs.readFileSync(sitemapFile, 'utf8');
+  const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
+  const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
+  const beforeUrlCount = (before.match(/<url\b[^>]*>/gi) || []).length;
+  let parsedUrlBlocks = 0;
   let sitemapRemoved = 0;
-  const after = before.replace(/<url>\s*<loc>([^<]+)<\/loc>[\s\S]*?<\/url>\s*/g, (block, url) => {
+
+  const after = before.replace(urlBlockPattern, (block) => {
+    parsedUrlBlocks += 1;
+    const loc = block.match(locPattern)?.[1]?.trim().replaceAll('&amp;', '&');
+    if (!loc) return block;
+
     let pathname = '';
     try {
-      pathname = new URL(url.trim()).pathname;
+      pathname = new URL(loc, SITE_ORIGIN).pathname;
     } catch {
       return block;
     }
-    const isPremium = [...premiumRouteSuffixes].some((suffix) => pathname.endsWith(suffix));
-    if (!isPremium) return block;
+
+    const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
+    if (!match || !premiumSlugs.has(match[1])) return block;
     sitemapRemoved += 1;
     return '';
   });
 
+  if (parsedUrlBlocks !== beforeUrlCount) {
+    throw new Error(`Sitemap parser mismatch: tags=${beforeUrlCount}, parsed=${parsedUrlBlocks}`);
+  }
   if (sitemapRemoved !== 85) {
-    throw new Error(`Expected to remove 85 premium teaser URLs from sitemap, removed ${sitemapRemoved}`);
+    const locSamples = [...before.matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)]
+      .slice(0, 5)
+      .map((value) => value[1].trim());
+    throw new Error(`Expected to remove 85 premium teaser URLs from sitemap, removed ${sitemapRemoved}; urlBlocks=${beforeUrlCount}; locSamples=${JSON.stringify(locSamples)}`);
   }
   fs.writeFileSync(sitemapFile, after);
 
-  const indexableUrls = (after.match(/<url>/g) || []).length;
+  const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
   const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
   if (fs.existsSync(reportFile)) {
     const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
