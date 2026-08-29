@@ -72,7 +72,8 @@ jobs:
           test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'window.KtoVretWeb=' | wc -l)" -eq 0
-          test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
+          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(grep -l 'data-seo-prerender' ru/cases/*/index.html | xargs grep -l 'name=\"robots\" content=\"noindex' | wc -l)" -eq 0
           test -f ru/besplatnye-detektivnye-dela/index.html
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
@@ -110,7 +111,9 @@ jobs:
           test "$(grep -o 'data-expert-card=' logicheskie-zadachi/index.html | wc -l)" -eq 20
           grep -q 'data-expert-puzzle="expert:001"' logicheskie-zadachi/protokol-shesti-cifr/index.html
           grep -q 'https://t.me/mysterylogic' logicheskie-zadachi/index.html
-          grep -q '"indexableUrls": 134' assets/generated/import-report.json
+          grep -q '"indexableUrls": 49' assets/generated/import-report.json
+          grep -q '"premiumSeoNoindexPages": 85' assets/generated/import-report.json
+          grep -q '"premiumSeoSitemapRemoved": 85' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
           grep -q '"logicHubVersion": "2.0.0"' assets/generated/import-report.json
@@ -137,8 +140,9 @@ jobs:
           echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
           echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
           echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
-          test "$(grep -c '<url>' sitemap.xml)" -eq 134
-          test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 134
+          test "$(grep -c '<url>' sitemap.xml)" -eq 49
+          test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 49
+          test "$(grep -o 'https://mysterylogic.com/ru/cases/[^<]*/' sitemap.xml | wc -l)" -eq 15
           grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki-onlayn/</loc>' sitemap.xml
@@ -304,9 +308,11 @@ jobs:
           test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
           test "$(grep -rl 'data-seo-prerender' production-web/ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'data-premium-seo-teaser' production-web/ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' production-web/ru/cases/*/index.html | wc -l)" -eq 85
           test "$(grep -rl 'noindex,follow' production-web/delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 134
-          test "$(grep -o '<loc>[^<]*</loc>' production-web/sitemap.xml | sort -u | wc -l)" -eq 134
+          test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 49
+          test "$(grep -o '<loc>[^<]*</loc>' production-web/sitemap.xml | sort -u | wc -l)" -eq 49
+          test "$(grep -o 'https://mysterylogic.com/ru/cases/[^<]*/' production-web/sitemap.xml | wc -l)" -eq 15
           grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki-onlayn/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/zagadki-na-logiku-dlya-vzroslyh/</loc>' production-web/sitemap.xml

@@ -30,6 +30,101 @@ function removeInternalReleaseGateAssets(siteRoot) {
   return { removed: true };
 }
 
+function applyPremiumSeoIndexPolicy(siteRoot) {
+  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapExcluded: 0, indexableUrls: null };
+
+  const caseRoot = path.join(siteRoot, 'ru', 'cases');
+  const premiumSlugs = new Set();
+  let pages = 0;
+
+  if (fs.existsSync(caseRoot)) {
+    for (const entry of fs.readdirSync(caseRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const file = path.join(caseRoot, entry.name, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      let html = fs.readFileSync(file, 'utf8');
+      if (!html.includes('data-premium-seo-teaser="true"')) continue;
+
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)">/i)?.[1];
+      if (!canonical) throw new Error(`Premium SEO teaser has no canonical: ru/cases/${entry.name}/`);
+      premiumSlugs.add(entry.name);
+
+      if (!/<meta name="robots" content="noindex,follow">/i.test(html)) {
+        html = html.replace(
+          /(<meta name="viewport"[^>]*>)/i,
+          '$1<meta name="robots" content="noindex,follow">',
+        );
+        fs.writeFileSync(file, html);
+      }
+      pages += 1;
+    }
+  }
+
+  if (pages !== 85 || premiumSlugs.size !== 85) {
+    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, slugs=${premiumSlugs.size}`);
+  }
+
+  const sitemapFile = path.join(siteRoot, 'sitemap.xml');
+  if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
+  const before = fs.readFileSync(sitemapFile, 'utf8');
+  const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
+  const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
+  let sitemapRemovedNow = 0;
+
+  const after = before.replace(urlBlockPattern, (block) => {
+    const loc = block.match(locPattern)?.[1]?.trim().replaceAll('&amp;', '&');
+    if (!loc) return block;
+
+    let pathname = '';
+    try {
+      pathname = new URL(loc, SITE_ORIGIN).pathname;
+    } catch {
+      return block;
+    }
+
+    const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
+    if (!match || !premiumSlugs.has(match[1])) return block;
+    sitemapRemovedNow += 1;
+    return '';
+  });
+
+  fs.writeFileSync(sitemapFile, after);
+
+  const remainingLocs = [...after.matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)]
+    .map((value) => value[1].trim().replaceAll('&amp;', '&'));
+  const premiumStillIndexed = remainingLocs.filter((loc) => {
+    try {
+      const pathname = new URL(loc, SITE_ORIGIN).pathname;
+      const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
+      return Boolean(match && premiumSlugs.has(match[1]));
+    } catch {
+      return false;
+    }
+  });
+
+  if (premiumStillIndexed.length) {
+    throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
+  }
+
+  const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
+  if (indexableUrls !== 49) {
+    throw new Error(`Expected final production sitemap boundary 49, found ${indexableUrls}`);
+  }
+
+  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
+  if (fs.existsSync(reportFile)) {
+    const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+    report.indexableUrls = indexableUrls;
+    report.premiumSeoNoindexPages = pages;
+    report.premiumSeoSitemapExcluded = 85;
+    report.premiumSeoSitemapRemoved = 85;
+    report.premiumSeoSitemapRemovedNow = sitemapRemovedNow;
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+  }
+
+  return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls };
+}
+
 export function applySiteOrigin(siteRoot) {
   const files = walk(siteRoot);
   let changedFiles = 0;
@@ -76,6 +171,11 @@ export function registerSiteOriginFinalizer() {
     applyLastAriaFinalNeutral(siteRoot);
     applySiteOrigin(siteRoot);
     removeInternalReleaseGateAssets(siteRoot);
+    setImmediate(() => {
+      applySiteOrigin(siteRoot);
+      applyPremiumSeoIndexPolicy(siteRoot);
+      removeInternalReleaseGateAssets(siteRoot);
+    });
   });
   return true;
 }
