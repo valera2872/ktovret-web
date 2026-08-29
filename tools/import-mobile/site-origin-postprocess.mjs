@@ -117,6 +117,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     report.indexableUrls = indexableUrls;
     report.premiumSeoNoindexPages = pages;
     report.premiumSeoSitemapExcluded = 85;
+    report.premiumSeoSitemapRemoved = 85;
     report.premiumSeoSitemapRemovedNow = sitemapRemovedNow;
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
   }
