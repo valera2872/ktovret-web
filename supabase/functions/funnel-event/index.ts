@@ -10,6 +10,7 @@ const EVENTS = new Set([
   'engaged_15s',
   'engaged_45s',
   'scroll_50',
+  'step_view',
   'primary_action',
   'format_choice',
   'game_open',
@@ -55,13 +56,22 @@ const safeMeta = (value: unknown) => {
     ? value as Record<string, unknown>
     : {};
   const output: Record<string, string | number | boolean> = {};
-  for (const key of ['label', 'choice', 'case_id', 'product', 'source', 'position', 'scroll_pct', 'elapsed_bucket', 'href_group']) {
+  for (const key of [
+    'label', 'choice', 'case_id', 'product', 'source', 'position', 'scroll_pct',
+    'elapsed_bucket', 'href_group', 'flow', 'step', 'signature', 'reason',
+  ]) {
     const item = source[key];
     if (typeof item === 'boolean') output[key] = item;
     else if (typeof item === 'number' && Number.isFinite(item)) output[key] = Math.max(-999999, Math.min(999999, item));
     else if (typeof item === 'string' && item.length <= 160) output[key] = item;
   }
   return output;
+};
+
+const normalizePageGroup = (pagePath: string, pageGroup: string) => {
+  if (/^\/logicheskie-zadachi\/?$/.test(pagePath)) return 'logic-hub';
+  if (/^\/logicheskie-zadachi\/[^/]+\/?$/.test(pagePath)) return 'logic-puzzle';
+  return pageGroup;
 };
 
 Deno.serve(async (req: Request) => {
@@ -83,7 +93,8 @@ Deno.serve(async (req: Request) => {
   const sessionKey = String(body.sessionKey || '').trim();
   const eventName = String(body.eventName || '').trim();
   const pagePath = String(body.pagePath || '').trim();
-  const pageGroup = String(body.pageGroup || '').trim();
+  const clientPageGroup = String(body.pageGroup || '').trim();
+  const pageGroup = normalizePageGroup(pagePath, clientPageGroup);
   const target = String(body.target || '').trim().slice(0, 300) || null;
   const referrerHost = String(body.referrerHost || '').trim().toLowerCase().slice(0, 200) || null;
 

@@ -1,0 +1,21 @@
+/* Mystery Logic — measured conversion UX for two-player entry. */
+.coop-entry-question{margin:26px 0 10px;color:#e5d7c1;font:400 18px/1.3 Georgia,serif}
+.coop-entry-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:0}
+.coop-entry-choice{display:flex;min-width:0;min-height:184px;flex-direction:column;gap:9px;padding:19px 18px;border:1px solid rgba(197,140,58,.25);border-radius:5px;background:#04111a;color:#d9cebf;text-decoration:none;transition:border-color .16s ease,background .16s ease,transform .16s ease}
+.coop-entry-choice:hover{border-color:rgba(222,182,95,.62);background:#071822;transform:translateY(-1px)}
+.coop-entry-choice.is-deep{border-color:rgba(222,182,95,.52);background:linear-gradient(145deg,rgba(197,140,58,.11),#04111a 54%)}
+.coop-entry-choice small{color:#a88e68;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.coop-entry-choice strong{color:#eadcc6;font:400 21px/1.08 Georgia,serif}
+.coop-entry-choice span{color:#aaa095;font-size:12px;line-height:1.55}
+.coop-entry-choice b{margin-top:auto;color:#ddb467;font:500 12px/1.35 Georgia,serif}
+.coop-entry-existing{display:inline-block;margin-top:14px;color:#c9aa73;font-size:11px;text-decoration:none;border-bottom:1px solid rgba(201,170,115,.35)}
+.coop-entry-existing:hover{color:#efd49a;border-bottom-color:#efd49a}
+.coop-entry-trust{margin-top:18px!important}
+.coop-entry-reassure{margin:10px 0 0!important;color:#9e9589!important;font-size:11px!important;line-height:1.45!important;letter-spacing:.01em}
+
+@media(max-width:760px){
+  .coop-entry-question{margin-top:22px}
+  .coop-entry-choice-grid{grid-template-columns:1fr}
+  .coop-entry-choice{min-height:0;padding:17px 16px}
+  .coop-entry-choice strong{font-size:20px}
+}
