@@ -111,13 +111,13 @@ function isFinalConfrontation(q:string){
     hasAny(q,["орлов","лев","оба","другие","исключен","исключён","алиби подтвержден","алиби подтверждён"])
   ].filter(Boolean).length;
   const accusation=hasAny(q,["вы взяли","вы украли","вы похитили","это сделали вы","признай","признаете","признаётесь","признаетесь","винов","письмо взяли","письмо украли","похитили письмо"]);
-  return dimensions>=3&&accusation;
+  return dimensions>=4&&accusation;
 }
 
-function marinaConfessionReady(discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts){
+function marinaConfessionReady(_discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts){
+  // Final confession is gated only by player-visible progress. Hidden note ids must never block a solved investigation.
   return qc.marina>=MARINA_MIN_CONFESSION_QUESTIONS&&
-    hasAll(discoveredEvidence,["E04","E05","E06","E07"])&&
-    hasAll(discoveredNotes,["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"]);
+    hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
 }
 
 function interrogationStage(suspect:string,activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts):InterrogationStage{
@@ -229,10 +229,8 @@ function checkTheory(suspect:string,reason:string,discoveredNotes:Set<string>,di
   const normalized=reason.toLowerCase();
   if(suspect!=="marina")return {correct:false,title:"Эта версия пока не закрывает дело",explanation:"Проверьте, есть ли у выбранного человека подтверждённая связь с входом в фонд в 21:31, опровергнутое алиби и возможность действовать в нужное временное окно."};
   const requiredEvidence=["E04","E05","E06","E07"];
-  const requiredNotes=["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"];
   const missingEvidence=requiredEvidence.filter(id=>!discoveredEvidence.has(id));
-  const missingNotes=requiredNotes.filter(id=>!discoveredNotes.has(id));
-  if(missingEvidence.length||missingNotes.length)return {correct:false,title:"Подозреваемый выбран, но доказательная цепочка ещё не замкнута",explanation:"Для обвинения нужны независимые проверки доступа, местонахождения, знания окна камеры и алиби остальных. Вернитесь к допросам и проверяйте утверждения документами."};
+  if(missingEvidence.length)return {correct:false,title:"Подозреваемый выбран, но доказательная цепочка ещё не замкнута",explanation:"Для обвинения нужны независимые проверки доступа, местонахождения и алиби остальных. Вернитесь к допросам и добудьте недостающие материалы."};
   if(!discoveredNotes.has("N-MARINA-CONFESSION"))return {correct:false,title:"Марина зажата, но допрос ещё не завершён",explanation:"Вы уже собрали необходимую доказательную цепочку. Теперь сведите в одном обвинительном вопросе её ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных. Простого вопроса «это вы?» недостаточно."};
   const dimensions=[hasAny(normalized,["e-14","е-14","карта","pin","пин","21:31","двер","доступ"]),hasAny(normalized,["телефон","wi-fi","wifi","вайф","сеть","archive-2","двор","21:34","внутри"]),hasAny(normalized,["камера","перезапуск","окно","18:20","знала время","спрашивала","антон"])].filter(Boolean).length;
   if(dimensions<3)return {correct:false,title:"Факты собраны, но в объяснении не хватает связки",explanation:"Опишите своими словами, как между собой связаны доступ в фонд, проверка местонахождения и знание временного окна. Простого выбора имени недостаточно."};
