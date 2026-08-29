@@ -93,7 +93,8 @@ assert.match(edge,/requiredNotes=\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-
 assert.match(edge,/MARINA_MIN_CONFESSION_QUESTIONS=5/,'Marina must not confess to the first burst of pressure');
 assert.match(edge,/function marinaConfessionReady/,'confession readiness must be deterministic server state');
 assert.match(edge,/hasAll\(discoveredEvidence,\["E04","E05","E06","E07"\]\)/,'confession must require independent evidence lines');
-assert.match(edge,/hasAll\(discoveredNotes,\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"\]\)/,'confession must require prior irreversible concessions');
+assert.doesNotMatch(edge,/function marinaConfessionReady[\s\S]{0,500}hasAll\(discoveredNotes/,'hidden note ids must never block an otherwise earned confession');
+assert.match(edge,/return dimensions>=4&&accusation/,'final confrontation must synthesize all four investigation lines');
 assert.match(edge,/function isFinalConfrontation/,'confession must require a synthesis confrontation, not a magic first question');
 assert.match(edge,/marinaConfessionReady\(activeNotes,discoveredEvidence,qc\)&&isFinalConfrontation\(q\)/,'the final synthesis may close concessions established in that same earned confrontation');
 assert.match(edge,/N-MARINA-CONFESSION/,'confession must become persistent investigation state');
