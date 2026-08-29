@@ -83,9 +83,11 @@ assert.match(migration,/revoke all on public\.ai_detective_ai_calls from public,
 assert.match(migration,/grant execute on function public\.ai_detective_claim_turn[\s\S]*to service_role/,'quota mutation RPC must be service-role only');
 
 assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
-assert.match(edge,/evidenceId==="E05"\)notes\.push\(\{id:"N-MARINA-LOCATION"/,'location contradiction must require the actual network log');
-assert.match(edge,/evidenceId==="E03"&&discoveredEvidence\.has\("E04"\)/,'access contradiction must require both door log and established credential ownership');
-assert.match(edge,/discoveredNotes\.has\("N-ANTON-WINDOW"\)/,'Marina cannot be confronted with Anton knowledge before Anton reveals it');
+assert.match(edge,/locationEstablished=evidenceId==="E05"\|\|\(discoveredEvidence\.has\("E05"\)&&isLocationReference\(q\)\)/,'a discovered network log can be cited naturally without reattaching its card');
+assert.match(edge,/accessEstablished=.*discoveredEvidence\.has\("E03"\).*discoveredEvidence\.has\("E04"\).*isAccessReference\(q\)/,'known door and credential evidence must retain force in later confrontation');
+assert.match(edge,/discoveredNotes\.has\("N-ANTON-WINDOW"\)&&isWindowReference\(q\)/,'Marina cannot be confronted with Anton knowledge before Anton reveals it');
+assert.match(edge,/function referencedKnownEvidence/,'known evidence cited in free text must be recovered from case state');
+assert.match(edge,/не требуй предъявить их повторно/,'witness must not pretend previously established documents are merely investigator assertions');
 assert.match(edge,/requiredEvidence=\["E04","E05","E06","E07"\]/,'final theory must include independent checks of all suspects');
 assert.match(edge,/requiredNotes=\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"\]/,'final theory must require all pre-confession pressure discoveries');
 assert.match(edge,/MARINA_MIN_CONFESSION_QUESTIONS=5/,'Marina must not confess to the first burst of pressure');
@@ -93,7 +95,7 @@ assert.match(edge,/function marinaConfessionReady/,'confession readiness must be
 assert.match(edge,/hasAll\(discoveredEvidence,\["E04","E05","E06","E07"\]\)/,'confession must require independent evidence lines');
 assert.match(edge,/hasAll\(discoveredNotes,\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"\]\)/,'confession must require prior irreversible concessions');
 assert.match(edge,/function isFinalConfrontation/,'confession must require a synthesis confrontation, not a magic first question');
-assert.match(edge,/marinaConfessionReady\(discoveredNotes,discoveredEvidence,qc\)&&isFinalConfrontation\(q\)/,'confession must be gated by state and player synthesis together');
+assert.match(edge,/marinaConfessionReady\(activeNotes,discoveredEvidence,qc\)&&isFinalConfrontation\(q\)/,'the final synthesis may close concessions established in that same earned confrontation');
 assert.match(edge,/N-MARINA-CONFESSION/,'confession must become persistent investigation state');
 assert.match(edge,/НЕОБРАТИМО ЗАФИКСИРОВАНО/,'prior concessions must be injected back into every later Marina turn');
 assert.match(edge,/До явной команды КУЛЬМИНАЦИЯ ДОПРОСА нельзя признаваться/,'direct early accusations must not cause a cheap confession');
@@ -101,8 +103,8 @@ assert.match(edge,/if\(confessionThisTurn&&!containsConfession\(text\)\)/,'the c
 assert.match(edge,/interrogation_stage:stage/,'server must expose the hidden pressure stage for tests and future UX');
 assert.doesNotMatch(edge,/21:29.*Марин|Марин.*21:29/i,'Lev cannot observe Marina after his 21:23 exit');
 assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must remain before his exit');
-assert.match(edge,/Игрок не предъявил документ/,'unverified player claims must not become evidence');
+assert.match(edge,/Игрок не предъявил документ/,'truly new unverified player claims must not become evidence');
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
 assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
 
-console.log('AI detective metered staged-confession contract: PASS');
+console.log('AI detective metered staged-confession/evidence-memory contract: PASS');
