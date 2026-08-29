@@ -34,7 +34,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapRemoved: 0, indexableUrls: null };
 
   const caseRoot = path.join(siteRoot, 'ru', 'cases');
-  const premiumUrls = new Set();
+  const premiumRouteSuffixes = new Set();
   let pages = 0;
 
   if (fs.existsSync(caseRoot)) {
@@ -47,7 +47,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
 
       const canonical = html.match(/<link rel="canonical" href="([^"]+)">/i)?.[1];
       if (!canonical) throw new Error(`Premium SEO teaser has no canonical: ru/cases/${entry.name}/`);
-      premiumUrls.add(canonical);
+      premiumRouteSuffixes.add(`/ru/cases/${entry.name}/`);
 
       if (!/<meta name="robots" content="noindex,follow">/i.test(html)) {
         html = html.replace(
@@ -60,8 +60,8 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     }
   }
 
-  if (pages !== 85 || premiumUrls.size !== 85) {
-    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, canonicals=${premiumUrls.size}`);
+  if (pages !== 85 || premiumRouteSuffixes.size !== 85) {
+    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, routes=${premiumRouteSuffixes.size}`);
   }
 
   const sitemapFile = path.join(siteRoot, 'sitemap.xml');
@@ -69,7 +69,14 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   const before = fs.readFileSync(sitemapFile, 'utf8');
   let sitemapRemoved = 0;
   const after = before.replace(/<url>\s*<loc>([^<]+)<\/loc>[\s\S]*?<\/url>\s*/g, (block, url) => {
-    if (!premiumUrls.has(url.trim())) return block;
+    let pathname = '';
+    try {
+      pathname = new URL(url.trim()).pathname;
+    } catch {
+      return block;
+    }
+    const isPremium = [...premiumRouteSuffixes].some((suffix) => pathname.endsWith(suffix));
+    if (!isPremium) return block;
     sitemapRemoved += 1;
     return '';
   });
@@ -138,7 +145,11 @@ export function registerSiteOriginFinalizer() {
     applyLastAriaFinalNeutral(siteRoot);
     applySiteOrigin(siteRoot);
     removeInternalReleaseGateAssets(siteRoot);
-    setImmediate(() => applyPremiumSeoIndexPolicy(siteRoot));
+    setImmediate(() => {
+      applySiteOrigin(siteRoot);
+      applyPremiumSeoIndexPolicy(siteRoot);
+      removeInternalReleaseGateAssets(siteRoot);
+    });
   });
   return true;
 }
