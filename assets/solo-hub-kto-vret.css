@@ -16,3 +16,17 @@
 .solo407-hub-section{margin-top:14px;padding:25px 27px;border:1px solid rgba(255,255,255,.075);border-radius:17px;background:linear-gradient(145deg,rgba(14,25,34,.76),rgba(6,12,17,.84))}.solo407-hub-section h2{margin:0;font:600 clamp(25px,3vw,34px)/1.08 Georgia,serif;letter-spacing:-.025em}.solo407-hub-section>div,.solo407-hub-section>ol{margin-top:15px}.solo407-hub-section p,.solo407-hub-section li{color:#aeb6bb;font-size:13px;line-height:1.65}.solo407-hub-section a{color:#d2b370}
 @media(max-width:900px){.solo407-hub-hero{grid-template-columns:1fr;gap:24px;padding-top:26px}.solo407-hub-visual{min-height:330px}.solo407-hub-card{grid-template-columns:1fr;gap:18px}.solo407-kv-head{grid-template-columns:1fr}.solo407-kv-fast{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.solo407-hub{width:min(100% - 22px,1280px);padding-top:12px}.solo407-hub-hero{padding:24px 0 36px}.solo407-hub h1{font-size:clamp(36px,10.5vw,44px);line-height:1.03;letter-spacing:-.026em}.solo407-hub-lead{font-size:16px;line-height:1.58}.solo407-hub-visual{min-height:270px;border-radius:16px}.solo407-hub-visual:after{font-size:54px}.solo407-hub-card{padding:20px;border-radius:15px}.solo407-hub-card h2{font-size:28px}.solo407-kv{padding:21px 17px;border-radius:17px}.solo407-kv:before{font-size:180px;top:-24px}.solo407-kv h2{font-size:32px;line-height:1.06}.solo407-kv-lead{font-size:15.5px}.solo407-kv-fast{grid-template-columns:1fr}.solo407-kv-flow,.solo407-kv-cases{grid-template-columns:1fr}.solo407-kv-case{min-height:132px}.solo407-kv-bottom{margin-top:16px}.solo407-hub-section{padding:21px 18px}.solo407-hub-section h2{font-size:26px}}
+
+/* Live screenshot density pass — editorial rows instead of SEO slabs. */
+@media(min-width:901px){
+  .solo407-hub-section{display:grid;grid-template-columns:minmax(300px,.68fr) minmax(0,1.32fr);align-items:start;gap:clamp(30px,4vw,64px);margin-top:0;padding:26px 4px 24px;border:0;border-top:1px solid rgba(205,164,93,.18);border-radius:0;background:transparent}
+  .solo407-hub-section h2{max-width:390px;font-size:clamp(25px,2.35vw,31px);line-height:1.1}
+  .solo407-hub-section>div,.solo407-hub-section>ol{margin:2px 0 0}
+  .solo407-hub-section>ol{padding-left:19px}
+  .solo407-hub-section p,.solo407-hub-section li{font-size:14px;line-height:1.58}
+  .solo407-hub-section li+li{margin-top:3px}
+}
+@media(max-width:900px){
+  .solo407-hub-section{display:grid;grid-template-columns:1fr;gap:12px;margin-top:0;border:0;border-top:1px solid rgba(205,164,93,.18);border-radius:0;background:transparent}
+  .solo407-hub-section>div,.solo407-hub-section>ol{margin-top:0}
+}
