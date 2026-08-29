@@ -16,6 +16,8 @@
     try { return JSON.parse(localStorage.getItem(STATE_KEY) || 'null') || {}; }
     catch { return {}; }
   };
+  const INITIAL_STATE = readState();
+  const EXISTING_ON_LOAD = Boolean(INITIAL_STATE.started);
   const isDone = () => {
     try { return localStorage.getItem(DONE_KEY) === 'done'; }
     catch { return false; }
@@ -47,11 +49,10 @@
 
   const shouldSkipForExistingPlayer = (state) => {
     if (!state.started) return false;
+    if (EXISTING_ON_LOAD) return true;
     if (Number(state.stage || 1) > 1) return true;
     if (state.solved) return true;
     if (state.checkpoints && Object.values(state.checkpoints).some(Boolean)) return true;
-    const opened = Array.isArray(state.opened) ? state.opened : [];
-    if (!isDone() && opened.length > 0 && !opened.includes('s1-i0')) return true;
     return false;
   };
 
@@ -128,7 +129,7 @@
         <div class="solo407-progressive-next">
           <div><p class="solo407-kicker">Следственный выбор</p><h2>Что проверить дальше?</h2><p>Правильного порядка нет. Выберите направление, которое считаете наиболее полезным.</p></div>
           <div class="solo407-progressive-actions">${actions}</div>
-          <p class="solo407-progressive-counter">Проверено направлений: <strong>${completedNext(state).length} из 3</strong>. После двух действий откроется полный следственный стол.</p>
+          <p class="solo407-progressive-counter">Проверено направлений: <strong>${completedNext(state).length} из 3</strong></p>
         </div>
       </section>`;
   };
