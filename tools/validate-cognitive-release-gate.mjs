@@ -53,9 +53,19 @@ must('assets/case-407-solo-player-feedback.js', [
   'Правильного порядка нет',
 ]);
 
+must('assets/case-407-solo-progressive-entry.js', [
+  'Вы вошли в номер.',
+  'Осмотреть номер',
+  'Опросить охрану',
+  'Осмотреть дверь',
+  'Запросить журнал замка',
+  "const EXISTING_ON_LOAD = Boolean(INITIAL_STATE.started)",
+]);
+
 must('tools/import-mobile/solo-407-player-feedback-postprocess.mjs', [
-  "const VERSION = '1.2.0'",
+  "const VERSION = '1.3.0'",
   'case-407-solo-player-feedback.js',
+  'case-407-solo-progressive-entry.js',
   'cognitive-solo-analytics.js',
 ]);
 
