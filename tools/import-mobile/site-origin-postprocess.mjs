@@ -30,6 +30,68 @@ function removeInternalReleaseGateAssets(siteRoot) {
   return { removed: true };
 }
 
+function applyPremiumSeoIndexPolicy(siteRoot) {
+  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapRemoved: 0, indexableUrls: null };
+
+  const caseRoot = path.join(siteRoot, 'ru', 'cases');
+  const premiumUrls = new Set();
+  let pages = 0;
+
+  if (fs.existsSync(caseRoot)) {
+    for (const entry of fs.readdirSync(caseRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const file = path.join(caseRoot, entry.name, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      let html = fs.readFileSync(file, 'utf8');
+      if (!html.includes('data-premium-seo-teaser="true"')) continue;
+
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)">/i)?.[1];
+      if (!canonical) throw new Error(`Premium SEO teaser has no canonical: ru/cases/${entry.name}/`);
+      premiumUrls.add(canonical);
+
+      if (!/<meta name="robots" content="noindex,follow">/i.test(html)) {
+        html = html.replace(
+          /(<meta name="viewport"[^>]*>)/i,
+          '$1<meta name="robots" content="noindex,follow">',
+        );
+        fs.writeFileSync(file, html);
+      }
+      pages += 1;
+    }
+  }
+
+  if (pages !== 85 || premiumUrls.size !== 85) {
+    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, canonicals=${premiumUrls.size}`);
+  }
+
+  const sitemapFile = path.join(siteRoot, 'sitemap.xml');
+  if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
+  const before = fs.readFileSync(sitemapFile, 'utf8');
+  let sitemapRemoved = 0;
+  const after = before.replace(/<url><loc>([^<]+)<\/loc><lastmod>[^<]*<\/lastmod><\/url>\n?/g, (block, url) => {
+    if (!premiumUrls.has(url)) return block;
+    sitemapRemoved += 1;
+    return '';
+  });
+
+  if (sitemapRemoved !== 85) {
+    throw new Error(`Expected to remove 85 premium teaser URLs from sitemap, removed ${sitemapRemoved}`);
+  }
+  fs.writeFileSync(sitemapFile, after);
+
+  const indexableUrls = (after.match(/<url>/g) || []).length;
+  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
+  if (fs.existsSync(reportFile)) {
+    const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+    report.indexableUrls = indexableUrls;
+    report.premiumSeoNoindexPages = pages;
+    report.premiumSeoSitemapRemoved = sitemapRemoved;
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+  }
+
+  return { pages, sitemapRemoved, indexableUrls };
+}
+
 export function applySiteOrigin(siteRoot) {
   const files = walk(siteRoot);
   let changedFiles = 0;
@@ -76,6 +138,7 @@ export function registerSiteOriginFinalizer() {
     applyLastAriaFinalNeutral(siteRoot);
     applySiteOrigin(siteRoot);
     removeInternalReleaseGateAssets(siteRoot);
+    setImmediate(() => applyPremiumSeoIndexPolicy(siteRoot));
   });
   return true;
 }
