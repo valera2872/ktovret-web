@@ -23,9 +23,12 @@ const balance = (options, ratio, label) => {
 };
 
 const solo = read('assets/case-407-solo.js');
+const feedback = read('assets/case-407-solo-player-feedback.js');
 const data = read('assets/case-407-data.js');
 const css = read('assets/case-407-solo.css');
+const feedbackCss = read('assets/case-407-solo-player-feedback.css');
 const post = read('tools/import-mobile/solo-407-postprocess.mjs');
+const feedbackPost = read('tools/import-mobile/solo-407-player-feedback-postprocess.mjs');
 const browserSmoke = read('tools/solo-407-browser-smoke.mjs');
 const checkpoints = extractObject(solo, 'checkpoints', '\n  const hints =');
 const stages = extractObject(solo, 'soloStages', '\n\n  const checkpoints =');
@@ -36,7 +39,7 @@ expect((data.match(/type: '/g) || []).length >= 18, 'G0 source evidence payload 
 expect(Object.keys(stages).length === 3, 'G0 must have exactly 3 solo stages');
 expect(Object.keys(checkpoints).length === 3, 'G0 must have exactly 3 checkpoints');
 expect(final.questions.length === 4, 'G0 must have exactly 4 final links');
-expect(post.includes("const VERSION = '1.1.0'"), 'G0 expected Solo revision 1.1.0');
+expect(feedbackPost.includes("const VERSION = '1.2.0'"), 'G0 expected Solo feedback revision 1.2.0');
 
 // G1 — fair-play evidence chain: every canonical final link is present in player materials.
 includesAll(data, [
@@ -90,7 +93,7 @@ final.questions.forEach((q) => balance(q.options, 1.50, `G4 final ${q.id}`));
 expect(solo.includes('Версия пока не выдерживает все материалы.'), 'G4 neutral wrong-final copy');
 expect(browserSmoke.includes('wrongScoreHidden') && browserSmoke.includes('data-wrong-score-hidden="true"'), 'G4 browser test must prove score hiding');
 
-// G5 — first-time UX: one role, one CTA, clear scope and progress promise.
+// G5 — first-time UX: one role, one CTA, clear scope and a guided first investigation action.
 includesAll(solo, [
   'Большое расследование · 1 игрок · бесплатно',
   'Вы расследуете дело один.',
@@ -101,6 +104,15 @@ includesAll(solo, [
   'Начать расследование'
 ], 'G5 first-time entry');
 expect((solo.match(/data-start/g) || []).length >= 2, 'G5 start CTA wiring missing');
+includesAll(feedback, [
+  'Первый ход',
+  'Начните с места происшествия',
+  'data-solo407-first-action',
+  's1-i0',
+  "choice: 'guidance:first-material'",
+  'Правильного порядка нет'
+], 'G5 guided first action');
+includesAll(feedbackCss, ['.solo407-guidance', '.solo407-guidance-action'], 'G5 guidance styling');
 
 // G6 — black-box game-flow contract.
 includesAll(browserSmoke, [
@@ -132,10 +144,12 @@ expect(solo.includes('hintsByStage:{}'), 'G8 per-stage hint state');
 expect(solo.includes('state.hintsByStage = { ...(state.hintsByStage || {}), [state.stage]: used + 1 }'), 'G8 per-stage hint progression');
 includesAll(post, ['solo407-format-switch','solo407-home-switch'], 'G8 format routing');
 expect(css.includes('@media') && css.includes('.solo407-desk'), 'G8 responsive premium shell');
+expect(feedback.includes("const openedAnyInitial = plans[1].initial.some"), 'G8 first-action guidance state guard');
+expect(feedback.includes("const openedAllInitial = plans[1].initial.every"), 'G8 next-action guidance state guard');
 
 const result = {
   verdict: 'SOLO_407_G0_G8_PASS',
-  revision: '1.1.0',
+  revision: '1.2.0',
   gates: {
     G0:'PASS', G1:'PASS', G2:'PASS', G3:'PASS', G4:'PASS',
     G5:'PASS', G6:'CONTRACT_PASS_BROWSER_REQUIRED', G7:'PASS', G8:'CONTRACT_PASS_BRANCH_CI_REQUIRED',
