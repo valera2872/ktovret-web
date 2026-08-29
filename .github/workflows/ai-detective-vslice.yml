@@ -87,6 +87,7 @@ jobs:
           call_api '{"action":"interrogate","session_id":"ci-ai-fake","suspect_id":"marina","question":"Ваш телефон был в Wi-Fi до 21:34, признайтесь?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":0,"lev":0}}' /tmp/fake.json
           assert_metered_ai /tmp/fake.json
           ! grep -Fq 'N-MARINA-LOCATION' /tmp/fake.json
+          ! grep -Fq 'N-MARINA-CONFESSION' /tmp/fake.json
 
           call_api '{"action":"interrogate","session_id":"ci-ai-play-a","suspect_id":"anton","question":"Кому принадлежит E-14 и как работает такой вход?","evidence_id":"E03","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":1,"anton":1,"lev":0}}' /tmp/card.json
           assert_metered_ai /tmp/card.json
@@ -116,7 +117,23 @@ jobs:
           assert_metered_ai /tmp/location.json
           grep -Fq 'N-MARINA-LOCATION' /tmp/location.json
 
-          call_api '{"action":"check_theory","session_id":"ci-ai-play-b","suspect_id":"marina","reason":"E-14 и PIN открыли дверь в 21:31; сетевой лог телефона показывает, что Марина оставалась внутри, а у Антона она заранее узнала окно перезапуска камеры.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":3,"anton":4,"lev":1}}' /tmp/final.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-b","suspect_id":"marina","question":"Все улики против вас. Это вы украли письмо?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":4,"anton":4,"lev":1}}' /tmp/early-pressure.json
+          assert_metered_ai /tmp/early-pressure.json
+          ! grep -Fq 'N-MARINA-CONFESSION' /tmp/early-pressure.json
+          ! jq -r '.reply' /tmp/early-pressure.json | grep -Eiq 'я (взяла|украла|похитила) письмо|письмо взяла я'
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-b","suspect_id":"marina","question":"Антон утверждает, что около 18:20 вы отдельно спросили точное время перезапуска камеры. Вы это отрицаете?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION"],"question_counts":{"marina":5,"anton":4,"lev":1}}' /tmp/marina-window.json
+          assert_metered_ai /tmp/marina-window.json
+          grep -Fq 'N-MARINA-WINDOW' /tmp/marina-window.json
+          ! grep -Fq 'N-MARINA-CONFESSION' /tmp/marina-window.json
+
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-b","suspect_id":"marina","question":"Антон и Орлов исключены подтвержденными алиби. Вы солгали про двор: телефон до 21:34 оставался внутри. В 21:31 фонд открыли вашей E-14 с вашим PIN, а точное окно камеры вы заранее выяснили у Антона. Вы взяли письмо?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"],"question_counts":{"marina":6,"anton":4,"lev":1}}' /tmp/confession.json
+          assert_metered_ai /tmp/confession.json
+          grep -Fq 'N-MARINA-CONFESSION' /tmp/confession.json
+          jq -e '.interrogation_stage == "confessed"' /tmp/confession.json
+          jq -r '.reply' /tmp/confession.json | grep -Eiq 'я (взяла|украла|похитила) письмо|письмо взяла я'
+
+          call_api '{"action":"check_theory","session_id":"ci-ai-play-b","suspect_id":"marina","reason":"E-14 и PIN открыли дверь в 21:31; сетевой лог опроверг дворик; Марина заранее узнала у Антона окно камеры и после предъявления всей цепочки призналась.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW","N-MARINA-CONFESSION"],"question_counts":{"marina":6,"anton":4,"lev":1}}' /tmp/final.json
           jq -e '.correct == true' /tmp/final.json
 
           code=$(curl --silent --output /tmp/denied.json --write-out '%{http_code}' "$API_URL" \
