@@ -9,7 +9,7 @@ export function applySolo407PlayerFeedback(siteRoot) {
   if (!fs.existsSync(file)) throw new Error('Solo 407 page missing before player feedback polish');
 
   let html = fs.readFileSync(file, 'utf8');
-  for (const css of ['case-407-solo-player-feedback.css', 'case-407-solo-progressive-entry.css']) {
+  for (const css of ['case-407-solo-player-feedback.css', 'case-407-solo-progressive-entry.css', 'case-407-solo-clarity.css']) {
     if (!html.includes(css)) {
       html = html.replace('</head>', `<link rel="stylesheet" href="../../assets/${css}?v=${VERSION}"></head>`);
     }
@@ -24,6 +24,11 @@ export function applySolo407PlayerFeedback(siteRoot) {
     if (!feedbackRuntime.test(html)) throw new Error('Solo 407 feedback runtime missing before progressive entry');
     html = html.replace(feedbackRuntime, (match) => `${match}<script src="../../assets/case-407-solo-progressive-entry.js?v=${VERSION}"></script>`);
   }
+  if (!html.includes('case-407-solo-clarity.js')) {
+    const progressiveRuntime = /<script src="\.\.\/\.\.\/assets\/case-407-solo-progressive-entry\.js[^>]*><\/script>/;
+    if (!progressiveRuntime.test(html)) throw new Error('Solo 407 progressive runtime missing before clarity layer');
+    html = html.replace(progressiveRuntime, (match) => `${match}<script src="../../assets/case-407-solo-clarity.js?v=${VERSION}"></script>`);
+  }
   if (!html.includes('cognitive-solo-analytics.js')) {
     html = html.replace('</body>', `<script src="../../assets/cognitive-solo-analytics.js?v=${VERSION}"></script></body>`);
   }
@@ -33,10 +38,12 @@ export function applySolo407PlayerFeedback(siteRoot) {
     'case-407-solo-player-feedback.js',
     'case-407-solo-progressive-entry.css',
     'case-407-solo-progressive-entry.js',
+    'case-407-solo-clarity.css',
+    'case-407-solo-clarity.js',
     'cognitive-solo-analytics.js',
   ]) {
     if (!html.includes(marker)) throw new Error(`Solo 407 feedback layer missing ${marker}`);
   }
   fs.writeFileSync(file, html);
-  return { route: CASE_FILE.replace('/index.html', ''), version: VERSION, progressiveEntry: true };
+  return { route: CASE_FILE.replace('/index.html', ''), version: VERSION, progressiveEntry: true, clarityLayer: true };
 }
