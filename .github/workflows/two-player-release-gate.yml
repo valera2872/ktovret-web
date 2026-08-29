@@ -23,11 +23,15 @@ jobs:
           node --check assets/case-2317-release-gate-v1.js
           node --check assets/case-407-release-gate-v1.js
           node --check assets/case-407-playtest-ux-v42.js
+          node --check assets/conversion-ux-analytics.js
           node --check tools/validate-two-player-release-gate.mjs
           node --check tools/room-2317-playtest-ux-smoke.mjs
           node --check tools/room-407-playtest-ux-smoke.mjs
+          node --check tools/conversion-ux-browser-smoke.mjs
       - name: G3 blind-player spoiler boundary
         run: node tools/validate-two-player-release-gate.mjs
+      - name: G4 measured entry UX browser smoke
+        run: node tools/conversion-ux-browser-smoke.mjs
       - name: G5 23:17 prefinal visual smoke
         run: node tools/room-2317-playtest-ux-smoke.mjs
       - name: G5 Room 407 prefinal visual smoke
@@ -37,6 +41,7 @@ jobs:
         with:
           name: two-player-release-gate-visuals
           path: |
+            artifacts/conversion-ux/
             artifacts/room-2317-playtest-ux/
             artifacts/room-407-playtest-ux/
           retention-days: 14

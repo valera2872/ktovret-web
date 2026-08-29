@@ -68,7 +68,7 @@ const pages = [
   {
     name: 'landing',
     path: '/detektivnye-igry-dlya-dvoih/',
-    required: [...v4Markers, 'Детективная игра для двоих онлайн', 'Последний звонок в 23:17', 'Номер 407', '50–70 минут', 'data-duel-room-app', 'case407-catalog'],
+    required: [...v4Markers, 'Детективные игры для двоих онлайн', 'Как хотите играть сегодня?', 'Совместное расследование', 'Короткая дуэль', 'Номер 407', 'data-duel-room-app', 'case407-catalog'],
   },
   {
     name: 'landing407',
@@ -78,7 +78,7 @@ const pages = [
   {
     name: 'case407',
     path: '/detektivnye-igry-dlya-dvoih/407/',
-    required: [...v4Markers, 'Номер 407', 'SILENT ALARM', 'Создать комнату', 'У меня есть код', 'data-case407-app', 'room-407-evidence.webp'],
+    required: [...v4Markers, 'Номер 407', 'SILENT ALARM', 'Начать вдвоём — создать комнату', 'Войти по приглашению', 'Ссылка для второго игрока появится сразу', 'data-case407-app', 'room-407-evidence.webp'],
   },
 ];
 
