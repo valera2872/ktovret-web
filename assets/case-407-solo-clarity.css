@@ -1,0 +1,15 @@
+/* Solo 407 clarity hotfix — final cascade layer */
+.solo407-evidence .solo407-evidence-head{background:linear-gradient(180deg,#202a32,#0e171e)!important;color:#f8edda!important}
+.solo407-evidence .solo407-evidence-head strong{color:#f8edda!important;-webkit-text-fill-color:#f8edda!important;opacity:1!important;text-shadow:none!important}
+.solo407-evidence .solo407-evidence-head small,.solo407-evidence .solo407-evidence-head i{color:#ddb96f!important;-webkit-text-fill-color:#ddb96f!important;opacity:1!important}
+.solo407-evidence.is-open .solo407-evidence-head,.solo407-evidence:not(.is-open) .solo407-evidence-head{color:#f8edda!important}
+.solo407-evidence.is-open .solo407-evidence-body{color:#27231d!important}
+.solo407-evidence.is-open .solo407-pin:not(.is-pinned){background:#ead09a!important;color:#2b2114!important;-webkit-text-fill-color:#2b2114!important;border-color:#9b783f!important;box-shadow:0 4px 13px rgba(83,61,28,.18)!important;font-weight:800!important;opacity:1!important}
+.solo407-evidence.is-open .solo407-pin.is-pinned{background:#33291d!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#33291d!important;opacity:1!important}
+.solo407-material-source{margin:18px 0 14px;padding:12px 14px;border:1px solid #b8a174;border-left:4px solid #86622e;border-radius:10px;background:#f4ead5;color:#3b3022;font:600 13px/1.5 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:inset 0 1px rgba(255,255,255,.55)}
+.solo407-material-source strong{display:block;margin-bottom:3px;color:#6f5128!important;-webkit-text-fill-color:#6f5128!important;font-size:10px;letter-spacing:.11em;text-transform:uppercase}
+.solo407-material-source span{display:block;color:#3b3022!important;-webkit-text-fill-color:#3b3022!important}
+.solo407-focus-material{position:relative;outline:3px solid rgba(226,189,115,.85)!important;outline-offset:4px;box-shadow:0 0 0 8px rgba(226,189,115,.10),0 22px 55px rgba(0,0,0,.28)!important;animation:solo407MaterialFocus 1.15s ease-out both}
+@keyframes solo407MaterialFocus{0%{transform:translateY(4px);filter:brightness(1.13)}100%{transform:none;filter:none}}
+@media(max-width:720px){.solo407-material-source{margin:14px 0 12px;padding:11px 12px}.solo407-focus-material{outline-offset:2px}}
+@media(prefers-reduced-motion:reduce){.solo407-focus-material{animation:none}}
