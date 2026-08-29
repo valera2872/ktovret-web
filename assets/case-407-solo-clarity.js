@@ -39,16 +39,9 @@
     }, 45);
   };
 
-  root.addEventListener('click', (event) => {
-    const action = event.target.closest('[data-solo407-progressive-action]');
-    if (!action || action.disabled) return;
-    const evidenceId = ACTION_EVIDENCE[action.dataset.solo407ProgressiveAction];
-    if (evidenceId) revealChosenMaterial(evidenceId);
-  }, true);
-
   const injectArchiveSource = () => {
     const card = root.querySelector('[data-evidence="s2-i0"]');
-    if (!card) return;
+    if (!card) return false;
 
     const tag = card.querySelector('.solo407-evidence-head small');
     const sourceTag = 'Технический архив отеля · план 1998';
@@ -58,7 +51,27 @@
     if (body && !body.querySelector('[data-solo407-material-source="archive-plan"]')) {
       body.insertAdjacentHTML('afterbegin', '<aside class="solo407-material-source" data-solo407-material-source="archive-plan"><strong>Источник материала</strong><span>После сверки таблички и дверного контроллера следователь запросил инженерную документацию 4-го этажа. Технический архив отеля выдал план 1998 года; сведения о сохранённой служебной двери сверены с документацией ремонта 2019 года.</span></aside>');
     }
+    return Boolean(body);
   };
+
+  const scheduleArchiveSource = () => {
+    setTimeout(injectArchiveSource, 0);
+    setTimeout(injectArchiveSource, 60);
+  };
+
+  root.addEventListener('click', (event) => {
+    const archiveToggle = event.target.closest('[data-open="s2-i0"]');
+    if (archiveToggle) scheduleArchiveSource();
+
+    const action = event.target.closest('[data-solo407-progressive-action]');
+    if (!action || action.disabled) return;
+    const evidenceId = ACTION_EVIDENCE[action.dataset.solo407ProgressiveAction];
+    if (evidenceId) revealChosenMaterial(evidenceId);
+  }, true);
+
+  for (const eventName of ['ml:solo_evidence_open', 'ml:solo_request']) {
+    window.addEventListener(eventName, scheduleArchiveSource);
+  }
 
   const polishProgressiveCopy = () => {
     const choice = root.querySelector('[data-solo407-progressive][data-progressive-step="choice"]');
