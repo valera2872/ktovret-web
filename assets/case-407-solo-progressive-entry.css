@@ -1,0 +1,62 @@
+/* Mystery Logic — Solo 407 progressive first-entry direction */
+[data-solo407-app].solo407-progressive-active > .solo407-desk{display:none!important}
+.solo407-entry-copy [data-solo407-context]{display:none!important}
+.solo407-progressive{width:min(1180px,100%);margin:0 auto;padding:clamp(18px,3vw,36px) 0 56px;color:#edf2f6;animation:solo407ProgressiveIn .34s ease-out both}
+.solo407-progressive-time{display:flex;align-items:center;gap:13px;margin:0 0 18px;color:#a9b8c6;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
+.solo407-progressive-time span{display:inline-flex;align-items:center;justify-content:center;min-width:65px;padding:8px 10px;border:1px solid rgba(214,177,109,.38);border-radius:999px;color:#efd49a;background:rgba(214,177,109,.08);font-weight:800;letter-spacing:.14em}
+.solo407-progressive-time b{font-weight:700}
+.solo407-progressive-scene{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);min-height:610px;overflow:hidden;border:1px solid rgba(189,205,218,.14);border-radius:30px;background:#0c1b29;box-shadow:0 30px 90px rgba(0,0,0,.33)}
+.solo407-progressive-scene figure{position:relative;margin:0;min-height:610px;background:#07111a;overflow:hidden}
+.solo407-progressive-scene figure:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,rgba(7,17,26,.4)),linear-gradient(0deg,rgba(7,17,26,.62),transparent 34%);pointer-events:none}
+.solo407-progressive-scene img,.solo407-progressive-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.solo407-progressive-scene figcaption{position:absolute;z-index:1;left:22px;right:22px;bottom:18px;color:rgba(239,244,247,.72);font-size:.82rem;letter-spacing:.03em}
+.solo407-progressive-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(30px,5vw,62px)}
+.solo407-progressive-copy h1,.solo407-progressive-observed h1{margin:8px 0 0;color:#fff;font-size:clamp(2.35rem,5vw,4.9rem);line-height:.94;letter-spacing:-.055em}
+.solo407-progressive-lead{margin:25px 0 0;color:#eef3f6;font-size:clamp(1.06rem,1.7vw,1.26rem);line-height:1.65}
+.solo407-progressive-note{margin:17px 0 0;color:#9fb0bf;font-size:.94rem;line-height:1.6}
+.solo407-progressive-inspect{margin-top:30px;align-self:flex-start;min-width:220px}
+.solo407-progressive-observed{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);gap:clamp(28px,5vw,62px);align-items:center;padding:clamp(24px,4vw,44px);border:1px solid rgba(189,205,218,.14);border-radius:30px;background:linear-gradient(145deg,#10283d,#091725);box-shadow:0 25px 70px rgba(0,0,0,.26)}
+.solo407-progressive-photo{min-height:350px;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(0,0,0,.28)}
+.solo407-progressive-observed ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:26px 0 0;padding:0;list-style:none}
+.solo407-progressive-observed li{padding:14px 16px;border:1px solid rgba(214,177,109,.18);border-radius:15px;background:rgba(255,255,255,.035);color:#dfe8ee;font-size:.93rem;line-height:1.45}
+.solo407-progressive-observed li:before{content:"•";margin-right:8px;color:#e2bd73}
+.solo407-progressive-next{margin-top:18px;padding:clamp(24px,4vw,40px);border:1px solid rgba(189,205,218,.13);border-radius:26px;background:#0a1825}
+.solo407-progressive-next h2{margin:6px 0 0;color:#fff;font-size:clamp(1.8rem,3.7vw,3rem);letter-spacing:-.045em}
+.solo407-progressive-next>div:first-child>p:last-child{max-width:700px;margin:10px 0 0;color:#99aebe;line-height:1.55}
+.solo407-progressive-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}
+.solo407-progressive-action{appearance:none;display:flex;min-height:180px;flex-direction:column;align-items:flex-start;text-align:left;padding:21px;border:1px solid rgba(214,177,109,.22);border-radius:20px;color:#eef3f6;background:linear-gradient(150deg,rgba(25,57,82,.92),rgba(10,28,43,.96));cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease;box-shadow:0 14px 35px rgba(0,0,0,.16)}
+.solo407-progressive-action:hover,.solo407-progressive-action:focus-visible{transform:translateY(-2px);border-color:rgba(226,189,115,.58);outline:none;background:linear-gradient(150deg,#1b4666,#0c2234)}
+.solo407-progressive-action span{color:#d6b16d;font-size:.72rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+.solo407-progressive-action strong{margin-top:13px;color:#fff;font-size:1.18rem;line-height:1.15}
+.solo407-progressive-action small{margin-top:12px;color:#9eb0bf;font-size:.88rem;line-height:1.48}
+.solo407-progressive-action.is-done{opacity:.58;cursor:default;transform:none;border-color:rgba(126,176,145,.35);background:#10251f}
+.solo407-progressive-counter{margin:17px 0 0;color:#8fa3b3;font-size:.82rem}
+.solo407-progressive-counter strong{color:#d6b16d}
+@keyframes solo407ProgressiveIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(max-width:900px){
+  .solo407-progressive-scene{grid-template-columns:1fr;min-height:auto}
+  .solo407-progressive-scene figure{min-height:430px}
+  .solo407-progressive-copy{padding:34px 28px 38px}
+  .solo407-progressive-observed{grid-template-columns:1fr}
+  .solo407-progressive-photo{min-height:330px}
+  .solo407-progressive-actions{grid-template-columns:1fr}
+  .solo407-progressive-action{min-height:auto}
+}
+@media(max-width:560px){
+  .solo407-progressive{padding:10px 0 42px}
+  .solo407-progressive-time{align-items:flex-start;gap:9px;margin:0 4px 13px;font-size:.68rem;line-height:1.4}
+  .solo407-progressive-time span{min-width:58px;padding:7px 8px}
+  .solo407-progressive-scene,.solo407-progressive-observed,.solo407-progressive-next{border-radius:22px}
+  .solo407-progressive-scene figure{min-height:55vh;max-height:520px}
+  .solo407-progressive-scene figure:after{background:linear-gradient(0deg,rgba(7,17,26,.55),transparent 36%)}
+  .solo407-progressive-copy{padding:28px 20px 30px}
+  .solo407-progressive-copy h1,.solo407-progressive-observed h1{font-size:clamp(2.25rem,12vw,3.2rem)}
+  .solo407-progressive-lead{margin-top:19px;font-size:1rem}
+  .solo407-progressive-inspect{width:100%;min-width:0}
+  .solo407-progressive-observed{gap:24px;padding:18px}
+  .solo407-progressive-photo{min-height:250px}
+  .solo407-progressive-observed ul{grid-template-columns:1fr;margin-top:20px}
+  .solo407-progressive-next{padding:22px 18px}
+  .solo407-progressive-actions{margin-top:20px}
+}
+@media(prefers-reduced-motion:reduce){.solo407-progressive{animation:none}.solo407-progressive-action{transition:none}}

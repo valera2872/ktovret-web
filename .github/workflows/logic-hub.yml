@@ -10,6 +10,7 @@ on:
       - 'tools/logic-expert-review-v2-validate.mjs'
       - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/telegram-retention-validate.mjs'
       - 'tools/import-mobile/logic-expert-release-data.mjs'
       - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
@@ -24,6 +25,7 @@ on:
       - 'tools/logic-expert-review-v2-validate.mjs'
       - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/telegram-retention-validate.mjs'
       - 'tools/import-mobile/logic-expert-release-data.mjs'
       - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
@@ -53,9 +55,12 @@ jobs:
           node --check tools/logic-expert-review-v2-validate.mjs
           node --check tools/logic-expert-review-v2-extension-validate.mjs
           node --check tools/logic-expert-seo-validate.mjs
+          node --check tools/telegram-retention-validate.mjs
       - name: Validate Expert corpus 001-012
         run: node tools/logic-expert-review-v2-validate.mjs
       - name: Validate Expert corpus 013-020
         run: node tools/logic-expert-review-v2-extension-validate.mjs
       - name: Validate SEO and product boundary
         run: node tools/logic-expert-seo-validate.mjs
+      - name: Validate Telegram retention surfaces
+        run: node tools/telegram-retention-validate.mjs

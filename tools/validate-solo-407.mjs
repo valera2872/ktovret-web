@@ -7,6 +7,8 @@ import { applySolo407PlayerFeedback } from './import-mobile/solo-407-player-feed
 
 const solo = fs.readFileSync('assets/case-407-solo.js','utf8');
 const css = fs.readFileSync('assets/case-407-solo.css','utf8');
+const progressiveRuntime = fs.readFileSync('assets/case-407-solo-progressive-entry.js','utf8');
+const progressiveStyle = fs.readFileSync('assets/case-407-solo-progressive-entry.css','utf8');
 const ktoVretCss = fs.readFileSync('assets/solo-hub-kto-vret.css','utf8');
 const post = fs.readFileSync('tools/import-mobile/solo-407-postprocess.mjs','utf8');
 const feedbackPost = fs.readFileSync('tools/import-mobile/solo-407-player-feedback-postprocess.mjs','utf8');
@@ -28,7 +30,10 @@ const checks = [
   [post.includes('Четыре входа в архив') && post.includes('Три несинхронных журнала') && post.includes('Пять папок и пустое место'),'Who Lies starter cases'],
   [post.includes('solo407-format-switch'),'two-player rescue switch'],
   [post.includes('solo407-home-switch'),'home 1/2-player chooser'],
-  [feedbackPost.includes("const VERSION = '1.2.0'") && feedbackPost.includes('case-407-solo-player-feedback.js'),'feedback layer revision'],
+  [feedbackPost.includes("const VERSION = '1.3.0'") && feedbackPost.includes('case-407-solo-player-feedback.js') && feedbackPost.includes('case-407-solo-progressive-entry.js'),'feedback/progressive layer revision'],
+  [progressiveRuntime.includes("DONE_KEY = 'ml:solo:407:progressive-entry:v1'") && progressiveRuntime.includes('Осмотреть номер') && progressiveRuntime.includes('Опросить охрану') && progressiveRuntime.includes('Осмотреть дверь') && progressiveRuntime.includes('Запросить журнал замка'),'progressive first-entry direction'],
+  [progressiveRuntime.includes("completedNext(state).length >= 2") && progressiveRuntime.includes("'[data-open=\"s1-i0\"]'") && progressiveRuntime.includes("'[data-request=\"s1-i2\"]'"),'progressive flow uses authoritative evidence state'],
+  [progressiveStyle.includes('.solo407-progressive-active > .solo407-desk') && progressiveStyle.includes('.solo407-entry-copy [data-solo407-context]'),'progressive visual hierarchy'],
   [css.includes('.solo407-entry-visual') && css.includes('.solo407-desk'),'premium entry and desk styling'],
   [ktoVretCss.includes('.solo407-kv') && ktoVretCss.includes('.solo407-kv-cases') && ktoVretCss.includes('@media'),'premium Who Lies showcase styling'],
   [two407.includes("./solo-407-postprocess.mjs") && two407.includes('applySolo407(siteRoot)'),'generator integration'],
@@ -59,9 +64,11 @@ try {
     [hub.includes('solo407-kv')&&hub.includes('Играть в 15 дел бесплатно'),'Who Lies hub showcase'],
     [hub.includes('../assets/solo-hub-kto-vret.css?v=1.0.0'),'Who Lies showcase stylesheet'],
     [game.includes('data-solo407-app')&&game.includes('case-407-solo.js'),'solo case runtime'],
-    [game.includes('case-407-solo-player-feedback.css?v=1.2.0'),'generated feedback stylesheet'],
-    [game.includes('case-407-solo-player-feedback.js?v=1.2.0'),'generated feedback runtime'],
-    [game.includes('cognitive-solo-analytics.js?v=1.2.0'),'generated solo cognitive analytics'],
+    [game.includes('case-407-solo-player-feedback.css?v=1.3.0'),'generated feedback stylesheet'],
+    [game.includes('case-407-solo-progressive-entry.css?v=1.3.0'),'generated progressive stylesheet'],
+    [game.includes('case-407-solo-player-feedback.js?v=1.3.0'),'generated feedback runtime'],
+    [game.includes('case-407-solo-progressive-entry.js?v=1.3.0'),'generated progressive runtime'],
+    [game.includes('cognitive-solo-analytics.js?v=1.3.0'),'generated solo cognitive analytics'],
     [duo.includes('solo407-format-switch'),'two-player rescue'],
     [home.includes('solo407-home-switch')&&home.includes('Расследовать одному')&&home.includes('Расследовать вдвоём'),'home format chooser'],
     [sitemap.includes('/detektivnye-igry-dlya-odnogo/'),'solo hub in sitemap'],
@@ -69,4 +76,4 @@ try {
   ]) if(!ok) throw new Error(`Solo generated integration failed: ${label}`);
 } finally { fs.rmSync(tmp,{recursive:true,force:true}); }
 
-console.log(JSON.stringify({solo407:true, ktoVretShowcase:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true, playerFeedbackLayer:'1.2.0'},null,2));
+console.log(JSON.stringify({solo407:true, ktoVretShowcase:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true, playerFeedbackLayer:'1.3.0', progressiveEntry:true},null,2));

@@ -24,10 +24,13 @@ jobs:
       - name: Validate runtime syntax
         run: |
           node --check assets/case-407-solo.js
+          node --check assets/case-407-solo-progressive-entry.js
           node --check tools/import-mobile/solo-407-postprocess.mjs
+          node --check tools/import-mobile/solo-407-player-feedback-postprocess.mjs
           node --check tools/validate-solo-407.mjs
           node --check tools/validate-solo-407-release-gate.mjs
           node --check tools/solo-407-browser-smoke.mjs
+          node --check tools/solo-407-progressive-smoke.mjs
 
       - name: Validate Solo product contract
         run: node tools/validate-solo-407.mjs
@@ -35,16 +38,21 @@ jobs:
       - name: Run adversarial G0-G8 audit
         run: node tools/validate-solo-407-release-gate.mjs
 
-      - name: Run black-box browser solve and visual smoke
+      - name: Run existing black-box solve and visual smoke
         run: node tools/solo-407-browser-smoke.mjs
+
+      - name: Run progressive-entry black-box and visual smoke
+        run: node tools/solo-407-progressive-smoke.mjs
 
       - name: Regression-check existing two-player spoiler boundaries
         run: node tools/validate-two-player-release-gate.mjs
 
-      - name: Upload audited Solo screenshots and report
+      - name: Upload audited Solo screenshots and reports
         uses: actions/upload-artifact@v4
         with:
           name: solo-407-release-gate-${{ github.sha }}
-          path: artifacts/solo-407
+          path: |
+            artifacts/solo-407
+            artifacts/solo-407-progressive
           retention-days: 14
           if-no-files-found: error

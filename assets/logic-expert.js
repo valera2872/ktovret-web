@@ -39,10 +39,19 @@
     const solution=root.querySelector('[data-expert-solution]');
     const hintCopy=root.querySelector('[data-expert-hint-copy]');
     const set=solved();
+    let completionEmitted=false;
+
+    const emitCompletion=()=>{
+      if(completionEmitted)return;
+      completionEmitted=true;
+      try{window.dispatchEvent(new CustomEvent('ml:logic_complete',{detail:{puzzleId:id,mode}}));}catch{}
+    };
 
     const showSolution=(mark=false)=>{
       if(solution)solution.hidden=false;
-      if(mark){set.add(id);save(set);track('complete',{puzzle_id:id,method:mode==='reveal'?'self_report':'verified'});updateProgress();}
+      if(mark){
+        set.add(id);save(set);track('complete',{puzzle_id:id,method:mode==='reveal'?'self_report':'verified'});updateProgress();emitCompletion();
+      }
     };
 
     root.querySelector('[data-expert-hint]')?.addEventListener('click',()=>{

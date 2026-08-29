@@ -24,12 +24,14 @@ const balance = (options, ratio, label) => {
 
 const solo = read('assets/case-407-solo.js');
 const feedback = read('assets/case-407-solo-player-feedback.js');
+const progressive = read('assets/case-407-solo-progressive-entry.js');
 const data = read('assets/case-407-data.js');
 const css = read('assets/case-407-solo.css');
-const feedbackCss = read('assets/case-407-solo-player-feedback.css');
+const progressiveCss = read('assets/case-407-solo-progressive-entry.css');
 const post = read('tools/import-mobile/solo-407-postprocess.mjs');
 const feedbackPost = read('tools/import-mobile/solo-407-player-feedback-postprocess.mjs');
 const browserSmoke = read('tools/solo-407-browser-smoke.mjs');
+const progressiveSmoke = read('tools/solo-407-progressive-smoke.mjs');
 const checkpoints = extractObject(solo, 'checkpoints', '\n  const hints =');
 const stages = extractObject(solo, 'soloStages', '\n\n  const checkpoints =');
 const final = extractObject(solo, 'soloFinal', '\n\n  const cleanState =');
@@ -39,7 +41,8 @@ expect((data.match(/type: '/g) || []).length >= 18, 'G0 source evidence payload 
 expect(Object.keys(stages).length === 3, 'G0 must have exactly 3 solo stages');
 expect(Object.keys(checkpoints).length === 3, 'G0 must have exactly 3 checkpoints');
 expect(final.questions.length === 4, 'G0 must have exactly 4 final links');
-expect(feedbackPost.includes("const VERSION = '1.2.0'"), 'G0 expected Solo feedback revision 1.2.0');
+expect(feedbackPost.includes("const VERSION = '1.3.0'"), 'G0 expected Solo feedback/progressive revision 1.3.0');
+includesAll(feedbackPost, ['case-407-solo-progressive-entry.css','case-407-solo-progressive-entry.js'], 'G0 progressive production wiring');
 
 // G1 — fair-play evidence chain: every canonical final link is present in player materials.
 includesAll(data, [
@@ -93,7 +96,7 @@ final.questions.forEach((q) => balance(q.options, 1.50, `G4 final ${q.id}`));
 expect(solo.includes('Версия пока не выдерживает все материалы.'), 'G4 neutral wrong-final copy');
 expect(browserSmoke.includes('wrongScoreHidden') && browserSmoke.includes('data-wrong-score-hidden="true"'), 'G4 browser test must prove score hiding');
 
-// G5 — first-time UX: one role, one CTA, clear scope and a guided first investigation action.
+// G5 — first-time UX: one clean entry, one natural action, then real investigative choice before desk exposure.
 includesAll(solo, [
   'Большое расследование · 1 игрок · бесплатно',
   'Вы расследуете дело один.',
@@ -102,19 +105,32 @@ includesAll(solo, [
   'без регистрации',
   'прогресс сохраняется',
   'Начать расследование'
-], 'G5 first-time entry');
+], 'G5 first-time cover');
 expect((solo.match(/data-start/g) || []).length >= 2, 'G5 start CTA wiring missing');
-includesAll(feedback, [
-  'Первый ход',
-  'Начните с места происшествия',
-  'data-solo407-first-action',
-  's1-i0',
-  "choice: 'guidance:first-material'",
-  'Правильного порядка нет'
-], 'G5 guided first action');
-includesAll(feedbackCss, ['.solo407-guidance', '.solo407-guidance-action'], 'G5 guidance styling');
+includesAll(progressive, [
+  '01:19',
+  'Вы вошли в номер.',
+  'Осмотреть номер',
+  'Опросить охрану',
+  'Осмотреть дверь',
+  'Запросить журнал замка',
+  "completedNext(state).length >= 2",
+  "const EXISTING_ON_LOAD = Boolean(INITIAL_STATE.started)"
+], 'G5 progressive entry');
+includesAll(progressiveCss, [
+  '.solo407-progressive-active > .solo407-desk',
+  '.solo407-entry-copy [data-solo407-context]',
+  '.solo407-progressive-actions'
+], 'G5 progressive hierarchy styling');
+includesAll(progressiveSmoke, [
+  'sceneFirst:true',
+  'existing-pass',
+  'existingPlayerBypass:true',
+  'desk not revealed',
+  'threeDirections:true'
+], 'G5 browser proof contract');
 
-// G6 — black-box game-flow contract.
+// G6 — black-box full game-flow contract remains unchanged after progressive entry.
 includesAll(browserSmoke, [
   "await checkpoint('ids')",
   "await checkpoint('zones')",
@@ -139,7 +155,7 @@ expect(solo.includes("localStorage.setItem(STORAGE_KEY"), 'G7 local progress per
 expect(post.includes('<meta name="robots" content="noindex,follow">'), 'G7 runtime noindex');
 expect(post.includes('indexableRoutes:[`${HUB}/`]'), 'G7 only hub enters indexable routes');
 
-// G8 — regression/stuck-player safeguards wired into the branch-level CI suite.
+// G8 — regression/stuck-player safeguards remain available after the progressive hand-off.
 expect(solo.includes('hintsByStage:{}'), 'G8 per-stage hint state');
 expect(solo.includes('state.hintsByStage = { ...(state.hintsByStage || {}), [state.stage]: used + 1 }'), 'G8 per-stage hint progression');
 includesAll(post, ['solo407-format-switch','solo407-home-switch'], 'G8 format routing');
@@ -149,15 +165,17 @@ expect(feedback.includes("const openedAllInitial = plans[1].initial.every"), 'G8
 
 const result = {
   verdict: 'SOLO_407_G0_G8_PASS',
-  revision: '1.2.0',
+  revision: '1.3.0',
   gates: {
     G0:'PASS', G1:'PASS', G2:'PASS', G3:'PASS', G4:'PASS',
-    G5:'PASS', G6:'CONTRACT_PASS_BROWSER_REQUIRED', G7:'PASS', G8:'CONTRACT_PASS_BRANCH_CI_REQUIRED',
+    G5:'CONTRACT_PASS_BROWSER_REQUIRED', G6:'CONTRACT_PASS_BROWSER_REQUIRED', G7:'PASS', G8:'CONTRACT_PASS_BRANCH_CI_REQUIRED',
     G9:'PENDING_EXACT_MAIN_ARTIFACT'
   },
-  adversarialRoles: ['investigator','defense-countertheory','spoiler-hunter','stuck-player','qa-abuser','first-time-user'],
+  adversarialRoles: ['investigator','defense-countertheory','spoiler-hunter','stuck-player','qa-abuser','first-time-user','returning-player'],
   finalOptionsBalanced: true,
   wrongFinalScoreHidden: true,
-  spoilerNeutral: true
+  spoilerNeutral: true,
+  progressiveEntry: true,
+  existingPlayerBypassRequired: true
 };
 console.log(JSON.stringify(result, null, 2));
