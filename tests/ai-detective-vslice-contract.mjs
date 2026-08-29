@@ -89,7 +89,7 @@ assert.match(edge,/discoveredNotes\.has\("N-ANTON-WINDOW"\)&&isWindowReference\(
 assert.match(edge,/function referencedKnownEvidence/,'known evidence cited in free text must be recovered from case state');
 assert.match(edge,/не требуй предъявить их повторно/,'witness must not pretend previously established documents are merely investigator assertions');
 assert.match(edge,/requiredEvidence=\["E04","E05","E06","E07"\]/,'final theory must include independent checks of all suspects');
-assert.match(edge,/requiredNotes=\["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW"\]/,'final theory must require all pre-confession pressure discoveries');
+assert.doesNotMatch(edge,/const requiredNotes=/,'final theory must not depend on hidden note ids');
 assert.match(edge,/MARINA_MIN_CONFESSION_QUESTIONS=5/,'Marina must not confess to the first burst of pressure');
 assert.match(edge,/function marinaConfessionReady/,'confession readiness must be deterministic server state');
 assert.match(edge,/hasAll\(discoveredEvidence,\["E04","E05","E06","E07"\]\)/,'confession must require independent evidence lines');
