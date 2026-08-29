@@ -87,7 +87,13 @@
   const appendAfterShortCase = () => {
     const result = document.querySelector('#ktv-result, .ktv-result');
     if (!result || result.querySelector('[data-telegram-retention="after_case"]')) return;
-    if (!(result.querySelector('.ktv-result-lead, .ktv-first-result') || document.querySelector('.ml-global-stats'))) return;
+    const text = String(result.textContent || '');
+    const completed = Boolean(
+      result.querySelector('.ktv-result-lead, .ktv-first-result') ||
+      document.querySelector('.ml-global-stats') ||
+      /(Решение принято|Следствие завершено|Дело закрыто)/i.test(text)
+    );
+    if (!completed) return;
     result.appendChild(telegramCard({
       placement: 'after_case',
       kicker: 'Дело закрыто',
