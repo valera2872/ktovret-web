@@ -38,3 +38,14 @@
 }
 @media(max-width:560px){.ref-logic-launch{width:min(100% - 22px,1180px);padding:25px 20px;border-radius:23px}.ref-logic-launch .ref-home-actions{display:grid}.ref-logic-launch .ref-btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.ml-telegram-sticky{animation:none}.ml-telegram-retention-btn{transition:none}}
+
+/* Live screenshot pass — keep retention, reduce obstruction. */
+.ml-telegram-sticky{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));gap:10px;width:min(344px,calc(100vw - 28px));padding:10px 10px 10px 13px;border-color:rgba(214,177,109,.28);border-radius:14px;background:linear-gradient(145deg,rgba(18,40,62,.96),rgba(7,20,31,.97));box-shadow:0 14px 42px rgba(0,0,0,.34)}
+.ml-telegram-sticky>div span{font-size:.56rem;letter-spacing:.12em}
+.ml-telegram-sticky>div strong{margin-top:3px;font-size:.78rem;line-height:1.24}
+.ml-telegram-sticky>a{min-height:34px;padding:0 10px;border-radius:9px;font-size:.72rem}
+.ml-telegram-sticky-close{top:-7px;right:-7px;width:23px;height:23px;font-size:15px}
+@media(max-width:620px){
+  .ml-telegram-sticky{right:10px;bottom:max(10px,env(safe-area-inset-bottom));width:calc(100vw - 20px);padding:10px 10px 10px 12px;border-radius:13px}
+  .ml-telegram-sticky>div strong{font-size:.78rem}
+}
