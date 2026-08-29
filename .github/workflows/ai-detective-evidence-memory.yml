@@ -1,0 +1,47 @@
+name: AI detective evidence-memory regression
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/ai-interrogation-v1/**'
+      - 'tests/ai-detective-vslice-contract.mjs'
+      - '.github/workflows/ai-detective-evidence-memory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify early resistance and earned confession
+        env:
+          ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+          API_URL: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1
+          SUFFIX: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          call_api() {
+            local body="$1" out="$2" enriched
+            enriched=$(printf '%s' "$body" | jq -c --arg suffix "$SUFFIX" '.visitor_id=("ci-memory-"+$suffix) | .session_id=(.session_id+"-"+$suffix)')
+            curl --fail --silent --show-error -o "$out" "$API_URL" \
+              -H 'Origin: https://valera2872.github.io' \
+              -H "Authorization: Bearer $ANON_KEY" \
+              -H "apikey: $ANON_KEY" \
+              -H 'Content-Type: application/json' \
+              --data "$enriched"
+          }
+
+          call_api '{"action":"interrogate","session_id":"ci-memory-early","suspect_id":"marina","question":"Все ясно. Вы взяли письмо?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03"],"discovered_note_ids":[],"question_counts":{"marina":6,"anton":0,"lev":0}}' /tmp/early.json
+          jq -e '.mode == "ai" and .interrogation_stage != "confessed"' /tmp/early.json
+          ! grep -Fq 'N-MARINA-CONFESSION' /tmp/early.json
+          ! jq -r '.reply' /tmp/early.json | grep -Eiq 'я (взяла|украла|похитила) письмо|письмо взяла я'
+
+          call_api '{"action":"interrogate","session_id":"ci-memory-final","suspect_id":"marina","question":"Антон и Орлов исключены подтвержденными алиби. Ваш телефон до 21:34 оставался внутри, хотя вы говорили про двор. В 21:31 фонд открыли вашей E-14 с вашим PIN, а точное окно камеры вы заранее выяснили у Антона. Вы взяли письмо?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW"],"question_counts":{"marina":6,"anton":4,"lev":2}}' /tmp/final.json
+          jq -e '.mode == "ai" and .interrogation_stage == "confessed"' /tmp/final.json
+          jq -e '([.notes[].id] | index("N-MARINA-LOCATION")) != null' /tmp/final.json
+          jq -e '([.notes[].id] | index("N-MARINA-ACCESS")) != null' /tmp/final.json
+          jq -e '([.notes[].id] | index("N-MARINA-WINDOW")) != null' /tmp/final.json
+          jq -e '([.notes[].id] | index("N-MARINA-CONFESSION")) != null' /tmp/final.json
+          jq -r '.reply' /tmp/final.json | grep -Eiq 'я (взяла|украла|похитила) письмо|письмо взяла я'
