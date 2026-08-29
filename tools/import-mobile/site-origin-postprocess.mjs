@@ -68,8 +68,8 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
   const before = fs.readFileSync(sitemapFile, 'utf8');
   let sitemapRemoved = 0;
-  const after = before.replace(/<url><loc>([^<]+)<\/loc><lastmod>[^<]*<\/lastmod><\/url>\n?/g, (block, url) => {
-    if (!premiumUrls.has(url)) return block;
+  const after = before.replace(/<url>\s*<loc>([^<]+)<\/loc>[\s\S]*?<\/url>\s*/g, (block, url) => {
+    if (!premiumUrls.has(url.trim())) return block;
     sitemapRemoved += 1;
     return '';
   });
