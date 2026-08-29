@@ -27,7 +27,6 @@ const feedback = read('assets/case-407-solo-player-feedback.js');
 const progressive = read('assets/case-407-solo-progressive-entry.js');
 const data = read('assets/case-407-data.js');
 const css = read('assets/case-407-solo.css');
-const feedbackCss = read('assets/case-407-solo-player-feedback.css');
 const progressiveCss = read('assets/case-407-solo-progressive-entry.css');
 const post = read('tools/import-mobile/solo-407-postprocess.mjs');
 const feedbackPost = read('tools/import-mobile/solo-407-player-feedback-postprocess.mjs');
@@ -124,7 +123,7 @@ includesAll(progressiveCss, [
   '.solo407-progressive-actions'
 ], 'G5 progressive hierarchy styling');
 includesAll(progressiveSmoke, [
-  'scene-first',
+  'sceneFirst:true',
   'existing-pass',
   'existingPlayerBypass:true',
   'desk not revealed',
