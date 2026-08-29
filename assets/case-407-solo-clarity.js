@@ -31,8 +31,7 @@
         if (!card) return;
         card.classList.add('solo407-focus-material');
         card.setAttribute('tabindex', '-1');
-        const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        card.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+        card.scrollIntoView({ behavior: 'auto', block: 'center' });
         try { card.focus({ preventScroll: true }); } catch {}
         setTimeout(() => card.classList.remove('solo407-focus-material'), 2200);
       });
