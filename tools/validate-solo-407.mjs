@@ -32,7 +32,7 @@ const checks = [
   [post.includes('solo407-home-switch'),'home 1/2-player chooser'],
   [feedbackPost.includes("const VERSION = '1.3.0'") && feedbackPost.includes('case-407-solo-player-feedback.js') && feedbackPost.includes('case-407-solo-progressive-entry.js'),'feedback/progressive layer revision'],
   [progressiveRuntime.includes("DONE_KEY = 'ml:solo:407:progressive-entry:v1'") && progressiveRuntime.includes('Осмотреть номер') && progressiveRuntime.includes('Опросить охрану') && progressiveRuntime.includes('Осмотреть дверь') && progressiveRuntime.includes('Запросить журнал замка'),'progressive first-entry direction'],
-  [progressiveRuntime.includes("completedNext(state).length >= 2") && progressiveRuntime.includes("'[data-open=\"s1-i0\"]'") && progressiveRuntime.includes("'[data-request=\"s1-i2\"]'")],'progressive flow uses authoritative evidence state'],
+  [progressiveRuntime.includes("completedNext(state).length >= 2") && progressiveRuntime.includes("'[data-open=\"s1-i0\"]'") && progressiveRuntime.includes("'[data-request=\"s1-i2\"]'"),'progressive flow uses authoritative evidence state'],
   [progressiveStyle.includes('.solo407-progressive-active > .solo407-desk') && progressiveStyle.includes('.solo407-entry-copy [data-solo407-context]'),'progressive visual hierarchy'],
   [css.includes('.solo407-entry-visual') && css.includes('.solo407-desk'),'premium entry and desk styling'],
   [ktoVretCss.includes('.solo407-kv') && ktoVretCss.includes('.solo407-kv-cases') && ktoVretCss.includes('@media'),'premium Who Lies showcase styling'],
