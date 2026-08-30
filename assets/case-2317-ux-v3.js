@@ -102,8 +102,8 @@
       const text = labels[input.value];
       if (text) setText(input.closest('label')?.querySelector('span'), text);
     });
-    setText(scope.querySelector('.case2317-final-evidence h3'), 'Выберите 3 опорных материала');
-    setText(scope.querySelector('.case2317-final-evidence > p'), 'Выберите три материала, которые в совокупности лучше всего выдерживают альтернативные объяснения. Не дублируйте один и тот же тезис несколькими косвенными фактами.');
+    setText(scope.querySelector('.case2317-final-evidence h3'), 'Выберите 3 опоры вашей версии');
+    setText(scope.querySelector('.case2317-final-evidence > p'), 'Выберите любые три материала, на которых держится ваша версия. Это не тест на «правильную тройку»: качество выбора станет видно только после раскрытия.');
   };
 
   const patchAudioUi = (scope) => {
