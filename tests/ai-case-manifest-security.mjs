@@ -35,7 +35,6 @@ for(const name of manifests){
   assert.equal(gate.missing_required_evidence_terminal_reachable,false,'missing evidence must block terminal');
   assert.equal(gate.missing_required_note_terminal_reachable,false,'missing contradiction must block terminal');
 
-  // A manifest is deliberately not a case fixture. These keys would expose private truth or unreleased player content.
   for(const forbidden of ['culprit_id','terminal_reply','success_explanation','base_facts','admissions','initial_evidence','suspects','rules','theory']){
     assert.doesNotMatch(raw,new RegExp(`"${forbidden}"\\s*:`,'i'),`${file} leaks solution-bearing case data: ${forbidden}`);
   }
@@ -57,21 +56,21 @@ assert.equal(ai02.hidden_evidence_count,5,'AI-02 needs multiple independently ea
 assert.equal(ai02.rule_count,9,'AI-02 reviewed private rule graph count changed; rerun private gate and refresh manifest');
 assert.equal(ai02.private_gate.minimum_verified_solution_turns,10,'AI-02 solution depth changed; rerun private state-space before accepting');
 
-const qa=ai02.production_qa||{};
-assert.equal(qa.completed,true,'AI-02 production QA must stay recorded after the reviewed run');
-assert.equal(qa.model_path_verified,true,'AI-02 must have a real production model-path check');
-assert.equal(qa.model,'gpt-5.6-luna','AI-02 reviewed model changed; rerun production QA before accepting');
-assert.equal(qa.zero_stage_suspects_checked,4,'all four AI-02 suspects need zero-stage leak checks');
-assert.equal(qa.zero_stage_hidden_leaks,0,'AI-02 zero-stage model path must not leak hidden canon');
-assert.equal(qa.zero_stage_unexpected_unlocks,0,'AI-02 zero-stage questions must not unlock gated material');
-assert.equal(qa.full_chain_turns,10,'AI-02 reviewed critical path depth changed; rerun full-chain QA');
-assert.equal(qa.full_chain_model_turns,9,'AI-02 critical path must keep the terminal confession deterministic');
-assert.equal(qa.canonical_terminal_model_turns,0,'canonical terminal must never spend a model turn');
-assert.equal(qa.full_chain_theory_passed,true,'AI-02 reviewed full-chain theory check must pass');
-assert.equal(qa.no_early_confession_verified,true,'AI-02 must prove the confession cannot occur one turn early');
-assert.equal(qa.session_rpm_fail_closed_verified,true,'AI-02 QA must preserve the production session RPM guard');
-assert.equal(qa.metering_cleanup_verified,true,'AI-02 QA must leave production metering clean');
-assert.equal(qa.qa_fixture_cleaned,true,'AI-02 QA fixtures must be removed after production tests');
+const qa02=ai02.production_qa||{};
+assert.equal(qa02.completed,true,'AI-02 production QA must stay recorded after the reviewed run');
+assert.equal(qa02.model_path_verified,true,'AI-02 must have a real production model-path check');
+assert.equal(qa02.model,'gpt-5.6-luna','AI-02 reviewed model changed; rerun production QA before accepting');
+assert.equal(qa02.zero_stage_suspects_checked,4,'all four AI-02 suspects need zero-stage leak checks');
+assert.equal(qa02.zero_stage_hidden_leaks,0,'AI-02 zero-stage model path must not leak hidden canon');
+assert.equal(qa02.zero_stage_unexpected_unlocks,0,'AI-02 zero-stage questions must not unlock gated material');
+assert.equal(qa02.full_chain_turns,10,'AI-02 reviewed critical path depth changed; rerun full-chain QA');
+assert.equal(qa02.full_chain_model_turns,9,'AI-02 critical path must keep the terminal confession deterministic');
+assert.equal(qa02.canonical_terminal_model_turns,0,'canonical terminal must never spend a model turn');
+assert.equal(qa02.full_chain_theory_passed,true,'AI-02 reviewed full-chain theory check must pass');
+assert.equal(qa02.no_early_confession_verified,true,'AI-02 must prove the confession cannot occur one turn early');
+assert.equal(qa02.session_rpm_fail_closed_verified,true,'AI-02 QA must preserve the production session RPM guard');
+assert.equal(qa02.metering_cleanup_verified,true,'AI-02 QA must leave production metering clean');
+assert.equal(qa02.qa_fixture_cleaned,true,'AI-02 QA fixtures must be removed after production tests');
 
 const ai03=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-03.manifest.json'),'utf8'));
 assert.equal(ai03.case_id,'AI-03');
@@ -84,5 +83,23 @@ assert.equal(ai03.private_gate.minimum_verified_solution_turns,12,'AI-03 reviewe
 assert.equal(ai03.private_gate.dependency_cycles_detected,0,'AI-03 rule graph must remain acyclic');
 assert.equal(ai03.private_gate.unknown_reference_count,0,'AI-03 private graph must not reference unknown evidence/notes');
 assert.equal(ai03.publication?.avatar_profiles_published,0,'AI-03 Live profiles must stay unpublished while LiveAvatar credentials are unavailable');
+
+const qa03=ai03.production_qa||{};
+assert.equal(qa03.completed,true,'AI-03 production QA must stay recorded after the reviewed run');
+assert.equal(qa03.model_path_verified,true,'AI-03 must exercise the real production model path');
+assert.equal(qa03.zero_stage_suspects_checked,4,'all four AI-03 suspects need zero-stage leak checks');
+assert.equal(qa03.zero_stage_hidden_leaks,0,'AI-03 must not leak late reversal evidence at zero stage');
+assert.equal(qa03.zero_stage_unexpected_unlocks,0,'AI-03 zero-stage questions must not unlock gated material');
+assert.equal(qa03.full_chain_turns,12,'AI-03 reviewed critical path depth changed; rerun production QA');
+assert.equal(qa03.full_chain_model_turns,11,'AI-03 critical path must leave only the terminal response deterministic');
+assert.equal(qa03.canonical_terminal_model_turns,0,'AI-03 canonical terminal must never spend a model turn');
+assert.equal(qa03.fair_play_red_herring_reversal_verified,true,'AI-03 must prove the early red herring is later overturned by earned evidence');
+assert.equal(qa03.full_chain_theory_passed,true,'AI-03 final theory must pass on the reviewed chain');
+assert.equal(qa03.no_early_confession_verified,true,'AI-03 must remain cornered rather than confessing one turn early');
+assert.equal(qa03.session_rpm_compliance_verified,true,'AI-03 QA must respect the production session RPM window');
+assert.equal(qa03.metering_cleanup_verified,true,'AI-03 QA must leave production metering clean');
+assert.equal(qa03.qa_fixture_cleaned,true,'AI-03 QA fixtures must be removed after production tests');
+assert.ok(Number(qa03.observed_zero_stage_cost_usd)>=0,'AI-03 zero-stage QA cost must be recorded');
+assert.ok(Number(qa03.observed_critical_path_cost_usd)>=0,'AI-03 critical-path QA cost must be recorded');
 
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
