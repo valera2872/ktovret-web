@@ -59,7 +59,7 @@ jobs:
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
 
-      - name: Validate spoiler-safe 134 URL boundary
+      - name: Validate spoiler-safe dynamic URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -70,9 +70,29 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 134
-          test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 134
-          grep -q '"indexableUrls": 134' assets/generated/import-report.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const report=JSON.parse(fs.readFileSync('assets/generated/import-report.json','utf8'));
+          const sitemap=fs.readFileSync('sitemap.xml','utf8');
+          const locs=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+          const total=(sitemap.match(/<url>/g)||[]).length;
+          if(total!==report.indexableUrls) throw new Error(`sitemap/report mismatch ${total} != ${report.indexableUrls}`);
+          if(new Set(locs).size!==total) throw new Error('duplicate sitemap URLs');
+          const expected=133+Number(report.logicAudiencePages||0);
+          if(total!==expected) throw new Error(`staging sitemap boundary ${total} != ${expected}`);
+          if(locs.some(loc=>/\/golovolomki\/[^/]+\/$/.test(loc))) throw new Error('noindex quick puzzle leaked into sitemap');
+          const specs=[
+            ['golovolomki-dlya-detei',Number(report.logicAudienceKids||0)>=8],
+            ['igry-dlya-mozga',Number(report.logicAudienceBrain||0)>=8],
+            ['detektivnye-golovolomki',Number(report.logicAudienceDetective||0)>=4],
+            ['matematicheskie-golovolomki',Number(report.logicAudienceMath||0)>=5],
+          ];
+          for(const [route,should] of specs){
+            const present=locs.some(loc=>loc.endsWith(`/${route}/`));
+            if(present!==should) throw new Error(`${route} sitemap state ${present} != ${should}`);
+          }
+          if(locs.some(loc=>loc.endsWith('/golovolomki-so-spichkami/'))) throw new Error('matchstick collection leaked into sitemap');
+          NODE
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
