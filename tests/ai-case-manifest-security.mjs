@@ -73,4 +73,16 @@ assert.equal(qa.session_rpm_fail_closed_verified,true,'AI-02 QA must preserve th
 assert.equal(qa.metering_cleanup_verified,true,'AI-02 QA must leave production metering clean');
 assert.equal(qa.qa_fixture_cleaned,true,'AI-02 QA fixtures must be removed after production tests');
 
+const ai03=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-03.manifest.json'),'utf8'));
+assert.equal(ai03.case_id,'AI-03');
+assert.equal(ai03.status,'draft');
+assert.equal(ai03.suspect_count,4,'AI-03 must preserve the four-suspect interrogation shape');
+assert.equal(ai03.initial_evidence_count,3,'AI-03 should begin from a deliberately misleading compact evidence set');
+assert.equal(ai03.hidden_evidence_count,6,'AI-03 needs the reviewed late-stage reversal evidence depth');
+assert.equal(ai03.rule_count,11,'AI-03 reviewed dependency graph count changed; rerun private state-space');
+assert.equal(ai03.private_gate.minimum_verified_solution_turns,12,'AI-03 reviewed critical path depth changed; rerun private state-space');
+assert.equal(ai03.private_gate.dependency_cycles_detected,0,'AI-03 rule graph must remain acyclic');
+assert.equal(ai03.private_gate.unknown_reference_count,0,'AI-03 private graph must not reference unknown evidence/notes');
+assert.equal(ai03.publication?.avatar_profiles_published,0,'AI-03 Live profiles must stay unpublished while LiveAvatar credentials are unavailable');
+
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
