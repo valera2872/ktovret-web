@@ -1,0 +1,31 @@
+name: AI case manifest security
+
+on:
+  pull_request:
+    paths:
+      - 'content/ai-cases/**'
+      - 'docs/ai-case-authoring-security.md'
+      - 'tests/ai-case-manifest-security.mjs'
+      - '.github/workflows/ai-case-manifests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/ai-cases/**'
+      - 'docs/ai-case-authoring-security.md'
+      - 'tests/ai-case-manifest-security.mjs'
+      - '.github/workflows/ai-case-manifests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spoiler-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify spoiler-safe manifests
+        run: node tests/ai-case-manifest-security.mjs

@@ -1,0 +1,60 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+
+const ROOT='content/ai-cases';
+const SHA=/^[0-9a-f]{64}$/;
+const manifests=fs.readdirSync(ROOT).filter(name=>name.endsWith('.manifest.json')).sort();
+assert.ok(manifests.length>=1,'at least one AI case manifest is required');
+
+for(const name of manifests){
+  const file=path.join(ROOT,name);
+  const raw=fs.readFileSync(file,'utf8');
+  const data=JSON.parse(raw);
+
+  assert.match(String(data.case_id||''),/^AI-[0-9]{2,}$/,'case id must use the paid AI namespace');
+  assert.match(String(data.product_id||''),/^[A-Za-z0-9_.:-]{2,160}$/,'product id must be server-scope safe');
+  assert.ok(['draft','published','retired'].includes(data.status),'manifest status must be explicit');
+  assert.ok(Number.isInteger(data.payload_version)&&data.payload_version>0,'payload version required');
+  assert.ok(Number.isInteger(data.canon_version)&&data.canon_version>0,'canon version required');
+  assert.ok(Number.isInteger(data.max_turns)&&data.max_turns>=5&&data.max_turns<=60,'turn cap must match v2 bounds');
+  assert.ok(Number.isInteger(data.suspect_count)&&data.suspect_count>=2&&data.suspect_count<=8,'suspect count must match v2 bounds');
+  assert.ok(Number.isInteger(data.initial_evidence_count)&&data.initial_evidence_count>=1,'initial evidence count required');
+  assert.ok(Number.isInteger(data.hidden_evidence_count)&&data.hidden_evidence_count>=1,'AI paid case must have gated discovery');
+  assert.ok(Number.isInteger(data.rule_count)&&data.rule_count>=1,'rule count required');
+  assert.match(String(data.payload_jsonb_sha256||''),SHA,'payload database hash required');
+  assert.match(String(data.private_canon_jsonb_sha256||''),SHA,'private canon database hash required');
+
+  const gate=data.private_gate||{};
+  assert.equal(gate.checked,true,'private state-space gate must be recorded');
+  assert.ok(Number.isInteger(gate.minimum_verified_solution_turns)&&gate.minimum_verified_solution_turns>0,'verified solution depth required');
+  assert.ok(gate.minimum_verified_solution_turns<=data.max_turns,'verified solution must fit under max turns');
+  assert.equal(gate.terminal_requires_all_core_evidence,true,'terminal must require the core evidence set');
+  assert.equal(gate.terminal_requires_progressive_contradictions,true,'terminal must require progressive interrogation state');
+  assert.equal(gate.wrong_suspect_terminal_reachable,false,'wrong suspect terminal must be impossible');
+  assert.equal(gate.missing_required_evidence_terminal_reachable,false,'missing evidence must block terminal');
+  assert.equal(gate.missing_required_note_terminal_reachable,false,'missing contradiction must block terminal');
+
+  // A manifest is deliberately not a case fixture. These keys would expose private truth or unreleased player content.
+  for(const forbidden of ['culprit_id','terminal_reply','success_explanation','base_facts','admissions','initial_evidence','suspects','rules','theory']){
+    assert.doesNotMatch(raw,new RegExp(`"${forbidden}"\\s*:`,'i'),`${file} leaks solution-bearing case data: ${forbidden}`);
+  }
+  assert.doesNotMatch(raw,/признал|призналась|виновн|убийц|похитил|подменил|украл/i,`${file} must stay spoiler-safe`);
+
+  if(data.status==='draft'){
+    assert.equal(data.publication?.payload_published,false,'draft payload must not claim publication');
+    assert.equal(data.publication?.canon_published,false,'draft canon must not claim publication');
+    assert.equal(data.publication?.production_sessions_expected,0,'draft case should not expect player sessions');
+  }
+}
+
+const ai02=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-02.manifest.json'),'utf8'));
+assert.equal(ai02.case_id,'AI-02');
+assert.equal(ai02.status,'draft');
+assert.equal(ai02.suspect_count,4,'AI-02 must exercise more than the three-suspect AI-01 slice');
+assert.equal(ai02.initial_evidence_count,3,'AI-02 starts from a compact neutral evidence set');
+assert.equal(ai02.hidden_evidence_count,5,'AI-02 needs multiple independently earned evidence lines');
+assert.equal(ai02.rule_count,9,'AI-02 reviewed private rule graph count changed; rerun private gate and refresh manifest');
+assert.equal(ai02.private_gate.minimum_verified_solution_turns,10,'AI-02 solution depth changed; rerun private state-space before accepting');
+
+console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
