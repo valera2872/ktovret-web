@@ -1,0 +1,33 @@
+{
+  "case_id": "AI-09",
+  "product_id": "ai-investigation",
+  "language": "ru",
+  "status": "draft",
+  "public_schema_version": 1,
+  "payload_version": 1,
+  "canon_version": 1,
+  "max_turns": 30,
+  "suspect_count": 4,
+  "initial_evidence_count": 3,
+  "hidden_evidence_count": 6,
+  "rule_count": 11,
+  "payload_jsonb_sha256": "ff7eca77a711175c0928eaf028859e449a82df9be30fb6fefc8f790ad9154606",
+  "private_canon_jsonb_sha256": "98a4d3ae49a155b0235484b273cda4be8b4dbac499b6a71ec8757d0cd471eff1",
+  "private_gate": {
+    "checked": true,
+    "minimum_verified_solution_turns": 12,
+    "terminal_requires_all_core_evidence": true,
+    "terminal_requires_progressive_contradictions": true,
+    "wrong_suspect_terminal_reachable": false,
+    "missing_required_evidence_terminal_reachable": false,
+    "missing_required_note_terminal_reachable": false,
+    "dependency_cycles_detected": 0,
+    "unknown_reference_count": 0
+  },
+  "publication": {
+    "payload_published": false,
+    "canon_published": false,
+    "avatar_profiles_published": 0,
+    "production_sessions_expected": 0
+  }
+}
