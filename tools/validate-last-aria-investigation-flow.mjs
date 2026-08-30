@@ -52,15 +52,23 @@ assert.match(ux, /Ранее открытый пакет/, 'Last Aria prior-pack
 assert.match(ux, /Совместная сверка:/, 'Last Aria prior-package review must retain the cross-check result');
 assert.match(ux, /ariaReviewSignature/, 'Last Aria review navigation must be idempotent');
 
-// Stage-two decision must actually be evidence-gated and score mistakes.
+// Product-hardening gate: evidence summaries stay in the data for QA, but the
+// player must read the actual material instead of receiving author conclusions.
+assert.match(ux, /\.casearia-facts\{display:none!important\}/, 'Last Aria author fact summaries must be hidden from players');
+assert.match(ux, /neutralCrosschecks/, 'Last Aria cross-role results must be observation-first');
+assert.match(ux, /Совмещённые данные:/, 'Last Aria cross-check must present merged observations');
+
+// Stage-two decision is evidence-gated but deliberately NOT graded. A wrong
+// provisional theory is allowed to survive into the next package so players,
+// not the interface, discover whether it holds up.
 assert.match(ux, /progress\.handoffs\?\.\[data\.decision\.stage\]/, 'Last Aria decision must wait for the cross-role handoff');
-assert.match(ux, /choice === data\.decision\.correct/, 'Last Aria decision must distinguish the correct line');
-assert.match(ux, /event\.stopImmediatePropagation\(\)/, 'wrong Last Aria decision must not reach the legacy any-choice handler');
-assert.match(ux, /decisionMistakes/, 'Last Aria wrong decision count is missing');
-assert.match(ux, /decisionPenaltyApplied/, 'Last Aria decision penalty must be applied exactly once');
-assert.match(ux, /progress\.attempts = Number\(progress\.attempts \|\| 0\) \+ mistakes/, 'Last Aria wrong decisions must affect the final score input');
-assert.match(ux, /firstAnswerCorrect = false/, 'Last Aria wrong intermediate decision must invalidate a perfect first-pass result');
-assert.match(ux, /coop:last-aria:decision-wrong/, 'Last Aria wrong-decision cognitive telemetry is missing');
+assert.match(ux, /const chosen = Boolean\(progress\.decision\)/, 'Last Aria must recognize any recorded working hypothesis');
+assert.match(ux, /next\.disabled = !handoffDone \|\| !chosen/, 'Last Aria must allow any evidence-backed working hypothesis to advance');
+assert.match(ux, /Рабочая версия зафиксирована/, 'Last Aria must label the intermediate choice as provisional');
+assert.match(ux, /Это рабочая гипотеза, а не ответ системы/, 'Last Aria must explicitly avoid validating the intermediate suspect');
+assert.doesNotMatch(ux, /choice === data\.decision\.correct/, 'Last Aria UX must not reveal the correct suspect mid-case');
+assert.doesNotMatch(ux, /decisionMistakes/, 'Last Aria must not score provisional theories as mistakes');
+assert.doesNotMatch(ux, /decisionPenaltyApplied/, 'Last Aria must not penalize provisional theories');
 assert.match(ux, /MutationObserver/, 'Last Aria investigation UX must survive dynamic game boot');
 
 // Production-critical regression: the installed observer must only watch root-level
@@ -69,13 +77,13 @@ assert.match(ux, /MutationObserver/, 'Last Aria investigation UX must survive dy
 assert.match(ux, /observer\.observe\(root, \{ childList: true \}\)/, 'Last Aria installed UX observer must be root-level only');
 assert.doesNotMatch(ux, /const observer = new MutationObserver\(schedule\);\s*observer\.observe\(root, \{ childList: true, subtree: true \}\)/, 'Last Aria installed UX observer must never observe its own subtree mutations');
 
-// Already-started sessions from the legacy any-choice runtime must migrate safely.
-assert.match(resilience, /decision && decision !== data\.decision\.correct/, 'legacy wrong Last Aria decision is not detected');
-assert.match(resilience, /progress\.decision = ''/, 'legacy wrong Last Aria decision must be cleared');
-assert.match(resilience, /progress\.decisionHistory = history/, 'legacy wrong Last Aria line must remain visible as rejected history');
-assert.match(resilience, /progress\.decisionMistakes = Number\(progress\.decisionMistakes \|\| 0\) \+ 1/, 'legacy wrong Last Aria decision must count once');
-assert.match(resilience, /mistakes > 0 && !progress\.decisionPenaltyApplied/, 'Last Aria score normalization must be idempotent');
-assert.match(resilience, /document\.addEventListener\('submit'/, 'Last Aria decision score must not depend on root-listener order');
+// Resumed sessions must preserve any valid provisional choice and only remove
+// obsolete grading metadata from older builds.
+assert.match(resilience, /const allowed = new Set/, 'Last Aria resilience must validate saved hypothesis ids');
+assert.match(resilience, /decision && !allowed\.has\(decision\)/, 'Last Aria resilience must clear only corrupt hypothesis ids');
+assert.doesNotMatch(resilience, /decision !== data\.decision\.correct/, 'Last Aria resilience must not erase a valid provisional theory');
+assert.match(resilience, /\['decisionHistory', 'decisionMistakes', 'decisionPenaltyApplied'\]/, 'Last Aria resilience must remove obsolete theory-grading metadata');
+assert.match(resilience, /document\.addEventListener\('submit'/, 'Last Aria resilience must survive final submission order');
 assert.match(resilience, /MutationObserver/, 'Last Aria resilience guard must survive dynamic game boot');
 
 // Production generator must ship delayed final protection, stable v2 investigation UX and resilience migration.
@@ -87,4 +95,4 @@ assert.match(coopPost, /addScript\(html,root,finalFeedbackLoader,LAST_ARIA_UX_VE
 assert.match(coopPost, /addScript\(html,root,investigationUx,LAST_ARIA_UX_VERSION\)/, 'Last Aria investigation UX is not injected');
 assert.match(coopPost, /addScript\(html,root,resilience,LAST_ARIA_RESILIENCE_VERSION\)/, 'Last Aria resilience guard is not injected');
 
-console.log('Last Aria delayed-boot, stable investigation-flow and resumed-progress regression gate passed');
+console.log('Last Aria delayed-boot, player-owned hypothesis and resumed-progress regression gate passed');
