@@ -1,0 +1,49 @@
+name: TEMP read LiveAvatar public avatar catalog
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-liveavatar-catalog-probe-read.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  read-catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read public catalog through temporary server probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-catalog-probe?probe=6c8fa09e86610023e53a62a998d988c055e6fcf1a0de9dc69be15d40928a402f'
+          body="$(curl --fail-with-body -sS "$url")"
+          CATALOG_JSON="$body" node <<'NODE'
+          const outer=JSON.parse(process.env.CATALOG_JSON||'{}');
+          if(!outer.ok) throw new Error(`upstream_failed:${outer.status}:${JSON.stringify(outer.body).slice(0,500)}`);
+          const body=outer.body||{};
+          console.log('UPSTREAM_STATUS', outer.status);
+          console.log('BODY_KEYS', Object.keys(body));
+          const candidates=[];
+          const seen=new Set();
+          function walk(v,path='body'){
+            if(!v||typeof v!=='object')return;
+            if(Array.isArray(v)){v.forEach((x,i)=>walk(x,`${path}[${i}]`));return;}
+            const id=String(v.avatar_id||v.avatarId||v.id||'');
+            const name=String(v.name||v.avatar_name||v.avatarName||v.display_name||'');
+            const preview=String(v.preview_url||v.previewUrl||v.preview_image_url||v.previewImageUrl||v.thumbnail_url||v.thumbnailUrl||v.image_url||v.imageUrl||'');
+            const gender=String(v.gender||'');
+            const type=String(v.type||v.avatar_type||v.avatarType||'');
+            const status=String(v.status||'');
+            if(id&&id.length>=8&&(name||preview||gender||type)){
+              const key=`${id}|${name}|${preview}`;
+              if(!seen.has(key)){seen.add(key);candidates.push({path,id,name,gender,type,status,preview});}
+            }
+            for(const [k,x] of Object.entries(v))walk(x,`${path}.${k}`);
+          }
+          walk(body);
+          console.log('CANDIDATE_COUNT',candidates.length);
+          for(const c of candidates.slice(0,250)) console.log('AVATAR',JSON.stringify(c));
+          console.log('RAW_SHAPE',JSON.stringify(body).slice(0,12000));
+          NODE
