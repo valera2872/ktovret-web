@@ -9,6 +9,7 @@
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
+  <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
   <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -59,6 +60,21 @@
             <p><strong>Следственная задача:</strong> выясните, где этот человек был в окно пропажи, что знает о доступе к фонду и чем может подтвердить свои слова. Сверяйте показания с материалами и ищите противоречия.</p>
           </div>
           <div class="aid-room-status" data-room-status>Допрос идёт</div>
+        </div>
+
+        <div class="aid-avatar-stage" data-avatar-stage data-suspect="marina" data-stage="composed" hidden aria-hidden="true">
+          <div class="aid-avatar-video-shell">
+            <video data-avatar-video playsinline muted></video>
+            <div class="aid-avatar-fallback" data-avatar-fallback>
+              <span class="aid-avatar-initials" data-avatar-initials>МЛ</span>
+              <span class="aid-avatar-pulse" aria-hidden="true"></span>
+            </div>
+            <div class="aid-avatar-scan" aria-hidden="true"></div>
+          </div>
+          <div class="aid-avatar-meta">
+            <div><strong data-avatar-name>Марина Лебедева</strong><span data-avatar-role>архивист фонда</span></div>
+            <small data-avatar-state>держится спокойно</small>
+          </div>
         </div>
 
         <div class="aid-transcript" data-transcript aria-live="polite"></div>
@@ -140,6 +156,6 @@
   </main>
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
-  <script src="../assets/ai-detective-vslice.js?v=0.3.5" defer></script>
+  <script src="../assets/ai-detective-vslice.js?v=0.3.6" defer></script>
 </body>
 </html>
