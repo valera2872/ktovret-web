@@ -16,9 +16,9 @@ assert.match(html,/placeholder="Задайте свой вопрос…"/,'compo
 assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not pretend that audio is being recorded');
 assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
 assert.match(html,/0 \/ 30 вопросов/,'demo must give the player enough room to investigate naturally');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.4/,'case-finale client must have a fresh cache key');
+assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.5/,'cipher-reward client must have a fresh cache key');
 assert.match(html,/data-case-progress hidden/,'earned confession needs an explicit next-step transition');
-assert.match(html,/data-action="theory-inline">Оформить обвинение/,'confession transition must give the player a clear next action');
+assert.match(html,/data-action="bonus-inline">Открыть пакет C/,'confession transition must give the player an immediate reward action');
 assert.doesNotMatch(html,/например:.*Кто знал/i,'first question must not be authored for the player');
 assert.doesNotMatch(html,/Кто использовал отключение камеры\?/i,'theory screen must not presuppose the crime mechanism');
 
@@ -37,7 +37,7 @@ assert.doesNotMatch(client,/who:'system'/,'technical failures must not be insert
 assert.doesNotMatch(client,/ответ · защищённый сценарий/i,'implementation mode must not break player immersion');
 assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side before the server verdict');
 assert.match(client,/function hasConfession\(\)/,'client must recognize the server-earned confession state');
-assert.match(client,/Признание получено · оформите обвинение/,'confession must visibly end interrogation and point to accusation');
+assert.match(client,/Дело раскрыто · пакет C открыт/,'confession must visibly end interrogation and point to the earned reward');
 assert.match(client,/function renderVerdict/,'checked theory needs a dedicated resolution renderer');
 assert.match(client,/Дело раскрыто/,'correct theory must produce an explicit completion state');
 assert.match(client,/data-action="restart-case"/,'completed case must offer a clean replay path');
