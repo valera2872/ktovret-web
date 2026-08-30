@@ -3,6 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const ALLOWED_ORIGINS=new Set(["https://mysterylogic.com","https://valera2872.github.io"]);
 const LIVEAVATAR_API_BASE="https://api.liveavatar.com";
 const LIVEAVATAR_API_KEY=Deno.env.get("LIVEAVATAR_API_KEY")||"";
+const SIGNING_SECRET=Deno.env.get("AI_AVATAR_SIGNING_KEY")||Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const AVATAR_ENABLED=(Deno.env.get("AI_AVATAR_ENABLED")||"").toLowerCase()==="true";
 const AVATAR_SANDBOX=(Deno.env.get("AI_AVATAR_SANDBOX")||"true").toLowerCase()!=="false";
 const MARINA_AVATAR_ID=Deno.env.get("AI_AVATAR_MARINA_ID")||"";
@@ -11,6 +12,7 @@ const LEV_AVATAR_ID=Deno.env.get("AI_AVATAR_LEV_ID")||"";
 const MAX_SESSION_SECONDS=Math.max(60,Math.min(300,Number(Deno.env.get("AI_AVATAR_MAX_SESSION_SECONDS")||"300")||300));
 
 const SUSPECT_AVATARS:Record<string,string>={marina:MARINA_AVATAR_ID,anton:ANTON_AVATAR_ID,lev:LEV_AVATAR_ID};
+const encoder=new TextEncoder();
 
 function clean(v:unknown,max=160){return typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,max):""}
 function corsHeaders(origin:string){return {
@@ -22,6 +24,13 @@ function corsHeaders(origin:string){return {
   "cache-control":"no-store"
 }}
 function json(origin:string,status:number,body:Record<string,unknown>){return new Response(JSON.stringify(body),{status,headers:corsHeaders(origin)})}
+function base64url(bytes:Uint8Array){let binary="";for(const b of bytes)binary+=String.fromCharCode(b);return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"")}
+async function speechToken(sessionId:string,suspectId:string,expiresAt:number){
+  const payload=base64url(encoder.encode(JSON.stringify({sid:sessionId,sus:suspectId,exp:expiresAt})));
+  const key=await crypto.subtle.importKey("raw",encoder.encode(SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+  const signature=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(payload)));
+  return `${payload}.${base64url(signature)}`;
+}
 
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
@@ -32,7 +41,7 @@ Deno.serve(async(req:Request)=>{
   if(req.method!=="POST")return json(origin,405,{error:"method_not_allowed"});
   if(!origin||!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
   if(!AVATAR_ENABLED)return json(origin,503,{error:"avatar_disabled"});
-  if(!LIVEAVATAR_API_KEY)return json(origin,503,{error:"avatar_not_configured"});
+  if(!LIVEAVATAR_API_KEY||!SIGNING_SECRET)return json(origin,503,{error:"avatar_not_configured"});
 
   let body:any={};
   try{body=await req.json()}catch{return json(origin,400,{error:"invalid_json"})}
@@ -66,13 +75,17 @@ Deno.serve(async(req:Request)=>{
   const sessionId=clean(data?.data?.session_id,128);
   const sessionToken=clean(data?.data?.session_token,4096);
   if(!sessionId||!sessionToken)return json(origin,502,{error:"avatar_upstream_invalid"});
+  const speechExpiresAt=Math.floor(Date.now()/1000)+MAX_SESSION_SECONDS+60;
+  const signedSpeechToken=await speechToken(sessionId,suspectId,speechExpiresAt);
   return json(origin,200,{
     provider:"liveavatar",
     mode:"LITE",
     session_id:sessionId,
     session_token:sessionToken,
+    speech_token:signedSpeechToken,
     suspect_id:suspectId,
     sandbox:AVATAR_SANDBOX,
-    max_session_duration:MAX_SESSION_SECONDS
+    max_session_duration:MAX_SESSION_SECONDS,
+    speech_expires_at:speechExpiresAt
   });
 });
