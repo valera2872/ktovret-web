@@ -1,0 +1,32 @@
+name: Patch AI deep-session confession fallback
+
+on:
+  push:
+    branches: [fix/ai-confession-deep-session-fallback]
+    paths:
+      - 'tools/patch-ai-deep-session-fallback.mjs'
+      - '.github/workflows/patch-ai-deep-session-fallback.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ai-confession-deep-session-fallback
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Patch Edge and contract
+        run: node tools/patch-ai-deep-session-fallback.mjs
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add supabase/functions/ai-interrogation-v1/index.ts tests/ai-detective-vslice-contract.mjs
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add deep-session AI confession fallback'
+          git push origin HEAD:fix/ai-confession-deep-session-fallback
