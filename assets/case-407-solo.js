@@ -20,21 +20,21 @@
   const soloStages = {
     1: {
       title: 'Первые двадцать минут',
-      objective: 'Восстановите последние двадцать минут до тревоги. Сначала установите, описывают ли камера, дверь, сейф и электронный журнал одну и ту же физическую точку.'
+      objective: 'Соберите первые противоречия и зафиксируйте рабочую гипотезу. Пока не защищайте её: следующий пакет должен попытаться её разрушить.'
     },
     2: {
       title: 'След после тревоги',
-      objective: 'Проверьте, что можно доказать о перемещениях после 01:12. Разделяйте маршрут человека, маршрут устройств и свойства физического пространства; часть служебных данных пока доступна только фрагментами.'
+      objective: 'Проверьте рабочую гипотезу первого этапа по новым материалам. Разделяйте маршрут человека, маршрут устройств и свойства физического пространства.'
     },
     3: {
       title: 'Последние подтверждения',
-      objective: 'Срочный запрос дал точный служебный маршрут. Проверьте, что он доказывает сам по себе, где прошёл футляр и какие действия можно независимо привязать к конкретному человеку.'
+      objective: 'Последний пакет — стресс-тест вашей версии. Ищите не подтверждение, а независимый факт, который способен её опровергнуть.'
     }
   };
 
   const checkpoints = {
     1: {
-      question: 'Какой вывод уже можно считать доказанным?',
+      question: 'Какой вывод вы сейчас готовы взять в работу?',
       options: [
         ['camera','Камера C4 исправно фиксировала обе двери, поэтому надписи на них точно соответствуют физическим комнатам.'],
         ['ids','Надпись на двери, H-код таблички и L-код контроллера требуют отдельной сверки перед выводом о физической комнате.'],
@@ -43,7 +43,7 @@
       ], answer: 'ids'
     },
     2: {
-      question: 'Что независимо подтверждают материалы второго этапа?',
+      question: 'Какой вывод вы готовы проверить последним пакетом?',
       options: [
         ['forced','Правильный код тревоги и оставленный телефон доказывают, что Марту принудили участвовать в происходящем.'],
         ['same','Сеансы телефона и часов показывают один и тот же маршрут Марты от номера до закрытой зоны B1.'],
@@ -52,7 +52,7 @@
       ], answer: 'zones'
     },
     3: {
-      question: 'Какой вывод нельзя строить только на журнале HK-44?',
+      question: 'Как вы сейчас трактуют журнал HK-44?',
       options: [
         ['route','Журнал HK-44 подтверждает последовательность SVC-407 → служебный лифт → LOADING-B1 в заданном окне.'],
         ['owner','Журнал HK-44 сам по себе не доказывает, что владелец токена физически прошёл за ним весь маршрут.'],
@@ -78,7 +78,7 @@
   };
 
   const soloFinal = {
-    intro: 'Соберите причинно-следственную версию. Она должна одновременно объяснить, какую комнату осмотрела охрана, природу тревоги, путь после 01:12 и чьи действия независимо подтверждаются материалами.',
+    intro: 'Соберите причинно-следственную версию. Игра примет любое полное заключение и не будет исправлять вас до раскрытия. После подписи каждое звено будет проверено по материалам дела.',
     questions: [
       {
         id: 'room',
@@ -127,12 +127,88 @@
     ]
   };
 
-  const cleanState = () => ({ started:false, stage:1, unlocked:[], opened:[], pinned:[], checkpoints:{}, hintsUsed:0, hintsByStage:{}, currentHint:'', finalAnswers:{}, solved:false });
-  const load = () => { try { return { ...cleanState(), ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }; } catch { return cleanState(); } };
+  const FINAL_LABELS = {
+    room: 'Физическая комната',
+    alarm: 'Тихая тревога',
+    route: 'Маршрут после 01:12',
+    sequence: 'Подготовка и участники'
+  };
+  const FINAL_PROOF = {
+    room: 'H-409 на снятой табличке, архивный реестр L-кодов и камера C4 вместе показывают: охрана открыла физический 409 под табличкой «407».',
+    alarm: 'S-407 открылся корректным кодом без повреждений; журнал фиксирует добавленную 9, а Марта знала режим тихой тревоги.',
+    route: 'Часы уходят WEST-4 → STAFF-4 → LOADING-B1, а HK-44 подтверждает SVC-407 → служебный лифт → B1.',
+    sequence: 'Тележка несла футляр, аудит и билеты связывают Марту с Еленой, а отключение B1 с ER-02 и телематика машины независимо фиксируют действия Елены.'
+  };
+  const FINAL_BREAKS = {
+    room: {
+      '407': 'Эта версия ломается на сверке H-409 с архивным реестром и L-кодами: цифра на двери была переставлена и не совпадала с физической комнатой.',
+      '405': 'Старый план объясняет служебный выход физического 407, но не переносит сцену в 405. H/L-сверка и камера однозначно ведут к физическому 409, который открыла охрана.',
+      unknown: 'Материалов достаточно: H-409, реестр оборудования, L-407/L-409 и камера C4 позволяют независимо установить физическую дверь.'
+    },
+    alarm: {
+      force: 'Сейф не повреждён и открылся верным кодом. Дополнительная 9 — штатная команда тихой тревоги, которую Марта знала по инструктажу.',
+      mistake: 'Журнал не фиксирует ошибок ввода: сначала принят верный код, затем отдельно введена 9 — осмысленная команда тревоги.',
+      remote: 'Удалённое действие Елены относится к камере B1 позже. Сама тревога возникла в S-407 после правильного кода Марты и добавленной 9.'
+    },
+    route: {
+      window: 'Окно найдено закрытым изнутри, а часы Марты последовательно фиксируются в STAFF-4 и LOADING-B1. Служебный журнал даёт тот же внутренний маршрут.',
+      corridor: 'Камера C4 исправна и не имеет пропусков в гостевом коридоре. Независимые Wi-Fi и access-события уводят маршрут в служебную инфраструктуру.',
+      never_left: 'Часы Марты появляются в LOADING-B1, затем машина Елены уезжает с занятым пассажирским сиденьем. Физический маршрут после 01:12 подтверждён несколькими источниками.'
+    },
+    sequence: {
+      denis: 'Денис непрерывно подтверждён вне отеля после 00:36. Зато утренний аудит, два билета, черновик и действия ER-02 связывают подготовку Марты и Елены.',
+      elena_force: 'Версия принуждения не объясняет заранее купленные два билета, вопрос Марты о служебных дверях и её собственный план времени «01:12 → лифт». Эти материалы показывают предварительное согласование.',
+      security: 'C4 не показывает выхода через гостевой коридор, а камера B1 отключена с телефона Елены. Её машина и цифровой ключ продолжают ту же цепочку без участия Зорина.'
+    }
+  };
+  const DIRECT_EVIDENCE = new Set(['s1-i2','s1-a1','s1-a2','s2-i0','s2-a0','s2-a1','s3-i0','s3-i1','s3-a0','s3-a1','s3-a2']);
+
+  const cleanState = () => ({ started:false, stage:1, unlocked:[], opened:[], pinned:[], checkpoints:{}, checkpointAnswers:{}, hintsUsed:0, hintsByStage:{}, currentHint:'', finalAnswers:{}, solved:false });
+  const load = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
+      return {
+        ...cleanState(),
+        ...stored,
+        checkpoints: { ...(stored.checkpoints || {}) },
+        checkpointAnswers: { ...(stored.checkpointAnswers || {}) },
+        hintsByStage: { ...(stored.hintsByStage || {}) },
+        finalAnswers: { ...(stored.finalAnswers || {}) },
+      };
+    } catch { return cleanState(); }
+  };
   let state = load();
   const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   const esc = (value='') => String(value).replace(/[&<>"]/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
   const emit = (name, detail={}) => { try { window.dispatchEvent(new CustomEvent(`ml:${name}`, { detail:{ caseId:'solo:407', ...detail } })); } catch {} };
+  const optionText = (options, value) => options.find(([id]) => id === value)?.[1] || value || 'не зафиксировано';
+
+  if (!document.getElementById('ml-solo407-hardening-v2')) {
+    const style = document.createElement('style');
+    style.id = 'ml-solo407-hardening-v2';
+    style.textContent = `
+      .solo407-hypothesis-note{margin:10px 0 0;color:#91a7b4;line-height:1.55}
+      .solo407-theory-review{display:grid;gap:12px;margin:24px 0}
+      .solo407-theory-link{padding:16px 18px;border:1px solid rgba(210,174,115,.16);border-radius:14px;background:rgba(255,255,255,.018)}
+      .solo407-theory-link header{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:8px}
+      .solo407-theory-link header strong{font-family:Georgia,serif;font-size:18px;font-weight:500}
+      .solo407-theory-link header span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#d2ae73}
+      .solo407-theory-link.is-broken header span{color:#d89a94}
+      .solo407-theory-link p{margin:0 0 8px;line-height:1.55}
+      .solo407-theory-link small{display:block;color:#91a7b4;line-height:1.55}
+      .solo407-proof-chain{margin:26px 0;padding:20px 22px;border:1px solid rgba(210,174,115,.22);border-radius:16px;background:rgba(8,20,30,.68)}
+      .solo407-proof-chain h3{margin:0 0 14px;font-family:Georgia,serif;font-size:24px;font-weight:500}
+      .solo407-proof-chain ol{display:grid;gap:10px;margin:0;padding-left:22px}
+      .solo407-proof-chain li{padding-left:4px;line-height:1.55}
+      .solo407-reveal-summary{margin:18px 0;padding:16px 18px;border-left:2px solid #d2ae73;background:rgba(210,174,115,.045);line-height:1.6}
+      .solo407-reveal-details{margin:22px 0;border-top:1px solid rgba(210,174,115,.16);border-bottom:1px solid rgba(210,174,115,.16)}
+      .solo407-reveal-details summary{cursor:pointer;padding:14px 0;font-weight:700}
+      .solo407-reveal-details[open]{padding-bottom:12px}
+      .solo407-reveal-trail{display:grid;gap:9px;margin:10px 0 4px}
+      .solo407-reveal-trail div{padding:10px 12px;background:rgba(255,255,255,.018);border-radius:10px;line-height:1.45}
+    `;
+    document.head.appendChild(style);
+  }
 
   function ensureStage(stage) {
     for (const id of plans[stage].initial) if (!state.unlocked.includes(id)) state.unlocked.push(id);
@@ -168,9 +244,10 @@
     if (openedCountFor(stage) < stageTotal(stage)) return '';
     const cp = checkpoints[stage];
     const passed = stageComplete(stage);
+    const selected = state.checkpointAnswers?.[String(stage)];
     return `<section class="solo407-checkpoint ${passed ? 'is-passed' : ''}">
-      <p class="solo407-kicker">Контрольная точка</p><h3>${esc(cp.question)}</h3>
-      ${passed ? `<p class="solo407-pass">Вывод выдерживает проверку. Следующая часть дела открыта.</p>` : `<form data-checkpoint="${stage}">${cp.options.map(([v,t]) => `<label><input type="radio" name="answer" value="${v}" required><span>${esc(t)}</span></label>`).join('')}<button class="solo407-primary" type="submit">Зафиксировать вывод</button></form><p class="solo407-checkpoint-error" hidden>Вывод пока не выдерживает все материалы. Перепроверьте формулировку.</p>`}
+      <p class="solo407-kicker">Рабочая гипотеза</p><h3>${esc(cp.question)}</h3>
+      ${passed ? `<p class="solo407-pass"><strong>Гипотеза зафиксирована.</strong> ${selected ? esc(optionText(cp.options, selected)) : 'Это прохождение было начато в предыдущей версии игры.'}</p><p class="solo407-hypothesis-note">Игра не оценивает её сейчас. Следующий пакет должен попытаться её опровергнуть.</p>` : `<p class="solo407-hypothesis-note">Выберите позицию, которую считаете наиболее сильной сейчас. Это не экзамен: после фиксации игра откроет следующий пакет, не сообщая, правы ли вы.</p><form data-checkpoint="${stage}">${cp.options.map(([v,t]) => `<label><input type="radio" name="answer" value="${v}" required><span>${esc(t)}</span></label>`).join('')}<button class="solo407-primary" type="submit">Зафиксировать гипотезу</button></form>`}
     </section>`;
   }
 
@@ -187,11 +264,36 @@
     </section>`;
   }
 
+  function renderReveal() {
+    const answers = state.finalAnswers || {};
+    const complete = soloFinal.questions.every((q) => Boolean(answers[q.id]));
+    const allHeld = complete && soloFinal.questions.every((q) => answers[q.id] === q.answer);
+    const directPinned = state.pinned.filter((id) => DIRECT_EVIDENCE.has(id)).length;
+    const trail = [1,2,3].map((stage) => {
+      const answer = state.checkpointAnswers?.[String(stage)];
+      if (!answer) return '';
+      return `<div><strong>После этапа ${stage}:</strong> ${esc(optionText(checkpoints[stage].options, answer))}</div>`;
+    }).filter(Boolean).join('');
+    const review = complete ? soloFinal.questions.map((q) => {
+      const chosen = answers[q.id];
+      const held = chosen === q.answer;
+      const explanation = held ? FINAL_PROOF[q.id] : (FINAL_BREAKS[q.id]?.[chosen] || FINAL_PROOF[q.id]);
+      return `<article class="solo407-theory-link ${held ? 'is-held' : 'is-broken'}"><header><strong>${esc(FINAL_LABELS[q.id])}</strong><span>${held ? 'выдержал проверку' : 'не выдержал'}</span></header><p><b>Ваша версия:</b> ${esc(optionText(q.options, chosen))}</p><small>${esc(explanation)}</small></article>`;
+    }).join('') : '';
+    return `<section class="solo407-reveal"><p class="solo407-kicker">Дело закрыто · ваша версия проверена</p><h2>${esc(data.reveal.title)}</h2>
+      <div class="solo407-reveal-summary">${allHeld ? '<strong>Ваша реконструкция выдержала проверку по всем ключевым звеньям.</strong>' : '<strong>Часть вашей реконструкции выдержала проверку, часть сломалась на независимых материалах.</strong>'}${state.pinned.length ? ` На доске у вас было ${state.pinned.length} материалов; ${directPinned} из них входят в прямую доказательную цепочку раскрытия.` : ''}</div>
+      ${review ? `<div class="solo407-theory-review">${review}</div>` : ''}
+      <section class="solo407-proof-chain"><h3>Пять звеньев, на которых держится дело</h3><ol><li><b>Физическая комната.</b> H-409, L-коды и C4 показывают подмену табличек и ошибку охраны.</li><li><b>Намеренная тревога.</b> Верный код + 9 превращает 01:12 в запущенный Мартой таймер.</li><li><b>Служебный маршрут.</b> Часы и HK-44 независимо ведут из физического 407 через SVC и лифт в B1.</li><li><b>Футляр.</b> Волокна BR-220 и ювелирный воск остаются в тележке, дошедшей до B1.</li><li><b>Действие Елены.</b> ER-02 отключает камеру, открывает машину, а аудит, билеты и черновик объясняют общий план.</li></ol></section>
+      ${trail ? `<details class="solo407-reveal-details"><summary>Как менялась ваша версия по ходу расследования</summary><div class="solo407-reveal-trail">${trail}</div></details>` : ''}
+      <details class="solo407-reveal-details"><summary>Проверить полную доказательную реконструкцию</summary>${data.reveal.body.map((p) => `<p>${esc(p)}</p>`).join('')}</details>
+      <p class="solo407-closing">${esc(data.reveal.closing)}</p><a class="solo407-primary" href="../">Другие расследования для одного</a></section>`;
+  }
+
   function renderFinal() {
     if (!allStagesComplete()) return '';
-    if (state.solved) return `<section class="solo407-reveal"><p class="solo407-kicker">Дело закрыто</p><h2>${esc(data.reveal.title)}</h2>${data.reveal.body.map((p) => `<p>${esc(p)}</p>`).join('')}<p class="solo407-closing">${esc(data.reveal.closing)}</p><a class="solo407-primary" href="../">Другие расследования для одного</a></section>`;
-    return `<section class="solo407-final"><p class="solo407-kicker">Финальное заключение</p><h2>Соберите версию, которая объясняет всю цепочку</h2><p>${esc(soloFinal.intro)}</p><div class="solo407-proof-meter"><strong>${state.pinned.length}</strong><span>материалов на вашей доске доказательств</span><small>Рекомендуем оставить 5–7 самых сильных. Это не подсказка к ответу.</small></div>
-      <form data-final>${soloFinal.questions.map((q,qi) => `<fieldset><legend>${qi+1}. ${esc(q.title)}</legend>${q.options.map(([v,t]) => `<label><input type="radio" name="${esc(q.id)}" value="${esc(v)}" required><span>${esc(t)}</span></label>`).join('')}</fieldset>`).join('')}<button class="solo407-primary" type="submit">Передать заключение</button></form><div class="solo407-final-feedback" hidden></div></section>`;
+    if (state.solved) return renderReveal();
+    return `<section class="solo407-final"><p class="solo407-kicker">Финальное заключение</p><h2>Подпишите версию, которую готовы защищать</h2><p>${esc(soloFinal.intro)}</p><div class="solo407-proof-meter"><strong>${state.pinned.length}</strong><span>материалов на вашей доске доказательств</span><small>Рекомендуем оставить 5–7 самых сильных. Это не подсказка к ответу.</small></div>
+      <form data-final>${soloFinal.questions.map((q,qi) => `<fieldset><legend>${qi+1}. ${esc(q.title)}</legend>${q.options.map(([v,t]) => `<label><input type="radio" name="${esc(q.id)}" value="${esc(v)}" ${state.finalAnswers?.[q.id] === v ? 'checked' : ''} required><span>${esc(t)}</span></label>`).join('')}</fieldset>`).join('')}<button class="solo407-primary" type="submit">Подписать заключение и открыть дело</button></form></section>`;
   }
 
   function renderDesk() {
@@ -238,21 +340,55 @@
     if (reset && confirm('Стереть прогресс этого расследования и начать заново?')) { state = cleanState(); save(); render(); }
   });
 
+  root.addEventListener('change', (event) => {
+    const input = event.target.closest('[data-final] input[type="radio"]');
+    if (!input?.name) return;
+    state.finalAnswers = { ...(state.finalAnswers || {}), [input.name]: input.value };
+    save();
+  });
+
   root.addEventListener('submit', (event) => {
     const cp = event.target.closest('[data-checkpoint]');
     if (cp) {
-      event.preventDefault(); const stage = Number(cp.dataset.checkpoint); const answer = new FormData(cp).get('answer');
-      if (answer === checkpoints[stage].answer) { state.checkpoints[String(stage)] = true; state.currentHint = ''; if (stage < 3) { state.stage = stage + 1; ensureStage(state.stage); } save(); emit('solo_checkpoint', { stage, passed:true }); render(); }
-      else { const error = cp.parentElement.querySelector('.solo407-checkpoint-error'); if (error) error.hidden = false; emit('solo_checkpoint', { stage, passed:false }); }
+      event.preventDefault();
+      const stage = Number(cp.dataset.checkpoint);
+      const answer = new FormData(cp).get('answer');
+      if (!answer) return;
+      state.checkpoints[String(stage)] = true;
+      state.checkpointAnswers = { ...(state.checkpointAnswers || {}), [String(stage)]: String(answer) };
+      state.currentHint = '';
+      if (stage < 3) { state.stage = stage + 1; ensureStage(state.stage); }
+      save();
+      emit('solo_checkpoint', { stage, hypothesis:String(answer), matchedCanonical:String(answer) === checkpoints[stage].answer });
+      render();
       return;
     }
     const final = event.target.closest('[data-final]');
     if (final) {
-      event.preventDefault(); const fd = new FormData(final); let score = 0; soloFinal.questions.forEach((q) => { if (fd.get(q.id) === q.answer) score += 1; });
-      const feedback = final.parentElement.querySelector('.solo407-final-feedback');
-      if (score === soloFinal.questions.length) { state.solved = true; save(); emit('solo_complete', { score, hintsUsed:state.hintsUsed }); render(); }
-      else if (feedback) { feedback.hidden = false; feedback.innerHTML = `<strong>Версия пока не выдерживает все материалы.</strong><span>Я не покажу, какое именно звено слабое: иначе это станет подсказкой. Вернитесь к доске доказательств и проверьте всю цепочку.</span>`; emit('solo_final_attempt', { score }); }
+      event.preventDefault();
+      const fd = new FormData(final);
+      const answers = {};
+      for (const q of soloFinal.questions) {
+        const answer = fd.get(q.id);
+        if (!answer) return;
+        answers[q.id] = String(answer);
+      }
+      state.finalAnswers = answers;
+      state.solved = true;
+      const canonicalLinks = soloFinal.questions.filter((q) => answers[q.id] === q.answer).length;
+      save();
+      emit('solo_complete', { canonicalLinks, totalLinks:soloFinal.questions.length, hintsUsed:state.hintsUsed });
+      render();
     }
+  });
+
+  window.MLSolo407ReleaseGate = Object.freeze({
+    revision: '2.0',
+    playerOwnedCheckpoints: true,
+    wrongFinalAccepted: true,
+    finalTheoryComparedAtReveal: true,
+    refreshPreservesFinal: true,
+    fullForensicSecondLayer: true
   });
 
   render();
