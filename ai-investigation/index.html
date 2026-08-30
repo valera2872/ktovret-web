@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
-  <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.0">
+  <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.1">
   <title>Закрытое AI-расследование — Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -64,7 +64,7 @@
           <div><p class="aid-kicker">Допрос</p><h2 data-suspect-name>—</h2><p data-suspect-role>—</p></div>
           <div class="aid-room-status" data-room-status>Допрос идёт</div>
         </div>
-        <div class="aid-avatar-stage" data-avatar-stage data-stage="composed" aria-hidden="true">
+        <div class="aid-avatar-stage" data-avatar-stage data-stage="composed" data-tier="text" hidden aria-hidden="true">
           <div class="aid-avatar-video-shell">
             <video data-avatar-video playsinline muted></video>
             <div class="aid-avatar-fallback" data-avatar-fallback><span class="aid-avatar-initials" data-avatar-initials>ML</span><span class="aid-avatar-pulse" aria-hidden="true"></span></div>
@@ -104,5 +104,6 @@
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Private canon никогда не передаётся в браузер.</span></footer>
   <script src="../assets/ai-case-player-v2.js?v=0.1.0" defer></script>
+  <script src="../assets/ai-case-live-v2.js?v=0.1.0" defer></script>
 </body>
 </html>
