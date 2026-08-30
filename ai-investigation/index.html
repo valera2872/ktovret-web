@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#061019">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Закрытое платное AI-расследование Mystery Logic.">
+  <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/mysterylogic.css">
+  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
+  <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
+  <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.0">
+  <title>Закрытое AI-расследование — Mystery Logic</title>
+</head>
+<body class="aid-body">
+  <header class="aid-topbar">
+    <a class="aid-brand" href="../" aria-label="Mystery Logic — главная">
+      <span class="aid-brand-mark">ML</span>
+      <span><strong>Mystery Logic</strong><small>AI investigation</small></span>
+    </a>
+    <div class="aid-topmeta"><span class="aid-dot"></span><span data-tier-label>Закрытое расследование</span></div>
+  </header>
+
+  <main class="aid-app" data-ai-v2-player>
+    <section class="aiv2-access" data-view="access">
+      <div class="aiv2-access-card">
+        <p class="aid-kicker">Закрытое расследование</p>
+        <h1>Проверяем доступ к делу</h1>
+        <p data-access-copy>Введите ключ покупки. Если он уже сохранён в этом браузере, дело откроется автоматически.</p>
+        <label class="aiv2-key-label">Ключ доступа<input type="password" autocomplete="off" spellcheck="false" data-access-token placeholder="ML…"></label>
+        <button class="aid-primary" type="button" data-action="unlock">Открыть расследование</button>
+        <p class="aiv2-status" data-access-status aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="aid-intro" data-view="intro" hidden>
+      <div class="aid-intro-copy">
+        <p class="aid-kicker"><span data-case-number>Дело</span> · AI investigation</p>
+        <h1 data-case-title>Закрытое расследование</h1>
+        <p class="aid-lead" data-case-incident></p>
+        <div class="aid-rule"><strong data-case-subtitle></strong><span data-player-brief></span></div>
+        <button class="aid-primary" type="button" data-action="start">Принять дело</button>
+      </div>
+      <aside class="aid-case-stamp" aria-label="Карточка дела">
+        <div class="aid-stamp-line"><span>ФОРМАТ</span><strong>Свободный AI-допрос</strong></div>
+        <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong data-suspect-count>—</strong></div>
+        <div class="aid-stamp-line"><span>ЛИМИТ</span><strong data-case-limit>—</strong></div>
+        <div class="aid-stamp-line"><span>РЕЖИМ</span><strong data-case-tier>—</strong></div>
+        <div class="aid-stamp-seal">Факты дела фиксированы на сервере. Свободная беседа не может изменить канон или открыть скрытую улику раньше положенного.</div>
+      </aside>
+    </section>
+
+    <section class="aid-workspace" data-view="workspace" hidden>
+      <aside class="aid-panel aid-evidence-panel">
+        <div class="aid-panel-head"><p class="aid-kicker">Материалы дела</p><h2>Что подтверждено</h2></div>
+        <div class="aid-evidence-list" data-evidence-list></div>
+        <p class="aid-panel-hint">Нажмите на материал, чтобы официально предъявить его в следующем вопросе.</p>
+      </aside>
+
+      <section class="aid-interrogation">
+        <div class="aid-suspect-strip" data-suspect-strip></div>
+        <div class="aid-room-head">
+          <div><p class="aid-kicker">Допрос</p><h2 data-suspect-name>—</h2><p data-suspect-role>—</p></div>
+          <div class="aid-room-status" data-room-status>Допрос идёт</div>
+        </div>
+        <div class="aid-avatar-stage" data-avatar-stage data-stage="composed" aria-hidden="true">
+          <div class="aid-avatar-video-shell">
+            <video data-avatar-video playsinline muted></video>
+            <div class="aid-avatar-fallback" data-avatar-fallback><span class="aid-avatar-initials" data-avatar-initials>ML</span><span class="aid-avatar-pulse" aria-hidden="true"></span></div>
+            <div class="aid-avatar-scan" aria-hidden="true"></div>
+          </div>
+          <div class="aid-avatar-meta"><div><strong data-avatar-name>—</strong><span data-avatar-role>—</span></div><small data-avatar-state>держится спокойно</small></div>
+        </div>
+        <div class="aid-transcript" data-transcript aria-live="polite"></div>
+        <form class="aid-composer" data-composer>
+          <div class="aid-attachment" data-attachment hidden><span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button></div>
+          <label class="aid-sr-only" for="aiv2-question">Ваш вопрос</label>
+          <textarea id="aiv2-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
+          <div class="aid-composer-actions"><span data-turn-counter>0 вопросов</span><button class="aid-send" type="submit">Задать вопрос</button></div>
+        </form>
+      </section>
+
+      <aside class="aid-panel aid-notes-panel">
+        <div class="aid-panel-head"><p class="aid-kicker">Следственный блокнот</p><h2>Зацепки</h2></div>
+        <div class="aid-notes" data-notes></div>
+        <div class="aid-theory-box"><p class="aid-kicker">Когда будете готовы</p><p class="aid-theory-hint">Назовите человека и сформулируйте проверяемую цепочку фактов.</p><button class="aid-secondary" type="button" data-action="theory">Собрать версию</button></div>
+      </aside>
+    </section>
+
+    <section class="aid-theory" data-view="theory" hidden>
+      <button class="aid-back" type="button" data-action="back">← Вернуться к допросам</button>
+      <div class="aid-theory-grid">
+        <div><p class="aid-kicker">Ваша версия</p><h2>Кто отвечает за произошедшее?</h2><p>Сервер проверит не только выбранного человека, но и то, получили ли вы необходимые доказательства и сформулировали ли ключевой механизм.</p></div>
+        <form class="aid-theory-form" data-theory-form>
+          <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
+          <label>Почему?<textarea name="reason" rows="6" maxlength="1200" placeholder="Опишите цепочку: что произошло, когда, каким способом и какие независимые факты это подтверждают." required></textarea></label>
+          <button class="aid-primary" type="submit">Проверить версию</button>
+        </form>
+      </div>
+      <div class="aid-verdict" data-verdict hidden></div>
+    </section>
+  </main>
+
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Private canon никогда не передаётся в браузер.</span></footer>
+  <script src="../assets/ai-case-player-v2.js?v=0.1.0" defer></script>
+</body>
+</html>
