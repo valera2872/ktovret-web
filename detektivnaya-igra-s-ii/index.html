@@ -8,7 +8,7 @@
   <meta name="description" content="Закрытый прототип Mystery Logic: детективное расследование со свободным допросом, где факты дела остаются неизменными.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
-  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.1">
+  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
   <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -65,11 +65,11 @@
 
         <div class="aid-case-progress" data-case-progress hidden>
           <div>
-            <p class="aid-kicker">Признание получено</p>
-            <strong>Допрос завершён. Теперь оформите обвинение.</strong>
-            <span>Назовите виновного и своими словами свяжите доступ, местонахождение, окно камеры и алиби остальных.</span>
+            <p class="aid-kicker">Дело раскрыто</p>
+            <strong>Марина призналась. Расследование завершено.</strong>
+            <span>Никаких дополнительных экзаменов. Вам доступен секретный пакет дела и награда за раскрытие.</span>
           </div>
-          <button class="aid-primary" type="button" data-action="theory-inline">Оформить обвинение</button>
+          <button class="aid-primary" type="button" data-action="bonus-inline">Открыть пакет C</button>
         </div>
 
         <form class="aid-composer" data-composer>
@@ -117,9 +117,29 @@
       </div>
       <div class="aid-verdict" data-verdict hidden></div>
     </section>
+
+    <section class="aid-resolution" data-view="resolution" hidden>
+      <button class="aid-back" type="button" data-action="resolution-back">← Материалы дела</button>
+      <div class="aid-resolution-hero">
+        <p class="aid-kicker">Секретный пакет C · доступ открыт</p>
+        <h2>Дело AI-01 раскрыто.</h2>
+        <p>Признание — финальная точка расследования. Здесь только награда: восстановленная цепочка событий и фрагмент шифра Закрытого архива.</p>
+      </div>
+      <div class="aid-resolution-grid aid-resolution-grid-final">
+        <div><small>21:31</small><strong>Персональный доступ</strong><span>E-14 и PIN открыли фонд.</span></div>
+        <div><small>21:34</small><strong>Ложное алиби</strong><span>Сетевой лог оставляет Марину внутри.</span></div>
+        <div><small>КАМЕРА</small><strong>Окно было известно</strong><span>Время перезапуска она выяснила заранее.</span></div>
+        <div><small>АЛИБИ</small><strong>Остальные исключены</strong><span>Антон и Лев подтверждены независимыми следами.</span></div>
+      </div>
+      <div class="aid-cipher-reward" data-cipher-reward></div>
+      <div class="aid-resolution-actions">
+        <button class="aid-secondary" type="button" data-action="restart-case">Пройти дело заново</button>
+        <a class="aid-primary" href="../">Взять другое дело</a>
+      </div>
+    </section>
   </main>
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
-  <script src="../assets/ai-detective-vslice.js?v=0.3.4" defer></script>
+  <script src="../assets/ai-detective-vslice.js?v=0.3.5" defer></script>
 </body>
 </html>
