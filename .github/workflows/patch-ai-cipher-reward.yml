@@ -47,6 +47,7 @@ jobs:
           s=p.read_text()
           s=s.replace("assert.match(html,/ai-detective-vslice\\.js\\?v=0\\.3\\.4/,'case-finale client must have a fresh cache key');","assert.match(html,/ai-detective-vslice\\.js\\?v=0\\.3\\.5/,'cipher-reward client must have a fresh cache key');")
           s=s.replace("assert.match(html,/data-action=\"theory-inline\">Оформить обвинение/,'confession transition must give the player a clear next action');","assert.match(html,/data-action=\"bonus-inline\">Открыть пакет C/,'confession transition must give the player an immediate reward action');")
+          s=s.replace("assert.match(client,/Признание получено · оформите обвинение/,'confession must visibly end interrogation and point to accusation');","assert.match(client,/Дело раскрыто · пакет C открыт/,'confession must visibly end interrogation and point to the earned reward');")
           p.write_text(s)
           PY
       - name: Validate patched files
