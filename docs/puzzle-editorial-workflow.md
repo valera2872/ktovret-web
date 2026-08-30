@@ -20,3 +20,7 @@ The first quick-puzzle release is a 33-puzzle editorial batch. Public builds are
 Until 33/33 exact approvals are present, public builds keep the existing 20 Expert puzzles and do not create the five new audience collection pages or `/golovolomki/<slug>/` pages.
 
 The public approval manifest contains only puzzle IDs and fingerprints. Pending/rejected content and answer text require the owner moderator key.
+
+## Production
+
+The editorial gate is part of the canonical `.github/workflows/production-beget.yml`; there is no parallel legacy production builder. The exact Beget runtime tree is validated again after source and test directories are removed, so unapproved quick-puzzle pages cannot survive merely because they existed in the repository before generation.
