@@ -1,0 +1,43 @@
+name: AI premium text-live tiers
+
+on:
+  pull_request:
+    paths:
+      - 'assets/paid-access-client.js'
+      - 'assets/ai-avatar-provider.js'
+      - 'supabase/functions/case-access/**'
+      - 'supabase/functions/ai-avatar-session/**'
+      - 'docs/ai-premium-tier-plan.md'
+      - 'tests/ai-premium-tier-contract.mjs'
+      - '.github/workflows/ai-premium-tiers.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/paid-access-client.js'
+      - 'assets/ai-avatar-provider.js'
+      - 'supabase/functions/case-access/**'
+      - 'supabase/functions/ai-avatar-session/**'
+      - 'docs/ai-premium-tier-plan.md'
+      - 'tests/ai-premium-tier-contract.mjs'
+      - '.github/workflows/ai-premium-tiers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Browser syntax
+        run: |
+          node --check assets/paid-access-client.js
+          node --check assets/ai-avatar-provider.js
+      - name: Tier security contract
+        run: node tests/ai-premium-tier-contract.mjs
+      - name: Avatar entitlement contract
+        run: node tests/ai-avatar-session-contract.mjs
