@@ -17,6 +17,7 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
 (() => {
   const wait = (ms=35) => new Promise(r=>setTimeout(r,ms));
   const appText = () => document.querySelector('[data-solo407-app]')?.textContent || '';
+  const readState = () => { try { return JSON.parse(localStorage.getItem('ml:solo:407:v1') || '{}') || {}; } catch { return {}; } };
   const click = async (selector) => { const el=document.querySelector(selector); if(!el) throw new Error('missing '+selector); el.click(); await wait(); };
   const hintText = () => document.querySelector('.solo407-hint-panel p')?.textContent || '';
   const openAll = async () => {
@@ -29,23 +30,38 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
     }
   };
   const checkpoint = async (value) => { const input=document.querySelector('[data-checkpoint] input[value="'+value+'"]'); if(!input) throw new Error('checkpoint '+value); input.checked=true; input.closest('form').requestSubmit(); await wait(80); };
-  const finalSelect = (values) => { for(const [name,value] of Object.entries(values)){ const input=document.querySelector('[data-final] input[name="'+name+'"][value="'+value+'"]'); if(!input) throw new Error('final '+name+' '+value); input.checked=true; } };
+  const finalSelect = (values) => { for(const [name,value] of Object.entries(values)){ const input=document.querySelector('[data-final] input[name="'+name+'"][value="'+value+'"]'); if(!input) throw new Error('final '+name+' '+value); input.checked=true; input.dispatchEvent(new Event('change',{bubbles:true})); } };
   const expectHint = async (fragment) => { await click('[data-hint]'); const text=hintText(); if(!text.includes(fragment)) throw new Error('unexpected hint: '+text); await click('[data-hint-close]'); };
+  const markCommon = () => { const text=appText(); document.body.dataset.roomless=String(!text.includes('Создать комнату')&&!text.includes('Пригласить')); };
   const run = async () => {
+    const params=new URL(location.href).searchParams;
+    const mode=params.get('mode')||'entry';
+    if(mode==='resume-wrong'){
+      const state=readState();
+      const text=appText();
+      document.body.dataset.checkpointHypotheses=String(state.checkpointAnswers?.['1']==='camera'&&state.checkpointAnswers?.['2']==='forced'&&state.checkpointAnswers?.['3']==='route');
+      document.body.dataset.wrongFinalAccepted=String(state.solved===true&&state.finalAnswers?.room==='407'&&state.finalAnswers?.alarm==='force'&&state.finalAnswers?.route==='window'&&state.finalAnswers?.sequence==='denis'&&text.includes('Дело закрыто'));
+      document.body.dataset.revealComparison=String(text.includes('не выдержал')&&text.includes('Пять звеньев, на которых держится дело')&&text.includes('Ваша версия:'));
+      document.body.dataset.refreshPreserved=String(state.solved===true&&state.finalAnswers?.room==='407'&&text.includes('Физический 407:'));
+      markCommon();
+      document.body.dataset.ready='solved';
+      return;
+    }
     localStorage.removeItem('ml:solo:407:v1');
-    const mode=new URL(location.href).searchParams.get('mode')||'entry';
     if(mode==='entry'){ document.body.dataset.ready='entry'; return; }
     await click('[data-start]');
     await openAll();
-    if(mode==='desk'){ document.querySelector('[data-pin]')?.click(); await wait(); document.querySelector('[data-hint]')?.click(); await wait(); const text=appText(); document.body.dataset.roomless=String(!text.includes('Создать комнату')&&!text.includes('Пригласить')); document.body.dataset.ready='desk'; return; }
+    if(mode==='desk'){ document.querySelector('[data-pin]')?.click(); await wait(); document.querySelector('[data-hint]')?.click(); await wait(); markCommon(); document.body.dataset.ready='desk'; return; }
     await expectHint('Разведите четыре идентификатора');
     await expectHint('Сравните, что фиксирует камера');
-    await checkpoint('ids'); await openAll();
+    if(mode==='solve-wrong') await checkpoint('camera'); else await checkpoint('ids');
+    await openAll();
     await expectHint('Отделите маршрут устройства');
-    await checkpoint('zones'); await openAll();
+    if(mode==='solve-wrong') await checkpoint('forced'); else await checkpoint('zones');
+    await openAll();
     await expectHint('Принадлежность пропуска');
     document.body.dataset.hintsProgressive='true';
-    await checkpoint('owner');
+    if(mode==='solve-wrong') await checkpoint('route'); else await checkpoint('owner');
     if(mode==='final'){
       const final=document.querySelector('.solo407-final');
       if(!final) throw new Error('final screen missing');
@@ -59,15 +75,19 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
       document.body.dataset.ready='final';
       return;
     }
-    finalSelect({room:'407',alarm:'force',route:'window',sequence:'denis'}); document.querySelector('[data-final]').requestSubmit(); await wait(60);
-    const feedback=document.querySelector('.solo407-final-feedback')?.textContent||'';
-    document.body.dataset.wrongNeutral=String(feedback.includes('Я не покажу, какое именно звено')&&!appText().includes('Дело закрыто'));
-    document.body.dataset.wrongScoreHidden=String(!/\b\d+\s+из\s+\d+\b/.test(feedback));
-    finalSelect({room:'409',alarm:'duress',route:'service',sequence:'collusion'}); document.querySelector('[data-final]').requestSubmit(); await wait(100);
-    const solvedText=appText();
-    document.body.dataset.solved=String(solvedText.includes('Дело закрыто'));
-    document.body.dataset.roomless=String(!solvedText.includes('Создать комнату')&&!solvedText.includes('Пригласить'));
-    document.body.dataset.ready='solved';
+    if(mode==='solve-correct'){
+      finalSelect({room:'409',alarm:'duress',route:'service',sequence:'collusion'}); document.querySelector('[data-final]').requestSubmit(); await wait(100);
+      const state=readState(), text=appText();
+      document.body.dataset.canonicalSolve=String(state.solved===true&&text.includes('Ваша реконструкция выдержала проверку по всем ключевым звеньям'));
+      markCommon();
+      document.body.dataset.ready='solved';
+      return;
+    }
+    finalSelect({room:'407',alarm:'force',route:'window',sequence:'denis'}); document.querySelector('[data-final]').requestSubmit(); await wait(100);
+    const state=readState(), text=appText();
+    if(!state.solved || !text.includes('Дело закрыто')) throw new Error('wrong final did not complete');
+    if(!text.includes('не выдержал') || !text.includes('Пять звеньев, на которых держится дело')) throw new Error('wrong final reveal did not compare theory');
+    const url=new URL(location.href); url.searchParams.set('mode','resume-wrong'); location.replace(url.toString());
   };
   run().catch(e=>{document.body.dataset.error=e.message;document.body.dataset.ready='error';});
 })();
@@ -79,7 +99,7 @@ const port=await new Promise((resolve,reject)=>{server.once('error',reject);serv
 const runChrome=(args)=>new Promise((resolve,reject)=>{const child=spawn(chrome,args,{stdio:['ignore','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',c=>stdout+=c);child.stderr.on('data',c=>stderr+=c);child.on('error',reject);child.on('close',code=>code===0?resolve({stdout,stderr}):reject(new Error(`Chrome exited ${code}: ${stderr.slice(-1200)}`)));});
 try{
   const base=`http://127.0.0.1:${port}/artifacts/solo-407/index.html`;
-  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--virtual-time-budget=5000'];
+  const common=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--force-device-scale-factor=1','--virtual-time-budget=6500'];
   const shots=[
     ['entry-desktop.png','entry','--window-size=1440,1000'],
     ['entry-mobile.png','entry','--window-size=390,1100'],
@@ -89,8 +109,10 @@ try{
     ['final-mobile.png','final','--window-size=390,2600'],
   ];
   for(const [name,mode,size] of shots){ const file=path.join(outDir,name); await runChrome([...common,size,`--screenshot=${file}`,`${base}?mode=${mode}`]); if(fs.statSync(file).size<35_000) throw new Error(`${name} too small`); }
-  const {stdout:dom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve`]);
-  for(const marker of ['data-ready="solved"','data-solved="true"','data-hints-progressive="true"','data-wrong-neutral="true"','data-wrong-score-hidden="true"','data-roomless="true"','Охрана раскрыла не ту дверь']) if(!dom.includes(marker)) throw new Error(`solo solve DOM missing ${marker}`);
-  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407:true,entry:true,desk:true,final:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true,screenshots:shots.map(x=>x[0])},null,2));
-  console.log(JSON.stringify({solo407:true,roomless:true,hintsProgressive:true,wrongFinalNonNudging:true,wrongFinalScoreHidden:true,fullSolve:true,visualStates:['entry','desk','final']},null,2));
+  const {stdout:wrongDom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve-wrong`]);
+  for(const marker of ['data-ready="solved"','data-wrong-final-accepted="true"','data-checkpoint-hypotheses="true"','data-reveal-comparison="true"','data-refresh-preserved="true"','data-roomless="true"','Охрана раскрыла не ту дверь']) if(!wrongDom.includes(marker)) throw new Error(`solo wrong-theory DOM missing ${marker}`);
+  const {stdout:correctDom}=await runChrome([...common,'--window-size=1440,1800','--dump-dom',`${base}?mode=solve-correct`]);
+  for(const marker of ['data-ready="solved"','data-canonical-solve="true"','data-roomless="true"','Охрана раскрыла не ту дверь']) if(!correctDom.includes(marker)) throw new Error(`solo canonical DOM missing ${marker}`);
+  fs.writeFileSync(path.join(outDir,'report.json'),JSON.stringify({solo407:true,entry:true,desk:true,final:true,roomless:true,hintsProgressive:true,playerOwnedCheckpoints:true,wrongFinalAccepted:true,revealComparison:true,refreshPreserved:true,canonicalSolve:true,fullSolve:true,screenshots:shots.map(x=>x[0])},null,2));
+  console.log(JSON.stringify({solo407:true,roomless:true,hintsProgressive:true,playerOwnedCheckpoints:true,wrongFinalAccepted:true,revealComparison:true,refreshPreserved:true,canonicalSolve:true,fullSolve:true,visualStates:['entry','desk','final']},null,2));
 }finally{await new Promise(resolve=>server.close(resolve));}
