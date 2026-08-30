@@ -10,6 +10,7 @@ assert.match(migration,/case_id text not null references public\.ai_case_canon\(
 assert.match(migration,/entitlement_id uuid not null references public\.access_entitlements\(id\) on delete cascade/,'session must belong to a verified entitlement');
 assert.match(migration,/unique \(case_id, entitlement_id\)/,'one purchase must have one authoritative progress state per case');
 assert.match(migration,/"rule_ids":\[\]/,'applied canon rules must be persisted for one-shot unlock semantics');
+assert.match(migration,/"transcripts":\{\}/,'interrogation history must be part of server-authoritative state');
 assert.match(migration,/revision integer not null default 0/,'session state needs optimistic concurrency control');
 assert.match(migration,/alter table public\.ai_case_sessions enable row level security/,'session state must have RLS defense in depth');
 assert.match(migration,/revoke all on table public\.ai_case_sessions from public, anon, authenticated/,'browser roles must not read or mutate authoritative progress');
@@ -29,6 +30,10 @@ assert.match(runtime,/state\.rule_ids\.includes\(rule\.id\)/,'unlock rules must 
 assert.match(runtime,/ai_canon_rule_when_invalid/,'a canon rule with no real gate must be rejected');
 assert.match(runtime,/ai_canon_rule_reference_invalid/,'canon rule references must resolve to known notes/evidence');
 assert.match(runtime,/ai_canon_rule_self_reference/,'a rule cannot require the note it grants itself');
+assert.match(runtime,/ai_canon_confession_contract_required/,'terminal confession must have deterministic canonical copy');
+assert.match(runtime,/terminalReply:terminalRule\?\.terminal_reply\|\|''/,'runtime must surface only the authored terminal confession reply');
+assert.match(runtime,/appendTranscriptTurn/,'only the server runtime should append successful dialogue turns');
+assert.match(runtime,/transcriptForPrompt/,'model context must come from persisted server transcript');
 assert.match(runtime,/state\.successful_turns>=runtime\.publicCase\.max_turns/,'runtime itself must enforce the case turn limit');
 assert.match(runtime,/unique\(\[\.\.\.initialEvidenceIds,\.\.\.storedEvidence\]\)/,'initial evidence must survive corrupted/partial persisted state');
 assert.match(runtime,/safeSessionPayload/,'the endpoint needs a dedicated safe projection rather than returning canon/state internals');
