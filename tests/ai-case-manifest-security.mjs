@@ -55,7 +55,6 @@ assert.equal(ai02.initial_evidence_count,3,'AI-02 starts from a compact neutral 
 assert.equal(ai02.hidden_evidence_count,5,'AI-02 needs multiple independently earned evidence lines');
 assert.equal(ai02.rule_count,9,'AI-02 reviewed private rule graph count changed; rerun private gate and refresh manifest');
 assert.equal(ai02.private_gate.minimum_verified_solution_turns,10,'AI-02 solution depth changed; rerun private state-space before accepting');
-
 const qa02=ai02.production_qa||{};
 assert.equal(qa02.completed,true,'AI-02 production QA must stay recorded after the reviewed run');
 assert.equal(qa02.model_path_verified,true,'AI-02 must have a real production model-path check');
@@ -83,7 +82,6 @@ assert.equal(ai03.private_gate.minimum_verified_solution_turns,12,'AI-03 reviewe
 assert.equal(ai03.private_gate.dependency_cycles_detected,0,'AI-03 rule graph must remain acyclic');
 assert.equal(ai03.private_gate.unknown_reference_count,0,'AI-03 private graph must not reference unknown evidence/notes');
 assert.equal(ai03.publication?.avatar_profiles_published,0,'AI-03 Live profiles must stay unpublished while LiveAvatar credentials are unavailable');
-
 const qa03=ai03.production_qa||{};
 assert.equal(qa03.completed,true,'AI-03 production QA must stay recorded after the reviewed run');
 assert.equal(qa03.model_path_verified,true,'AI-03 must exercise the real production model path');
@@ -113,5 +111,23 @@ assert.equal(ai04.private_gate.minimum_verified_solution_turns,12,'AI-04 reviewe
 assert.equal(ai04.private_gate.dependency_cycles_detected,0,'AI-04 rule graph must remain acyclic');
 assert.equal(ai04.private_gate.unknown_reference_count,0,'AI-04 private graph must not reference unknown evidence/notes');
 assert.equal(ai04.publication?.avatar_profiles_published,0,'AI-04 Live profiles must stay unpublished before Live release readiness');
+const qa04=ai04.production_qa||{};
+assert.equal(qa04.completed,true,'AI-04 production QA must stay recorded after the reviewed run');
+assert.equal(qa04.model_path_verified,true,'AI-04 must exercise the real production model path');
+assert.equal(qa04.zero_stage_suspects_checked,4,'all four AI-04 suspects need zero-stage leak checks');
+assert.equal(qa04.zero_stage_hidden_leaks,0,'AI-04 must not leak gated spatial measurements at zero stage');
+assert.equal(qa04.zero_stage_unexpected_unlocks,0,'AI-04 zero-stage questions must not unlock gated material');
+assert.equal(qa04.full_chain_turns,12,'AI-04 reviewed critical path depth changed; rerun production QA');
+assert.equal(qa04.full_chain_model_turns,11,'AI-04 critical path must leave only the terminal response deterministic');
+assert.equal(qa04.canonical_terminal_model_turns,0,'AI-04 canonical terminal must never spend a model turn');
+assert.equal(qa04.spatial_route_elimination_verified,true,'AI-04 must prove the reviewed impossible-route elimination chain');
+assert.equal(qa04.material_route_trace_verified,true,'AI-04 must prove the earned material trace corroborates the reconstructed route');
+assert.equal(qa04.full_chain_theory_passed,true,'AI-04 final theory must pass on the reviewed chain');
+assert.equal(qa04.no_early_confession_verified,true,'AI-04 must remain cornered rather than confessing one turn early');
+assert.equal(qa04.session_rpm_compliance_verified,true,'AI-04 QA must respect the production session RPM window');
+assert.equal(qa04.metering_cleanup_verified,true,'AI-04 QA must leave production metering clean');
+assert.equal(qa04.qa_fixture_cleaned,true,'AI-04 QA fixtures must be removed after production tests');
+assert.ok(Number(qa04.observed_zero_stage_cost_usd)>=0,'AI-04 zero-stage QA cost must be recorded');
+assert.ok(Number(qa04.observed_critical_path_cost_usd)>=0,'AI-04 critical-path QA cost must be recorded');
 
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
