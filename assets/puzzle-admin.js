@@ -3,6 +3,13 @@
 
   const ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
   const TOKEN_KEY = 'mysterylogic:review-admin-token:v1';
+  const COLLECTIONS = {
+    kids: { label: 'Для детей', route: '/golovolomki-dlya-detei/' },
+    brain: { label: 'Игры для мозга', route: '/igry-dlya-mozga/' },
+    detective: { label: 'Детективные', route: '/detektivnye-golovolomki/' },
+    math: { label: 'Математические', route: '/matematicheskie-golovolomki/' },
+    matches: { label: 'Со спичками', route: null },
+  };
   const login = document.querySelector('[data-admin-login]');
   const app = document.querySelector('[data-admin-app]');
   const loginForm = document.querySelector('[data-admin-login-form]');
@@ -59,14 +66,43 @@
       const approved = Number(counts.approved || 0);
       const rejected = Number(counts.rejected || 0);
       gate.innerHTML = pending
-        ? `<strong>Публикация закрыта:</strong> ${pending} ${pending === 1 ? 'задача ждёт' : 'задач ждут'} решения. Утверждено: ${approved}. Отклонено: ${rejected}.`
-        : `<strong>Очередь разобрана.</strong> Утверждено: ${approved}. Отклонено: ${rejected}.`;
+        ? `<strong>Проверка продолжается:</strong> ${pending} ${pending === 1 ? 'задача ждёт' : 'задач ждут'} решения. Уже утверждено: ${approved}; отклонено: ${rejected}. Утверждённые входят в пул публикации сразу — отклонённые их больше не блокируют.`
+        : `<strong>Проверка завершена.</strong> ${approved} задач разрешены к публикации, ${rejected} исключены. Дополнительного подтверждения для утверждённых задач не требуется.`;
     }
   };
 
   const statusLabel = (status) => ({
     pending: 'На проверке', approved: 'Утверждена', rejected: 'Отклонена',
   }[status] || status);
+
+  const publicTargets = (p = {}) => (Array.isArray(p.collections) ? p.collections : [])
+    .filter((key) => COLLECTIONS[key]?.route)
+    .map((key) => COLLECTIONS[key]);
+
+  const publicationCopy = (row, p, status) => {
+    if (status === 'rejected') return '<p class="puzzle-admin-publish-copy is-rejected">Не публикуется. Запись остаётся только в редакционной истории.</p>';
+    if (status === 'pending') return '<p class="puzzle-admin-publish-copy">Сначала примите редакционное решение.</p>';
+    const targets = publicTargets(p);
+    const targetHtml = targets.length
+      ? `<ul class="puzzle-admin-targets">${targets.map((target) => `<li><strong>${esc(target.label)}</strong><span>${esc(target.route)}</span></li>`).join('')}</ul>`
+      : '<p class="puzzle-admin-publish-copy">Нет публичной коллекции для этой механики.</p>';
+    return `<p class="puzzle-admin-publish-copy is-approved"><strong>Готова к публикации.</strong> Игровой URL создаётся как <code>noindex,follow</code>; SEO-трафик собирают полноценные тематические подборки.</p>${targetHtml}`;
+  };
+
+  const renderPublishSummary = (rows = [], status = activeTab) => {
+    const box = document.querySelector('[data-publish-summary]');
+    if (!box) return;
+    if (status !== 'approved') { box.hidden = true; box.innerHTML = ''; return; }
+    const counts = { kids: 0, brain: 0, detective: 0, math: 0, matches: 0, adult: 0 };
+    for (const row of rows) {
+      const p = row.content || {};
+      const groups = Array.isArray(p.collections) ? p.collections : [];
+      for (const key of ['kids', 'brain', 'detective', 'math', 'matches']) if (groups.includes(key)) counts[key] += 1;
+      if (p.age === 'Для взрослых') counts.adult += 1;
+    }
+    box.hidden = false;
+    box.innerHTML = `<div><p class="mla-kicker">Куда пойдут утверждённые</p><h3>${rows.length} задач в пуле публикации</h3><p>Одна задача может входить сразу в несколько подборок. Разделы публикуются только когда в них достаточно самостоятельного контента.</p></div><div class="puzzle-publish-grid"><div><strong>${counts.kids}</strong><span>Для детей</span></div><div><strong>${counts.brain}</strong><span>Игры для мозга</span></div><div><strong>${counts.detective}</strong><span>Детективные</span></div><div><strong>${counts.math}</strong><span>Математические</span></div><div><strong>${counts.adult}</strong><span>Для взрослых</span></div></div><p class="puzzle-publish-foot">Со спичками: ${counts.matches}. Этот формат сейчас исключён из публичного дерева и останется редакционным резервом до полноценной визуализации.</p>`;
+  };
 
   const puzzleCard = (row) => {
     const p = row.content || {};
@@ -96,8 +132,12 @@
       </div>
       <aside class="puzzle-admin-side">
         <div>
-          <div class="mla-kicker">Публикация</div>
+          <div class="mla-kicker">Игровой маршрут</div>
           <span class="puzzle-admin-route">/${esc(row.public_route || '')}</span>
+        </div>
+        <div>
+          <div class="mla-kicker">После решения</div>
+          ${publicationCopy(row, p, status)}
         </div>
         <label><span class="mla-kicker">Редакторская заметка</span><textarea class="mla-review-note" data-puzzle-note placeholder="Например: изменить формулировку, слишком легко, спорный ответ…">${esc(row.moderation_note || '')}</textarea></label>
         <div class="puzzle-admin-actions">
@@ -115,14 +155,16 @@
     try {
       const data = await request(`?status=${encodeURIComponent(status)}`);
       updateCounts(data.counts || {});
+      const rows = data.puzzles || [];
+      renderPublishSummary(rows, status);
       const list = document.querySelector('[data-puzzle-list]');
       const empty = document.querySelector('[data-puzzle-empty]');
       const title = document.querySelector('[data-puzzle-title]');
       if (title) title.textContent = status === 'approved'
         ? 'Утверждённые головоломки'
         : status === 'rejected' ? 'Отклонённые головоломки' : 'Головоломки на проверке';
-      if (list) list.innerHTML = (data.puzzles || []).map(puzzleCard).join('');
-      if (empty) empty.hidden = Boolean((data.puzzles || []).length);
+      if (list) list.innerHTML = rows.map(puzzleCard).join('');
+      if (empty) empty.hidden = Boolean(rows.length);
     } catch (error) {
       setError(error.message || 'Не удалось загрузить очередь головоломок.');
     } finally { setBusy(false); }

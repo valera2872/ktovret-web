@@ -52,14 +52,20 @@ jobs:
           node --check tools/import-mobile/solo-407-postprocess.mjs
           node --check tools/import-mobile/logic-expert-release-data.mjs
           node --check tools/import-mobile/logic-expert-seo-postprocess.mjs
+          node --check tools/import-mobile/logic-audience-data.mjs
+          node --check tools/import-mobile/logic-audience-postprocess.mjs
+          node --check tools/import-mobile/puzzle-editorial-gate.mjs
+          node --check tools/staging-sitemap-boundary-validate.mjs
           node --check tools/import-mobile-cases.mjs
           node --check assets/duel-room.js
           node --check assets/case-407-solo.js
           node --check assets/logic-expert.js
+          node --check assets/logic-audience.js
           node --check ktovret-game/assets/duel-room-client.js
           node tests/seo-native-cases.test.js
+          node tests/puzzle-editorial-contract.mjs
 
-      - name: Validate spoiler-safe 134 URL boundary
+      - name: Validate spoiler-safe dynamic URL boundary
         working-directory: web
         run: |
           test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
@@ -70,9 +76,7 @@ jobs:
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
           test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
-          test "$(grep -c '<url>' sitemap.xml)" -eq 134
-          test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 134
-          grep -q '"indexableUrls": 134' assets/generated/import-report.json
+          node tools/staging-sitemap-boundary-validate.mjs
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
