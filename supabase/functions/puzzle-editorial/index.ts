@@ -28,6 +28,14 @@ const sha256 = async (value: string) => hex(await crypto.subtle.digest(
   'SHA-256',
   new TextEncoder().encode(value),
 ));
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const object = value as Record<string, unknown>;
+    return `{${Object.keys(object).sort().map((key) => `${JSON.stringify(key)}:${canonical(object[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+};
 
 function serviceKey() {
   const modern = Deno.env.get('SUPABASE_SECRET_KEYS') || '';
@@ -81,17 +89,13 @@ Deno.serve(async (req: Request) => {
       .eq('moderation_status', 'approved')
       .order('puzzle_id', { ascending: true });
     if (error) return json(503, { error: 'manifest_read_failed' }, origin);
-    return json(200, {
-      ok: true,
-      schemaVersion: 1,
-      count: data?.length || 0,
-      puzzles: (data || []).map((row: any) => ({
-        id: row.puzzle_id,
-        content: row.content,
-        approvedAt: row.moderated_at,
-        updatedAt: row.updated_at,
-      })),
-    }, origin);
+    const puzzles = await Promise.all((data || []).map(async (row: any) => ({
+      id: row.puzzle_id,
+      fingerprint: await sha256(canonical(row.content)),
+      approvedAt: row.moderated_at,
+      updatedAt: row.updated_at,
+    })));
+    return json(200, { ok: true, schemaVersion: 2, count: puzzles.length, puzzles }, origin);
   }
 
   if (!(await authorize(req, admin))) return json(401, { error: 'unauthorized' }, origin);
