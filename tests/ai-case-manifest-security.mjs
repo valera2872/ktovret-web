@@ -163,4 +163,36 @@ assert.equal(qa05.qa_fixture_cleaned,true,'AI-05 QA fixtures must be removed aft
 assert.equal(Number(qa05.observed_zero_stage_cost_usd),0.0006458,'AI-05 zero-stage QA cost changed; rerun and record the reviewed path');
 assert.equal(Number(qa05.observed_critical_path_cost_usd),0.0028542,'AI-05 critical-path QA cost changed; rerun and record the reviewed path');
 
+const ai06=load('AI-06');
+assert.equal(ai06.case_id,'AI-06');
+assert.equal(ai06.status,'draft');
+assert.equal(ai06.suspect_count,4,'AI-06 must preserve the four-suspect interrogation shape');
+assert.equal(ai06.initial_evidence_count,3,'AI-06 must begin from the reviewed package/provenance evidence set');
+assert.equal(ai06.hidden_evidence_count,6,'AI-06 needs the reviewed provenance-audit evidence depth');
+assert.equal(ai06.rule_count,11,'AI-06 reviewed dependency graph count changed; rerun private state-space');
+assert.equal(ai06.private_gate.minimum_verified_solution_turns,12,'AI-06 reviewed critical path depth changed; rerun private state-space');
+assert.equal(ai06.private_gate.dependency_cycles_detected,0,'AI-06 rule graph must remain acyclic');
+assert.equal(ai06.private_gate.unknown_reference_count,0,'AI-06 private graph must not reference unknown evidence/notes');
+assert.equal(ai06.publication?.avatar_profiles_published,0,'AI-06 Live profiles must stay unpublished before Live release readiness');
+const qa06=ai06.production_qa||{};
+assert.equal(qa06.completed,true,'AI-06 production QA must stay recorded after the reviewed run');
+assert.equal(qa06.model_path_verified,true,'AI-06 must exercise the real production model path');
+assert.equal(qa06.zero_stage_suspects_checked,4,'all four AI-06 suspects need zero-stage leak checks');
+assert.equal(qa06.zero_stage_hidden_leaks,0,'AI-06 must not leak gated provenance findings at zero stage');
+assert.equal(qa06.zero_stage_unexpected_unlocks,0,'AI-06 zero-stage questions must not unlock gated material');
+assert.equal(qa06.full_chain_turns,12,'AI-06 reviewed critical path depth changed; rerun production QA');
+assert.equal(qa06.full_chain_model_turns,11,'AI-06 critical path must leave only the terminal response deterministic');
+assert.equal(qa06.canonical_terminal_model_turns,0,'AI-06 canonical terminal must never spend a model turn');
+assert.equal(qa06.trace_match_limit_verified,true,'AI-06 must preserve the limit between trace compatibility and provenance');
+assert.equal(qa06.first_search_contradiction_verified,true,'AI-06 must preserve the independent first-search photo contradiction');
+assert.equal(qa06.sealed_package_mass_delta_verified,true,'AI-06 must preserve the sealed-package mass-delta reconstruction');
+assert.equal(qa06.seal_access_provenance_verified,true,'AI-06 must preserve the replacement-seal and storage-access provenance chain');
+assert.equal(qa06.full_chain_theory_passed,true,'AI-06 final theory must pass on the reviewed chain');
+assert.equal(qa06.no_early_confession_verified,true,'AI-06 must remain cornered rather than confessing one turn early');
+assert.equal(qa06.session_rpm_compliance_verified,true,'AI-06 QA must respect the production session RPM window');
+assert.equal(qa06.metering_cleanup_verified,true,'AI-06 QA must leave production metering clean');
+assert.equal(qa06.qa_fixture_cleaned,true,'AI-06 QA fixtures must be removed after production tests');
+assert.equal(Number(qa06.observed_zero_stage_cost_usd),0.0007078,'AI-06 zero-stage QA cost changed; rerun and record the reviewed path');
+assert.equal(Number(qa06.observed_critical_path_cost_usd),0.0026974,'AI-06 critical-path QA cost changed; rerun and record the reviewed path');
+
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
