@@ -92,7 +92,7 @@ export function validClientSession(value:unknown){const id=clean(value,96);retur
 export function experienceTier(metadata:unknown):ExperienceTier{return String(record(metadata).experience_tier||'').toLowerCase()==='live'?'live':'text'}
 export function entitlementAllowsCase(metadata:unknown,caseId:string){const m=record(metadata);const allowed=stringList(m.allowed_case_ids,100,160);if(allowed.length)return allowed.includes(caseId);const scoped=clean(m.case_id,160);return !scoped||scoped===caseId}
 
-async function sha256(value:string){const digest=await crypto.subtle.digest('SHA-256',encoder.encode(value));return [...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,'0')).join('')}
+export async function digestHex(value:string){const digest=await crypto.subtle.digest('SHA-256',encoder.encode(value));return [...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,'0')).join('')}
 
 function serverHeaders(serviceRole:string,extra:Record<string,string>={}){return {apikey:serviceRole,authorization:`Bearer ${serviceRole}`,'content-type':'application/json',...extra}}
 async function restJson(base:string,serviceRole:string,path:string,init:RequestInit={}){
@@ -133,6 +133,8 @@ function validateWhen(value:unknown):RuleWhen{
     presented_evidence_ids:stringList(w.presented_evidence_ids,16,80).filter(v=>ID_RE.test(v)),
   };
 }
+function whenHasPredicate(when:RuleWhen){return (when.min_questions||0)>0||!!when.all_terms?.length||!!when.any_terms?.length||!!when.required_evidence_ids?.length||!!when.required_note_ids?.length||!!when.presented_evidence_ids?.length}
+
 export function parsePrivateCanon(value:unknown,publicCase:AiPublicCase):AiPrivateCanon{
   const raw=record(value);if(Number(raw.schema_version)!==1)throw new Error('ai_canon_schema_invalid');
   const publicSuspectIds=new Set(publicCase.suspects.map(s=>s.id));
@@ -156,19 +158,26 @@ export function parsePrivateCanon(value:unknown,publicCase:AiPublicCase):AiPriva
     const r=record(item);const id=clean(r.id,80);const suspectId=clean(r.suspect_id,80);const grantsRaw=record(r.grants);const note=grantsRaw.note?validateNote(grantsRaw.note):null;const evidenceIds=stringList(grantsRaw.evidence_ids,16,80);
     const stage=STAGES.has(String(r.stage))?String(r.stage) as InterrogationStage:undefined;
     const terminal=r.terminal==='confession'?'confession' as const:undefined;
+    const when=validateWhen(r.when);
     if(!ID_RE.test(id)||ruleIds.has(id)||!publicSuspectIds.has(suspectId))throw new Error('ai_canon_rule_invalid');
+    if(!whenHasPredicate(when))throw new Error('ai_canon_rule_when_invalid');
     if(note&&noteIds.has(note.id))throw new Error('ai_canon_note_duplicate');
     if(evidenceIds.some(eid=>!evidence[eid]))throw new Error('ai_canon_rule_evidence_invalid');
     if(!note&&!evidenceIds.length&&!stage&&!terminal)throw new Error('ai_canon_rule_empty');
     ruleIds.add(id);if(note)noteIds.add(note.id);
-    rules.push({id,suspect_id:suspectId,when:validateWhen(r.when),grants:{...(note?{note}:{}),...(evidenceIds.length?{evidence_ids:unique(evidenceIds)}:{})},...(stage?{stage}:{}),...(terminal?{terminal}:{})});
+    rules.push({id,suspect_id:suspectId,when,grants:{...(note?{note}:{}),...(evidenceIds.length?{evidence_ids:unique(evidenceIds)}:{})},...(stage?{stage}:{}),...(terminal?{terminal}:{})});
   }
   if(!rules.length||rules.length>80)throw new Error('ai_canon_rules_invalid');
 
+  const allEvidenceIds=new Set([...initialIds,...Object.keys(evidence)]);
+  for(const rule of rules){
+    const evidenceRefs=[...(rule.when.required_evidence_ids||[]),...(rule.when.presented_evidence_ids||[])];
+    if(evidenceRefs.some(id=>!allEvidenceIds.has(id))||(rule.when.required_note_ids||[]).some(id=>!noteIds.has(id)))throw new Error('ai_canon_rule_reference_invalid');
+    if(rule.grants.note&&(rule.when.required_note_ids||[]).includes(rule.grants.note.id))throw new Error('ai_canon_rule_self_reference');
+  }
   for(const suspect of Object.values(suspects))for(const noteId of Object.keys(suspect.admissions))if(!noteIds.has(noteId))throw new Error('ai_canon_admission_note_unknown');
 
   const theoryRaw=record(raw.theory);const culprit=clean(theoryRaw.culprit_id,80);const requiredEvidence=stringList(theoryRaw.required_evidence_ids,32,80);const requiredNotes=stringList(theoryRaw.required_note_ids,32,80);
-  const allEvidenceIds=new Set([...initialIds,...Object.keys(evidence)]);
   if(!publicSuspectIds.has(culprit)||requiredEvidence.some(id=>!allEvidenceIds.has(id))||requiredNotes.some(id=>!noteIds.has(id)))throw new Error('ai_canon_theory_invalid');
   const successTitle=clean(theoryRaw.success_title,240);const successExplanation=clean(theoryRaw.success_explanation,1600);if(!successTitle||!successExplanation)throw new Error('ai_canon_theory_copy_invalid');
 
@@ -181,7 +190,7 @@ export async function loadPaidAiCaseRuntime(input:{supabaseUrl:string;serviceRol
   const paidRows=await restJson(supabaseUrl,serviceRole,`paid_case_payloads?select=case_id,product_id,status,payload,payload_version&case_id=eq.${encodeURIComponent(caseId)}&status=eq.published&limit=1`);
   const paid=Array.isArray(paidRows)?paidRows[0]:null;if(!paid)throw new Error('case_not_found');
   const productId=clean(paid.product_id,160);if(!productId)throw new Error('case_product_invalid');
-  const tokenHash=await sha256(token);if(!TOKEN_HASH_RE.test(tokenHash))throw new Error('access_invalid');
+  const tokenHash=await digestHex(token);if(!TOKEN_HASH_RE.test(tokenHash))throw new Error('access_invalid');
   const entitlementRows=await restJson(supabaseUrl,serviceRole,`access_entitlements?select=id,product_id,status,starts_at,expires_at,revoked_at,metadata&token_hash=eq.${tokenHash}&product_id=eq.${encodeURIComponent(productId)}&status=eq.active&limit=1`);
   const entitlement=Array.isArray(entitlementRows)?entitlementRows[0]:null;if(!entitlement||!UUID_RE.test(String(entitlement.id||'')))throw new Error('access_denied');
   const now=Date.now();if(entitlement.revoked_at)throw new Error('access_revoked');if(entitlement.starts_at&&new Date(entitlement.starts_at).getTime()>now)throw new Error('access_not_started');if(entitlement.expires_at&&new Date(entitlement.expires_at).getTime()<=now)throw new Error('access_expired');if(!entitlementAllowsCase(entitlement.metadata,caseId))throw new Error('access_wrong_case');
@@ -191,16 +200,17 @@ export async function loadPaidAiCaseRuntime(input:{supabaseUrl:string;serviceRol
   return {caseId,productId,payloadVersion:boundedInt(paid.payload_version,1,100000,1),canonVersion:boundedInt(canonRow.canon_version,1,100000,1),publicCase,canon,entitlement:{id:String(entitlement.id),experienceTier:experienceTier(entitlement.metadata)}};
 }
 
-export async function deriveScopedSessionKey(caseId:string,entitlementId:string,clientSessionId:string){if(!normalizeCaseId(caseId)||!UUID_RE.test(entitlementId)||!validClientSession(clientSessionId))throw new Error('invalid_session');return sha256(`ai-v2-session:${caseId}:${entitlementId}:${clientSessionId}`)}
+export async function deriveScopedSessionKey(caseId:string,entitlementId:string,clientSessionId:string){if(!normalizeCaseId(caseId)||!UUID_RE.test(entitlementId)||!validClientSession(clientSessionId))throw new Error('invalid_session');return digestHex(`ai-v2-session:${caseId}:${entitlementId}:${clientSessionId}`)}
 
 export function initialCaseState(runtime:AiCaseRuntime):AiCaseState{
   const question_counts:Record<string,number>={};const stages:Record<string,InterrogationStage>={};for(const s of runtime.publicCase.suspects){question_counts[s.id]=0;stages[s.id]='composed'}
   return {successful_turns:0,question_counts,evidence_ids:runtime.publicCase.initial_evidence.map(e=>e.id),note_ids:[],rule_ids:[],stages};
 }
 export function normalizeStoredState(value:unknown,runtime:AiCaseRuntime):AiCaseState{
-  const raw=record(value);const allowedSuspects=new Set(runtime.publicCase.suspects.map(s=>s.id));const allowedEvidence=new Set([...runtime.publicCase.initial_evidence.map(e=>e.id),...Object.keys(runtime.canon.evidence)]);const allowedNotes=new Set(runtime.canon.rules.map(r=>r.grants.note?.id).filter(Boolean) as string[]);const allowedRules=new Set(runtime.canon.rules.map(r=>r.id));
+  const raw=record(value);const allowedSuspects=new Set(runtime.publicCase.suspects.map(s=>s.id));const initialEvidenceIds=runtime.publicCase.initial_evidence.map(e=>e.id);const allowedEvidence=new Set([...initialEvidenceIds,...Object.keys(runtime.canon.evidence)]);const allowedNotes=new Set(runtime.canon.rules.map(r=>r.grants.note?.id).filter(Boolean) as string[]);const allowedRules=new Set(runtime.canon.rules.map(r=>r.id));
   const question_counts:Record<string,number>={};const stages:Record<string,InterrogationStage>={};for(const id of allowedSuspects){question_counts[id]=boundedInt(record(raw.question_counts)[id],0,60,0);const stage=String(record(raw.stages)[id]||'composed');stages[id]=STAGES.has(stage)?stage as InterrogationStage:'composed'}
-  return {successful_turns:boundedInt(raw.successful_turns,0,60,0),question_counts,evidence_ids:unique(stringList(raw.evidence_ids,80,80).filter(id=>allowedEvidence.has(id))),note_ids:unique(stringList(raw.note_ids,80,80).filter(id=>allowedNotes.has(id))),rule_ids:unique(stringList(raw.rule_ids,100,80).filter(id=>allowedRules.has(id))),stages};
+  const storedEvidence=stringList(raw.evidence_ids,80,80).filter(id=>allowedEvidence.has(id));
+  return {successful_turns:boundedInt(raw.successful_turns,0,runtime.publicCase.max_turns,0),question_counts,evidence_ids:unique([...initialEvidenceIds,...storedEvidence]),note_ids:unique(stringList(raw.note_ids,80,80).filter(id=>allowedNotes.has(id))),rule_ids:unique(stringList(raw.rule_ids,100,80).filter(id=>allowedRules.has(id))),stages};
 }
 
 export async function loadOrCreateCaseSession(input:{supabaseUrl:string;serviceRole:string;runtime:AiCaseRuntime;clientSessionId:string}){
@@ -232,7 +242,7 @@ function ruleMatches(rule:CanonRule,suspectId:string,question:string,presentedEv
 }
 
 export function applyInterrogationTurn(runtime:AiCaseRuntime,state:AiCaseState,input:{suspectId:string;question:string;presentedEvidenceId?:string}){
-  const suspectId=clean(input.suspectId,80);const question=clean(input.question,600);const evidenceId=clean(input.presentedEvidenceId,80);if(!runtime.canon.suspects[suspectId]||question.length<2)throw new Error('invalid_interrogation');if(evidenceId&&!state.evidence_ids.includes(evidenceId))throw new Error('evidence_not_discovered');
+  const suspectId=clean(input.suspectId,80);const question=clean(input.question,600);const evidenceId=clean(input.presentedEvidenceId,80);if(!runtime.canon.suspects[suspectId]||question.length<2)throw new Error('invalid_interrogation');if(state.successful_turns>=runtime.publicCase.max_turns)throw new Error('session_limit');if(evidenceId&&!state.evidence_ids.includes(evidenceId))throw new Error('evidence_not_discovered');
   const next:AiCaseState={...state,successful_turns:state.successful_turns+1,question_counts:{...state.question_counts},evidence_ids:[...state.evidence_ids],note_ids:[...state.note_ids],rule_ids:[...state.rule_ids],stages:{...state.stages}};
   const nextCount=(next.question_counts[suspectId]||0)+1;next.question_counts[suspectId]=nextCount;
   const triggered:CanonRule[]=[];
