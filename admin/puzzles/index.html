@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111d">
+  <title>Mystery Logic — утверждение головоломок</title>
+  <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
+  <link rel="stylesheet" href="../../assets/puzzle-admin.css?v=1.0.0">
+</head>
+<body class="mla-body">
+  <main class="mla-shell">
+    <header class="mla-header">
+      <a class="mla-brand" href="../../"><span>ML</span><strong>Mystery Logic</strong></a>
+      <div><small>Внутренняя панель</small><h1>Утверждение головоломок</h1></div>
+    </header>
+
+    <section class="mla-login" data-admin-login>
+      <p class="mla-kicker">Доступ владельца</p>
+      <h2>Введите ключ модератора</h2>
+      <p>Используется тот же ключ, что и в панели отзывов. Он хранится только в этой вкладке.</p>
+      <form data-admin-login-form>
+        <label><span>Ключ</span><input type="password" autocomplete="off" spellcheck="false" data-admin-token placeholder="MLADM-…"></label>
+        <button type="submit">Открыть панель</button>
+      </form>
+      <p class="mla-error" data-admin-login-error role="alert"></p>
+    </section>
+
+    <section class="mla-app" data-admin-app hidden>
+      <div class="mla-toolbar">
+        <nav class="mla-tabs" aria-label="Статусы головоломок">
+          <button type="button" data-tab="pending" class="is-active">На проверке <b data-count="pending">0</b></button>
+          <button type="button" data-tab="approved">Утверждены <b data-count="approved">0</b></button>
+          <button type="button" data-tab="rejected">Отклонены <b data-count="rejected">0</b></button>
+        </nav>
+        <div class="mla-toolbar-actions">
+          <a class="mla-quiet" href="../reviews/" style="text-decoration:none">Отзывы и воронка</a>
+          <button type="button" class="mla-quiet" data-admin-refresh>Обновить</button>
+          <button type="button" class="mla-quiet" data-admin-lock>Закрыть доступ</button>
+        </div>
+      </div>
+
+      <section>
+        <div class="mla-panel-head puzzle-panel-head">
+          <div>
+            <p class="mla-kicker">Редакционный шлюз</p>
+            <h2 data-puzzle-title>Головоломки на проверке</h2>
+          </div>
+          <p>Проверяйте условие, варианты, правильный ответ, подсказку и разбор. Пока задача не утверждена, новая публикация не должна проходить production-gate.</p>
+        </div>
+        <div class="puzzle-gate-note" data-gate-note></div>
+        <div class="mla-empty" data-puzzle-empty hidden>В этом разделе пока пусто.</div>
+        <div class="puzzle-admin-list" data-puzzle-list></div>
+      </section>
+
+      <p class="mla-error" data-admin-error role="alert"></p>
+    </section>
+  </main>
+  <script src="../../assets/puzzle-admin.js?v=1.0.0" defer></script>
+</body>
+</html>
