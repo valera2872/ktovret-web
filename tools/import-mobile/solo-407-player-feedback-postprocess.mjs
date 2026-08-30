@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const CASE_FILE = 'detektivnye-igry-dlya-odnogo/407/index.html';
+const HUB_FILE = 'detektivnye-igry-dlya-odnogo/index.html';
 const VERSION = '1.3.0';
 
 export function applySolo407PlayerFeedback(siteRoot) {
@@ -45,5 +46,16 @@ export function applySolo407PlayerFeedback(siteRoot) {
     if (!html.includes(marker)) throw new Error(`Solo 407 feedback layer missing ${marker}`);
   }
   fs.writeFileSync(file, html);
+
+  const hubFile = path.join(siteRoot, HUB_FILE);
+  if (fs.existsSync(hubFile)) {
+    let hub = fs.readFileSync(hubFile, 'utf8');
+    hub = hub.replace(
+      'На контрольных точках фиксируете только то, что уже доказано материалами.',
+      'На контрольных точках фиксируете рабочую гипотезу; игра не сообщает, правы ли вы, пока дело не раскрыто.'
+    );
+    fs.writeFileSync(hubFile, hub);
+  }
+
   return { route: CASE_FILE.replace('/index.html', ''), version: VERSION, progressiveEntry: true, clarityLayer: true };
 }
