@@ -1,0 +1,32 @@
+name: TEMP AI-02 full chain QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai02-full-chain-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  full-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Run full production AI-02 evidence chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?probe=85f4d6a3f503166482e9181f49ca5c3ad490aa1b45bd3d9dbaa7ff0f4de2e27c')"
+          QA_JSON="$body" node <<'NODE'
+          const d=JSON.parse(process.env.QA_JSON||'{}');
+          if(!d.ok) throw new Error(`full_chain_failed:${JSON.stringify(d)}`);
+          if(d.already_started){console.log('ALREADY_STARTED',d.successful_turns);process.exit(0)}
+          if(!Array.isArray(d.report)||d.report.length!==10) throw new Error('step_count_failed');
+          for(const r of d.report) console.log('STEP',r.step,r.suspect,r.mode,r.stage,'E',JSON.stringify(r.new_evidence),'N',JSON.stringify(r.new_notes),'TURNS',r.turns);
+          if(d.theory?.correct!==true||d.final?.successful_turns!==10||d.usage?.model_turns!==9) throw new Error(`final_contract_failed:${JSON.stringify({theory:d.theory,final:d.final,usage:d.usage})}`);
+          console.log('FINAL_EVIDENCE',JSON.stringify(d.final.evidence));
+          console.log('FINAL_NOTES',JSON.stringify(d.final.notes));
+          console.log('USAGE',JSON.stringify(d.usage));
+          console.log('AI02_FULL_CHAIN_QA_OK');
+          NODE
