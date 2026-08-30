@@ -1,10 +1,13 @@
 (()=>{"use strict";
 const SDK_URL="./vendor/liveavatar-web-sdk.mjs";
+const PCM_SAMPLE_RATE=24000;
+const PCM_BYTES_PER_SAMPLE=2;
 function toBase64(buffer){
   const bytes=new Uint8Array(buffer);let binary="";const size=0x8000;
   for(let i=0;i<bytes.length;i+=size)binary+=String.fromCharCode(...bytes.subarray(i,i+size));
   return btoa(binary);
 }
+function pcmDurationMs(buffer){return Math.max(500,Math.ceil(buffer.byteLength/(PCM_SAMPLE_RATE*PCM_BYTES_PER_SAMPLE)*1000))}
 window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth={}})=>{
   const sdk=await import(SDK_URL);
   const LiveAvatarSession=sdk.LiveAvatarSession;
@@ -32,7 +35,7 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
     },
     async setStage(next){stage=next||"composed"},
     async speak(text,meta={}){
-      if(!connected||!live||!text)return false;
+      if(!connected||!live||!text)return {ok:false,durationMs:0};
       const response=await fetch(ttsEndpoint,{
         method:"POST",
         headers:{"content-type":"application/json",...auth},
@@ -41,9 +44,10 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
       if(!response.ok){let err={};try{err=await response.json()}catch{}throw new Error(err.error||err.message||"avatar_tts_failed")}
       const pcm=await response.arrayBuffer();
       if(!pcm.byteLength)throw new Error("avatar_tts_empty");
+      const durationMs=pcmDurationMs(pcm);
       try{live.interrupt()}catch{}
       live.repeatAudio(toBase64(pcm));
-      return true;
+      return {ok:true,durationMs};
     },
     async disconnect(){
       if(unlock)window.removeEventListener("pointerdown",unlock);unlock=null;
