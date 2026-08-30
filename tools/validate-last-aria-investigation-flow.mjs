@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
 const loader = read('../assets/case-aria-final-feedback-loader.js');
+const finalFeedback = read('../assets/case-aria-final-feedback.js');
 const ux = read('../assets/case-aria-investigation-ux-v2.js');
 const resilience = read('../assets/case-aria-resilience.js');
 const coopPost = read('./import-mobile/coop-v4-postprocess.mjs');
@@ -82,6 +83,25 @@ assert.doesNotMatch(ux, /selected\?\.id === data\.decision\.correct/, 'Last Aria
 assert.match(ux, /ensureTheoryCheck\(\)/, 'Last Aria theory check must run with dynamic screen updates');
 assert.match(ux, /MutationObserver/, 'Last Aria investigation UX must survive dynamic game boot');
 
+// Reveal payoff must land emotionally first, then preserve the full forensic
+// audit below it. It also reflects whether the pair kept or changed its theory.
+assert.match(finalFeedback, /const enhanceReveal = \(\) =>/, 'Last Aria reveal payoff enhancer is missing');
+assert.match(finalFeedback, /ariaRevealPayoff/, 'Last Aria reveal payoff must be idempotent');
+assert.match(finalFeedback, /Михаил Карев/, 'Last Aria reveal must lead with the culprit');
+assert.match(finalFeedback, /заранее записанный собственный голос в алиби/, 'Last Aria reveal must explain the central trick immediately');
+assert.match(finalFeedback, /casearia-reveal-chain/, 'Last Aria reveal proof chain is missing');
+assert.match(finalFeedback, /Саботаж/, 'Last Aria reveal must include sabotage as a proof link');
+assert.match(finalFeedback, /Ложное присутствие/, 'Last Aria reveal must include the false-presence mechanism');
+assert.match(finalFeedback, /Маршрут и доступ/, 'Last Aria reveal must include route and access');
+assert.match(finalFeedback, /Оригинал/, 'Last Aria reveal must close on the recovered original');
+assert.match(finalFeedback, /progress\.decision/, 'Last Aria reveal must reflect the saved working theory');
+assert.match(finalFeedback, /Ваша рабочая версия выдержала стресс-тест/, 'Last Aria reveal must reward a theory that survived');
+assert.match(finalFeedback, /Вы изменили версию по новым данным/, 'Last Aria reveal must normalize revising a failed theory');
+assert.match(finalFeedback, /Проверить полную доказательную реконструкцию/, 'Last Aria full forensic reconstruction must remain available');
+assert.match(finalFeedback, /for \(const paragraph of originalParagraphs\) audit\.appendChild\(paragraph\)/, 'Last Aria reveal must preserve original forensic paragraphs inside the audit');
+assert.match(finalFeedback, /if \(originalQuote\) audit\.appendChild\(originalQuote\)/, 'Last Aria reveal must preserve the original closing quote');
+assert.match(finalFeedback, /const apply = \(\) => \{ repairFinal\(\); enhanceReveal\(\); \}/, 'Last Aria reveal payoff must survive dynamic final rendering');
+
 // Production-critical regression: the installed observer must only watch root-level
 // screen replacements. Watching the whole subtree makes our own nav/note edits
 // re-trigger the observer indefinitely and can starve the browser main thread.
@@ -106,4 +126,4 @@ assert.match(coopPost, /addScript\(html,root,finalFeedbackLoader,LAST_ARIA_UX_VE
 assert.match(coopPost, /addScript\(html,root,investigationUx,LAST_ARIA_UX_VERSION\)/, 'Last Aria investigation UX is not injected');
 assert.match(coopPost, /addScript\(html,root,resilience,LAST_ARIA_RESILIENCE_VERSION\)/, 'Last Aria resilience guard is not injected');
 
-console.log('Last Aria delayed-boot, player-owned hypothesis, package-three falsification and resumed-progress regression gate passed');
+console.log('Last Aria player-owned hypothesis, falsification, reveal payoff and resumed-progress regression gate passed');
