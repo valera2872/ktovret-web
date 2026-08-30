@@ -16,6 +16,7 @@ for(const file of [
   'assets/logic-expert.js',
   'assets/logic-sitewide.css',
   'assets/logic-sitewide.js',
+  'assets/premium-surface-v2.css',
   'golovolomki-onlayn/index.html',
   'zagadki-na-logiku-dlya-vzroslyh/index.html',
   'logicheskie-zadachi/index.html',
@@ -55,14 +56,14 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
 const pngDimensions=(filePath)=>{const bytes=fs.readFileSync(filePath);if(bytes.length<24||bytes.toString('hex',0,8)!=='89504e470d0a1a0a')throw new Error(`${filePath} is not a PNG`);return{width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 
 const captures=[
-  {name:'puzzles-main-desktop',path:'/golovolomki-onlayn/',width:1440,height:1400,required:['logic-seo-hero','Сложные головоломки онлайн для взрослых','data-expert-card="expert:001"','20 задач','https://t.me/mysterylogic']},
-  {name:'puzzles-main-mobile',path:'/golovolomki-onlayn/',width:390,height:844,required:['logic-seo-hero','Сложные головоломки онлайн для взрослых','Головоломки']},
+  {name:'puzzles-main-desktop',path:'/golovolomki-onlayn/',width:1440,height:1400,required:['logic-premium-hub','mlp-puzzle-hero','Логические игры','20 быстрых','Expert-коллекция','data-expert-card="expert:001"','https://t.me/mysterylogic']},
+  {name:'puzzles-main-mobile',path:'/golovolomki-onlayn/',width:390,height:844,required:['logic-premium-hub','mlp-puzzle-hero','Логические игры','Выберите свой формат','Головоломки']},
   {name:'puzzles-adult-desktop',path:'/zagadki-na-logiku-dlya-vzroslyh/',width:1440,height:1300,required:['Загадки на логику для взрослых с ответами','Сложные задачи для самостоятельного решения','data-expert-card']},
   {name:'puzzles-expert-desktop',path:'/logicheskie-zadachi/',width:1440,height:1400,required:['Сложные логические задачи уровня Expert','data-expert-total="20"','data-expert-card="expert:020"']},
   {name:'puzzle-001-desktop',path:'/logicheskie-zadachi/protokol-shesti-cifr/',width:1440,height:1300,required:['logic-task-hero','Протокол шести цифр','data-expert-input','Показать ответ и разбор','https://t.me/mysterylogic']},
   {name:'puzzle-001-mobile',path:'/logicheskie-zadachi/protokol-shesti-cifr/',width:390,height:844,required:['logic-task-hero','Протокол шести цифр','data-expert-input']},
   {name:'puzzle-nonogram-desktop',path:'/logicheskie-zadachi/nonogramma-10x10/',width:1440,height:1300,required:['Нонограмма 10×10','Я решил — показать разбор','1 1 1','data-expert-mode="reveal"']},
-  {name:'home-puzzles-long',path:'/',width:1440,height:3000,required:['data-logic-home-launch','Сложные головоломки онлайн','Открыть головоломки','>Головоломки</a>']},
+  {name:'home-puzzles-long',path:'/',width:1440,height:3000,required:['data-premium-cases-v2','Премиальные дела Mystery Logic','Номер 407','Последняя ария','data-logic-family-home','Для детей','Для мозга','Детективные','Математические','>Головоломки</a>']},
 ];
 const results=[];
 const port=await listen();
