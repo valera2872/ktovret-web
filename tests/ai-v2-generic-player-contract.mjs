@@ -16,7 +16,7 @@ assert.match(js,/functions\/v1\/ai-interrogation-v2/,'interrogation must use v2 
 assert.match(js,/authorization:`Bearer \$\{PUBLIC_ANON\}`/,'v2 platform JWT must be sent as Authorization');
 assert.match(js,/apikey:PUBLIC_ANON/,'v2 request must include public Supabase apikey');
 assert.match(js,/access_token:ui\.token/,'opaque purchase token must be sent separately to v2 runtime');
-assert.match(js,/action,'runtime action contract missing');
+assert.match(js,/action\.\.\.payload|action,\.\.\.payload/,'runtime action contract missing');
 assert.match(js,/ai\('state'\)/,'player must hydrate from server state');
 assert.match(js,/ui\.state=result\.state/,'interrogation response must replace local state with server state');
 assert.match(js,/ui\.state=response\.state/,'theory response must preserve server-authoritative state');
