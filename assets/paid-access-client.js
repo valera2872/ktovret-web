@@ -55,7 +55,7 @@
     document.head.appendChild(link);
   };
 
-  const bootGame = async (gameConfig) => {
+  const bootGame = async (gameConfig, access = {}) => {
     if (!gameConfig?.case?.id || gameConfig.case.id !== page.caseId) throw new Error('case_mismatch');
     const locked = document.querySelector('[data-paywall-view]');
     if (!locked) throw new Error('paywall_root_missing');
@@ -69,6 +69,7 @@
     root.dataset.cyclePolish = '1.4';
     root.dataset.mobileScroll = '1.4.1';
     root.dataset.witnessCount = String(gameConfig.case.witnessCount || gameConfig.case.characters?.length || 0);
+    root.dataset.experienceTier = access.experienceTier === 'live' ? 'live' : 'text';
     locked.replaceWith(root);
 
     loadCss('assets/witness-cycle.css?v=1.4.0');
@@ -87,6 +88,8 @@
         caseId: page.caseId,
         productId: cfg.productId || 'volume1',
         accessSource: REWARD_TOKEN_RE.test(localStorage.getItem(rewardStorageKey) || '') ? 'player_reward' : 'purchase',
+        experienceTier: access.experienceTier === 'live' ? 'live' : 'text',
+        features: access.features || { freeTextInterrogation: true, liveAvatar: false },
       },
     }));
   };
@@ -104,7 +107,7 @@
     try { body = await response.json(); } catch {}
     if (!response.ok) throw new Error(body.error || `http_${response.status}`);
     if (!body?.config) throw new Error('invalid_case_payload');
-    return body.config;
+    return body;
   };
 
   const unlock = async ({ silent = false } = {}) => {
@@ -120,13 +123,20 @@
     if (unlockButton) unlockButton.disabled = true;
     if (!silent) setStatus('Проверяем доступ…');
     try {
-      const gameConfig = await fetchPaidCase(token);
+      const access = await fetchPaidCase(token);
       if (REWARD_TOKEN_RE.test(token)) localStorage.setItem(rewardStorageKey, token);
       else localStorage.setItem(storageKey, token);
+      window.MysteryLogicPaidAccess = {
+        token,
+        caseId: access.caseId || page.caseId,
+        productId: access.productId || cfg.productId || 'volume1',
+        experienceTier: access.experienceTier === 'live' ? 'live' : 'text',
+        features: access.features || { freeTextInterrogation: true, liveAvatar: false },
+      };
       setStatus(REWARD_TOKEN_RE.test(token)
         ? 'Бонусный доступ подтверждён. Открываем дело…'
         : 'Доступ подтверждён. Открываем дело…', 'ok');
-      await bootGame(gameConfig);
+      await bootGame(access.config, window.MysteryLogicPaidAccess);
       return true;
     } catch (error) {
       if (REWARD_TOKEN_RE.test(token) && error.message === 'reward_wrong_case') {

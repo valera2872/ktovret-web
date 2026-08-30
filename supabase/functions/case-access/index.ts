@@ -1,6 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const PRODUCT_ID = 'volume1';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
@@ -26,6 +25,9 @@ const sha256 = async (value: string) => hex(await crypto.subtle.digest(
   'SHA-256',
   new TextEncoder().encode(value),
 ));
+
+const experienceTier = (metadata: Record<string, unknown> | null | undefined) =>
+  String(metadata?.experience_tier || '').toLowerCase() === 'live' ? 'live' : 'text';
 
 Deno.serve(async (req: Request) => {
   const origin = (req.headers.get('origin') || '').replace(/\/$/, '');
@@ -63,11 +65,21 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  const { data: paidCase, error: caseError } = await admin
+    .from('paid_case_payloads')
+    .select('case_id,product_id,language,payload,payload_version')
+    .eq('case_id', caseId)
+    .eq('status', 'published')
+    .maybeSingle();
+
+  if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
+  if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
+
   const { data: entitlement, error: entitlementError } = await admin
     .from('access_entitlements')
     .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
     .eq('token_hash', tokenHash)
-    .eq('product_id', PRODUCT_ID)
+    .eq('product_id', paidCase.product_id)
     .eq('status', 'active')
     .maybeSingle();
 
@@ -77,24 +89,18 @@ Deno.serve(async (req: Request) => {
   if (entitlement.starts_at && new Date(entitlement.starts_at) > now) return json(403, { error: 'access_not_started' }, origin);
   if (entitlement.expires_at && new Date(entitlement.expires_at) <= now) return json(403, { error: 'access_expired' }, origin);
 
-  if (entitlement.metadata?.source === 'player_reward') {
-    const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
-      ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || ''))
-      : [String(entitlement.metadata?.case_id || '')];
-    if (!allowedCaseIds.includes(caseId)) return json(403, { error: 'reward_wrong_case' }, origin);
+  const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
+    ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || ''))
+    : [];
+  const scopedCaseId = String(entitlement.metadata?.case_id || '');
+  if (allowedCaseIds.length && !allowedCaseIds.includes(caseId)) {
+    return json(403, { error: entitlement.metadata?.source === 'player_reward' ? 'reward_wrong_case' : 'access_wrong_case' }, origin);
+  }
+  if (!allowedCaseIds.length && scopedCaseId && scopedCaseId !== caseId) {
+    return json(403, { error: entitlement.metadata?.source === 'player_reward' ? 'reward_wrong_case' : 'access_wrong_case' }, origin);
   }
 
-  const { data: paidCase, error: caseError } = await admin
-    .from('paid_case_payloads')
-    .select('case_id,product_id,language,payload,payload_version')
-    .eq('case_id', caseId)
-    .eq('product_id', PRODUCT_ID)
-    .eq('status', 'published')
-    .maybeSingle();
-
-  if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
-  if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
-
+  const tier = experienceTier(entitlement.metadata);
   const rawOrderId = String(entitlement.metadata?.order_id || '');
   const orderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawOrderId)
     ? rawOrderId
@@ -103,7 +109,7 @@ Deno.serve(async (req: Request) => {
   const { error: auditError } = await admin.from('paid_access_audit').insert({
     entitlement_id: entitlement.id,
     order_id: orderId,
-    product_id: PRODUCT_ID,
+    product_id: paidCase.product_id,
     case_id: paidCase.case_id,
     event_type: 'payload_delivered',
     payload_version: paidCase.payload_version,
@@ -111,6 +117,7 @@ Deno.serve(async (req: Request) => {
       source: 'case_access',
       access_source: entitlement.metadata?.source || 'purchase',
       source_origin: origin || null,
+      experience_tier: tier,
     },
   });
   if (auditError) console.error('paid_access_audit_failed', auditError.message);
@@ -121,6 +128,11 @@ Deno.serve(async (req: Request) => {
     productId: paidCase.product_id,
     language: paidCase.language,
     payloadVersion: paidCase.payload_version,
+    experienceTier: tier,
+    features: {
+      freeTextInterrogation: true,
+      liveAvatar: tier === 'live',
+    },
     config: paidCase.payload,
   }, origin);
 });

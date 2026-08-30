@@ -1,9 +1,18 @@
 (()=>{"use strict";
 const SCRIPT_BASE=new URL(".",document.currentScript?.src||document.baseURI).href;
-const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
-const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON};
+const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
+const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text"};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 function authHeaders(cfg){const anon=cfg?.publicAnon||window.ML_AI_PUBLIC_AUTH?.anon||"";return anon?{"authorization":`Bearer ${anon}`,"apikey":anon}:{}}
+function accessContext(cfg){
+  const paid=window.MysteryLogicPaidAccess||{};
+  const root=document.querySelector("[data-ai-detective]")||document.querySelector("[data-ktv-root]");
+  return {
+    caseId:String(cfg?.caseId||paid.caseId||root?.dataset?.caseId||window.KtoVretPage?.caseId||""),
+    accessToken:String(cfg?.accessToken||paid.token||""),
+    experienceTier:String(cfg?.experienceTier||paid.experienceTier||root?.dataset?.experienceTier||"text").toLowerCase()==="live"?"live":"text"
+  };
+}
 class AvatarProvider{
   constructor(config={}){this.config=config;this.connected=false;this.suspectId="";this.stage="composed";this.video=null}
   async connect(){throw new Error("avatar_provider_not_implemented")}
@@ -17,6 +26,10 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
   async connect({video,suspectId}={}){
     this.video=video||null;this.suspectId=suspectId||this.suspectId;
     if(!this.config.enabled)return false;
+    const access=accessContext(this.config);
+    if(access.experienceTier!=="live")throw new Error("live_tier_required");
+    if(!access.caseId)throw new Error("avatar_case_id_missing");
+    if(!access.accessToken)throw new Error("live_access_required");
     let factory=window.MLHeyGenLiveAvatarFactory;
     if(typeof factory!=="function"){
       await import(`${SCRIPT_BASE}ai-liveavatar-factory.js`);
@@ -25,7 +38,7 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
     if(typeof factory!=="function")throw new Error("heygen_factory_missing");
     const endpoint=this.config.sessionEndpoint||"";
     if(!endpoint)throw new Error("avatar_session_endpoint_missing");
-    const response=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json",...authHeaders(this.config)},body:JSON.stringify({provider:"liveavatar",suspect_id:this.suspectId,mode:"lite"})});
+    const response=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json",...authHeaders(this.config)},body:JSON.stringify({provider:"liveavatar",suspect_id:this.suspectId,mode:"lite",case_id:access.caseId,access_token:access.accessToken})});
     const session=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(session.error||session.message||"avatar_session_failed");
     this.client=await factory({session,video:this.video,suspectId:this.suspectId,ttsEndpoint:this.config.ttsEndpoint,auth:authHeaders(this.config)});
@@ -95,7 +108,7 @@ class AvatarBridge{
   fail(err){console.warn("[Mystery Logic avatar]",err);if(this.shell){this.shell.dataset.avatarError=err?.message||"avatar_error";this.shell.dataset.avatarStatus="unavailable"}}
   async stop(){this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.started=false}
 }
-window.MLAvatarProvider={AvatarProvider,DisabledProvider,HeyGenLiveAvatarProvider,AvatarBridge,config};
+window.MLAvatarProvider={AvatarProvider,DisabledProvider,HeyGenLiveAvatarProvider,AvatarBridge,config,accessContext};
 window.MLAvatarBridge=new AvatarBridge();
 window.addEventListener("DOMContentLoaded",()=>window.MLAvatarBridge.start(document),{once:true});
 })();
