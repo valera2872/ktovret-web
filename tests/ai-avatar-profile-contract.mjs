@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const migration=fs.readFileSync('supabase/migrations/20260830132613_ai_case_avatar_profiles.sql','utf8');
+const draftMigration=fs.readFileSync('supabase/migrations/20260830144423_allow_draft_avatar_profiles_without_identity.sql','utf8');
 const loader=fs.readFileSync('supabase/functions/_shared/ai-avatar-profile.ts','utf8');
 const session=fs.readFileSync('supabase/functions/ai-avatar-session/index.ts','utf8');
 const tts=fs.readFileSync('supabase/functions/ai-avatar-tts/index.ts','utf8');
@@ -15,6 +16,8 @@ assert.match(migration,/enable row level security/i,'avatar profiles must have R
 assert.match(migration,/revoke all on table public\.ai_case_avatar_profiles from anon, authenticated/i,'browser roles must have no avatar-profile grants');
 assert.match(migration,/grant select, insert, update, delete on table public\.ai_case_avatar_profiles to service_role/i,'service role must own profile access');
 assert.match(migration,/status in \('draft','published','retired'\)/i,'profile publication state missing');
+assert.match(draftMigration,/status = 'published'.*char_length\(avatar_id\) between 1 and 256/s,'published profiles must require a real avatar id');
+assert.match(draftMigration,/status in \('draft','retired'\).*char_length\(avatar_id\) between 0 and 256/s,'draft and retired profiles may remain identity-free');
 
 assert.match(loader,/\.from\("ai_case_avatar_profiles"\)/,'profile loader must use server-only table');
 assert.match(loader,/\.eq\("case_id",caseId\)/,'profile lookup must be case scoped');
