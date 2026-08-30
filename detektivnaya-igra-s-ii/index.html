@@ -8,7 +8,7 @@
   <meta name="description" content="Закрытый прототип Mystery Logic: детективное расследование со свободным допросом, где факты дела остаются неизменными.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
-  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.0">
+  <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.1">
   <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -63,6 +63,15 @@
 
         <div class="aid-transcript" data-transcript aria-live="polite"></div>
 
+        <div class="aid-case-progress" data-case-progress hidden>
+          <div>
+            <p class="aid-kicker">Признание получено</p>
+            <strong>Допрос завершён. Теперь оформите обвинение.</strong>
+            <span>Назовите виновного и своими словами свяжите доступ, местонахождение, окно камеры и алиби остальных.</span>
+          </div>
+          <button class="aid-primary" type="button" data-action="theory-inline">Оформить обвинение</button>
+        </div>
+
         <form class="aid-composer" data-composer>
           <div class="aid-attachment" data-attachment hidden>
             <span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button>
@@ -84,8 +93,9 @@
         <div class="aid-notes" data-notes>
           <p class="aid-empty-note">Пока ничего. Значимые сведения будут фиксироваться здесь, но вывод игра за вас не сделает.</p>
         </div>
-        <div class="aid-theory-box">
-          <p class="aid-kicker">Когда будете готовы</p>
+        <div class="aid-theory-box" data-theory-box>
+          <p class="aid-kicker" data-theory-kicker>Когда будете готовы</p>
+          <p class="aid-theory-hint" data-theory-hint>Когда доказательств достаточно, сформулируйте собственную версию дела.</p>
           <button class="aid-secondary" type="button" data-action="theory">Собрать версию</button>
         </div>
       </aside>
@@ -110,6 +120,6 @@
   </main>
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
-  <script src="../assets/ai-detective-vslice.js?v=0.3.3" defer></script>
+  <script src="../assets/ai-detective-vslice.js?v=0.3.4" defer></script>
 </body>
 </html>
