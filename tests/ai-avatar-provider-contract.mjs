@@ -5,7 +5,7 @@ const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.1/,'avatar provider bridge must be loaded explicitly');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.2/,'avatar provider bridge must use the current cache key');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
 assert.match(adapter,/enabled:false/,'realtime avatar rollout must remain dark by default');
 assert.match(adapter,/provider:"heygen"/,'HeyGen/LiveAvatar must be the first supported renderer without becoming the game engine');
