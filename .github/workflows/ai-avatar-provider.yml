@@ -1,0 +1,35 @@
+name: AI avatar provider adapter
+
+on:
+  pull_request:
+    paths:
+      - 'assets/ai-avatar-provider.js'
+      - 'assets/ai-detective-avatar-stage.css'
+      - 'detektivnaya-igra-s-ii/**'
+      - 'tests/ai-avatar-provider-contract.mjs'
+      - '.github/workflows/ai-avatar-provider.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/ai-avatar-provider.js'
+      - 'assets/ai-detective-avatar-stage.css'
+      - 'detektivnaya-igra-s-ii/**'
+      - 'tests/ai-avatar-provider-contract.mjs'
+      - '.github/workflows/ai-avatar-provider.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Adapter syntax
+        run: node --check assets/ai-avatar-provider.js
+      - name: Provider-neutral security contract
+        run: node tests/ai-avatar-provider-contract.mjs
