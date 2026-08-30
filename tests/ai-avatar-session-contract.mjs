@@ -18,6 +18,9 @@ assert.match(edge,/"X-API-KEY":LIVEAVATAR_API_KEY/,'upstream API key must be sen
 assert.match(edge,/mode:"LITE"/,'upstream session must be LITE mode');
 assert.match(edge,/is_sandbox:AVATAR_SANDBOX/,'initial rollout must support zero-credit sandbox testing');
 assert.match(edge,/max_session_duration:MAX_SESSION_SECONDS/,'session duration must have a server-controlled ceiling');
+assert.match(edge,/speech_token:signedSpeechToken/,'successful avatar session must issue a short-lived signed speech capability');
+assert.match(edge,/HMAC/,'speech capability must be integrity-protected server-side');
+assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+MAX_SESSION_SECONDS\+60/,'speech capability must expire with the realtime session');
 assert.doesNotMatch(edge,/LIVEAVATAR_API_KEY\s*=\s*["'][^"']{8,}["']/,'no permanent provider credential may be committed');
 assert.doesNotMatch(edge,/context_id|llm_configuration_id|voice_agent/,'LITE broker must not silently move story logic into LiveAvatar');
 console.log('avatar session broker contract: ok');

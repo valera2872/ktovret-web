@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
+const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 
 assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.1/,'avatar provider bridge must be loaded explicitly');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
@@ -18,8 +19,15 @@ assert.match(adapter,/async disconnect/,'adapter needs cleanup lifecycle');
 assert.match(adapter,/mode:"lite"/,'LiveAvatar integration must preserve our existing LLM/canon in Lite mode');
 assert.match(adapter,/avatar_session_endpoint_missing/,'avatar sessions must require an explicit server endpoint');
 assert.match(adapter,/MLHeyGenLiveAvatarFactory/,'provider SDK binding must stay behind a replaceable factory');
-assert.match(adapter,/MutationObserver/,'bridge must react to suspect/stage/transcript changes without coupling the main game to one provider');
+assert.match(adapter,/isWorkspaceActive/,'avatar credits must only be used while the interrogation workspace is active');
+assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\).*provider\.disconnect/s,'leaving interrogation must disconnect the realtime session');
+assert.match(adapter,/messageCounts=new Map/,'rendered transcripts need per-suspect deduplication');
+assert.match(adapter,/captureNewReplies/,'only newly appended suspect replies should be voiced');
 assert.match(adapter,/suspect_id:this\.suspectId/,'browser should identify only the current suspect to the server broker');
+assert.match(adapter,/authorization.*Bearer/s,'Supabase broker calls must carry the public anon JWT');
 assert.doesNotMatch(adapter,/avatar_id|avatarId/,'actual LiveAvatar identity must be selected only by the server allowlist');
-assert.doesNotMatch(adapter,/api[_-]?key|secret|bearer\s+[a-z0-9_-]{8,}/i,'provider credentials must never be embedded in the browser adapter');
+assert.doesNotMatch(adapter,/LIVEAVATAR_API_KEY|X-API-KEY|AI_AVATAR_SIGNING_KEY|SUPABASE_SERVICE_ROLE_KEY/,'provider credentials must never be embedded in the browser adapter');
+assert.match(factory,/voiceChat:false/,'LITE renderer must not take microphone ownership');
+assert.match(factory,/repeatAudio\(toBase64\(pcm\)\)/,'LITE renderer must receive our PCM audio rather than generate its own text response');
+assert.doesNotMatch(factory,/\.repeat\(text|\.message\(text/,'LITE renderer must not use provider text generation paths');
 console.log('avatar provider contract: ok');

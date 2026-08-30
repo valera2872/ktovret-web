@@ -4,13 +4,21 @@ on:
   pull_request:
     paths:
       - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/ai-avatar-tts/**'
+      - 'assets/ai-liveavatar-factory.js'
+      - 'package.json'
       - 'tests/ai-avatar-session-contract.mjs'
+      - 'tests/ai-avatar-tts-contract.mjs'
       - '.github/workflows/ai-avatar-session.yml'
   push:
     branches: [main]
     paths:
       - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/ai-avatar-tts/**'
+      - 'assets/ai-liveavatar-factory.js'
+      - 'package.json'
       - 'tests/ai-avatar-session-contract.mjs'
+      - 'tests/ai-avatar-tts-contract.mjs'
       - '.github/workflows/ai-avatar-session.yml'
   workflow_dispatch:
 
@@ -27,3 +35,5 @@ jobs:
           node-version: '22'
       - name: LiveAvatar broker contract
         run: node tests/ai-avatar-session-contract.mjs
+      - name: Signed PCM speech contract
+        run: node tests/ai-avatar-tts-contract.mjs
