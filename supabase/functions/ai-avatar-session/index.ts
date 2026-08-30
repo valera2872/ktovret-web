@@ -55,8 +55,8 @@ async function requireLiveEntitlement(accessToken:string,caseId:string){
   if(!entitlementAllowsCase(entitlement.metadata,caseId))return {ok:false,error:"live_wrong_case"};
   return {ok:true,entitlement};
 }
-async function speechToken(sessionId:string,suspectId:string,caseId:string,expiresAt:number){
-  const payload=base64url(encoder.encode(JSON.stringify({sid:sessionId,sus:suspectId,cid:caseId,exp:expiresAt})));
+async function speechToken(sessionId:string,suspectId:string,caseId:string,entitlementId:string,expiresAt:number){
+  const payload=base64url(encoder.encode(JSON.stringify({sid:sessionId,sus:suspectId,cid:caseId,eid:entitlementId,exp:expiresAt})));
   const key=await crypto.subtle.importKey("raw",encoder.encode(SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
   const signature=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(payload)));
   return `${payload}.${base64url(signature)}`;
@@ -86,6 +86,8 @@ Deno.serve(async(req:Request)=>{
   if(!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId))return json(origin,400,{error:"invalid_case_id"});
   const liveAccess=await requireLiveEntitlement(accessToken,caseId);
   if(!liveAccess.ok)return json(origin,403,{error:liveAccess.error||"live_access_required"});
+  const entitlementId=clean(liveAccess.entitlement?.id,64);
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(entitlementId))return json(origin,503,{error:"live_entitlement_invalid"});
   const allowedAvatarId=SUSPECT_AVATARS[suspectId]||"";
   if(!allowedAvatarId)return json(origin,404,{error:"suspect_avatar_unavailable"});
   if(requestedAvatarId&&requestedAvatarId!==allowedAvatarId)return json(origin,403,{error:"avatar_not_allowed"});
@@ -111,7 +113,7 @@ Deno.serve(async(req:Request)=>{
   const sessionToken=clean(data?.data?.session_token,4096);
   if(!sessionId||!sessionToken)return json(origin,502,{error:"avatar_upstream_invalid"});
   const speechExpiresAt=Math.floor(Date.now()/1000)+MAX_SESSION_SECONDS+60;
-  const signedSpeechToken=await speechToken(sessionId,suspectId,caseId,speechExpiresAt);
+  const signedSpeechToken=await speechToken(sessionId,suspectId,caseId,entitlementId,speechExpiresAt);
   return json(origin,200,{
     provider:"liveavatar",
     mode:"LITE",
