@@ -20,18 +20,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Repair patch-script template escapes
+      - name: Repair one-shot patch script
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('tools/patch-ai-cipher-reward.mjs')
           s=p.read_text()
           s=s.replace('${MAX_TURNS}', r'\${MAX_TURNS}')
           s=s.replace('${state.turns}', r'\${state.turns}')
+          s=re.sub(
+              r"test=replaceOnce\(test,/assert\\\.match[\s\S]*?'cache contract'\);",
+              "test=test.replace(\"assert.match(html,/ai-detective-vslice\\\\.js\\\\?v=0\\\\.3\\\\.4/,'case-finale client must have a fresh cache key');\",\"assert.match(html,/ai-detective-vslice\\\\.js\\\\?v=0\\\\.3\\\\.5/,'cipher-reward client must have a fresh cache key');\");",
+              s,
+              count=1
+          )
           p.write_text(s)
           PY
       - name: Patch post-confession cipher reward
         run: node tools/patch-ai-cipher-reward.mjs
+      - name: Align transition contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tests/ai-detective-vslice-contract.mjs')
+          s=p.read_text()
+          s=s.replace("assert.match(html,/data-action=\"theory-inline\">Оформить обвинение/,'confession transition must give the player a clear next action');","assert.match(html,/data-action=\"bonus-inline\">Открыть пакет C/,'confession transition must give the player an immediate reward action');")
+          p.write_text(s)
+          PY
       - name: Validate patched files
         run: |
           node --check assets/ai-detective-vslice.js
