@@ -26,6 +26,8 @@ assert.match(edge,/is_sandbox:AVATAR_SANDBOX/,'initial rollout must support zero
 assert.match(edge,/max_session_duration:MAX_SESSION_SECONDS/,'session duration must have a server-controlled ceiling');
 assert.match(edge,/speech_token:signedSpeechToken/,'successful avatar session must issue a short-lived signed speech capability');
 assert.match(edge,/cid:caseId/,'speech capability must remain bound to the paid case');
+assert.match(edge,/eid:entitlementId/,'speech capability must remain bound to the verified paid entitlement for budget accounting');
+assert.match(edge,/live_entitlement_invalid/,'invalid entitlement identities must fail before issuing a speech capability');
 assert.match(edge,/HMAC/,'speech capability must be integrity-protected server-side');
 assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+MAX_SESSION_SECONDS\+60/,'speech capability must expire with the realtime session');
 assert.doesNotMatch(edge,/LIVEAVATAR_API_KEY\s*=\s*["'][^"']{8,}["']/,'no permanent provider credential may be committed');

@@ -20,4 +20,8 @@ Canonical initial commercial split for premium AI investigations.
 
 ## Cost guardrail
 
-Target avatar cost: <= €1.50 per completed live playthrough. €2.00 is acceptable; above €2.50 should trigger optimisation. Avatar sessions should exist only while interrogation video is actually needed, never for the whole case duration.
+Target avatar cost: <= €1.50 per completed live playthrough. €2.00 is acceptable; above €2.50 should trigger optimisation.
+
+The default hard allowance is **15 minutes of billable avatar time per entitlement + case**. Metering uses actual 24 kHz PCM speech duration plus a conservative 5-second connection/streaming overhead per spoken reply. The allowance is claimed atomically server-side and each LiveAvatar session can authorize only one speech payload. When the allowance is exhausted, the investigation must continue in text mode rather than blocking the case.
+
+Avatar sessions should exist only while a suspect is actually delivering an answer, never while the player is reading, thinking or typing.
