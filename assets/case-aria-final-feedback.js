@@ -99,9 +99,11 @@
     style.textContent = `
       .casearia-final-consensus{margin:16px 0 0;padding:14px 16px;border-left:3px solid rgba(216,179,110,.62);background:rgba(216,179,110,.075);color:#d8d0be;line-height:1.55}.casearia-final-consensus strong{color:#ead6a6}
       .casearia-final-feedback{margin:20px 0 16px;padding:16px 18px;border:1px solid rgba(191,96,76,.38);border-radius:14px;background:rgba(83,29,22,.16);box-shadow:0 10px 30px rgba(0,0,0,.08)}
-      .casearia-final-feedback strong{display:block;margin-bottom:7px;font-size:1rem;letter-spacing:.01em}
-      .casearia-final-feedback p{margin:6px 0;line-height:1.55}
-      .casearia-final-feedback .casearia-final-feedback-note{opacity:.8;font-size:.94em}
+      .casearia-final-feedback strong{display:block;margin-bottom:7px;font-size:1rem;letter-spacing:.01em}.casearia-final-feedback p{margin:6px 0;line-height:1.55}.casearia-final-feedback .casearia-final-feedback-note{opacity:.8;font-size:.94em}
+      .casearia-reveal[data-aria-reveal-payoff="1"]>h1{margin-bottom:10px;font-size:clamp(2.35rem,6vw,4.7rem);line-height:.94}.casearia-reveal-verdict{max-width:900px;margin:0 0 22px;color:#e8ddc2;font:500 clamp(1.15rem,2.25vw,1.55rem)/1.45 Georgia,serif}.casearia-reveal-theory{margin:0 0 22px;padding:12px 14px;border-left:3px solid rgba(216,179,110,.66);background:rgba(216,179,110,.07);color:#cfc7b7;line-height:1.5}.casearia-reveal-theory strong{color:#ead6a6}
+      .casearia-reveal-chain{display:grid;gap:9px;margin:22px 0 26px;padding:0;list-style:none}.casearia-reveal-chain li{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid rgba(232,200,138,.14);background:rgba(8,10,12,.5)}.casearia-reveal-chain b{display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(216,179,110,.42);border-radius:50%;color:#d8b36e;font-size:.76rem}.casearia-reveal-chain strong{display:block;margin-bottom:3px;color:#eee3c7}.casearia-reveal-chain span{color:#aaa79f;line-height:1.48}
+      .casearia-reveal-audit{margin-top:24px;border-top:1px solid rgba(232,200,138,.18);padding-top:16px}.casearia-reveal-audit summary{cursor:pointer;color:#d8b36e;font-weight:800;letter-spacing:.03em}.casearia-reveal-audit h2{margin:18px 0 10px;font:500 clamp(1.3rem,2.5vw,1.7rem)/1.2 Georgia,serif}.casearia-reveal-audit p{color:#aaa79f;line-height:1.62}.casearia-reveal-audit blockquote{margin:18px 0 0}
+      @media(max-width:640px){.casearia-reveal-chain li{grid-template-columns:30px 1fr;padding:11px 12px}.casearia-reveal-chain b{width:27px;height:27px}.casearia-reveal-verdict{font-size:1.08rem}}
     `;
     document.head.appendChild(style);
   };
@@ -218,7 +220,58 @@
     }
   };
 
-  const observer = new MutationObserver(() => repairFinal());
+  const enhanceReveal = () => {
+    const reveal = root.querySelector('.casearia-reveal');
+    if (!reveal || reveal.dataset.ariaRevealPayoff === '1') return;
+    ensureStyle();
+    reveal.dataset.ariaRevealPayoff = '1';
+
+    const title = reveal.querySelector('h1');
+    const originalTitle = title?.textContent?.trim() || data.reveal?.title || 'Полная реконструкция';
+    if (title) title.textContent = 'Михаил Карев';
+
+    const verdict = document.createElement('p');
+    verdict.className = 'casearia-reveal-verdict';
+    verdict.textContent = 'Он превратил настоящую травму в окно для кражи — и заранее записанный собственный голос в алиби, которое слышал весь театр.';
+    title?.after(verdict);
+
+    const progress = readProgress();
+    const selected = (data.decision?.options || []).find((option) => String(option.id || '') === String(progress.decision || ''));
+    if (selected) {
+      const theory = document.createElement('div');
+      theory.className = 'casearia-reveal-theory';
+      const survived = selected.id === 'conductor';
+      theory.innerHTML = survived
+        ? `<strong>Ваша рабочая версия выдержала стресс-тест.</strong> На втором этапе вы выбрали линию «${esc(selected.title)}». Она стала обвинением только после независимых подтверждений C-2, K-12 и T-6M.`
+        : `<strong>Вы изменили версию по новым данным.</strong> На втором этапе вы проверяли линию «${esc(selected.title)}». Последний пакет её разрушил — именно так и должно работать расследование: версия уступает независимым фактам.`;
+      verdict.after(theory);
+    }
+
+    const chain = document.createElement('ol');
+    chain.className = 'casearia-reveal-chain';
+    chain.setAttribute('aria-label', 'Пять звеньев доказательной цепочки');
+    chain.innerHTML = [
+      ['Саботаж', 'PR-17 оказался у Михаила заранее; BR-06 превратил реквизит в источник настоящей травмы.'],
+      ['Окно', 'Травма автоматически продлила Q-17B до 52 секунд SAFE. Илья удерживал систему по инструкции, а не помогал преступнику.'],
+      ['Ложное присутствие', 'TAKE-6 был вооружён до blackout; PB-2 воспроизводил три фразы, пока живой MIC-C молчал.'],
+      ['Маршрут и доступ', 'STAIR-18 укладывается во временное окно; HEEL-43C и дубликат K-12 независимо связывают Михаила с архивом.'],
+      ['Оригинал', 'MS-1908 обнаружен внутри личного T-6M. Мотив объясняет план, но именно физическая метка замыкает цепочку.']
+    ].map(([heading, text], index) => `<li><b>${index + 1}</b><div><strong>${esc(heading)}</strong><span>${esc(text)}</span></div></li>`).join('');
+    const anchor = reveal.querySelector('.casearia-reveal-theory') || verdict;
+    anchor.after(chain);
+
+    const originalParagraphs = [...reveal.querySelectorAll(':scope > p')].filter((node) => node !== verdict);
+    const originalQuote = reveal.querySelector(':scope > blockquote');
+    const audit = document.createElement('details');
+    audit.className = 'casearia-reveal-audit';
+    audit.innerHTML = `<summary>Проверить полную доказательную реконструкцию</summary><h2>${esc(originalTitle)}</h2>`;
+    for (const paragraph of originalParagraphs) audit.appendChild(paragraph);
+    if (originalQuote) audit.appendChild(originalQuote);
+    chain.after(audit);
+  };
+
+  const apply = () => { repairFinal(); enhanceReveal(); };
+  const observer = new MutationObserver(apply);
   observer.observe(root, { childList: true, subtree: true });
-  repairFinal();
+  apply();
 })();
