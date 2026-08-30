@@ -83,9 +83,9 @@ assert.throws(()=>parsePrivateCanon({
 assert.throws(()=>parsePrivateCanon({
   schema_version:1,
   suspects:{anna:{persona:'x',base_facts:['x'],admissions:{}},boris:{persona:'x',base_facts:['x'],admissions:{}}},
-  evidence:{},rules:[{id:'R',suspect_id:'anna',when:{min_questions:2},grants:{},terminal:'confession'}],
-  theory:{culprit_id:'anna',required_evidence_ids:['E01'],required_note_ids:[],success_title:'x',success_explanation:'x'}
-},publicCase),/ai_canon_confession_note_required/,'terminal confession must carry canonical player-visible confession text');
+  evidence:{},rules:[{id:'R',suspect_id:'anna',when:{min_questions:2},grants:{note:{id:'N',source:'Анна',text:'Анна призналась.'}},terminal:'confession'}],
+  theory:{culprit_id:'anna',required_evidence_ids:['E01'],required_note_ids:['N'],success_title:'x',success_explanation:'x'}
+},publicCase),/ai_canon_confession_contract_required/,'terminal confession must have both a canonical note and exact spoken reply');
 
 state={...state,successful_turns:publicCase.max_turns};
 assert.throws(()=>applyInterrogationTurn(runtime,state,{suspectId:'anna',question:'Ещё вопрос'}),/session_limit/,'runtime must enforce max turns independently of the endpoint');
