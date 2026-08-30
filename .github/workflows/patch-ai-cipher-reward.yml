@@ -20,6 +20,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Repair patch-script template escapes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tools/patch-ai-cipher-reward.mjs')
+          s=p.read_text()
+          s=s.replace('${MAX_TURNS}', r'\${MAX_TURNS}')
+          s=s.replace('${state.turns}', r'\${state.turns}')
+          p.write_text(s)
+          PY
       - name: Patch post-confession cipher reward
         run: node tools/patch-ai-cipher-reward.mjs
       - name: Validate patched files
