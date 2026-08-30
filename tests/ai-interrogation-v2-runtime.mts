@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import {
+  appendTranscriptTurn,
   applyInterrogationTurn,
   checkTheory,
   normalizeStoredState,
   parsePrivateCanon,
   parsePublicAiCase,
+  transcriptForPrompt,
   type AiCaseRuntime,
 } from '../supabase/functions/_shared/ai-case-runtime.ts';
 
@@ -36,18 +38,23 @@ const canon=parsePrivateCanon({
 
 const runtime:AiCaseRuntime={caseId:'AI-TEST',productId:'ai-test',payloadVersion:1,canonVersion:1,publicCase,canon,entitlement:{id:'11111111-1111-4111-8111-111111111111',experienceTier:'text'}};
 
-let state=normalizeStoredState({successful_turns:0,evidence_ids:[],question_counts:{},stages:{}},runtime);
+let state=normalizeStoredState({successful_turns:0,evidence_ids:[],question_counts:{},stages:{},transcripts:{}},runtime);
 assert.deepEqual(state.evidence_ids,['E01'],'initial evidence must be restored even from incomplete storage');
+assert.deepEqual(state.transcripts.anna,[{role:'assistant',text:'Я ушла раньше.'}],'opening statement must be restored server-side');
 
 let turn=applyInterrogationTurn(runtime,state,{suspectId:'anna',question:'Где вы были после ухода?'});
 assert.equal(turn.newNotes.length,0,'rule must not unlock before its threshold and evidence presentation');
-state=turn.state;
+state=appendTranscriptTurn(runtime,turn.state,{suspectId:'anna',question:'Где вы были после ухода?',reply:'Я уже сказала: ушла.'});
+assert.deepEqual(transcriptForPrompt(runtime,state,'anna').slice(-2),[
+  {role:'user',text:'Где вы были после ухода?'},
+  {role:'assistant',text:'Я уже сказала: ушла.'},
+]);
 
 turn=applyInterrogationTurn(runtime,state,{suspectId:'anna',question:'Вы возвращались после ухода?',presentedEvidenceId:'E01'});
 assert.deepEqual(turn.newNotes.map(n=>n.id),['N01']);
 assert.deepEqual(turn.newEvidence.map(e=>e.id),['E02']);
 assert.equal(turn.stage,'cornered');
-state=turn.state;
+state=appendTranscriptTurn(runtime,turn.state,{suspectId:'anna',question:'Вы возвращались после ухода?',reply:'Да, я вернулась.'});
 
 const replay=applyInterrogationTurn(runtime,state,{suspectId:'anna',question:'Вы опять говорите, что возвращались?',presentedEvidenceId:'E01'});
 assert.equal(replay.newNotes.length,0,'one-shot rule must not grant the same discovery twice');
@@ -72,6 +79,13 @@ assert.throws(()=>parsePrivateCanon({
   evidence:{},rules:[{id:'R',suspect_id:'anna',when:{required_evidence_ids:['MISSING']},grants:{},stage:'defensive'}],
   theory:{culprit_id:'anna',required_evidence_ids:['E01'],required_note_ids:[],success_title:'x',success_explanation:'x'}
 },publicCase),/ai_canon_rule_reference_invalid/,'rules must not reference unknown evidence');
+
+assert.throws(()=>parsePrivateCanon({
+  schema_version:1,
+  suspects:{anna:{persona:'x',base_facts:['x'],admissions:{}},boris:{persona:'x',base_facts:['x'],admissions:{}}},
+  evidence:{},rules:[{id:'R',suspect_id:'anna',when:{min_questions:2},grants:{},terminal:'confession'}],
+  theory:{culprit_id:'anna',required_evidence_ids:['E01'],required_note_ids:[],success_title:'x',success_explanation:'x'}
+},publicCase),/ai_canon_confession_note_required/,'terminal confession must carry canonical player-visible confession text');
 
 state={...state,successful_turns:publicCase.max_turns};
 assert.throws(()=>applyInterrogationTurn(runtime,state,{suspectId:'anna',question:'Ещё вопрос'}),/session_limit/,'runtime must enforce max turns independently of the endpoint');
