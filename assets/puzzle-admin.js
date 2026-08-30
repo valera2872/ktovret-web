@@ -80,6 +80,12 @@
     .map((key) => COLLECTIONS[key]);
 
   const publicationCopy = (row, p, status) => {
+    const isExpert = row.kind === 'expert' || String(row.puzzle_id || '').startsWith('expert:');
+    if (isExpert) {
+      if (status === 'pending') return '<p class="puzzle-admin-publish-copy is-legacy"><strong>Уже опубликована.</strong> Это ретроспективная проверка Expert-задачи. Пока вы не приняли решение, текущую страницу не снимаем.</p>';
+      if (status === 'rejected') return '<p class="puzzle-admin-publish-copy is-rejected"><strong>Отклонена владельцем.</strong> Запись помечена для вывода из Expert-каталога или переработки в следующем редакционном релизе; существующий URL не превращаем автоматически в 404.</p>';
+      return '<p class="puzzle-admin-publish-copy is-approved"><strong>Подтверждена владельцем.</strong> Текущая Expert-версия может оставаться публичной в каталоге и поисковом индексе.</p>';
+    }
     if (status === 'rejected') return '<p class="puzzle-admin-publish-copy is-rejected">Не публикуется. Запись остаётся только в редакционной истории.</p>';
     if (status === 'pending') return '<p class="puzzle-admin-publish-copy">Сначала примите редакционное решение.</p>';
     const targets = publicTargets(p);
@@ -93,31 +99,37 @@
     const box = document.querySelector('[data-publish-summary]');
     if (!box) return;
     if (status !== 'approved') { box.hidden = true; box.innerHTML = ''; return; }
+    const quickRows = rows.filter((row) => row.kind !== 'expert');
+    const expertRows = rows.filter((row) => row.kind === 'expert');
     const counts = { kids: 0, brain: 0, detective: 0, math: 0, matches: 0, adult: 0 };
-    for (const row of rows) {
+    for (const row of quickRows) {
       const p = row.content || {};
       const groups = Array.isArray(p.collections) ? p.collections : [];
       for (const key of ['kids', 'brain', 'detective', 'math', 'matches']) if (groups.includes(key)) counts[key] += 1;
       if (p.age === 'Для взрослых') counts.adult += 1;
     }
     box.hidden = false;
-    box.innerHTML = `<div><p class="mla-kicker">Куда пойдут утверждённые</p><h3>${rows.length} задач в пуле публикации</h3><p>Одна задача может входить сразу в несколько подборок. Разделы публикуются только когда в них достаточно самостоятельного контента.</p></div><div class="puzzle-publish-grid"><div><strong>${counts.kids}</strong><span>Для детей</span></div><div><strong>${counts.brain}</strong><span>Игры для мозга</span></div><div><strong>${counts.detective}</strong><span>Детективные</span></div><div><strong>${counts.math}</strong><span>Математические</span></div><div><strong>${counts.adult}</strong><span>Для взрослых</span></div></div><p class="puzzle-publish-foot">Со спичками: ${counts.matches}. Этот формат сейчас исключён из публичного дерева и останется редакционным резервом до полноценной визуализации.</p>`;
+    box.innerHTML = `<div><p class="mla-kicker">Редакционный итог</p><h3>${rows.length} утверждено · ${quickRows.length} новых · ${expertRows.length} Expert</h3><p>Новые задачи автоматически распределяются по тематическим подборкам. Expert — уже существующий каталог: утверждение подтверждает текущую опубликованную версию.</p></div><div class="puzzle-publish-grid"><div><strong>${counts.kids}</strong><span>Для детей</span></div><div><strong>${counts.brain}</strong><span>Игры для мозга</span></div><div><strong>${counts.detective}</strong><span>Детективные</span></div><div><strong>${counts.math}</strong><span>Математические</span></div><div><strong>${counts.adult}</strong><span>Для взрослых</span></div></div><p class="puzzle-publish-foot">Со спичками: ${counts.matches}. Этот формат сейчас исключён из публичного дерева. Expert подтверждено: ${expertRows.length}.</p>`;
   };
 
   const puzzleCard = (row) => {
     const p = row.content || {};
     const status = String(row.moderation_status || 'pending');
+    const isExpert = row.kind === 'expert' || String(row.puzzle_id || '').startsWith('expert:');
     const choices = Array.isArray(p.choices) ? p.choices : [];
     const collections = Array.isArray(p.collections) ? p.collections : [];
     return `<article class="puzzle-admin-card" data-puzzle-id="${esc(row.puzzle_id)}">
       <div>
         <div class="puzzle-admin-meta">
           <span class="puzzle-admin-badge is-status">${esc(statusLabel(status))}</span>
+          <span class="puzzle-admin-badge ${isExpert ? 'is-expert' : ''}">${isExpert ? 'Expert' : 'Quick'}</span>
+          ${row.published_before_gate ? '<span class="puzzle-admin-badge is-legacy">Уже опубликована</span>' : ''}
           ${p.number ? `<span class="puzzle-admin-badge">${esc(p.number)}</span>` : ''}
           ${p.age ? `<span class="puzzle-admin-badge">${esc(p.age)}</span>` : ''}
           ${p.difficulty ? `<span class="puzzle-admin-badge">${esc(p.difficulty)}</span>` : ''}
           ${p.time ? `<span class="puzzle-admin-badge">${esc(p.time)}</span>` : ''}
           ${p.skill ? `<span class="puzzle-admin-badge">${esc(p.skill)}</span>` : ''}
+          ${p.category ? `<span class="puzzle-admin-badge">${esc(p.category)}</span>` : ''}
         </div>
         <h3>${esc(row.title || p.title || row.puzzle_id)}</h3>
         <div class="puzzle-admin-id">${esc(row.puzzle_id)}${collections.length ? ` · ${esc(collections.join(' · '))}` : ''}</div>
