@@ -6,9 +6,10 @@ const access=fs.readFileSync('supabase/functions/case-access/index.ts','utf8');
 const client=fs.readFileSync('assets/paid-access-client.js','utf8');
 const avatar=fs.readFileSync('supabase/functions/ai-avatar-session/index.ts','utf8');
 
-assert.match(plan,/`text` \| €4\.90/,'text launch price must be documented');
-assert.match(plan,/`live` \| €9\.90/,'live launch price must be documented');
-assert.match(plan,/upgrade \| €5\.00/,'text-to-live upgrade must charge only the difference');
+assert.match(plan,/`text` \| Расследование \| €4\.90/,'text launch offer name and price must be documented');
+assert.match(plan,/`live` \| Живое расследование \| €9\.90/,'live launch offer name and price must be documented');
+assert.match(plan,/`upgrade_live` \| Добавить живой режим \| €5\.00/,'text-to-live upgrade must charge only the difference');
+assert.match(plan,/Подозреваемые смотрят на вас и отвечают голосом в реальном времени/,'Live value proposition must remain customer-facing rather than technical');
 assert.match(access,/experienceTier/,'case access must expose a normalized experience tier');
 assert.match(access,/=== 'live' \? 'live' : 'text'/,'missing or unknown entitlement tiers must remain backward-compatible text access');
 assert.match(access,/liveAvatar: tier === 'live'/,'only live entitlements may advertise realtime avatar access');
