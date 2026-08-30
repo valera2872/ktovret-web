@@ -22,6 +22,22 @@
     "missing_required_evidence_terminal_reachable": false,
     "missing_required_note_terminal_reachable": false
   },
+  "production_qa": {
+    "completed": true,
+    "model_path_verified": true,
+    "model": "gpt-5.6-luna",
+    "zero_stage_suspects_checked": 4,
+    "zero_stage_hidden_leaks": 0,
+    "zero_stage_unexpected_unlocks": 0,
+    "full_chain_turns": 10,
+    "full_chain_model_turns": 9,
+    "canonical_terminal_model_turns": 0,
+    "full_chain_theory_passed": true,
+    "no_early_confession_verified": true,
+    "session_rpm_fail_closed_verified": true,
+    "metering_cleanup_verified": true,
+    "qa_fixture_cleaned": true
+  },
   "publication": {
     "payload_published": false,
     "canon_published": false,
