@@ -5,6 +5,7 @@ import { applyLastAriaFinalNeutral, prepareLastAriaFinalNeutral } from './last-a
 
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.json']);
 const PRODUCTION_ORIGIN = 'https://mysterylogic.com/';
+const BASELINE_INDEXABLE_URLS = 49;
 
 const walk = (root) => {
   const files = [];
@@ -106,23 +107,27 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
   }
 
+  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
+  let report = null;
+  if (fs.existsSync(reportFile)) report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+  const approvedCollectionRoutes = Number(report?.logicAudiencePages || 0);
+  const expectedIndexableUrls = BASELINE_INDEXABLE_URLS + approvedCollectionRoutes;
   const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
-  if (indexableUrls !== 49) {
-    throw new Error(`Expected final production sitemap boundary 49, found ${indexableUrls}`);
+  if (indexableUrls !== expectedIndexableUrls) {
+    throw new Error(`Expected final production sitemap boundary ${expectedIndexableUrls}, found ${indexableUrls}`);
   }
 
-  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
-  if (fs.existsSync(reportFile)) {
-    const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+  if (report) {
     report.indexableUrls = indexableUrls;
     report.premiumSeoNoindexPages = pages;
     report.premiumSeoSitemapExcluded = 85;
     report.premiumSeoSitemapRemoved = 85;
     report.premiumSeoSitemapRemovedNow = sitemapRemovedNow;
+    report.approvedPuzzleCollectionUrls = approvedCollectionRoutes;
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
   }
 
-  return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls };
+  return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls, expectedIndexableUrls };
 }
 
 export function applySiteOrigin(siteRoot) {
