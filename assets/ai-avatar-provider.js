@@ -1,7 +1,7 @@
 (()=>{"use strict";
 const SCRIPT_BASE=new URL(".",document.currentScript?.src||document.baseURI).href;
 const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
-const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text"};
+const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",idleDisconnectMs:2500};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 function authHeaders(cfg){const anon=cfg?.publicAnon||window.ML_AI_PUBLIC_AUTH?.anon||"";return anon?{"authorization":`Bearer ${anon}`,"apikey":anon}:{}}
 function accessContext(cfg){
@@ -18,7 +18,7 @@ class AvatarProvider{
   async connect(){throw new Error("avatar_provider_not_implemented")}
   async setSuspect(id){this.suspectId=id||""}
   async setStage(stage){this.stage=ALLOWED_STAGES.has(stage)?stage:"composed"}
-  async speak(_text){return false}
+  async speak(_text){return {ok:false,durationMs:0}}
   async disconnect(){this.connected=false}
 }
 class DisabledProvider extends AvatarProvider{async connect(){return false}}
@@ -47,13 +47,13 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
   }
   async setSuspect(id){if(id===this.suspectId)return;await this.disconnect();this.suspectId=id||""}
   async setStage(stage){await super.setStage(stage);if(this.connected&&typeof this.client?.setStage==="function")await this.client.setStage(this.stage)}
-  async speak(text){if(!this.connected||!text)return false;await this.client.speak(String(text),{stage:this.stage,suspectId:this.suspectId});return true}
+  async speak(text){if(!this.connected||!text)return {ok:false,durationMs:0};return await this.client.speak(String(text),{stage:this.stage,suspectId:this.suspectId})}
   async disconnect(){try{if(this.client&&typeof this.client.disconnect==="function")await this.client.disconnect()}finally{this.client=null;this.connected=false}}
 }
 function config(){return {...DEFAULT_CONFIG,...(window.ML_AVATAR_CONFIG||{})}}
 function makeProvider(cfg){if(!cfg.enabled)return new DisabledProvider(cfg);if(cfg.provider==="heygen"||cfg.provider==="liveavatar")return new HeyGenLiveAvatarProvider(cfg);throw new Error("avatar_provider_unknown")}
 class AvatarBridge{
-  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.messageCounts=new Map()}
+  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.disconnectTimer=null;this.messageCounts=new Map()}
   async start(root=document){
     if(this.started)return;this.started=true;this.root=root;
     this.shell=root.querySelector?.("[data-avatar-stage]")||document.querySelector("[data-avatar-stage]");
@@ -89,13 +89,20 @@ class AvatarBridge{
     if(!this.shell)return;
     const suspect=this.shell.dataset.suspect||"";
     const stage=ALLOWED_STAGES.has(this.shell.dataset.stage)?this.shell.dataset.stage:"composed";
-    if(suspect&&suspect!==this.activeSuspect){this.activeSuspect=suspect;this.shell.dataset.avatarStatus="idle";Promise.resolve(this.provider.setSuspect(suspect)).then(()=>{if(!this.messageCounts.has(suspect))this.messageCounts.set(suspect,this.suspectMessageNodes().length);return this.syncAvailability()}).catch(err=>this.fail(err))}
+    if(suspect&&suspect!==this.activeSuspect){this.activeSuspect=suspect;this.cancelScheduledDisconnect();this.shell.dataset.avatarStatus="idle";Promise.resolve(this.provider.setSuspect(suspect)).then(()=>{if(!this.messageCounts.has(suspect))this.messageCounts.set(suspect,this.suspectMessageNodes().length)}).catch(err=>this.fail(err))}
     if(stage!==this.activeStage){this.activeStage=stage;Promise.resolve(this.provider.setStage(stage)).catch(err=>this.fail(err))}
   }
   async syncAvailability(){
     if(!this.cfg.enabled)return false;
-    if(!this.isWorkspaceActive()){if(this.provider.connected)await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false}
-    return this.ensureConnected();
+    if(!this.isWorkspaceActive()){this.cancelScheduledDisconnect();if(this.provider.connected)await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false}
+    return true;
+  }
+  cancelScheduledDisconnect(){if(this.disconnectTimer){clearTimeout(this.disconnectTimer);this.disconnectTimer=null}}
+  scheduleDisconnect(durationMs=0){
+    this.cancelScheduledDisconnect();
+    const speechMs=Math.max(0,Math.min(90000,Number(durationMs)||0));
+    const grace=Math.max(500,Math.min(10000,Number(this.cfg.idleDisconnectMs)||2500));
+    this.disconnectTimer=setTimeout(()=>{this.disconnectTimer=null;void this.provider.disconnect().finally(()=>{if(this.shell)this.shell.dataset.avatarStatus="idle"})},speechMs+grace);
   }
   async ensureConnected(){
     if(!this.cfg.enabled||!this.isWorkspaceActive()||this.provider.connected||!this.activeSuspect)return false;
@@ -104,9 +111,19 @@ class AvatarBridge{
     this.connecting=this.provider.connect({video:this.video,suspectId:this.activeSuspect}).then(ok=>{if(this.shell)this.shell.dataset.avatarStatus=ok?"connected":"idle";return ok}).catch(err=>{this.fail(err);return false}).finally(()=>{this.connecting=null});
     return this.connecting;
   }
-  async speak(text){if(!this.cfg.enabled||!this.isWorkspaceActive())return false;try{await this.ensureConnected();if(!this.provider.connected)return false;await this.provider.setStage(this.activeStage);return await this.provider.speak(text)}catch(err){this.fail(err);return false}}
+  async speak(text){
+    if(!this.cfg.enabled||!this.isWorkspaceActive())return false;
+    this.cancelScheduledDisconnect();
+    try{
+      await this.ensureConnected();if(!this.provider.connected)return false;
+      await this.provider.setStage(this.activeStage);
+      const result=await this.provider.speak(text);
+      if(result?.ok){this.scheduleDisconnect(result.durationMs);return true}
+      this.scheduleDisconnect(0);return false;
+    }catch(err){this.fail(err);this.scheduleDisconnect(0);return false}
+  }
   fail(err){console.warn("[Mystery Logic avatar]",err);if(this.shell){this.shell.dataset.avatarError=err?.message||"avatar_error";this.shell.dataset.avatarStatus="unavailable"}}
-  async stop(){this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.started=false}
+  async stop(){this.cancelScheduledDisconnect();this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.started=false}
 }
 window.MLAvatarProvider={AvatarProvider,DisabledProvider,HeyGenLiveAvatarProvider,AvatarBridge,config,accessContext};
 window.MLAvatarBridge=new AvatarBridge();
