@@ -24,16 +24,16 @@ jobs:
       - name: Validate JavaScript
         run: |
           node --check assets/real-case-moreno-budget-v51.js
-          node --check assets/real-case-moreno-ai-v5.js
-          node --check tools/real-case-moreno-v51-budget-smoke.mjs
-          node --check tools/real-case-moreno-v5-visual.mjs
-      - name: Validate hard AI budget and natural-language context
-        run: node tools/real-case-moreno-v51-budget-smoke.mjs
-      - name: Capture v0.5.1 visual audit
-        run: node tools/real-case-moreno-v5-visual.mjs
+          node --check assets/real-case-moreno-ai-v6.js
+          node --check tools/real-case-moreno-v6-smoke.mjs
+          node --check tools/real-case-moreno-v6-visual.mjs
+      - name: Regress v0.6 against real player transcript
+        run: node tools/real-case-moreno-v6-smoke.mjs
+      - name: Capture v0.6 visual audit
+        run: node tools/real-case-moreno-v6-visual.mjs
       - name: Upload slice audit
         uses: actions/upload-artifact@v4
         with:
-          name: real-case-moreno-v51-audit
-          path: artifacts/real-case-moreno-v5
+          name: real-case-moreno-v6-audit
+          path: artifacts/real-case-moreno-v6
           retention-days: 7
