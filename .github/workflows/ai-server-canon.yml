@@ -1,0 +1,29 @@
+name: AI server canon store
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260830113713_ai_server_canon_store.sql'
+      - 'tests/ai-server-canon-contract.mjs'
+      - '.github/workflows/ai-server-canon.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/20260830113713_ai_server_canon_store.sql'
+      - 'tests/ai-server-canon-contract.mjs'
+      - '.github/workflows/ai-server-canon.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Canon security contract
+        run: node tests/ai-server-canon-contract.mjs
