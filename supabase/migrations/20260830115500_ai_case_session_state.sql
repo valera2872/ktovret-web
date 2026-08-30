@@ -6,7 +6,7 @@ create table if not exists public.ai_case_sessions (
   session_key text primary key check (session_key ~ '^[0-9a-f]{64}$'),
   case_id text not null references public.ai_case_canon(case_id) on delete cascade,
   entitlement_id uuid not null references public.access_entitlements(id) on delete cascade,
-  state jsonb not null default '{"successful_turns":0,"question_counts":{},"evidence_ids":[],"note_ids":[],"stages":{}}'::jsonb
+  state jsonb not null default '{"successful_turns":0,"question_counts":{},"evidence_ids":[],"note_ids":[],"rule_ids":[],"stages":{}}'::jsonb
     check (jsonb_typeof(state) = 'object'),
   revision integer not null default 0 check (revision >= 0),
   created_at timestamptz not null default now(),
