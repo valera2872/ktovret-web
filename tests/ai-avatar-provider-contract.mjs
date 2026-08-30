@@ -21,6 +21,10 @@ assert.match(adapter,/avatar_session_endpoint_missing/,'avatar sessions must req
 assert.match(adapter,/MLHeyGenLiveAvatarFactory/,'provider SDK binding must stay behind a replaceable factory');
 assert.match(adapter,/isWorkspaceActive/,'avatar credits must only be used while the interrogation workspace is active');
 assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\).*provider\.disconnect/s,'leaving interrogation must disconnect the realtime session');
+assert.doesNotMatch(adapter,/async syncAvailability\(\).*return this\.ensureConnected\(\)/s,'opening the interrogation workspace must not start billable streaming while the player is only reading or typing');
+assert.match(adapter,/scheduleDisconnect\(result\.durationMs\)/,'successful speech must schedule automatic stream shutdown around the actual utterance duration');
+assert.match(adapter,/idleDisconnectMs:2500/,'post-speech streaming grace must stay short by default');
+assert.match(adapter,/cancelScheduledDisconnect/,'new speech or navigation must cancel stale shutdown timers safely');
 assert.match(adapter,/messageCounts=new Map/,'rendered transcripts need per-suspect deduplication');
 assert.match(adapter,/captureNewReplies/,'only newly appended suspect replies should be voiced');
 assert.match(adapter,/suspect_id:this\.suspectId/,'browser should identify only the current suspect to the server broker');
@@ -31,7 +35,10 @@ assert.match(adapter,/MysteryLogicPaidAccess/,'provider must reuse the verified 
 assert.match(adapter,/authorization.*Bearer/s,'Supabase broker calls must carry the public anon JWT');
 assert.doesNotMatch(adapter,/avatar_id|avatarId/,'actual LiveAvatar identity must be selected only by the server allowlist');
 assert.doesNotMatch(adapter,/LIVEAVATAR_API_KEY|X-API-KEY|AI_AVATAR_SIGNING_KEY|SUPABASE_SERVICE_ROLE_KEY/,'provider credentials must never be embedded in the browser adapter');
+assert.match(factory,/PCM_SAMPLE_RATE=24000/,'speech duration accounting must match the PCM format sent to LiveAvatar');
+assert.match(factory,/pcmDurationMs/,'renderer must estimate actual utterance duration from generated PCM');
 assert.match(factory,/voiceChat:false/,'LITE renderer must not take microphone ownership');
 assert.match(factory,/repeatAudio\(toBase64\(pcm\)\)/,'LITE renderer must receive our PCM audio rather than generate its own text response');
+assert.match(factory,/return \{ok:true,durationMs\}/,'renderer must return speech duration for billing-aware disconnect scheduling');
 assert.doesNotMatch(factory,/\.repeat\(text|\.message\(text/,'LITE renderer must not use provider text generation paths');
 console.log('avatar provider contract: ok');
