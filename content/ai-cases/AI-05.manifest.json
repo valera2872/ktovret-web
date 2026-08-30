@@ -24,6 +24,26 @@
     "dependency_cycles_detected": 0,
     "unknown_reference_count": 0
   },
+  "production_qa": {
+    "completed": true,
+    "model_path_verified": true,
+    "zero_stage_suspects_checked": 4,
+    "zero_stage_hidden_leaks": 0,
+    "zero_stage_unexpected_unlocks": 0,
+    "observed_zero_stage_cost_usd": 0.0006458,
+    "full_chain_turns": 12,
+    "full_chain_model_turns": 11,
+    "canonical_terminal_model_turns": 0,
+    "observed_critical_path_cost_usd": 0.0028542,
+    "verbatim_record_impossibility_verified": true,
+    "qa_structure_reconstruction_verified": true,
+    "document_sequence_verified": true,
+    "full_chain_theory_passed": true,
+    "no_early_confession_verified": true,
+    "session_rpm_compliance_verified": true,
+    "metering_cleanup_verified": true,
+    "qa_fixture_cleaned": true
+  },
   "publication": {
     "payload_published": false,
     "canon_published": false,
