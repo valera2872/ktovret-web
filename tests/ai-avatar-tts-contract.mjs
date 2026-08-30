@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const edge=fs.readFileSync('supabase/functions/ai-avatar-tts/index.ts','utf8');
+const profiles=fs.readFileSync('supabase/functions/_shared/ai-avatar-profile.ts','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260830103500_ai_avatar_usage_budget.sql','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
@@ -27,7 +28,13 @@ assert.match(edge,/response_format:"pcm"/,'LiveAvatar LITE must receive raw PCM'
 assert.match(edge,/"x-audio-sample-rate"\]="24000"/,'PCM bridge must declare the 24 kHz sample rate expected by LiveAvatar');
 assert.match(edge,/"x-avatar-budget-remaining-ms"/,'successful speech should expose remaining live allowance to trusted runtime diagnostics');
 assert.match(edge,/text=clean\(body\?\.text,900\)/,'speech payload length must be bounded');
-assert.match(edge,/marina:Deno\.env\.get\("AI_AVATAR_MARINA_VOICE"\)\|\|"marin"/,'Marina voice must be independently tunable');
+assert.match(edge,/loadAiAvatarProfile/,'voice identity must come from the server-only case profile layer');
+assert.match(edge,/caseId:speechClaim\.cid/,'voice lookup must be bound to the signed paid case');
+assert.match(edge,/profile\.ttsVoice/,'TTS voice must be resolved from the case profile');
+assert.match(edge,/profile\.ttsInstructions/,'TTS delivery style must be resolved from the case profile');
+assert.doesNotMatch(edge,/AI_AVATAR_MARINA_VOICE|AI_AVATAR_ANTON_VOICE|AI_AVATAR_LEV_VOICE|const VOICES/,'generic TTS endpoint must not hardcode AI-01 voices');
+assert.match(profiles,/marina:\{/,'legacy AI-01 voice fallback must remain available in the shared compatibility layer');
+assert.match(profiles,/if\(caseId!==LEGACY_CASE_ID\)return null/,'legacy voices must never bleed into new cases');
 assert.doesNotMatch(edge,/console\.(log|info)\([^\n]*(text|speechToken)/,'player dialogue and speech capabilities must not be logged');
 assert.match(factory,/response\.arrayBuffer\(\)/,'browser must forward binary PCM, not provider-generated text');
 assert.match(factory,/live\.repeatAudio\(toBase64\(pcm\)\)/,'browser must hand PCM to LiveAvatar LITE');
