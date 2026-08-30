@@ -7,14 +7,14 @@ const app=document.querySelector('[data-moreno-app]');if(!app)return;
 const PHOTO='https://www.middlesexda.com/sites/g/files/vyhlif11841/f/styles/news_image/public/news/capture_3.jpg?itok=RK3zkJ6R';
 const SOURCES={arrest:'https://www.middlesexda.com/press-releases/news/middlesex-district-attorney-and-malden-police-announce-arrest-30-year-old-murder',conviction:'https://www.middlesexda.com/press-releases/news/man-convicted-first-degree-murder-connection-32-year-old-murder-patricia-moreno'};
 const AI_URL='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v2';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJvcmtudnV3a252c2Vkamd xY2Z3YyIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2MTk2NjM3LCJleHAiOjIxMDE3NzI2Mzd9.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4'.replace(' ','');
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
 const newSession=()=>crypto.randomUUID?crypto.randomUUID():`m6-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const fresh=()=>({view:'opening',completed:[],journal:[],hypothesis:'',suspect:'',focus:'',lastTarget:'',submitted:false,sessionId:newSession(),aiState:'unknown'});
 function migrate(old){const s={...fresh(),...old};s.focus='';s.sessionId=newSession();s.submitted=!!old?.submitted;s.view=old?.view||'desk';return s}
 function load(){try{const own=JSON.parse(localStorage.getItem(KEY)||'null');if(own)return {...fresh(),...own};for(const k of OLD_KEYS){const old=JSON.parse(localStorage.getItem(k)||'null');if(old)return migrate(old)}}catch{}return fresh()}
 let state=load(),busy=false;
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}};
-const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[.,!?;:()«»"']/g,' ').replace(/\s+/g,' ').trim();
 const has=id=>state.completed.includes(id);const done=id=>{if(!has(id))state.completed.push(id)};
 const targetLabel=id=>({boyfriend:'бойфренд старшей дочери',mother:'приёмная мать Patricia',older_daughter:'старшая дочь приёмной матери',younger_daughter:'младшая дочь приёмной матери',second_floor_witness:'бывший житель второго этажа'}[id]||id||'');
