@@ -1,0 +1,41 @@
+name: AI interrogation v2 foundation
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/ai-case-runtime.ts'
+      - 'supabase/functions/ai-interrogation-v2/**'
+      - 'supabase/migrations/20260830115500_ai_case_session_state.sql'
+      - 'tests/ai-interrogation-v2-foundation-contract.mjs'
+      - 'tests/ai-interrogation-v2-endpoint-contract.mjs'
+      - 'tests/ai-interrogation-v2-runtime.mts'
+      - '.github/workflows/ai-interrogation-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/ai-case-runtime.ts'
+      - 'supabase/functions/ai-interrogation-v2/**'
+      - 'supabase/migrations/20260830115500_ai_case_session_state.sql'
+      - 'tests/ai-interrogation-v2-foundation-contract.mjs'
+      - 'tests/ai-interrogation-v2-endpoint-contract.mjs'
+      - 'tests/ai-interrogation-v2-runtime.mts'
+      - '.github/workflows/ai-interrogation-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Foundation security contract
+        run: node tests/ai-interrogation-v2-foundation-contract.mjs
+      - name: Endpoint boundary contract
+        run: node tests/ai-interrogation-v2-endpoint-contract.mjs
+      - name: Generic canon runtime behavior
+        run: node --experimental-strip-types tests/ai-interrogation-v2-runtime.mts
