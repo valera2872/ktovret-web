@@ -15,14 +15,17 @@ const feedbackPost = fs.readFileSync('tools/import-mobile/solo-407-player-feedba
 const two407 = fs.readFileSync('tools/import-mobile/two-player-407-postprocess.mjs','utf8');
 const checks = [
   [solo.includes("STORAGE_KEY = 'ml:solo:407:v1'"),'stable solo storage'],
-  [solo.includes("answer: 'ids'") && solo.includes("answer: 'zones'") && solo.includes("answer: 'owner'"),'three neutral checkpoints'],
+  [solo.includes("answer: 'ids'") && solo.includes("answer: 'zones'") && solo.includes("answer: 'owner'"),'checkpoint canon preserved'],
   [solo.includes("title: 'Первые двадцать минут'") && solo.includes("title: 'След после тревоги'") && solo.includes("title: 'Последние подтверждения'"),'spoiler-neutral stage headings'],
-  [solo.includes('const soloFinal =') && solo.includes('чьи действия независимо подтверждаются материалами'),'spoiler-neutral final framing'],
+  [solo.includes('const soloFinal =') && solo.includes('Игра примет любое полное заключение'),'player-owned final framing'],
   [!solo.includes("title: 'Кто помог Марте'") && !solo.includes('роль Елены в вывозе Марты и сапфира'),'old answer-leading copy removed from solo runtime'],
   [!solo.includes('stageData = data.stages') && !solo.includes('data.final.intro') && !solo.includes('data.final.questions.map'),'solo presentation isolated from answer-leading source copy'],
-  [solo.includes('score === soloFinal.questions.length'),'no reveal before full solution'],
-  [solo.includes('Версия пока не выдерживает все материалы.') && solo.includes('Я не покажу, какое именно звено слабое'),'non-nudging final feedback'],
-  [!solo.includes('${score} из ${soloFinal.questions.length}') && !solo.includes('${score} из ${data.final.questions.length}'),'wrong final does not leak score'],
+  [solo.includes("revision: '2.0'") && solo.includes('playerOwnedCheckpoints: true') && solo.includes('wrongFinalAccepted: true') && solo.includes('finalTheoryComparedAtReveal: true'),'player-owned release gate v2'],
+  [solo.includes('checkpointAnswers:{}') && solo.includes('matchedCanonical:String(answer) === checkpoints[stage].answer'),'checkpoint hypotheses persist without blocking'],
+  [solo.includes('state.solved = true') && !solo.includes('score === soloFinal.questions.length'),'any complete final reaches reveal'],
+  [solo.includes('FINAL_BREAKS') && solo.includes('Часть вашей реконструкции выдержала проверку') && solo.includes('Пять звеньев, на которых держится дело'),'reveal compares player theory to evidence'],
+  [solo.includes('state.finalAnswers = { ...(state.finalAnswers || {}), [input.name]: input.value }') && solo.includes('refreshPreservesFinal: true'),'final draft survives refresh'],
+  [!solo.includes('${score} из ${soloFinal.questions.length}') && !solo.includes('${score} из ${data.final.questions.length}'),'final UI does not expose quiz score'],
   [solo.includes('solo407-hint-panel') && !solo.includes('alert('),'premium inline hints'],
   [post.includes('Детективные игры и квесты онлайн для одного — бесплатно'),'SEO title'],
   [post.includes('два формата бесплатно'),'clear two-format solo promise'],
@@ -76,4 +79,4 @@ try {
   ]) if(!ok) throw new Error(`Solo generated integration failed: ${label}`);
 } finally { fs.rmSync(tmp,{recursive:true,force:true}); }
 
-console.log(JSON.stringify({solo407:true, ktoVretShowcase:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, wrongFinalScoreHidden:true, revealGate:'4/4', premiumUi:true, generatedIntegration:true, playerFeedbackLayer:'1.3.0', progressiveEntry:true},null,2));
+console.log(JSON.stringify({solo407:true, ktoVretShowcase:true, checkpoints:3, materials:18, roomless:true, spoilerNeutral:true, playerOwnedCheckpoints:true, wrongFinalAccepted:true, finalTheoryComparedAtReveal:true, revealGate:'player-owned', premiumUi:true, generatedIntegration:true, playerFeedbackLayer:'1.3.0', progressiveEntry:true},null,2));
