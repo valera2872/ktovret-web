@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {logicAudiencePuzzles} from './logic-audience-data.mjs';
 
 const DEFAULT_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial?mode=approved-manifest';
+const PUBLICLY_DISABLED_COLLECTIONS=new Set(['matches']);
 
 export function canonicalPuzzleJson(value){
   if(Array.isArray(value)) return `[${value.map(canonicalPuzzleJson).join(',')}]`;
@@ -15,8 +16,10 @@ export function puzzleFingerprint(value){
   return crypto.createHash('sha256').update(canonicalPuzzleJson(value),'utf8').digest('hex');
 }
 
+const publishableByPolicy=puzzle=>!(puzzle.collections||[]).some(collection=>PUBLICLY_DISABLED_COLLECTIONS.has(collection));
+
 export async function resolvePuzzleEditorialGate({endpoint=process.env.MYSTERYLOGIC_PUZZLE_EDITORIAL_MANIFEST||DEFAULT_ENDPOINT}={}){
-  const source=logicAudiencePuzzles;
+  const source=[...logicAudiencePuzzles];
   const sourceFingerprints=new Map(source.map(puzzle=>[puzzle.id,puzzleFingerprint(puzzle)]));
   let manifest=null;
   try{
@@ -24,18 +27,43 @@ export async function resolvePuzzleEditorialGate({endpoint=process.env.MYSTERYLO
     if(!response.ok) throw new Error(`HTTP ${response.status}`);
     manifest=await response.json();
   }catch(error){
-    return {ready:false,total:source.length,approved:0,exactApproved:0,mismatched:[],missing:source.map(p=>p.id),reason:`manifest_unavailable:${error?.message||'unknown'}`,schemaVersion:null};
+    return {ready:false,total:source.length,approved:0,exactApproved:0,publishableApproved:0,approvedIds:[],mismatched:[],missing:source.map(p=>p.id),policyExcluded:[],reason:`manifest_unavailable:${error?.message||'unknown'}`,schemaVersion:null};
   }
   if(!manifest||manifest.schemaVersion!==2||!Array.isArray(manifest.puzzles)){
-    return {ready:false,total:source.length,approved:0,exactApproved:0,mismatched:[],missing:source.map(p=>p.id),reason:'manifest_schema_invalid',schemaVersion:manifest?.schemaVersion??null};
+    return {ready:false,total:source.length,approved:0,exactApproved:0,publishableApproved:0,approvedIds:[],mismatched:[],missing:source.map(p=>p.id),policyExcluded:[],reason:'manifest_schema_invalid',schemaVersion:manifest?.schemaVersion??null};
   }
   const approved=new Map(manifest.puzzles.map(row=>[String(row?.id||''),String(row?.fingerprint||'')]));
-  const exact=[],mismatched=[],missing=[];
+  const exact=[],mismatched=[],missing=[],policyExcluded=[];
   for(const puzzle of source){
     if(!approved.has(puzzle.id)){missing.push(puzzle.id);continue;}
     if(approved.get(puzzle.id)!==sourceFingerprints.get(puzzle.id)){mismatched.push(puzzle.id);continue;}
     exact.push(puzzle.id);
+    if(!publishableByPolicy(puzzle)) policyExcluded.push(puzzle.id);
   }
-  const ready=source.length>0&&exact.length===source.length;
-  return {ready,total:source.length,approved:approved.size,exactApproved:exact.length,mismatched,missing,reason:ready?'all_current_versions_approved':'approval_incomplete',schemaVersion:manifest.schemaVersion};
+  const publishableIds=exact.filter(id=>{
+    const puzzle=source.find(item=>item.id===id);
+    return puzzle&&publishableByPolicy(puzzle);
+  });
+  const publishableSet=new Set(publishableIds);
+  const publishablePuzzles=source.filter(puzzle=>publishableSet.has(puzzle.id));
+  const ready=publishablePuzzles.length>0;
+
+  // Both this module and the audience generator reference the same exported array.
+  // Mutating it here makes the production generator see only exact owner-approved,
+  // current-version puzzles. Editorial builds bypass this gate and retain all source puzzles.
+  if(ready) logicAudiencePuzzles.splice(0,logicAudiencePuzzles.length,...publishablePuzzles);
+
+  return {
+    ready,
+    total:source.length,
+    approved:approved.size,
+    exactApproved:exact.length,
+    publishableApproved:publishablePuzzles.length,
+    approvedIds:publishableIds,
+    mismatched,
+    missing,
+    policyExcluded,
+    reason:ready?'approved_subset_ready':'no_publishable_approvals',
+    schemaVersion:manifest.schemaVersion,
+  };
 }
