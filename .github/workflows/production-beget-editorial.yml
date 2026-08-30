@@ -1,0 +1,278 @@
+name: Build Mystery Logic production bundle for Beget
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-beget-editorial.yml'
+      - 'assets/**'
+      - 'admin/**'
+      - 'tools/**'
+      - 'supabase/functions/puzzle-editorial/**'
+      - 'supabase/migrations/*puzzle_editorial*'
+      - 'index.html'
+      - 'dela/**'
+      - 'tom-1/**'
+      - 'detektivnye-igry-dlya-odnogo/**'
+      - 'detektivnye-igry-dlya-dvoih/**'
+      - 'detektivnaya-igra-s-ii/**'
+      - 'logicheskie-zadachi/**'
+      - 'golovolomki-onlayn/**'
+      - 'zagadki-na-logiku-dlya-vzroslyh/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mysterylogic-production-editorial-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+  MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
+
+jobs:
+  production-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "Repository secret KTOVRET_SOURCE_TOKEN is required" && exit 1)
+
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          path: web
+
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate owner-gated public library
+        working-directory: web
+        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+
+      - name: Enable production storefront checkout
+        working-directory: web
+        run: node tools/enable-volume-checkout.mjs --site .
+
+      - name: Validate public and editorial boundaries
+        working-directory: web
+        run: |
+          set -euo pipefail
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' ru/cases/*/index.html | wc -l)" -eq 85
+          test -f ru/besplatnye-detektivnye-dela/index.html
+
+          test -f tom-1/index.html
+          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          grep -q 'data-volume-email' tom-1/index.html
+          grep -q 'data-volume-offer-accept' tom-1/index.html
+          grep -q 'data-volume-privacy-ack' tom-1/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' tom-1/index.html
+          ! grep -q 'name="robots" content="noindex' tom-1/index.html
+          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+          test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
+
+          test -f detektivnye-igry-dlya-dvoih/index.html
+          test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f detektivnye-igry-dlya-odnogo/407/index.html
+          grep -q '<meta name="robots" content="noindex,follow">' detektivnye-igry-dlya-odnogo/407/index.html
+
+          test -f assets/logic-hub.css
+          test -f assets/logic-expert-seo.css
+          test -f assets/logic-expert.js
+          test -f golovolomki-onlayn/index.html
+          test -f zagadki-na-logiku-dlya-vzroslyh/index.html
+          test -f logicheskie-zadachi/index.html
+          test "$(find logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          grep -q 'data-expert-puzzle="expert:001"' logicheskie-zadachi/protokol-shesti-cifr/index.html
+          grep -q 'data-logic-home-launch' index.html
+          grep -q '>Головоломки</a>' index.html
+
+          test -f admin/puzzles/index.html
+          test -f assets/puzzle-admin.css
+          test -f assets/puzzle-admin.js
+          grep -q 'noindex,nofollow,noarchive' admin/puzzles/index.html
+          grep -q 'Утверждение головоломок' admin/puzzles/index.html
+          grep -q 'puzzle-editorial' assets/puzzle-admin.js
+          grep -q 'mysterylogic:review-admin-token:v1' assets/puzzle-admin.js
+
+          grep -q '"premiumSeoNoindexPages": 85' assets/generated/import-report.json
+          grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
+          grep -q '"logicHubPages": 23' assets/generated/import-report.json
+          grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
+          grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
+          grep -q '"soloMaterials": 18' assets/generated/import-report.json
+          grep -q '"logicAudienceEditorialTotal": 33' assets/generated/import-report.json
+          node tools/puzzle-editorial-release-validate.mjs --site .
+
+          grep -q 'storefront-reference-v41.css' index.html
+          grep -q 'storefront-reference-v41.css' dela/index.html
+          grep -q 'storefront-reference-v41.css' tom-1/index.html
+          grep -q 'data-reference-asset="home-hero"' index.html
+          grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
+
+          grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
+          test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' sitemap.xml | wc -l)" -eq 20
+          ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
+          grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
+          ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
+            --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
+
+          node --check assets/volume-storefront.js
+          node --check assets/case-407-solo.js
+          node --check assets/logic-expert.js
+          node --check assets/logic-audience.js
+          node --check assets/puzzle-admin.js
+          node --check tools/import-mobile-cases.mjs
+          node --check tools/import-mobile/puzzle-editorial-gate.mjs
+          node --check tools/import-mobile/logic-audience-release-compat.mjs
+          node --check tools/puzzle-editorial-release-validate.mjs
+          node --check tools/import-mobile/logic-audience-data.mjs
+          node --check tools/import-mobile/logic-audience-postprocess.mjs
+          node tools/logic-expert-review-v2-validate.mjs
+          node tools/logic-expert-review-v2-extension-validate.mjs
+          node tools/logic-expert-seo-validate.mjs
+          node tools/logic-audience-validate.mjs
+          node tools/telegram-retention-validate.mjs
+
+      - name: Render approved production storefront smoke
+        working-directory: web
+        run: node tools/archive-visual-smoke.mjs
+
+      - name: Prepare Beget runtime tree
+        run: |
+          cp -a web production-web
+          rm -rf \
+            production-web/.git \
+            production-web/.github \
+            production-web/tools \
+            production-web/tests \
+            production-web/artifacts \
+            production-web/supabase \
+            production-web/node_modules \
+            production-web/docs \
+            production-web/ops \
+            production-web/old.bac
+          rm -f \
+            production-web/.gitignore \
+            production-web/preview-all-100.cmd \
+            production-web/README.md \
+            production-web/PROJECT_CHECKPOINT.md \
+            production-web/package.json \
+            production-web/package-lock.json \
+            production-web/site-origin.json \
+            production-web/release-web-mvp-0.1.0.txt
+          cat > production-web/.htaccess <<'HTACCESS'
+          Options -Indexes
+          DirectoryIndex index.html index.php
+
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{HTTPS} !=on [OR]
+            RewriteCond %{HTTP_HOST} !^mysterylogic\.com$ [NC]
+            RewriteRule ^ https://mysterylogic.com%{REQUEST_URI} [L,R=301]
+          </IfModule>
+
+          <IfModule mod_headers.c>
+            Header always set X-Content-Type-Options "nosniff"
+            Header always set Referrer-Policy "strict-origin-when-cross-origin"
+          </IfModule>
+          HTACCESS
+
+      - name: Stamp production asset cache keys
+        run: |
+          set -euo pipefail
+          release_version="${GITHUB_SHA::12}"
+          while IFS= read -r -d '' file; do
+            sed -i -E "s/\?v=[0-9A-Za-z._-]+/?v=${release_version}/g" "$file"
+          done < <(find production-web -type f -name '*.html' -print0)
+          grep -R -q "app.js?v=${release_version}" production-web/ru/cases
+          grep -q "volume-storefront.js?v=${release_version}" production-web/tom-1/index.html
+          grep -q "logic-expert.js?v=${release_version}" production-web/logicheskie-zadachi/index.html
+          grep -q "puzzle-admin.css?v=${release_version}" production-web/admin/puzzles/index.html
+          grep -q "puzzle-admin.js?v=${release_version}" production-web/admin/puzzles/index.html
+          if grep -q '"logicAudienceEditorialReady": true' production-web/assets/generated/import-report.json; then
+            grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki-dlya-detei/index.html
+            grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki/tri-korobki/index.html
+          fi
+
+      - name: Validate exact runtime tree
+        run: |
+          set -euo pipefail
+          test -f production-web/index.html
+          test -f production-web/.htaccess
+          test -f production-web/sitemap.xml
+          test -f production-web/robots.txt
+          test -f production-web/admin/puzzles/index.html
+          test -f production-web/assets/puzzle-admin.css
+          test -f production-web/assets/puzzle-admin.js
+          test -f production-web/tom-1/index.html
+          test -f production-web/detektivnye-igry-dlya-odnogo/407/index.html
+          test -f production-web/logicheskie-zadachi/index.html
+          test "$(find production-web/logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20
+          test ! -d production-web/supabase
+          test ! -d production-web/tools
+          test ! -d production-web/tests
+          test ! -d production-web/docs
+          test ! -d production-web/ops
+          test ! -d production-web/old.bac
+          grep -q 'noindex,nofollow,noarchive' production-web/admin/puzzles/index.html
+          grep -q '<meta name="robots" content="noindex,follow">' production-web/detektivnye-igry-dlya-odnogo/407/index.html
+          grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
+          node web/tools/puzzle-editorial-release-validate.mjs --site production-web
+          ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
+          echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  production-web/assets/reference-home-hero.webp' | sha256sum -c -
+          echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  production-web/assets/reference-archive-hero.webp' | sha256sum -c -
+          echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  production-web/assets/reference-archive-grid.webp' | sha256sum -c -
+          echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  production-web/assets/reference-home-lower.webp' | sha256sum -c -
+
+      - name: Create ZIP
+        run: |
+          cd production-web
+          zip -qr ../mysterylogic-beget-production.zip .
+          cd ..
+          unzip -l mysterylogic-beget-production.zip | sed -n '1,120p'
+
+      - name: Upload production storefront smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-production-storefront-smoke
+          path: web/artifacts/storefront-reference-smoke
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload Beget production ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-beget-production
+          path: mysterylogic-beget-production.zip
+          retention-days: 14
+          if-no-files-found: error
+          include-hidden-files: true
