@@ -16,7 +16,10 @@ assert.match(html,/placeholder="Задайте свой вопрос…"/,'compo
 assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not pretend that audio is being recorded');
 assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
 assert.match(html,/0 \/ 30 вопросов/,'demo must give the player enough room to investigate naturally');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.5/,'cipher-reward client must have a fresh cache key');
+assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.6/,'avatar-ready client must have a fresh cache key');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.1/,'avatar shell needs an isolated presentation layer');
+assert.match(html,/data-avatar-stage[^>]*hidden/,'realtime avatar shell must stay dark until a provider stream is connected');
+assert.match(html,/data-avatar-video/,'avatar shell needs a real video target rather than a fake chat decoration');
 assert.match(html,/data-case-progress hidden/,'earned confession needs an explicit next-step transition');
 assert.match(html,/data-action="bonus-inline">Открыть пакет C/,'confession transition must give the player an immediate reward action');
 assert.doesNotMatch(html,/например:.*Кто знал/i,'first question must not be authored for the player');
@@ -38,6 +41,11 @@ assert.doesNotMatch(client,/ответ · защищённый сценарий/
 assert.doesNotMatch(client,/Ответственная — Марина/i,'solution must remain server-side before the server verdict');
 assert.match(client,/function hasConfession\(\)/,'client must recognize the server-earned confession state');
 assert.match(client,/Дело раскрыто · пакет C открыт/,'confession must visibly end interrogation and point to the earned reward');
+assert.match(client,/AVATAR_STAGES=new Set\(\['composed','defensive','cornered','breaking','confessed'\]\)/,'client avatar shell must share the deterministic interrogation-stage vocabulary');
+assert.match(client,/interrogationStages:\{marina:'composed',anton:'composed',lev:'composed'/,'avatar pressure state must persist per suspect');
+assert.match(client,/data\.interrogation_stage/,'server pressure stage must drive the avatar shell after every answer');
+assert.match(client,/function renderAvatarStage\(\)/,'avatar presentation must be isolated from transcript rendering');
+assert.match(client,/classList\.toggle\('is-answering',on\)/,'avatar shell must expose a speaking/answering state for the future realtime stream');
 assert.match(client,/function renderVerdict/,'checked theory needs a dedicated resolution renderer');
 assert.match(client,/Дело раскрыто/,'correct theory must produce an explicit completion state');
 assert.match(client,/data-action="restart-case"/,'completed case must offer a clean replay path');
@@ -118,5 +126,3 @@ assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must
 assert.match(edge,/Игрок не предъявил документ/,'truly new unverified player claims must not become evidence');
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
 assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
-
-console.log('AI detective metered staged-confession/evidence-memory contract: PASS');
