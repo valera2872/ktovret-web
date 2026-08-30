@@ -5,6 +5,7 @@ on:
     paths:
       - 'supabase/functions/ai-avatar-session/**'
       - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/migrations/*ai_avatar*'
       - 'assets/ai-liveavatar-factory.js'
       - 'package.json'
       - 'tests/ai-avatar-session-contract.mjs'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'supabase/functions/ai-avatar-session/**'
       - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/migrations/*ai_avatar*'
       - 'assets/ai-liveavatar-factory.js'
       - 'package.json'
       - 'tests/ai-avatar-session-contract.mjs'
@@ -35,5 +37,5 @@ jobs:
           node-version: '22'
       - name: LiveAvatar broker contract
         run: node tests/ai-avatar-session-contract.mjs
-      - name: Signed PCM speech contract
+      - name: Signed PCM speech and budget contract
         run: node tests/ai-avatar-tts-contract.mjs
