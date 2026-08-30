@@ -57,4 +57,20 @@ assert.equal(ai02.hidden_evidence_count,5,'AI-02 needs multiple independently ea
 assert.equal(ai02.rule_count,9,'AI-02 reviewed private rule graph count changed; rerun private gate and refresh manifest');
 assert.equal(ai02.private_gate.minimum_verified_solution_turns,10,'AI-02 solution depth changed; rerun private state-space before accepting');
 
+const qa=ai02.production_qa||{};
+assert.equal(qa.completed,true,'AI-02 production QA must stay recorded after the reviewed run');
+assert.equal(qa.model_path_verified,true,'AI-02 must have a real production model-path check');
+assert.equal(qa.model,'gpt-5.6-luna','AI-02 reviewed model changed; rerun production QA before accepting');
+assert.equal(qa.zero_stage_suspects_checked,4,'all four AI-02 suspects need zero-stage leak checks');
+assert.equal(qa.zero_stage_hidden_leaks,0,'AI-02 zero-stage model path must not leak hidden canon');
+assert.equal(qa.zero_stage_unexpected_unlocks,0,'AI-02 zero-stage questions must not unlock gated material');
+assert.equal(qa.full_chain_turns,10,'AI-02 reviewed critical path depth changed; rerun full-chain QA');
+assert.equal(qa.full_chain_model_turns,9,'AI-02 critical path must keep the terminal confession deterministic');
+assert.equal(qa.canonical_terminal_model_turns,0,'canonical terminal must never spend a model turn');
+assert.equal(qa.full_chain_theory_passed,true,'AI-02 reviewed full-chain theory check must pass');
+assert.equal(qa.no_early_confession_verified,true,'AI-02 must prove the confession cannot occur one turn early');
+assert.equal(qa.session_rpm_fail_closed_verified,true,'AI-02 QA must preserve the production session RPM guard');
+assert.equal(qa.metering_cleanup_verified,true,'AI-02 QA must leave production metering clean');
+assert.equal(qa.qa_fixture_cleaned,true,'AI-02 QA fixtures must be removed after production tests');
+
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
