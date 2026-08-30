@@ -1,6 +1,6 @@
 -- Server-authoritative investigation state for data-driven paid AI cases.
--- Browser state is a cache/display concern only; unlocks and confession progress
--- are persisted here and are never accepted as authoritative client claims.
+-- One paid entitlement has one authoritative state per case. Clearing browser
+-- storage or opening another device cannot reset question/unlock limits.
 
 create table if not exists public.ai_case_sessions (
   session_key text primary key check (session_key ~ '^[0-9a-f]{64}$'),
@@ -12,7 +12,7 @@ create table if not exists public.ai_case_sessions (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   last_success_at timestamptz,
-  unique (case_id, entitlement_id, session_key)
+  unique (case_id, entitlement_id)
 );
 
 create index if not exists ai_case_sessions_entitlement_case_idx
@@ -23,4 +23,4 @@ revoke all on table public.ai_case_sessions from public, anon, authenticated;
 grant select, insert, update, delete on table public.ai_case_sessions to service_role;
 
 comment on table public.ai_case_sessions is
-  'Server-only authoritative evidence/note/question/stage state for paid AI detective sessions.';
+  'Server-only authoritative evidence/note/question/stage state: one persistent investigation per paid entitlement and case.';
