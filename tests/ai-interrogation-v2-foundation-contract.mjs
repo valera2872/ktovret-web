@@ -8,6 +8,7 @@ assert.match(migration,/create table if not exists public\.ai_case_sessions/,'v2
 assert.match(migration,/session_key text primary key check \(session_key ~ '\^\[0-9a-f\]\{64\}\$'\)/,'session key must be a server-derived SHA-256 digest');
 assert.match(migration,/case_id text not null references public\.ai_case_canon\(case_id\) on delete cascade/,'session must belong to a private canon case');
 assert.match(migration,/entitlement_id uuid not null references public\.access_entitlements\(id\) on delete cascade/,'session must belong to a verified entitlement');
+assert.match(migration,/unique \(case_id, entitlement_id\)/,'one purchase must have one authoritative progress state per case');
 assert.match(migration,/"rule_ids":\[\]/,'applied canon rules must be persisted for one-shot unlock semantics');
 assert.match(migration,/revision integer not null default 0/,'session state needs optimistic concurrency control');
 assert.match(migration,/alter table public\.ai_case_sessions enable row level security/,'session state must have RLS defense in depth');
@@ -19,8 +20,9 @@ assert.match(runtime,/ai_case_canon\?select=case_id,status,canon_version,canon/,
 assert.match(runtime,/status=eq\.published/,'only published case/canon records may run');
 assert.match(runtime,/const tokenHash=await digestHex\(token\)/,'opaque purchase token must be hashed before entitlement lookup');
 assert.doesNotMatch(runtime,/token_hash.*accessToken|access_token.*ai_case_sessions/,'plaintext access tokens must never be persisted as session state');
-assert.match(runtime,/ai-v2-session:\$\{caseId\}:\$\{entitlementId\}:\$\{clientSessionId\}/,'server session scope must include case, entitlement and client session');
-assert.match(runtime,/session_key=eq\.\$\{sessionKey\}/,'authoritative state must be loaded by the derived session key');
+assert.match(runtime,/ai-v2-session:\$\{caseId\}:\$\{entitlementId\}/,'server session scope must depend only on purchased entitlement and case');
+assert.doesNotMatch(runtime,/clientSessionId|client_session_id/,'clearing browser storage must not create a fresh paid investigation budget');
+assert.match(runtime,/case_id=eq\.\$\{encodeURIComponent\(input\.runtime\.caseId\)\}&entitlement_id=eq\.\$\{input\.runtime\.entitlement\.id\}/,'authoritative progress must be restored by case and entitlement');
 assert.match(runtime,/revision=eq\.\$\{input\.expectedRevision\}/,'state writes must reject stale concurrent revisions');
 assert.match(runtime,/evidence_not_discovered/,'browser may present only evidence already unlocked server-side');
 assert.match(runtime,/state\.rule_ids\.includes\(rule\.id\)/,'unlock rules must not be replayed repeatedly');
