@@ -1,0 +1,51 @@
+name: AI v2 generic player
+
+on:
+  pull_request:
+    paths:
+      - 'ai-investigation/**'
+      - 'assets/ai-case-player-v2.js'
+      - 'assets/ai-case-player-v2.css'
+      - 'assets/ai-case-live-v2.js'
+      - 'supabase/functions/_shared/ai-avatar-profile.ts'
+      - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/migrations/20260830132613_ai_case_avatar_profiles.sql'
+      - 'tests/ai-v2-generic-player-contract.mjs'
+      - 'tests/ai-avatar-profile-contract.mjs'
+      - '.github/workflows/ai-v2-generic-player.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ai-investigation/**'
+      - 'assets/ai-case-player-v2.js'
+      - 'assets/ai-case-player-v2.css'
+      - 'assets/ai-case-live-v2.js'
+      - 'supabase/functions/_shared/ai-avatar-profile.ts'
+      - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/migrations/20260830132613_ai_case_avatar_profiles.sql'
+      - 'tests/ai-v2-generic-player-contract.mjs'
+      - 'tests/ai-avatar-profile-contract.mjs'
+      - '.github/workflows/ai-v2-generic-player.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check browser clients
+        run: |
+          node --check assets/ai-case-player-v2.js
+          node --check assets/ai-case-live-v2.js
+      - name: Verify server-authoritative generic player
+        run: node tests/ai-v2-generic-player-contract.mjs
+      - name: Verify server-only avatar profiles
+        run: node tests/ai-avatar-profile-contract.mjs

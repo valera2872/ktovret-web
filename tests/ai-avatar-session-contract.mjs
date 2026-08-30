@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const edge=fs.readFileSync('supabase/functions/ai-avatar-session/index.ts','utf8');
+const profiles=fs.readFileSync('supabase/functions/_shared/ai-avatar-profile.ts','utf8');
 
 assert.match(edge,/ALLOWED_ORIGINS=new Set\(\["https:\/\/mysterylogic\.com","https:\/\/valera2872\.github\.io"\]\)/,'avatar broker must use the same explicit browser origin boundary');
 assert.match(edge,/LIVEAVATAR_API_KEY=Deno\.env\.get\("LIVEAVATAR_API_KEY"\)/,'provider API key must stay server-side');
@@ -13,9 +14,11 @@ assert.match(edge,/live_wrong_case/,'case-scoped live purchases must not unlock 
 assert.match(edge,/token_hash/,'opaque purchase tokens must be hashed before entitlement lookup');
 assert.match(edge,/AI_AVATAR_ENABLED/,'avatar rollout must be protected by a server-side kill switch');
 assert.match(edge,/AI_AVATAR_SANDBOX/,'provider sandbox mode must be configurable and default-safe');
-assert.match(edge,/AI_AVATAR_MARINA_ID/,'Marina avatar must be server allowlisted');
-assert.match(edge,/AI_AVATAR_ANTON_ID/,'Anton avatar must be server allowlisted before rollout');
-assert.match(edge,/AI_AVATAR_LEV_ID/,'Lev avatar must be server allowlisted before rollout');
+assert.match(edge,/loadAiAvatarProfile/,'avatar identity must come from the server-only case profile layer');
+assert.match(edge,/profile\?\.avatarId/,'broker must use the resolved case+suspect avatar identity');
+assert.doesNotMatch(edge,/AI_AVATAR_MARINA_ID|AI_AVATAR_ANTON_ID|AI_AVATAR_LEV_ID|SUSPECT_AVATARS/,'generic broker must not hardcode AI-01 identities');
+assert.match(profiles,/const LEGACY_CASE_ID="AI-01"/,'legacy identity support must be isolated in the shared profile loader');
+assert.match(profiles,/\.eq\("status","published"\)/,'new case identities must be explicitly published before Live use');
 assert.match(edge,/requestedAvatarId&&requestedAvatarId!==allowedAvatarId/,'browser must never be able to select arbitrary billable avatars');
 assert.match(edge,/provider!=="heygen"&&provider!=="liveavatar"/,'provider input must be allowlisted');
 assert.match(edge,/requestedMode&&requestedMode!=="lite"/,'Mystery Logic must keep its own AI brain via LITE mode');

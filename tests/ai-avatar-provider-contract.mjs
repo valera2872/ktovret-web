@@ -2,11 +2,23 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const bootstrap=fs.readFileSync('assets/ai-avatar-auth-bootstrap.js','utf8');
 const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 
+assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=0\.0\.1/,'legacy AI page must bootstrap public auth explicitly');
 assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.2/,'avatar provider bridge must use the current cache key');
+assert.ok(html.indexOf('ai-avatar-auth-bootstrap.js')<html.indexOf('ai-avatar-provider.js'),'valid public auth must exist before AvatarBridge is constructed');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
+assert.match(bootstrap,/ML_AVATAR_CONFIG/,'bootstrap must seed provider config rather than depend on adapter fallback');
+assert.match(bootstrap,/publicAnon:PUBLIC_ANON/,'bootstrap must explicitly supply the public JWT');
+const token=bootstrap.match(/const PUBLIC_ANON='([^']+)'/)?.[1]||'';
+assert.equal(token.split('.').length,3,'bootstrap public auth must be a JWT');
+const payload=JSON.parse(Buffer.from(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'),'base64').toString('utf8'));
+assert.equal(payload.iss,'supabase','public JWT issuer must be Supabase');
+assert.equal(payload.ref,'orknvuwknvsedjgqcfwc','public JWT must be scoped to the production Supabase project');
+assert.equal(payload.role,'anon','browser JWT must have anon role only');
+
 assert.match(adapter,/enabled:false/,'realtime avatar rollout must remain dark by default');
 assert.match(adapter,/provider:"heygen"/,'HeyGen/LiveAvatar must be the first supported renderer without becoming the game engine');
 assert.match(adapter,/class AvatarProvider/,'provider-neutral interface missing');

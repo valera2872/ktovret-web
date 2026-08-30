@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { loadAiAvatarProfile } from "../_shared/ai-avatar-profile.ts";
 
 const ALLOWED_ORIGINS=new Set(["https://mysterylogic.com","https://valera2872.github.io"]);
 const LIVEAVATAR_API_BASE="https://api.liveavatar.com";
@@ -9,12 +10,7 @@ const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const SIGNING_SECRET=Deno.env.get("AI_AVATAR_SIGNING_KEY")||SERVICE_ROLE_KEY;
 const AVATAR_ENABLED=(Deno.env.get("AI_AVATAR_ENABLED")||"").toLowerCase()==="true";
 const AVATAR_SANDBOX=(Deno.env.get("AI_AVATAR_SANDBOX")||"true").toLowerCase()!=="false";
-const MARINA_AVATAR_ID=Deno.env.get("AI_AVATAR_MARINA_ID")||"";
-const ANTON_AVATAR_ID=Deno.env.get("AI_AVATAR_ANTON_ID")||"";
-const LEV_AVATAR_ID=Deno.env.get("AI_AVATAR_LEV_ID")||"";
 const MAX_SESSION_SECONDS=Math.max(60,Math.min(300,Number(Deno.env.get("AI_AVATAR_MAX_SESSION_SECONDS")||"300")||300));
-
-const SUSPECT_AVATARS:Record<string,string>={marina:MARINA_AVATAR_ID,anton:ANTON_AVATAR_ID,lev:LEV_AVATAR_ID};
 const encoder=new TextEncoder();
 
 function clean(v:unknown,max=160){return typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,max):""}
@@ -76,19 +72,23 @@ Deno.serve(async(req:Request)=>{
   let body:any={};
   try{body=await req.json()}catch{return json(origin,400,{error:"invalid_json"})}
   const provider=clean(body?.provider,24).toLowerCase();
-  const suspectId=clean(body?.suspect_id,24).toLowerCase();
+  const suspectId=clean(body?.suspect_id,80).toLowerCase();
   const caseId=clean(body?.case_id,160);
   const accessToken=clean(body?.access_token,512);
   const requestedAvatarId=clean(body?.avatar_id,128);
   const requestedMode=clean(body?.mode,16).toLowerCase();
   if(provider!=="heygen"&&provider!=="liveavatar")return json(origin,400,{error:"provider_not_allowed"});
   if(requestedMode&&requestedMode!=="lite")return json(origin,400,{error:"mode_not_allowed"});
-  if(!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId))return json(origin,400,{error:"invalid_case_id"});
+  if(!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId)||!/^[a-zA-Z0-9_:-]{1,80}$/.test(suspectId))return json(origin,400,{error:"invalid_case_identity"});
   const liveAccess=await requireLiveEntitlement(accessToken,caseId);
   if(!liveAccess.ok)return json(origin,403,{error:liveAccess.error||"live_access_required"});
   const entitlementId=clean(liveAccess.entitlement?.id,64);
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(entitlementId))return json(origin,503,{error:"live_entitlement_invalid"});
-  const allowedAvatarId=SUSPECT_AVATARS[suspectId]||"";
+
+  let profile;
+  try{profile=await loadAiAvatarProfile({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId,suspectId})}
+  catch(error){console.error("avatar_profile_error",String(error));return json(origin,503,{error:"avatar_profile_unavailable"})}
+  const allowedAvatarId=profile?.avatarId||"";
   if(!allowedAvatarId)return json(origin,404,{error:"suspect_avatar_unavailable"});
   if(requestedAvatarId&&requestedAvatarId!==allowedAvatarId)return json(origin,403,{error:"avatar_not_allowed"});
 

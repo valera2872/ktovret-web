@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { loadAiAvatarProfile } from "../_shared/ai-avatar-profile.ts";
 
 const ALLOWED_ORIGINS=new Set(["https://mysterylogic.com","https://valera2872.github.io"]);
 const OPENAI_API_KEY=Deno.env.get("OPENAI_API_KEY")||"";
@@ -11,11 +12,6 @@ const TTS_MODEL=Deno.env.get("AI_AVATAR_TTS_MODEL")||"gpt-4o-mini-tts";
 const CASE_BUDGET_MS=Math.max(300000,Math.min(1800000,Number(Deno.env.get("AI_AVATAR_CASE_BUDGET_MS")||"900000")||900000));
 const BILLING_OVERHEAD_MS=Math.max(1000,Math.min(10000,Number(Deno.env.get("AI_AVATAR_BILLING_OVERHEAD_MS")||"5000")||5000));
 const PCM_BYTES_PER_SECOND=24000*2;
-const VOICES:Record<string,string>={
-  marina:Deno.env.get("AI_AVATAR_MARINA_VOICE")||"marin",
-  anton:Deno.env.get("AI_AVATAR_ANTON_VOICE")||"onyx",
-  lev:Deno.env.get("AI_AVATAR_LEV_VOICE")||"echo"
-};
 const STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 const encoder=new TextEncoder();
 
@@ -43,10 +39,10 @@ async function verifySpeechToken(token:string,suspectId:string){
   const key=await crypto.subtle.importKey("raw",encoder.encode(SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
   try{return await crypto.subtle.verify("HMAC",key,fromBase64url(signaturePart),encoder.encode(payloadPart))?payload:null}catch{return null}
 }
-function deliveryInstruction(suspectId:string,stage:string){
-  const base=suspectId==="marina"?"Женский русский голос, естественный и сдержанный. Говори как человек на серьёзном допросе, без дикторской интонации.":suspectId==="anton"?"Мужской русский голос технического специалиста. Спокойно, конкретно, без театральности.":"Мужской русский голос образованного исследователя. Сдержанно, немного колко, без переигрывания.";
+function deliveryInstruction(base:string,stage:string){
+  const identity=clean(base,1600)||"Естественный русский голос взрослого человека на серьёзном допросе. Без дикторской подачи и театральности.";
   const pressure=stage==="defensive"?" В голосе появляется защитная настороженность.":stage==="cornered"?" Напряжение заметно, ответы короче, но речь остаётся реалистичной.":stage==="breaking"?" Контроль начинает давать сбой: небольшие паузы, напряжение и усталость, без мелодрамы.":stage==="confessed"?" После сопротивления голос тише и тяжелее; признание произнеси прямо, без пафоса.":" Держись уверенно и спокойно.";
-  return base+pressure;
+  return identity+pressure;
 }
 
 Deno.serve(async(req:Request)=>{
@@ -62,19 +58,22 @@ Deno.serve(async(req:Request)=>{
 
   let body:any={};
   try{body=await req.json()}catch{return json(origin,400,{error:"invalid_json"})}
-  const suspectId=clean(body?.suspect_id,24).toLowerCase();
+  const suspectId=clean(body?.suspect_id,80).toLowerCase();
   const text=clean(body?.text,900);
   const stageRaw=clean(body?.stage,24).toLowerCase();
   const stage=STAGES.has(stageRaw)?stageRaw:"composed";
   const speechToken=clean(body?.speech_token,4096);
-  const voice=VOICES[suspectId];
-  if(!voice)return json(origin,400,{error:"suspect_not_allowed"});
   if(!text)return json(origin,400,{error:"speech_text_missing"});
   const speechClaim=speechToken?await verifySpeechToken(speechToken,suspectId):null;
   if(!speechClaim)return json(origin,403,{error:"speech_token_invalid"});
 
-  const payload:Record<string,unknown>={model:TTS_MODEL,input:text,voice,response_format:"pcm",speed:1};
-  if(TTS_MODEL==="gpt-4o-mini-tts")payload.instructions=deliveryInstruction(suspectId,stage);
+  let profile;
+  try{profile=await loadAiAvatarProfile({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId:speechClaim.cid,suspectId})}
+  catch(error){console.error("avatar_tts_profile_error",String(error));return json(origin,503,{error:"avatar_profile_unavailable"})}
+  if(!profile?.ttsVoice)return json(origin,404,{error:"suspect_voice_unavailable"});
+
+  const payload:Record<string,unknown>={model:TTS_MODEL,input:text,voice:profile.ttsVoice,response_format:"pcm",speed:1};
+  if(TTS_MODEL==="gpt-4o-mini-tts"||TTS_MODEL.startsWith("gpt-4o-mini-tts-"))payload.instructions=deliveryInstruction(profile.ttsInstructions,stage);
   const upstream=await fetch("https://api.openai.com/v1/audio/speech",{
     method:"POST",
     headers:{"authorization":`Bearer ${OPENAI_API_KEY}`,"content-type":"application/json"},
