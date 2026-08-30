@@ -167,6 +167,9 @@ jobs:
           grep -q '"seoCasePages": 100' assets/generated/import-report.json
           grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
+          grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
+          grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
+          grep -q '"soloMaterials": 18' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Version": "4.1.4"' assets/generated/import-report.json
 
@@ -189,6 +192,10 @@ jobs:
           test "$(grep -c '<url>' sitemap.xml)" -eq 87
           test "$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sort -u | wc -l)" -eq 87
           test "$(grep -o 'https://mysterylogic.com/ru/cases/[^<]*/' sitemap.xml | wc -l)" -eq 15
+          grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' sitemap.xml | wc -l)" -eq 20
           test "$(grep -o 'https://mysterylogic.com/golovolomki/[^<]*/' sitemap.xml | wc -l)" -eq 33
           for route in \
@@ -202,6 +209,8 @@ jobs:
             golovolomki-so-spichkami; do
             grep -q "<loc>https://mysterylogic.com/${route}/</loc>" sitemap.xml
           done
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/protokol-shesti-cifr/</loc>' sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/domino-razbienie-4x5/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki/tri-korobki/</loc>' sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki/spichki-1-6-5/</loc>' sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/shest-pokazaniy/</loc>' sitemap.xml
@@ -301,6 +310,7 @@ jobs:
           grep -q "logic-hub.css?v=${release_version}" production-web/logicheskie-zadachi/index.html
           grep -q "logic-expert-seo.css?v=${release_version}" production-web/logicheskie-zadachi/index.html
           grep -q "logic-expert.js?v=${release_version}" production-web/logicheskie-zadachi/index.html
+          grep -q "logic-expert.js?v=${release_version}" production-web/golovolomki-onlayn/index.html
           grep -q "logic-audience.css?v=${release_version}" production-web/golovolomki-dlya-detei/index.html
           grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki-dlya-detei/index.html
           grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki/tri-korobki/index.html
@@ -353,6 +363,7 @@ jobs:
           grep -q 'data-volume-email' production-web/tom-1/index.html
           grep -q 'data-volume-offer-accept' production-web/tom-1/index.html
           grep -q 'data-volume-privacy-ack' production-web/tom-1/index.html
+          grep -q 'volume-storefront.js?v=' production-web/tom-1/index.html
           grep -q 'data-reference-asset="home-hero"' production-web/index.html
           grep -q 'data-reference-asset="home-lower"' production-web/index.html
           grep -q 'data-reference-asset="archive-hero"' production-web/tom-1/index.html
@@ -398,9 +409,16 @@ jobs:
           test "$(grep -c '<url>' production-web/sitemap.xml)" -eq 87
           test "$(grep -o '<loc>[^<]*</loc>' production-web/sitemap.xml | sort -u | wc -l)" -eq 87
           test "$(grep -o 'https://mysterylogic.com/ru/cases/[^<]*/' production-web/sitemap.xml | wc -l)" -eq 15
+          grep -q '<loc>https://mysterylogic.com/tom-1/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/ru/besplatnye-detektivnye-dela/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-dvoih/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' production-web/sitemap.xml
           test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' production-web/sitemap.xml | wc -l)" -eq 20
           test "$(grep -o 'https://mysterylogic.com/golovolomki/[^<]*/' production-web/sitemap.xml | wc -l)" -eq 33
           for route in \
+            golovolomki-onlayn \
+            zagadki-na-logiku-dlya-vzroslyh \
+            logicheskie-zadachi \
             golovolomki-dlya-detei \
             igry-dlya-mozga \
             detektivnye-golovolomki \
@@ -408,6 +426,8 @@ jobs:
             golovolomki-so-spichkami; do
             grep -q "<loc>https://mysterylogic.com/${route}/</loc>" production-web/sitemap.xml
           done
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/protokol-shesti-cifr/</loc>' production-web/sitemap.xml
+          grep -q '<loc>https://mysterylogic.com/logicheskie-zadachi/domino-razbienie-4x5/</loc>' production-web/sitemap.xml
           grep -q '<loc>https://mysterylogic.com/golovolomki/tri-korobki/</loc>' production-web/sitemap.xml
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' production-web/sitemap.xml
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
