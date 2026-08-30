@@ -1,0 +1,74 @@
+name: TEMP AI v2 production E2E smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ai-v2-production-e2e-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  production-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_URL: https://orknvuwknvsedjgqcfwc.supabase.co
+      PUBLIC_ANON: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+      ACCESS_TOKEN: ml_smoke_v2_TLy_rfJJZYKQxgQE-GHgEZRWwZUJjOL-a0qSrzg1xgY
+      CASE_ID: AI-SMOKE-V2
+    steps:
+      - name: case-access -> state -> canonical terminal -> theory
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          access="$(curl --fail-with-body -sS \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            "$BASE_URL/functions/v1/case-access?case_id=$CASE_ID")"
+          ACCESS_JSON="$access" node <<'NODE'
+          const d=JSON.parse(process.env.ACCESS_JSON);
+          if(!d.ok||d.caseId!=='AI-SMOKE-V2'||d.productId!=='ai_smoke_v2_e2e') throw new Error('case_access_identity_failed');
+          if(d.experienceTier!=='text'||d.features?.freeTextInterrogation!==true||d.features?.liveAvatar!==false) throw new Error('case_access_tier_failed');
+          if(d.config?.ai_case?.suspects?.length!==2||d.config?.ai_case?.initial_evidence?.[0]?.id!=='S1') throw new Error('case_access_payload_failed');
+          NODE
+
+          state="$(curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $PUBLIC_ANON" \
+            -H "apikey: $PUBLIC_ANON" \
+            -H 'Content-Type: application/json' \
+            --data "{\"case_id\":\"$CASE_ID\",\"access_token\":\"$ACCESS_TOKEN\",\"action\":\"state\"}" \
+            "$BASE_URL/functions/v1/ai-interrogation-v2")"
+          STATE_JSON="$state" node <<'NODE'
+          const d=JSON.parse(process.env.STATE_JSON);
+          if(!d.ok||d.state?.case_id!=='AI-SMOKE-V2'||d.state?.experience_tier!=='text') throw new Error('state_identity_failed');
+          if(d.state?.successful_turns!==0||d.state?.evidence?.[0]?.id!=='S1') throw new Error('state_initial_failed');
+          if(d.state?.transcripts?.alpha?.[0]?.role!=='assistant'||d.state?.transcripts?.beta?.[0]?.role!=='assistant') throw new Error('state_transcript_failed');
+          NODE
+
+          turn="$(curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $PUBLIC_ANON" \
+            -H "apikey: $PUBLIC_ANON" \
+            -H 'Content-Type: application/json' \
+            --data "{\"case_id\":\"$CASE_ID\",\"access_token\":\"$ACCESS_TOKEN\",\"action\":\"interrogate\",\"suspect_id\":\"alpha\",\"question\":\"smoke\"}" \
+            "$BASE_URL/functions/v1/ai-interrogation-v2")"
+          TURN_JSON="$turn" node <<'NODE'
+          const d=JSON.parse(process.env.TURN_JSON);
+          if(!d.ok||d.mode!=='canonical_confession'||d.model!==null) throw new Error('terminal_mode_failed');
+          if(d.reply!=='Synthetic canonical confession.'||d.state?.successful_turns!==1) throw new Error('terminal_state_failed');
+          if(d.interrogation_stage!=='confessed'||!d.state?.notes?.some(n=>n.id==='N1')) throw new Error('terminal_note_failed');
+          if(Object.prototype.hasOwnProperty.call(d,'usage')) throw new Error('terminal_should_not_spend_llm');
+          NODE
+
+          theory="$(curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $PUBLIC_ANON" \
+            -H "apikey: $PUBLIC_ANON" \
+            -H 'Content-Type: application/json' \
+            --data "{\"case_id\":\"$CASE_ID\",\"access_token\":\"$ACCESS_TOKEN\",\"action\":\"check_theory\",\"suspect_id\":\"alpha\",\"reason\":\"synthetic smoke mechanism\"}" \
+            "$BASE_URL/functions/v1/ai-interrogation-v2")"
+          THEORY_JSON="$theory" node <<'NODE'
+          const d=JSON.parse(process.env.THEORY_JSON);
+          if(!d.ok||d.result?.correct!==true||d.result?.title!=='Synthetic smoke passed') throw new Error('theory_failed');
+          if(d.state?.successful_turns!==1||!d.state?.notes?.some(n=>n.id==='N1')) throw new Error('theory_state_failed');
+          console.log('production AI v2 E2E smoke: ok');
+          NODE
