@@ -69,6 +69,17 @@ assert.match(ux, /Это рабочая гипотеза, а не ответ с�
 assert.doesNotMatch(ux, /choice === data\.decision\.correct/, 'Last Aria UX must not reveal the correct suspect mid-case');
 assert.doesNotMatch(ux, /decisionMistakes/, 'Last Aria must not score provisional theories as mistakes');
 assert.doesNotMatch(ux, /decisionPenaltyApplied/, 'Last Aria must not penalize provisional theories');
+
+// Package three is a falsification pass, not a victory lap. It must reflect the
+// saved theory without telling players whether that theory is correct.
+assert.match(ux, /const ensureTheoryCheck = \(\) =>/, 'Last Aria package-three theory check is missing');
+assert.match(ux, /current !== 3/, 'Last Aria theory check must be scoped to package three');
+assert.match(ux, /progress\.decision/, 'Last Aria theory check must use the players saved hypothesis');
+assert.match(ux, /Теперь попробуйте опровергнуть самих себя/, 'Last Aria package three must frame evidence as a stress test');
+assert.match(ux, /Не защищайте её/, 'Last Aria package three must invite falsification rather than confirmation');
+assert.match(ux, /Ищите материал, который сильнее всего ей противоречит/, 'Last Aria package three must ask players to seek disconfirming evidence');
+assert.doesNotMatch(ux, /selected\?\.id === data\.decision\.correct/, 'Last Aria package-three framing must never validate the saved suspect');
+assert.match(ux, /ensureTheoryCheck\(\)/, 'Last Aria theory check must run with dynamic screen updates');
 assert.match(ux, /MutationObserver/, 'Last Aria investigation UX must survive dynamic game boot');
 
 // Production-critical regression: the installed observer must only watch root-level
@@ -95,4 +106,4 @@ assert.match(coopPost, /addScript\(html,root,finalFeedbackLoader,LAST_ARIA_UX_VE
 assert.match(coopPost, /addScript\(html,root,investigationUx,LAST_ARIA_UX_VERSION\)/, 'Last Aria investigation UX is not injected');
 assert.match(coopPost, /addScript\(html,root,resilience,LAST_ARIA_RESILIENCE_VERSION\)/, 'Last Aria resilience guard is not injected');
 
-console.log('Last Aria delayed-boot, player-owned hypothesis and resumed-progress regression gate passed');
+console.log('Last Aria delayed-boot, player-owned hypothesis, package-three falsification and resumed-progress regression gate passed');
