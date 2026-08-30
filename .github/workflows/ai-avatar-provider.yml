@@ -4,7 +4,10 @@ on:
   pull_request:
     paths:
       - 'assets/ai-avatar-provider.js'
+      - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
+      - 'tools/ai-liveavatar-sdk-entry.mjs'
+      - 'package.json'
       - 'detektivnaya-igra-s-ii/**'
       - 'tests/ai-avatar-provider-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
@@ -12,7 +15,10 @@ on:
     branches: [main]
     paths:
       - 'assets/ai-avatar-provider.js'
+      - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
+      - 'tools/ai-liveavatar-sdk-entry.mjs'
+      - 'package.json'
       - 'detektivnaya-igra-s-ii/**'
       - 'tests/ai-avatar-provider-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
@@ -29,7 +35,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Adapter syntax
-        run: node --check assets/ai-avatar-provider.js
+      - name: Runtime syntax
+        run: |
+          node --check assets/ai-avatar-provider.js
+          node --check assets/ai-liveavatar-factory.js
+          node --check tools/ai-liveavatar-sdk-entry.mjs
       - name: Provider-neutral security contract
         run: node tests/ai-avatar-provider-contract.mjs
+      - name: Build pinned LiveAvatar SDK bundle
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:avatar-sdk
+          test -s assets/vendor/liveavatar-web-sdk.mjs
