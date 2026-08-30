@@ -3,6 +3,7 @@ name: AI avatar provider adapter
 on:
   pull_request:
     paths:
+      - 'assets/ai-avatar-auth-bootstrap.js'
       - 'assets/ai-avatar-provider.js'
       - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
@@ -14,6 +15,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'assets/ai-avatar-auth-bootstrap.js'
       - 'assets/ai-avatar-provider.js'
       - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
@@ -37,6 +39,7 @@ jobs:
           node-version: '22'
       - name: Runtime syntax
         run: |
+          node --check assets/ai-avatar-auth-bootstrap.js
           node --check assets/ai-avatar-provider.js
           node --check assets/ai-liveavatar-factory.js
           node --check tools/ai-liveavatar-sdk-entry.mjs
