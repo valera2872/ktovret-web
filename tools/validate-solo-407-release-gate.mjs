@@ -32,9 +32,9 @@ const post = read('tools/import-mobile/solo-407-postprocess.mjs');
 const feedbackPost = read('tools/import-mobile/solo-407-player-feedback-postprocess.mjs');
 const browserSmoke = read('tools/solo-407-browser-smoke.mjs');
 const progressiveSmoke = read('tools/solo-407-progressive-smoke.mjs');
-const checkpoints = extractObject(solo, 'checkpoints', '\n  const hints =');
+const checkpoints = extractObject(solo, 'checkpoints', '\n\n  const hints =');
 const stages = extractObject(solo, 'soloStages', '\n\n  const checkpoints =');
-const final = extractObject(solo, 'soloFinal', '\n\n  const cleanState =');
+const final = extractObject(solo, 'soloFinal', '\n\n  const FINAL_LABELS =');
 
 // G0 — content freeze / exact solo product boundary.
 expect((data.match(/type: '/g) || []).length >= 18, 'G0 source evidence payload missing');
@@ -72,7 +72,9 @@ includesAll(solo, [
   "title: 'Первые двадцать минут'",
   "title: 'След после тревоги'",
   "title: 'Последние подтверждения'",
-  'чьи действия независимо подтверждаются материалами'
+  'зафиксируйте рабочую гипотезу',
+  'стресс-тест вашей версии',
+  'Игра примет любое полное заключение'
 ], 'G3 neutral progression');
 excludesAll(solo, [
   "title: 'Кто помог Марте'",
@@ -90,11 +92,20 @@ excludesAll(post, [
 expect(!solo.includes('stageData = data.stages'), 'G3 source stage titles must not drive Solo UI');
 expect(!solo.includes('data.final.intro') && !solo.includes('data.final.questions.map'), 'G3 source answer-leading final copy must not drive Solo UI');
 
-// G4 — solvability/difficulty: option length cannot reveal correct answers; final feedback cannot support score-probing.
+// G4 — solvability/difficulty: option length cannot reveal correct answers; wrong theories must be accepted and compared only at reveal.
 Object.entries(checkpoints).forEach(([id, cp]) => balance(cp.options, 1.20, `G4 checkpoint ${id}`));
 final.questions.forEach((q) => balance(q.options, 1.50, `G4 final ${q.id}`));
-expect(solo.includes('Версия пока не выдерживает все материалы.'), 'G4 neutral wrong-final copy');
-expect(browserSmoke.includes('wrongScoreHidden') && browserSmoke.includes('data-wrong-score-hidden="true"'), 'G4 browser test must prove score hiding');
+includesAll(solo, [
+  "revision: '2.0'",
+  'playerOwnedCheckpoints: true',
+  'wrongFinalAccepted: true',
+  'finalTheoryComparedAtReveal: true',
+  'refreshPreservesFinal: true',
+  'FINAL_BREAKS',
+  'Пять звеньев, на которых держится дело'
+], 'G4 player-owned deduction contract');
+expect(!solo.includes('score === soloFinal.questions.length'), 'G4 final must not gate reveal on canonical score');
+expect(!solo.includes('solo407-checkpoint-error'), 'G4 checkpoint must not expose wrong-answer loop');
 
 // G5 — first-time UX: one clean entry, one natural action, then real investigative choice before desk exposure.
 includesAll(solo, [
@@ -130,18 +141,21 @@ includesAll(progressiveSmoke, [
   'threeDirections:true'
 ], 'G5 browser proof contract');
 
-// G6 — black-box full game-flow contract remains unchanged after progressive entry.
+// G6 — black-box flow must prove player-owned hypotheses, wrong-final completion and refresh persistence.
 includesAll(browserSmoke, [
-  "await checkpoint('ids')",
-  "await checkpoint('zones')",
-  "await checkpoint('owner')",
-  "room:'409'",
-  "alarm:'duress'",
-  "route:'service'",
-  "sequence:'collusion'",
-  'data-hints-progressive="true"',
+  "await checkpoint('camera')",
+  "await checkpoint('forced')",
+  "await checkpoint('route')",
+  "room:'407'",
+  "alarm:'force'",
+  "route:'window'",
+  "sequence:'denis'",
+  'data-wrong-final-accepted="true"',
+  'data-checkpoint-hypotheses="true"',
+  'data-reveal-comparison="true"',
+  'data-refresh-preserved="true"',
   'fullSolve:true'
-], 'G6 black-box flow');
+], 'G6 black-box player-owned flow');
 
 // G7 — free/local solo access and abuse boundaries.
 excludesAll(solo.toLowerCase(), [
@@ -165,7 +179,7 @@ expect(feedback.includes("const openedAllInitial = plans[1].initial.every"), 'G8
 
 const result = {
   verdict: 'SOLO_407_G0_G8_PASS',
-  revision: '1.3.0',
+  revision: '2.0',
   gates: {
     G0:'PASS', G1:'PASS', G2:'PASS', G3:'PASS', G4:'PASS',
     G5:'CONTRACT_PASS_BROWSER_REQUIRED', G6:'CONTRACT_PASS_BROWSER_REQUIRED', G7:'PASS', G8:'CONTRACT_PASS_BRANCH_CI_REQUIRED',
@@ -173,7 +187,10 @@ const result = {
   },
   adversarialRoles: ['investigator','defense-countertheory','spoiler-hunter','stuck-player','qa-abuser','first-time-user','returning-player'],
   finalOptionsBalanced: true,
-  wrongFinalScoreHidden: true,
+  playerOwnedCheckpoints: true,
+  wrongFinalAccepted: true,
+  finalTheoryComparedAtReveal: true,
+  refreshPreservesFinal: true,
   spoilerNeutral: true,
   progressiveEntry: true,
   existingPlayerBypassRequired: true
