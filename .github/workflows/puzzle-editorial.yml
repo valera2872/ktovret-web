@@ -1,0 +1,52 @@
+name: Validate puzzle editorial approval gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin/puzzles/**'
+      - 'assets/puzzle-admin.*'
+      - 'supabase/functions/puzzle-editorial/**'
+      - 'supabase/migrations/*puzzle_editorial*'
+      - 'tools/import-mobile/puzzle-editorial-gate.mjs'
+      - 'tools/import-mobile/logic-audience-release-compat.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/puzzle-editorial-release-validate.mjs'
+      - 'tests/puzzle-editorial-contract.mjs'
+      - '.github/workflows/puzzle-editorial.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin/puzzles/**'
+      - 'assets/puzzle-admin.*'
+      - 'supabase/functions/puzzle-editorial/**'
+      - 'supabase/migrations/*puzzle_editorial*'
+      - 'tools/import-mobile/puzzle-editorial-gate.mjs'
+      - 'tools/import-mobile/logic-audience-release-compat.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/puzzle-editorial-release-validate.mjs'
+      - 'tests/puzzle-editorial-contract.mjs'
+      - '.github/workflows/puzzle-editorial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax
+        run: |
+          node --check assets/puzzle-admin.js
+          node --check tools/import-mobile/puzzle-editorial-gate.mjs
+          node --check tools/import-mobile/logic-audience-release-compat.mjs
+          node --check tools/import-mobile-cases.mjs
+          node --check tools/puzzle-editorial-release-validate.mjs
+          node --check tests/puzzle-editorial-contract.mjs
+      - name: Security and product contract
+        run: node tests/puzzle-editorial-contract.mjs
