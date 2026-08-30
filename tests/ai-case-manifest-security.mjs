@@ -47,7 +47,9 @@ for(const name of manifests){
   }
 }
 
-const ai02=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-02.manifest.json'),'utf8'));
+const load=id=>JSON.parse(fs.readFileSync(path.join(ROOT,`${id}.manifest.json`),'utf8'));
+
+const ai02=load('AI-02');
 assert.equal(ai02.case_id,'AI-02');
 assert.equal(ai02.status,'draft');
 assert.equal(ai02.suspect_count,4,'AI-02 must exercise more than the three-suspect AI-01 slice');
@@ -71,7 +73,7 @@ assert.equal(qa02.session_rpm_fail_closed_verified,true,'AI-02 QA must preserve 
 assert.equal(qa02.metering_cleanup_verified,true,'AI-02 QA must leave production metering clean');
 assert.equal(qa02.qa_fixture_cleaned,true,'AI-02 QA fixtures must be removed after production tests');
 
-const ai03=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-03.manifest.json'),'utf8'));
+const ai03=load('AI-03');
 assert.equal(ai03.case_id,'AI-03');
 assert.equal(ai03.status,'draft');
 assert.equal(ai03.suspect_count,4,'AI-03 must preserve the four-suspect interrogation shape');
@@ -100,7 +102,7 @@ assert.equal(qa03.qa_fixture_cleaned,true,'AI-03 QA fixtures must be removed aft
 assert.ok(Number(qa03.observed_zero_stage_cost_usd)>=0,'AI-03 zero-stage QA cost must be recorded');
 assert.ok(Number(qa03.observed_critical_path_cost_usd)>=0,'AI-03 critical-path QA cost must be recorded');
 
-const ai04=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-04.manifest.json'),'utf8'));
+const ai04=load('AI-04');
 assert.equal(ai04.case_id,'AI-04');
 assert.equal(ai04.status,'draft');
 assert.equal(ai04.suspect_count,4,'AI-04 must preserve the four-suspect interrogation shape');
@@ -129,5 +131,36 @@ assert.equal(qa04.metering_cleanup_verified,true,'AI-04 QA must leave production
 assert.equal(qa04.qa_fixture_cleaned,true,'AI-04 QA fixtures must be removed after production tests');
 assert.ok(Number(qa04.observed_zero_stage_cost_usd)>=0,'AI-04 zero-stage QA cost must be recorded');
 assert.ok(Number(qa04.observed_critical_path_cost_usd)>=0,'AI-04 critical-path QA cost must be recorded');
+
+const ai05=load('AI-05');
+assert.equal(ai05.case_id,'AI-05');
+assert.equal(ai05.status,'draft');
+assert.equal(ai05.suspect_count,4,'AI-05 must preserve the four-suspect interrogation shape');
+assert.equal(ai05.initial_evidence_count,3,'AI-05 must begin from the signed-record evidence set');
+assert.equal(ai05.hidden_evidence_count,6,'AI-05 needs the reviewed document-forensics evidence depth');
+assert.equal(ai05.rule_count,11,'AI-05 reviewed dependency graph count changed; rerun private state-space');
+assert.equal(ai05.private_gate.minimum_verified_solution_turns,12,'AI-05 reviewed critical path depth changed; rerun private state-space');
+assert.equal(ai05.private_gate.dependency_cycles_detected,0,'AI-05 rule graph must remain acyclic');
+assert.equal(ai05.private_gate.unknown_reference_count,0,'AI-05 private graph must not reference unknown evidence/notes');
+assert.equal(ai05.publication?.avatar_profiles_published,0,'AI-05 Live profiles must stay unpublished before Live release readiness');
+const qa05=ai05.production_qa||{};
+assert.equal(qa05.completed,true,'AI-05 production QA must stay recorded after the reviewed run');
+assert.equal(qa05.model_path_verified,true,'AI-05 must exercise the real production model path');
+assert.equal(qa05.zero_stage_suspects_checked,4,'all four AI-05 suspects need zero-stage leak checks');
+assert.equal(qa05.zero_stage_hidden_leaks,0,'AI-05 must not leak gated document-forensics findings at zero stage');
+assert.equal(qa05.zero_stage_unexpected_unlocks,0,'AI-05 zero-stage questions must not unlock gated material');
+assert.equal(qa05.full_chain_turns,12,'AI-05 reviewed critical path depth changed; rerun production QA');
+assert.equal(qa05.full_chain_model_turns,11,'AI-05 critical path must leave only the terminal response deterministic');
+assert.equal(qa05.canonical_terminal_model_turns,0,'AI-05 canonical terminal must never spend a model turn');
+assert.equal(qa05.verbatim_record_impossibility_verified,true,'AI-05 must preserve the physical impossibility check for the claimed verbatim record');
+assert.equal(qa05.qa_structure_reconstruction_verified,true,'AI-05 must preserve the independent question-and-answer structure reconstruction');
+assert.equal(qa05.document_sequence_verified,true,'AI-05 must preserve the document/signature sequence verification');
+assert.equal(qa05.full_chain_theory_passed,true,'AI-05 final theory must pass on the reviewed chain');
+assert.equal(qa05.no_early_confession_verified,true,'AI-05 must remain cornered rather than confessing one turn early');
+assert.equal(qa05.session_rpm_compliance_verified,true,'AI-05 QA must respect the production session RPM window');
+assert.equal(qa05.metering_cleanup_verified,true,'AI-05 QA must leave production metering clean');
+assert.equal(qa05.qa_fixture_cleaned,true,'AI-05 QA fixtures must be removed after production tests');
+assert.equal(Number(qa05.observed_zero_stage_cost_usd),0.0006458,'AI-05 zero-stage QA cost changed; rerun and record the reviewed path');
+assert.equal(Number(qa05.observed_critical_path_cost_usd),0.0028542,'AI-05 critical-path QA cost changed; rerun and record the reviewed path');
 
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
