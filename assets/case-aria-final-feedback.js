@@ -5,6 +5,36 @@
   const data = window.MLCaseAria;
   if (!root || !data?.final) return;
 
+  // Keep the canonical answer ids intact for the proof engine, but remove the
+  // obvious quiz cue where the correct reconstruction is much more specific
+  // than the distractors. Every alternative now makes a coherent claim that
+  // has to be rejected with evidence from the case.
+  const questions = Object.fromEntries((data.final.questions || []).map((question) => [question.id, question]));
+  if (questions.anton) {
+    questions.anton.title = 'Как материалы определяют роль Антона Руденко?';
+    questions.anton.options = [
+      ['victim', 'Ранение было настоящим; материалы не связывают Антона с подготовкой кражи.'],
+      ['partner', 'Ранение было настоящим, но Антон сознательно помог создать аварийное окно для кражи.'],
+      ['thief', 'Антон действительно был ранен, но в blackout успел уйти со сцены и забрать партитуру.']
+    ];
+  }
+  if (questions.voice) {
+    questions.voice.title = 'Как технические данные меняют алиби Михаила?';
+    questions.voice.options = [
+      ['recording', 'Фразы могли звучать без Михаила у подиума: TAKE-6 был вооружён до blackout, а Q-17B затем сам запустил PB-2 при молчащем MIC-C.'],
+      ['distance', 'Фразы были живыми через MIC-C, но задержка интеркома позволила им звучать уже после ухода Михаила от подиума.'],
+      ['witness', 'PB-2 был записью, но связать её запуск с Михаилом нельзя: C-2 мог получить ARM удалённо без человека у панели.']
+    ];
+  }
+  if (questions.sequence) {
+    questions.sequence.title = 'Какая реконструкция выдерживает всю временную линию?';
+    questions.sequence.options = [
+      ['canonical', 'PR-17 подготовлен заранее → травма запускает SAFE → заранее вооружённый TAKE-6 создаёт звуковое присутствие → K-12 открывает архив → MS-1908 оказывается в T-6M.'],
+      ['manager', 'PR-17 подготовлен заранее → травма запускает SAFE → Илья намеренно удерживает blackout → Дарья использует K-12 → оригинал позднее оказывается в T-6M.'],
+      ['anton', 'PR-17 подготовлен заранее → Антон помогает создать аварийное окно → Михаил остаётся у подиума → другой человек идёт по STAIR-18 → оригинал затем подбрасывают в T-6M.']
+    ];
+  }
+
   const PREFIX = 'mysterylogic:last-aria:v1:';
   const esc = (value = '') => String(value)
     .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -67,6 +97,7 @@
     const style = document.createElement('style');
     style.dataset.caseariaFinalFeedbackStyle = '1';
     style.textContent = `
+      .casearia-final-consensus{margin:16px 0 0;padding:14px 16px;border-left:3px solid rgba(216,179,110,.62);background:rgba(216,179,110,.075);color:#d8d0be;line-height:1.55}.casearia-final-consensus strong{color:#ead6a6}
       .casearia-final-feedback{margin:20px 0 16px;padding:16px 18px;border:1px solid rgba(191,96,76,.38);border-radius:14px;background:rgba(83,29,22,.16);box-shadow:0 10px 30px rgba(0,0,0,.08)}
       .casearia-final-feedback strong{display:block;margin-bottom:7px;font-size:1rem;letter-spacing:.01em}
       .casearia-final-feedback p{margin:6px 0;line-height:1.55}
@@ -97,9 +128,8 @@
   };
 
   const proofState = (snapshot) => {
-    const questions = data.final.questions || [];
-    const allAnswered = questions.every((question) => snapshot.answers?.[question.id]);
-    const answersCorrect = questions.every((question) => snapshot.answers?.[question.id] === question.answer);
+    const allAnswered = (data.final.questions || []).every((question) => snapshot.answers?.[question.id]);
+    const answersCorrect = (data.final.questions || []).every((question) => snapshot.answers?.[question.id] === question.answer);
     const evidenceGroups = new Set((snapshot.evidencePicks || []).map((id) => data.final.evidence?.find((item) => item.id === id)?.group).filter(Boolean));
     const proofComplete = (data.final.requiredGroups || []).every((group) => evidenceGroups.has(group));
     return { allAnswered, answersCorrect, proofComplete, evidenceGroups };
@@ -148,26 +178,39 @@
     const attempt = Number(progress.attempts || 1);
 
     if (!state.allAnswered) {
-      showFeedback(form, 'Ответьте на все четыре вопроса. Уже заполненные пункты и выбранные доказательства останутся на месте.');
+      showFeedback(form, 'Согласуйте с напарником и ответьте на все четыре вопроса. Уже заполненные пункты и выбранные доказательства останутся на месте.');
       trackWrong(attempt, state);
       return;
     }
     if (!state.answersCorrect) {
-      const detail = attempt >= 3 ? 'Более точная подсказка: отдельно проверьте алиби, которое существует только как звук, и физическую возможность оказаться в архиве.' : '';
-      showFeedback(form, 'Версия пока не выдерживает все временные и физические ограничения. Проверьте, какой факт создаёт ложное присутствие человека в другом месте.', detail);
+      const detail = attempt >= 3 ? 'Более точная подсказка: проверьте отдельно источник трёх фраз и физическую возможность каждого участника оказаться у архива в критическое окно.' : '';
+      showFeedback(form, 'В реконструкции осталось противоречие с временной линией или независимым источником. Не меняйте всё сразу: найдите одно звено, которое не выдерживает второй проверки.', detail);
       trackWrong(attempt, state);
       return;
     }
 
-    const detail = attempt >= 3 ? 'Более точная подсказка: обвинению нужны независимые группы — саботаж, ложное алиби, личность в архиве, доступ и физическая связь с оригиналом.' : '';
-    showFeedback(form, 'Реконструкция выглядит верно, но доказательная конструкция неполна. Не заменяйте отсутствующее звено несколькими материалами об одном и том же.', detail);
+    const detail = attempt >= 3 ? 'Более точная подсказка: обвинению нужны разные классы доказательств; несколько документов об одном событии не заменяют отсутствующее звено.' : '';
+    showFeedback(form, 'Реконструкция выглядит цельной, но доказательная конструкция неполна. Проверьте, что каждое ключевое звено подтверждается своим независимым материалом.', detail);
     trackWrong(attempt, state);
   }, true);
 
   const repairFinal = () => {
     const form = root.querySelector('.casearia-final-form[data-final-form]');
     if (!form) return;
+    ensureStyle();
     restoreDraft(form);
+
+    const intro = root.querySelector('.casearia-final');
+    if (intro && !intro.querySelector('[data-final-consensus]')) {
+      const note = document.createElement('div');
+      note.className = 'casearia-final-consensus';
+      note.dataset.finalConsensus = '1';
+      note.innerHTML = '<strong>Сначала договоритесь вслух.</strong> Финал — не два отдельных теста. Обсудите четыре пункта и зафиксируйте одну общую реконструкцию на обоих устройствах. Если версии расходятся, вернитесь к открытым пакетам.';
+      intro.appendChild(note);
+    }
+    const submit = form.querySelector('button[type="submit"]');
+    if (submit && submit.textContent !== 'Зафиксировать общую версию') submit.textContent = 'Зафиксировать общую версию';
+
     const legacyError = root.querySelector('.casearia-final > .casearia-error');
     if (legacyError?.textContent?.trim()) {
       showFeedback(form, legacyError.textContent.trim());
