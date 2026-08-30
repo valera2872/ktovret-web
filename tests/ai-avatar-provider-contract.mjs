@@ -24,6 +24,10 @@ assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\).*provider\.disconnect/s
 assert.match(adapter,/messageCounts=new Map/,'rendered transcripts need per-suspect deduplication');
 assert.match(adapter,/captureNewReplies/,'only newly appended suspect replies should be voiced');
 assert.match(adapter,/suspect_id:this\.suspectId/,'browser should identify only the current suspect to the server broker');
+assert.match(adapter,/case_id:access\.caseId/,'avatar broker must receive the paid case scope');
+assert.match(adapter,/access_token:access\.accessToken/,'avatar broker must receive the opaque paid entitlement token');
+assert.match(adapter,/experienceTier!=="live"/,'text entitlements must not even attempt a realtime session');
+assert.match(adapter,/MysteryLogicPaidAccess/,'provider must reuse the verified paid-access runtime context');
 assert.match(adapter,/authorization.*Bearer/s,'Supabase broker calls must carry the public anon JWT');
 assert.doesNotMatch(adapter,/avatar_id|avatarId/,'actual LiveAvatar identity must be selected only by the server allowlist');
 assert.doesNotMatch(adapter,/LIVEAVATAR_API_KEY|X-API-KEY|AI_AVATAR_SIGNING_KEY|SUPABASE_SERVICE_ROLE_KEY/,'provider credentials must never be embedded in the browser adapter');
