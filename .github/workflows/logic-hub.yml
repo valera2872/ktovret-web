@@ -7,12 +7,15 @@ on:
       - 'assets/logic-hub.*'
       - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
+      - 'assets/logic-audience.*'
       - 'tools/logic-expert-review-v2-validate.mjs'
       - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/logic-audience-validate.mjs'
       - 'tools/telegram-retention-validate.mjs'
       - 'tools/import-mobile/logic-expert-release-data.mjs'
       - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
+      - 'tools/import-mobile/logic-audience-*.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
@@ -22,12 +25,15 @@ on:
       - 'assets/logic-hub.*'
       - 'assets/logic-expert.*'
       - 'assets/logic-sitewide.*'
+      - 'assets/logic-audience.*'
       - 'tools/logic-expert-review-v2-validate.mjs'
       - 'tools/logic-expert-review-v2-extension-validate.mjs'
       - 'tools/logic-expert-seo-validate.mjs'
+      - 'tools/logic-audience-validate.mjs'
       - 'tools/telegram-retention-validate.mjs'
       - 'tools/import-mobile/logic-expert-release-data.mjs'
       - 'tools/import-mobile/logic-expert-seo-postprocess.mjs'
+      - 'tools/import-mobile/logic-audience-*.mjs'
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tools/import-mobile-cases.mjs'
       - '.github/workflows/logic-hub.yml'
@@ -48,13 +54,22 @@ jobs:
         run: |
           node --check assets/logic-expert.js
           node --check assets/logic-sitewide.js
+          node --check assets/logic-audience.js
           node --check tools/import-mobile/logic-expert-release-data.mjs
           node --check tools/import-mobile/logic-expert-seo-postprocess.mjs
+          node --check tools/import-mobile/logic-audience-data.mjs
+          node --check tools/import-mobile/logic-audience-chunk-1.mjs
+          node --check tools/import-mobile/logic-audience-chunk-2.mjs
+          node --check tools/import-mobile/logic-audience-chunk-3.mjs
+          node --check tools/import-mobile/logic-audience-chunk-4.mjs
+          node --check tools/import-mobile/logic-audience-chunk-5.mjs
+          node --check tools/import-mobile/logic-audience-postprocess.mjs
           node --check tools/import-mobile/logic-sitewide-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
           node --check tools/logic-expert-review-v2-validate.mjs
           node --check tools/logic-expert-review-v2-extension-validate.mjs
           node --check tools/logic-expert-seo-validate.mjs
+          node --check tools/logic-audience-validate.mjs
           node --check tools/telegram-retention-validate.mjs
       - name: Validate Expert corpus 001-012
         run: node tools/logic-expert-review-v2-validate.mjs
@@ -62,5 +77,7 @@ jobs:
         run: node tools/logic-expert-review-v2-extension-validate.mjs
       - name: Validate SEO and product boundary
         run: node tools/logic-expert-seo-validate.mjs
+      - name: Validate Wordstat audience expansion
+        run: node tools/logic-audience-validate.mjs
       - name: Validate Telegram retention surfaces
         run: node tools/telegram-retention-validate.mjs
