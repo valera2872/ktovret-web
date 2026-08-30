@@ -6,6 +6,8 @@ on:
     paths:
       - 'admin/reviews/**'
       - 'assets/funnel-analytics.js'
+      - 'assets/journey-analytics.js'
+      - 'assets/solo-conversion.css'
       - 'assets/review-admin.*'
       - 'tools/import-mobile-cases.mjs'
       - 'tools/inject-funnel-analytics.mjs'
@@ -19,6 +21,8 @@ on:
     paths:
       - 'admin/reviews/**'
       - 'assets/funnel-analytics.js'
+      - 'assets/journey-analytics.js'
+      - 'assets/solo-conversion.css'
       - 'assets/review-admin.*'
       - 'tools/import-mobile-cases.mjs'
       - 'tools/inject-funnel-analytics.mjs'
@@ -43,10 +47,15 @@ jobs:
       - name: JavaScript syntax and static contracts
         run: |
           node --check assets/funnel-analytics.js
+          node --check assets/journey-analytics.js
           node --check assets/review-admin.js
           node --check tools/inject-funnel-analytics.mjs
           node --check tools/import-mobile/funnel-analytics-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
+          grep -q "solo-407-case" assets/journey-analytics.js
+          grep -q "premium-case" assets/journey-analytics.js
+          grep -q "data-solo-conversion-v3" tools/import-mobile/funnel-analytics-postprocess.mjs
+          grep -q "data-ml-journey-analytics" tools/import-mobile/funnel-analytics-postprocess.mjs
           grep -q 'noindex,nofollow,noarchive' admin/reviews/index.html
           grep -q 'data-admin-login' admin/reviews/index.html
           grep -q 'data-funnel-panel' admin/reviews/index.html
@@ -74,11 +83,11 @@ jobs:
             body: JSON.stringify({
               browserKey: hex('browser', 48),
               sessionKey: hex('session', 40),
-              eventName: 'page_view',
-              pagePath: '/challenge/',
-              pageGroup: 'challenge',
-              target: 'ci-contract',
-              metadata: {source:'ci'},
+              eventName: 'step_view',
+              pagePath: '/detektivnye-igry-dlya-odnogo/407/',
+              pageGroup: 'solo-case',
+              target: 'ci-journey-contract',
+              metadata: {flow:'solo-407-case', step:'entry', signature:'ci'},
             }),
           });
           if (funnel.status !== 200) throw new Error(`funnel endpoint ${funnel.status}: ${await funnel.text()}`);
@@ -87,5 +96,5 @@ jobs:
             headers: {origin, authorization:'Bearer MLADM-this-is-deliberately-not-a-valid-owner-key-0000'},
           });
           if (moderation.status !== 401) throw new Error(`moderation auth boundary ${moderation.status}: ${await moderation.text()}`);
-          console.log(JSON.stringify({funnelWrite:true,moderationUnauthorizedBlocked:true}, null, 2));
+          console.log(JSON.stringify({journeyFunnelWrite:true,moderationUnauthorizedBlocked:true}, null, 2));
           NODE
