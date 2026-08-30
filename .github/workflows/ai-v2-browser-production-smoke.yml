@@ -1,0 +1,24 @@
+name: TEMP AI v2 browser production smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ai-v2-browser-production-smoke.yml'
+      - 'tools/ai-v2-browser-production-smoke.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Published GitHub Pages player -> production Supabase
+        env:
+          SMOKE_TOKEN: ml_smoke_v2_TLy_rfJJZYKQxgQE-GHgEZRWwZUJjOL-a0qSrzg1xgY
+        run: node tools/ai-v2-browser-production-smoke.mjs
