@@ -9,6 +9,7 @@ const admin=read('admin/puzzles/index.html');
 const client=read('assets/puzzle-admin.js');
 const gate=read('tools/import-mobile/puzzle-editorial-gate.mjs');
 const importer=read('tools/import-mobile-cases.mjs');
+const audience=read('tools/import-mobile/logic-audience-postprocess.mjs');
 
 assert(migration.includes('alter table public.puzzle_editorial_queue enable row level security'),'RLS missing');
 assert(migration.includes('revoke all on table public.puzzle_editorial_queue from anon, authenticated'),'client grants not revoked');
@@ -21,11 +22,17 @@ assert(edge.includes('if (!(await authorize(req, admin)))'),'owner authorization
 assert(edge.includes(".from('review_moderation_access')"),'shared moderator access table missing');
 assert(admin.includes('noindex,nofollow,noarchive'),'admin robots guard missing');
 assert(admin.includes('На проверке')&&admin.includes('Утверждены')&&admin.includes('Отклонены'),'admin moderation tabs missing');
+assert(admin.includes('отклонённые задачи не блокируют утверждённые'),'admin partial-release explanation missing');
 assert(client.includes('mysterylogic:review-admin-token:v1'),'admin does not reuse owner token session');
 assert(client.includes('data-moderate="approved"')&&client.includes('data-moderate="rejected"'),'individual approve/reject actions missing');
+assert(client.includes('Готова к публикации')&&client.includes('noindex,follow'),'approved publication state missing');
 assert(!client.includes('Утвердить все'),'bulk approval must not exist');
 assert(gate.includes("crypto.createHash('sha256')"),'build fingerprint validation missing');
-assert(gate.includes('exact.length===source.length'),'release must require every current quick puzzle');
+assert(gate.includes('publishableApproved')&&gate.includes("approved_subset_ready"),'partial approved-subset release missing');
+assert(gate.includes("PUBLICLY_DISABLED_COLLECTIONS=new Set(['matches'])"),'matchstick public block missing');
+assert(!gate.includes('exact.length===source.length'),'all-or-nothing release gate must be removed');
+assert(audience.includes("const PUBLIC_KINDS=['kids','brain','detective','math']"),'public collection allowlist missing');
+assert(audience.includes('noindex,follow'),'quick task noindex guard missing');
 assert(importer.includes('await resolvePuzzleEditorialGate()'),'public generator does not consult editorial gate');
 assert(importer.includes("reason:'editorial_preview'"),'editorial QA bypass missing');
 assert(importer.includes('puzzleEditorial.ready')&&importer.includes('routes:[]'),'fail-closed generator fallback missing');
