@@ -1,0 +1,33 @@
+name: TEMP AI-07 zero-stage QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai07-zero-stage-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Run four production AI-07 leak checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai07-zero-stage-qa-probe?probe=ai07-zero-stage-once')"
+          QA_JSON="$body" node <<'NODE'
+          const d=JSON.parse(process.env.QA_JSON||'{}');
+          if(!d.ok) throw new Error(`qa_failed:${JSON.stringify(d)}`);
+          if(d.already_run){console.log('ALREADY_RUN',d.successful_turns);process.exit(0)}
+          if(!Array.isArray(d.results)||d.results.length!==4) throw new Error('result_count_failed');
+          for(const r of d.results){
+            if(r.reply_length<5||r.leaks?.length||r.new_notes!==0||r.new_evidence!==0) throw new Error(`suspect_failed:${JSON.stringify(r)}`);
+            console.log('SUSPECT',r.suspect,'LENGTH',r.reply_length,'INPUT',r.input,'OUTPUT',r.output,'COST',r.cost);
+          }
+          if(d.state?.successful_turns!==4||d.state?.evidence_count!==3||d.state?.notes_count!==0) throw new Error(`state_failed:${JSON.stringify(d.state)}`);
+          console.log('TOTAL',JSON.stringify(d.total));
+          console.log('AI07_ZERO_STAGE_QA_OK');
+          NODE
