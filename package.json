@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build:avatar-sdk": "esbuild tools/ai-liveavatar-sdk-entry.mjs --bundle --format=esm --platform=browser --target=es2022 --outfile=assets/vendor/liveavatar-web-sdk.mjs --minify --legal-comments=none"
+  },
+  "dependencies": {
+    "@heygen/liveavatar-web-sdk": "0.0.18"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}
