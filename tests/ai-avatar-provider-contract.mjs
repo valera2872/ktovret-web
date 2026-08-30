@@ -35,6 +35,21 @@ assert.match(adapter,/MysteryLogicPaidAccess/,'provider must reuse the verified 
 assert.match(adapter,/authorization.*Bearer/s,'Supabase broker calls must carry the public anon JWT');
 assert.doesNotMatch(adapter,/avatar_id|avatarId/,'actual LiveAvatar identity must be selected only by the server allowlist');
 assert.doesNotMatch(adapter,/LIVEAVATAR_API_KEY|X-API-KEY|AI_AVATAR_SIGNING_KEY|SUPABASE_SERVICE_ROLE_KEY/,'provider credentials must never be embedded in the browser adapter');
+
+assert.match(adapter,/TERMINAL_LIVE_ERRORS=new Set\(\[/,'terminal LiveAvatar failures need an explicit fail-soft policy');
+assert.match(adapter,/"avatar_budget_exhausted"/,'paid-case budget exhaustion must be a terminal LiveAvatar condition');
+assert.match(adapter,/BUDGET_FALLBACK_MESSAGE="Лимит живого допроса на это дело исчерпан\. Расследование продолжается текстом\."/,'budget exhaustion must have player-facing copy instead of a technical error');
+assert.match(adapter,/liveEntitled=accessContext\(this\.cfg\)\.experienceTier==="live"/,'the browser must resolve the verified experience tier before revealing Live UI');
+assert.match(adapter,/canUseLive\(\)\{return !!this\.cfg\.enabled&&this\.liveEntitled&&!this\.liveDisabled\}/,'all Live work must be gated by rollout, entitlement, and terminal fallback state');
+assert.match(adapter,/const show=this\.canUseLive\(\);this\.shell\.hidden=!show/,'Text purchases must never reveal the LiveAvatar stage');
+assert.match(adapter,/async enterTextFallback\(reason\)/,'bridge needs a terminal transition into text-only mode');
+assert.match(adapter,/this\.liveDisabled=true/,'terminal LiveAvatar failure must disable further paid session attempts for the page');
+assert.match(adapter,/this\.shell\.hidden=true/,'terminal LiveAvatar fallback should remove the dead video surface and leave the interrogation intact');
+assert.match(adapter,/ml:avatar-fallback/,'the rest of the product must be able to observe a terminal Live-to-Text transition');
+assert.match(adapter,/if\(TERMINAL_LIVE_ERRORS\.has\(code\)\)\{await this\.enterTextFallback\(code\);return true\}/,'terminal provider failures must route through the text fallback instead of retry loops');
+assert.match(adapter,/if\(!this\.canUseLive\(\)\|\|!this\.isWorkspaceActive\(\)\|\|this\.provider\.connected/,'once Live is disabled, later replies must not create another realtime session');
+assert.match(adapter,/LIVE_RETRY_MESSAGE="Живой режим временно недоступен\. Ответ уже показан текстом\."/,'transient avatar failures must explicitly preserve the already-rendered text answer');
+
 assert.match(factory,/PCM_SAMPLE_RATE=24000/,'speech duration accounting must match the PCM format sent to LiveAvatar');
 assert.match(factory,/pcmDurationMs/,'renderer must estimate actual utterance duration from generated PCM');
 assert.match(factory,/voiceChat:false/,'LITE renderer must not take microphone ownership');
