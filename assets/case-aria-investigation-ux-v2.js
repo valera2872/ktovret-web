@@ -71,6 +71,7 @@
         .casearia-review-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 18px;padding:10px 12px;border:1px solid rgba(232,200,138,.16);background:rgba(8,10,12,.78)}
         .casearia-review-nav>span{color:#8d8f89;font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.casearia-review-nav div{display:flex;gap:7px;flex-wrap:wrap}.casearia-review-nav button{min-height:34px;padding:7px 11px;font-size:.7rem}.casearia-review-nav button.is-current{border-color:rgba(216,179,110,.55);color:#ead6a6}.casearia-review-nav button.is-reviewed{border-color:rgba(130,177,142,.38)}
         .casearia-review-package{margin:0 0 18px;padding:18px;border:1px solid rgba(216,179,110,.3);background:linear-gradient(180deg,rgba(29,25,18,.9),rgba(12,14,16,.96))}.casearia-review-package-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}.casearia-review-package-head small{display:block;color:#d8b36e;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.casearia-review-package-head h2{margin:5px 0 6px;font:500 clamp(1.45rem,3vw,2.2rem)/1.05 Georgia,serif}.casearia-review-package-head p{margin:0;color:#aaa79f;line-height:1.55}.casearia-review-crosscheck{margin-top:14px;padding:12px 14px;border-left:3px solid rgba(130,177,142,.55);background:rgba(61,92,69,.13);color:#bcc7bd;line-height:1.5}.casearia-review-crosscheck b{color:#d7e2d8}
+        .casearia-theory-check{margin:0 0 18px;padding:16px 18px;border:1px solid rgba(216,179,110,.34);border-left:3px solid rgba(216,179,110,.72);background:linear-gradient(135deg,rgba(46,36,20,.46),rgba(12,14,16,.94));color:#cbc4b4;line-height:1.55}.casearia-theory-check small{display:block;margin-bottom:5px;color:#d8b36e;font-size:.61rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.casearia-theory-check strong{display:block;margin-bottom:6px;color:#f0e5c8;font:500 clamp(1.15rem,2.3vw,1.5rem)/1.15 Georgia,serif}.casearia-theory-check p{margin:0;max-width:850px}.casearia-theory-check b{color:#ead6a6}
         .casearia-decision-note{margin:10px 0 0;padding:10px 12px;border:1px solid rgba(216,179,110,.24);background:rgba(216,179,110,.07);color:#d7cfbd;line-height:1.45}@media(max-width:640px){.casearia-review-package-head{flex-direction:column}.casearia-review-package-head .casearia-button{width:100%}.casearia-review-nav{align-items:flex-start;flex-direction:column}}
       `;
       document.head.appendChild(style);
@@ -118,6 +119,28 @@
       nav.innerHTML = `<span>Открытые пакеты</span><div>${data.stages.slice(0, opened).map((stage) => `<button type="button" class="casearia-button ${stage.id === current ? 'is-current' : 'is-reviewed'}" data-aria-review-stage="${stage.id}" ${stage.id === current ? 'disabled' : ''}>${stage.id}. ${esc(stage.title)}</button>`).join('')}</div>`;
     };
 
+    const ensureTheoryCheck = () => {
+      const current = visibleStage();
+      let node = root.querySelector('[data-aria-theory-check]');
+      if (current !== 3) { node?.remove(); return; }
+      const brief = root.querySelector('.casearia-brief');
+      if (!brief) return;
+      const progress = readProgress();
+      const selected = (data.decision?.options || []).find((option) => String(option.id || '') === String(progress.decision || ''));
+      const label = selected?.label || selected?.title || selected?.name || '';
+      const signature = `${current}:${progress.decision || ''}:${label}`;
+      if (!node) {
+        node = document.createElement('section');
+        node.className = 'casearia-theory-check';
+        node.dataset.ariaTheoryCheck = '1';
+        brief.after(node);
+      }
+      if (node.dataset.signature === signature) return;
+      node.dataset.signature = signature;
+      const version = label ? `Ваша версия: <b>${esc(label)}</b>. ` : 'У вас уже есть рабочая версия. ';
+      node.innerHTML = `<small>Пакет 3 · стресс-тест версии</small><strong>Теперь попробуйте опровергнуть самих себя</strong><p>${version}Не защищайте её. Новый пакет должен либо выдержать, либо разрушить вашу реконструкцию. Ищите материал, который сильнее всего ей противоречит.</p>`;
+    };
+
     const ensureDecisionState = () => {
       const section = root.querySelector('.casearia-decision');
       if (!section) return;
@@ -151,7 +174,7 @@
     }, true);
 
     let scheduled = false;
-    const apply = () => { scheduled = false; ensureReviewNav(); ensureDecisionState(); };
+    const apply = () => { scheduled = false; ensureReviewNav(); ensureTheoryCheck(); ensureDecisionState(); };
     const schedule = () => { if (scheduled) return; scheduled = true; queueMicrotask(apply); };
     const observer = new MutationObserver(schedule);
     // The game swaps root-level screens. Watching descendants would observe this
