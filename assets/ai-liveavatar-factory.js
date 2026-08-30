@@ -1,22 +1,17 @@
 (()=>{"use strict";
 const SDK_URL="./vendor/liveavatar-web-sdk.mjs";
-function authHeaders(){
-  const anon=window.ML_AI_PUBLIC_AUTH?.anon||"";
-  return anon?{"authorization":`Bearer ${anon}`,"apikey":anon}:{};
-}
 function toBase64(buffer){
   const bytes=new Uint8Array(buffer);let binary="";const size=0x8000;
   for(let i=0;i<bytes.length;i+=size)binary+=String.fromCharCode(...bytes.subarray(i,i+size));
   return btoa(binary);
 }
-window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId})=>{
+window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth={}})=>{
   const sdk=await import(SDK_URL);
   const LiveAvatarSession=sdk.LiveAvatarSession;
   if(typeof LiveAvatarSession!=="function")throw new Error("liveavatar_sdk_invalid");
   const token=session?.session_token||"";
   const speechToken=session?.speech_token||"";
   if(!token||!speechToken)throw new Error("liveavatar_session_invalid");
-  const ttsEndpoint=window.ML_AVATAR_CONFIG?.ttsEndpoint||"";
   if(!ttsEndpoint)throw new Error("avatar_tts_endpoint_missing");
   let live=null;let connected=false;let stage="composed";let unlock=null;
   const attach=()=>{
@@ -40,7 +35,7 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId})=>{
       if(!connected||!live||!text)return false;
       const response=await fetch(ttsEndpoint,{
         method:"POST",
-        headers:{"content-type":"application/json",...authHeaders()},
+        headers:{"content-type":"application/json",...auth},
         body:JSON.stringify({suspect_id:suspectId,text:String(text),stage:meta.stage||stage,speech_token:speechToken})
       });
       if(!response.ok){let err={};try{err=await response.json()}catch{}throw new Error(err.error||err.message||"avatar_tts_failed")}
