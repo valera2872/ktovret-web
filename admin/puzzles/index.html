@@ -8,7 +8,7 @@
   <title>Mystery Logic — утверждение головоломок</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
-  <link rel="stylesheet" href="../../assets/puzzle-admin.css?v=1.0.0">
+  <link rel="stylesheet" href="../../assets/puzzle-admin.css?v=1.1.0">
 </head>
 <body class="mla-body">
   <main class="mla-shell">
@@ -48,9 +48,10 @@
             <p class="mla-kicker">Редакционный шлюз</p>
             <h2 data-puzzle-title>Головоломки на проверке</h2>
           </div>
-          <p>Проверяйте условие, варианты, правильный ответ, подсказку и разбор. Пока задача не утверждена, новая публикация не должна проходить production-gate.</p>
+          <p>Проверяйте условие, варианты, правильный ответ, подсказку и разбор. «Утвердить» означает разрешить задачу к продуктовой публикации; отклонённые задачи не блокируют утверждённые.</p>
         </div>
         <div class="puzzle-gate-note" data-gate-note></div>
+        <section class="puzzle-publish-summary" data-publish-summary hidden></section>
         <div class="mla-empty" data-puzzle-empty hidden>В этом разделе пока пусто.</div>
         <div class="puzzle-admin-list" data-puzzle-list></div>
       </section>
@@ -58,6 +59,6 @@
       <p class="mla-error" data-admin-error role="alert"></p>
     </section>
   </main>
-  <script src="../../assets/puzzle-admin.js?v=1.0.0" defer></script>
+  <script src="../../assets/puzzle-admin.js?v=1.1.0" defer></script>
 </body>
 </html>
