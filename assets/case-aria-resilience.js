@@ -9,7 +9,7 @@
   const roomCode = () => String(new URL(location.href).searchParams.get('room') || '').trim().toUpperCase();
 
   const install = (data) => {
-    if (!data?.decision?.correct || root.dataset.caseariaResilienceInstalled === '1') return false;
+    if (!data?.decision?.options?.length || root.dataset.caseariaResilienceInstalled === '1') return false;
     root.dataset.caseariaResilienceInstalled = '1';
 
     const roleFromScreen = () => {
@@ -37,30 +37,23 @@
       let progress = {};
       try { progress = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch { return; }
       let changed = false;
-      const history = Array.isArray(progress.decisionHistory) ? [...progress.decisionHistory] : [];
+      const allowed = new Set((data.decision.options || []).map((item) => String(item.id || '')));
       const decision = String(progress.decision || '');
 
-      // Migrate saves created by the legacy runtime, where any stage-two option
-      // was treated as sufficient to advance. A wrong legacy choice becomes a
-      // rejected line rather than an accepted investigative conclusion.
-      if (decision && decision !== data.decision.correct) {
-        if (!history.includes(decision)) {
-          history.push(decision);
-          progress.decisionHistory = history;
-          progress.decisionMistakes = Number(progress.decisionMistakes || 0) + 1;
-        }
+      // A stage-two choice is a provisional theory, not a graded answer. Preserve
+      // every valid suspect choice across refresh/resume and clear only corrupt ids.
+      if (decision && !allowed.has(decision)) {
         progress.decision = '';
         changed = true;
       }
 
-      // Apply the intermediate-decision penalty independently of listener order.
-      // This protects both dynamically loaded feedback and resumed old sessions.
-      const mistakes = Number(progress.decisionMistakes || 0);
-      if (mistakes > 0 && !progress.decisionPenaltyApplied) {
-        progress.attempts = Number(progress.attempts || 0) + mistakes;
-        progress.decisionPenaltyApplied = true;
-        if (progress.firstAnswerCorrect === null || typeof progress.firstAnswerCorrect === 'undefined') progress.firstAnswerCorrect = false;
-        changed = true;
+      // Old builds graded intermediate theories. That metadata is obsolete now:
+      // it must never reject a valid theory or affect future final scoring.
+      for (const field of ['decisionHistory', 'decisionMistakes', 'decisionPenaltyApplied']) {
+        if (Object.prototype.hasOwnProperty.call(progress, field)) {
+          delete progress[field];
+          changed = true;
+        }
       }
 
       if (changed) {
@@ -75,9 +68,6 @@
       queueMicrotask(() => { scheduled = false; normalize(); });
     };
 
-    // document capture fires before the case root. We schedule normalization for
-    // after the current event, so a wrong decision written by the investigation
-    // guard is scored even if another root listener stops propagation later.
     document.addEventListener('click', (event) => {
       if (event.target.closest?.('[data-decision]')) schedule();
     }, true);
