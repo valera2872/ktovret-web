@@ -27,6 +27,9 @@ const sha256 = async (value: string) => hex(await crypto.subtle.digest(
   new TextEncoder().encode(value),
 ));
 
+const experienceTier = (metadata: Record<string, unknown> | null | undefined) =>
+  String(metadata?.experience_tier || '').toLowerCase() === 'live' ? 'live' : 'text';
+
 Deno.serve(async (req: Request) => {
   const origin = (req.headers.get('origin') || '').replace(/\/$/, '');
   const allowedOrigin = !origin || configuredOrigins.includes(origin);
@@ -95,6 +98,7 @@ Deno.serve(async (req: Request) => {
   if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
   if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
 
+  const tier = experienceTier(entitlement.metadata);
   const rawOrderId = String(entitlement.metadata?.order_id || '');
   const orderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawOrderId)
     ? rawOrderId
@@ -111,6 +115,7 @@ Deno.serve(async (req: Request) => {
       source: 'case_access',
       access_source: entitlement.metadata?.source || 'purchase',
       source_origin: origin || null,
+      experience_tier: tier,
     },
   });
   if (auditError) console.error('paid_access_audit_failed', auditError.message);
@@ -121,6 +126,11 @@ Deno.serve(async (req: Request) => {
     productId: paidCase.product_id,
     language: paidCase.language,
     payloadVersion: paidCase.payload_version,
+    experienceTier: tier,
+    features: {
+      freeTextInterrogation: true,
+      liveAvatar: tier === 'live',
+    },
     config: paidCase.payload,
   }, origin);
 });
