@@ -11,8 +11,8 @@
   "initial_evidence_count": 3,
   "hidden_evidence_count": 6,
   "rule_count": 11,
-  "payload_jsonb_sha256": "d1012a84d0115a3063bf6d4f7297c6c007da625640c079cec73d95c951eb4c15",
-  "private_canon_jsonb_sha256": "008d84477654a89ad36b331ee8dd334e86dc5d7e9daddb2c93fb30458c6413bc",
+  "payload_jsonb_sha256": "ff7eca77a711175c0928eaf028859e449a82df9be30fb6fefc8f790ad9154606",
+  "private_canon_jsonb_sha256": "98a4d3ae49a155b0235484b273cda4be8b4dbac499b6a71ec8757d0cd471eff1",
   "private_gate": {
     "checked": true,
     "minimum_verified_solution_turns": 12,
