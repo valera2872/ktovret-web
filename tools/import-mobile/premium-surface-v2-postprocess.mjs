@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 
 const styleTag=href=>`<link data-premium-surface-v2 rel="stylesheet" href="${href}?v=${VERSION}">`;
 
@@ -46,7 +46,7 @@ function premiumCases(){
 
 function puzzleHome(){
   return `<section class="ref-logic-launch ref-logic-launch-v2" data-logic-family-home data-logic-home-launch>
-    <div class="ref-logic-launch-copy"><p class="ref-kicker">Mystery Logic · логические игры</p><h2>Головоломки для детей и взрослых</h2><p>20 утверждённых быстрых задач и отдельный Expert-каталог. Решайте прямо в браузере — без регистрации, лишних экранов и искусственного размножения одинаковых SEO-страниц.</p><div class="ref-home-actions ref-home-actions-v2"><a class="ref-btn ref-btn-primary" href="./golovolomki-onlayn/">Открыть все головоломки →</a></div></div>
+    <div class="ref-logic-launch-copy"><p class="ref-kicker">Mystery Logic · логические игры</p><h2>Головоломки для детей и взрослых</h2><p>20 коротких задач и отдельный Expert-каталог. Условие, проверка, подсказка и объяснение — прямо в браузере, без регистрации.</p><div class="ref-home-actions ref-home-actions-v2"><a class="ref-btn ref-btn-primary" href="./golovolomki-onlayn/">Открыть все головоломки →</a></div></div>
     <div class="ref-logic-family-grid" aria-label="Подборки головоломок">
       <a href="./golovolomki-dlya-detei/"><span>13 задач</span><strong>Для детей</strong><small>Возрастные уровни и понятные объяснения</small></a>
       <a href="./igry-dlya-mozga/"><span>19 задач</span><strong>Для мозга</strong><small>Логика, внимание и закономерности</small></a>
@@ -81,7 +81,7 @@ function patchPuzzleHub(root){
   html=html.replace('<body class="logic-page">','<body class="logic-page logic-premium-hub">');
   html=html.replace('<section class="logic-seo-hero">','<section class="logic-seo-hero mlp-puzzle-hero">');
   html=html.replace('Mystery Logic · Expert</p><h1>Логические игры и головоломки онлайн</h1>','Mystery Logic · коллекция логики</p><h1>Логические игры<br>и головоломки онлайн</h1>');
-  html=html.replace(/<div class="logic-seo-proof">[\s\S]*?<\/div><\/section>/,`<div class="logic-seo-proof"><div><strong>20 быстрых</strong><span>утверждены редактором</span></div><div><strong>20 Expert</strong><span>проверяемые решения</span></div><div><strong>Без регистрации</strong><span>открыл — сразу решаешь</span></div><div><strong>Дети и взрослые</strong><span>разные уровни сложности</span></div></div></section>`);
+  html=html.replace(/<div class="logic-seo-proof">[\s\S]*?<\/div><\/section>/,`<div class="logic-seo-proof"><div><strong>20 быстрых</strong><span>с подсказками и разбором</span></div><div><strong>20 Expert</strong><span>проверяемые решения</span></div><div><strong>Без регистрации</strong><span>открыл — сразу решаешь</span></div><div><strong>Дети и взрослые</strong><span>разные уровни сложности</span></div></div></section>`);
   html=html.replace('<section class="logic-hub-audience-strip"','<section class="logic-hub-audience-strip mlp-route-section"');
   html=html.replace('<h2>От двух минут до полноценного Expert-вызова</h2>','<h2>Выберите свой формат</h2><p class="mlp-route-lead">Сначала — короткие игровые подборки. Если хочется задачи, над которой можно сидеть двадцать минут, ниже начинается Expert.</p>');
   html=html.replace('<section class="logic-section" id="puzzles">','<section class="logic-section mlp-expert-section" id="puzzles">');
