@@ -7,8 +7,10 @@ on:
       - 'assets/ai-avatar-provider.js'
       - 'supabase/functions/case-access/**'
       - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/_shared/ai-commerce.ts'
       - 'docs/ai-premium-tier-plan.md'
       - 'tests/ai-premium-tier-contract.mjs'
+      - 'tests/ai-commerce-entitlement-contract.mjs'
       - '.github/workflows/ai-premium-tiers.yml'
   push:
     branches: [main]
@@ -17,8 +19,10 @@ on:
       - 'assets/ai-avatar-provider.js'
       - 'supabase/functions/case-access/**'
       - 'supabase/functions/ai-avatar-session/**'
+      - 'supabase/functions/_shared/ai-commerce.ts'
       - 'docs/ai-premium-tier-plan.md'
       - 'tests/ai-premium-tier-contract.mjs'
+      - 'tests/ai-commerce-entitlement-contract.mjs'
       - '.github/workflows/ai-premium-tiers.yml'
   workflow_dispatch:
 
@@ -39,5 +43,7 @@ jobs:
           node --check assets/ai-avatar-provider.js
       - name: Tier security contract
         run: node tests/ai-premium-tier-contract.mjs
+      - name: AI commerce entitlement contract
+        run: node tests/ai-commerce-entitlement-contract.mjs
       - name: Avatar entitlement contract
         run: node tests/ai-avatar-session-contract.mjs
