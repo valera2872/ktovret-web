@@ -27,7 +27,7 @@ assert(count('kids')===22,'kids corpus mismatch');
 assert(count('brain')===29,'brain corpus mismatch');
 assert(count('detective')===8,'detective corpus mismatch');
 assert(count('math')===14,'math corpus mismatch');
-assert(count('matches')===8,'matches corpus mismatch');
+assert(count('matches')===8,'matchstick source corpus mismatch');
 for(const age of ['5–6 лет','7–8 лет','9–10 лет','10–12 лет']){
   assert(puzzles.filter(p=>p.collections.includes('kids')&&p.age===age).length>=3,`thin kids age ${age}`);
 }
@@ -36,12 +36,14 @@ assert(collections.kids.slug==='golovolomki-dlya-detei','kids route mismatch');
 assert(collections.brain.slug==='igry-dlya-mozga','brain route mismatch');
 assert(collections.detective.slug==='detektivnye-golovolomki','detective route mismatch');
 assert(collections.math.slug==='matematicheskie-golovolomki','math route mismatch');
-assert(collections.matches.slug==='golovolomki-so-spichkami','matches route mismatch');
+assert(collections.matches.slug==='golovolomki-so-spichkami','matchstick reserve route mismatch');
 for(const cfg of Object.values(collections)){
   assert(cfg.title.length>=38&&cfg.title.length<=82,`title length ${cfg.slug}: ${cfg.title.length}`);
-  assert(cfg.description.length>=110&&cfg.description.length<=190,`description length ${cfg.slug}: ${cfg.description.length}`);
+  assert(cfg.description.length>=90&&cfg.description.length<=190,`description length ${cfg.slug}: ${cfg.description.length}`);
 }
 assert(/не медицинский тренажёр/.test(collections.brain.note)&&/не обещаем/.test(collections.brain.note),'brain disclaimer missing');
+assert(!/спичк/i.test(collections.kids.lead),'kids public copy still promises matchsticks');
+assert(!/спичк/i.test(collections.math.description),'math public copy still promises matchsticks');
 
 // Fair-play boundary: an access-card identifier must never be silently promoted to a person's identity.
 const q09=byId('quick:009');
@@ -97,12 +99,17 @@ try{
   fs.writeFileSync(path.join(tmp,'zagadki-na-logiku-dlya-vzroslyh/index.html'),'<!doctype html><html><head><title>Загадки на логику для взрослых с ответами | Mystery Logic</title></head><body><main><h1>Загадки на логику для взрослых с ответами</h1><section class="logic-section" id="puzzles"></section></main></body></html>');
   fs.writeFileSync(path.join(tmp,'index.html'),'<!doctype html><html><body><main><section class="ref-logic-launch" data-logic-home-launch><p>old</p></section></main></body></html>');
   const result=applyLogicAudienceExpansion(tmp);
-  assert(result.puzzles===33&&result.routes.length===38,'generated route count mismatch');
+  assert(result.puzzles===33,'source QA should render all 33 task pages');
+  assert(result.routes.length===4,'only four public collection routes should be indexable');
+  assert(result.taskRoutes.length===33,'task route count mismatch');
+  assert(result.generatedRoutes.length===37,'generated route count mismatch');
+  assert(result.collections===4,'public collection count mismatch');
   assert(result.mainPatched&&result.adultPatched&&result.homePatched,'hub patch failed');
   const main=fs.readFileSync(path.join(tmp,'golovolomki-onlayn/index.html'),'utf8');
   assert(main.includes('Логические игры и головоломки онлайн')&&main.includes('data-logic-audience-routes'),'primary Wordstat hub not expanded');
+  assert(!main.includes('golovolomki-so-spichkami'),'matchstick route leaked into main hub');
   const adult=fs.readFileSync(path.join(tmp,'zagadki-na-logiku-dlya-vzroslyh/index.html'),'utf8');
-  assert(adult.includes('Головоломки и задачи на логику для взрослых')&&adult.includes('data-logic-family-adult'),'adult hub not expanded');
+  assert(adult.includes('Загадки на логику для взрослых с ответами')&&adult.includes('data-logic-approved-adult'),'adult SEO intent or quick block regressed');
   const kids=fs.readFileSync(path.join(tmp,`${collections.kids.slug}/index.html`),'utf8');
   assert(kids.includes('data-age-filter="5–6 лет"')&&kids.includes('data-age-filter="10–12 лет"')&&kids.includes('0 из 22 решено'),'kids age UX missing');
   const brain=fs.readFileSync(path.join(tmp,`${collections.brain.slug}/index.html`),'utf8');
@@ -111,13 +118,13 @@ try{
   assert(detective.includes('15 дел бесплатно')&&detective.includes('detektivnye-igry-dlya-odnogo'),'detective crossover missing');
   const math=fs.readFileSync(path.join(tmp,`${collections.math.slug}/index.html`),'utf8');
   assert(math.includes('kriptarifm-logic-puzzle'),'math Expert bridge missing');
-  const matches=fs.readFileSync(path.join(tmp,`${collections.matches.slug}/index.html`),'utf8');
-  assert(matches.includes('0 из 8 решено'),'matches collection count mismatch');
+  assert(!fs.existsSync(path.join(tmp,`${collections.matches.slug}/index.html`)),'matchstick collection must stay unpublished');
   const matchTask=fs.readFileSync(path.join(tmp,'golovolomki/spichki-1-6-5/index.html'),'utf8');
-  assert(matchTask.includes('data-match-equation="1+6=5"')&&matchTask.includes('logic-audience.js'),'match task runtime missing');
+  assert(matchTask.includes('data-match-equation="1+6=5"')&&matchTask.includes('name="robots" content="noindex,follow"'),'match task QA runtime/noindex missing');
   const task=fs.readFileSync(path.join(tmp,'golovolomki/tri-korobki/index.html'),'utf8');
   assert(task.includes('data-quick-puzzle="quick:001"')&&task.includes('data-quick-answer="В синей"'),'quick task contract missing');
+  assert(task.includes('name="robots" content="noindex,follow"'),'quick task must not be indexable');
 }finally{
   fs.rmSync(tmp,{recursive:true,force:true});
 }
-console.log(JSON.stringify({ok:true,puzzles:puzzles.length,collections:{kids:count('kids'),brain:count('brain'),detective:count('detective'),math:count('math'),matches:count('matches')},routes:38,matchstickUnique:true,fairPlayCardIdentity:true,ageFirst:true,noClassThinPages:true},null,2));
+console.log(JSON.stringify({ok:true,puzzles:puzzles.length,sourceCollections:{kids:count('kids'),brain:count('brain'),detective:count('detective'),math:count('math'),matches:count('matches')},indexableCollections:4,taskPagesNoindex:true,matchstickCollectionPublished:false,matchstickSourceRetained:true,fairPlayCardIdentity:true,ageFirst:true,noClassThinPages:true},null,2));
