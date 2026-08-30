@@ -102,4 +102,16 @@ assert.equal(qa03.qa_fixture_cleaned,true,'AI-03 QA fixtures must be removed aft
 assert.ok(Number(qa03.observed_zero_stage_cost_usd)>=0,'AI-03 zero-stage QA cost must be recorded');
 assert.ok(Number(qa03.observed_critical_path_cost_usd)>=0,'AI-03 critical-path QA cost must be recorded');
 
+const ai04=JSON.parse(fs.readFileSync(path.join(ROOT,'AI-04.manifest.json'),'utf8'));
+assert.equal(ai04.case_id,'AI-04');
+assert.equal(ai04.status,'draft');
+assert.equal(ai04.suspect_count,4,'AI-04 must preserve the four-suspect interrogation shape');
+assert.equal(ai04.initial_evidence_count,3,'AI-04 must start from the reviewed spatial reconstruction evidence set');
+assert.equal(ai04.hidden_evidence_count,6,'AI-04 needs the reviewed route-elimination evidence depth');
+assert.equal(ai04.rule_count,11,'AI-04 reviewed dependency graph count changed; rerun private state-space');
+assert.equal(ai04.private_gate.minimum_verified_solution_turns,12,'AI-04 reviewed critical path depth changed; rerun private state-space');
+assert.equal(ai04.private_gate.dependency_cycles_detected,0,'AI-04 rule graph must remain acyclic');
+assert.equal(ai04.private_gate.unknown_reference_count,0,'AI-04 private graph must not reference unknown evidence/notes');
+assert.equal(ai04.publication?.avatar_profiles_published,0,'AI-04 Live profiles must stay unpublished before Live release readiness');
+
 console.log(`AI case spoiler-safe manifests: ok (${manifests.length})`);
