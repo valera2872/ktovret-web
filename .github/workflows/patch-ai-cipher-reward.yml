@@ -31,7 +31,7 @@ jobs:
           s=s.replace('${state.turns}', r'\${state.turns}')
           s=re.sub(
               r"test=replaceOnce\(test,/assert\\\.match[\s\S]*?'cache contract'\);",
-              "test=test.replace(\"assert.match(html,/ai-detective-vslice\\\\.js\\\\?v=0\\\\.3\\\\.4/,'case-finale client must have a fresh cache key');\",\"assert.match(html,/ai-detective-vslice\\\\.js\\\\?v=0\\\\.3\\\\.5/,'cipher-reward client must have a fresh cache key');\");",
+              "test=test;",
               s,
               count=1
           )
@@ -45,6 +45,7 @@ jobs:
           from pathlib import Path
           p=Path('tests/ai-detective-vslice-contract.mjs')
           s=p.read_text()
+          s=s.replace("assert.match(html,/ai-detective-vslice\\.js\\?v=0\\.3\\.4/,'case-finale client must have a fresh cache key');","assert.match(html,/ai-detective-vslice\\.js\\?v=0\\.3\\.5/,'cipher-reward client must have a fresh cache key');")
           s=s.replace("assert.match(html,/data-action=\"theory-inline\">Оформить обвинение/,'confession transition must give the player a clear next action');","assert.match(html,/data-action=\"bonus-inline\">Открыть пакет C/,'confession transition must give the player an immediate reward action');")
           p.write_text(s)
           PY
