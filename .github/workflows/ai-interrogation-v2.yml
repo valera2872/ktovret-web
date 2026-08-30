@@ -7,6 +7,7 @@ on:
       - 'supabase/functions/ai-interrogation-v2/**'
       - 'supabase/migrations/20260830115500_ai_case_session_state.sql'
       - 'tests/ai-interrogation-v2-foundation-contract.mjs'
+      - 'tests/ai-interrogation-v2-endpoint-contract.mjs'
       - 'tests/ai-interrogation-v2-runtime.mts'
       - '.github/workflows/ai-interrogation-v2.yml'
   push:
@@ -16,6 +17,7 @@ on:
       - 'supabase/functions/ai-interrogation-v2/**'
       - 'supabase/migrations/20260830115500_ai_case_session_state.sql'
       - 'tests/ai-interrogation-v2-foundation-contract.mjs'
+      - 'tests/ai-interrogation-v2-endpoint-contract.mjs'
       - 'tests/ai-interrogation-v2-runtime.mts'
       - '.github/workflows/ai-interrogation-v2.yml'
   workflow_dispatch:
@@ -33,5 +35,7 @@ jobs:
           node-version: '22'
       - name: Foundation security contract
         run: node tests/ai-interrogation-v2-foundation-contract.mjs
+      - name: Endpoint boundary contract
+        run: node tests/ai-interrogation-v2-endpoint-contract.mjs
       - name: Generic canon runtime behavior
         run: node --experimental-strip-types tests/ai-interrogation-v2-runtime.mts
