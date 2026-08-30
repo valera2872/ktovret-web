@@ -115,9 +115,17 @@ function isFinalConfrontation(q:string){
 }
 
 function marinaConfessionReady(_discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts){
-  // Final confession is gated only by player-visible progress. Hidden note ids must never block a solved investigation.
+  // Normal path: enough Marina pressure plus all player-visible evidence.
   return qc.marina>=MARINA_MIN_CONFESSION_QUESTIONS&&
     hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
+}
+
+function legacyDeepConfessionReady(suspect:string,q:string,history:HistoryItem[],serverTurnsBefore:number){
+  // Compatibility path for long-running sessions created by older clients whose browser evidence Set can be stale.
+  // The server-authoritative session depth prevents a cheap first-pressure confession, while the current accusation
+  // must still synthesize all four canonical lines. Four prior Marina questions + the current one preserves the 5-turn floor.
+  if(suspect!=="marina"||serverTurnsBefore<12||!isFinalConfrontation(q))return false;
+  return history.filter(h=>h.role==="user").length>=4;
 }
 
 function interrogationStage(suspect:string,activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts):InterrogationStage{
@@ -230,8 +238,9 @@ function checkTheory(suspect:string,reason:string,discoveredNotes:Set<string>,di
   if(suspect!=="marina")return {correct:false,title:"Эта версия пока не закрывает дело",explanation:"Проверьте, есть ли у выбранного человека подтверждённая связь с входом в фонд в 21:31, опровергнутое алиби и возможность действовать в нужное временное окно."};
   const requiredEvidence=["E04","E05","E06","E07"];
   const missingEvidence=requiredEvidence.filter(id=>!discoveredEvidence.has(id));
-  if(missingEvidence.length)return {correct:false,title:"Подозреваемый выбран, но доказательная цепочка ещё не замкнута",explanation:"Для обвинения нужны независимые проверки доступа, местонахождения и алиби остальных. Вернитесь к допросам и добудьте недостающие материалы."};
-  if(!discoveredNotes.has("N-MARINA-CONFESSION"))return {correct:false,title:"Марина зажата, но допрос ещё не завершён",explanation:"Вы уже собрали необходимую доказательную цепочку. Теперь сведите в одном обвинительном вопросе её ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных. Простого вопроса «это вы?» недостаточно."};
+  const confessed=discoveredNotes.has("N-MARINA-CONFESSION");
+  if(missingEvidence.length&&!confessed)return {correct:false,title:"Подозреваемый выбран, но доказательная цепочка ещё не замкнута",explanation:"Для обвинения нужны независимые проверки доступа, местонахождения и алиби остальных. Вернитесь к допросам и добудьте недостающие материалы."};
+  if(!confessed)return {correct:false,title:"Марина зажата, но допрос ещё не завершён",explanation:"Вы уже собрали необходимую доказательную цепочку. Теперь сведите в одном обвинительном вопросе её ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных. Простого вопроса «это вы?» недостаточно."};
   const dimensions=[hasAny(normalized,["e-14","е-14","карта","pin","пин","21:31","двер","доступ"]),hasAny(normalized,["телефон","wi-fi","wifi","вайф","сеть","archive-2","двор","21:34","внутри"]),hasAny(normalized,["камера","перезапуск","окно","18:20","знала время","спрашивала","антон"])].filter(Boolean).length;
   if(dimensions<3)return {correct:false,title:"Факты собраны, но в объяснении не хватает связки",explanation:"Опишите своими словами, как между собой связаны доступ в фонд, проверка местонахождения и знание временного окна. Простого выбора имени недостаточно."};
   return {correct:true,title:"Версия выдерживает проверку",explanation:"Цепочка закрывается независимыми линиями: E-14 с персональным PIN открывает фонд в 21:31 и принадлежит Марине; её версия о дворике опровергнута сетевым логом; окно камеры она выяснила заранее; алиби Антона и Льва подтверждены. После финального предъявления этой совокупности Марина призналась.",reveal:"Ответственная — Марина Лебедева. Следователь не получил признание первым нажимом: сначала были независимо проверены доступ, местонахождение, знание окна камеры и алиби остальных. Только после того, как эти линии были сведены в одну непротиворечивую обвинительную конструкцию, Марина признала, что вошла в фонд и взяла письмо."};
@@ -266,9 +275,6 @@ Deno.serve(async(req:Request)=>{
   if(evidenceId&&(!publicEvidence[evidenceId]||(!INITIAL_EVIDENCE.has(evidenceId)&&!discoveredEvidence.has(evidenceId))))return json({error:"invalid_evidence_state"},400);
   const history:HistoryItem[]=Array.isArray(body.history)?body.history.slice(-10).map((h:any)=>({role:h?.role==="assistant"?"assistant":"user",text:clean(h?.text,500)})).filter((h:HistoryItem)=>h.text):[];
   const unlocked=unlock(suspect,question,evidenceId,discoveredNotes,discoveredEvidence,qc);
-  const activeNotes=new Set([...discoveredNotes,...unlocked.notes.map(n=>n.id)]);
-  const stage=interrogationStage(suspect,activeNotes,discoveredEvidence,qc);
-  const confessionThisTurn=unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION");
   const ip=requestIp(req);
   const visitorHash=await sha256(`visitor:${visitor}`);
   const networkHash=await sha256(`network:${ip||visitor}`);
@@ -277,6 +283,13 @@ Deno.serve(async(req:Request)=>{
     const claim=await rpc("ai_detective_claim_turn",{p_session_id:session,p_visitor_hash:visitorHash,p_network_hash:networkHash,p_session_limit:DEMO_SESSION_LIMIT,p_visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT,p_network_daily_limit:DEMO_NETWORK_DAILY_LIMIT,p_daily_budget_usd:DEMO_DAILY_BUDGET_USD});
     if(!claim?.ok)return json({error:claim?.code||"quota_denied",message:quotaMessage(claim?.code||""),quota:claim},429);
     claimId=clean(claim.claim_id,64);
+    const serverTurnsBefore=Math.max(0,DEMO_SESSION_LIMIT-(Number(claim.session_remaining)||0)-1);
+    if(!unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION")&&legacyDeepConfessionReady(suspect,question,history,serverTurnsBefore)){
+      unlocked.notes.push({id:"N-MARINA-CONFESSION",source:"Марина · признание",text:"После долгого допроса и финального сведения доступа, местонахождения, окна камеры и алиби остальных Марина признаётся: в окно отключения камеры она вошла в фонд и взяла письмо."});
+    }
+    const activeNotes=new Set([...discoveredNotes,...unlocked.notes.map(n=>n.id)]);
+    const stage=interrogationStage(suspect,activeNotes,discoveredEvidence,qc);
+    const confessionThisTurn=unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION");
     const result=await aiReply(suspect,question,evidenceId,history,unlocked.notes,unlocked.unlockedEvidenceIds,discoveredNotes,discoveredEvidence,stage,confessionThisTurn);
     const done=await rpc("ai_detective_complete_turn",{p_claim_id:claimId,p_actual_usd:result.usage.costUsd,p_input_tokens:result.usage.inputTokens,p_cached_input_tokens:result.usage.cachedInputTokens,p_output_tokens:result.usage.outputTokens});
     if(!done?.ok)throw new Error("metering_complete_failed");

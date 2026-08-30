@@ -96,6 +96,10 @@ assert.match(edge,/hasAll\(discoveredEvidence,\["E04","E05","E06","E07"\]\)/,'co
 assert.doesNotMatch(edge,/function marinaConfessionReady[\s\S]{0,500}hasAll\(discoveredNotes/,'hidden note ids must never block an otherwise earned confession');
 assert.match(edge,/return dimensions>=4&&accusation/,'final confrontation must synthesize all four investigation lines');
 assert.match(edge,/function isFinalConfrontation/,'confession must require a synthesis confrontation, not a magic first question');
+assert.match(edge,/function legacyDeepConfessionReady/,'old long-running browser sessions need a server-authoritative compatibility path');
+assert.match(edge,/serverTurnsBefore<12/,'compatibility confession must require substantial server-recorded investigation depth');
+assert.match(edge,/history\.filter\(h=>h\.role===?"user"\)\.length>=4/,'compatibility confession must still preserve at least five Marina questions including the current one');
+assert.match(edge,/missingEvidence\.length&&!confessed/,'a server-earned confession must not be invalidated later by a stale browser evidence set');
 assert.match(edge,/marinaConfessionReady\(activeNotes,discoveredEvidence,qc\)&&isFinalConfrontation\(q\)/,'the final synthesis may close concessions established in that same earned confrontation');
 assert.match(edge,/N-MARINA-CONFESSION/,'confession must become persistent investigation state');
 assert.match(edge,/НЕОБРАТИМО ЗАФИКСИРОВАНО/,'prior concessions must be injected back into every later Marina turn');
