@@ -65,7 +65,10 @@ assert.match(adapter,/LIVE_RETRY_MESSAGE="Живой режим временно
 assert.match(factory,/PCM_SAMPLE_RATE=24000/,'speech duration accounting must match the PCM format sent to LiveAvatar');
 assert.match(factory,/pcmDurationMs/,'renderer must estimate actual utterance duration from generated PCM');
 assert.match(factory,/voiceChat:false/,'LITE renderer must not take microphone ownership');
-assert.match(factory,/repeatAudio\(toBase64\(pcm\)\)/,'LITE renderer must receive our PCM audio rather than generate its own text response');
+assert.match(factory,/function toPcmBinaryString\(buffer\)/,'LITE renderer must convert PCM bytes into the raw binary-string shape expected by the pinned LiveAvatar SDK');
+assert.match(factory,/repeatAudio\(toPcmBinaryString\(pcm\)\)/,'LITE renderer must receive our raw PCM audio rather than generate its own text response');
+assert.doesNotMatch(factory,/btoa\(/,'LITE PCM must not be base64 encoded before repeatAudio');
+assert.match(factory,/utterance_id:utteranceId\(\)/,'each spoken AI reply must carry a fresh replay-protection identity');
 assert.match(factory,/return \{ok:true,durationMs\}/,'renderer must return speech duration for billing-aware disconnect scheduling');
 assert.doesNotMatch(factory,/\.repeat\(text|\.message\(text/,'LITE renderer must not use provider text generation paths');
 console.log('avatar provider contract: ok');
