@@ -1,0 +1,21 @@
+name: TEMP AI-01 Live readiness
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai01-live-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production Live broker readiness
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai01-live-readiness-probe?check=ai01-live-readiness-31aug')"
+          PROBE="$body" node <<'NODE'
+          const d=JSON.parse(process.env.PROBE||'{}');
+          console.log('AI01_LIVE_READY', Boolean(d.ok));
+          console.log('STATUS', d.status);
+          console.log('ERROR', d.error||'none');
+          NODE
