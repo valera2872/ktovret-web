@@ -9,6 +9,7 @@ on:
       - 'tests/ai07-production-qa-contract.mjs'
       - 'tests/ai08-production-qa-contract.mjs'
       - 'tests/ai09-production-qa-contract.mjs'
+      - 'tests/ai10-production-qa-contract.mjs'
       - '.github/workflows/ai-case-manifests.yml'
   push:
     branches: [main]
@@ -19,6 +20,7 @@ on:
       - 'tests/ai07-production-qa-contract.mjs'
       - 'tests/ai08-production-qa-contract.mjs'
       - 'tests/ai09-production-qa-contract.mjs'
+      - 'tests/ai10-production-qa-contract.mjs'
       - '.github/workflows/ai-case-manifests.yml'
   workflow_dispatch:
 
@@ -41,3 +43,5 @@ jobs:
         run: node tests/ai08-production-qa-contract.mjs
       - name: Verify AI-09 production QA contract
         run: node tests/ai09-production-qa-contract.mjs
+      - name: Verify AI-10 production QA contract
+        run: node tests/ai10-production-qa-contract.mjs
