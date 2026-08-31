@@ -2,10 +2,10 @@
 const SDK_URL="./vendor/liveavatar-web-sdk.mjs";
 const PCM_SAMPLE_RATE=24000;
 const PCM_BYTES_PER_SAMPLE=2;
-function toPcmBinaryString(buffer){
+function toBase64(buffer){
   const bytes=new Uint8Array(buffer);let binary="";const size=0x8000;
   for(let i=0;i<bytes.length;i+=size)binary+=String.fromCharCode(...bytes.subarray(i,i+size));
-  return binary;
+  return btoa(binary);
 }
 function utteranceId(){
   if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID();
@@ -52,7 +52,7 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
       if(!pcm.byteLength)throw new Error("avatar_tts_empty");
       const durationMs=pcmDurationMs(pcm);
       try{live.interrupt()}catch{}
-      live.repeatAudio(toPcmBinaryString(pcm));
+      live.repeatAudio(toBase64(pcm));
       return {ok:true,durationMs};
     },
     async disconnect(){
