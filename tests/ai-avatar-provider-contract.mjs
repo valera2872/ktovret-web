@@ -66,6 +66,13 @@ assert.match(adapter,/authorization.*Bearer/s,'Supabase broker calls must carry 
 assert.doesNotMatch(adapter,/avatar_id|avatarId/,'actual LiveAvatar identity must be selected only by the server allowlist');
 assert.doesNotMatch(adapter,/LIVEAVATAR_API_KEY|X-API-KEY|AI_AVATAR_SIGNING_KEY|SUPABASE_SERVICE_ROLE_KEY/,'provider credentials must never be embedded in the browser adapter');
 
+assert.match(adapter,/connectEpoch/,'suspect switches must invalidate in-flight realtime connects');
+assert.match(adapter,/if\(epoch!==this\.connectEpoch\)/,'stale LiveAvatar connects must never attach after a suspect switch');
+assert.match(adapter,/const targetSuspect=this\.activeSuspect/,'connection attempts must be bound to the suspect active when they start');
+assert.match(adapter,/if\(this\.connecting\)\{\s*await this\.connecting/s,'a new suspect reply must let any prior connection attempt settle before deciding whether to reconnect');
+assert.match(adapter,/if\(targetSuspect!==this\.activeSuspect\)/,'a completed connection must be rejected if the player switched suspects mid-flight');
+assert.match(adapter,/this\.provider\.connected&&this\.provider\.suspectId===this\.activeSuspect/,'an existing realtime connection is reusable only for the currently selected suspect');
+
 assert.match(adapter,/TERMINAL_LIVE_ERRORS=new Set\(\[/,'terminal LiveAvatar failures need an explicit fail-soft policy');
 assert.match(adapter,/"avatar_budget_exhausted"/,'paid-case budget exhaustion must be a terminal LiveAvatar condition');
 assert.match(adapter,/BUDGET_FALLBACK_MESSAGE="Лимит живого допроса на это дело исчерпан\. Расследование продолжается текстом\."/,'budget exhaustion must have player-facing copy instead of a technical error');
@@ -77,7 +84,7 @@ assert.match(adapter,/this\.liveDisabled=true/,'terminal LiveAvatar failure must
 assert.match(adapter,/this\.shell\.hidden=true/,'terminal LiveAvatar fallback should remove the dead video surface and leave the interrogation intact');
 assert.match(adapter,/ml:avatar-fallback/,'the rest of the product must be able to observe a terminal Live-to-Text transition');
 assert.match(adapter,/if\(TERMINAL_LIVE_ERRORS\.has\(code\)\)\{await this\.enterTextFallback\(code\);return true\}/,'terminal provider failures must route through the text fallback instead of retry loops');
-assert.match(adapter,/if\(!this\.canUseLive\(\)\|\|!this\.isWorkspaceActive\(\)\|\|this\.provider\.connected/,'once Live is disabled, later replies must not create another realtime session');
+assert.match(adapter,/if\(!this\.canUseLive\(\)\|\|!this\.isWorkspaceActive\(\)\|\|!this\.activeSuspect\)return false/,'disabled or inactive Live must not create another realtime session');
 assert.match(adapter,/LIVE_RETRY_MESSAGE="Живой режим временно недоступен\. Ответ уже показан текстом\."/,'transient avatar failures must explicitly preserve the already-rendered text answer');
 
 assert.match(factory,/PCM_SAMPLE_RATE=24000/,'speech duration accounting must match the PCM format sent to LiveAvatar');

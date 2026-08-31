@@ -47,6 +47,7 @@ class DisabledProvider extends AvatarProvider{async connect(){return false}}
 class HeyGenLiveAvatarProvider extends AvatarProvider{
   async connect({video,suspectId}={}){
     this.video=video||null;this.suspectId=suspectId||this.suspectId;
+    const epoch=(this.connectEpoch||0)+1;this.connectEpoch=epoch;
     if(!this.config.enabled)return false;
     const access=accessContext(this.config);
     if(access.experienceTier!=="live")throw new Error("live_tier_required");
@@ -58,20 +59,25 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
       await import(factoryUrl);
       factory=window.MLHeyGenLiveAvatarFactory;
     }
+    if(epoch!==this.connectEpoch)return false;
     if(typeof factory!=="function")throw new Error("heygen_factory_missing");
     const endpoint=this.config.sessionEndpoint||"";
     if(!endpoint)throw new Error("avatar_session_endpoint_missing");
     const response=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json",...authHeaders(this.config)},body:JSON.stringify({provider:"liveavatar",suspect_id:this.suspectId,mode:"lite",case_id:access.caseId,access_token:access.accessToken})});
     const session=await response.json().catch(()=>({}));
+    if(epoch!==this.connectEpoch)return false;
     if(!response.ok){const err=new Error(session.error||session.message||"avatar_session_failed");err.code=session.error||"avatar_session_failed";err.status=response.status;throw err}
-    this.client=await factory({session,video:this.video,suspectId:this.suspectId,ttsEndpoint:this.config.ttsEndpoint,auth:authHeaders(this.config)});
-    if(!this.client||typeof this.client.connect!=="function"||typeof this.client.speak!=="function")throw new Error("heygen_factory_invalid");
-    await this.client.connect();this.connected=true;return true
+    const client=await factory({session,video:this.video,suspectId:this.suspectId,ttsEndpoint:this.config.ttsEndpoint,auth:authHeaders(this.config)});
+    if(!client||typeof client.connect!=="function"||typeof client.speak!=="function")throw new Error("heygen_factory_invalid");
+    if(epoch!==this.connectEpoch){try{if(typeof client.disconnect==="function")await client.disconnect()}catch{}return false}
+    await client.connect();
+    if(epoch!==this.connectEpoch){try{if(typeof client.disconnect==="function")await client.disconnect()}catch{}return false}
+    this.client=client;this.connected=true;return true
   }
-  async setSuspect(id){if(id===this.suspectId)return;await this.disconnect();this.suspectId=id||""}
+  async setSuspect(id){if(id===this.suspectId)return;this.connectEpoch=(this.connectEpoch||0)+1;await this.disconnect(false);this.suspectId=id||""}
   async setStage(stage){await super.setStage(stage);if(this.connected&&typeof this.client?.setStage==="function")await this.client.setStage(this.stage)}
   async speak(text){if(!this.connected||!text)return {ok:false,durationMs:0};return await this.client.speak(String(text),{stage:this.stage,suspectId:this.suspectId})}
-  async disconnect(){try{if(this.client&&typeof this.client.disconnect==="function")await this.client.disconnect()}finally{this.client=null;this.connected=false}}
+  async disconnect(invalidate=true){if(invalidate)this.connectEpoch=(this.connectEpoch||0)+1;const client=this.client;this.client=null;this.connected=false;try{if(client&&typeof client.disconnect==="function")await client.disconnect()}catch{}}
 }
 function config(){return {...DEFAULT_CONFIG,...(window.ML_AVATAR_CONFIG||{})}}
 function makeProvider(cfg){if(!cfg.enabled)return new DisabledProvider(cfg);if(cfg.provider==="heygen"||cfg.provider==="liveavatar")return new HeyGenLiveAvatarProvider(cfg);throw new Error("avatar_provider_unknown")}
@@ -151,11 +157,20 @@ class AvatarBridge{
     this.fail(err);return false;
   }
   async ensureConnected(){
-    if(!this.canUseLive()||!this.isWorkspaceActive()||this.provider.connected||!this.activeSuspect)return false;
-    if(this.connecting)return this.connecting;
+    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+    if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
+    if(this.connecting){
+      await this.connecting;
+      if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+      if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
+    }
+    const targetSuspect=this.activeSuspect;
     if(this.shell)this.shell.dataset.avatarStatus="connecting";
-    this.connecting=this.provider.connect({video:this.video,suspectId:this.activeSuspect}).then(ok=>{if(this.shell&&!this.liveDisabled)this.shell.dataset.avatarStatus=ok?"connected":"idle";return ok}).catch(async err=>{await this.handleFailure(err);return false}).finally(()=>{this.connecting=null});
-    return this.connecting;
+    const attempt=this.provider.connect({video:this.video,suspectId:targetSuspect}).then(ok=>{if(this.shell&&!this.liveDisabled&&targetSuspect===this.activeSuspect)this.shell.dataset.avatarStatus=ok?"connected":"idle";return ok}).catch(async err=>{if(targetSuspect!==this.activeSuspect)return false;await this.handleFailure(err);return false});
+    this.connecting=attempt;
+    const ok=await attempt.finally(()=>{if(this.connecting===attempt)this.connecting=null});
+    if(targetSuspect!==this.activeSuspect){if(this.provider.connected)await this.provider.disconnect();return false}
+    return !!ok&&this.provider.connected&&this.provider.suspectId===this.activeSuspect;
   }
   async speak(text){
     if(!this.canUseLive()||!this.isWorkspaceActive())return false;
@@ -165,7 +180,7 @@ class AvatarBridge{
       await this.provider.setStage(this.activeStage);
       const result=await this.provider.speak(text);
       if(result?.ok){this.scheduleDisconnect(result.durationMs);return true}
-      this.scheduleDisconnect(0);return false;
+      this.scheduleDisconnect(0);return false
     }catch(err){const terminal=await this.handleFailure(err);if(!terminal)this.scheduleDisconnect(0);return false}
   }
   fail(err){console.warn("[Mystery Logic avatar]",err);if(this.shell){this.shell.dataset.avatarError=errorCode(err);this.shell.dataset.avatarStatus="unavailable"}const status=this.roomStatus();if(status)status.textContent=LIVE_RETRY_MESSAGE}
