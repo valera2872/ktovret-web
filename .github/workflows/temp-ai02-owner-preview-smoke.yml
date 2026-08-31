@@ -1,0 +1,28 @@
+name: TEMP AI-02 owner preview smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai02-owner-preview-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preview-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify owner preview access and initial state
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-owner-preview-smoke?probe=owner-preview-smoke')"
+          PREVIEW_JSON="$body" node <<'NODE'
+          const d=JSON.parse(process.env.PREVIEW_JSON||'{}');
+          if(!d.ok) throw new Error(`preview_failed:${JSON.stringify(d)}`);
+          if(d.case_id!=='AI02-OWNER-PREVIEW'||d.tier!=='text'||d.suspects!==4||d.initial_evidence!==3||d.successful_turns!==0) throw new Error(`preview_contract_failed:${JSON.stringify(d)}`);
+          console.log('OWNER_PREVIEW_OK');
+          console.log('TITLE',d.title);
+          console.log('SUSPECTS',d.suspects,'EVIDENCE',d.initial_evidence,'TIER',d.tier);
+          NODE
