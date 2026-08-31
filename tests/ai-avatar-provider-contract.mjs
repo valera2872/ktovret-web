@@ -20,7 +20,7 @@ assert.match(adminPreview,/<iframe[^>]+data-preview-frame/,'owner Live preview m
 assert.match(bootstrap,/const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1'/,'AI-01 bootstrap must know the admin-preview capability key');
 assert.match(bootstrap,/adminPreviewRequested=isAi01&&params\.get\('live'\)==='1'&&params\.get\('admin_preview'\)==='1'/,'public ?live=1 alone must not enable Live');
 assert.match(bootstrap,/adminPreviewSession=sessionStorage\.getItem\(AI01_ADMIN_PREVIEW\)==='1'/,'Live must require the tab-scoped admin-preview capability');
-assert.match(bootstrap,/window\.self!==window\.top&&\/\\\/admin\\\/ai01-live-preview\\\/?\$\//,'Live must require the AI-01 page to be framed by the admin preview route');
+assert.ok(bootstrap.includes("window.self!==window.top&&/\\/admin\\/ai01-live-preview\\/?$/.test(window.parent.location.pathname)"),'Live must require the AI-01 page to be framed by the admin preview route');
 assert.match(bootstrap,/ownerLive=adminPreviewRequested&&adminPreviewSession&&adminPreviewParent/,'all admin preview gates must be satisfied before Live is enabled');
 assert.doesNotMatch(bootstrap,/ownerLive=isAi01&&params\.get\('live'\)==='1'/,'legacy public query-only owner preview must not survive');
 assert.match(bootstrap,/ML_AVATAR_CONFIG/,'bootstrap must seed provider config rather than depend on adapter fallback');
