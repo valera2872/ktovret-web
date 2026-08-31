@@ -14,6 +14,8 @@ assert.match(edge,/live_wrong_case/,'case-scoped live purchases must not unlock 
 assert.match(edge,/token_hash/,'opaque purchase tokens must be hashed before entitlement lookup');
 assert.match(edge,/AI_AVATAR_ENABLED/,'avatar rollout must be protected by a server-side kill switch');
 assert.match(edge,/AI_AVATAR_SANDBOX/,'provider sandbox mode must be configurable and default-safe');
+assert.match(edge,/AI_AVATAR_SANDBOX_AVATAR_ID/,'sandbox avatar identity should remain server-controlled');
+assert.match(edge,/dd73ea75-1218-4ef3-92ce-606d5f7fbc0a/,'owner preview must default to the current official zero-credit sandbox avatar');
 assert.match(edge,/loadAiAvatarProfile/,'avatar identity must come from the server-only case profile layer');
 assert.match(edge,/profile\?\.avatarId/,'broker must use the resolved case+suspect avatar identity');
 assert.doesNotMatch(edge,/AI_AVATAR_MARINA_ID|AI_AVATAR_ANTON_ID|AI_AVATAR_LEV_ID|SUSPECT_AVATARS/,'generic broker must not hardcode AI-01 identities');
@@ -26,7 +28,8 @@ assert.match(edge,/\/v1\/sessions\/token/,'broker must use the current LiveAvata
 assert.match(edge,/"X-API-KEY":LIVEAVATAR_API_KEY/,'upstream API key must be sent only from the Edge function');
 assert.match(edge,/mode:"LITE"/,'upstream session must be LITE mode');
 assert.match(edge,/is_sandbox:AVATAR_SANDBOX/,'initial rollout must support zero-credit sandbox testing');
-assert.match(edge,/max_session_duration:MAX_SESSION_SECONDS/,'session duration must have a server-controlled ceiling');
+assert.match(edge,/const sessionSeconds=AVATAR_SANDBOX\?Math\.min\(MAX_SESSION_SECONDS,60\):MAX_SESSION_SECONDS/,'sandbox sessions must respect the current approximately one-minute sandbox ceiling');
+assert.match(edge,/max_session_duration:sessionSeconds/,'session duration must use the sandbox-aware server ceiling');
 assert.match(edge,/speech_token:signedSpeechToken/,'successful avatar session must issue a short-lived signed speech capability');
 assert.match(edge,/cid:caseId/,'speech capability must remain bound to the paid case');
 assert.match(edge,/eid:entitlementId/,'speech capability must remain bound to the verified paid entitlement for budget accounting');
@@ -34,16 +37,19 @@ assert.match(edge,/op:isOwnerPreview/,'speech capability must carry the verified
 assert.match(edge,/speechToken\(sessionId,suspectId,caseId,entitlementId,speechExpiresAt,isOwnerPreview\)/,'owner-preview scope must be signed only after the Live entitlement is verified');
 assert.match(edge,/live_entitlement_invalid/,'invalid entitlement identities must fail before issuing a speech capability');
 assert.match(edge,/HMAC/,'speech capability must be integrity-protected server-side');
-assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+MAX_SESSION_SECONDS\+60/,'speech capability must expire with the realtime session');
+assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+sessionSeconds\+60/,'speech capability must expire with the actual realtime session ceiling');
 assert.doesNotMatch(edge,/LIVEAVATAR_API_KEY\s*=\s*["'][^"']{8,}["']/,'no permanent provider credential may be committed');
 assert.doesNotMatch(edge,/context_id|llm_configuration_id|voice_agent/,'LITE broker must not silently move story logic into LiveAvatar');
 
 const entitlementCheckIndex=edge.indexOf('const liveAccess=await requireLiveEntitlement(accessToken,caseId);');
 const ownerPreviewIndex=edge.indexOf('const isOwnerPreview=caseId==="AI-01"&&clean(liveAccess.entitlement?.metadata?.source,64)==="owner_preview";');
 const killSwitchIndex=edge.indexOf('if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});');
+const fallbackIndex=edge.indexOf('const sandboxFallbackAllowed=isOwnerPreview&&AVATAR_SANDBOX;');
 assert.ok(entitlementCheckIndex>=0,'owner preview must still start with a real live entitlement check');
 assert.ok(ownerPreviewIndex>entitlementCheckIndex,'owner preview identity must come from verified server-side entitlement metadata');
 assert.ok(killSwitchIndex>ownerPreviewIndex,'kill-switch bypass must only be evaluated after the scoped owner preview entitlement is verified');
+assert.ok(fallbackIndex>killSwitchIndex,'sandbox avatar fallback must only become available after verified owner-preview and kill-switch checks');
+assert.match(edge,/profile\?\.avatarId\|\|\(sandboxFallbackAllowed\?LIVEAVATAR_SANDBOX_AVATAR_ID:""\)/,'stock sandbox identity must never override a real published suspect avatar');
 assert.match(edge,/caseId==="AI-01"&&clean\(liveAccess\.entitlement\?\.metadata\?\.source,64\)==="owner_preview"/,'temporary preview bypass must be restricted to AI-01 owner_preview entitlements');
 
 console.log('avatar session broker contract: ok');
