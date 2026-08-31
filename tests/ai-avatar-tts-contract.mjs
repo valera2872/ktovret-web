@@ -15,6 +15,7 @@ assert.match(edge,/AI_AVATAR_SIGNING_KEY/,'speech requests need a server-side si
 assert.match(edge,/verifySpeechToken/,'speech endpoint must reject unbound browser requests');
 assert.match(edge,/payload\?\.eid/,'speech capability must be bound to the paid entitlement');
 assert.match(edge,/payload\?\.cid/,'speech capability must be bound to the paid case');
+assert.match(edge,/typeof payload\?\.op!=="boolean"/,'signed speech capabilities must explicitly declare owner-preview scope');
 assert.match(edge,/payload\.exp<now\|\|payload\.exp>now\+420/,'speech capabilities must be short lived');
 assert.match(edge,/AI_AVATAR_CASE_BUDGET_MS/,'live cost must have a server-side per-case ceiling');
 assert.match(edge,/900000/,'default hard budget must be 15 minutes');
@@ -45,4 +46,13 @@ assert.match(migration,/session_id text primary key/,'LiveAvatar session ids mus
 assert.match(migration,/claim_ai_avatar_usage/,'atomic usage-claim function missing');
 assert.match(migration,/security definer/,'usage claim must execute only through the controlled server path');
 assert.match(migration,/grant execute.*service_role/s,'only service role may claim avatar budget');
+
+const speechClaimIndex=edge.indexOf('const speechClaim=speechToken?await verifySpeechToken(speechToken,suspectId):null;');
+const ownerPreviewIndex=edge.indexOf('const isOwnerPreview=speechClaim.cid==="AI-01"&&speechClaim.op===true;');
+const killSwitchIndex=edge.indexOf('if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});');
+assert.ok(speechClaimIndex>=0,'TTS preview bypass must require a verified signed speech capability');
+assert.ok(ownerPreviewIndex>speechClaimIndex,'TTS owner-preview scope must be derived from the signed capability, never request input');
+assert.ok(killSwitchIndex>ownerPreviewIndex,'TTS kill-switch bypass must only be evaluated after the signed AI-01 owner-preview claim');
+assert.equal(edge.indexOf('if(!AVATAR_ENABLED)return json(origin,503,{error:"avatar_disabled"});'),-1,'unsigned requests must not be able to reach an unconditional preview bypass path');
+
 console.log('avatar TTS and budget contract: ok');

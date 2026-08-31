@@ -30,6 +30,8 @@ assert.match(edge,/max_session_duration:MAX_SESSION_SECONDS/,'session duration m
 assert.match(edge,/speech_token:signedSpeechToken/,'successful avatar session must issue a short-lived signed speech capability');
 assert.match(edge,/cid:caseId/,'speech capability must remain bound to the paid case');
 assert.match(edge,/eid:entitlementId/,'speech capability must remain bound to the verified paid entitlement for budget accounting');
+assert.match(edge,/op:isOwnerPreview/,'speech capability must carry the verified owner-preview scope inside the signed payload');
+assert.match(edge,/speechToken\(sessionId,suspectId,caseId,entitlementId,speechExpiresAt,isOwnerPreview\)/,'owner-preview scope must be signed only after the Live entitlement is verified');
 assert.match(edge,/live_entitlement_invalid/,'invalid entitlement identities must fail before issuing a speech capability');
 assert.match(edge,/HMAC/,'speech capability must be integrity-protected server-side');
 assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+MAX_SESSION_SECONDS\+60/,'speech capability must expire with the realtime session');

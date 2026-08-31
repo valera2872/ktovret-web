@@ -51,8 +51,8 @@ async function requireLiveEntitlement(accessToken:string,caseId:string){
   if(!entitlementAllowsCase(entitlement.metadata,caseId))return {ok:false,error:"live_wrong_case"};
   return {ok:true,entitlement};
 }
-async function speechToken(sessionId:string,suspectId:string,caseId:string,entitlementId:string,expiresAt:number){
-  const payload=base64url(encoder.encode(JSON.stringify({sid:sessionId,sus:suspectId,cid:caseId,eid:entitlementId,exp:expiresAt})));
+async function speechToken(sessionId:string,suspectId:string,caseId:string,entitlementId:string,expiresAt:number,isOwnerPreview:boolean){
+  const payload=base64url(encoder.encode(JSON.stringify({sid:sessionId,sus:suspectId,cid:caseId,eid:entitlementId,exp:expiresAt,op:isOwnerPreview})));
   const key=await crypto.subtle.importKey("raw",encoder.encode(SIGNING_SECRET),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
   const signature=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(payload)));
   return `${payload}.${base64url(signature)}`;
@@ -114,7 +114,7 @@ Deno.serve(async(req:Request)=>{
   const sessionToken=clean(data?.data?.session_token,4096);
   if(!sessionId||!sessionToken)return json(origin,502,{error:"avatar_upstream_invalid"});
   const speechExpiresAt=Math.floor(Date.now()/1000)+MAX_SESSION_SECONDS+60;
-  const signedSpeechToken=await speechToken(sessionId,suspectId,caseId,entitlementId,speechExpiresAt);
+  const signedSpeechToken=await speechToken(sessionId,suspectId,caseId,entitlementId,speechExpiresAt,isOwnerPreview);
   return json(origin,200,{
     provider:"liveavatar",
     mode:"LITE",

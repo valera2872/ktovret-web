@@ -32,7 +32,7 @@ async function verifySpeechToken(token:string,suspectId:string){
   if(!payloadPart||!signaturePart||rest.length)return null;
   let payload:any={};
   try{payload=JSON.parse(new TextDecoder().decode(fromBase64url(payloadPart)))}catch{return null}
-  if(payload?.sus!==suspectId||typeof payload?.sid!=="string"||typeof payload?.cid!=="string"||typeof payload?.eid!=="string"||typeof payload?.exp!=="number")return null;
+  if(payload?.sus!==suspectId||typeof payload?.sid!=="string"||typeof payload?.cid!=="string"||typeof payload?.eid!=="string"||typeof payload?.exp!=="number"||typeof payload?.op!=="boolean")return null;
   if(payload.sid.length<8||payload.sid.length>160||!/^[a-zA-Z0-9_:-]{3,160}$/.test(payload.cid)||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(payload.eid))return null;
   const now=Math.floor(Date.now()/1000);
   if(payload.exp<now||payload.exp>now+420)return null;
@@ -53,7 +53,6 @@ Deno.serve(async(req:Request)=>{
   }
   if(req.method!=="POST")return json(origin,405,{error:"method_not_allowed"});
   if(!origin||!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
-  if(!AVATAR_ENABLED)return json(origin,503,{error:"avatar_disabled"});
   if(!OPENAI_API_KEY||!SIGNING_SECRET||!SUPABASE_URL||!SERVICE_ROLE_KEY)return json(origin,503,{error:"avatar_tts_not_configured"});
 
   let body:any={};
@@ -66,6 +65,8 @@ Deno.serve(async(req:Request)=>{
   if(!text)return json(origin,400,{error:"speech_text_missing"});
   const speechClaim=speechToken?await verifySpeechToken(speechToken,suspectId):null;
   if(!speechClaim)return json(origin,403,{error:"speech_token_invalid"});
+  const isOwnerPreview=speechClaim.cid==="AI-01"&&speechClaim.op===true;
+  if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});
 
   let profile;
   try{profile=await loadAiAvatarProfile({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId:speechClaim.cid,suspectId})}
