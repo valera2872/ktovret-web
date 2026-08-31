@@ -32,6 +32,9 @@ assert.match(adminPreview,/action:'readiness'/,'admin preview must use the non-c
 assert.match(adminPreview,/mysterylogic:ai01:owner-live-token/,'admin preview must share the same owner token storage boundary as the AI-01 iframe');
 assert.match(adminPreview,/LIVEAVATAR_API_KEY в Supabase пока не установлен/,'admin preview must explain the actual external blocker without exposing a secret');
 assert.doesNotMatch(adminPreview,/X-API-KEY/,'admin preview must never send the LiveAvatar provider key from the browser');
+const adminScript=adminPreview.match(/<script>\s*([\s\S]*?)\s*<\/script>/)?.[1]||'';
+assert.ok(adminScript,'admin preview must contain its controller script');
+assert.doesNotThrow(()=>new Function(adminScript),'admin Live diagnostics script must compile');
 
 // TTS resolves the same server-side profile instead of accepting a browser voice.
 assert.match(tts,/loadAiAvatarProfile\(\{supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId:speechClaim\.cid,suspectId\}\)/,'TTS must resolve identity from the signed case/suspect claim');
