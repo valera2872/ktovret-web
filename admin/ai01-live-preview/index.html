@@ -9,7 +9,7 @@
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
   <style>
-    .ai01-preview-app{display:grid;gap:14px}.ai01-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.ai01-preview-note{margin:0;color:#91a7b5}.ai01-preview-frame{width:100%;height:min(78vh,980px);min-height:660px;border:1px solid rgba(196,216,228,.14);border-radius:18px;background:#061019}.ai01-preview-actions{display:flex;gap:8px;flex-wrap:wrap}.ai01-preview-actions button{cursor:pointer}.ai01-preview-status{color:#c9a36f}.ai01-preview-status.is-ready{color:#8fc4aa}@media(max-width:760px){.ai01-preview-frame{min-height:720px;height:82vh}}
+    .ai01-preview-app{display:grid;gap:14px}.ai01-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.ai01-preview-note{margin:0;color:#91a7b5}.ai01-preview-frame{width:100%;height:min(78vh,980px);min-height:660px;border:1px solid rgba(196,216,228,.14);border-radius:18px;background:#061019}.ai01-preview-actions{display:flex;gap:8px;flex-wrap:wrap}.ai01-preview-actions button{cursor:pointer}.ai01-preview-status{color:#c9a36f}.ai01-preview-status.is-ready{color:#8fc4aa}.ai01-readiness{display:grid;gap:12px;padding:16px;border:1px solid rgba(196,216,228,.14);border-radius:16px;background:rgba(9,23,34,.72)}.ai01-readiness-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}.ai01-readiness-head h3{margin:2px 0 4px}.ai01-readiness-state{font-weight:700;color:#c9a36f}.ai01-readiness-state.is-ready{color:#8fc4aa}.ai01-readiness-form{display:flex;gap:8px;flex-wrap:wrap}.ai01-readiness-form input{min-width:min(420px,100%);flex:1;padding:10px 12px;border:1px solid rgba(196,216,228,.18);border-radius:9px;background:#0b1924;color:#edf4f7}.ai01-readiness-form button{cursor:pointer}.ai01-readiness-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ai01-readiness-person{padding:10px 12px;border:1px solid rgba(196,216,228,.1);border-radius:10px;background:rgba(255,255,255,.02)}.ai01-readiness-person strong,.ai01-readiness-person span{display:block}.ai01-readiness-person span{margin-top:3px;color:#91a7b5}.ai01-readiness-person.is-ready span{color:#8fc4aa}.ai01-readiness-detail{margin:0;color:#91a7b5}@media(max-width:760px){.ai01-preview-frame{min-height:720px;height:82vh}.ai01-readiness-grid{grid-template-columns:1fr}.ai01-readiness-form input{min-width:100%}}
   </style>
 </head>
 <body class="mla-body">
@@ -43,7 +43,26 @@
           <button type="button" class="mla-quiet" data-admin-lock>Закрыть доступ</button>
         </div>
       </div>
-      <p class="ai01-preview-status" data-preview-status>Предпросмотр готов. Внутри AI-01 используйте owner Live-ключ.</p>
+      <p class="ai01-preview-status" data-preview-status>Предпросмотр готов. Проверьте Live backend ниже.</p>
+
+      <section class="ai01-readiness" data-live-readiness>
+        <div class="ai01-readiness-head">
+          <div><p class="mla-kicker">Live diagnostics</p><h3>Готовность LiveAvatar</h3><p class="ai01-readiness-detail" data-live-detail>Диагностика ничего не запускает и не расходует LiveAvatar-сессию.</p></div>
+          <span class="ai01-readiness-state" data-live-state>Не проверено</span>
+        </div>
+        <form class="ai01-readiness-form" data-live-form>
+          <input type="password" autocomplete="off" spellcheck="false" data-live-token placeholder="Owner Live-ключ ML-AI01…" aria-label="Owner Live key">
+          <button type="submit">Проверить Live</button>
+          <button type="button" class="mla-quiet" data-live-clear>Стереть Live-ключ</button>
+        </form>
+        <div class="ai01-readiness-grid">
+          <div class="ai01-readiness-person" data-live-suspect="marina"><strong>Марина Лебедева</strong><span>не проверено</span></div>
+          <div class="ai01-readiness-person" data-live-suspect="anton"><strong>Антон Руденко</strong><span>не проверено</span></div>
+          <div class="ai01-readiness-person" data-live-suspect="lev"><strong>Лев Орлов</strong><span>не проверено</span></div>
+        </div>
+        <p class="mla-error" data-live-error role="alert"></p>
+      </section>
+
       <iframe class="ai01-preview-frame" data-preview-frame title="AI-01 Live preview" referrerpolicy="same-origin" allow="autoplay" src="about:blank"></iframe>
       <p class="mla-error" data-admin-error role="alert"></p>
     </section>
@@ -52,16 +71,27 @@
   (()=>{
     'use strict';
     const ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
+    const AVATAR_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session';
+    const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoib3JrbnZ1d2tudnNlZGpncWNmd2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4NjE5NjYzNywiZXhwIjoyMTAxNzcyNjM3fQ.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
     const TOKEN_KEY='mysterylogic:review-admin-token:v1';
     const PREVIEW_KEY='mysterylogic:ai01:admin-live-preview:v1';
+    const OWNER_KEY='mysterylogic:ai01:owner-live-token';
+    const SUSPECTS=['marina','anton','lev'];
     const login=document.querySelector('[data-admin-login]');
     const app=document.querySelector('[data-admin-app]');
     const form=document.querySelector('[data-admin-login-form]');
     const input=document.querySelector('[data-admin-token]');
     const loginError=document.querySelector('[data-admin-login-error]');
     const frame=document.querySelector('[data-preview-frame]');
+    const liveForm=document.querySelector('[data-live-form]');
+    const liveInput=document.querySelector('[data-live-token]');
+    const liveState=document.querySelector('[data-live-state]');
+    const liveDetail=document.querySelector('[data-live-detail]');
+    const liveError=document.querySelector('[data-live-error]');
     let token='';
     const setPreview=(enabled)=>{try{if(enabled)sessionStorage.setItem(PREVIEW_KEY,'1');else sessionStorage.removeItem(PREVIEW_KEY)}catch{}};
+    const ownerToken=()=>{try{return String(localStorage.getItem(OWNER_KEY)||'').trim()}catch{return ''}};
+    const setOwnerToken=(value)=>{try{if(value)localStorage.setItem(OWNER_KEY,value);else localStorage.removeItem(OWNER_KEY)}catch{}};
     const frameUrl=()=>`../../detektivnaya-igra-s-ii/?live=1&admin_preview=1&t=${Date.now()}`;
     const openPreview=()=>{setPreview(true);if(frame)frame.src=frameUrl()};
     const lock=()=>{token='';setPreview(false);try{sessionStorage.removeItem(TOKEN_KEY)}catch{};if(frame)frame.src='about:blank';if(app)app.hidden=true;if(login)login.hidden=false;if(input)input.value=''};
@@ -71,8 +101,29 @@
       if(!response.ok)throw new Error(`Не удалось проверить ключ: HTTP ${response.status}`);
       return true;
     };
-    const unlock=async(candidate)=>{if(loginError)loginError.textContent='';await verify(candidate);token=candidate;try{sessionStorage.setItem(TOKEN_KEY,token)}catch{};if(login)login.hidden=true;if(app)app.hidden=false;openPreview()};
+    const readinessRequest=async(suspect,candidate)=>{
+      const response=await fetch(AVATAR_ENDPOINT,{method:'POST',headers:{authorization:`Bearer ${PUBLIC_ANON}`,apikey:PUBLIC_ANON,'content-type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify({action:'readiness',provider:'liveavatar',case_id:'AI-01',suspect_id:suspect,access_token:candidate,mode:'lite'})});
+      let data={};try{data=await response.json()}catch{}
+      if(!response.ok){const code=String(data?.error||`HTTP ${response.status}`);throw new Error(code==='live_access_expired'?'Owner Live-ключ истёк.':code==='live_access_required'?'Owner Live-ключ не принят.':`Live diagnostics: ${code}`)}
+      return data;
+    };
+    const renderSuspect=(row)=>{const node=document.querySelector(`[data-live-suspect="${row.suspect_id}"]`);if(!node)return;const span=node.querySelector('span');const label=row.published_identity?'published LiveAvatar':row.sandbox_fallback?`${row.profile_status} → Wayne sandbox`:row.profile_status||'недоступно';node.classList.toggle('is-ready',Boolean(row.ready_for_session));if(span)span.textContent=label};
+    const checkReadiness=async(candidate=ownerToken())=>{
+      if(liveError)liveError.textContent='';
+      if(candidate.length<32||candidate.length>512){if(liveState){liveState.textContent='Нужен owner Live-ключ';liveState.classList.remove('is-ready')}if(liveDetail)liveDetail.textContent='Введите временный ML-AI01 owner Live-ключ. Сам LiveAvatar API key сюда вводить не нужно.';return false}
+      if(liveState){liveState.textContent='Проверяю…';liveState.classList.remove('is-ready')}
+      const rows=await Promise.all(SUSPECTS.map(id=>readinessRequest(id,candidate)));
+      rows.forEach(renderSuspect);
+      const apiConfigured=rows.every(row=>row.liveavatar_api_key_configured===true);
+      const ready=rows.every(row=>row.ready_for_session===true);
+      if(liveState){liveState.textContent=ready?'Backend готов':'Backend не готов';liveState.classList.toggle('is-ready',ready)}
+      if(liveDetail)liveDetail.textContent=apiConfigured?(rows.some(row=>row.sandbox_fallback)?'LIVEAVATAR_API_KEY установлен. Draft-персонажи безопасно пойдут через Wayne sandbox до публикации собственных аватаров.':'LIVEAVATAR_API_KEY установлен. Опубликованные персонажи готовы к Live-сессии.'):'LIVEAVATAR_API_KEY в Supabase пока не установлен. Код и профили готовы, но Live-сессия не стартует.';
+      return ready;
+    };
+    const unlock=async(candidate)=>{if(loginError)loginError.textContent='';await verify(candidate);token=candidate;try{sessionStorage.setItem(TOKEN_KEY,token)}catch{};if(login)login.hidden=true;if(app)app.hidden=false;openPreview();checkReadiness().catch(error=>{if(liveError)liveError.textContent=error.message||'Не удалось проверить Live backend.'})};
     form?.addEventListener('submit',async(event)=>{event.preventDefault();const candidate=String(input?.value||'').trim();if(candidate.length<16){if(loginError)loginError.textContent='Введите административный ключ.';return}try{await unlock(candidate)}catch(error){if(loginError)loginError.textContent=error.message||'Не удалось открыть предпросмотр.'}});
+    liveForm?.addEventListener('submit',async(event)=>{event.preventDefault();const candidate=String(liveInput?.value||'').trim()||ownerToken();if(candidate.length<32||candidate.length>512){if(liveError)liveError.textContent='Введите корректный owner Live-ключ ML-AI01…';return}setOwnerToken(candidate);if(liveInput)liveInput.value='';openPreview();try{await checkReadiness(candidate)}catch(error){if(liveError)liveError.textContent=error.message||'Не удалось проверить Live backend.'}});
+    document.querySelector('[data-live-clear]')?.addEventListener('click',()=>{setOwnerToken('');if(liveState){liveState.textContent='Не проверено';liveState.classList.remove('is-ready')}if(liveDetail)liveDetail.textContent='Owner Live-ключ удалён из этого браузера.';for(const id of SUSPECTS){const node=document.querySelector(`[data-live-suspect="${id}"]`);node?.classList.remove('is-ready');const span=node?.querySelector('span');if(span)span.textContent='не проверено'}openPreview()});
     document.querySelector('[data-preview-reload]')?.addEventListener('click',openPreview);
     document.querySelector('[data-admin-lock]')?.addEventListener('click',lock);
     let saved='';try{saved=String(sessionStorage.getItem(TOKEN_KEY)||'')}catch{};
