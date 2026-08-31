@@ -5,6 +5,7 @@ import { loadAiAvatarProfile } from "../_shared/ai-avatar-profile.ts";
 const ALLOWED_ORIGINS=new Set(["https://mysterylogic.com","https://valera2872.github.io"]);
 const LIVEAVATAR_API_BASE="https://api.liveavatar.com";
 const LIVEAVATAR_API_KEY=Deno.env.get("LIVEAVATAR_API_KEY")||"";
+const LIVEAVATAR_SANDBOX_AVATAR_ID=Deno.env.get("AI_AVATAR_SANDBOX_AVATAR_ID")||"dd73ea75-1218-4ef3-92ce-606d5f7fbc0a";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const SIGNING_SECRET=Deno.env.get("AI_AVATAR_SIGNING_KEY")||SERVICE_ROLE_KEY;
@@ -89,9 +90,11 @@ Deno.serve(async(req:Request)=>{
   let profile;
   try{profile=await loadAiAvatarProfile({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId,suspectId})}
   catch(error){console.error("avatar_profile_error",String(error));return json(origin,503,{error:"avatar_profile_unavailable"})}
-  const allowedAvatarId=profile?.avatarId||"";
+  const sandboxFallbackAllowed=isOwnerPreview&&AVATAR_SANDBOX;
+  const allowedAvatarId=profile?.avatarId||(sandboxFallbackAllowed?LIVEAVATAR_SANDBOX_AVATAR_ID:"");
   if(!allowedAvatarId)return json(origin,404,{error:"suspect_avatar_unavailable"});
   if(requestedAvatarId&&requestedAvatarId!==allowedAvatarId)return json(origin,403,{error:"avatar_not_allowed"});
+  const sessionSeconds=AVATAR_SANDBOX?Math.min(MAX_SESSION_SECONDS,60):MAX_SESSION_SECONDS;
 
   const upstream=await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`,{
     method:"POST",
@@ -101,7 +104,7 @@ Deno.serve(async(req:Request)=>{
       mode:"LITE",
       is_sandbox:AVATAR_SANDBOX,
       video_settings:{quality:"medium",encoding:"H264"},
-      max_session_duration:MAX_SESSION_SECONDS
+      max_session_duration:sessionSeconds
     })
   });
   let data:any={};
@@ -113,7 +116,7 @@ Deno.serve(async(req:Request)=>{
   const sessionId=clean(data?.data?.session_id,128);
   const sessionToken=clean(data?.data?.session_token,4096);
   if(!sessionId||!sessionToken)return json(origin,502,{error:"avatar_upstream_invalid"});
-  const speechExpiresAt=Math.floor(Date.now()/1000)+MAX_SESSION_SECONDS+60;
+  const speechExpiresAt=Math.floor(Date.now()/1000)+sessionSeconds+60;
   const signedSpeechToken=await speechToken(sessionId,suspectId,caseId,entitlementId,speechExpiresAt,isOwnerPreview);
   return json(origin,200,{
     provider:"liveavatar",
@@ -125,7 +128,7 @@ Deno.serve(async(req:Request)=>{
     case_id:caseId,
     experience_tier:"live",
     sandbox:AVATAR_SANDBOX,
-    max_session_duration:MAX_SESSION_SECONDS,
+    max_session_duration:sessionSeconds,
     speech_expires_at:speechExpiresAt
   });
 });
