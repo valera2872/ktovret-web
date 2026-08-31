@@ -29,7 +29,7 @@ assert.match(edge,/p_utterance_id:utteranceId/,'budget claim must be idempotent 
 assert.match(edge,/avatar_budget_exhausted/,'exhausted live allowance must fail closed without breaking text gameplay');
 assert.match(edge,/avatar_utterance_replayed/,'replaying the same speech utterance must fail closed');
 assert.match(edge,/https:\/\/api\.openai\.com\/v1\/audio\/speech/,'speech must use the server-side OpenAI speech endpoint');
-assert.match(edge,/response_format:"pcm"/,'LiveAvatar LITE must receive raw PCM');
+assert.match(edge,/response_format:"pcm"/,'TTS provider must return raw PCM before browser-side LiveAvatar transport encoding');
 assert.match(edge,/"x-audio-sample-rate"\]="24000"/,'PCM bridge must declare the 24 kHz sample rate expected by LiveAvatar');
 assert.match(edge,/"x-avatar-budget-remaining-ms"/,'successful speech should expose remaining live allowance to trusted runtime diagnostics');
 assert.match(edge,/text=clean\(body\?\.text,900\)/,'speech payload length must be bounded');
@@ -41,10 +41,10 @@ assert.doesNotMatch(edge,/AI_AVATAR_MARINA_VOICE|AI_AVATAR_ANTON_VOICE|AI_AVATAR
 assert.match(profiles,/marina:\{/,'legacy AI-01 voice fallback must remain available in the shared compatibility layer');
 assert.match(profiles,/if\(caseId!==LEGACY_CASE_ID\)return null/,'legacy voices must never bleed into new cases');
 assert.doesNotMatch(edge,/console\.(log|info)\([^\n]*(text|speechToken)/,'player dialogue and speech capabilities must not be logged');
-assert.match(factory,/response\.arrayBuffer\(\)/,'browser must forward binary PCM, not provider-generated text');
-assert.match(factory,/function toPcmBinaryString\(buffer\)/,'browser must convert PCM bytes to the raw binary string expected by the LiveAvatar SDK');
-assert.match(factory,/live\.repeatAudio\(toPcmBinaryString\(pcm\)\)/,'browser must hand raw PCM binary string to LiveAvatar LITE');
-assert.doesNotMatch(factory,/btoa\(/,'raw LiveAvatar PCM must not be base64-encoded before repeatAudio');
+assert.match(factory,/response\.arrayBuffer\(\)/,'browser must receive binary PCM from the controlled TTS endpoint');
+assert.match(factory,/function toBase64\(buffer\)/,'browser must convert PCM bytes to LiveAvatar Base64 transport');
+assert.match(factory,/return btoa\(binary\)/,'browser-side audio transport must Base64-encode the PCM bytes');
+assert.match(factory,/live\.repeatAudio\(toBase64\(pcm\)\)/,'browser must hand Base64 PCM to LiveAvatar LITE');
 assert.match(factory,/utterance_id:utteranceId\(\)/,'every AI reply must receive a fresh replay-protection identity');
 assert.match(migration,/create table if not exists public\.ai_avatar_usage/,'cumulative avatar usage ledger missing');
 assert.match(migration,/create table if not exists public\.ai_avatar_usage_events/,'avatar speech ledger missing');
