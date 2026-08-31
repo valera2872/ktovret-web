@@ -12,7 +12,7 @@
   "hidden_evidence_count": 7,
   "rule_count": 12,
   "payload_jsonb_sha256": "45b4587e4893d0508c4366d4ba39c461c19adf40a0b9de75fc42afc030590b03",
-  "private_canon_jsonb_sha256": "22855067a3baa6d0230ba0d9d854733cb59df9c345b2b6ffe8bf18faff706c06",
+  "private_canon_jsonb_sha256": "d4bf2bb644ceb1fd6a7fa0930df61a63224dcd5f5e4cd84ddf5e67d92c4fbaa8",
   "private_gate": {
     "checked": true,
     "minimum_verified_solution_turns": 12,
