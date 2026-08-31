@@ -58,6 +58,38 @@ async function speechToken(sessionId:string,suspectId:string,caseId:string,entit
   const signature=new Uint8Array(await crypto.subtle.sign("HMAC",key,encoder.encode(payload)));
   return `${payload}.${base64url(signature)}`;
 }
+async function avatarReadiness(caseId:string,suspectId:string,isOwnerPreview:boolean){
+  if(!isOwnerPreview)return {status:403,body:{error:"owner_preview_required"}};
+  if(!SUPABASE_URL||!SERVICE_ROLE_KEY)return {status:503,body:{error:"avatar_access_not_configured"}};
+  const admin=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {data,error}=await admin.from("ai_case_avatar_profiles")
+    .select("suspect_id,status,provider,avatar_id,tts_voice")
+    .eq("case_id",caseId)
+    .eq("suspect_id",suspectId)
+    .maybeSingle();
+  if(error){
+    console.error("avatar_readiness_profile_error",error.message);
+    return {status:503,body:{error:"avatar_profile_unavailable"}};
+  }
+  const profileStatus=clean(data?.status,24)||"missing";
+  const publishedIdentity=profileStatus==="published"&&clean(data?.provider,32)==="liveavatar"&&Boolean(clean(data?.avatar_id,256));
+  const sandboxFallback=isOwnerPreview&&AVATAR_SANDBOX&&!publishedIdentity;
+  const readyForSession=Boolean(LIVEAVATAR_API_KEY&&SIGNING_SECRET&&(publishedIdentity||sandboxFallback));
+  return {status:200,body:{
+    action:"readiness",
+    case_id:caseId,
+    suspect_id:suspectId,
+    liveavatar_api_key_configured:Boolean(LIVEAVATAR_API_KEY),
+    signing_configured:Boolean(SIGNING_SECRET),
+    avatar_enabled:AVATAR_ENABLED,
+    owner_preview:true,
+    sandbox:AVATAR_SANDBOX,
+    profile_status:profileStatus,
+    published_identity:publishedIdentity,
+    sandbox_fallback:sandboxFallback,
+    ready_for_session:readyForSession
+  }};
+}
 
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
@@ -70,18 +102,24 @@ Deno.serve(async(req:Request)=>{
 
   let body:any={};
   try{body=await req.json()}catch{return json(origin,400,{error:"invalid_json"})}
+  const action=clean(body?.action,24).toLowerCase();
   const provider=clean(body?.provider,24).toLowerCase();
   const suspectId=clean(body?.suspect_id,80).toLowerCase();
   const caseId=clean(body?.case_id,160);
   const accessToken=clean(body?.access_token,512);
   const requestedAvatarId=clean(body?.avatar_id,128);
   const requestedMode=clean(body?.mode,16).toLowerCase();
+  if(action&&action!=="session"&&action!=="readiness")return json(origin,400,{error:"unknown_action"});
   if(provider!=="heygen"&&provider!=="liveavatar")return json(origin,400,{error:"provider_not_allowed"});
   if(requestedMode&&requestedMode!=="lite")return json(origin,400,{error:"mode_not_allowed"});
   if(!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId)||!/^[a-zA-Z0-9_:-]{1,80}$/.test(suspectId))return json(origin,400,{error:"invalid_case_identity"});
   const liveAccess=await requireLiveEntitlement(accessToken,caseId);
   if(!liveAccess.ok)return json(origin,403,{error:liveAccess.error||"live_access_required"});
   const isOwnerPreview=caseId==="AI-01"&&clean(liveAccess.entitlement?.metadata?.source,64)==="owner_preview";
+  if(action==="readiness"){
+    const readiness=await avatarReadiness(caseId,suspectId,isOwnerPreview);
+    return json(origin,readiness.status,readiness.body);
+  }
   if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});
   if(!LIVEAVATAR_API_KEY||!SIGNING_SECRET)return json(origin,503,{error:"avatar_not_configured"});
   const entitlementId=clean(liveAccess.entitlement?.id,64);
