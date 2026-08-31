@@ -31,15 +31,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -48,30 +46,18 @@ jobs:
           node --check assets/ai-avatar-auth-bootstrap.js
           node --check assets/ai-avatar-provider.js
           node --check assets/ai-liveavatar-factory.js
+          node --check assets/vendor/liveavatar-web-sdk.mjs
           node --check tools/ai-liveavatar-sdk-entry.mjs
       - name: Provider-neutral security contract
         run: node tests/ai-avatar-provider-contract.mjs
-      - name: Build pinned LiveAvatar SDK bundle
+      - name: Verify vendored pinned LiveAvatar SDK bundle
         run: |
+          set -euo pipefail
+          test -s assets/vendor/liveavatar-web-sdk.mjs
+          git hash-object assets/vendor/liveavatar-web-sdk.mjs > /tmp/liveavatar-sdk-before
           npm install --no-audit --no-fund
           npm run build:avatar-sdk
           test -s assets/vendor/liveavatar-web-sdk.mjs
-      - name: Commit generated SDK on same-repository PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/vendor/liveavatar-web-sdk.mjs
-          if git diff --cached --quiet; then
-            echo 'Pinned SDK bundle already committed.'
-            exit 0
-          fi
-          git commit -m 'Vendor pinned LiveAvatar SDK 0.0.18'
-          git push origin HEAD:${GITHUB_HEAD_REF}
-      - name: Upload pinned LiveAvatar SDK bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: liveavatar-web-sdk-0.0.18
-          path: assets/vendor/liveavatar-web-sdk.mjs
-          if-no-files-found: error
+          git hash-object assets/vendor/liveavatar-web-sdk.mjs > /tmp/liveavatar-sdk-after
+          diff -u /tmp/liveavatar-sdk-before /tmp/liveavatar-sdk-after
+          git diff --exit-code -- assets/vendor/liveavatar-web-sdk.mjs
