@@ -31,13 +31,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -54,6 +56,19 @@ jobs:
           npm install --no-audit --no-fund
           npm run build:avatar-sdk
           test -s assets/vendor/liveavatar-web-sdk.mjs
+      - name: Commit generated SDK on same-repository PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/vendor/liveavatar-web-sdk.mjs
+          if git diff --cached --quiet; then
+            echo 'Pinned SDK bundle already committed.'
+            exit 0
+          fi
+          git commit -m 'Vendor pinned LiveAvatar SDK 0.0.18'
+          git push origin HEAD:${GITHUB_HEAD_REF}
       - name: Upload pinned LiveAvatar SDK bundle
         uses: actions/upload-artifact@v4
         with:
