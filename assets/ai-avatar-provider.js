@@ -1,5 +1,7 @@
 (()=>{"use strict";
-const SCRIPT_BASE=new URL(".",document.currentScript?.src||document.baseURI).href;
+const SCRIPT_URL=new URL(document.currentScript?.src||document.baseURI,document.baseURI);
+const SCRIPT_BASE=new URL(".",SCRIPT_URL).href;
+const SCRIPT_VERSION=SCRIPT_URL.searchParams.get("v")||"";
 const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
 const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",idleDisconnectMs:2500};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
@@ -52,7 +54,8 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
     if(!access.accessToken)throw new Error("live_access_required");
     let factory=window.MLHeyGenLiveAvatarFactory;
     if(typeof factory!=="function"){
-      await import(`${SCRIPT_BASE}ai-liveavatar-factory.js`);
+      const factoryUrl=`${SCRIPT_BASE}ai-liveavatar-factory.js${SCRIPT_VERSION?`?v=${encodeURIComponent(SCRIPT_VERSION)}`:""}`;
+      await import(factoryUrl);
       factory=window.MLHeyGenLiveAvatarFactory;
     }
     if(typeof factory!=="function")throw new Error("heygen_factory_missing");
