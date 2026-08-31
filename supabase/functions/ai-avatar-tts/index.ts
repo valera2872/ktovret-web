@@ -16,6 +16,7 @@ const STAGES=new Set(["composed","defensive","cornered","breaking","confessed"])
 const encoder=new TextEncoder();
 
 function clean(v:unknown,max=900){return typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,max):""}
+function validUtteranceId(value:string){return /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.test(value)}
 function corsHeaders(origin:string,contentType="application/json; charset=utf-8"){return {
   "access-control-allow-origin":origin||"https://mysterylogic.com",
   "access-control-allow-headers":"authorization, x-client-info, apikey, content-type",
@@ -62,7 +63,9 @@ Deno.serve(async(req:Request)=>{
   const stageRaw=clean(body?.stage,24).toLowerCase();
   const stage=STAGES.has(stageRaw)?stageRaw:"composed";
   const speechToken=clean(body?.speech_token,4096);
+  const utteranceId=clean(body?.utterance_id,80).toLowerCase();
   if(!text)return json(origin,400,{error:"speech_text_missing"});
+  if(!validUtteranceId(utteranceId))return json(origin,400,{error:"utterance_id_invalid"});
   const speechClaim=speechToken?await verifySpeechToken(speechToken,suspectId):null;
   if(!speechClaim)return json(origin,403,{error:"speech_token_invalid"});
   const isOwnerPreview=speechClaim.cid==="AI-01"&&speechClaim.op===true;
@@ -93,6 +96,7 @@ Deno.serve(async(req:Request)=>{
   const admin=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data:budgetRows,error:budgetError}=await admin.rpc("claim_ai_avatar_usage",{
     p_session_id:speechClaim.sid,
+    p_utterance_id:utteranceId,
     p_entitlement_id:speechClaim.eid,
     p_case_id:speechClaim.cid,
     p_charge_ms:chargeMs,
@@ -105,7 +109,7 @@ Deno.serve(async(req:Request)=>{
   const budget=Array.isArray(budgetRows)?budgetRows[0]:budgetRows;
   if(!budget?.allowed){
     return json(origin,budget?.duplicate?409:429,{
-      error:budget?.duplicate?"avatar_speech_token_used":"avatar_budget_exhausted",
+      error:budget?.duplicate?"avatar_utterance_replayed":"avatar_budget_exhausted",
       remaining_ms:Number(budget?.remaining_ms||0),
       limit_ms:CASE_BUDGET_MS
     });
