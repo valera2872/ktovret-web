@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
   <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.1">
+  <link rel="stylesheet" href="../assets/ai-case-visual-v2.css?v=0.1.0">
   <title>Закрытое AI-расследование — Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -47,6 +48,7 @@
         <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong data-suspect-count>—</strong></div>
         <div class="aid-stamp-line"><span>ЛИМИТ</span><strong data-case-limit>—</strong></div>
         <div class="aid-stamp-line"><span>РЕЖИМ</span><strong data-case-tier>—</strong></div>
+        <div class="aiv2-intro-cast" data-intro-cast aria-label="Фигуранты дела"></div>
         <div class="aid-stamp-seal">Факты дела фиксированы на сервере. Свободная беседа не может изменить канон или открыть скрытую улику раньше положенного.</div>
       </aside>
     </section>
@@ -60,6 +62,21 @@
 
       <section class="aid-interrogation">
         <div class="aid-suspect-strip" data-suspect-strip></div>
+        <div class="aiv2-character-scene" data-character-scene data-stage="composed">
+          <div class="aiv2-character-frame" aria-hidden="true">
+            <div class="aiv2-character-art" data-character-art></div>
+            <div class="aiv2-character-scan"></div>
+            <div class="aiv2-character-corner"><span>INTERVIEW</span><strong data-character-code>01</strong></div>
+          </div>
+          <div class="aiv2-character-copy">
+            <p class="aid-kicker">Фигурант · свободный допрос</p>
+            <h2 data-character-name>—</h2>
+            <p class="aiv2-character-role" data-character-role>—</p>
+            <div class="aiv2-character-state"><span>Состояние</span><strong data-character-state>держится спокойно</strong></div>
+            <p class="aiv2-character-hint">Задавайте вопросы своими словами. Персонаж отвечает только тем, что ему известно на текущем этапе расследования.</p>
+            <div class="aiv2-character-room-status" data-visual-room-status>Допрос идёт</div>
+          </div>
+        </div>
         <div class="aid-room-head">
           <div><p class="aid-kicker">Допрос</p><h2 data-suspect-name>—</h2><p data-suspect-role>—</p></div>
           <div class="aid-room-status" data-room-status>Допрос идёт</div>
@@ -104,6 +121,7 @@
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Private canon никогда не передаётся в браузер.</span></footer>
   <script src="../assets/ai-case-player-v2.js?v=0.1.0" defer></script>
+  <script src="../assets/ai-case-visual-v2.js?v=0.1.0" defer></script>
   <script src="../assets/ai-case-live-v2.js?v=0.1.0" defer></script>
 </body>
 </html>
