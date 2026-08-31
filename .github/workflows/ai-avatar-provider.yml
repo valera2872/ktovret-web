@@ -7,8 +7,10 @@ on:
       - 'assets/ai-avatar-provider.js'
       - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
+      - 'assets/vendor/liveavatar-web-sdk.mjs'
       - 'tools/ai-liveavatar-sdk-entry.mjs'
       - 'package.json'
+      - 'package-lock.json'
       - 'detektivnaya-igra-s-ii/**'
       - 'tests/ai-avatar-provider-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
@@ -19,8 +21,10 @@ on:
       - 'assets/ai-avatar-provider.js'
       - 'assets/ai-liveavatar-factory.js'
       - 'assets/ai-detective-avatar-stage.css'
+      - 'assets/vendor/liveavatar-web-sdk.mjs'
       - 'tools/ai-liveavatar-sdk-entry.mjs'
       - 'package.json'
+      - 'package-lock.json'
       - 'detektivnaya-igra-s-ii/**'
       - 'tests/ai-avatar-provider-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
@@ -50,3 +54,9 @@ jobs:
           npm install --no-audit --no-fund
           npm run build:avatar-sdk
           test -s assets/vendor/liveavatar-web-sdk.mjs
+      - name: Upload pinned LiveAvatar SDK bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: liveavatar-web-sdk-0.0.18
+          path: assets/vendor/liveavatar-web-sdk.mjs
+          if-no-files-found: error
