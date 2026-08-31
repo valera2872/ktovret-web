@@ -180,7 +180,8 @@ jobs:
             production-web/node_modules \
             production-web/docs \
             production-web/ops \
-            production-web/old.bac
+            production-web/old.bac \
+            production-web/admin/ai01-live-preview
           rm -f \
             production-web/.gitignore \
             production-web/preview-all-100.cmd \
@@ -189,7 +190,11 @@ jobs:
             production-web/package.json \
             production-web/package-lock.json \
             production-web/site-origin.json \
-            production-web/release-web-mvp-0.1.0.txt
+            production-web/release-web-mvp-0.1.0.txt \
+            production-web/assets/ai-liveavatar-factory.js \
+            production-web/assets/vendor/liveavatar-web-sdk.mjs
+          sed -i '/href="\.\.\/ai01-live-preview\/"/d' production-web/admin/puzzles/index.html
+          rmdir production-web/assets/vendor 2>/dev/null || true
           cat > production-web/.htaccess <<'HTACCESS'
           Options -Indexes
           DirectoryIndex index.html index.php
@@ -244,6 +249,10 @@ jobs:
           test ! -d production-web/docs
           test ! -d production-web/ops
           test ! -d production-web/old.bac
+          test ! -e production-web/admin/ai01-live-preview
+          test ! -f production-web/assets/ai-liveavatar-factory.js
+          test ! -f production-web/assets/vendor/liveavatar-web-sdk.mjs
+          ! grep -q 'ai01-live-preview' production-web/admin/puzzles/index.html
           grep -q 'noindex,nofollow,noarchive' production-web/admin/puzzles/index.html
           grep -q '<meta name="robots" content="noindex,follow">' production-web/detektivnye-igry-dlya-odnogo/407/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
