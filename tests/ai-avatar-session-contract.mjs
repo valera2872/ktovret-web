@@ -35,4 +35,13 @@ assert.match(edge,/HMAC/,'speech capability must be integrity-protected server-s
 assert.match(edge,/speechExpiresAt=Math\.floor\(Date\.now\(\)\/1000\)\+MAX_SESSION_SECONDS\+60/,'speech capability must expire with the realtime session');
 assert.doesNotMatch(edge,/LIVEAVATAR_API_KEY\s*=\s*["'][^"']{8,}["']/,'no permanent provider credential may be committed');
 assert.doesNotMatch(edge,/context_id|llm_configuration_id|voice_agent/,'LITE broker must not silently move story logic into LiveAvatar');
+
+const entitlementCheckIndex=edge.indexOf('const liveAccess=await requireLiveEntitlement(accessToken,caseId);');
+const ownerPreviewIndex=edge.indexOf('const isOwnerPreview=caseId==="AI-01"&&clean(liveAccess.entitlement?.metadata?.source,64)==="owner_preview";');
+const killSwitchIndex=edge.indexOf('if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});');
+assert.ok(entitlementCheckIndex>=0,'owner preview must still start with a real live entitlement check');
+assert.ok(ownerPreviewIndex>entitlementCheckIndex,'owner preview identity must come from verified server-side entitlement metadata');
+assert.ok(killSwitchIndex>ownerPreviewIndex,'kill-switch bypass must only be evaluated after the scoped owner preview entitlement is verified');
+assert.match(edge,/caseId==="AI-01"&&clean\(liveAccess\.entitlement\?\.metadata\?\.source,64\)==="owner_preview"/,'temporary preview bypass must be restricted to AI-01 owner_preview entitlements');
+
 console.log('avatar session broker contract: ok');
