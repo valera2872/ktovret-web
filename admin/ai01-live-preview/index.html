@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111d">
+  <title>Mystery Logic — AI-01 Live preview</title>
+  <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
+  <style>
+    .ai01-preview-app{display:grid;gap:14px}.ai01-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.ai01-preview-note{margin:0;color:#91a7b5}.ai01-preview-frame{width:100%;height:min(78vh,980px);min-height:660px;border:1px solid rgba(196,216,228,.14);border-radius:18px;background:#061019}.ai01-preview-actions{display:flex;gap:8px;flex-wrap:wrap}.ai01-preview-actions button{cursor:pointer}.ai01-preview-status{color:#c9a36f}.ai01-preview-status.is-ready{color:#8fc4aa}@media(max-width:760px){.ai01-preview-frame{min-height:720px;height:82vh}}
+  </style>
+</head>
+<body class="mla-body">
+  <main class="mla-shell">
+    <header class="mla-header">
+      <a class="mla-brand" href="../puzzles/"><span>ML</span><strong>Mystery Logic</strong></a>
+      <div><small>Внутренняя панель</small><h1>AI-01 · Live preview</h1></div>
+    </header>
+
+    <section class="mla-login" data-admin-login>
+      <p class="mla-kicker">Доступ владельца</p>
+      <h2>Введите ключ модератора</h2>
+      <p>Live-режим не публикуется для игроков. Эта страница открывает отдельный предпросмотр AI-01 только после проверки административного ключа.</p>
+      <form data-admin-login-form>
+        <label><span>Ключ</span><input type="password" autocomplete="off" spellcheck="false" data-admin-token placeholder="MLADM-…"></label>
+        <button type="submit">Открыть предпросмотр</button>
+      </form>
+      <p class="mla-error" data-admin-login-error role="alert"></p>
+    </section>
+
+    <section class="mla-app ai01-preview-app" data-admin-app hidden>
+      <div class="ai01-preview-toolbar">
+        <div>
+          <p class="mla-kicker">Изолированный стенд</p>
+          <h2>«Восемь минут без камеры»</h2>
+          <p class="ai01-preview-note">Публичная AI-01 остаётся текстовой. Live разрешён только внутри этого iframe и только в текущей административной вкладке.</p>
+        </div>
+        <div class="ai01-preview-actions">
+          <a class="mla-quiet" href="../puzzles/" style="text-decoration:none">Головоломки</a>
+          <button type="button" class="mla-quiet" data-preview-reload>Перезапустить</button>
+          <button type="button" class="mla-quiet" data-admin-lock>Закрыть доступ</button>
+        </div>
+      </div>
+      <p class="ai01-preview-status" data-preview-status>Предпросмотр готов. Внутри AI-01 используйте owner Live-ключ.</p>
+      <iframe class="ai01-preview-frame" data-preview-frame title="AI-01 Live preview" referrerpolicy="same-origin" allow="autoplay" src="about:blank"></iframe>
+      <p class="mla-error" data-admin-error role="alert"></p>
+    </section>
+  </main>
+  <script>
+  (()=>{
+    'use strict';
+    const ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
+    const TOKEN_KEY='mysterylogic:review-admin-token:v1';
+    const PREVIEW_KEY='mysterylogic:ai01:admin-live-preview:v1';
+    const login=document.querySelector('[data-admin-login]');
+    const app=document.querySelector('[data-admin-app]');
+    const form=document.querySelector('[data-admin-login-form]');
+    const input=document.querySelector('[data-admin-token]');
+    const loginError=document.querySelector('[data-admin-login-error]');
+    const frame=document.querySelector('[data-preview-frame]');
+    let token='';
+    const setPreview=(enabled)=>{try{if(enabled)sessionStorage.setItem(PREVIEW_KEY,'1');else sessionStorage.removeItem(PREVIEW_KEY)}catch{}};
+    const frameUrl=()=>`../../detektivnaya-igra-s-ii/?live=1&admin_preview=1&t=${Date.now()}`;
+    const openPreview=()=>{setPreview(true);if(frame)frame.src=frameUrl()};
+    const lock=()=>{token='';setPreview(false);try{sessionStorage.removeItem(TOKEN_KEY)}catch{};if(frame)frame.src='about:blank';if(app)app.hidden=true;if(login)login.hidden=false;if(input)input.value=''};
+    const verify=async(candidate)=>{
+      const response=await fetch(`${ENDPOINT}?status=pending`,{headers:{authorization:`Bearer ${candidate}`},cache:'no-store',credentials:'omit'});
+      if(response.status===401)throw new Error('Ключ не принят или был отключён.');
+      if(!response.ok)throw new Error(`Не удалось проверить ключ: HTTP ${response.status}`);
+      return true;
+    };
+    const unlock=async(candidate)=>{if(loginError)loginError.textContent='';await verify(candidate);token=candidate;try{sessionStorage.setItem(TOKEN_KEY,token)}catch{};if(login)login.hidden=true;if(app)app.hidden=false;openPreview()};
+    form?.addEventListener('submit',async(event)=>{event.preventDefault();const candidate=String(input?.value||'').trim();if(candidate.length<16){if(loginError)loginError.textContent='Введите административный ключ.';return}try{await unlock(candidate)}catch(error){if(loginError)loginError.textContent=error.message||'Не удалось открыть предпросмотр.'}});
+    document.querySelector('[data-preview-reload]')?.addEventListener('click',openPreview);
+    document.querySelector('[data-admin-lock]')?.addEventListener('click',lock);
+    let saved='';try{saved=String(sessionStorage.getItem(TOKEN_KEY)||'')}catch{};
+    if(saved)unlock(saved).catch(()=>lock());
+    window.addEventListener('pagehide',()=>setPreview(false));
+  })();
+  </script>
+</body>
+</html>
