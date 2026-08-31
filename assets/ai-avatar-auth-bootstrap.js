@@ -2,9 +2,15 @@
   'use strict';
   const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
   const AI01_OWNER_STORAGE='mysterylogic:ai01:owner-live-token';
+  const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1';
   const params=new URL(location.href).searchParams;
   const isAi01=/\/detektivnaya-igra-s-ii\/?$/.test(location.pathname);
-  const ownerLive=isAi01&&params.get('live')==='1';
+  const adminPreviewRequested=isAi01&&params.get('live')==='1'&&params.get('admin_preview')==='1';
+  let adminPreviewSession=false;
+  let adminPreviewParent=false;
+  try{adminPreviewSession=sessionStorage.getItem(AI01_ADMIN_PREVIEW)==='1'}catch{}
+  try{adminPreviewParent=window.self!==window.top&&/\/admin\/ai01-live-preview\/?$/.test(window.parent.location.pathname)}catch{}
+  const ownerLive=adminPreviewRequested&&adminPreviewSession&&adminPreviewParent;
   const ownerToken=ownerLive?String(localStorage.getItem(AI01_OWNER_STORAGE)||'').trim():'';
   const ownerTokenValid=ownerToken.length>=32&&ownerToken.length<=512;
 
@@ -37,8 +43,8 @@
     const box=document.createElement('aside');
     box.className='ai01-owner-live';box.dataset.ai01LiveOwner='';
     box.innerHTML=ownerTokenValid
-      ?'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-on">Live-ключ загружен</span></div><p>Живой слой активирован. Если внешний LiveAvatar ещё не настроен, расследование автоматически продолжится текстом.</p><button type="button" data-ai01-live-clear>Сменить Live-ключ</button>'
-      :'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-off">Live выключен</span></div><p>Введите отдельный owner Live-ключ. Обычная версия AI-01 этим не затрагивается.</p><form data-ai01-live-form><input type="password" autocomplete="off" spellcheck="false" placeholder="ML-AI01…" aria-label="Owner Live key"><button type="submit">Включить</button></form><p data-ai01-live-status aria-live="polite"></p>';
+      ?'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-on">Live-ключ загружен</span></div><p>Живой слой активирован только в административном предпросмотре. Если внешний LiveAvatar ещё не настроен, расследование автоматически продолжится текстом.</p><button type="button" data-ai01-live-clear>Сменить Live-ключ</button>'
+      :'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-off">Live выключен</span></div><p>Введите отдельный owner Live-ключ. Публичная AI-01 остаётся текстовой.</p><form data-ai01-live-form><input type="password" autocomplete="off" spellcheck="false" placeholder="ML-AI01…" aria-label="Owner Live key"><button type="submit">Включить</button></form><p data-ai01-live-status aria-live="polite"></p>';
     document.body.appendChild(box);
     box.querySelector('[data-ai01-live-clear]')?.addEventListener('click',()=>{localStorage.removeItem(AI01_OWNER_STORAGE);location.reload()});
     box.querySelector('[data-ai01-live-form]')?.addEventListener('submit',event=>{
