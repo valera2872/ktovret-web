@@ -1,0 +1,53 @@
+name: TEMP AI-10 full chain QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai10-full-chain-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  full-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Phase 1 — validate expected trace before using its absence
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai10-full-chain-qa-probe?probe=ai10-full-chain-once')"
+          QA_JSON="$body" node <<'NODE'
+          const d=JSON.parse(process.env.QA_JSON||'{}');
+          if(!d.ok||d.phase!=='phase1') throw new Error(`phase1_failed:${JSON.stringify(d)}`);
+          if(!Array.isArray(d.report)||d.report.length!==6||d.usage?.model_turns!==6) throw new Error(`phase1_contract_failed:${JSON.stringify(d)}`);
+          for(const r of d.report) console.log('STEP',r.step,r.suspect,r.mode,r.stage,'E',JSON.stringify(r.new_evidence),'N',JSON.stringify(r.new_notes));
+          if(d.state?.successful_turns!==6||d.state?.lev_stage!=='defensive') throw new Error(`phase1_state_failed:${JSON.stringify(d.state)}`);
+          console.log('PHASE1_USAGE',JSON.stringify(d.usage));
+          NODE
+
+      - name: Respect production session RPM window
+        shell: bash
+        run: sleep 65
+
+      - name: Phase 2 — staged scene, internal route and terminal
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail-with-body -sS 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai10-full-chain-qa-probe?probe=ai10-full-chain-once')"
+          QA_JSON="$body" node <<'NODE'
+          const d=JSON.parse(process.env.QA_JSON||'{}');
+          if(!d.ok||d.phase!=='complete') throw new Error(`phase2_failed:${JSON.stringify(d)}`);
+          if(!Array.isArray(d.report)||d.report.length!==6||d.usage?.model_turns!==5) throw new Error(`phase2_contract_failed:${JSON.stringify(d)}`);
+          for(const r of d.report) console.log('STEP',r.step,r.suspect,r.mode,r.stage,'E',JSON.stringify(r.new_evidence),'N',JSON.stringify(r.new_notes));
+          const step11=d.report.find(r=>r.step===11),step12=d.report.find(r=>r.step===12);
+          if(step11?.mode!=='ai'||step11?.stage!=='cornered'||step11?.new_notes?.length!==0) throw new Error(`early_confession_guard_failed:${JSON.stringify(step11)}`);
+          if(step12?.mode!=='canonical_confession'||step12?.stage!=='confessed') throw new Error(`terminal_failed:${JSON.stringify(step12)}`);
+          if(d.theory?.correct!==true||d.final?.successful_turns!==12) throw new Error(`final_failed:${JSON.stringify({theory:d.theory,final:d.final})}`);
+          if((d.final?.evidence||[]).length!==9||(d.final?.notes||[]).length!==5) throw new Error(`final_state_shape_failed:${JSON.stringify(d.final)}`);
+          console.log('FINAL_EVIDENCE',JSON.stringify(d.final.evidence));
+          console.log('FINAL_NOTES',JSON.stringify(d.final.notes));
+          console.log('PHASE2_USAGE',JSON.stringify(d.usage));
+          console.log('AI10_FULL_CHAIN_QA_OK');
+          NODE
