@@ -66,8 +66,6 @@ Deno.serve(async(req:Request)=>{
   }
   if(req.method!=="POST")return json(origin,405,{error:"method_not_allowed"});
   if(!origin||!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
-  if(!AVATAR_ENABLED)return json(origin,503,{error:"avatar_disabled"});
-  if(!LIVEAVATAR_API_KEY||!SIGNING_SECRET)return json(origin,503,{error:"avatar_not_configured"});
 
   let body:any={};
   try{body=await req.json()}catch{return json(origin,400,{error:"invalid_json"})}
@@ -82,6 +80,9 @@ Deno.serve(async(req:Request)=>{
   if(!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId)||!/^[a-zA-Z0-9_:-]{1,80}$/.test(suspectId))return json(origin,400,{error:"invalid_case_identity"});
   const liveAccess=await requireLiveEntitlement(accessToken,caseId);
   if(!liveAccess.ok)return json(origin,403,{error:liveAccess.error||"live_access_required"});
+  const isOwnerPreview=caseId==="AI-01"&&clean(liveAccess.entitlement?.metadata?.source,64)==="owner_preview";
+  if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});
+  if(!LIVEAVATAR_API_KEY||!SIGNING_SECRET)return json(origin,503,{error:"avatar_not_configured"});
   const entitlementId=clean(liveAccess.entitlement?.id,64);
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(entitlementId))return json(origin,503,{error:"live_entitlement_invalid"});
 
