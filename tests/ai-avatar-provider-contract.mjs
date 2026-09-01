@@ -57,7 +57,11 @@ assert.match(adapter,/isWorkspaceActive/,'avatar credits must only be used while
 assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\).*provider\.disconnect/s,'leaving interrogation must disconnect the realtime session');
 assert.doesNotMatch(adapter,/async syncAvailability\(\).*return this\.ensureConnected\(\)/s,'opening the interrogation workspace must not start billable streaming while the player is only reading or typing');
 assert.match(adapter,/scheduleDisconnect\(result\.durationMs\)/,'successful speech must schedule automatic stream shutdown around the actual utterance duration');
-assert.match(adapter,/idleDisconnectMs:2500/,'post-speech streaming grace must stay short by default');
+assert.match(adapter,/idleDisconnectMs:30000/,'post-speech Live session should stay warm long enough to avoid repeat cold starts');
+assert.match(adapter,/prewarmIfAnswering/,'LiveAvatar should prewarm while the unchanged interrogation engine is generating its answer');
+assert.match(adapter,/classList\.contains\("is-answering"\)/,'prewarm must only begin after the player has actually submitted a question');
+assert.match(adapter,/height:calc\(100dvh - 84px\)/,'desktop Live workspace must stay inside the visible viewport');
+assert.match(adapter,/overflow-y:auto/,'Live transcript must scroll internally instead of pushing the avatar off screen');
 assert.match(adapter,/cancelScheduledDisconnect/,'new speech or navigation must cancel stale shutdown timers safely');
 assert.match(adapter,/messageCounts=new Map/,'rendered transcripts need per-suspect deduplication');
 assert.match(adapter,/captureNewReplies/,'only newly appended suspect replies should be voiced');
