@@ -6,11 +6,15 @@ const adminPreview=fs.readFileSync('admin/ai01-live-preview/index.html','utf8');
 const bootstrap=fs.readFileSync('assets/ai-avatar-auth-bootstrap.js','utf8');
 const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
+const avatarStyle=fs.readFileSync('assets/ai-detective-avatar-stage.css','utf8');
 
 assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=0\.0\.1/,'legacy AI page must bootstrap public auth explicitly');
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.2/,'avatar provider bridge must use the current cache key');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.3/,'avatar provider bridge must use the current cache key');
 assert.ok(html.indexOf('ai-avatar-auth-bootstrap.js')<html.indexOf('ai-avatar-provider.js'),'valid public auth must exist before AvatarBridge is constructed');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.2/,'inline avatar layout must use a fresh cache key');
+assert.match(html,/<video[^>]+data-avatar-video[^>]+disablepictureinpicture[^>]+disableremoteplayback/,'LiveAvatar video must opt out of browser pop-out playback');
+assert.match(avatarStyle,/\.aid-interrogation\{grid-template-rows:auto auto auto minmax\(0,1fr\) auto\}/,'interrogation grid must reserve a dedicated inline row for the avatar and leave transcript as the only flexible row');
 assert.match(adminPreview,/noindex,nofollow,noarchive/,'owner Live preview must never be indexable');
 assert.match(adminPreview,/mysterylogic:review-admin-token:v1/,'owner Live preview must reuse the existing moderator credential boundary');
 assert.match(adminPreview,/puzzle-editorial/,'admin preview must verify the moderator token server-side before opening AI-01');
@@ -94,6 +98,9 @@ assert.match(factory,/function toBase64\(buffer\)/,'LITE renderer must encode th
 assert.match(factory,/return btoa\(binary\)/,'LiveAvatar audio transport requires Base64-encoded PCM');
 assert.match(factory,/repeatAudio\(toBase64\(pcm\)\)/,'LITE renderer must hand Base64 PCM to the SDK instead of provider-generated text');
 assert.match(factory,/utterance_id:utteranceId\(\)/,'each spoken AI reply must carry a fresh replay-protection identity');
+assert.match(factory,/disablePictureInPicture=true/,'embedded LiveAvatar video must disable standard Picture-in-Picture');
+assert.match(factory,/disableRemotePlayback=true/,'embedded LiveAvatar video must disable remote/pop-out playback paths');
+assert.match(factory,/controlslist","nopictureinpicture noremoteplayback"/,'media element must advertise no pop-out controls to Chromium-family browsers');
 assert.match(factory,/return \{ok:true,durationMs\}/,'renderer must return speech duration for billing-aware disconnect scheduling');
 assert.doesNotMatch(factory,/\.repeat\(text|\.message\(text/,'LITE renderer must not use provider text generation paths');
 console.log('avatar provider contract: ok');
