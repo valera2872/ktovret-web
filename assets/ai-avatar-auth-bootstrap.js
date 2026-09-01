@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
+  const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoib3JrbnZ1d2tudnNlZGpncWNmd2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4NjE5NjYzNywiZXhwIjoyMTAxNzcyNjM3fQ.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
   const AI01_OWNER_STORAGE='mysterylogic:ai01:owner-live-token';
   const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1';
   const params=new URL(location.href).searchParams;
@@ -38,12 +38,12 @@
   function mountOwnerLiveControl(){
     if(!ownerLive||document.querySelector('[data-ai01-live-owner]'))return;
     const style=document.createElement('style');
-    style.textContent='.ai01-owner-live{position:fixed;right:18px;bottom:18px;z-index:50;width:min(390px,calc(100vw - 36px));padding:14px;border:1px solid rgba(210,174,115,.35);border-radius:14px;background:rgba(6,16,25,.96);box-shadow:0 22px 60px rgba(0,0,0,.38);color:#edf4f7;font:12px/1.45 Inter,system-ui,sans-serif}.ai01-owner-live strong{display:block;color:#f0d6a5}.ai01-owner-live p{margin:5px 0 10px;color:#92a7b4}.ai01-owner-live form{display:flex;gap:7px}.ai01-owner-live input{min-width:0;flex:1;padding:9px 10px;border:1px solid rgba(196,216,228,.18);border-radius:8px;background:#0d1b26;color:#edf4f7}.ai01-owner-live button{padding:9px 11px;border:1px solid rgba(210,174,115,.35);border-radius:8px;background:rgba(210,174,115,.08);color:#f0d6a5;cursor:pointer}.ai01-owner-live .ai01-live-meta{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai01-owner-live .is-on{color:#8fc4aa}.ai01-owner-live .is-off{color:#c9a36f}@media(max-width:640px){.ai01-owner-live{right:10px;bottom:10px;width:calc(100vw - 20px)}}';
+    style.textContent='.ai01-owner-live{position:fixed;right:10px;bottom:10px;z-index:50;width:min(390px,calc(100vw - 20px));padding:12px;border:1px solid rgba(210,174,115,.35);border-radius:12px;background:rgba(6,16,25,.95);box-shadow:0 16px 42px rgba(0,0,0,.32);color:#edf4f7;font:11px/1.35 Inter,system-ui,sans-serif}.ai01-owner-live strong{display:block;color:#f0d6a5}.ai01-owner-live p{margin:5px 0 9px;color:#92a7b4}.ai01-owner-live form{display:flex;gap:7px}.ai01-owner-live input{min-width:0;flex:1;padding:8px 9px;border:1px solid rgba(196,216,228,.18);border-radius:8px;background:#0d1b26;color:#edf4f7}.ai01-owner-live button{padding:7px 9px;border:1px solid rgba(210,174,115,.35);border-radius:8px;background:rgba(210,174,115,.08);color:#f0d6a5;cursor:pointer}.ai01-owner-live .ai01-live-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}.ai01-owner-live .is-on{color:#8fc4aa}.ai01-owner-live .is-off{color:#c9a36f}.ai01-owner-live.is-compact{width:auto;display:flex;align-items:center;gap:8px;padding:7px 9px}.ai01-owner-live.is-compact strong{display:inline;font-size:10px}.ai01-owner-live.is-compact .ai01-live-meta{gap:7px}.ai01-owner-live.is-compact button{padding:5px 7px;font-size:9px}@media(max-width:640px){.ai01-owner-live{right:8px;bottom:8px;width:calc(100vw - 16px)}.ai01-owner-live.is-compact{width:auto;max-width:calc(100vw - 16px)}}';
     document.head.appendChild(style);
     const box=document.createElement('aside');
-    box.className='ai01-owner-live';box.dataset.ai01LiveOwner='';
+    box.className=ownerTokenValid?'ai01-owner-live is-compact':'ai01-owner-live';box.dataset.ai01LiveOwner='';
     box.innerHTML=ownerTokenValid
-      ?'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-on">Live-ключ загружен</span></div><p>Живой слой активирован только в административном предпросмотре. Если внешний LiveAvatar ещё не настроен, расследование автоматически продолжится текстом.</p><button type="button" data-ai01-live-clear>Сменить Live-ключ</button>'
+      ?'<div class="ai01-live-meta"><strong>Live preview</strong><span class="is-on">ключ ✓</span></div><button type="button" data-ai01-live-clear>Сменить</button>'
       :'<div class="ai01-live-meta"><strong>AI-01 · Owner Live preview</strong><span class="is-off">Live выключен</span></div><p>Введите отдельный owner Live-ключ. Публичная AI-01 остаётся текстовой.</p><form data-ai01-live-form><input type="password" autocomplete="off" spellcheck="false" placeholder="ML-AI01…" aria-label="Owner Live key"><button type="submit">Включить</button></form><p data-ai01-live-status aria-live="polite"></p>';
     document.body.appendChild(box);
     box.querySelector('[data-ai01-live-clear]')?.addEventListener('click',()=>{localStorage.removeItem(AI01_OWNER_STORAGE);location.reload()});
