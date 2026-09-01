@@ -3,7 +3,7 @@ const SCRIPT_URL=new URL(document.currentScript?.src||document.baseURI,document.
 const SCRIPT_BASE=new URL(".",SCRIPT_URL).href;
 const SCRIPT_VERSION=SCRIPT_URL.searchParams.get("v")||"";
 const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
-const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",idleDisconnectMs:30000};
+const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text"};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 const TERMINAL_LIVE_ERRORS=new Set([
   "avatar_budget_exhausted",
@@ -82,15 +82,10 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
 function config(){return {...DEFAULT_CONFIG,...(window.ML_AVATAR_CONFIG||{})}}
 function makeProvider(cfg){if(!cfg.enabled)return new DisabledProvider(cfg);if(cfg.provider==="heygen"||cfg.provider==="liveavatar")return new HeyGenLiveAvatarProvider(cfg);throw new Error("avatar_provider_unknown")}
 class AvatarBridge{
-  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.disconnectTimer=null;this.messageCounts=new Map()}
+  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.suspectSync=Promise.resolve();this.messageCounts=new Map()}
   canUseLive(){return !!this.cfg.enabled&&this.liveEntitled&&!this.liveDisabled}
   roomStatus(){return this.root?.querySelector?.("[data-room-status]")||document.querySelector("[data-room-status]")}
-  installLiveLayout(){
-    if(!this.canUseLive()||document.getElementById("ml-ai-live-layout-v2"))return;
-    const style=document.createElement("style");style.id="ml-ai-live-layout-v2";
-    style.textContent='@media(min-width:1121px){.aid-workspace{height:calc(100dvh - 84px);min-height:0;overflow:hidden;align-items:stretch}.aid-panel,.aid-interrogation{height:100%;min-height:0}.aid-panel{overflow:hidden}.aid-evidence-list,.aid-notes{min-height:0;flex:1 1 auto}.aid-interrogation{grid-template-rows:auto auto auto minmax(110px,1fr) auto}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head{padding:13px 20px 9px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head p:last-child{display:none}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-stage{margin:0 20px 9px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-video-shell{height:clamp(170px,24dvh,220px);min-height:0}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-transcript{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-top:7px;padding-bottom:14px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-composer{flex:0 0 auto}}@media(max-width:1120px){.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head p:last-child{display:none}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-video-shell{min-height:0;height:clamp(160px,23dvh,190px)}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-transcript{min-height:0;overflow-y:auto;overscroll-behavior:contain}}';
-    document.head.appendChild(style);
-  }
+  setLiveLayout(active){document.body?.classList.toggle("aid-live-mode",!!active)}
   async start(root=document){
     if(this.started)return;this.started=true;this.root=root;
     this.shell=root.querySelector?.("[data-avatar-stage]")||document.querySelector("[data-avatar-stage]");
@@ -102,21 +97,16 @@ class AvatarBridge{
       const show=this.canUseLive();this.shell.hidden=!show;this.shell.setAttribute("aria-hidden",show?"false":"true");
       if(show)this.shell.dataset.avatarStatus="idle";
     }
-    this.installLiveLayout();this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
+    this.setLiveLayout(this.canUseLive());this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
   }
   suspectMessageNodes(){return this.transcript?[...this.transcript.querySelectorAll(".aid-message.is-suspect:not(.aid-typing)")]:[]}
   seedMessageCount(){const suspect=this.shell?.dataset.suspect||this.activeSuspect;if(suspect)this.messageCounts.set(suspect,this.suspectMessageNodes().length)}
   observe(){
-    if(this.shell){this.observer=new MutationObserver(()=>{this.syncFromDom();this.prewarmIfAnswering()});this.observer.observe(this.shell,{attributes:true,attributeFilter:["data-suspect","data-stage","class"]})}
+    if(this.shell){this.observer=new MutationObserver(()=>this.syncFromDom());this.observer.observe(this.shell,{attributes:true,attributeFilter:["data-suspect","data-stage"]})}
     if(this.workspace){this.workspaceObserver=new MutationObserver(()=>{void this.syncAvailability()});this.workspaceObserver.observe(this.workspace,{attributes:true,attributeFilter:["hidden"]})}
     if(this.transcript){this.messageObserver=new MutationObserver(()=>this.captureNewReplies());this.messageObserver.observe(this.transcript,{childList:true})}
     this.speakListener=event=>{const detail=event?.detail||{};if(!this.canUseLive()||!detail.text||detail.suspectId!==this.activeSuspect)return;if(ALLOWED_STAGES.has(detail.stage)){this.activeStage=detail.stage;void this.provider.setStage(detail.stage).catch(err=>this.handleFailure(err))}void this.speak(detail.text)};
     window.addEventListener("ml:avatar-speak",this.speakListener);
-  }
-  prewarmIfAnswering(){
-    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.shell?.classList.contains("is-answering"))return;
-    this.cancelScheduledDisconnect();
-    void this.ensureConnected().catch(err=>this.handleFailure(err));
   }
   captureNewReplies(){
     if(!this.canUseLive())return;
@@ -135,28 +125,30 @@ class AvatarBridge{
     if(!this.shell)return;
     const suspect=this.shell.dataset.suspect||"";
     const stage=ALLOWED_STAGES.has(this.shell.dataset.stage)?this.shell.dataset.stage:"composed";
-    if(suspect&&suspect!==this.activeSuspect){this.activeSuspect=suspect;this.cancelScheduledDisconnect();this.shell.dataset.avatarStatus=this.liveDisabled?"text-fallback":"idle";Promise.resolve(this.provider.setSuspect(suspect)).then(()=>{if(!this.messageCounts.has(suspect))this.messageCounts.set(suspect,this.suspectMessageNodes().length)}).catch(err=>this.handleFailure(err))}
+    if(suspect&&suspect!==this.activeSuspect){
+      this.activeSuspect=suspect;this.shell.dataset.avatarStatus=this.liveDisabled?"text-fallback":"idle";
+      const sync=Promise.resolve(this.provider.setSuspect(suspect)).then(()=>{
+        if(!this.messageCounts.has(suspect))this.messageCounts.set(suspect,this.suspectMessageNodes().length);
+        if(this.canUseLive()&&this.isWorkspaceActive()&&suspect===this.activeSuspect)void this.ensureConnected();
+      }).catch(err=>this.handleFailure(err));
+      this.suspectSync=sync;
+    }
     if(stage!==this.activeStage){this.activeStage=stage;Promise.resolve(this.provider.setStage(stage)).catch(err=>this.handleFailure(err))}
   }
   async syncAvailability(){
     if(!this.canUseLive()){
-      this.cancelScheduledDisconnect();if(this.provider.connected)await this.provider.disconnect();
+      await this.provider.disconnect();
       if(this.shell&&!this.liveEntitled){this.shell.hidden=true;this.shell.setAttribute("aria-hidden","true")}
       return false;
     }
-    if(!this.isWorkspaceActive()){this.cancelScheduledDisconnect();if(this.provider.connected)await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false}
-    return true;
-  }
-  cancelScheduledDisconnect(){if(this.disconnectTimer){clearTimeout(this.disconnectTimer);this.disconnectTimer=null}}
-  scheduleDisconnect(durationMs=0){
-    this.cancelScheduledDisconnect();
-    const speechMs=Math.max(0,Math.min(90000,Number(durationMs)||0));
-    const grace=Math.max(1000,Math.min(45000,Number(this.cfg.idleDisconnectMs)||30000));
-    this.disconnectTimer=setTimeout(()=>{this.disconnectTimer=null;void this.provider.disconnect().finally(()=>{if(this.shell&&!this.liveDisabled)this.shell.dataset.avatarStatus="idle"})},speechMs+grace);
+    if(!this.isWorkspaceActive()){
+      await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
+    }
+    await this.ensureConnected();return !!this.provider.connected;
   }
   async enterTextFallback(reason){
     if(this.liveDisabled)return;
-    this.liveDisabled=true;this.fallbackReason=reason||"live_unavailable";this.cancelScheduledDisconnect();
+    this.liveDisabled=true;this.fallbackReason=reason||"live_unavailable";this.setLiveLayout(false);
     if(this.shell){this.shell.dataset.avatarStatus="text-fallback";this.shell.dataset.avatarFallback=this.fallbackReason;this.shell.hidden=true;this.shell.setAttribute("aria-hidden","true")}
     const status=this.roomStatus();if(status)status.textContent=this.fallbackReason==="avatar_budget_exhausted"?BUDGET_FALLBACK_MESSAGE:LIVE_FALLBACK_MESSAGE;
     window.dispatchEvent(new CustomEvent("ml:avatar-fallback",{detail:{reason:this.fallbackReason,terminal:true}}));
@@ -169,6 +161,8 @@ class AvatarBridge{
   }
   async ensureConnected(){
     if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+    await this.suspectSync;
+    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
     if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
     if(this.connecting){
       await this.connecting;
@@ -180,22 +174,20 @@ class AvatarBridge{
     const attempt=this.provider.connect({video:this.video,suspectId:targetSuspect}).then(ok=>{if(this.shell&&!this.liveDisabled&&targetSuspect===this.activeSuspect)this.shell.dataset.avatarStatus=ok?"connected":"idle";return ok}).catch(async err=>{if(targetSuspect!==this.activeSuspect)return false;await this.handleFailure(err);return false});
     this.connecting=attempt;
     const ok=await attempt.finally(()=>{if(this.connecting===attempt)this.connecting=null});
-    if(targetSuspect!==this.activeSuspect){if(this.provider.connected)await this.provider.disconnect();return false}
+    if(targetSuspect!==this.activeSuspect){await this.provider.disconnect();return false}
     return !!ok&&this.provider.connected&&this.provider.suspectId===this.activeSuspect;
   }
   async speak(text){
     if(!this.canUseLive()||!this.isWorkspaceActive())return false;
-    this.cancelScheduledDisconnect();
     try{
       await this.ensureConnected();if(!this.provider.connected||this.liveDisabled)return false;
       await this.provider.setStage(this.activeStage);
       const result=await this.provider.speak(text);
-      if(result?.ok){this.scheduleDisconnect(result.durationMs);return true}
-      this.scheduleDisconnect(0);return false
-    }catch(err){const terminal=await this.handleFailure(err);if(!terminal)this.scheduleDisconnect(0);return false}
+      return !!result?.ok;
+    }catch(err){await this.handleFailure(err);return false}
   }
   fail(err){console.warn("[Mystery Logic avatar]",err);if(this.shell){this.shell.dataset.avatarError=errorCode(err);this.shell.dataset.avatarStatus="unavailable"}const status=this.roomStatus();if(status)status.textContent=LIVE_RETRY_MESSAGE}
-  async stop(){this.cancelScheduledDisconnect();this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.started=false}
+  async stop(){this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.setLiveLayout(false);this.started=false}
 }
 window.MLAvatarProvider={AvatarProvider,DisabledProvider,HeyGenLiveAvatarProvider,AvatarBridge,config,accessContext};
 window.MLAvatarBridge=new AvatarBridge();
