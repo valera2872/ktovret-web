@@ -3,7 +3,7 @@ const SCRIPT_URL=new URL(document.currentScript?.src||document.baseURI,document.
 const SCRIPT_BASE=new URL(".",SCRIPT_URL).href;
 const SCRIPT_VERSION=SCRIPT_URL.searchParams.get("v")||"";
 const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
-const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",idleDisconnectMs:2500};
+const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",idleDisconnectMs:30000};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 const TERMINAL_LIVE_ERRORS=new Set([
   "avatar_budget_exhausted",
@@ -85,6 +85,12 @@ class AvatarBridge{
   constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.disconnectTimer=null;this.messageCounts=new Map()}
   canUseLive(){return !!this.cfg.enabled&&this.liveEntitled&&!this.liveDisabled}
   roomStatus(){return this.root?.querySelector?.("[data-room-status]")||document.querySelector("[data-room-status]")}
+  installLiveLayout(){
+    if(!this.canUseLive()||document.getElementById("ml-ai-live-layout-v2"))return;
+    const style=document.createElement("style");style.id="ml-ai-live-layout-v2";
+    style.textContent='@media(min-width:1121px){.aid-workspace{height:calc(100dvh - 84px);min-height:0;overflow:hidden;align-items:stretch}.aid-panel,.aid-interrogation{height:100%;min-height:0}.aid-panel{overflow:hidden}.aid-evidence-list,.aid-notes{min-height:0;flex:1 1 auto}.aid-interrogation{grid-template-rows:auto auto auto minmax(110px,1fr) auto}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head{padding:13px 20px 9px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head p:last-child{display:none}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-stage{margin:0 20px 9px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-video-shell{height:clamp(170px,24dvh,220px);min-height:0}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-transcript{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-top:7px;padding-bottom:14px}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-composer{flex:0 0 auto}}@media(max-width:1120px){.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-room-head p:last-child{display:none}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-avatar-video-shell{min-height:0;height:clamp(160px,23dvh,190px)}.aid-interrogation:has(.aid-avatar-stage:not([hidden])) .aid-transcript{min-height:0;overflow-y:auto;overscroll-behavior:contain}}';
+    document.head.appendChild(style);
+  }
   async start(root=document){
     if(this.started)return;this.started=true;this.root=root;
     this.shell=root.querySelector?.("[data-avatar-stage]")||document.querySelector("[data-avatar-stage]");
@@ -96,16 +102,21 @@ class AvatarBridge{
       const show=this.canUseLive();this.shell.hidden=!show;this.shell.setAttribute("aria-hidden",show?"false":"true");
       if(show)this.shell.dataset.avatarStatus="idle";
     }
-    this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
+    this.installLiveLayout();this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
   }
   suspectMessageNodes(){return this.transcript?[...this.transcript.querySelectorAll(".aid-message.is-suspect:not(.aid-typing)")]:[]}
   seedMessageCount(){const suspect=this.shell?.dataset.suspect||this.activeSuspect;if(suspect)this.messageCounts.set(suspect,this.suspectMessageNodes().length)}
   observe(){
-    if(this.shell){this.observer=new MutationObserver(()=>this.syncFromDom());this.observer.observe(this.shell,{attributes:true,attributeFilter:["data-suspect","data-stage","data-answering"]})}
+    if(this.shell){this.observer=new MutationObserver(()=>{this.syncFromDom();this.prewarmIfAnswering()});this.observer.observe(this.shell,{attributes:true,attributeFilter:["data-suspect","data-stage","class"]})}
     if(this.workspace){this.workspaceObserver=new MutationObserver(()=>{void this.syncAvailability()});this.workspaceObserver.observe(this.workspace,{attributes:true,attributeFilter:["hidden"]})}
     if(this.transcript){this.messageObserver=new MutationObserver(()=>this.captureNewReplies());this.messageObserver.observe(this.transcript,{childList:true})}
     this.speakListener=event=>{const detail=event?.detail||{};if(!this.canUseLive()||!detail.text||detail.suspectId!==this.activeSuspect)return;if(ALLOWED_STAGES.has(detail.stage)){this.activeStage=detail.stage;void this.provider.setStage(detail.stage).catch(err=>this.handleFailure(err))}void this.speak(detail.text)};
     window.addEventListener("ml:avatar-speak",this.speakListener);
+  }
+  prewarmIfAnswering(){
+    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.shell?.classList.contains("is-answering"))return;
+    this.cancelScheduledDisconnect();
+    void this.ensureConnected().catch(err=>this.handleFailure(err));
   }
   captureNewReplies(){
     if(!this.canUseLive())return;
@@ -140,7 +151,7 @@ class AvatarBridge{
   scheduleDisconnect(durationMs=0){
     this.cancelScheduledDisconnect();
     const speechMs=Math.max(0,Math.min(90000,Number(durationMs)||0));
-    const grace=Math.max(500,Math.min(10000,Number(this.cfg.idleDisconnectMs)||2500));
+    const grace=Math.max(1000,Math.min(45000,Number(this.cfg.idleDisconnectMs)||30000));
     this.disconnectTimer=setTimeout(()=>{this.disconnectTimer=null;void this.provider.disconnect().finally(()=>{if(this.shell&&!this.liveDisabled)this.shell.dataset.avatarStatus="idle"})},speechMs+grace);
   }
   async enterTextFallback(reason){
