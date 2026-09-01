@@ -23,16 +23,25 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
   if(!token||!speechToken)throw new Error("liveavatar_session_invalid");
   if(!ttsEndpoint)throw new Error("avatar_tts_endpoint_missing");
   let live=null;let connected=false;let stage="composed";let unlock=null;
+  const prepareVideo=()=>{
+    if(!video)return;
+    video.muted=false;video.autoplay=true;video.playsInline=true;
+    try{video.disablePictureInPicture=true;video.setAttribute("disablepictureinpicture","")}catch{}
+    try{video.disableRemotePlayback=true;video.setAttribute("disableremoteplayback","")}catch{}
+    try{video.setAttribute("playsinline","");video.setAttribute("webkit-playsinline","");video.setAttribute("controlslist","nopictureinpicture noremoteplayback") }catch{}
+  };
   const attach=()=>{
     if(!live||!video)return;
-    try{live.attach(video);video.muted=false;video.autoplay=true;video.playsInline=true;void video.play().catch(()=>{})}catch{}
+    prepareVideo();
+    try{live.attach(video);void video.play().catch(()=>{})}catch{}
   };
   return {
     async connect(){
       if(connected)return true;
+      prepareVideo();
       live=new LiveAvatarSession(token,{voiceChat:false});
       if(sdk.SessionEvent?.SESSION_STREAM_READY)live.on(sdk.SessionEvent.SESSION_STREAM_READY,attach);
-      unlock=()=>{if(video){video.muted=false;void video.play().catch(()=>{})}};
+      unlock=()=>{if(video){prepareVideo();void video.play().catch(()=>{})}};
       window.addEventListener("pointerdown",unlock,{passive:true});
       await live.start();
       attach();
