@@ -9,7 +9,7 @@
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
-  <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
+  <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.2">
   <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -64,7 +64,7 @@
 
         <div class="aid-avatar-stage" data-avatar-stage data-suspect="marina" data-stage="composed" hidden aria-hidden="true">
           <div class="aid-avatar-video-shell">
-            <video data-avatar-video playsinline muted></video>
+            <video data-avatar-video playsinline muted disablepictureinpicture disableremoteplayback controlslist="nopictureinpicture noremoteplayback"></video>
             <div class="aid-avatar-fallback" data-avatar-fallback>
               <span class="aid-avatar-initials" data-avatar-initials>МЛ</span>
               <span class="aid-avatar-pulse" aria-hidden="true"></span>
@@ -157,7 +157,7 @@
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
   <script src="../assets/ai-avatar-auth-bootstrap.js?v=0.0.1" defer></script>
-  <script src="../assets/ai-avatar-provider.js?v=0.0.2" defer></script>
+  <script src="../assets/ai-avatar-provider.js?v=0.0.3" defer></script>
   <script src="../assets/ai-detective-vslice.js?v=0.3.6" defer></script>
 </body>
 </html>
