@@ -25,8 +25,8 @@ assert(edge.includes('if (!(await authorize(req, admin)))'),'owner authorization
 assert(edge.includes(".from('review_moderation_access')"),'shared moderator access table missing');
 assert(edge.includes('/^(quick|expert):[A-Za-z0-9_-]+$/'),'Expert moderation IDs not allowed');
 assert(admin.includes('noindex,nofollow,noarchive'),'admin robots guard missing');
-assert(admin.includes('На проверке')&&admin.includes('Утверждены')&&admin.includes('Отклонены'),'admin moderation tabs missing');
-assert(admin.includes('Ранее опубликованные Expert-задачи')&&admin.includes('ретроспективную проверку'),'legacy Expert explanation missing');
+assert(admin.includes('data-tab="pending"')&&admin.includes('data-tab="approved"')&&admin.includes('data-tab="rejected"'),'admin moderation tabs missing');
+assert(admin.includes('data-filter="matches"')&&admin.includes('data-filter="expert"')&&admin.includes('Expert — ретропроверка'),'legacy Expert separation missing');
 assert(admin.includes('matchstick-visual.css')&&admin.includes('matchstick-visual.js'),'matchstick visual admin assets missing');
 assert(client.includes('mysterylogic:review-admin-token:v1'),'admin does not reuse owner token session');
 assert(client.includes('data-moderate="approved"')&&client.includes('data-moderate="rejected"'),'individual approve/reject actions missing');
