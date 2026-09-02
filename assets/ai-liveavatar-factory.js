@@ -14,7 +14,7 @@ function utteranceId(){
   return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
 }
 function pcmDurationMs(buffer){return Math.max(500,Math.ceil(buffer.byteLength/(PCM_SAMPLE_RATE*PCM_BYTES_PER_SAMPLE)*1000))}
-window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth={}})=>{
+window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth={},onDisconnected})=>{
   const sdk=await import(SDK_URL);
   const LiveAvatarSession=sdk.LiveAvatarSession;
   if(typeof LiveAvatarSession!=="function")throw new Error("liveavatar_sdk_invalid");
@@ -22,43 +22,72 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
   const speechToken=session?.speech_token||"";
   if(!token||!speechToken)throw new Error("liveavatar_session_invalid");
   if(!ttsEndpoint)throw new Error("avatar_tts_endpoint_missing");
-  let live=null;let connected=false;let stage="composed";let unlock=null;
+  let live=null;let connected=false;let streamReady=false;let disconnected=false;let stage="composed";let unlock=null;let disconnectHandler=null;
   const prepareVideo=()=>{
     if(!video)return;
     video.muted=false;video.autoplay=true;video.playsInline=true;
     try{video.disablePictureInPicture=true;video.setAttribute("disablepictureinpicture","")}catch{}
     try{video.disableRemotePlayback=true;video.setAttribute("disableremoteplayback","")}catch{}
-    try{video.setAttribute("playsinline","");video.setAttribute("webkit-playsinline","");video.setAttribute("controlslist","nopictureinpicture noremoteplayback") }catch{}
+    try{video.setAttribute("playsinline","");video.setAttribute("webkit-playsinline","");video.setAttribute("controlslist","nopictureinpicture noremoteplayback")}catch{}
+  };
+  const hasLiveVideoTrack=()=>{
+    const stream=video?.srcObject;
+    if(!stream)return false;
+    const tracks=typeof stream.getVideoTracks==="function"?stream.getVideoTracks():[];
+    return tracks.length?tracks.some(track=>track.readyState==="live"):true;
   };
   const attach=()=>{
-    if(!live||!video)return;
+    if(!live||!video)return false;
     prepareVideo();
-    try{live.attach(video);void video.play().catch(()=>{})}catch{}
+    try{live.attach(video);void video.play().catch(()=>{});streamReady=hasLiveVideoTrack()||streamReady;return true}catch{return false}
+  };
+  const markDisconnected=reason=>{
+    if(disconnected)return;
+    disconnected=true;connected=false;streamReady=false;
+    try{if(video)video.srcObject=null}catch{}
+    try{if(typeof onDisconnected==="function")onDisconnected(reason||"session_disconnected")}catch{}
   };
   return {
     async connect(){
-      if(connected)return true;
+      if(connected&&!disconnected)return true;
       prepareVideo();
+      disconnected=false;streamReady=false;
       live=new LiveAvatarSession(token,{voiceChat:false});
-      if(sdk.SessionEvent?.SESSION_STREAM_READY)live.on(sdk.SessionEvent.SESSION_STREAM_READY,attach);
-      unlock=()=>{if(video){prepareVideo();void video.play().catch(()=>{})}};
+      if(sdk.SessionEvent?.SESSION_STREAM_READY)live.on(sdk.SessionEvent.SESSION_STREAM_READY,()=>{streamReady=true;attach()});
+      if(sdk.SessionEvent?.SESSION_DISCONNECTED){disconnectHandler=reason=>markDisconnected(reason);live.on(sdk.SessionEvent.SESSION_DISCONNECTED,disconnectHandler)}
+      unlock=()=>{if(video){prepareVideo();attach();void video.play().catch(()=>{})}};
       window.addEventListener("pointerdown",unlock,{passive:true});
       await live.start();
+      if(disconnected)return false;
+      connected=true;attach();
+      return true;
+    },
+    async isHealthy(){
+      if(!connected||!live||disconnected)return false;
+      if(document.visibilityState==="visible"&&video?.srcObject&&!hasLiveVideoTrack())return false;
+      return true;
+    },
+    async resume(){
+      if(!connected||!live||disconnected)return false;
       attach();
-      connected=true;
+      if(video){prepareVideo();try{await video.play()}catch{}}
+      await new Promise(resolve=>setTimeout(resolve,0));
+      if(disconnected)return false;
+      if(video&&!hasLiveVideoTrack())return false;
       return true;
     },
     async setStage(next){stage=next||"composed"},
     async speak(text,meta={}){
-      if(!connected||!live||!text)return {ok:false,durationMs:0};
+      if(!connected||!live||disconnected||!text)return {ok:false,durationMs:0};
       const response=await fetch(ttsEndpoint,{
         method:"POST",
         headers:{"content-type":"application/json",...auth},
         body:JSON.stringify({suspect_id:suspectId,text:String(text),stage:meta.stage||stage,speech_token:speechToken,utterance_id:utteranceId()})
       });
-      if(!response.ok){let err={};try{err=await response.json()}catch{}throw new Error(err.error||err.message||"avatar_tts_failed")}
+      if(!response.ok){let err={};try{err=await response.json()}catch{}const failure=new Error(err.error||err.message||"avatar_tts_failed");failure.code=err.error||"avatar_tts_failed";throw failure}
       const pcm=await response.arrayBuffer();
       if(!pcm.byteLength)throw new Error("avatar_tts_empty");
+      if(disconnected)throw new Error("avatar_session_disconnected");
       const durationMs=pcmDurationMs(pcm);
       try{live.interrupt()}catch{}
       live.repeatAudio(toBase64(pcm));
@@ -66,7 +95,10 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
     },
     async disconnect(){
       if(unlock)window.removeEventListener("pointerdown",unlock);unlock=null;
-      try{if(live)await live.stop()}catch{}finally{live=null;connected=false;if(video){video.srcObject=null}}
+      const current=live;live=null;connected=false;streamReady=false;disconnected=true;
+      try{if(current&&disconnectHandler&&sdk.SessionEvent?.SESSION_DISCONNECTED&&typeof current.off==="function")current.off(sdk.SessionEvent.SESSION_DISCONNECTED,disconnectHandler)}catch{}
+      disconnectHandler=null;
+      try{if(current)await current.stop()}catch{}finally{if(video)video.srcObject=null}
     }
   };
 };
