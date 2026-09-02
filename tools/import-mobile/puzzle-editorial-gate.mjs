@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import {logicAudiencePuzzles} from './logic-audience-data.mjs';
 
 const DEFAULT_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial?mode=approved-manifest';
-const PUBLICLY_DISABLED_COLLECTIONS=new Set(['matches']);
+const PUBLICLY_DISABLED_COLLECTIONS=new Set();
 
 export function canonicalPuzzleJson(value){
   if(Array.isArray(value)) return `[${value.map(canonicalPuzzleJson).join(',')}]`;
