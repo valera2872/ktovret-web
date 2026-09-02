@@ -9,6 +9,8 @@
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/review-admin.css?v=1.0.0">
   <link rel="stylesheet" href="../../assets/puzzle-admin.css?v=1.2.0">
+  <link rel="stylesheet" href="../../assets/matchstick-visual.css?v=1.1.0">
+  <link rel="stylesheet" href="../../assets/puzzle-admin-review-v2.css?v=1.0.0">
 </head>
 <body class="mla-body">
   <main class="mla-shell">
@@ -31,7 +33,7 @@
     <section class="mla-app" data-admin-app hidden>
       <div class="mla-toolbar">
         <nav class="mla-tabs" aria-label="Статусы головоломок">
-          <button type="button" data-tab="pending" class="is-active">На проверке <b data-count="pending">0</b></button>
+          <button type="button" data-tab="pending" class="is-active">Новые на проверке <b data-count="pending">0</b></button>
           <button type="button" data-tab="approved">Утверждены <b data-count="approved">0</b></button>
           <button type="button" data-tab="rejected">Отклонены <b data-count="rejected">0</b></button>
         </nav>
@@ -47,11 +49,17 @@
         <div class="mla-panel-head puzzle-panel-head">
           <div>
             <p class="mla-kicker">Редакционный шлюз</p>
-            <h2 data-puzzle-title>Головоломки на проверке</h2>
+            <h2 data-puzzle-title>Спички на проверке</h2>
           </div>
-          <p>Новые Quick-задачи публикуются только после вашего решения. Ранее опубликованные Expert-задачи проходят здесь ретроспективную проверку и помечены отдельно; само появление Expert в очереди не снимает существующую страницу.</p>
+          <p>Сначала показываем новые визуальные задачи со спичками. Старые Expert-задачи уже опубликованы и вынесены в отдельную ретропроверку — они больше не заслоняют новую очередь.</p>
         </div>
         <div class="puzzle-gate-note" data-gate-note></div>
+        <nav class="puzzle-kind-tabs" data-puzzle-filters aria-label="Тип головоломок">
+          <button type="button" data-filter="matches" class="is-active">Со спичками <b data-filter-count>0</b></button>
+          <button type="button" data-filter="quick">Обычные Quick <b data-filter-count>0</b></button>
+          <button type="button" data-filter="expert">Expert — ретропроверка <b data-filter-count>0</b></button>
+          <button type="button" data-filter="all">Все <b data-filter-count>0</b></button>
+        </nav>
         <section class="puzzle-publish-summary" data-publish-summary hidden></section>
         <div class="mla-empty" data-puzzle-empty hidden>В этом разделе пока пусто.</div>
         <div class="puzzle-admin-list" data-puzzle-list></div>
@@ -60,6 +68,7 @@
       <p class="mla-error" data-admin-error role="alert"></p>
     </section>
   </main>
-  <script src="../../assets/puzzle-admin.js?v=1.2.0" defer></script>
+  <script src="../../assets/matchstick-visual.js?v=1.1.0" defer></script>
+  <script src="../../assets/puzzle-admin.js?v=1.3.0" defer></script>
 </body>
 </html>
