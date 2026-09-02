@@ -22,6 +22,7 @@ on:
       - 'supabase/migrations/20260830144423_allow_draft_avatar_profiles_without_identity.sql'
       - 'tests/ai01-live-preview-layout-contract.mjs'
       - 'tests/ai-avatar-provider-contract.mjs'
+      - 'tests/ai-avatar-tab-resume-contract.mjs'
       - 'tests/ai-avatar-profile-release-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
   push:
@@ -46,6 +47,7 @@ on:
       - 'supabase/migrations/20260830144423_allow_draft_avatar_profiles_without_identity.sql'
       - 'tests/ai01-live-preview-layout-contract.mjs'
       - 'tests/ai-avatar-provider-contract.mjs'
+      - 'tests/ai-avatar-tab-resume-contract.mjs'
       - 'tests/ai-avatar-profile-release-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
   workflow_dispatch:
@@ -69,8 +71,11 @@ jobs:
           node --check assets/vendor/liveavatar-web-sdk.mjs
           node --check tools/ai-liveavatar-sdk-entry.mjs
           node --check tools/ai01-live-layout-smoke.mjs
+          node --check tests/ai-avatar-tab-resume-contract.mjs
       - name: Provider-neutral security contract
         run: node tests/ai-avatar-provider-contract.mjs
+      - name: Tab resume regression contract
+        run: node tests/ai-avatar-tab-resume-contract.mjs
       - name: Owner preview viewport contract
         run: node tests/ai01-live-preview-layout-contract.mjs
       - name: Browser smoke short Live viewport
