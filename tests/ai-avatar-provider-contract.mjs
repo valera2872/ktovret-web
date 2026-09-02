@@ -15,7 +15,7 @@ assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslic
 assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'Live dashboard layout must use a fresh cache key');
 assert.match(html,/<video[^>]+data-avatar-video[^>]+disablepictureinpicture[^>]+disableremoteplayback/,'LiveAvatar video must opt out of browser pop-out playback');
 assert.match(avatarStyle,/\.aid-interrogation\{grid-template-rows:auto auto auto minmax\(0,1fr\) auto\}/,'base interrogation grid must reserve an inline avatar row without changing text mode');
-assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto minmax\(180px,38%\) minmax\(84px,1fr\) auto/,'desktop Live mode must fit suspect tabs, avatar, transcript and composer inside a short iframe viewport');
+assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto minmax\(250px,52%\) minmax\(96px,1fr\) auto/,'desktop Live mode must prioritize a readable avatar while preserving transcript and composer');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-room-head\{display:none\}/,'Live mode must remove the duplicated room heading so the composer cannot be pushed below the viewport');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-avatar-stage video\{object-fit:contain\}/,'Live video must preserve the full provider frame instead of cropping the face');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode\{height:100dvh;min-height:100dvh;overflow:hidden\}/,'desktop Live page itself must not scroll');
