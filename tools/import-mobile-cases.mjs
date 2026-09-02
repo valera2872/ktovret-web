@@ -90,7 +90,7 @@ const storefrontVolumeSales=applyStorefrontVolumeSales(siteRoot,lib.cases);
 const logicHub=applyLogicHub(siteRoot);
 const logicExpertSeo=applyLogicExpertSeo(siteRoot);
 const puzzleEditorial=editorial
-  ? {ready:true,total:33,approved:33,exactApproved:33,mismatched:[],missing:[],reason:'editorial_preview',schemaVersion:2}
+  ? {ready:true,total:37,approved:37,exactApproved:37,mismatched:[],missing:[],reason:'editorial_preview',schemaVersion:2}
   : await resolvePuzzleEditorialGate();
 const logicAudience=puzzleEditorial.ready
   ? applyLogicAudienceExpansion(siteRoot)

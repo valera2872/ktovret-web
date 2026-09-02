@@ -21,6 +21,7 @@ on:
       - 'detektivnaya-igra-s-ii/**'
       - 'logicheskie-zadachi/**'
       - 'golovolomki-onlayn/**'
+      - 'golovolomki-so-spichkami/**'
       - 'zagadki-na-logiku-dlya-vzroslyh/**'
       - 'package.json'
       - 'package-lock.json'
@@ -102,6 +103,8 @@ jobs:
           test -f assets/logic-hub.css
           test -f assets/logic-expert-seo.css
           test -f assets/logic-expert.js
+          test -f assets/matchstick-visual.css
+          test -f assets/matchstick-visual.js
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test -f logicheskie-zadachi/index.html
@@ -113,8 +116,12 @@ jobs:
           test -f admin/puzzles/index.html
           test -f assets/puzzle-admin.css
           test -f assets/puzzle-admin.js
+          test -f assets/puzzle-admin-matchsticks.js
           grep -q 'noindex,nofollow,noarchive' admin/puzzles/index.html
           grep -q 'Утверждение головоломок' admin/puzzles/index.html
+          grep -q 'matchstick-visual.css' admin/puzzles/index.html
+          grep -q 'matchstick-visual.js' admin/puzzles/index.html
+          grep -q 'puzzle-admin-matchsticks.js' admin/puzzles/index.html
           grep -q 'puzzle-editorial' assets/puzzle-admin.js
           grep -q 'mysterylogic:review-admin-token:v1' assets/puzzle-admin.js
 
@@ -124,7 +131,7 @@ jobs:
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
           grep -q '"soloMaterials": 18' assets/generated/import-report.json
-          grep -q '"logicAudienceEditorialTotal": 33' assets/generated/import-report.json
+          grep -q '"logicAudienceEditorialTotal": 37' assets/generated/import-report.json
           node tools/puzzle-editorial-release-validate.mjs --site .
 
           grep -q 'storefront-reference-v41.css' index.html
@@ -150,7 +157,9 @@ jobs:
           node --check assets/case-407-solo.js
           node --check assets/logic-expert.js
           node --check assets/logic-audience.js
+          node --check assets/matchstick-visual.js
           node --check assets/puzzle-admin.js
+          node --check assets/puzzle-admin-matchsticks.js
           node --check tools/import-mobile-cases.mjs
           node --check tools/import-mobile/puzzle-editorial-gate.mjs
           node --check tools/import-mobile/logic-audience-release-compat.mjs
@@ -224,6 +233,9 @@ jobs:
           grep -q "logic-expert.js?v=${release_version}" production-web/logicheskie-zadachi/index.html
           grep -q "puzzle-admin.css?v=${release_version}" production-web/admin/puzzles/index.html
           grep -q "puzzle-admin.js?v=${release_version}" production-web/admin/puzzles/index.html
+          grep -q "matchstick-visual.css?v=${release_version}" production-web/admin/puzzles/index.html
+          grep -q "matchstick-visual.js?v=${release_version}" production-web/admin/puzzles/index.html
+          grep -q "puzzle-admin-matchsticks.js?v=${release_version}" production-web/admin/puzzles/index.html
           if grep -q '"logicAudienceEditorialReady": true' production-web/assets/generated/import-report.json; then
             grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki-dlya-detei/index.html
             grep -q "logic-audience.js?v=${release_version}" production-web/golovolomki/tri-korobki/index.html
@@ -239,6 +251,9 @@ jobs:
           test -f production-web/admin/puzzles/index.html
           test -f production-web/assets/puzzle-admin.css
           test -f production-web/assets/puzzle-admin.js
+          test -f production-web/assets/matchstick-visual.css
+          test -f production-web/assets/matchstick-visual.js
+          test -f production-web/assets/puzzle-admin-matchsticks.js
           test -f production-web/tom-1/index.html
           test -f production-web/detektivnye-igry-dlya-odnogo/407/index.html
           test -f production-web/logicheskie-zadachi/index.html
