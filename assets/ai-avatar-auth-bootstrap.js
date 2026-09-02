@@ -23,7 +23,8 @@
       provider:'liveavatar',
       caseId:'AI-01',
       accessToken:ownerTokenValid?ownerToken:'',
-      experienceTier:ownerTokenValid?'live':'text'
+      experienceTier:ownerTokenValid?'live':'text',
+      ownerPreview:true
     }:{})
   };
   if(ownerLive){
