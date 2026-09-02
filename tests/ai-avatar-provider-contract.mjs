@@ -15,9 +15,11 @@ assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslic
 assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.3/,'Live dashboard layout must use a fresh cache key');
 assert.match(html,/<video[^>]+data-avatar-video[^>]+disablepictureinpicture[^>]+disableremoteplayback/,'LiveAvatar video must opt out of browser pop-out playback');
 assert.match(avatarStyle,/\.aid-interrogation\{grid-template-rows:auto auto auto minmax\(0,1fr\) auto\}/,'base interrogation grid must reserve an inline avatar row without changing text mode');
-assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto auto minmax\(240px,42%\) minmax\(120px,1fr\) auto/,'desktop Live mode must reserve a stable, non-collapsing avatar row');
+assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto minmax\(180px,38%\) minmax\(84px,1fr\) auto/,'desktop Live mode must fit suspect tabs, avatar, transcript and composer inside a short iframe viewport');
+assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-room-head\{display:none\}/,'Live mode must remove the duplicated room heading so the composer cannot be pushed below the viewport');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-avatar-stage video\{object-fit:contain\}/,'Live video must preserve the full provider frame instead of cropping the face');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode\{height:100dvh;min-height:100dvh;overflow:hidden\}/,'desktop Live page itself must not scroll');
+assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-composer textarea\{min-height:44px;max-height:52px/,'Live composer must stay compact enough to remain visible');
 assert.match(adminPreview,/noindex,nofollow,noarchive/,'owner Live preview must never be indexable');
 assert.match(adminPreview,/mysterylogic:review-admin-token:v1/,'owner Live preview must reuse the existing moderator credential boundary');
 assert.match(adminPreview,/puzzle-editorial/,'admin preview must verify the moderator token server-side before opening AI-01');
@@ -26,9 +28,7 @@ assert.match(adminPreview,/detektivnaya-igra-s-ii\/\?live=1&admin_preview=1/,'ad
 assert.match(adminPreview,/<iframe[^>]+data-preview-frame/,'owner Live preview must stay isolated inside the admin shell');
 assert.match(adminPreview,/ai01-preview-open/,'desktop owner preview must switch into a single-screen focus mode');
 assert.match(adminPreview,/is-live-ready/,'successful readiness must collapse diagnostics so the game gets the viewport');
-assert.match(adminPreview,/\.ai01-preview-frame\{display:block;width:100%;height:auto;min-height:0;align-self:stretch/,'preview iframe must stretch with its grid track instead of resolving a cyclic 100% height to the native 150px iframe size');
-assert.match(adminPreview,/grid-template-rows:auto auto auto minmax\(0,1fr\) auto/,'unready preview grid must explicitly account for toolbar, status, diagnostics, iframe and error rows');
-assert.match(adminPreview,/\.ai01-preview-app\.is-live-ready\{grid-template-rows:auto minmax\(0,1fr\) auto\}/,'ready preview grid must reserve the remaining viewport for the iframe');
+assert.match(adminPreview,/\.ai01-preview-frame\{display:block;width:100%;height:auto;min-height:0;align-self:stretch/,'preview iframe must retain its inline fallback sizing contract');
 assert.match(bootstrap,/const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1'/,'AI-01 bootstrap must know the admin-preview capability key');
 assert.match(bootstrap,/adminPreviewRequested=isAi01&&params\.get\('live'\)==='1'&&params\.get\('admin_preview'\)==='1'/,'public ?live=1 alone must not enable Live');
 assert.match(bootstrap,/adminPreviewSession=sessionStorage\.getItem\(AI01_ADMIN_PREVIEW\)==='1'/,'Live must require the tab-scoped admin-preview capability');
@@ -37,6 +37,7 @@ assert.match(bootstrap,/ownerLive=adminPreviewRequested&&adminPreviewSession&&ad
 assert.doesNotMatch(bootstrap,/ownerLive=isAi01&&params\.get\('live'\)==='1'/,'legacy public query-only owner preview must not survive');
 assert.match(bootstrap,/ML_AVATAR_CONFIG/,'bootstrap must seed provider config rather than depend on adapter fallback');
 assert.match(bootstrap,/publicAnon:PUBLIC_ANON/,'bootstrap must explicitly supply the public JWT');
+assert.match(bootstrap,/ownerPreview:true/,'only the isolated owner preview may prewarm a LiveAvatar session before the interrogation workspace is visible');
 assert.match(bootstrap,/ai01-owner-live is-compact/,'loaded owner key must not cover the interrogation composer with a large debug panel');
 const token=bootstrap.match(/const PUBLIC_ANON='([^']+)'/)?.[1]||'';
 assert.equal(token.split('.').length,3,'bootstrap public auth must be a JWT');
@@ -47,6 +48,7 @@ assert.equal(payload.role,'anon','browser JWT must have anon role only');
 
 assert.match(adapter,/enabled:false/,'realtime avatar rollout must remain dark by default');
 assert.match(adapter,/provider:"heygen"/,'HeyGen/LiveAvatar must be the first supported renderer without becoming the game engine');
+assert.match(adapter,/ownerPreview:false/,'owner prewarm must be off by default');
 assert.match(adapter,/class AvatarProvider/,'provider-neutral interface missing');
 assert.match(adapter,/class HeyGenLiveAvatarProvider extends AvatarProvider/,'LiveAvatar adapter must implement the neutral contract');
 assert.match(adapter,/async connect/,'adapter needs connect lifecycle');
@@ -62,10 +64,12 @@ assert.match(adapter,/SCRIPT_VERSION=SCRIPT_URL\.searchParams\.get\("v"\)\|\|""/
 assert.match(adapter,/const factoryUrl=.*ai-liveavatar-factory\.js.*SCRIPT_VERSION/s,'factory import URL must inherit the provider cache key');
 assert.match(adapter,/await import\(factoryUrl\)/,'dynamic factory import must use the versioned URL');
 assert.doesNotMatch(adapter,/await import\(`\$\{SCRIPT_BASE\}ai-liveavatar-factory\.js`\)/,'unversioned factory imports must not survive');
-assert.match(adapter,/isWorkspaceActive/,'avatar credits must only be used while the interrogation workspace is active');
+assert.match(adapter,/isWorkspaceActive/,'normal Live behavior must still know whether the interrogation workspace is visible');
 assert.match(adapter,/this\.setLiveLayout\(this\.canUseLive\(\)&&this\.isWorkspaceActive\(\)\)/,'Live dashboard mode must not alter the intro screen before interrogation begins');
-assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\)\{\s*this\.setLiveLayout\(false\);await this\.provider\.disconnect/s,'leaving interrogation must remove Live layout and disconnect the realtime session');
-assert.match(adapter,/async syncAvailability\(\).*this\.setLiveLayout\(true\);await this\.ensureConnected\(\);return !!this\.provider\.connected/s,'entering the Live interrogation workspace must activate the dashboard and start video before the first answer');
+assert.match(adapter,/canPrewarm\(\)\{return this\.canUseLive\(\)&&this\.cfg\.ownerPreview===true&&!this\.liveDisabled\}/,'background prewarm must be restricted to the isolated owner preview');
+assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\)\{\s*this\.setLiveLayout\(false\);\s*if\(this\.canPrewarm\(\)\)return await this\.ensureConnected\(true\);/s,'owner preview may connect hidden video before the workspace while keeping the intro layout unchanged');
+assert.match(adapter,/async syncAvailability\(\).*this\.setLiveLayout\(true\);await this\.ensureConnected\(\);return !!this\.provider\.connected/s,'entering the Live interrogation workspace must reuse or start video before the first answer');
+assert.match(adapter,/async speak\(text\)\{\s*if\(!this\.canUseLive\(\)\|\|!this\.isWorkspaceActive\(\)\)return false/s,'prewarming must never make the avatar speak outside the interrogation workspace');
 assert.doesNotMatch(adapter,/scheduleDisconnect|idleDisconnectMs|prewarmIfAnswering/,'active Live interrogation must not intentionally tear down the renderer between replies');
 assert.match(adapter,/setLiveLayout\(active\)/,'Live layout state must be explicit rather than injected as ad-hoc CSS from JavaScript');
 assert.match(adapter,/classList\.toggle\("aid-live-mode"/,'Live layout must be scoped to entitled Live pages only');
@@ -100,7 +104,7 @@ assert.match(adapter,/this\.liveDisabled=true/,'terminal LiveAvatar failure must
 assert.match(adapter,/this\.shell\.hidden=true/,'terminal LiveAvatar fallback should remove the dead video surface and leave the interrogation intact');
 assert.match(adapter,/ml:avatar-fallback/,'the rest of the product must be able to observe a terminal Live-to-Text transition');
 assert.match(adapter,/if\(TERMINAL_LIVE_ERRORS\.has\(code\)\)\{await this\.enterTextFallback\(code\);return true\}/,'terminal provider failures must route through the text fallback instead of retry loops');
-assert.match(adapter,/if\(!this\.canUseLive\(\)\|\|!this\.isWorkspaceActive\(\)\|\|!this\.activeSuspect\)return false/,'disabled or inactive Live must not create another realtime session');
+assert.match(adapter,/if\(!this\.canUseLive\(\)\|\|!allowed\(\)\|\|!this\.activeSuspect\)return false/,'disabled Live or a disallowed hidden context must not create another realtime session');
 assert.match(adapter,/LIVE_RETRY_MESSAGE="Живой режим временно недоступен\. Ответ уже показан текстом\."/,'transient avatar failures must explicitly preserve the already-rendered text answer');
 
 assert.match(factory,/PCM_SAMPLE_RATE=24000/,'speech duration accounting must match the PCM format sent to LiveAvatar');
