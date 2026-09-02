@@ -27,5 +27,5 @@ assert.match(tts,/const model=isOwnerPreview\?OWNER_PREVIEW_TTS_MODEL:TTS_MODEL/
 assert.match(tts,/const voice=isOwnerPreview\?ownerPreviewVoice\(suspectId,profile\.ttsVoice\):profile\.ttsVoice/,'voice trial must stay owner-preview-only');
 assert.match(tts,/avatar_tts_ok/,'TTS timings must be observable in Edge logs');
 
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.6/,'resume fix must use a fresh provider cache key');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-tabresume1/,'resume fix must use a fresh provider/factory cache key while preserving the established version contract');
 console.log('AI-01 Live tab resume contract: ok');
