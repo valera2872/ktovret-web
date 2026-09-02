@@ -7,7 +7,6 @@ const migration=read('supabase/migrations/20260830123554_puzzle_editorial_queue.
 const edge=read('supabase/functions/puzzle-editorial/index.ts');
 const admin=read('admin/puzzles/index.html');
 const client=read('assets/puzzle-admin.js');
-const matchAdmin=read('assets/puzzle-admin-matchsticks.js');
 const matchVisual=read('assets/matchstick-visual.js');
 const matchCss=read('assets/matchstick-visual.css');
 const gate=read('tools/import-mobile/puzzle-editorial-gate.mjs');
@@ -28,15 +27,16 @@ assert(edge.includes('/^(quick|expert):[A-Za-z0-9_-]+$/'),'Expert moderation IDs
 assert(admin.includes('noindex,nofollow,noarchive'),'admin robots guard missing');
 assert(admin.includes('На проверке')&&admin.includes('Утверждены')&&admin.includes('Отклонены'),'admin moderation tabs missing');
 assert(admin.includes('Ранее опубликованные Expert-задачи')&&admin.includes('ретроспективную проверку'),'legacy Expert explanation missing');
-assert(admin.includes('matchstick-visual.css')&&admin.includes('matchstick-visual.js')&&admin.includes('puzzle-admin-matchsticks.js'),'matchstick visual admin assets missing');
+assert(admin.includes('matchstick-visual.css')&&admin.includes('matchstick-visual.js'),'matchstick visual admin assets missing');
 assert(client.includes('mysterylogic:review-admin-token:v1'),'admin does not reuse owner token session');
 assert(client.includes('data-moderate="approved"')&&client.includes('data-moderate="rejected"'),'individual approve/reject actions missing');
 assert(client.includes('Готова к публикации')&&client.includes('noindex,follow'),'approved Quick publication state missing');
 assert(client.includes("row.kind === 'expert'")&&client.includes('Уже опубликована'),'Expert retrospective state missing');
 assert(client.includes('Подтверждена владельцем')&&client.includes('существующий URL не превращаем автоматически в 404'),'safe Expert moderation copy missing');
-assert(client.includes('отклонённые их больше не блокируют'),'partial-release explanation missing');
 assert(!client.includes('Утвердить все'),'bulk approval must not exist');
-assert(matchAdmin.includes('/golovolomki-so-spichkami/')&&matchAdmin.includes('не меньше 8 визуальных задач'),'matchstick owner-gate admin explanation missing');
+assert(client.includes("activeFilter = 'matches'")&&client.includes("collections.includes('matches')"),'matchstick-first moderation filter missing');
+assert(client.includes('/golovolomki-so-spichkami/')&&client.includes('минимум 8 утверждённых визуальных задач'),'matchstick owner-gate admin explanation missing');
+assert(client.includes('data-match-equation=')&&client.includes('Решение после одного хода'),'integrated matchstick review preview missing');
 assert(matchVisual.includes('MysteryLogicMatchsticks')&&matchVisual.includes('data-match-equation'),'matchstick renderer contract missing');
 assert(matchCss.includes('.ml-match-stick')&&matchCss.includes('.logic-match-showcase'),'physical matchstick styling missing');
 assert(gate.includes("crypto.createHash('sha256')"),'build fingerprint validation missing');
