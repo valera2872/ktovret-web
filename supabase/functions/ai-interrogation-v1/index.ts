@@ -19,6 +19,7 @@ const DEMO_SESSION_LIMIT=30;
 const DEMO_VISITOR_DAILY_LIMIT=60;
 const DEMO_NETWORK_DAILY_LIMIT=240;
 const DEMO_DAILY_BUDGET_USD=0.50;
+const MARINA_MIN_CONFESSION_QUESTIONS=5;
 const INITIAL_EVIDENCE=new Set(["E01","E02","E03"]);
 const DEFAULT_RESISTANCE:ResistanceLevel="medium";
 const RESISTANCE_LEVELS=new Set<ResistanceLevel>(["easy","medium","hard"]);
@@ -114,7 +115,8 @@ function isFinalConfrontation(q:string){
     isWindowReference(q),
     hasAny(q,["орлов","лев","оба","другие","исключен","исключён","алиби подтвержден","алиби подтверждён"])
   ].filter(Boolean).length;
-  return dimensions>=4&&isAccusation(q);
+  const accusation=isAccusation(q);
+  return dimensions>=4&&accusation;
 }
 
 function marinaPressureScore(activeNotes:Set<string>,discoveredEvidence:Set<string>){
@@ -127,8 +129,8 @@ function marinaPressureScore(activeNotes:Set<string>,discoveredEvidence:Set<stri
   return score;
 }
 
-function marinaConfessionReady(activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts,resistance:ResistanceLevel){
-  if(resistance==="hard")return qc.marina>=5&&hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
+function marinaConfessionReady(activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts,resistance:ResistanceLevel="hard"){
+  if(resistance==="hard")return qc.marina>=MARINA_MIN_CONFESSION_QUESTIONS&&hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
   const score=marinaPressureScore(activeNotes,discoveredEvidence);
   if(resistance==="easy")return qc.marina>=3&&score>=3;
   return qc.marina>=4&&score>=5;
@@ -188,7 +190,9 @@ function unlock(suspect:string,q:string,evidenceId:string,discoveredNotes:Set<st
     if(windowEstablished&&!discoveredNotes.has("N-MARINA-WINDOW"))notes.push({id:"N-MARINA-WINDOW",source:"Марина · уточнение",text:"Марина признаёт, что заранее спрашивала Антона о точном времени перезапуска камеры; объясняет это рабочей необходимостью."});
 
     const activeNotes=new Set([...discoveredNotes,...notes.map(n=>n.id)]);
-    if(!activeNotes.has("N-MARINA-CONFESSION")&&marinaConfessionReady(activeNotes,discoveredEvidence,qc,resistance)&&confrontationReady(q,resistance)){
+    const hardClimax=resistance==="hard"&&marinaConfessionReady(activeNotes,discoveredEvidence,qc)&&isFinalConfrontation(q);
+    const adaptiveClimax=resistance!=="hard"&&marinaConfessionReady(activeNotes,discoveredEvidence,qc,resistance)&&confrontationReady(q,resistance);
+    if(!activeNotes.has("N-MARINA-CONFESSION")&&(hardClimax||adaptiveClimax)){
       const text=resistance==="hard"
         ?"После того как следователь свёл воедино ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных, Марина признаётся: в окно отключения камеры она вошла в фонд и взяла письмо."
         :"После накопленного давления и прямого обвинения Марина больше не может удерживать прежнюю версию и признаётся: в окно отключения камеры она вошла в фонд и взяла письмо.";
