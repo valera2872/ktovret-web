@@ -26,6 +26,9 @@ assert.match(adminPreview,/detektivnaya-igra-s-ii\/\?live=1&admin_preview=1/,'ad
 assert.match(adminPreview,/<iframe[^>]+data-preview-frame/,'owner Live preview must stay isolated inside the admin shell');
 assert.match(adminPreview,/ai01-preview-open/,'desktop owner preview must switch into a single-screen focus mode');
 assert.match(adminPreview,/is-live-ready/,'successful readiness must collapse diagnostics so the game gets the viewport');
+assert.match(adminPreview,/\.ai01-preview-frame\{display:block;width:100%;height:auto;min-height:0;align-self:stretch/,'preview iframe must stretch with its grid track instead of resolving a cyclic 100% height to the native 150px iframe size');
+assert.match(adminPreview,/grid-template-rows:auto auto auto minmax\(0,1fr\) auto/,'unready preview grid must explicitly account for toolbar, status, diagnostics, iframe and error rows');
+assert.match(adminPreview,/\.ai01-preview-app\.is-live-ready\{grid-template-rows:auto minmax\(0,1fr\) auto\}/,'ready preview grid must reserve the remaining viewport for the iframe');
 assert.match(bootstrap,/const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1'/,'AI-01 bootstrap must know the admin-preview capability key');
 assert.match(bootstrap,/adminPreviewRequested=isAi01&&params\.get\('live'\)==='1'&&params\.get\('admin_preview'\)==='1'/,'public ?live=1 alone must not enable Live');
 assert.match(bootstrap,/adminPreviewSession=sessionStorage\.getItem\(AI01_ADMIN_PREVIEW\)==='1'/,'Live must require the tab-scoped admin-preview capability');
@@ -60,8 +63,9 @@ assert.match(adapter,/const factoryUrl=.*ai-liveavatar-factory\.js.*SCRIPT_VERSI
 assert.match(adapter,/await import\(factoryUrl\)/,'dynamic factory import must use the versioned URL');
 assert.doesNotMatch(adapter,/await import\(`\$\{SCRIPT_BASE\}ai-liveavatar-factory\.js`\)/,'unversioned factory imports must not survive');
 assert.match(adapter,/isWorkspaceActive/,'avatar credits must only be used while the interrogation workspace is active');
-assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\)\{\s*await this\.provider\.disconnect/s,'leaving interrogation must disconnect and invalidate the realtime session');
-assert.match(adapter,/async syncAvailability\(\).*await this\.ensureConnected\(\);return !!this\.provider\.connected/s,'entering the Live interrogation workspace must start the video session before the first answer');
+assert.match(adapter,/this\.setLiveLayout\(this\.canUseLive\(\)&&this\.isWorkspaceActive\(\)\)/,'Live dashboard mode must not alter the intro screen before interrogation begins');
+assert.match(adapter,/if\(!this\.isWorkspaceActive\(\)\)\{\s*this\.setLiveLayout\(false\);await this\.provider\.disconnect/s,'leaving interrogation must remove Live layout and disconnect the realtime session');
+assert.match(adapter,/async syncAvailability\(\).*this\.setLiveLayout\(true\);await this\.ensureConnected\(\);return !!this\.provider\.connected/s,'entering the Live interrogation workspace must activate the dashboard and start video before the first answer');
 assert.doesNotMatch(adapter,/scheduleDisconnect|idleDisconnectMs|prewarmIfAnswering/,'active Live interrogation must not intentionally tear down the renderer between replies');
 assert.match(adapter,/setLiveLayout\(active\)/,'Live layout state must be explicit rather than injected as ad-hoc CSS from JavaScript');
 assert.match(adapter,/classList\.toggle\("aid-live-mode"/,'Live layout must be scoped to entitled Live pages only');
