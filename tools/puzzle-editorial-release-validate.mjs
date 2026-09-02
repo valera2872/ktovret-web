@@ -15,7 +15,7 @@ const sitemap=read('sitemap.xml');
 const home=read('index.html');
 const ready=report.logicAudienceEditorialReady===true;
 
-assert(report.logicAudienceEditorialTotal===33,'editorial total must stay 33 for release v1');
+assert(report.logicAudienceEditorialTotal===37,'editorial total must stay 37 for release v2');
 assert(Array.isArray(report.logicAudienceEditorialMismatched),'mismatched list missing');
 assert(Array.isArray(report.logicAudienceEditorialMissing),'missing list missing');
 assert(home.includes('data-logic-home-launch'),'homepage logic launch marker missing');
@@ -29,6 +29,7 @@ const collections={
   brain:{route:'igry-dlya-mozga',count:Number(report.logicAudienceBrain||0),min:8},
   detective:{route:'detektivnye-golovolomki',count:Number(report.logicAudienceDetective||0),min:4},
   math:{route:'matematicheskie-golovolomki',count:Number(report.logicAudienceMath||0),min:5},
+  matches:{route:'golovolomki-so-spichkami',count:Number(report.logicAudienceMatches||0),min:8},
 };
 const expectedPublished=Object.values(collections).filter(item=>item.count>=item.min);
 
@@ -37,7 +38,6 @@ if(ready){
   assert(Number(report.logicAudiencePuzzles||0)>0,'ready release must expose approved quick puzzles');
   assert(report.logicAudiencePages===expectedPublished.length,'indexable collection route count mismatch');
   assert(report.logicAudienceCollections===expectedPublished.length,'collection count mismatch');
-  assert(report.logicAudienceMatches===0,'matchstick puzzles must stay outside current public release');
   assert(report.indexableUrls===49+expectedPublished.length,'final sitemap count must equal baseline plus strong collections');
   assert(countDirs('golovolomki')===report.logicAudiencePuzzles,'approved quick task directory count mismatch');
   for(const [kind,item] of Object.entries(collections)){
@@ -45,13 +45,16 @@ if(ready){
     if(shouldPublish){
       assert(exists(`${item.route}/index.html`),`published collection missing: ${kind}`);
       assert(sitemap.includes(`<loc>https://mysterylogic.com/${item.route}/</loc>`),`sitemap missing collection: ${kind}`);
+      if(kind==='matches'){
+        const html=read(`${item.route}/index.html`);
+        assert(html.includes('<h1>Головоломки со спичками онлайн</h1>'),'matchstick H1 missing');
+        assert(html.includes('data-match-equation=')&&html.includes('matchstick-visual.css')&&html.includes('matchstick-visual.js'),'matchstick visual contract missing');
+      }
     }else{
       assert(!exists(`${item.route}/index.html`),`thin collection leaked: ${kind}`);
       assert(!sitemap.includes(`<loc>https://mysterylogic.com/${item.route}/</loc>`),`thin collection leaked to sitemap: ${kind}`);
     }
   }
-  assert(!exists('golovolomki-so-spichkami/index.html'),'matchstick collection must not publish');
-  assert(!sitemap.includes('<loc>https://mysterylogic.com/golovolomki-so-spichkami/</loc>'),'matchstick collection leaked to sitemap');
   assert(!sitemap.includes('https://mysterylogic.com/golovolomki/'),'quick task URLs must not enter sitemap');
   for(const entry of fs.readdirSync(path.join(root,'golovolomki'),{withFileTypes:true})){
     if(!entry.isDirectory())continue;
@@ -70,7 +73,6 @@ if(ready){
     assert(!exists(item.route),`locked release must not contain collection: ${item.route}`);
     assert(!sitemap.includes(`<loc>https://mysterylogic.com/${item.route}/</loc>`),`locked sitemap leaked collection: ${item.route}`);
   }
-  assert(!exists('golovolomki-so-spichkami'),'locked release must not contain matchstick collection');
   assert(!sitemap.includes('https://mysterylogic.com/golovolomki/'),'locked sitemap leaked quick puzzles');
-  console.log(`Puzzle editorial release LOCKED: ${report.logicAudienceEditorialExactApproved||0}/33 exact approvals; no publishable approved subset.`);
+  console.log(`Puzzle editorial release LOCKED: ${report.logicAudienceEditorialExactApproved||0}/37 exact approvals; no publishable approved subset.`);
 }

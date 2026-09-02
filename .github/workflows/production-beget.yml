@@ -124,7 +124,7 @@ jobs:
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
           grep -q '"soloMaterials": 18' assets/generated/import-report.json
-          grep -q '"logicAudienceEditorialTotal": 33' assets/generated/import-report.json
+          grep -q '"logicAudienceEditorialTotal": 37' assets/generated/import-report.json
           node tools/puzzle-editorial-release-validate.mjs --site .
 
           grep -q 'storefront-reference-v41.css' index.html
