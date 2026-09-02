@@ -8,11 +8,11 @@ const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const avatarStyle=fs.readFileSync('assets/ai-detective-avatar-stage.css','utf8');
 
-assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=0\.0\.2/,'AI-01 owner bootstrap must use the current cache key');
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.4/,'avatar provider bridge must use the current cache key');
+assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=0\.0\.3/,'AI-01 owner bootstrap must use the current cache key');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5/,'avatar provider bridge must use the current cache key');
 assert.ok(html.indexOf('ai-avatar-auth-bootstrap.js')<html.indexOf('ai-avatar-provider.js'),'valid public auth must exist before AvatarBridge is constructed');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
-assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.3/,'Live dashboard layout must use a fresh cache key');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'Live dashboard layout must use a fresh cache key');
 assert.match(html,/<video[^>]+data-avatar-video[^>]+disablepictureinpicture[^>]+disableremoteplayback/,'LiveAvatar video must opt out of browser pop-out playback');
 assert.match(avatarStyle,/\.aid-interrogation\{grid-template-rows:auto auto auto minmax\(0,1fr\) auto\}/,'base interrogation grid must reserve an inline avatar row without changing text mode');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto minmax\(180px,38%\) minmax\(84px,1fr\) auto/,'desktop Live mode must fit suspect tabs, avatar, transcript and composer inside a short iframe viewport');
