@@ -17,7 +17,7 @@ assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not 
 assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
 assert.match(html,/0 \/ 30 вопросов/,'demo must give the player enough room to investigate naturally');
 assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.6/,'avatar-ready client must have a fresh cache key');
-assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.3/,'avatar shell needs an isolated presentation layer');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'avatar shell needs an isolated presentation layer');
 assert.match(html,/data-avatar-stage[^>]*hidden/,'realtime avatar shell must stay dark until a provider stream is connected');
 assert.match(html,/data-avatar-video/,'avatar shell needs a real video target rather than a fake chat decoration');
 assert.match(html,/data-case-progress hidden/,'earned confession needs an explicit next-step transition');
