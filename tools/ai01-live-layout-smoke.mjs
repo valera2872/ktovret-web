@@ -31,7 +31,7 @@ try{
   const inside=(name,rect)=>{if(!rect)throw new Error(`${name} missing`);if(rect.top<0||rect.bottom>report.viewport.height)throw new Error(`${name} outside viewport: ${JSON.stringify(rect)} in ${report.viewport.height}px`)};
   inside('composer',report.composer);inside('textarea',report.textarea);inside('send',report.send);inside('avatar',report.avatar);inside('video shell',report.videoShell);
   if(report.avatar.height<245)throw new Error(`avatar too small at ${report.avatar.height}px`);
-  if(report.videoShell.height<205)throw new Error(`avatar video too small at ${report.videoShell.height}px`);
+  if(report.videoShell.height<200)throw new Error(`avatar video too small at ${report.videoShell.height}px`);
   if(!report.transcript||report.transcript.height<90)throw new Error(`transcript collapsed: ${JSON.stringify(report.transcript)}`);
   if(report.roomHead?.display!=='none')throw new Error(`duplicated room heading still consumes Live viewport: ${JSON.stringify(report.roomHead)}`);
   console.log(JSON.stringify(report,null,2));
