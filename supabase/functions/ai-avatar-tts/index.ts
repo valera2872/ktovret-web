@@ -9,6 +9,7 @@ const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const SIGNING_SECRET=Deno.env.get("AI_AVATAR_SIGNING_KEY")||SERVICE_ROLE_KEY;
 const AVATAR_ENABLED=(Deno.env.get("AI_AVATAR_ENABLED")||"").toLowerCase()==="true";
 const TTS_MODEL=Deno.env.get("AI_AVATAR_TTS_MODEL")||"gpt-4o-mini-tts";
+const OWNER_PREVIEW_TTS_MODEL=Deno.env.get("AI_AVATAR_OWNER_PREVIEW_TTS_MODEL")||"tts-1";
 const CASE_BUDGET_MS=Math.max(300000,Math.min(1800000,Number(Deno.env.get("AI_AVATAR_CASE_BUDGET_MS")||"900000")||900000));
 const BILLING_OVERHEAD_MS=Math.max(1000,Math.min(10000,Number(Deno.env.get("AI_AVATAR_BILLING_OVERHEAD_MS")||"5000")||5000));
 const PCM_BYTES_PER_SECOND=24000*2;
@@ -21,7 +22,7 @@ function corsHeaders(origin:string,contentType="application/json; charset=utf-8"
   "access-control-allow-origin":origin||"https://mysterylogic.com",
   "access-control-allow-headers":"authorization, x-client-info, apikey, content-type",
   "access-control-allow-methods":"POST, OPTIONS",
-  "access-control-expose-headers":"x-audio-format, x-audio-sample-rate, x-avatar-charge-ms, x-avatar-budget-remaining-ms",
+  "access-control-expose-headers":"x-audio-format, x-audio-sample-rate, x-avatar-charge-ms, x-avatar-budget-remaining-ms, x-avatar-tts-model, x-avatar-tts-voice",
   "vary":"Origin",
   "content-type":contentType,
   "cache-control":"no-store"
@@ -44,6 +45,10 @@ function deliveryInstruction(base:string,stage:string){
   const identity=clean(base,1600)||"Естественный русский голос взрослого человека на серьёзном допросе. Без дикторской подачи и театральности.";
   const pressure=stage==="defensive"?" В голосе появляется защитная настороженность.":stage==="cornered"?" Напряжение заметно, ответы короче, но речь остаётся реалистичной.":stage==="breaking"?" Контроль начинает давать сбой: небольшие паузы, напряжение и усталость, без мелодрамы.":stage==="confessed"?" После сопротивления голос тише и тяжелее; признание произнеси прямо, без пафоса.":" Держись уверенно и спокойно.";
   return identity+pressure;
+}
+function ownerPreviewVoice(suspectId:string,profileVoice:string){
+  if(suspectId==="marina")return "nova";
+  return profileVoice;
 }
 
 Deno.serve(async(req:Request)=>{
@@ -76,16 +81,20 @@ Deno.serve(async(req:Request)=>{
   catch(error){console.error("avatar_tts_profile_error",String(error));return json(origin,503,{error:"avatar_profile_unavailable"})}
   if(!profile?.ttsVoice)return json(origin,404,{error:"suspect_voice_unavailable"});
 
-  const payload:Record<string,unknown>={model:TTS_MODEL,input:text,voice:profile.ttsVoice,response_format:"pcm",speed:1};
-  if(TTS_MODEL==="gpt-4o-mini-tts"||TTS_MODEL.startsWith("gpt-4o-mini-tts-"))payload.instructions=deliveryInstruction(profile.ttsInstructions,stage);
+  const model=isOwnerPreview?OWNER_PREVIEW_TTS_MODEL:TTS_MODEL;
+  const voice=isOwnerPreview?ownerPreviewVoice(suspectId,profile.ttsVoice):profile.ttsVoice;
+  const payload:Record<string,unknown>={model,input:text,voice,response_format:"pcm",speed:1};
+  if(model==="gpt-4o-mini-tts"||model.startsWith("gpt-4o-mini-tts-"))payload.instructions=deliveryInstruction(profile.ttsInstructions,stage);
+  const upstreamStarted=Date.now();
   const upstream=await fetch("https://api.openai.com/v1/audio/speech",{
     method:"POST",
     headers:{"authorization":`Bearer ${OPENAI_API_KEY}`,"content-type":"application/json"},
     body:JSON.stringify(payload)
   });
+  const upstreamMs=Date.now()-upstreamStarted;
   if(!upstream.ok){
     let message="";try{const data=await upstream.json();message=clean(data?.error?.message||"",240)}catch{}
-    console.error("avatar_tts_upstream_error",upstream.status,message);
+    console.error("avatar_tts_upstream_error",upstream.status,model,voice,upstreamMs,message);
     return json(origin,502,{error:"avatar_tts_upstream_error"});
   }
   const pcm=await upstream.arrayBuffer();
@@ -115,10 +124,13 @@ Deno.serve(async(req:Request)=>{
     });
   }
 
+  console.log("avatar_tts_ok",speechClaim.cid,suspectId,model,voice,upstreamMs,speechMs);
   const headers=corsHeaders(origin,"application/octet-stream");
   headers["x-audio-format"]="pcm_s16le_mono";
   headers["x-audio-sample-rate"]="24000";
   headers["x-avatar-charge-ms"]=String(chargeMs);
   headers["x-avatar-budget-remaining-ms"]=String(Math.max(0,Number(budget?.remaining_ms||0)));
+  headers["x-avatar-tts-model"]=model;
+  headers["x-avatar-tts-voice"]=voice;
   return new Response(pcm,{status:200,headers});
 });
