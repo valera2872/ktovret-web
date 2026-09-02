@@ -5,6 +5,7 @@ type Note={id:string;source:string;text:string};
 type Counts={marina:number;anton:number;lev:number};
 type AiUsage={inputTokens:number;cachedInputTokens:number;outputTokens:number;costUsd:number};
 type InterrogationStage="composed"|"defensive"|"cornered"|"breaking"|"confessed";
+type ResistanceLevel="easy"|"medium"|"hard";
 
 const ALLOWED_ORIGINS=new Set(["https://mysterylogic.com","https://valera2872.github.io"]);
 const MODEL=Deno.env.get("AI_DETECTIVE_MODEL")||"gpt-5.6-luna";
@@ -18,8 +19,9 @@ const DEMO_SESSION_LIMIT=30;
 const DEMO_VISITOR_DAILY_LIMIT=60;
 const DEMO_NETWORK_DAILY_LIMIT=240;
 const DEMO_DAILY_BUDGET_USD=0.50;
-const MARINA_MIN_CONFESSION_QUESTIONS=5;
 const INITIAL_EVIDENCE=new Set(["E01","E02","E03"]);
+const DEFAULT_RESISTANCE:ResistanceLevel="medium";
+const RESISTANCE_LEVELS=new Set<ResistanceLevel>(["easy","medium","hard"]);
 
 const publicEvidence:Record<string,string>={
   E01:"Последняя фотофиксация: в 21:24:36 письмо №12/1912 находится в папке C-12; в 21:36:08 при передаче фонда папка уже пуста.",
@@ -67,6 +69,7 @@ function validSession(v:string){return /^[a-zA-Z0-9-]{8,96}$/.test(v)}
 function ids(v:unknown,max=32){return new Set(Array.isArray(v)?v.map(x=>clean(x,48)).filter(Boolean).slice(0,max):[])}
 function counts(v:any):Counts{return {marina:Math.max(0,Math.min(20,Number(v?.marina)||0)),anton:Math.max(0,Math.min(20,Number(v?.anton)||0)),lev:Math.max(0,Math.min(20,Number(v?.lev)||0))}}
 function hasAll(set:Set<string>,required:string[]){return required.every(id=>set.has(id))}
+function resistanceLevel(v:unknown):ResistanceLevel{const value=clean(v,16) as ResistanceLevel;return RESISTANCE_LEVELS.has(value)?value:DEFAULT_RESISTANCE}
 function corsHeaders(origin:string){return {"access-control-allow-origin":origin||"https://mysterylogic.com","access-control-allow-headers":"authorization, x-client-info, apikey, content-type","access-control-allow-methods":"POST, OPTIONS","vary":"Origin","content-type":"application/json; charset=utf-8","cache-control":"no-store"}}
 async function sha256(value:string){const bytes=new TextEncoder().encode(value);const digest=await crypto.subtle.digest("SHA-256",bytes);return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 function requestIp(req:Request){const forwarded=clean(req.headers.get("x-forwarded-for")||"",180).split(",")[0]?.trim();return forwarded||clean(req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||"",180)}
@@ -90,6 +93,7 @@ function isLocationReference(q:string){return hasAny(q,["телефон","wi-fi"
 function isWindowReference(q:string){return hasAny(q,["камера","перезапуск","окно","18:20","антон","руденко"])}
 function isAntonAlibiReference(q:string){return hasAny(q,["антон","руденко"])&&hasAny(q,["алиби","комната контроля","консоль","21:28","21:35","исключ"])}
 function isLevAlibiReference(q:string){return hasAny(q,["орлов","лев"])&&hasAny(q,["алиби","вышел","выход","проездной","21:23","21:27","исключ"])}
+function isAccusation(q:string){return hasAny(q,["вы взяли","вы брали","взяли письмо","брали письмо","вы украли","вы похитили","это сделали вы","это были вы","признай","признайтесь","признаете","признаётесь","признаетесь","винов","письмо взяли","письмо украли","похитили письмо"])}
 
 function referencedKnownEvidence(q:string,discoveredEvidence:Set<string>){
   const out:string[]=[];
@@ -110,35 +114,56 @@ function isFinalConfrontation(q:string){
     isWindowReference(q),
     hasAny(q,["орлов","лев","оба","другие","исключен","исключён","алиби подтвержден","алиби подтверждён"])
   ].filter(Boolean).length;
-  const accusation=hasAny(q,["вы взяли","вы украли","вы похитили","это сделали вы","признай","признаете","признаётесь","признаетесь","винов","письмо взяли","письмо украли","похитили письмо"]);
-  return dimensions>=4&&accusation;
+  return dimensions>=4&&isAccusation(q);
 }
 
-function marinaConfessionReady(_discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts){
-  // Normal path: enough Marina pressure plus all player-visible evidence.
-  return qc.marina>=MARINA_MIN_CONFESSION_QUESTIONS&&
-    hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
+function marinaPressureScore(activeNotes:Set<string>,discoveredEvidence:Set<string>){
+  let score=0;
+  if(activeNotes.has("N-MARINA-ACCESS"))score+=2;
+  if(activeNotes.has("N-MARINA-LOCATION"))score+=2;
+  if(activeNotes.has("N-MARINA-WINDOW"))score+=1;
+  if(discoveredEvidence.has("E06"))score+=1;
+  if(discoveredEvidence.has("E07"))score+=1;
+  return score;
 }
 
-function legacyDeepConfessionReady(suspect:string,q:string,history:HistoryItem[],serverTurnsBefore:number){
-  // Compatibility path for long-running sessions created by older clients whose browser evidence Set can be stale.
-  // The server-authoritative session depth prevents a cheap first-pressure confession, while the current accusation
-  // must still synthesize all four canonical lines. Four prior Marina questions + the current one preserves the 5-turn floor.
+function marinaConfessionReady(activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts,resistance:ResistanceLevel){
+  if(resistance==="hard")return qc.marina>=5&&hasAll(discoveredEvidence,["E04","E05","E06","E07"]);
+  const score=marinaPressureScore(activeNotes,discoveredEvidence);
+  if(resistance==="easy")return qc.marina>=3&&score>=3;
+  return qc.marina>=4&&score>=5;
+}
+
+function confrontationReady(q:string,resistance:ResistanceLevel){return resistance==="hard"?isFinalConfrontation(q):isAccusation(q)}
+
+function legacyDeepConfessionReady(suspect:string,q:string,history:HistoryItem[],serverTurnsBefore:number,resistance:ResistanceLevel){
+  if(resistance!=="hard")return false;
   if(suspect!=="marina"||serverTurnsBefore<12||!isFinalConfrontation(q))return false;
   return history.filter(h=>h.role==="user").length>=4;
 }
 
-function interrogationStage(suspect:string,activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts):InterrogationStage{
+function interrogationStage(suspect:string,activeNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts,resistance:ResistanceLevel):InterrogationStage{
   if(suspect!=="marina")return "composed";
   if(activeNotes.has("N-MARINA-CONFESSION"))return "confessed";
-  if(marinaConfessionReady(activeNotes,discoveredEvidence,qc))return "breaking";
+  if(marinaConfessionReady(activeNotes,discoveredEvidence,qc,resistance))return "breaking";
+  const score=marinaPressureScore(activeNotes,discoveredEvidence);
+  if(resistance==="easy"){
+    if(score>=2)return "cornered";
+    if(score>=1)return "defensive";
+    return "composed";
+  }
+  if(resistance==="medium"){
+    if(score>=3)return "cornered";
+    if(score>=1)return "defensive";
+    return "composed";
+  }
   const losses=["N-MARINA-LOCATION","N-MARINA-ACCESS","N-MARINA-WINDOW"].filter(id=>activeNotes.has(id)).length;
   if(losses>=2)return "cornered";
   if(losses>=1)return "defensive";
   return "composed";
 }
 
-function unlock(suspect:string,q:string,evidenceId:string,discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts){
+function unlock(suspect:string,q:string,evidenceId:string,discoveredNotes:Set<string>,discoveredEvidence:Set<string>,qc:Counts,resistance:ResistanceLevel){
   const notes:Note[]=[];const unlockedEvidence:string[]=[];
   if(suspect==="anton"){
     if(hasAny(q,["e-14","е-14","карта","код доступа","учётн","учетн","реестр","чья карта","чей код","кто открывал"]))unlockedEvidence.push("E04");
@@ -163,19 +188,25 @@ function unlock(suspect:string,q:string,evidenceId:string,discoveredNotes:Set<st
     if(windowEstablished&&!discoveredNotes.has("N-MARINA-WINDOW"))notes.push({id:"N-MARINA-WINDOW",source:"Марина · уточнение",text:"Марина признаёт, что заранее спрашивала Антона о точном времени перезапуска камеры; объясняет это рабочей необходимостью."});
 
     const activeNotes=new Set([...discoveredNotes,...notes.map(n=>n.id)]);
-    if(!activeNotes.has("N-MARINA-CONFESSION")&&marinaConfessionReady(activeNotes,discoveredEvidence,qc)&&isFinalConfrontation(q))notes.push({id:"N-MARINA-CONFESSION",source:"Марина · признание",text:"После того как следователь свёл воедино ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных, Марина признаётся: в окно отключения камеры она вошла в фонд и взяла письмо."});
+    if(!activeNotes.has("N-MARINA-CONFESSION")&&marinaConfessionReady(activeNotes,discoveredEvidence,qc,resistance)&&confrontationReady(q,resistance)){
+      const text=resistance==="hard"
+        ?"После того как следователь свёл воедино ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных, Марина признаётся: в окно отключения камеры она вошла в фонд и взяла письмо."
+        :"После накопленного давления и прямого обвинения Марина больше не может удерживать прежнюю версию и признаётся: в окно отключения камеры она вошла в фонд и взяла письмо.";
+      notes.push({id:"N-MARINA-CONFESSION",source:"Марина · признание",text});
+    }
   }
   return {notes,unlockedEvidenceIds:[...new Set(unlockedEvidence)]};
 }
 
-function speakingBrief(suspect:string,q:string,evidenceId:string,notes:Note[],unlockedEvidenceIds:string[],discoveredNotes:Set<string>,discoveredEvidence:Set<string>,stage:InterrogationStage,confessionThisTurn:boolean){
+function speakingBrief(suspect:string,q:string,evidenceId:string,notes:Note[],unlockedEvidenceIds:string[],discoveredNotes:Set<string>,discoveredEvidence:Set<string>,stage:InterrogationStage,confessionThisTurn:boolean,resistance:ResistanceLevel){
   const base=suspectBase[suspect];
   const facts=[`Ты — ${base.name}, ${base.role}.`,`Манера поведения: ${base.persona}`,...base.facts,"Не называй виновного, не рассуждай как ведущий игры и не добавляй новые конкретные времена, места, людей, предметы, документы или события, которых нет в этом brief.","На обычные человеческие вопросы можно отвечать естественно, но безопасно обобщённо: не придумывай биографические факты, адреса, даты, родственников, встречи или события.","Если вопрос не относится к тому, что ты знаешь, прямо скажи, что не знаешь или не помнишь. Не перенаправляй игрока шаблонной фразой и не перечисляй темы, которые ему следует спросить."];
   const activeNotes=new Set([...discoveredNotes,...notes.map(n=>n.id)]);
   if(suspect==="marina"){
-    facts.push(`Текущая стадия давления: ${stage}.`);
+    facts.push(`Текущая стадия давления: ${stage}. Режим сопротивления: ${resistance}.`);
     for(const [id,text] of Object.entries(marinaAdmissions))if(activeNotes.has(id))facts.push(`НЕОБРАТИМО ЗАФИКСИРОВАНО: ${text}`);
-    if(confessionThisTurn)facts.push("КУЛЬМИНАЦИЯ ДОПРОСА: доказательная цепочка уже собрана и следователь свёл её в одном обвинительном вопросе. В этом ответе ты должна сломаться и недвусмысленно от первого лица признать, что именно ты взяла письмо. Не начинай с нового отрицания и не перекладывай действие на неизвестного человека.");
+    if(confessionThisTurn)facts.push("КУЛЬМИНАЦИЯ ДОПРОСА: для выбранного уровня сопротивления доказательная цепочка уже достаточна, и следователь прямо обвиняет тебя. В этом ответе ты должна сломаться и недвусмысленно от первого лица признать, что именно ты взяла письмо. Не начинай с нового отрицания и не перекладывай действие на неизвестного человека.");
+    else if(stage==="breaking")facts.push("Ты уже почти сломалась. Не отвечай прежним спокойным шаблоном «это ничего не доказывает»: речь становится короче, заметна потеря уверенности, ты признаёшь, что больше не можешь дать непротиворечивое объяснение совокупности фактов. Само похищение пока не признавай без прямого обвинения следователя.");
     else if(stage!=="confessed")facts.push("На этом ходу ты ещё НЕ признаёшься в похищении письма. Ты можешь сопротивляться и отрицать саму кражу, но не можешь отменять уже зафиксированные признания и установленные факты.");
   }
 
@@ -191,8 +222,8 @@ function speakingBrief(suspect:string,q:string,evidenceId:string,notes:Note[],un
 
 function containsConfession(text:string){return hasAny(text,["я взяла письмо","письмо взяла я","я украла письмо","я похитила письмо"])}
 
-async function aiReply(suspect:string,q:string,evidenceId:string,history:HistoryItem[],notes:Note[],unlockedEvidenceIds:string[],discoveredNotes:Set<string>,discoveredEvidence:Set<string>,stage:InterrogationStage,confessionThisTurn:boolean):Promise<{text:string;usage:AiUsage}>{
-  const brief=speakingBrief(suspect,q,evidenceId,notes,unlockedEvidenceIds,discoveredNotes,discoveredEvidence,stage,confessionThisTurn);
+async function aiReply(suspect:string,q:string,evidenceId:string,history:HistoryItem[],notes:Note[],unlockedEvidenceIds:string[],discoveredNotes:Set<string>,discoveredEvidence:Set<string>,stage:InterrogationStage,confessionThisTurn:boolean,resistance:ResistanceLevel):Promise<{text:string;usage:AiUsage}>{
+  const brief=speakingBrief(suspect,q,evidenceId,notes,unlockedEvidenceIds,discoveredNotes,discoveredEvidence,stage,confessionThisTurn,resistance);
   const instructions=`Ты играешь живого свидетеля на допросе в детективной игре Mystery Logic. Это ролевая беседа, а не справочник и не помощник игрока.\
 \
 Правила:\
@@ -233,17 +264,22 @@ ${transcript}\
   return {text,usage:{inputTokens,cachedInputTokens,outputTokens,costUsd}};
 }
 
-function checkTheory(suspect:string,reason:string,discoveredNotes:Set<string>,discoveredEvidence:Set<string>){
+function checkTheory(suspect:string,reason:string,discoveredNotes:Set<string>,discoveredEvidence:Set<string>,resistance:ResistanceLevel){
   const normalized=reason.toLowerCase();
   if(suspect!=="marina")return {correct:false,title:"Эта версия пока не закрывает дело",explanation:"Проверьте, есть ли у выбранного человека подтверждённая связь с входом в фонд в 21:31, опровергнутое алиби и возможность действовать в нужное временное окно."};
   const requiredEvidence=["E04","E05","E06","E07"];
   const missingEvidence=requiredEvidence.filter(id=>!discoveredEvidence.has(id));
   const confessed=discoveredNotes.has("N-MARINA-CONFESSION");
   if(missingEvidence.length&&!confessed)return {correct:false,title:"Подозреваемый выбран, но доказательная цепочка ещё не замкнута",explanation:"Для обвинения нужны независимые проверки доступа, местонахождения и алиби остальных. Вернитесь к допросам и добудьте недостающие материалы."};
-  if(!confessed)return {correct:false,title:"Марина зажата, но допрос ещё не завершён",explanation:"Вы уже собрали необходимую доказательную цепочку. Теперь сведите в одном обвинительном вопросе её ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных. Простого вопроса «это вы?» недостаточно."};
+  if(!confessed){
+    const explanation=resistance==="hard"
+      ?"Вы уже собрали необходимую доказательную цепочку. Теперь сведите в одном обвинительном вопросе её ложное алиби, персональный доступ, заранее известное окно камеры и подтверждённые алиби остальных. Простого вопроса «это вы?» недостаточно."
+      :"Доказательств уже достаточно для выбранного уровня сопротивления. Вернитесь к Марине и прямо предъявите ей вывод, что письмо взяла она. Повторять весь чек-лист доказательств в одном вопросе не требуется.";
+    return {correct:false,title:"Марина зажата, но допрос ещё не завершён",explanation};
+  }
   const dimensions=[hasAny(normalized,["e-14","е-14","карта","pin","пин","21:31","двер","доступ"]),hasAny(normalized,["телефон","wi-fi","wifi","вайф","сеть","archive-2","двор","21:34","внутри"]),hasAny(normalized,["камера","перезапуск","окно","18:20","знала время","спрашивала","антон"])].filter(Boolean).length;
   if(dimensions<3)return {correct:false,title:"Факты собраны, но в объяснении не хватает связки",explanation:"Опишите своими словами, как между собой связаны доступ в фонд, проверка местонахождения и знание временного окна. Простого выбора имени недостаточно."};
-  return {correct:true,title:"Версия выдерживает проверку",explanation:"Цепочка закрывается независимыми линиями: E-14 с персональным PIN открывает фонд в 21:31 и принадлежит Марине; её версия о дворике опровергнута сетевым логом; окно камеры она выяснила заранее; алиби Антона и Льва подтверждены. После финального предъявления этой совокупности Марина призналась.",reveal:"Ответственная — Марина Лебедева. Следователь не получил признание первым нажимом: сначала были независимо проверены доступ, местонахождение, знание окна камеры и алиби остальных. Только после того, как эти линии были сведены в одну непротиворечивую обвинительную конструкцию, Марина признала, что вошла в фонд и взяла письмо."};
+  return {correct:true,title:"Версия выдерживает проверку",explanation:"Цепочка закрывается независимыми линиями: E-14 с персональным PIN открывает фонд в 21:31 и принадлежит Марине; её версия о дворике опровергнута сетевым логом; окно камеры она выяснила заранее; алиби Антона и Льва подтверждены. После достаточного для выбранного уровня давления Марина призналась.",reveal:"Ответственная — Марина Лебедева. Следователь не получил признание первым нажимом: сначала были независимо проверены доступ, местонахождение, знание окна камеры и алиби остальных. После того как сопротивление Марины было сломано доказательствами, она признала, что вошла в фонд и взяла письмо."};
 }
 
 Deno.serve(async(req:Request)=>{
@@ -256,7 +292,8 @@ Deno.serve(async(req:Request)=>{
   let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}
   const session=clean(body.session_id,96);if(!validSession(session))return json({error:"invalid_session"},400);
   const action=clean(body.action,32);
-  if(action==="status")return json({ai_ready:Boolean(OPENAI_API_KEY),metering_ready:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY),model:MODEL,quota_profile:"demo",session_limit:DEMO_SESSION_LIMIT,visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT,network_daily_limit:DEMO_NETWORK_DAILY_LIMIT});
+  const resistance=resistanceLevel(body.resistance_level);
+  if(action==="status")return json({ai_ready:Boolean(OPENAI_API_KEY),metering_ready:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY),model:MODEL,quota_profile:"demo",session_limit:DEMO_SESSION_LIMIT,visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT,network_daily_limit:DEMO_NETWORK_DAILY_LIMIT,resistance_level:resistance,resistance_levels:["easy","medium","hard"]});
   const discoveredNotes=ids(body.discovered_note_ids);
   const discoveredEvidence=ids(body.discovered_evidence_ids);
   for(const id of INITIAL_EVIDENCE)discoveredEvidence.add(id);
@@ -264,7 +301,7 @@ Deno.serve(async(req:Request)=>{
   if(action==="check_theory"){
     const suspect=clean(body.suspect_id,24);const reason=clean(body.reason,900);
     if(!suspectBase[suspect]||reason.length<8)return json({error:"invalid_theory"},400);
-    return json(checkTheory(suspect,reason,discoveredNotes,discoveredEvidence));
+    return json({...checkTheory(suspect,reason,discoveredNotes,discoveredEvidence,resistance),resistance_level:resistance});
   }
   if(action!=="interrogate")return json({error:"unknown_action"},400);
   if(!OPENAI_API_KEY)return json({error:"ai_not_configured",message:"ИИ-диалог пока не подключён."},503);
@@ -274,7 +311,7 @@ Deno.serve(async(req:Request)=>{
   if(!suspectBase[suspect]||question.length<2)return json({error:"invalid_interrogation"},400);
   if(evidenceId&&(!publicEvidence[evidenceId]||(!INITIAL_EVIDENCE.has(evidenceId)&&!discoveredEvidence.has(evidenceId))))return json({error:"invalid_evidence_state"},400);
   const history:HistoryItem[]=Array.isArray(body.history)?body.history.slice(-10).map((h:any)=>({role:h?.role==="assistant"?"assistant":"user",text:clean(h?.text,500)})).filter((h:HistoryItem)=>h.text):[];
-  const unlocked=unlock(suspect,question,evidenceId,discoveredNotes,discoveredEvidence,qc);
+  const unlocked=unlock(suspect,question,evidenceId,discoveredNotes,discoveredEvidence,qc,resistance);
   const ip=requestIp(req);
   const visitorHash=await sha256(`visitor:${visitor}`);
   const networkHash=await sha256(`network:${ip||visitor}`);
@@ -284,17 +321,17 @@ Deno.serve(async(req:Request)=>{
     if(!claim?.ok)return json({error:claim?.code||"quota_denied",message:quotaMessage(claim?.code||""),quota:claim},429);
     claimId=clean(claim.claim_id,64);
     const serverTurnsBefore=Math.max(0,DEMO_SESSION_LIMIT-(Number(claim.session_remaining)||0)-1);
-    if(!unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION")&&legacyDeepConfessionReady(suspect,question,history,serverTurnsBefore)){
+    if(!unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION")&&legacyDeepConfessionReady(suspect,question,history,serverTurnsBefore,resistance)){
       unlocked.notes.push({id:"N-MARINA-CONFESSION",source:"Марина · признание",text:"После долгого допроса и финального сведения доступа, местонахождения, окна камеры и алиби остальных Марина признаётся: в окно отключения камеры она вошла в фонд и взяла письмо."});
     }
     const activeNotes=new Set([...discoveredNotes,...unlocked.notes.map(n=>n.id)]);
-    const stage=interrogationStage(suspect,activeNotes,discoveredEvidence,qc);
+    const stage=interrogationStage(suspect,activeNotes,discoveredEvidence,qc,resistance);
     const confessionThisTurn=unlocked.notes.some(n=>n.id==="N-MARINA-CONFESSION");
-    const result=await aiReply(suspect,question,evidenceId,history,unlocked.notes,unlocked.unlockedEvidenceIds,discoveredNotes,discoveredEvidence,stage,confessionThisTurn);
+    const result=await aiReply(suspect,question,evidenceId,history,unlocked.notes,unlocked.unlockedEvidenceIds,discoveredNotes,discoveredEvidence,stage,confessionThisTurn,resistance);
     const done=await rpc("ai_detective_complete_turn",{p_claim_id:claimId,p_actual_usd:result.usage.costUsd,p_input_tokens:result.usage.inputTokens,p_cached_input_tokens:result.usage.cachedInputTokens,p_output_tokens:result.usage.outputTokens});
     if(!done?.ok)throw new Error("metering_complete_failed");
     completed=true;
-    return json({reply:result.text,notes:unlocked.notes,unlocked_evidence_ids:unlocked.unlockedEvidenceIds,mode:"ai",model:MODEL,interrogation_stage:stage,quota:{profile:"demo",session_remaining:claim.session_remaining,visitor_remaining_today:claim.visitor_remaining_today},usage:{input_tokens:result.usage.inputTokens,cached_input_tokens:result.usage.cachedInputTokens,output_tokens:result.usage.outputTokens,cost_usd:Number(result.usage.costUsd.toFixed(8))}});
+    return json({reply:result.text,notes:unlocked.notes,unlocked_evidence_ids:unlocked.unlockedEvidenceIds,mode:"ai",model:MODEL,interrogation_stage:stage,resistance_level:resistance,quota:{profile:"demo",session_remaining:claim.session_remaining,visitor_remaining_today:claim.visitor_remaining_today},usage:{input_tokens:result.usage.inputTokens,cached_input_tokens:result.usage.cachedInputTokens,output_tokens:result.usage.outputTokens,cost_usd:Number(result.usage.costUsd.toFixed(8))}});
   }catch(e){
     console.error("ai_interrogation_error",String(e));
     if(claimId&&!completed){try{await rpc("ai_detective_release_turn",{p_claim_id:claimId})}catch(releaseError){console.error("quota_release_error",String(releaseError))}}
