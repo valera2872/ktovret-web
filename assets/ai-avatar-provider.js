@@ -21,6 +21,7 @@ const TERMINAL_LIVE_ERRORS=new Set([
   "suspect_avatar_unavailable",
   "speech_token_invalid"
 ]);
+const RECONNECTABLE_LIVE_ERRORS=new Set(["avatar_session_disconnected","avatar_session_unhealthy"]);
 const BUDGET_FALLBACK_MESSAGE="Лимит живого допроса на это дело исчерпан. Расследование продолжается текстом.";
 const LIVE_FALLBACK_MESSAGE="Живой режим сейчас недоступен. Расследование продолжается текстом.";
 const LIVE_RETRY_MESSAGE="Живой режим временно недоступен. Ответ уже показан текстом.";
@@ -38,6 +39,8 @@ function errorCode(err){return String(err?.code||err?.message||"avatar_error").t
 class AvatarProvider{
   constructor(config={}){this.config=config;this.connected=false;this.suspectId="";this.stage="composed";this.video=null}
   async connect(){throw new Error("avatar_provider_not_implemented")}
+  async isHealthy(){return !!this.connected}
+  async resume(){return await this.isHealthy()}
   async setSuspect(id){this.suspectId=id||""}
   async setStage(stage){this.stage=ALLOWED_STAGES.has(stage)?stage:"composed"}
   async speak(_text){return {ok:false,durationMs:0}}
@@ -67,22 +70,46 @@ class HeyGenLiveAvatarProvider extends AvatarProvider{
     const session=await response.json().catch(()=>({}));
     if(epoch!==this.connectEpoch)return false;
     if(!response.ok){const err=new Error(session.error||session.message||"avatar_session_failed");err.code=session.error||"avatar_session_failed";err.status=response.status;throw err}
-    const client=await factory({session,video:this.video,suspectId:this.suspectId,ttsEndpoint:this.config.ttsEndpoint,auth:authHeaders(this.config)});
+    const client=await factory({
+      session,
+      video:this.video,
+      suspectId:this.suspectId,
+      ttsEndpoint:this.config.ttsEndpoint,
+      auth:authHeaders(this.config),
+      onDisconnected:reason=>{
+        if(epoch!==this.connectEpoch)return;
+        this.connected=false;
+        window.dispatchEvent(new CustomEvent("ml:avatar-connection-lost",{detail:{suspectId:this.suspectId,reason:String(reason||"session_disconnected")}}));
+      }
+    });
     if(!client||typeof client.connect!=="function"||typeof client.speak!=="function")throw new Error("heygen_factory_invalid");
     if(epoch!==this.connectEpoch){try{if(typeof client.disconnect==="function")await client.disconnect()}catch{}return false}
     await client.connect();
     if(epoch!==this.connectEpoch){try{if(typeof client.disconnect==="function")await client.disconnect()}catch{}return false}
     this.client=client;this.connected=true;return true
   }
+  async isHealthy(){
+    if(!this.connected||!this.client)return false;
+    if(typeof this.client.isHealthy!=="function")return true;
+    try{const ok=await this.client.isHealthy();if(!ok)this.connected=false;return !!ok}catch{this.connected=false;return false}
+  }
+  async resume(){
+    if(!this.connected||!this.client)return false;
+    try{
+      const ok=typeof this.client.resume==="function"?await this.client.resume():await this.isHealthy();
+      if(!ok)this.connected=false;
+      return !!ok;
+    }catch{this.connected=false;return false}
+  }
   async setSuspect(id){if(id===this.suspectId)return;this.connectEpoch=(this.connectEpoch||0)+1;await this.disconnect(false);this.suspectId=id||""}
   async setStage(stage){await super.setStage(stage);if(this.connected&&typeof this.client?.setStage==="function")await this.client.setStage(this.stage)}
-  async speak(text){if(!this.connected||!text)return {ok:false,durationMs:0};return await this.client.speak(String(text),{stage:this.stage,suspectId:this.suspectId})}
+  async speak(text){if(!this.connected||!text)return {ok:false,durationMs:0};if(!(await this.isHealthy())){const err=new Error("avatar_session_unhealthy");err.code="avatar_session_unhealthy";throw err}return await this.client.speak(String(text),{stage:this.stage,suspectId:this.suspectId})}
   async disconnect(invalidate=true){if(invalidate)this.connectEpoch=(this.connectEpoch||0)+1;const client=this.client;this.client=null;this.connected=false;try{if(client&&typeof client.disconnect==="function")await client.disconnect()}catch{}}
 }
 function config(){return {...DEFAULT_CONFIG,...(window.ML_AVATAR_CONFIG||{})}}
 function makeProvider(cfg){if(!cfg.enabled)return new DisabledProvider(cfg);if(cfg.provider==="heygen"||cfg.provider==="liveavatar")return new HeyGenLiveAvatarProvider(cfg);throw new Error("avatar_provider_unknown")}
 class AvatarBridge{
-  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.suspectSync=Promise.resolve();this.messageCounts=new Map()}
+  constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.visibilityListener=null;this.focusListener=null;this.pageshowListener=null;this.connectionLostListener=null;this.resumeTimer=null;this.connecting=null;this.suspectSync=Promise.resolve();this.messageCounts=new Map()}
   canUseLive(){return !!this.cfg.enabled&&this.liveEntitled&&!this.liveDisabled}
   canPrewarm(){return this.canUseLive()&&this.cfg.ownerPreview===true&&!this.liveDisabled}
   roomStatus(){return this.root?.querySelector?.("[data-room-status]")||document.querySelector("[data-room-status]")}
@@ -107,7 +134,32 @@ class AvatarBridge{
     if(this.workspace){this.workspaceObserver=new MutationObserver(()=>{void this.syncAvailability()});this.workspaceObserver.observe(this.workspace,{attributes:true,attributeFilter:["hidden"]})}
     if(this.transcript){this.messageObserver=new MutationObserver(()=>this.captureNewReplies());this.messageObserver.observe(this.transcript,{childList:true})}
     this.speakListener=event=>{const detail=event?.detail||{};if(!this.canUseLive()||!detail.text||detail.suspectId!==this.activeSuspect)return;if(ALLOWED_STAGES.has(detail.stage)){this.activeStage=detail.stage;void this.provider.setStage(detail.stage).catch(err=>this.handleFailure(err))}void this.speak(detail.text)};
+    this.visibilityListener=()=>{if(document.visibilityState==="visible")this.scheduleResume(40)};
+    this.focusListener=()=>this.scheduleResume(80);
+    this.pageshowListener=()=>this.scheduleResume(40);
+    this.connectionLostListener=event=>{const suspectId=String(event?.detail?.suspectId||"");if(suspectId&&suspectId!==this.activeSuspect)return;if(document.visibilityState!=="hidden")this.scheduleResume(60)};
     window.addEventListener("ml:avatar-speak",this.speakListener);
+    document.addEventListener("visibilitychange",this.visibilityListener);
+    window.addEventListener("focus",this.focusListener);
+    window.addEventListener("pageshow",this.pageshowListener);
+    window.addEventListener("ml:avatar-connection-lost",this.connectionLostListener);
+  }
+  scheduleResume(delay=60){
+    if(this.resumeTimer)clearTimeout(this.resumeTimer);
+    this.resumeTimer=setTimeout(()=>{this.resumeTimer=null;void this.recoverVisibleSession()},delay);
+  }
+  async recoverVisibleSession(){
+    if(document.visibilityState==="hidden"||!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+    await this.suspectSync;
+    if(document.visibilityState==="hidden"||!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+    if(this.shell&&!this.liveDisabled)this.shell.dataset.avatarStatus="connecting";
+    try{
+      let healthy=await this.providerHealthy();
+      if(healthy&&typeof this.provider.resume==="function")healthy=await this.provider.resume();
+      if(healthy){if(this.shell&&!this.liveDisabled)this.shell.dataset.avatarStatus="connected";return true}
+      await this.provider.disconnect();
+      return await this.ensureConnected();
+    }catch(err){await this.handleFailure(err);return false}
   }
   captureNewReplies(){
     if(!this.canUseLive())return;
@@ -136,6 +188,11 @@ class AvatarBridge{
     }
     if(stage!==this.activeStage){this.activeStage=stage;Promise.resolve(this.provider.setStage(stage)).catch(err=>this.handleFailure(err))}
   }
+  async providerHealthy(){
+    if(!this.provider.connected||this.provider.suspectId!==this.activeSuspect)return false;
+    if(typeof this.provider.isHealthy!=="function")return true;
+    try{return !!(await this.provider.isHealthy())}catch{return false}
+  }
   async syncAvailability(){
     if(!this.canUseLive()){
       this.setLiveLayout(false);await this.provider.disconnect();
@@ -147,7 +204,7 @@ class AvatarBridge{
       if(this.canPrewarm())return await this.ensureConnected(true);
       await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
     }
-    this.setLiveLayout(true);await this.ensureConnected();return !!this.provider.connected;
+    this.setLiveLayout(true);await this.ensureConnected();return await this.providerHealthy();
   }
   async enterTextFallback(reason){
     if(this.liveDisabled)return;
@@ -167,31 +224,49 @@ class AvatarBridge{
     if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
     await this.suspectSync;
     if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
-    if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
+    if(await this.providerHealthy())return true;
+    if(this.provider.connected)await this.provider.disconnect();
     if(this.connecting){
       await this.connecting;
       if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
-      if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
+      if(await this.providerHealthy())return true;
     }
     const targetSuspect=this.activeSuspect;
     if(this.shell)this.shell.dataset.avatarStatus="connecting";
-    const attempt=this.provider.connect({video:this.video,suspectId:targetSuspect}).then(ok=>{if(this.shell&&!this.liveDisabled&&targetSuspect===this.activeSuspect)this.shell.dataset.avatarStatus=ok?"connected":"idle";return ok}).catch(async err=>{if(targetSuspect!==this.activeSuspect)return false;await this.handleFailure(err);return false});
+    const attempt=this.provider.connect({video:this.video,suspectId:targetSuspect}).then(async ok=>{const healthy=!!ok&&await this.providerHealthy();if(this.shell&&!this.liveDisabled&&targetSuspect===this.activeSuspect)this.shell.dataset.avatarStatus=healthy?"connected":"idle";return healthy}).catch(async err=>{if(targetSuspect!==this.activeSuspect)return false;await this.handleFailure(err);return false});
     this.connecting=attempt;
     const ok=await attempt.finally(()=>{if(this.connecting===attempt)this.connecting=null});
     if(targetSuspect!==this.activeSuspect){await this.provider.disconnect();return false}
-    return !!ok&&this.provider.connected&&this.provider.suspectId===this.activeSuspect;
+    return !!ok&&await this.providerHealthy();
+  }
+  async speakOnce(text){
+    await this.ensureConnected();if(this.liveDisabled||!(await this.providerHealthy())){const err=new Error("avatar_session_unhealthy");err.code="avatar_session_unhealthy";throw err}
+    await this.provider.setStage(this.activeStage);
+    const result=await this.provider.speak(text);
+    if(!result?.ok){const err=new Error("avatar_session_unhealthy");err.code="avatar_session_unhealthy";throw err}
+    return true;
   }
   async speak(text){
     if(!this.canUseLive()||!this.isWorkspaceActive())return false;
-    try{
-      await this.ensureConnected();if(!this.provider.connected||this.liveDisabled)return false;
-      await this.provider.setStage(this.activeStage);
-      const result=await this.provider.speak(text);
-      return !!result?.ok;
-    }catch(err){await this.handleFailure(err);return false}
+    try{return await this.speakOnce(text)}catch(err){
+      const code=errorCode(err);
+      if(RECONNECTABLE_LIVE_ERRORS.has(code)&&this.canUseLive()&&this.isWorkspaceActive()){
+        try{await this.provider.disconnect();await this.ensureConnected();return await this.speakOnce(text)}catch(retryErr){await this.handleFailure(retryErr);return false}
+      }
+      await this.handleFailure(err);return false
+    }
   }
   fail(err){console.warn("[Mystery Logic avatar]",err);if(this.shell){this.shell.dataset.avatarError=errorCode(err);this.shell.dataset.avatarStatus="unavailable"}const status=this.roomStatus();if(status)status.textContent=LIVE_RETRY_MESSAGE}
-  async stop(){this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);await this.provider.disconnect();this.setLiveLayout(false);this.started=false}
+  async stop(){
+    this.observer?.disconnect();this.workspaceObserver?.disconnect();this.messageObserver?.disconnect();
+    if(this.resumeTimer)clearTimeout(this.resumeTimer);this.resumeTimer=null;
+    if(this.speakListener)window.removeEventListener("ml:avatar-speak",this.speakListener);
+    if(this.visibilityListener)document.removeEventListener("visibilitychange",this.visibilityListener);
+    if(this.focusListener)window.removeEventListener("focus",this.focusListener);
+    if(this.pageshowListener)window.removeEventListener("pageshow",this.pageshowListener);
+    if(this.connectionLostListener)window.removeEventListener("ml:avatar-connection-lost",this.connectionLostListener);
+    await this.provider.disconnect();this.setLiveLayout(false);this.started=false
+  }
 }
 window.MLAvatarProvider={AvatarProvider,DisabledProvider,HeyGenLiveAvatarProvider,AvatarBridge,config,accessContext};
 window.MLAvatarBridge=new AvatarBridge();
