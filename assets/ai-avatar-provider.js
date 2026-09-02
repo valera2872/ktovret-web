@@ -189,7 +189,7 @@ class AvatarBridge{
     if(stage!==this.activeStage){this.activeStage=stage;Promise.resolve(this.provider.setStage(stage)).catch(err=>this.handleFailure(err))}
   }
   async providerHealthy(){
-    if(!this.provider.connected||this.provider.suspectId!==this.activeSuspect)return false;
+    if(!(this.provider.connected&&this.provider.suspectId===this.activeSuspect))return false;
     if(typeof this.provider.isHealthy!=="function")return true;
     try{return !!(await this.provider.isHealthy())}catch{return false}
   }
@@ -204,7 +204,7 @@ class AvatarBridge{
       if(this.canPrewarm())return await this.ensureConnected(true);
       await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
     }
-    this.setLiveLayout(true);await this.ensureConnected();return await this.providerHealthy();
+    this.setLiveLayout(true);await this.ensureConnected();return !!this.provider.connected;
   }
   async enterTextFallback(reason){
     if(this.liveDisabled)return;
