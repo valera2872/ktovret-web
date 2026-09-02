@@ -11,6 +11,7 @@ on:
       - 'assets/ai-detective-avatar-stage.css'
       - 'assets/vendor/liveavatar-web-sdk.mjs'
       - 'tools/ai-liveavatar-sdk-entry.mjs'
+      - 'tools/ai01-live-layout-smoke.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'detektivnaya-igra-s-ii/**'
@@ -34,6 +35,7 @@ on:
       - 'assets/ai-detective-avatar-stage.css'
       - 'assets/vendor/liveavatar-web-sdk.mjs'
       - 'tools/ai-liveavatar-sdk-entry.mjs'
+      - 'tools/ai01-live-layout-smoke.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'detektivnaya-igra-s-ii/**'
@@ -66,10 +68,13 @@ jobs:
           node --check assets/ai-liveavatar-factory.js
           node --check assets/vendor/liveavatar-web-sdk.mjs
           node --check tools/ai-liveavatar-sdk-entry.mjs
+          node --check tools/ai01-live-layout-smoke.mjs
       - name: Provider-neutral security contract
         run: node tests/ai-avatar-provider-contract.mjs
       - name: Owner preview viewport contract
         run: node tests/ai01-live-preview-layout-contract.mjs
+      - name: Browser smoke short Live viewport
+        run: node tools/ai01-live-layout-smoke.mjs
       - name: Avatar profile release contract
         run: node tests/ai-avatar-profile-release-contract.mjs
       - name: Verify vendored pinned LiveAvatar SDK bundle
