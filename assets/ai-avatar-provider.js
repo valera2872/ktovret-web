@@ -97,7 +97,7 @@ class AvatarBridge{
       const show=this.canUseLive();this.shell.hidden=!show;this.shell.setAttribute("aria-hidden",show?"false":"true");
       if(show)this.shell.dataset.avatarStatus="idle";
     }
-    this.setLiveLayout(this.canUseLive());this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
+    this.setLiveLayout(this.canUseLive()&&this.isWorkspaceActive());this.syncFromDom();this.seedMessageCount();this.observe();await this.syncAvailability();
   }
   suspectMessageNodes(){return this.transcript?[...this.transcript.querySelectorAll(".aid-message.is-suspect:not(.aid-typing)")]:[]}
   seedMessageCount(){const suspect=this.shell?.dataset.suspect||this.activeSuspect;if(suspect)this.messageCounts.set(suspect,this.suspectMessageNodes().length)}
@@ -137,14 +137,14 @@ class AvatarBridge{
   }
   async syncAvailability(){
     if(!this.canUseLive()){
-      await this.provider.disconnect();
+      this.setLiveLayout(false);await this.provider.disconnect();
       if(this.shell&&!this.liveEntitled){this.shell.hidden=true;this.shell.setAttribute("aria-hidden","true")}
       return false;
     }
     if(!this.isWorkspaceActive()){
-      await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
+      this.setLiveLayout(false);await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
     }
-    await this.ensureConnected();return !!this.provider.connected;
+    this.setLiveLayout(true);await this.ensureConnected();return !!this.provider.connected;
   }
   async enterTextFallback(reason){
     if(this.liveDisabled)return;
