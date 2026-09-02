@@ -82,8 +82,9 @@ Deno.serve(async(req:Request)=>{
   if(!profile?.ttsVoice)return json(origin,404,{error:"suspect_voice_unavailable"});
 
   const model=isOwnerPreview?OWNER_PREVIEW_TTS_MODEL:TTS_MODEL;
-  const voice=isOwnerPreview?ownerPreviewVoice(suspectId,profile.ttsVoice):profile.ttsVoice;
-  const payload:Record<string,unknown>={model,input:text,voice,response_format:"pcm",speed:1};
+  const payload:Record<string,unknown>={model,input:text,voice:profile.ttsVoice,response_format:"pcm",speed:1};
+  if(isOwnerPreview)payload.voice=ownerPreviewVoice(suspectId,profile.ttsVoice);
+  const voice=String(payload.voice||profile.ttsVoice);
   if(model==="gpt-4o-mini-tts"||model.startsWith("gpt-4o-mini-tts-"))payload.instructions=deliveryInstruction(profile.ttsInstructions,stage);
   const upstreamStarted=Date.now();
   const upstream=await fetch("https://api.openai.com/v1/audio/speech",{
