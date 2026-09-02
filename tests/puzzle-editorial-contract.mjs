@@ -7,6 +7,9 @@ const migration=read('supabase/migrations/20260830123554_puzzle_editorial_queue.
 const edge=read('supabase/functions/puzzle-editorial/index.ts');
 const admin=read('admin/puzzles/index.html');
 const client=read('assets/puzzle-admin.js');
+const matchAdmin=read('assets/puzzle-admin-matchsticks.js');
+const matchVisual=read('assets/matchstick-visual.js');
+const matchCss=read('assets/matchstick-visual.css');
 const gate=read('tools/import-mobile/puzzle-editorial-gate.mjs');
 const importer=read('tools/import-mobile-cases.mjs');
 const audience=read('tools/import-mobile/logic-audience-postprocess.mjs');
@@ -25,7 +28,7 @@ assert(edge.includes('/^(quick|expert):[A-Za-z0-9_-]+$/'),'Expert moderation IDs
 assert(admin.includes('noindex,nofollow,noarchive'),'admin robots guard missing');
 assert(admin.includes('На проверке')&&admin.includes('Утверждены')&&admin.includes('Отклонены'),'admin moderation tabs missing');
 assert(admin.includes('Ранее опубликованные Expert-задачи')&&admin.includes('ретроспективную проверку'),'legacy Expert explanation missing');
-assert(admin.includes('puzzle-admin.css?v=1.2.0')&&admin.includes('puzzle-admin.js?v=1.2.0'),'Expert admin asset version not bumped');
+assert(admin.includes('matchstick-visual.css')&&admin.includes('matchstick-visual.js')&&admin.includes('puzzle-admin-matchsticks.js'),'matchstick visual admin assets missing');
 assert(client.includes('mysterylogic:review-admin-token:v1'),'admin does not reuse owner token session');
 assert(client.includes('data-moderate="approved"')&&client.includes('data-moderate="rejected"'),'individual approve/reject actions missing');
 assert(client.includes('Готова к публикации')&&client.includes('noindex,follow'),'approved Quick publication state missing');
@@ -33,12 +36,17 @@ assert(client.includes("row.kind === 'expert'")&&client.includes('Уже опу�
 assert(client.includes('Подтверждена владельцем')&&client.includes('существующий URL не превращаем автоматически в 404'),'safe Expert moderation copy missing');
 assert(client.includes('отклонённые их больше не блокируют'),'partial-release explanation missing');
 assert(!client.includes('Утвердить все'),'bulk approval must not exist');
+assert(matchAdmin.includes('/golovolomki-so-spichkami/')&&matchAdmin.includes('не меньше 8 визуальных задач'),'matchstick owner-gate admin explanation missing');
+assert(matchVisual.includes('MysteryLogicMatchsticks')&&matchVisual.includes('data-match-equation'),'matchstick renderer contract missing');
+assert(matchCss.includes('.ml-match-stick')&&matchCss.includes('.logic-match-showcase'),'physical matchstick styling missing');
 assert(gate.includes("crypto.createHash('sha256')"),'build fingerprint validation missing');
 assert(gate.includes('publishableApproved')&&gate.includes("approved_subset_ready"),'partial approved-subset release missing');
-assert(gate.includes("PUBLICLY_DISABLED_COLLECTIONS=new Set(['matches'])"),'matchstick public block missing');
+assert(gate.includes('PUBLICLY_DISABLED_COLLECTIONS=new Set()'),'owner-approved matchsticks must not be blanket-blocked');
 assert(!gate.includes('exact.length===source.length'),'all-or-nothing release gate must be removed');
-assert(audience.includes("const PUBLIC_KINDS=['kids','brain','detective','math']"),'public collection allowlist missing');
+assert(audience.includes("const PUBLIC_KINDS=['kids','brain','detective','math','matches']"),'matchstick public collection not enabled');
+assert(audience.includes('matches:8'),'matchstick minimum collection threshold missing');
 assert(audience.includes('noindex,follow'),'quick task noindex guard missing');
+assert(audience.includes('matchstick-visual.css')&&audience.includes('matchstick-visual.js'),'matchstick visual assets not attached to generated pages');
 assert(importer.includes('await resolvePuzzleEditorialGate()'),'public generator does not consult editorial gate');
 assert(importer.includes("reason:'editorial_preview'"),'editorial QA bypass missing');
 assert(importer.includes('puzzleEditorial.ready')&&importer.includes('routes:[]'),'fail-closed generator fallback missing');
