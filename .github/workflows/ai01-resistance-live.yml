@@ -1,0 +1,38 @@
+name: AI-01 resistance live smoke
+
+on:
+  pull_request:
+    paths:
+      - 'assets/ai-avatar-auth-bootstrap.js'
+      - 'supabase/functions/ai-interrogation-v1/**'
+      - 'tools/ai01-resistance-live-smoke.mjs'
+      - '.github/workflows/ai01-resistance-live.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/ai-avatar-auth-bootstrap.js'
+      - 'supabase/functions/ai-interrogation-v1/**'
+      - 'tools/ai01-resistance-live-smoke.mjs'
+      - '.github/workflows/ai01-resistance-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: node --check tools/ai01-resistance-live-smoke.mjs
+      - name: Verify active resistance behavior
+        env:
+          ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4
+          API_URL: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v1
+          VISITOR_ID: ci-ai-resistance-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_SUFFIX: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: node tools/ai01-resistance-live-smoke.mjs
