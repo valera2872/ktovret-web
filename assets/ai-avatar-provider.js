@@ -3,7 +3,7 @@ const SCRIPT_URL=new URL(document.currentScript?.src||document.baseURI,document.
 const SCRIPT_BASE=new URL(".",SCRIPT_URL).href;
 const SCRIPT_VERSION=SCRIPT_URL.searchParams.get("v")||"";
 const PUBLIC_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
-const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text"};
+const DEFAULT_CONFIG={enabled:false,provider:"heygen",sessionEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-session",ttsEndpoint:"https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-tts",publicAnon:PUBLIC_ANON,caseId:"",accessToken:"",experienceTier:"text",ownerPreview:false};
 const ALLOWED_STAGES=new Set(["composed","defensive","cornered","breaking","confessed"]);
 const TERMINAL_LIVE_ERRORS=new Set([
   "avatar_budget_exhausted",
@@ -84,6 +84,7 @@ function makeProvider(cfg){if(!cfg.enabled)return new DisabledProvider(cfg);if(c
 class AvatarBridge{
   constructor(){this.cfg=config();this.provider=makeProvider(this.cfg);this.root=null;this.shell=null;this.workspace=null;this.transcript=null;this.video=null;this.activeSuspect="";this.activeStage="composed";this.started=false;this.liveEntitled=false;this.liveDisabled=false;this.fallbackReason="";this.observer=null;this.workspaceObserver=null;this.messageObserver=null;this.speakListener=null;this.connecting=null;this.suspectSync=Promise.resolve();this.messageCounts=new Map()}
   canUseLive(){return !!this.cfg.enabled&&this.liveEntitled&&!this.liveDisabled}
+  canPrewarm(){return this.canUseLive()&&this.cfg.ownerPreview===true&&!this.liveDisabled}
   roomStatus(){return this.root?.querySelector?.("[data-room-status]")||document.querySelector("[data-room-status]")}
   setLiveLayout(active){document.body?.classList.toggle("aid-live-mode",!!active)}
   async start(root=document){
@@ -129,7 +130,7 @@ class AvatarBridge{
       this.activeSuspect=suspect;this.shell.dataset.avatarStatus=this.liveDisabled?"text-fallback":"idle";
       const sync=Promise.resolve(this.provider.setSuspect(suspect)).then(()=>{
         if(!this.messageCounts.has(suspect))this.messageCounts.set(suspect,this.suspectMessageNodes().length);
-        if(this.canUseLive()&&this.isWorkspaceActive()&&suspect===this.activeSuspect)void this.ensureConnected();
+        if(this.canUseLive()&&(this.isWorkspaceActive()||this.canPrewarm())&&suspect===this.activeSuspect)void this.ensureConnected(!this.isWorkspaceActive()&&this.canPrewarm());
       }).catch(err=>this.handleFailure(err));
       this.suspectSync=sync;
     }
@@ -142,7 +143,9 @@ class AvatarBridge{
       return false;
     }
     if(!this.isWorkspaceActive()){
-      this.setLiveLayout(false);await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
+      this.setLiveLayout(false);
+      if(this.canPrewarm())return await this.ensureConnected(true);
+      await this.provider.disconnect();if(this.shell)this.shell.dataset.avatarStatus="idle";return false
     }
     this.setLiveLayout(true);await this.ensureConnected();return !!this.provider.connected;
   }
@@ -159,14 +162,15 @@ class AvatarBridge{
     if(TERMINAL_LIVE_ERRORS.has(code)){await this.enterTextFallback(code);return true}
     this.fail(err);return false;
   }
-  async ensureConnected(){
-    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+  async ensureConnected(allowInactive=false){
+    const allowed=()=>this.isWorkspaceActive()||(allowInactive&&this.canPrewarm());
+    if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
     await this.suspectSync;
-    if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+    if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
     if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
     if(this.connecting){
       await this.connecting;
-      if(!this.canUseLive()||!this.isWorkspaceActive()||!this.activeSuspect)return false;
+      if(!this.canUseLive()||!allowed()||!this.activeSuspect)return false;
       if(this.provider.connected&&this.provider.suspectId===this.activeSuspect)return true;
     }
     const targetSuspect=this.activeSuspect;
