@@ -24,7 +24,8 @@ assert.match(factory,/onDisconnected/,'factory must notify the provider when Liv
 assert.match(tts,/OWNER_PREVIEW_TTS_MODEL=.*"tts-1"/,'owner preview must trial the realtime-optimized TTS model');
 assert.match(tts,/if\(suspectId==="marina"\)return "nova"/,'Marina owner preview must trial a neutral female voice');
 assert.match(tts,/const model=isOwnerPreview\?OWNER_PREVIEW_TTS_MODEL:TTS_MODEL/,'fast TTS trial must stay owner-preview-only');
-assert.match(tts,/const voice=isOwnerPreview\?ownerPreviewVoice\(suspectId,profile\.ttsVoice\):profile\.ttsVoice/,'voice trial must stay owner-preview-only');
+assert.match(tts,/voice:profile\.ttsVoice/,'server profile must remain the base TTS identity');
+assert.match(tts,/if\(isOwnerPreview\)payload\.voice=ownerPreviewVoice\(suspectId,profile\.ttsVoice\)/,'voice override must stay owner-preview-only');
 assert.match(tts,/avatar_tts_ok/,'TTS timings must be observable in Edge logs');
 
 assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-tabresume1/,'resume fix must use a fresh provider/factory cache key while preserving the established version contract');
