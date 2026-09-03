@@ -68,13 +68,14 @@ const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta n
 
     await checkpoint('zones');
     await wait(100);
-    const recallNode=document.querySelector('[data-solo407-recall]');
-    const recall=recallNode?.textContent||'';
-    if(!recall.includes('Напоминание из этапа 2')||!recall.includes('бельевую тележку')||!recall.includes('01:05'))throw new Error('linen cart recall missing');
+    const recallText=document.querySelector('[data-solo407-recall]')?.textContent||'';
+    if(!recallText.includes('Напоминание из этапа 2')||!recallText.includes('бельевую тележку')||!recallText.includes('01:05'))throw new Error('linen cart recall missing');
     if(document.querySelector('[data-open="s3-i0"]')?.getAttribute('aria-expanded')==='false')await click('[data-open="s3-i0"]');
     await wait(80);
-    const recallStyle=getComputedStyle(recallNode);
-    const recallStrongStyle=getComputedStyle(recallNode.querySelector('strong'));
+    const openRecallNode=document.querySelector('[data-solo407-recall]');
+    if(!openRecallNode)throw new Error('linen cart recall missing after evidence rerender');
+    const recallStyle=getComputedStyle(openRecallNode);
+    const recallStrongStyle=getComputedStyle(openRecallNode.querySelector('strong'));
     if(recallStyle.color!=='rgb(63, 53, 39)'||recallStrongStyle.color!=='rgb(107, 79, 34)')throw new Error('linen cart recall contrast regressed: '+recallStyle.color+' / '+recallStrongStyle.color);
     if(recallStyle.backgroundColor==='rgba(0, 0, 0, 0)')throw new Error('linen cart recall background missing');
     await openAll();
