@@ -142,7 +142,9 @@ Deno.serve(async(req:Request)=>{
   const allowedAvatarId=previewOverride||publishedAvatarId||(sandboxFallbackAllowed?LIVEAVATAR_SANDBOX_AVATAR_ID:"");
   if(!allowedAvatarId)return json(origin,404,{error:"suspect_avatar_unavailable"});
   if(requestedAvatarId&&requestedAvatarId!==allowedAvatarId)return json(origin,403,{error:"avatar_not_allowed"});
-  const isSandboxSession=Boolean(!previewOverride&&!publishedAvatarId&&sandboxFallbackAllowed&&allowedAvatarId===LIVEAVATAR_SANDBOX_AVATAR_ID);
+  // Owner-preview is always sandbox while AI-01 is under review, including selected public presets.
+  // This keeps technical testing non-billable; public published sessions remain non-sandbox.
+  const isSandboxSession=Boolean(isOwnerPreview&&AVATAR_SANDBOX);
   const sessionSeconds=isSandboxSession?Math.min(MAX_SESSION_SECONDS,60):MAX_SESSION_SECONDS;
   const avatarSource=previewOverride?"owner_preview_preset":publishedAvatarId?"published":"sandbox";
 
@@ -160,7 +162,9 @@ Deno.serve(async(req:Request)=>{
   let data:any={};
   try{data=await upstream.json()}catch{}
   if(!upstream.ok){
-    console.error("liveavatar_token_error",upstream.status,clean(data?.message||data?.detail||"",300),JSON.stringify({suspectId,avatarSource,isSandboxSession}));
+    const providerMessage=clean(data?.message||data?.detail||data?.error?.message||data?.error||"",300);
+    console.error("liveavatar_token_error",upstream.status,providerMessage,JSON.stringify({suspectId,avatarSource,isSandboxSession}));
+    if(isOwnerPreview)return json(origin,502,{error:"avatar_upstream_error",provider_status:upstream.status,provider_message:providerMessage,avatar_source:avatarSource,sandbox:isSandboxSession});
     return json(origin,502,{error:"avatar_upstream_error"});
   }
   const sessionId=clean(data?.data?.session_id,128);
