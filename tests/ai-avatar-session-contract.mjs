@@ -27,9 +27,9 @@ assert.match(edge,/requestedMode&&requestedMode!=="lite"/,'Mystery Logic must ke
 assert.match(edge,/\/v1\/sessions\/token/,'broker must use the current LiveAvatar session-token API');
 assert.match(edge,/"X-API-KEY":LIVEAVATAR_API_KEY/,'upstream API key must be sent only from the Edge function');
 assert.match(edge,/mode:"LITE"/,'upstream session must be LITE mode');
-assert.match(edge,/const isSandboxSession=Boolean\(!previewOverride&&!publishedAvatarId&&sandboxFallbackAllowed&&allowedAvatarId===LIVEAVATAR_SANDBOX_AVATAR_ID\)/,'only the Wayne fallback may use sandbox mode');
-assert.match(edge,/is_sandbox:isSandboxSession/,'upstream sandbox flag must follow the resolved avatar source');
-assert.match(edge,/const sessionSeconds=isSandboxSession\?Math\.min\(MAX_SESSION_SECONDS,60\):MAX_SESSION_SECONDS/,'sandbox fallback remains capped at one minute while real preset sessions may use the normal ceiling');
+assert.match(edge,/const isSandboxSession=Boolean\(isOwnerPreview&&AVATAR_SANDBOX\)/,'all AI-01 owner-preview sessions must use sandbox while under review');
+assert.match(edge,/is_sandbox:isSandboxSession/,'upstream sandbox flag must follow verified review scope');
+assert.match(edge,/const sessionSeconds=isSandboxSession\?Math\.min\(MAX_SESSION_SECONDS,60\):MAX_SESSION_SECONDS/,'owner sandbox review remains capped at one minute while normal published sessions may use the configured ceiling');
 assert.match(edge,/max_session_duration:sessionSeconds/,'session duration must use the resolved sandbox-aware server ceiling');
 assert.match(edge,/speech_token:signedSpeechToken/,'successful avatar session must issue a short-lived signed speech capability');
 assert.match(edge,/cid:caseId/,'speech capability must remain bound to the paid case');
@@ -48,12 +48,14 @@ const ownerPreviewIndex=edge.indexOf('const isOwnerPreview=caseId==="AI-01"&&cle
 const killSwitchIndex=edge.indexOf('if(!AVATAR_ENABLED&&!isOwnerPreview)return json(origin,503,{error:"avatar_disabled"});');
 const overrideIndex=edge.indexOf('const previewOverride=isOwnerPreview?ownerPreviewAvatar(metadata,suspectId):"";');
 const fallbackIndex=edge.indexOf('const sandboxFallbackAllowed=isOwnerPreview&&AVATAR_SANDBOX;');
+const sandboxIndex=edge.indexOf('const isSandboxSession=Boolean(isOwnerPreview&&AVATAR_SANDBOX);');
 assert.ok(entitlementCheckIndex>=0,'owner preview must still start with a real live entitlement check');
 assert.ok(metadataIndex>entitlementCheckIndex,'owner metadata must only be read after entitlement verification');
 assert.ok(ownerPreviewIndex>metadataIndex,'owner preview identity must come from verified server-side entitlement metadata');
 assert.ok(killSwitchIndex>ownerPreviewIndex,'kill-switch bypass must only be evaluated after the scoped owner preview entitlement is verified');
 assert.ok(overrideIndex>killSwitchIndex,'preset override must only be resolved after owner-preview verification');
 assert.ok(fallbackIndex>overrideIndex,'sandbox fallback must be resolved after the owner preset override');
+assert.ok(sandboxIndex>fallbackIndex,'sandbox decision must be made only after verified owner identity resolution');
 assert.match(edge,/const allowedAvatarId=previewOverride\|\|publishedAvatarId\|\|\(sandboxFallbackAllowed\?LIVEAVATAR_SANDBOX_AVATAR_ID:""\)/,'owner preset, then published identity, then sandbox fallback must be the explicit precedence');
 assert.match(edge,/function ownerPreviewAvatar\(metadata:any,suspectId:string\)[\s\S]*suspectId!=="anton"&&suspectId!=="lev"/,'temporary preset override must be limited to Anton and Lev');
 assert.match(edge,/caseId==="AI-01"&&clean\(metadata\?\.source,64\)==="owner_preview"/,'temporary preview bypass must be restricted to AI-01 owner_preview entitlements');
