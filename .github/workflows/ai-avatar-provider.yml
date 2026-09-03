@@ -18,12 +18,14 @@ on:
       - 'supabase/functions/_shared/ai-avatar-profile.ts'
       - 'supabase/functions/ai-avatar-session/**'
       - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/functions/ai-avatar-preview-cast/**'
       - 'supabase/migrations/20260830132613_ai_case_avatar_profiles.sql'
       - 'supabase/migrations/20260830144423_allow_draft_avatar_profiles_without_identity.sql'
       - 'tests/ai01-live-preview-layout-contract.mjs'
       - 'tests/ai-avatar-provider-contract.mjs'
       - 'tests/ai-avatar-tab-resume-contract.mjs'
       - 'tests/ai-avatar-profile-release-contract.mjs'
+      - 'tests/ai-avatar-owner-preset-cast-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
   push:
     branches: [main]
@@ -43,12 +45,14 @@ on:
       - 'supabase/functions/_shared/ai-avatar-profile.ts'
       - 'supabase/functions/ai-avatar-session/**'
       - 'supabase/functions/ai-avatar-tts/**'
+      - 'supabase/functions/ai-avatar-preview-cast/**'
       - 'supabase/migrations/20260830132613_ai_case_avatar_profiles.sql'
       - 'supabase/migrations/20260830144423_allow_draft_avatar_profiles_without_identity.sql'
       - 'tests/ai01-live-preview-layout-contract.mjs'
       - 'tests/ai-avatar-provider-contract.mjs'
       - 'tests/ai-avatar-tab-resume-contract.mjs'
       - 'tests/ai-avatar-profile-release-contract.mjs'
+      - 'tests/ai-avatar-owner-preset-cast-contract.mjs'
       - '.github/workflows/ai-avatar-provider.yml'
   workflow_dispatch:
 
@@ -72,10 +76,13 @@ jobs:
           node --check tools/ai-liveavatar-sdk-entry.mjs
           node --check tools/ai01-live-layout-smoke.mjs
           node --check tests/ai-avatar-tab-resume-contract.mjs
+          node --check tests/ai-avatar-owner-preset-cast-contract.mjs
       - name: Provider-neutral security contract
         run: node tests/ai-avatar-provider-contract.mjs
       - name: Tab resume regression contract
         run: node tests/ai-avatar-tab-resume-contract.mjs
+      - name: Owner preset cast security contract
+        run: node tests/ai-avatar-owner-preset-cast-contract.mjs
       - name: Owner preview viewport contract
         run: node tests/ai01-live-preview-layout-contract.mjs
       - name: Browser smoke short Live viewport
