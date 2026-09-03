@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111d">
+  <title>Mystery Logic — AI-01 preset cast</title>
+  <link rel="icon" href="../../../assets/ml-mark.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#061019;color:#edf4f7}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#102333 0,#061019 48%,#040b12 100%);min-height:100vh}.wrap{width:min(1480px,calc(100% - 28px));margin:0 auto;padding:22px 0 46px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}.kicker{margin:0 0 6px;color:#d5ad70;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.top h1{margin:0;font-family:Georgia,serif;font-size:clamp(30px,4vw,54px);font-weight:500}.sub{margin:8px 0 0;color:#91a7b5;max-width:820px;line-height:1.5}.back{border:1px solid rgba(196,216,228,.18);border-radius:10px;padding:10px 14px;color:#b8d0df;text-decoration:none}.panel{border:1px solid rgba(196,216,228,.14);background:rgba(9,23,34,.84);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 24px 80px rgba(0,0,0,.18)}.panel h2{margin:0 0 6px}.form{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}.form input{min-width:min(480px,100%);flex:1;padding:12px 14px;border:1px solid rgba(196,216,228,.18);border-radius:10px;background:#0a1823;color:#eef5f7}.btn{cursor:pointer;border:1px solid rgba(213,173,112,.45);border-radius:10px;padding:11px 14px;background:#132333;color:#e9c98f;font-weight:700}.btn:hover{background:#192d3f}.btn.secondary{border-color:rgba(196,216,228,.16);color:#b8d0df}.error{min-height:20px;margin:10px 0 0;color:#e79b91}.selected{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.selected-card{padding:14px;border:1px solid rgba(196,216,228,.12);border-radius:14px;background:rgba(255,255,255,.025)}.selected-card small{display:block;color:#91a7b5;margin-bottom:5px}.selected-card strong{display:block;font-size:18px}.selected-card code{display:block;margin-top:5px;color:#d5ad70;overflow-wrap:anywhere}.headrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.count{color:#91a7b5}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}.avatar{display:grid;grid-template-rows:220px auto;border:1px solid rgba(196,216,228,.12);border-radius:16px;overflow:hidden;background:#091722}.avatar.is-selected{border-color:rgba(213,173,112,.75);box-shadow:0 0 0 1px rgba(213,173,112,.18)}.photo{display:grid;place-items:center;background:#050d14;color:#5e7584;overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover}.body{padding:13px}.body h3{margin:0 0 4px;font-size:18px}.meta{margin:0;color:#91a7b5;font-size:12px;min-height:18px}.id{margin:8px 0;color:#728a99;font-size:11px;overflow-wrap:anywhere}.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{cursor:pointer;border:1px solid rgba(196,216,228,.14);border-radius:9px;padding:9px 8px;background:#10212e;color:#c5d8e3}.actions button:hover{border-color:#d5ad70;color:#f0cf96}.note{margin:0;color:#91a7b5;line-height:1.5}.gate[hidden],.catalog[hidden]{display:none!important}@media(max-width:700px){.wrap{width:min(100% - 18px,1480px);padding-top:12px}.top{display:block}.back{display:inline-block;margin-top:14px}.selected{grid-template-columns:1fr}.avatar{grid-template-rows:260px auto}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top"><div><p class="kicker">AI-01 · owner preview</p><h1>Preset-лица для Антона и Льва</h1><p class="sub">Каталог только читает доступные LiveAvatar и не запускает сессии. Выбор здесь не расходует кредиты и не публикуется игрокам.</p></div><a class="back" href="../">← Live preview</a></header>
+
+  <section class="panel gate" data-admin-gate>
+    <p class="kicker">Доступ</p><h2>Подтвердите административный ключ</h2>
+    <form class="form" data-admin-form><input type="password" data-admin-token autocomplete="off" placeholder="MLADM-…"><button class="btn" type="submit">Открыть каталог</button></form>
+    <p class="error" data-admin-error></p>
+  </section>
+
+  <section class="catalog" data-catalog hidden>
+    <section class="panel">
+      <div class="headrow"><div><p class="kicker">Выбранные референсы</p><h2>Временный каст для технического теста</h2></div><button class="btn secondary" type="button" data-reload>Обновить каталог</button></div>
+      <div class="selected" style="margin-top:14px">
+        <div class="selected-card"><small>Антон Руденко</small><strong data-selected-name="anton">не выбран</strong><code data-selected-id="anton">—</code></div>
+        <div class="selected-card"><small>Лев Орлов</small><strong data-selected-name="lev">не выбран</strong><code data-selected-id="lev">—</code></div>
+      </div>
+      <p class="note" style="margin-top:12px">Это пока только owner-preview selection. На следующем шаге выбранные ID будут разрешены сервером исключительно для AI-01 owner entitlement; публичные профили останутся draft.</p>
+    </section>
+
+    <section class="panel">
+      <div class="headrow"><div><p class="kicker">LiveAvatar preset library</p><h2>Доступные лица</h2></div><span class="count" data-count>Загрузка…</span></div>
+      <p class="error" data-catalog-error></p>
+      <div class="grid" data-grid></div>
+    </section>
+  </section>
+</main>
+<script>
+(()=>{
+  'use strict';
+  const ADMIN_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
+  const CATALOG_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-avatar-catalog';
+  const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
+  const ADMIN_KEY='mysterylogic:review-admin-token:v1';
+  const OWNER_KEY='mysterylogic:ai01:owner-live-token';
+  const PICK_KEY=id=>`mysterylogic:ai01:preset:${id}`;
+  const gate=document.querySelector('[data-admin-gate]');
+  const catalog=document.querySelector('[data-catalog]');
+  const adminForm=document.querySelector('[data-admin-form]');
+  const adminInput=document.querySelector('[data-admin-token]');
+  const adminError=document.querySelector('[data-admin-error]');
+  const grid=document.querySelector('[data-grid]');
+  const count=document.querySelector('[data-count]');
+  const catalogError=document.querySelector('[data-catalog-error]');
+  let rows=[];
+  const get=(storage,key)=>{try{return String(storage.getItem(key)||'').trim()}catch{return ''}};
+  const set=(storage,key,value)=>{try{if(value)storage.setItem(key,value);else storage.removeItem(key)}catch{}};
+  const verifyAdmin=async(candidate)=>{const r=await fetch(`${ADMIN_ENDPOINT}?status=pending`,{headers:{authorization:`Bearer ${candidate}`},cache:'no-store',credentials:'omit'});if(r.status===401)throw new Error('Административный ключ не принят.');if(!r.ok)throw new Error(`Проверка admin: HTTP ${r.status}`)};
+  const selectedId=suspect=>get(localStorage,PICK_KEY(suspect));
+  const rowById=id=>rows.find(row=>row.id===id);
+  const renderSelected=()=>{for(const suspect of ['anton','lev']){const id=selectedId(suspect);const row=rowById(id);const name=document.querySelector(`[data-selected-name="${suspect}"]`);const code=document.querySelector(`[data-selected-id="${suspect}"]`);if(name)name.textContent=row?.name||(id?'выбран preset':'не выбран');if(code)code.textContent=id||'—'}document.querySelectorAll('.avatar').forEach(card=>card.classList.toggle('is-selected',Boolean(card.dataset.id&&(card.dataset.id===selectedId('anton')||card.dataset.id===selectedId('lev')))))};
+  const pick=(suspect,id)=>{if(suspect==='anton'&&id===selectedId('lev'))set(localStorage,PICK_KEY('lev'),'');if(suspect==='lev'&&id===selectedId('anton'))set(localStorage,PICK_KEY('anton'),'');set(localStorage,PICK_KEY(suspect),id);renderSelected()};
+  const esc=value=>String(value||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const render=()=>{const ordered=[...rows].sort((a,b)=>{const am=a.gender==='male'?0:1,bm=b.gender==='male'?0:1;return am-bm||a.name.localeCompare(b.name,'ru')});if(count)count.textContent=`${ordered.length} preset`;if(grid)grid.innerHTML=ordered.map(row=>`<article class="avatar" data-id="${esc(row.id)}"><div class="photo">${row.preview_url?`<img src="${esc(row.preview_url)}" alt="${esc(row.name)}" loading="lazy" referrerpolicy="no-referrer">`:'preview недоступен'}</div><div class="body"><h3>${esc(row.name)}</h3><p class="meta">${esc(row.gender||'gender не указан')}</p><p class="id">${esc(row.id)}</p><div class="actions"><button type="button" data-pick="anton" data-id="${esc(row.id)}">Антону</button><button type="button" data-pick="lev" data-id="${esc(row.id)}">Льву</button></div></div></article>`).join('');grid?.querySelectorAll('[data-pick]').forEach(button=>button.addEventListener('click',()=>pick(button.dataset.pick,button.dataset.id)));renderSelected()};
+  const loadCatalog=async()=>{if(catalogError)catalogError.textContent='';if(count)count.textContent='Загрузка…';const owner=get(localStorage,OWNER_KEY);if(owner.length<32||owner.length>512)throw new Error('Сначала сохраните Owner Live-ключ на основной странице Live preview.');const response=await fetch(CATALOG_ENDPOINT,{method:'POST',headers:{authorization:`Bearer ${PUBLIC_ANON}`,apikey:PUBLIC_ANON,'content-type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify({action:'catalog',access_token:owner})});let data={};try{data=await response.json()}catch{}if(!response.ok)throw new Error(`LiveAvatar catalog: ${String(data?.error||`HTTP ${response.status}`)}`);rows=Array.isArray(data.avatars)?data.avatars:[];render();if(!rows.length)throw new Error('LiveAvatar вернул каталог, но backend не распознал ни одной записи.')};
+  const unlock=async(candidate)=>{await verifyAdmin(candidate);set(sessionStorage,ADMIN_KEY,candidate);if(gate)gate.hidden=true;if(catalog)catalog.hidden=false;try{await loadCatalog()}catch(error){if(catalogError)catalogError.textContent=error.message||'Не удалось загрузить каталог.'}};
+  adminForm?.addEventListener('submit',async event=>{event.preventDefault();if(adminError)adminError.textContent='';const candidate=String(adminInput?.value||'').trim();if(candidate.length<16){if(adminError)adminError.textContent='Введите административный ключ.';return}try{await unlock(candidate)}catch(error){if(adminError)adminError.textContent=error.message||'Доступ не открыт.'}});
+  document.querySelector('[data-reload]')?.addEventListener('click',()=>loadCatalog().catch(error=>{if(catalogError)catalogError.textContent=error.message||'Не удалось загрузить каталог.'}));
+  const saved=get(sessionStorage,ADMIN_KEY);if(saved)unlock(saved).catch(()=>{});
+})();
+</script>
+</body>
+</html>
