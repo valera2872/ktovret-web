@@ -2,6 +2,25 @@
 const SDK_URL="./vendor/liveavatar-web-sdk.mjs";
 const PCM_SAMPLE_RATE=24000;
 const PCM_BYTES_PER_SAMPLE=2;
+const SESSION_PATH="/functions/v1/ai-avatar-session";
+function installSessionTransport(){
+  if(window.__ML_AI_AVATAR_SESSION_TRANSPORT_PATCHED)return;
+  const nativeFetch=window.fetch.bind(window);
+  window.__ML_AI_AVATAR_SESSION_TRANSPORT_PATCHED=true;
+  window.fetch=(input,init)=>{
+    try{
+      const url=typeof input==="string"?input:(input instanceof URL?input.href:String(input?.url||""));
+      const method=String(init?.method||"GET").toUpperCase();
+      if(method==="POST"&&url.includes(SESSION_PATH)&&typeof init?.body==="string"){
+        // ai-avatar-session has verify_jwt=false and authenticates origin + opaque Live entitlement itself.
+        // Strip non-safelisted browser headers so Chromium/Yandex sends POST directly without OPTIONS.
+        return nativeFetch(input,{method:"POST",body:init.body,cache:"no-store",credentials:"omit",mode:"cors"});
+      }
+    }catch{}
+    return nativeFetch(input,init);
+  };
+}
+installSessionTransport();
 function toBase64(buffer){
   const bytes=new Uint8Array(buffer);let binary="";const size=0x8000;
   for(let i=0;i<bytes.length;i+=size)binary+=String.fromCharCode(...bytes.subarray(i,i+size));
