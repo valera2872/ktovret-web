@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const session=fs.readFileSync('supabase/functions/ai-avatar-session/index.ts','utf8');
 const cast=fs.readFileSync('supabase/functions/ai-avatar-preview-cast/index.ts','utf8');
 const apply=fs.readFileSync('admin/ai01-live-preview/presets/apply/index.html','utf8');
+const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const beget=fs.readFileSync('.github/workflows/production-beget.yml','utf8');
 
 function must(text,needle,label){if(!text.includes(needle))throw new Error(`Missing ${label}: ${needle}`)}
@@ -34,6 +35,13 @@ must(apply,"if(!anton||!lev)",'both selections required');
 must(apply,"if(anton===lev)",'distinct faces required');
 must(apply,'noindex,nofollow,noarchive','sync page cannot be indexed');
 
+must(factory,'const SESSION_PATH="/functions/v1/ai-avatar-session"','session broker transport scope');
+must(factory,'window.__ML_AI_AVATAR_SESSION_TRANSPORT_PATCHED=true','single transport patch installation');
+must(factory,'method==="POST"&&url.includes(SESSION_PATH)','only Live session POST is rewritten');
+must(factory,'return nativeFetch(input,{method:"POST",body:init.body,cache:"no-store",credentials:"omit",mode:"cors"})','session POST is CORS-simple and credential-free');
+mustNot(factory,'SESSION_PATH)&&typeof init?.body==="string"){\n        return nativeFetch(input,{method:"POST",headers:', 'session transport must not re-add non-safelisted headers');
+
 must(beget,'production-web/admin/ai01-live-preview','production bundle removes complete owner preview tree');
+must(beget,'production-web/assets/ai-liveavatar-factory.js','production bundle removes the patched Live factory');
 
 console.log('Owner preset cast contract: OK');
