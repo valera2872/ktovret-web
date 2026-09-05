@@ -1,0 +1,585 @@
+(function () {
+  'use strict';
+
+  const core = globalThis.MysteryLogicInvestigationCore;
+  const definition = globalThis.MysteryLogicInvestigationCase;
+  const root = document.querySelector('[data-ml-investigation]');
+  if (!core || !definition || !root) {
+    return;
+  }
+
+  const storageKey = `mysterylogic:investigation:v1:${definition.id}`;
+  let state = loadState();
+  let activeView = 'overview';
+  let lastOpenedMaterialId = null;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return core.normalizeState(definition, raw ? JSON.parse(raw) : null);
+    } catch (error) {
+      console.warn('Mystery Logic investigation progress could not be restored.', error);
+      return core.createInitialState(definition);
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function formatText(value) {
+    return escapeHtml(value).replaceAll('\n', '<br>');
+  }
+
+  function materialIcon(type) {
+    const icons = {
+      'Сообщение': '✉',
+      'Осмотр места': '⌂',
+      'Показания': '◎',
+      'Опросы': '◎',
+      'Системный журнал': '⌘',
+      'Чек + сообщение': '▤',
+      'Изображение': '◫',
+      'Справка': 'i',
+      'Контроль доступа': '⇥',
+      'Административный реестр': '▦',
+      'Сетевой журнал': '⌁',
+      'Повторный опрос': '◉',
+      'Сетевой аудит': '⌘',
+      'Endpoint-аудит': '⌘',
+      'Системный файл': '≡',
+      'USB-аудит': '⌁',
+      'Реестр устройств': '▦',
+      'Реестр оборудования': '▦',
+      'Реестр сборок': '▦',
+      'Внешняя переписка': '✉',
+      'Сверка контрольных сумм': '≋',
+      'Документ': '▤',
+    };
+    return icons[type] || '•';
+  }
+
+  function availableMaterialMap() {
+    return new Map(core.availableMaterials(definition, state).map((item) => [item.id, item]));
+  }
+
+  function viewedMaterials() {
+    const viewed = new Set(state.viewedMaterials || []);
+    return definition.materials.filter((material) => viewed.has(material.id));
+  }
+
+  function leadMaterial() {
+    const materials = core.availableMaterials(definition, state);
+    const byId = new Map(materials.map((material) => [material.id, material]));
+    const orderedIds = [
+      ...(definition.openingMaterialIds || []),
+      ...materials.map((material) => material.id),
+    ];
+    return orderedIds
+      .map((id) => byId.get(id))
+      .find((material, index, ordered) => material && ordered.indexOf(material) === index && !state.viewedMaterials.includes(material.id)) || null;
+  }
+
+  function leadMaterialLabel(material) {
+    const labels = {
+      'pavel-message': 'Начать: открыть сообщение руководителя',
+      'office-morning': 'Продолжить: осмотреть офис',
+      'initial-statements': 'Продолжить: опросить участников',
+    };
+    return labels[material?.id] || 'Продолжить расследование';
+  }
+
+  function renderCaseHead() {
+    const compact = activeView !== 'overview' || Boolean(state.resultTier);
+    if (compact) {
+      return `
+        <section class="mli-case-head is-compact">
+          ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="" aria-hidden="true">` : ''}
+          <div class="mli-case-head-copy">
+            <p class="mli-kicker">Дело 17-К · студия «Кадр 17»</p>
+            <h1>${escapeHtml(definition.title)}</h1>
+            <p class="mli-subtitle">${escapeHtml(definition.subtitle)}</p>
+          </div>
+        </section>
+      `;
+    }
+
+    const lead = leadMaterial();
+    const hasAvailableActions = core.availableActions(definition, state).length > 0;
+    return `
+      <section class="mli-case-head mli-story-cover">
+        ${definition.heroImage ? `<img class="mli-case-head-image" src="${escapeHtml(definition.heroImage)}" alt="Утренний офис студии: на столе светится телефон, рядом лежит пустой футляр накопителя.">` : ''}
+        <div class="mli-case-head-copy">
+          <p class="mli-kicker">Интерактивный детектив</p>
+          <p class="mli-case-title">Дело «${escapeHtml(definition.title)}»</p>
+          <h1>Кто украл секретную копию новой компьютерной игры?</h1>
+          <p class="mli-case-explainer"><strong>«Сборка» — это готовая версия игры.</strong> Накануне важной презентации файлы удалили, а флешка с копией исчезла.</p>
+          <blockquote class="mli-case-message">«Один из вас уже продал нашу игру»<span>Последнее сообщение руководителя студии · 21:27</span></blockquote>
+          <p class="mli-player-role"><strong>Вы — следователь.</strong> Изучите улики, поговорите с участниками и докажите, кто виновен.</p>
+          ${lead
+            ? `<button class="mli-case-start" type="button" data-material="${escapeHtml(lead.id)}" data-mli-lead-material>${escapeHtml(leadMaterialLabel(lead))}<span>→</span></button>`
+            : hasAvailableActions
+              ? `<button class="mli-case-start" type="button" data-view="materials" data-mli-lead-material>Перейти к доступным проверкам<span>→</span></button>`
+              : `<button class="mli-case-start" type="button" data-view="theory" data-mli-lead-material>Собрать итоговую версию<span>→</span></button>`}
+          <p class="mli-case-freedom">Порядок действий выбираете вы. Все найденные улики сохраняются в деле.</p>
+        </div>
+        <div class="mli-cover-meta" aria-label="Параметры дела">
+          <span>${escapeHtml(definition.estimatedMinutes)}</span>
+          <span>${escapeHtml(definition.difficulty)}</span>
+        </div>
+      </section>
+    `;
+  }
+
+  function render() {
+    root.innerHTML = `
+      ${renderCaseHead()}
+
+      <div class="mli-workspace">
+        <nav class="mli-rail" aria-label="Разделы расследования">
+          ${navButton('overview', 'Начало', '⌂')}
+          ${navButton('materials', 'Улики', '▤')}
+          ${navButton('people', 'Участники', '◎')}
+          ${navButton('theory', 'Обвинение', '⌘')}
+        </nav>
+        <main class="mli-main">
+          ${renderActiveView()}
+        </main>
+      </div>
+    `;
+    bindEvents();
+    if (lastOpenedMaterialId) {
+      openMaterialDialog(lastOpenedMaterialId, false);
+      lastOpenedMaterialId = null;
+    }
+  }
+
+  function navButton(view, label, icon) {
+    const active = activeView === view;
+    return `<button class="mli-rail-button${active ? ' is-active' : ''}" type="button" data-view="${view}" aria-current="${active ? 'page' : 'false'}"><span>${icon}</span><b>${label}</b></button>`;
+  }
+
+  function renderActiveView() {
+    switch (activeView) {
+      case 'materials':
+        return renderMaterials();
+      case 'people':
+        return renderPeople();
+      case 'theory':
+        return renderTheory();
+      default:
+        return renderOverview();
+    }
+  }
+
+  function renderOverview() {
+    const actions = core.availableActions(definition, state);
+    const generalActions = actions.filter((action) => !action.characterId);
+    const materials = core.availableMaterials(definition, state);
+    const unread = materials.filter((material) => !state.viewedMaterials.includes(material.id));
+    const openingIds = definition.openingMaterialIds || materials.slice(0, 3).map((material) => material.id);
+    const openingMaterials = openingIds
+      .map((id) => materials.find((material) => material.id === id))
+      .filter(Boolean);
+    const openingComplete = openingMaterials.every((material) => state.viewedMaterials.includes(material.id));
+    const focusMaterials = openingComplete ? unread.slice(0, 3) : [];
+    const remainingUnread = Math.max(0, unread.length - focusMaterials.length);
+    return `
+      <section class="mli-mission-strip mli-section-first">
+        <div class="mli-mission-copy">
+          <p class="mli-eyebrow">Как расследовать</p>
+          <h2>${openingComplete ? 'Теперь проверяйте версии' : 'Три шага до обвинения'}</h2>
+          ${openingComplete
+            ? '<p>Сопоставляйте цифровые следы, возвращайтесь к участникам с найденными противоречиями и собирайте доказательства против виновного.</p>'
+            : `<ol class="mli-howto">
+                <li><b>1</b><span><strong>Изучайте улики</strong><small>Сообщения, документы и цифровые следы.</small></span></li>
+                <li><b>2</b><span><strong>Проверяйте показания</strong><small>Все что-то скрывают, но виновен только один.</small></span></li>
+                <li><b>3</b><span><strong>Предъявите обвинение</strong><small>Выберите виновного и приложите доказательства.</small></span></li>
+              </ol>`}
+        </div>
+        <details class="mli-briefing-details">
+          <summary>Краткая вводная по делу</summary>
+          <p>${escapeHtml(definition.brief)}</p>
+        </details>
+      </section>
+      ${focusMaterials.length ? `<section class="mli-section mli-focus-section">
+        <div class="mli-section-heading compact">
+          <div><p class="mli-eyebrow">Ближайшие материалы</p><h2>Что изучить дальше</h2></div>
+          <button class="mli-text-button" type="button" data-view="materials">Все материалы${remainingUnread ? ` · ещё ${remainingUnread}` : ''} →</button>
+        </div>
+        <div class="mli-material-grid">
+          ${focusMaterials.map(renderMaterialCard).join('')}
+        </div>
+      </section>` : ''}
+      ${openingComplete && generalActions.length ? `<section class="mli-section">
+        <div class="mli-section-heading compact">
+          <div><p class="mli-eyebrow">Основано на найденных фактах</p><h2>Доступные проверки</h2></div>
+          <button class="mli-text-button" type="button" data-view="materials">Все действия →</button>
+        </div>
+        <div class="mli-action-grid">${generalActions.slice(0, 3).map(renderActionCard).join('')}</div>
+      </section>` : ''}
+    `;
+  }
+
+  function renderMaterials() {
+    const materials = core.availableMaterials(definition, state);
+    const unread = materials.filter((material) => !state.viewedMaterials.includes(material.id));
+    const viewed = materials.filter((material) => state.viewedMaterials.includes(material.id));
+    const actions = core.availableActions(definition, state).filter((action) => !action.characterId);
+    const openingSet = new Set(definition.openingMaterialIds || []);
+    const unreadOpening = unread.filter((material) => openingSet.has(material.id));
+    const unreadArchive = unread.filter((material) => !openingSet.has(material.id));
+    return `
+      <section class="mli-section mli-section-first">
+        <div class="mli-section-heading">
+          <div><p class="mli-eyebrow">Доказательства</p><h2>Материалы дела</h2></div>
+          <p>Открытие документа означает, что вы действительно ознакомились с его содержанием. Только просмотренные материалы можно приложить к итоговой версии.</p>
+        </div>
+        <div class="mli-material-groups">
+          ${unreadOpening.length ? `<section class="mli-material-group" data-material-group="opening">
+            <div class="mli-material-subheading"><h3>Первичные материалы</h3><span>${unreadOpening.length}</span></div>
+            <div class="mli-material-grid">${unreadOpening.map(renderMaterialCard).join('')}</div>
+          </section>` : ''}
+          <section class="mli-material-group" data-material-group="new">
+            <div class="mli-material-subheading"><h3>${unreadOpening.length ? 'Остальные поступления' : 'Новые материалы'}</h3><span>${unreadArchive.length}</span></div>
+            <div class="mli-material-grid">${unreadArchive.length ? unreadArchive.map(renderMaterialCard).join('') : renderEmpty('Новых материалов нет. Продолжайте обоснованные проверки или вернитесь к участникам дела.')}</div>
+          </section>
+          ${viewed.length ? `
+            <details class="mli-viewed-materials" data-material-group="viewed">
+              <summary>Изученные материалы <b>${viewed.length}</b></summary>
+              <div class="mli-material-grid">${viewed.map(renderMaterialCard).join('')}</div>
+            </details>
+          ` : ''}
+        </div>
+      </section>
+      ${actions.length ? `<section class="mli-section">
+        <div class="mli-section-heading">
+          <div><p class="mli-eyebrow">Операции</p><h2>Следственные действия</h2></div>
+          <p>Это проверки, для которых у вас уже появилось фактическое основание. Они не отсортированы по «правильности».</p>
+        </div>
+        <div class="mli-action-grid">${actions.map(renderActionCard).join('')}</div>
+      </section>` : ''}
+    `;
+  }
+
+  function renderMaterialCard(material, modifier = '') {
+    const viewed = state.viewedMaterials.includes(material.id);
+    return `
+      <button class="mli-material-card${viewed ? ' is-viewed' : ''}${modifier}" type="button" data-material="${escapeHtml(material.id)}">
+        <span class="mli-material-icon">${materialIcon(material.type)}</span>
+        <span class="mli-material-copy">
+          <small>${escapeHtml(material.type)}${viewed ? ' · изучено' : ' · новое'}</small>
+          <strong>${escapeHtml(material.title)}</strong>
+        </span>
+        <span class="mli-material-arrow">→</span>
+      </button>
+    `;
+  }
+
+  function renderActionCard(action) {
+    return `
+      <button class="mli-action-card" type="button" data-action="${escapeHtml(action.id)}">
+        <span class="mli-action-mark">+</span>
+        <span><strong>${escapeHtml(action.label)}</strong><small>${escapeHtml(action.description || '')}</small></span>
+      </button>
+    `;
+  }
+
+  function renderPeople() {
+    const facts = new Set(state.facts || []);
+    return `
+      <section class="mli-section mli-section-first">
+        <div class="mli-section-heading">
+          <div><p class="mli-eyebrow">Люди и показания</p><h2>Кто связан с делом</h2></div>
+          <p>Сначала разберитесь, кто эти люди и за что каждый отвечал. Новые показания появляются только после предъявления фактического противоречия.</p>
+        </div>
+        <div class="mli-people-list">
+          ${definition.characters.map((character) => {
+            const actions = core.availableActions(definition, state).filter((action) => action.characterId === character.id);
+            return `
+              <article class="mli-person-card" data-character="${escapeHtml(character.id)}">
+                <header>
+                  <span class="mli-avatar">${characterPortrait(character, 'data-character-portrait')}</span>
+                  <div><p class="mli-person-index">${escapeHtml(character.relationship || 'Участник дела')}</p><h3>${escapeHtml(character.name)}</h3><p>${escapeHtml(character.role)}</p></div>
+                </header>
+                ${character.responsibility ? `<div class="mli-person-context"><small>Связь с расследованием</small><p>${escapeHtml(character.responsibility)}</p></div>` : ''}
+                <div class="mli-statement"><small>Текущая версия показаний</small><p>${escapeHtml(core.statementFor(character, facts))}</p></div>
+                <div class="mli-person-actions">
+                  ${actions.length ? actions.map((action) => `<button type="button" data-action="${escapeHtml(action.id)}"><strong>${escapeHtml(action.label)}</strong><span>${escapeHtml(action.description || '')}</span></button>`).join('') : '<p class="mli-muted-note">Новых обоснованных вопросов пока нет.</p>'}
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderTheory() {
+    const viewed = viewedMaterials();
+    const tier = state.resultTier;
+    return `
+      <section class="mli-section mli-section-first">
+        <div class="mli-section-heading">
+          <div><p class="mli-eyebrow">Рабочая гипотеза</p><h2>Соберите версию</h2></div>
+          <p>Здесь мало просто назвать подозреваемого. К каждому причинному звену приложите материалы, которыми вы готовы его доказать.</p>
+        </div>
+
+        <div class="mli-suspect-picker" role="group" aria-label="Кто исполнитель">
+          ${definition.suspects.map((suspect) => {
+            const character = definition.characters.find((item) => item.id === suspect.id) || suspect;
+            return `<button type="button" class="${state.selectedSuspectId === suspect.id ? 'is-selected' : ''}" data-suspect="${escapeHtml(suspect.id)}"><span>${characterPortrait(character, 'data-suspect-portrait')}</span><strong>${escapeHtml(suspect.label)}</strong></button>`;
+          }).join('')}
+        </div>
+      </section>
+
+      <section class="mli-section">
+        <div class="mli-proof-intro">
+          <div><strong>Критические звенья</strong><span>Все четыре нужны для устойчивого обвинения.</span></div>
+          <button class="mli-secondary-button" type="button" data-audit-version>Проверить прочность версии</button>
+        </div>
+        <div class="mli-proof-list">
+          ${definition.proofFamilies.filter((proof) => proof.requiredForStrongCase).map((proof, index) => renderProofCard(proof, viewed, index + 1)).join('')}
+        </div>
+      </section>
+
+      <section class="mli-section">
+        <div class="mli-section-heading compact">
+          <div><p class="mli-eyebrow">Необязательно для обвинения</p><h2>Полная реконструкция</h2></div>
+          <p>Эти звенья объясняют, почему лгали остальные и что стало с Павлом и сборкой.</p>
+        </div>
+        <div class="mli-proof-list secondary">
+          ${definition.proofFamilies.filter((proof) => !proof.requiredForStrongCase).map((proof, index) => renderProofCard(proof, viewed, index + 1)).join('')}
+        </div>
+      </section>
+
+      <section class="mli-section mli-final-actions">
+        <button class="mli-primary-button" type="button" data-finalize ${state.selectedSuspectId ? '' : 'disabled'}>Предъявить итоговую версию</button>
+        <button class="mli-text-button" type="button" data-reset>Начать дело заново</button>
+      </section>
+
+      ${tier ? renderResult(tier) : ''}
+    `;
+  }
+
+  function renderProofCard(proof, viewed, ordinal) {
+    const selected = new Set(state.proofSelections?.[proof.id] || []);
+    return `
+      <article class="mli-proof-card">
+        <header><span>${String(ordinal).padStart(2, '0')}</span><div><h3>${escapeHtml(proof.label)}</h3><p>${escapeHtml(proof.description)}</p></div></header>
+        <details>
+          <summary>Приложить доказательства <b data-proof-count>${selected.size ? `· выбрано ${selected.size}` : ''}</b></summary>
+          <div class="mli-evidence-picker">
+            ${viewed.length ? viewed.map((material) => `
+              <label class="${selected.has(material.id) ? 'is-selected' : ''}">
+                <input type="checkbox" data-proof="${escapeHtml(proof.id)}" data-evidence="${escapeHtml(material.id)}" ${selected.has(material.id) ? 'checked' : ''}>
+                <span><small>${escapeHtml(material.type)}</small><strong>${escapeHtml(material.title)}</strong></span>
+              </label>
+            `).join('') : '<p class="mli-muted-note">Сначала изучите материалы дела.</p>'}
+          </div>
+        </details>
+      </article>
+    `;
+  }
+
+  function renderResult(tier) {
+    const result = definition.resultTiers[tier];
+    const missingCore = core.missingProofs(definition, state, 'strong');
+    const missingComplete = core.missingProofs(definition, state, 'complete').filter((proof) => !proof.requiredForStrongCase);
+    return `
+      <section class="mli-result mli-result-${tier.toLowerCase()}">
+        <span class="mli-result-grade">${escapeHtml(tier)}</span>
+        <div>
+          <p class="mli-eyebrow">Результат предъявления</p>
+          <h2>${escapeHtml(result.title)}</h2>
+          <p>${escapeHtml(result.text)}</p>
+          ${tier === 'B' && missingCore.length ? `<div class="mli-result-note"><strong>Неподтверждённое звено:</strong> ${escapeHtml(missingCore[0].label)}</div>` : ''}
+          ${tier === 'A' && missingComplete.length ? `<div class="mli-result-note"><strong>Для полной реконструкции осталось:</strong> ${missingComplete.map((proof) => escapeHtml(proof.label)).join('; ')}</div>` : ''}
+          ${tier === 'S' ? `<details class="mli-truth"><summary>Что произошло на самом деле</summary><p>${escapeHtml(definition.resultNarrative)}</p></details>` : ''}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderEmpty(text) {
+    return `<div class="mli-empty">${escapeHtml(text)}</div>`;
+  }
+
+  function initials(name) {
+    return String(name)
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0] || '')
+      .join('')
+      .toUpperCase();
+  }
+
+  function characterPortrait(character, dataAttribute) {
+    if (!character?.portrait) {
+      return initials(character?.name || character?.label || '');
+    }
+    return `<img src="${escapeHtml(character.portrait)}" alt="" width="160" height="200" loading="lazy" decoding="async" ${dataAttribute}="${escapeHtml(character.id)}">`;
+  }
+
+  function bindEvents() {
+    root.querySelectorAll('[data-view]').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeView = button.dataset.view;
+        render();
+        window.scrollTo({ top: root.offsetTop - 16, behavior: 'smooth' });
+      });
+    });
+
+    root.querySelectorAll('[data-material]').forEach((button) => {
+      button.addEventListener('click', () => openMaterialDialog(button.dataset.material, true));
+    });
+
+    root.querySelectorAll('[data-action]').forEach((button) => {
+      button.addEventListener('click', () => performAction(button.dataset.action));
+    });
+
+    root.querySelectorAll('[data-suspect]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state = core.selectSuspect(state, button.dataset.suspect);
+        saveState();
+        render();
+      });
+    });
+
+    root.querySelectorAll('[data-proof][data-evidence]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const hadResult = Boolean(state.resultTier);
+        state = core.toggleEvidence(definition, state, input.dataset.proof, input.dataset.evidence);
+        saveState();
+        if (hadResult) {
+          render();
+          return;
+        }
+        const selected = state.proofSelections?.[input.dataset.proof] || [];
+        input.checked = selected.includes(input.dataset.evidence);
+        input.closest('label')?.classList.toggle('is-selected', input.checked);
+        const counter = input.closest('.mli-proof-card')?.querySelector('[data-proof-count]');
+        if (counter) {
+          counter.textContent = selected.length ? `· выбрано ${selected.length}` : '';
+        }
+      });
+    });
+
+    root.querySelector('[data-audit-version]')?.addEventListener('click', auditVersion);
+    root.querySelector('[data-finalize]')?.addEventListener('click', finalizeVersion);
+    root.querySelector('[data-reset]')?.addEventListener('click', resetCase);
+  }
+
+  function openMaterialDialog(materialId, markViewed) {
+    const material = availableMaterialMap().get(materialId);
+    if (!material) {
+      return;
+    }
+    if (markViewed) {
+      state = core.openMaterial(definition, state, materialId);
+      saveState();
+    }
+    const dialog = document.querySelector('[data-mli-dialog]');
+    if (!dialog) {
+      return;
+    }
+    dialog.innerHTML = `
+      <article class="mli-dialog-card">
+        <button class="mli-dialog-close" type="button" data-close-dialog aria-label="Закрыть">×</button>
+        <p class="mli-eyebrow">${escapeHtml(material.type)}</p>
+        <h2>${escapeHtml(material.title)}</h2>
+        <div class="mli-document-body">${formatText(material.body)}</div>
+      </article>
+    `;
+    dialog.querySelector('[data-close-dialog]').addEventListener('click', () => dialog.close());
+    if (typeof dialog.showModal === 'function') {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute('open', '');
+    }
+    if (markViewed) {
+      dialog.addEventListener('close', () => render(), { once: true });
+    }
+  }
+
+  function performAction(actionId) {
+    const outcome = core.performAction(definition, state, actionId);
+    if (!outcome.action) {
+      return;
+    }
+    state = outcome.state;
+    saveState();
+    const revealed = (outcome.action.revealsMaterials || []).map((id) => core.materialById(definition, id)).filter(Boolean);
+    render();
+    if (revealed.length) {
+      openMaterialDialog(revealed[0].id, true);
+      return;
+    }
+    showNotice('Проверка завершена. Новые факты добавлены в дело.');
+  }
+
+  function auditVersion() {
+    if (!state.selectedSuspectId) {
+      showNotice('Сначала выберите рабочую гипотезу: кого вы считаете исполнителем.');
+      return;
+    }
+    const culprit = definition.suspects.find((suspect) => suspect.isCanonicalCulprit);
+    if (state.selectedSuspectId !== culprit?.id) {
+      showNotice('Текущая гипотеза пока не объясняет совокупность установленных следов. Проверьте физическую возможность, цифровую цепочку и предшествующий умысел.');
+      return;
+    }
+    const missing = core.missingProofs(definition, state, 'strong');
+    showNotice(
+      missing.length
+        ? `Версия уязвима: не подтверждено звено «${missing[0].label}».`
+        : 'Все критические звенья версии подтверждены выбранными вами материалами. Можно предъявлять обвинение или продолжить полную реконструкцию.',
+    );
+  }
+
+  function finalizeVersion() {
+    state = core.finalize(definition, state);
+    saveState();
+    render();
+    document.querySelector('.mli-result')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function resetCase() {
+    if (!confirm('Удалить локальный прогресс «Последней сборки» и начать расследование заново?')) {
+      return;
+    }
+    localStorage.removeItem(storageKey);
+    state = core.createInitialState(definition);
+    activeView = 'overview';
+    render();
+  }
+
+  function showNotice(text) {
+    const notice = document.querySelector('[data-mli-notice]');
+    if (!notice) {
+      return;
+    }
+    notice.textContent = text;
+    notice.classList.add('is-visible');
+    clearTimeout(showNotice.timer);
+    showNotice.timer = setTimeout(() => notice.classList.remove('is-visible'), 4200);
+  }
+
+  window.addEventListener('mysterylogic:interrogation-state-changed', (event) => {
+    state = loadState();
+    activeView = 'people';
+    lastOpenedMaterialId = event.detail?.materialId || null;
+    render();
+  });
+
+  render();
+})();
