@@ -24,8 +24,8 @@ assert.match(session,/const previewOverride=isOwnerPreview\?ownerPreviewAvatar\(
 assert.match(session,/const publishedAvatarId=clean\(profile\?\.avatarId,256\)/,'published avatar must remain a distinct server-side source');
 assert.match(session,/const sandboxFallbackAllowed=isOwnerPreview&&AVATAR_SANDBOX/,'Wayne fallback must require owner preview and sandbox');
 assert.match(session,/const allowedAvatarId=previewOverride\|\|publishedAvatarId\|\|\(sandboxFallbackAllowed\?LIVEAVATAR_SANDBOX_AVATAR_ID:""\)/,'owner preset may override only the owner preview; otherwise published identity wins before Wayne');
-assert.match(session,/const isSandboxSession=Boolean\(isOwnerPreview&&AVATAR_SANDBOX\)/,'all owner-preview avatar identities must stay sandboxed during review');
-assert.match(session,/const sessionSeconds=isSandboxSession\?Math\.min\(MAX_SESSION_SECONDS,60\):MAX_SESSION_SECONDS/,'sandbox review sessions must retain the 60-second cap while production can use configured duration');
+assert.match(session,/const isSandboxSession=Boolean\(!previewOverride&&!publishedAvatarId&&sandboxFallbackAllowed&&allowedAvatarId===LIVEAVATAR_SANDBOX_AVATAR_ID\)/,'only the dedicated fallback identity may use sandbox mode');
+assert.match(session,/const sessionSeconds=isOwnerPreview\?Math\.min\(MAX_SESSION_SECONDS,60\):MAX_SESSION_SECONDS/,'owner preview must remain one-minute capped even when public presets require non-sandbox sessions');
 assert.match(session,/if\(!allowedAvatarId\)return json\(origin,404,\{error:"suspect_avatar_unavailable"\}\)/,'missing production avatar must fail closed');
 assert.match(session,/if\(requestedAvatarId&&requestedAvatarId!==allowedAvatarId\)return json\(origin,403,\{error:"avatar_not_allowed"\}\)/,'browser must not be able to substitute another avatar id');
 
