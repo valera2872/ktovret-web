@@ -102,7 +102,13 @@ Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
   if(req.method==="OPTIONS"){
     if(origin&&!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
-    return new Response(null,{status:204,headers:corsHeaders(origin)});
+    const headers:Record<string,string>=corsHeaders(origin);
+    const requestedHeaders=clean(req.headers.get("access-control-request-headers")||"",512);
+    if(requestedHeaders)headers["access-control-allow-headers"]=requestedHeaders;
+    headers["access-control-max-age"]="600";
+    if((req.headers.get("access-control-request-private-network")||"").toLowerCase()==="true")headers["access-control-allow-private-network"]="true";
+    console.log("avatar_preflight",JSON.stringify({origin,requested_headers:requestedHeaders,requested_method:clean(req.headers.get("access-control-request-method")||"",32)}));
+    return new Response(null,{status:204,headers});
   }
   if(req.method!=="POST")return json(origin,405,{error:"method_not_allowed"});
   if(!origin||!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
