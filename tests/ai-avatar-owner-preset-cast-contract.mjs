@@ -14,8 +14,9 @@ must(session,'suspectId!=="anton"&&suspectId!=="lev"','owner override limited to
 must(session,'metadata?.preview_avatar_overrides','server-side entitlement metadata source');
 must(session,'const previewOverride=isOwnerPreview?ownerPreviewAvatar(metadata,suspectId):""','override requires owner preview');
 must(session,'const allowedAvatarId=previewOverride||publishedAvatarId||','owner preset precedence');
-must(session,'const isSandboxSession=Boolean(isOwnerPreview&&AVATAR_SANDBOX)','all owner-preview identities remain sandboxed');
-must(session,'is_sandbox:isSandboxSession','provider sandbox flag follows review state');
+must(session,'const isSandboxSession=Boolean(!previewOverride&&!publishedAvatarId&&sandboxFallbackAllowed&&allowedAvatarId===LIVEAVATAR_SANDBOX_AVATAR_ID)','only fallback identity remains sandboxed');
+must(session,'const sessionSeconds=isOwnerPreview?Math.min(MAX_SESSION_SECONDS,60):MAX_SESSION_SECONDS','owner preview stays capped to one minute');
+must(session,'is_sandbox:isSandboxSession','provider sandbox flag follows resolved identity');
 must(session,'avatarSource=previewOverride?"owner_preview_preset"','explicit source marker');
 must(session,'owner_preview_override:Boolean(previewOverride)','readiness exposes owner override state');
 must(session,'provider_status:upstream.status','owner preview exposes sanitized upstream status for diagnostics');
