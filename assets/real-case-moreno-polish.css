@@ -1,0 +1,37 @@
+/* First-contact visual polish for the Moreno deduction slice. */
+.ms-scene-intro{
+  display:grid;
+  grid-template-columns:190px minmax(0,1fr);
+  gap:18px;
+  align-items:stretch;
+  margin-top:26px;
+  overflow:hidden;
+  border:1px solid rgba(234,211,158,.16);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(234,211,158,.055),rgba(255,255,255,.018));
+}
+.ms-scene-intro-photo{position:relative;min-height:190px;overflow:hidden;background:#0a1622}
+.ms-scene-intro-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) sepia(.1);opacity:.76}
+.ms-scene-intro-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,17,29,.04),rgba(7,17,29,.48))}
+.ms-scene-intro-photo span{position:absolute;z-index:2;left:14px;right:14px;bottom:13px;color:#eef2f5;font-size:.66rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.ms-scene-intro-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;align-self:stretch;background:rgba(255,255,255,.07)}
+.ms-scene-intro-facts div{display:flex;flex-direction:column;justify-content:center;padding:18px;background:rgba(9,22,35,.94)}
+.ms-scene-intro-facts small{color:var(--ms-gold);font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.ms-scene-intro-facts strong{margin-top:7px;color:#f4f0e8;font-family:Georgia,"Times New Roman",serif;font-size:1.18rem;font-weight:400;line-height:1.2}
+.ms-scene-intro-facts span{margin-top:6px;color:var(--ms-muted);font-size:.7rem;line-height:1.45}
+
+@media(max-width:780px){
+  .ms-opening{display:flex;flex-direction:column}
+  .ms-opening-visual{order:-1;min-height:270px;border-top:0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .ms-opening-copy{order:1}
+  .ms-photo-caption{font-size:.66rem}
+  .ms-scene-intro{grid-template-columns:1fr;margin-top:22px}
+  .ms-scene-intro-photo{min-height:220px}
+  .ms-scene-intro-facts{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .ms-opening-visual{min-height:245px}
+  .ms-scene-intro-photo{min-height:190px}
+  .ms-scene-intro-facts{grid-template-columns:1fr}
+  .ms-scene-intro-facts div{padding:14px 16px}
+}
