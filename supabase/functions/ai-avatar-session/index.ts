@@ -142,10 +142,11 @@ Deno.serve(async(req:Request)=>{
   const allowedAvatarId=previewOverride||publishedAvatarId||(sandboxFallbackAllowed?LIVEAVATAR_SANDBOX_AVATAR_ID:"");
   if(!allowedAvatarId)return json(origin,404,{error:"suspect_avatar_unavailable"});
   if(requestedAvatarId&&requestedAvatarId!==allowedAvatarId)return json(origin,403,{error:"avatar_not_allowed"});
-  // Owner-preview is always sandbox while AI-01 is under review, including selected public presets.
-  // This keeps technical testing non-billable; public published sessions remain non-sandbox.
-  const isSandboxSession=Boolean(isOwnerPreview&&AVATAR_SANDBOX);
-  const sessionSeconds=isSandboxSession?Math.min(MAX_SESSION_SECONDS,60):MAX_SESSION_SECONDS;
+  // Public preset avatars are production identities and must start as non-sandbox sessions.
+  // Only the dedicated owner-preview fallback avatar may use zero-credit sandbox mode.
+  const isSandboxSession=Boolean(!previewOverride&&!publishedAvatarId&&sandboxFallbackAllowed&&allowedAvatarId===LIVEAVATAR_SANDBOX_AVATAR_ID);
+  // Owner preview is always capped to one minute, even when a public preset needs a billable non-sandbox session.
+  const sessionSeconds=isOwnerPreview?Math.min(MAX_SESSION_SECONDS,60):MAX_SESSION_SECONDS;
   const avatarSource=previewOverride?"owner_preview_preset":publishedAvatarId?"published":"sandbox";
 
   const upstream=await fetch(`${LIVEAVATAR_API_BASE}/v1/sessions/token`,{
