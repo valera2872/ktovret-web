@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {applyPremiumSurfaceV2} from './premium-surface-v2-postprocess.mjs';
 
-const VERSION='3.3.0';
+const VERSION='3.3.1';
 const SKIP_DIRS=new Set(['.git','.github','node_modules','tools','tests','artifacts','docs','ops','supabase','old.bac','admin']);
 
 function relativeAsset(fromDir,asset){return path.relative(fromDir,asset).replaceAll(path.sep,'/');}
@@ -95,5 +95,5 @@ export function applyLogicSitewide(siteRoot){
   if(home.includes('class="ref-nav"')&&!home.includes('>Головоломки</a>')) throw new Error('logic sitewide: homepage puzzle nav missing');
   if(home.includes('class="ref-nav"')&&!home.includes('data-nav-daily')) throw new Error('logic sitewide: daily Telegram nav missing');
   const premiumSurface=applyPremiumSurfaceV2(root);
-  return {version:VERSION,pages,navPatched,legacyLinksRewritten,styledPages,aiPromoPages,telegramRetention:true,ai01PromoPublic:false,premiumSurface};
+  return {version:VERSION,pages,navPatched,legacyLinksRewritten,styledPages,aiPromoPages,telegramRetention:true,ai01PromoPublic:true,premiumSurface};
 }
