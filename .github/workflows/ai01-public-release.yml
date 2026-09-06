@@ -21,6 +21,7 @@ on:
       - 'tests/ai01-release-isolation-contract.mjs'
       - 'tests/ai01-public-copy-contract.mjs'
       - 'tests/ai01-launch-budget-contract.mjs'
+      - 'tests/ai01-release-branch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
   push:
@@ -44,6 +45,7 @@ on:
       - 'tests/ai01-release-isolation-contract.mjs'
       - 'tests/ai01-public-copy-contract.mjs'
       - 'tests/ai01-launch-budget-contract.mjs'
+      - 'tests/ai01-release-branch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
 
@@ -66,4 +68,5 @@ jobs:
       - run: node tests/ai01-release-isolation-contract.mjs
       - run: node tests/ai01-public-copy-contract.mjs
       - run: node tests/ai01-launch-budget-contract.mjs
+      - run: node tests/ai01-release-branch-contract.mjs
       - run: node tests/ai01-voice-input-contract.mjs
