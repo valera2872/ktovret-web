@@ -14,6 +14,11 @@ assert.match(html, /solo-engine-v2-core\.mjs/, 'preview must exercise the real S
 assert.match(html, /solo-engine-v2-contract-case\.mjs/, 'preview must use the spoiler-free synthetic contract case');
 assert.match(html, /ml-0512-case\.mjs/, 'preview must show the ML-0512 public manifest');
 assert.match(html, /Private canon boundary/, 'preview must state the private-canon boundary');
+assert.match(html, /isEvidenceAccessible/, 'preview must distinguish evidence story unlock from current access');
+assert.match(html, /isDeductionAccessible/, 'preview must distinguish deduction story availability from current access');
+assert.match(html, /Активировать Club/, 'preview must expose Club activation simulation');
+assert.match(html, /Завершить Club/, 'preview must expose Club expiry simulation');
+assert.match(html, /progress сохранён/i, 'preview must explain progress continuity after Club expiry');
 
 const moduleMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/i);
 assert(moduleMatch, 'preview must contain a module script');
@@ -47,5 +52,6 @@ console.log(JSON.stringify({
   previewModuleSyntax: true,
   realEngineCore: true,
   syntheticBrowserCase: true,
+  clubAccessVisualization: true,
   publicManifestNoCanon: true
 }, null, 2));
