@@ -11,7 +11,7 @@ for(const phrase of [
   'Соберите версию',
   'С чего начать:',
   'после старта в комнату пригласят Марину',
-  'Начать расследование',
+  'Принять дело',
   'Первый ориентир:',
   'placeholder="Задайте свой вопрос…"'
 ]) assert.ok(html.includes(phrase),`missing onboarding phrase: ${phrase}`);
