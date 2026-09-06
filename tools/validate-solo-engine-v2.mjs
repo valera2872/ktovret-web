@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { createInitialSoloState, processSoloAction } from '../assets/solo-engine-v2-core.mjs';
 import { ml0512PublicManifest } from '../assets/cases/ml-0512-case.mjs';
-import { soloEngineV2ContractCase as contractCase } from './fixtures/solo-engine-v2-contract-case.mjs';
+import { soloEngineV2ContractCase as contractCase } from '../assets/cases/solo-engine-v2-contract-case.mjs';
 
 const ids = (items) => items.map((item) => item.id);
 const unique = (values) => new Set(values).size === values.length;
@@ -50,8 +50,6 @@ demo = act(demo, { type: 'SET_ENTITLEMENT', entitlement: 'owned' });
 assert(demo.evidence.B01.unlocked, 'owned user did not unlock premium evidence');
 
 let state = demo;
-
-// The false suspect is genuinely caught in a separate violation, then eliminated from the main incident.
 state = act(state, { type: 'ADD_HYPOTHESIS', subjectId: 'alpha', claim: 'CAUSED_INCIDENT' });
 state = open(state, 'B01');
 state = present(state, 'B01', 'alpha');
@@ -62,7 +60,6 @@ state = open(state, 'B03');
 state = solve(state, 'Q04');
 assert.equal(state.hypotheses[0].status, 'contradicted', 'false-suspect hypothesis not disproved');
 
-// Unlocking a hidden evidence section is not equivalent to examining it.
 state = open(state, 'B04');
 state = present(state, 'B04', 'beta');
 assert(state.evidence.B04.sections.hidden_detail.unlocked, 'hidden evidence section not unlocked');
@@ -77,7 +74,6 @@ state = open(state, 'B06');
 state = open(state, 'B07');
 state = solve(state, 'Q07');
 
-// Proof classes require both established deductions and direct evidence presentation.
 assert(!state.milestones.includes('CONFESSION_OBTAINED'), 'confession triggered before proof presentation');
 state = present(state, 'B05', 'beta');
 state = present(state, 'B07', 'beta');
@@ -89,7 +85,6 @@ state = act(state, { type: 'TRIGGER_INTERACTION', interactionId: 'FINAL_BETA_CON
 assert(state.milestones.includes('CONFESSION_OBTAINED'), 'explicit final confrontation did not trigger confession');
 assert(state.milestones.includes('RECONSTRUCTION_AVAILABLE'), 'reconstruction not unlocked after confession');
 
-// Confession is not completion: holistic reconstruction remains mandatory.
 state = act(state, { type: 'SUBMIT_RECONSTRUCTION', answers: contractCase.expectedReconstruction });
 assert(state.completed, 'correct reconstruction did not complete contract case');
 assert(state.milestones.includes('CASE_COMPLETED'), 'case completion milestone missing');
