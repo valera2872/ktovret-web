@@ -38,6 +38,6 @@ assert.match(tts,/voice:profile\.ttsVoice/,'server profile must remain the base 
 assert.match(tts,/if\(isOwnerPreview\)payload\.voice=ownerPreviewVoice\(suspectId,profile\.ttsVoice\)/,'voice override must stay owner-preview-only');
 assert.match(tts,/avatar_tts_ok/,'TTS timings must be observable in Edge logs');
 
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-sessiontransport2/,'session transport fix must use a fresh provider/factory cache key so stale preflight code cannot survive browser cache');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-streamready1/,'stream-readiness fix must use a fresh provider/factory cache key so stale media-race code cannot survive browser cache');
 assert.match(html,/ai-avatar-wait-resume\.js\?v=0\.0\.1/,'visible-session UX and resume behavior must use a fresh cache key');
 console.log('AI-01 Live tab resume contract: ok');
