@@ -10,6 +10,9 @@ const unique = (values) => new Set(values).size === values.length;
 assert.equal(ml0512PublicManifest.evidenceCount, 24, 'ML-0512 public manifest must advertise 24 evidence objects');
 assert.equal(ml0512PublicManifest.deductionCount, 11, 'ML-0512 public manifest must advertise 11 deductions');
 assert.equal(ml0512PublicManifest.runtimePolicy, 'server-authoritative-private-canon', 'ML-0512 must require private canon');
+assert.equal(ml0512PublicManifest.clientContract.storyUnlockStateMayPersistWithoutContent, true, 'story unlock state must be separable from protected content');
+assert.equal(ml0512PublicManifest.clientContract.receivesOnlyAuthorizedEvidenceContent, true, 'browser must receive only authorized evidence content');
+assert.equal(ml0512PublicManifest.clientContract.entitlementEvaluatedServerSide, true, 'entitlement must be evaluated server-side');
 assert.equal(ml0512PublicManifest.clientContract.deductionAnswersStayServerSide, true, 'deduction answers must stay server-side');
 assert.equal(ml0512PublicManifest.clientContract.characterCanonStaysServerSide, true, 'character canon must stay server-side');
 assert.equal(ml0512PublicManifest.clientContract.reconstructionAnswersStayServerSide, true, 'reconstruction answers must stay server-side');
@@ -129,6 +132,7 @@ assert.equal(roundTrip.evidence.B01.opened, true, 'premium evidence progress los
 console.log(JSON.stringify({
   verdict: 'SOLO_ENGINE_V2_FOUNDATION_PASS',
   publicCanonBoundary: true,
+  authorizedContentContract: true,
   storyUnlockSeparatedFromAccess: true,
   clubExpiryRevokesAccess: true,
   clubRenewalRestoresProgress: true,
