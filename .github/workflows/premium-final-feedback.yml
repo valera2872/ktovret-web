@@ -18,6 +18,8 @@ jobs:
           node-version: '22'
       - name: Validate Last Aria feedback runtime syntax
         run: node --check assets/case-aria-final-feedback.js
+      - name: Validate Last Aria first-buyer recovery syntax
+        run: node --check assets/case-aria-first-buyer-recovery.js
       - name: Validate Last Aria delayed loader syntax
         run: node --check assets/case-aria-final-feedback-loader.js
       - name: Validate Last Aria stable investigation UX syntax
