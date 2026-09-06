@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  // Public launch stays OFF until explicit release approval.
-  const PUBLIC_LAUNCH = false;
+  // Public Text launch. Live remains owner-preview only.
+  const PUBLIC_LAUNCH = true;
   const PREVIEW_PARAM = 'ai01_preview';
   const PREVIEW_KEY = 'mysterylogic:ai01-launch-preview:v1';
   const DISMISS_KEY = 'mysterylogic:ai01-promo-dismissed:v1';
@@ -46,8 +46,8 @@
     <button class="ml-ai01-launch-close" type="button" aria-label="Скрыть предложение">×</button>
     <div class="ml-ai01-launch-copy">
       <span class="ml-ai01-launch-kicker">Новое · AI-расследование · бесплатно</span>
-      <strong>Допрашивайте подозреваемых своими словами.</strong>
-      <p>«Восемь минут без камеры»: три фигуранта, улики, свободный допрос и ваша собственная версия дела.</p>
+      <strong>Допрашивайте подозреваемых голосом или текстом.</strong>
+      <p>«Восемь минут без камеры»: три фигуранта, улики, свободные вопросы и ваша собственная версия дела.</p>
     </div>
     <a class="ml-ai01-launch-cta" href="${siteHref('/detektivnaya-igra-s-ii/')}${preview && !PUBLIC_LAUNCH ? '?ai01_preview=1' : ''}" data-ai01-launch-cta>Принять дело →</a>`;
 
