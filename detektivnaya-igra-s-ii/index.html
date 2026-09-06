@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.4-avatar1">
   <link rel="stylesheet" href="../assets/ai01-onboarding.css?v=0.1.0">
   <link rel="stylesheet" href="../assets/ai01-public-release.css?v=0.1.0">
+  <link rel="stylesheet" href="../assets/ai01-voice-input.css?v=0.1.0">
   <title>Восемь минут без камеры — бесплатное AI-расследование Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -36,7 +37,7 @@
         </div>
 
         <div class="aid-howto" aria-label="Как вести расследование">
-          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами. Готовых реплик нет.</small></span></div>
+          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами — голосом или текстом. Готовых реплик нет.</small></span></div>
           <div class="aid-howto-step"><b>2</b><span><strong>Проверяйте</strong><small>Изучайте материалы и предъявляйте их подозреваемым.</small></span></div>
           <div class="aid-howto-step"><b>3</b><span><strong>Соберите версию</strong><small>Сравните показания, исключите невиновных и объясните цепочку доказательств.</small></span></div>
         </div>
@@ -109,9 +110,16 @@
           </div>
           <label class="aid-sr-only" for="aid-question">Ваш вопрос</label>
           <textarea id="aid-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
+          <div class="aid-voice-status" data-ai01-voice-status aria-live="polite" hidden></div>
           <div class="aid-composer-actions">
             <span data-turn-counter>0 / 30 вопросов</span>
-            <button class="aid-send" type="submit">Задать вопрос</button>
+            <div class="aid-composer-buttons">
+              <button class="aid-voice-button" type="button" data-ai01-voice aria-pressed="false" title="Задать вопрос голосом">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0Z"/></svg>
+                <span data-ai01-voice-label>Сказать</span>
+              </button>
+              <button class="aid-send" type="submit">Задать вопрос</button>
+            </div>
           </div>
         </form>
       </section>
@@ -185,5 +193,6 @@
   <script src="../assets/ai-avatar-provider.js?v=0.0.5-sessiontransport2" defer></script>
   <script src="../assets/ai-avatar-wait-resume.js?v=0.0.1" defer></script>
   <script src="../assets/ai-detective-vslice.js?v=0.3.6" defer></script>
+  <script src="../assets/ai01-voice-input.js?v=0.1.0" defer></script>
 </body>
 </html>
