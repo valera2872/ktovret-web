@@ -1,8 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import {fileURLToPath} from 'node:url';
 import {slugify,estimate} from './common.mjs';
 import {SEO_POLICY,buildEditorialCollections,isSeoPublishedCase} from './seo-policy.mjs';
+
+const FREE_CASE_COUNT=10;
+const VOLUME_SIZE=50;
+const EXPECTED_SOURCE_CASES=100;
+const SUPPLEMENT_PATH=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../content/who-lied-volume-2-supplement.json');
 
 const known=new Map([
   ['first_r3_001_four_archive_entries',['chetyre-vhoda-v-arhiv','ktovret:web:demo:v4:first_r3_001_four_archive_entries']],
@@ -33,6 +39,14 @@ function loadCopyOverrides(sourceRoot){
   const root=JSON.parse(fs.readFileSync(overridePath,'utf8'));
   const raw=root?.cases&&typeof root.cases==='object'?root.cases:{};
   return new Map(Object.entries(raw));
+}
+
+function loadSupplement(){
+  if(!fs.existsSync(SUPPLEMENT_PATH))return {sets:[],cases:[]};
+  const root=JSON.parse(fs.readFileSync(SUPPLEMENT_PATH,'utf8'));
+  const sets=Array.isArray(root?.sets)?root.sets:[];
+  const cases=Array.isArray(root?.cases)?root.cases:[];
+  return {sets,cases};
 }
 
 function mergeObject(target,patch){
@@ -91,16 +105,39 @@ export function loadLibrary(sourceRoot,sourceCommit){
     }
   }
 
-  if(active.length!==100)throw new Error(`Исходных записей ${sourceEntries}, устаревших ID ${deprecated.size}, активных дел ${active.length}`);
+  if(active.length!==EXPECTED_SOURCE_CASES)throw new Error(`Исходных записей ${sourceEntries}, устаревших ID ${deprecated.size}, активных дел ${active.length}; ожидалось ${EXPECTED_SOURCE_CASES}`);
   for(const overrideId of copyOverrides.keys())if(!ids.has(overrideId))throw new Error(`Редакторская правка ссылается на неактивное дело: ${overrideId}`);
 
+  const supplement=loadSupplement();
+  for(const set of supplement.sets){
+    if(!set?.id)throw new Error('Дополнительный набор без id');
+    if(sets.has(set.id))throw new Error(`Повтор ID дополнительного набора: ${set.id}`);
+    sets.set(set.id,set);
+  }
+  for(const rawItem of supplement.cases){
+    if(!rawItem?.id)throw new Error('Дополнительное дело без id');
+    if(ids.has(rawItem.id))throw new Error(`Повтор активного ID: ${rawItem.id}`);
+    ids.add(rawItem.id);
+    active.push({...rawItem,__asset:'content/who-lied-volume-2-supplement.json'});
+  }
+
   const setFor=item=>sets.get(item.setId)||{id:item.setId||'other',title:'Другие расследования',description:'',order:999,isPremium:true,isListed:true};
-  const free=active.filter(item=>setFor(item).isPremium===false),premium=active.filter(item=>setFor(item).isPremium!==false);
-  if(free.length!==15||premium.length!==85)throw new Error(`Активные дела: ${free.length} бесплатных / ${premium.length} платных`);
+  const sourceFree=active.filter(item=>setFor(item).isPremium===false);
+  const sourcePremium=active.filter(item=>setFor(item).isPremium!==false);
+  if(sourceFree.length!==15||sourcePremium.length!==(EXPECTED_SOURCE_CASES-15+supplement.cases.length)){
+    throw new Error(`Нарушена исходная редакционная группировка: ${sourceFree.length} free-source / ${sourcePremium.length} premium-source`);
+  }
+
+  // Commercial packaging is deliberately independent of the legacy mobile sets.
+  // Cases 1–10 are the permanent free sampler. Cases 11–60 form Volume I,
+  // and 61–110 form Volume II. This keeps the original first 100 case order stable.
+  const ordered=[...sourceFree,...sourcePremium];
+  const expectedTotal=FREE_CASE_COUNT+(VOLUME_SIZE*2);
+  if(ordered.length!==expectedTotal)throw new Error(`Для модели 10 + 50 + 50 нужно ${expectedTotal} дел, найдено ${ordered.length}`);
 
   const used=new Set();let structuredCount=0,multiStageCount=0,multipleSelectionCount=0;
   const freeCollectionId=SEO_POLICY.collections.find(item=>item.source==='free')?.id||'free-detective-cases';
-  const cases=[...free,...premium].map((item,index)=>{
+  const cases=ordered.map((item,index)=>{
     const number=String(index+1).padStart(3,'0'),saved=known.get(item.id);
     let slug=saved?.[0]||`${number}-${slugify(item.title)}`;
     if(used.has(slug))slug+=`-${number}`;
@@ -116,13 +153,17 @@ export function loadLibrary(sourceRoot,sourceCommit){
       if(options.length<2||!correct.length||!correct.every(id=>options.some(option=>option.id===id)))throw new Error(`Неверный ответ в ${item.id}`);
     }
     if(!item.id||!item.title||!item.intro||!item.explanation?.fullReason)throw new Error(`Неполное дело ${item.id||item.__asset}`);
-    const access=set.isPremium===false?'free':'premium',status='published',legacyPath=`delo/${slug}/`,language=SEO_POLICY.defaultLanguage||'ru',seoPath=`${language}/cases/${slug}/`;
+
+    const access=index<FREE_CASE_COUNT?'free':'premium';
+    const productId=access==='free'?null:(index<FREE_CASE_COUNT+VOLUME_SIZE?'volume1':'volume2');
+    const volumeNumber=productId==='volume1'?1:productId==='volume2'?2:null;
+    const status='published',legacyPath=`delo/${slug}/`,language=SEO_POLICY.defaultLanguage||'ru',seoPath=`${language}/cases/${slug}/`;
     const seoPublished=isSeoPublishedCase({access,status}),canonicalPath=seoPublished?seoPath:legacyPath,collectionIds=access==='free'?[set.id,freeCollectionId]:[set.id];
     return{
       ...item,number,slug,path:canonicalPath,seoPath,legacyPath,seoNative:seoPublished,seoPublished,
       shortDescription:shortText(item.shortDescription||item.intro),story:item.intro,language,status,ageGroup:item.ageGroup||'12+',image:item.image||item.cover||'',
       statements:characters.map(character=>({characterId:character.id,characterName:character.name,text:character.statement||''})),
-      storageKey:saved?.[1]||`ktovret:web:v5:${item.id}`,access,isFree:access==='free',
+      storageKey:saved?.[1]||`ktovret:web:v5:${item.id}`,access,isFree:access==='free',productId,volumeNumber,
       set:{id:set.id,title:set.title||'Расследования',description:set.description||'',order:Number(set.order??999),isListed:set.isListed!==false},
       collectionIds,characters,correctOptionId:checkedStages[0].correctOptionIds[0],relatedCases:[]
     };
@@ -145,13 +186,21 @@ export function loadLibrary(sourceRoot,sourceCommit){
     id:item.id,number:item.number,title:item.title,slug:item.slug,shortDescription:item.shortDescription,difficulty:item.difficulty||'Среднее',
     category:item.category||'Логика',logicType:item.logicType||item.category||'Логическое противоречие',ageGroup:item.ageGroup,language:item.language,status:item.status,
     setId:item.set.id,setTitle:item.set.title,setOrder:item.set.order,setListed:item.set.isListed,collectionIds:item.collectionIds,access:item.access,isFree:item.isFree,
+    productId:item.productId,volumeNumber:item.volumeNumber,
     image:item.image||'',path:item.path,seoPath:item.seoPath,legacyPath:item.legacyPath,seoNative:item.seoNative,seoPublished:item.seoPublished,
     relatedCaseIds:item.relatedCases,storageKey:item.storageKey,witnessCount:item.characters.length,estimatedMinutes:estimate(item.difficulty),dailyEligible:item.dailyEligible===true,
     structuredAnswer:(item.answerStages||[]).length>0
   }));
 
+  const volume1Count=meta.filter(item=>item.productId==='volume1').length;
+  const volume2Count=meta.filter(item=>item.productId==='volume2').length;
+  if(meta.filter(item=>item.access==='free').length!==FREE_CASE_COUNT||volume1Count!==VOLUME_SIZE||volume2Count!==VOLUME_SIZE){
+    throw new Error(`Неверная коммерческая упаковка: free=${meta.filter(item=>item.access==='free').length}, volume1=${volume1Count}, volume2=${volume2Count}`);
+  }
+
   return{
     sourceCommit,assets,sourceEntries,deprecatedCount:deprecated.size,copyOverrideCount,structuredCount,multiStageCount,multipleSelectionCount,
+    supplementalCount:supplement.cases.length,totalCases:meta.length,freeCount:FREE_CASE_COUNT,premiumCount:VOLUME_SIZE*2,volume1Count,volume2Count,
     cases,collections,meta,freeMeta:meta.filter(item=>item.access==='free')
   };
 }
