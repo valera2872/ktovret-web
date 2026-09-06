@@ -1,4 +1,4 @@
-name: AI-01 closed public release
+name: AI-01 public Text release
 
 on:
   pull_request:
@@ -8,6 +8,9 @@ on:
       - 'assets/ai01-public-analytics.js'
       - 'assets/ai01-launch-promo.css'
       - 'assets/ai01-launch-promo.js'
+      - 'assets/ai01-static-portraits.css'
+      - 'assets/ai01-static-portraits.js'
+      - 'assets/ai01-suspects-strip.b64.txt'
       - 'assets/ai01-voice-input.css'
       - 'assets/ai01-voice-input.js'
       - 'supabase/functions/ai-voice-transcribe/**'
@@ -23,6 +26,9 @@ on:
       - 'assets/ai01-public-analytics.js'
       - 'assets/ai01-launch-promo.css'
       - 'assets/ai01-launch-promo.js'
+      - 'assets/ai01-static-portraits.css'
+      - 'assets/ai01-static-portraits.js'
+      - 'assets/ai01-suspects-strip.b64.txt'
       - 'assets/ai01-voice-input.css'
       - 'assets/ai01-voice-input.js'
       - 'supabase/functions/ai-voice-transcribe/**'
@@ -32,7 +38,7 @@ on:
       - '.github/workflows/ai01-public-release.yml'
 
 jobs:
-  closed-release-contract:
+  public-text-release-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +47,7 @@ jobs:
           node-version: '22'
       - run: node --check assets/ai01-launch-promo.js
       - run: node --check assets/ai01-public-analytics.js
+      - run: node --check assets/ai01-static-portraits.js
       - run: node --check assets/ai01-voice-input.js
       - run: node --check tools/import-mobile/logic-sitewide-postprocess.mjs
       - run: node tests/ai01-public-release-contract.mjs
