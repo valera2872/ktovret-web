@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07111d">
+  <title>Mystery Logic — Solo Engine 2.0 preview</title>
+  <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
+  <style>
+    :root{color-scheme:dark;--bg:#07111d;--panel:#0b1924;--panel2:#0f2230;--line:rgba(196,216,228,.15);--text:#edf4f7;--muted:#91a7b5;--gold:#c9a36f;--ok:#8fc4aa;--warn:#d7b77d;--bad:#d18b8b;--ink:#061019}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% -10%,#143247 0,transparent 34%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}.shell{width:min(1500px,calc(100% - 24px));margin:auto;padding:18px 0 40px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}.brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;color:var(--gold);font-weight:800;background:rgba(255,255,255,.025)}h1,h2,h3,p{margin-top:0}.top h1{font-size:22px;margin:0}.kicker{margin:0 0 3px;color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.16em}.muted{color:var(--muted)}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#102533;color:var(--text);cursor:pointer}.btn:hover{border-color:rgba(201,163,111,.55)}.btn.primary{background:#c9a36f;color:#111923;border-color:#c9a36f;font-weight:750}.btn.good{border-color:rgba(143,196,170,.45);color:#bfe0ce}.btn.danger{border-color:rgba(209,139,139,.35);color:#e1aaaa}.btn:disabled{opacity:.4;cursor:not-allowed}.login{max-width:580px;margin:13vh auto 0;padding:26px;border:1px solid var(--line);border-radius:18px;background:rgba(11,25,36,.94);box-shadow:0 22px 70px rgba(0,0,0,.28)}.login label{display:grid;gap:7px}.login input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:#07131d;color:var(--text)}.login-actions{display:flex;gap:8px;margin-top:12px}.error{min-height:20px;margin:10px 0 0;color:#e5aaaa}.app[hidden],.login[hidden]{display:none!important}.statusbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}.metric{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:rgba(11,25,36,.8)}.metric b{display:block;font-size:16px}.metric span{color:var(--muted);font-size:11px}.notice{padding:12px 14px;border:1px solid rgba(143,196,170,.28);border-radius:12px;background:rgba(79,131,104,.1);color:#cbe4d5;margin-bottom:12px}.grid{display:grid;grid-template-columns:260px minmax(0,1fr) 330px;gap:12px;align-items:start}.panel{border:1px solid var(--line);border-radius:15px;background:rgba(8,20,29,.88);overflow:hidden}.panel-head{padding:13px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}.panel-head h2,.panel-head h3{margin:0;font-size:14px}.panel-body{padding:12px}.tabs{display:grid;gap:6px}.tab{width:100%;text-align:left;border:1px solid transparent;border-radius:9px;padding:9px 10px;background:transparent;color:var(--muted);cursor:pointer}.tab.active,.tab:hover{background:rgba(255,255,255,.045);color:var(--text);border-color:var(--line)}.refcard{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.02)}.refcard strong{display:block}.refcard small{color:var(--muted)}.list{display:grid;gap:8px}.card{padding:11px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025)}.card.open{border-color:rgba(201,163,111,.36)}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.chip{padding:3px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:11px}.chip.ok{border-color:rgba(143,196,170,.35);color:var(--ok)}.chip.warn{border-color:rgba(215,183,125,.38);color:var(--warn)}.chip.bad{border-color:rgba(209,139,139,.35);color:var(--bad)}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.actions .btn{font-size:12px;padding:6px 8px}.choice{display:grid;gap:5px;margin-top:9px}.choice button{text-align:left}.statebox{margin:0;max-height:410px;overflow:auto;white-space:pre-wrap;word-break:break-word;font:11px/1.42 ui-monospace,SFMono-Regular,Consolas,monospace;color:#b9cbd5}.timeline{display:grid;gap:8px}.time{display:grid;grid-template-columns:60px 1fr;gap:9px;padding:8px 0;border-bottom:1px solid rgba(196,216,228,.08)}.time b{color:var(--gold)}.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.proof div{padding:8px;border:1px solid var(--line);border-radius:9px;color:var(--muted)}.proof div.on{color:var(--ok);border-color:rgba(143,196,170,.35);background:rgba(143,196,170,.06)}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:14px 0 8px}.empty{padding:20px;text-align:center;color:var(--muted)}.manifest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.manifest .card{min-height:86px}.security{color:var(--ok);font-weight:700}.footer-note{margin-top:12px;color:var(--muted);font-size:12px}@media(max-width:1050px){.grid{grid-template-columns:210px 1fr}.right{grid-column:1/-1}.statusbar{grid-template-columns:repeat(3,1fr)}}@media(max-width:720px){.shell{width:min(100% - 14px,1500px);padding-top:8px}.top{display:grid}.grid{grid-template-columns:1fr}.left,.right{grid-column:auto}.tabs{grid-template-columns:repeat(3,1fr)}.tab{text-align:center;padding:8px 4px}.statusbar{grid-template-columns:repeat(2,1fr)}.manifest{grid-template-columns:1fr}.proof{grid-template-columns:1fr}.login{margin-top:6vh;padding:18px}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <section class="login" data-login>
+    <p class="kicker">Внутренний стенд</p>
+    <h1>Solo Engine 2.0</h1>
+    <p class="muted">Этот preview проверяет новый investigation shell. Настоящий canon «Тринадцатой минуты» намеренно не загружается в браузер.</p>
+    <form data-login-form>
+      <label><span>Ключ модератора</span><input type="password" autocomplete="off" spellcheck="false" data-token placeholder="MLADM-…"></label>
+      <div class="login-actions"><button class="btn primary" type="submit">Открыть стенд</button></div>
+      <p class="error" data-login-error></p>
+    </form>
+  </section>
+
+  <section class="app" data-app hidden>
+    <header class="top">
+      <div class="brand"><div class="mark">ML</div><div><p class="kicker">Internal · Solo Engine 2.0</p><h1>Reference investigation shell</h1><p class="muted" style="margin:4px 0 0">ML-0512 manifest + spoiler-free contract case</p></div></div>
+      <div class="toolbar"><button class="btn" data-entitlement>Симулировать покупку</button><button class="btn" data-reset>Сбросить state</button><button class="btn danger" data-lock>Закрыть доступ</button></div>
+    </header>
+
+    <div class="notice"><strong>Private canon boundary включён.</strong> Правильные ответы ML-0512, truth/lie персонажей и reconstruction хранятся вне публичного web-repo. На этом экране настоящий кейс представлен только безопасным manifest.</div>
+    <div class="statusbar" data-metrics></div>
+
+    <div class="grid">
+      <aside class="panel left">
+        <div class="panel-head"><h2>Рабочий стол</h2></div>
+        <div class="panel-body">
+          <nav class="tabs" data-tabs>
+            <button class="tab active" data-tab="evidence">Материалы</button>
+            <button class="tab" data-tab="people">Люди</button>
+            <button class="tab" data-tab="deductions">Дедукции</button>
+            <button class="tab" data-tab="timeline">Время</button>
+            <button class="tab" data-tab="manifest">ML-0512</button>
+            <button class="tab" data-tab="state">State</button>
+          </nav>
+          <div class="refcard"><span class="kicker">Contract case</span><strong>Без сюжетных спойлеров</strong><small>Проверяет engine действиями пользователя.</small></div>
+          <div class="refcard"><span class="kicker">Entitlement</span><strong data-entitlement-label>demo</strong><small>Premium-слой должен открываться без сброса progress.</small></div>
+        </div>
+      </aside>
+
+      <section class="panel center">
+        <div class="panel-head"><h2 data-view-title>Материалы</h2><span class="muted" data-view-note></span></div>
+        <div class="panel-body" data-view></div>
+      </section>
+
+      <aside class="panel right">
+        <div class="panel-head"><h3>Следственное состояние</h3></div>
+        <div class="panel-body">
+          <div class="section-title">Proof classes</div><div class="proof" data-proof></div>
+          <div class="section-title">Milestones</div><div class="chips" data-milestones></div>
+          <div class="section-title">Рабочая версия</div><div data-hypothesis></div>
+          <div class="section-title">Финал</div><div data-final></div>
+        </div>
+      </aside>
+    </div>
+    <p class="footer-note">Стенд не индексируется, требует owner/admin key и использует только синтетический runtime case. Следующий этап — server adapter, который будет отдавать ML-0512 только разрешённый state/evidence.</p>
+  </section>
+</main>
+<script type="module">
+import { createInitialSoloState, processSoloAction } from '../../assets/solo-engine-v2-core.mjs';
+import { soloEngineV2ContractCase as contractCase } from '../../assets/cases/solo-engine-v2-contract-case.mjs';
+import { ml0512PublicManifest } from '../../assets/cases/ml-0512-case.mjs';
+
+const ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
+const TOKEN_KEY='mysterylogic:review-admin-token:v1';
+const STATE_KEY='mysterylogic:solo-engine-v2-preview:v1';
+const login=document.querySelector('[data-login]');
+const app=document.querySelector('[data-app]');
+const form=document.querySelector('[data-login-form]');
+const tokenInput=document.querySelector('[data-token]');
+const loginError=document.querySelector('[data-login-error]');
+const view=document.querySelector('[data-view]');
+const viewTitle=document.querySelector('[data-view-title]');
+const viewNote=document.querySelector('[data-view-note]');
+let currentTab='evidence';
+let token='';
+
+const evidenceLabels={A01:'Системный журнал',A02:'Поток данных',A03:'Схема маршрута',A04:'Сравнение сигнала',A05:'Резервный источник',A06:'Первое показание Альфы',A07:'Первое показание Беты',B01:'Системный audit',B02:'Независимое алиби',B03:'Точное время события',B04:'Журнал доступа',B05:'Документ о мотиве',B06:'Фото места',B07:'Экспертное заключение'};
+const typeLabels={log:'журнал',data:'данные',diagram:'схема',statement:'показание',evidence_bundle:'пакет',wearable_data:'телеметрия',document:'документ',photo:'фото',medical:'заключение'};
+const peopleLabels={alpha:'Свидетель Альфа',beta:'Свидетель Бета'};
+const deductionLabels={Q01:'Совместимы ли первые два факта?',Q02:'Откуда реально пришёл сигнал?',Q03:'Кто изменил маршрут?',Q04:'Может ли Альфа быть участником главного события?',Q05:'Что доказывает скрытая часть журнала?',Q06:'Есть ли у Беты конкретный мотив?',Q07:'Совместим ли механизм с физическими следами?'};
+const choiceLabels={POWER_OK:'Система могла работать штатно',SYSTEM_IMPOSSIBLE:'Два исходных факта несовместимы',RANDOM_ERROR:'Случайная ошибка',SOURCE_X:'Источник X',SOURCE_Y:'Источник Y',UNKNOWN:'Недостаточно данных',ALPHA_CHANGED_ROUTE:'Альфа изменил маршрут',AUTOMATIC_CHANGE:'Сработала автоматика',NO_CHANGE:'Маршрут не менялся',ALPHA_AT_SCENE:'Альфа был на месте',ALPHA_ELIMINATED:'Альфа исключается по времени',BETA_PRESENT:'Бета присутствовал',BETA_ABSENT:'Бета отсутствовал',BETA_MOTIVE:'У Беты есть конкретный мотив',NO_MOTIVE:'Мотив не установлен',MECHANISM_MATCHES:'Механизм совпадает',MECHANISM_EXCLUDED:'Механизм исключён'};
+const timelineLabels={R01:'Зафиксирован исходный технический факт',R02:'Установлено отдельное нарушение Альфы',R03:'Установлено присутствие Беты'};
+const resultLabels={untried:'не проверено',confirmed:'подтверждено',contradicted:'противоречит материалам',insufficient:'недостаточно данных'};
+
+function freshState(){return createInitialSoloState(contractCase)}
+function loadState(){try{const raw=localStorage.getItem(STATE_KEY);if(raw){const parsed=JSON.parse(raw);if(parsed.caseId===contractCase.id&&parsed.caseVersion===contractCase.version)return parsed}}catch{}return freshState()}
+let state=loadState();
+function persist(){try{localStorage.setItem(STATE_KEY,JSON.stringify(state))}catch{}}
+function run(action){try{state=processSoloAction(contractCase,state,action);persist();render()}catch(error){alert(error?.message||String(error))}}
+const esc=(s)=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+async function verify(candidate){const response=await fetch(`${ENDPOINT}?status=pending`,{headers:{authorization:`Bearer ${candidate}`},cache:'no-store',credentials:'omit'});if(response.status===401)throw new Error('Ключ не принят или отключён.');if(!response.ok)throw new Error(`Проверка ключа: HTTP ${response.status}`);return true}
+async function unlock(candidate){await verify(candidate);token=candidate;try{sessionStorage.setItem(TOKEN_KEY,candidate)}catch{}login.hidden=true;app.hidden=false;render()}
+function lock(){token='';try{sessionStorage.removeItem(TOKEN_KEY)}catch{}app.hidden=true;login.hidden=false;tokenInput.value=''}
+form.addEventListener('submit',async e=>{e.preventDefault();loginError.textContent='';const candidate=String(tokenInput.value||'').trim();if(candidate.length<16){loginError.textContent='Введите административный ключ.';return}try{await unlock(candidate)}catch(error){loginError.textContent=error.message||'Не удалось открыть стенд.'}});
+document.querySelector('[data-lock]').addEventListener('click',lock);
+let saved='';try{saved=String(sessionStorage.getItem(TOKEN_KEY)||'')}catch{}if(saved)unlock(saved).catch(lock);
+
+function metric(label,value){return `<div class="metric"><b>${esc(value)}</b><span>${esc(label)}</span></div>`}
+function renderMetrics(){const opened=Object.values(state.evidence).filter(x=>x.opened).length;const confirmed=Object.values(state.deductions).filter(x=>x.result==='confirmed').length;document.querySelector('[data-metrics]').innerHTML=[metric('entitlement',state.entitlement),metric('открыто материалов',`${opened}/${contractCase.evidence.length}`),metric('подтверждено дедукций',`${confirmed}/${contractCase.deductions.length}`),metric('событий state log',state.events.length),metric('session','local preview')].join('');document.querySelector('[data-entitlement-label]').textContent=state.entitlement}
+
+function evidenceCard(def){const rt=state.evidence[def.id];if(!rt?.unlocked)return'';const sections=(def.sections||[]).map(s=>{const sr=rt.sections?.[s];if(!sr?.unlocked)return'';return `<button class="btn ${sr.opened?'good':''}" data-open-section="${def.id}" data-section="${s}">${sr.opened?'Изучено':'Открыть секцию'} · ${esc(s)}</button>`}).join('');const present=rt.opened?Object.keys(state.characters).map(id=>`<button class="btn" data-present="${def.id}" data-person="${id}" ${rt.presentedTo[id]?'disabled':''}>${rt.presentedTo[id]?'Предъявлено':'Предъявить'} · ${esc(peopleLabels[id])}</button>`).join(''):'';return `<article class="card ${rt.opened?'open':''}"><div class="row"><div><strong>${def.id} · ${esc(evidenceLabels[def.id]||def.id)}</strong><div class="muted">${esc(typeLabels[def.type]||def.type)}</div></div>${rt.opened?'<span class="chip ok">изучено</span>':`<button class="btn primary" data-open="${def.id}">Открыть</button>`}</div>${rt.opened?`<div class="chips"><span class="chip">examined: ${rt.examined}</span>${Object.entries(rt.presentedTo).filter(([,v])=>v).map(([k])=>`<span class="chip warn">→ ${esc(peopleLabels[k])}</span>`).join('')}</div><div class="actions">${sections}${present}</div>`:''}</article>`}
+function renderEvidence(){viewTitle.textContent='Материалы';viewNote.textContent='unlock → open → present';const cards=contractCase.evidence.map(evidenceCard).filter(Boolean);view.innerHTML=`<div class="list">${cards.join('')||'<div class="empty">Нет доступных материалов</div>'}</div>`}
+
+function renderPeople(){viewTitle.textContent='Люди';viewNote.textContent='история показаний не перезаписывается';view.innerHTML='<div class="list">'+contractCase.characters.map(def=>{const rt=state.characters[def.id];return `<article class="card"><div class="row"><div><strong>${esc(peopleLabels[def.id])}</strong><div class="muted">state ${rt.state} · версия показания ${rt.statementVersion}</div></div><span class="chip ${rt.state>=2?'warn':''}">disclosure ${rt.disclosureLevel}</span></div><div class="section-title">Противоречия</div><div class="chips">${rt.contradictions.length?rt.contradictions.map(c=>`<span class="chip bad">${esc(c)}</span>`).join(''):'<span class="muted">пока нет</span>'}</div><div class="section-title">Предъявлено</div><div class="chips">${rt.evidenceExposure.length?rt.evidenceExposure.map(c=>`<span class="chip">${esc(c)}</span>`).join(''):'<span class="muted">ничего</span>'}</div></article>`}).join('')+'</div>'}
+
+function renderDeductions(){viewTitle.textContent='Дедукции';viewNote.textContent='confirmed / contradicted / insufficient';const available=contractCase.deductions.filter(d=>state.deductions[d.id]?.available);view.innerHTML='<div class="list">'+(available.map(def=>{const rt=state.deductions[def.id];const cls=rt.result==='confirmed'?'ok':rt.result==='contradicted'?'bad':rt.result==='insufficient'?'warn':'';return `<article class="card"><div class="row"><div><strong>${def.id} · ${esc(deductionLabels[def.id]||def.id)}</strong><div class="muted">Попыток: ${rt.attempts}</div></div><span class="chip ${cls}">${esc(resultLabels[rt.result])}</span></div>${rt.result!=='confirmed'?`<div class="choice">${def.choices.map(c=>`<button class="btn" data-deduction="${def.id}" data-choice="${c}">${esc(choiceLabels[c]||c)}</button>`).join('')}</div>`:''}</article>`}).join('')||'<div class="empty">Пока нет доступных дедукций. Откройте связанные материалы.</div>')+'</div>'}
+
+function renderTimeline(){viewTitle.textContent='Таймлайн';viewNote.textContent='показывает только доказанное';const visible=contractCase.timeline.filter(t=>state.timeline[t.id]?.visible);view.innerHTML=`<div class="timeline">${visible.map(t=>`<div class="time"><b>${esc(t.time)}</b><span>${esc(timelineLabels[t.id]||t.id)}</span></div>`).join('')||'<div class="empty">Таймлайн пока пуст.</div>'}</div>`}
+
+function renderManifest(){viewTitle.textContent='ML-0512 · публичная граница';viewNote.textContent='никаких ответов в клиенте';view.innerHTML=`<div class="manifest"><div class="card"><span class="kicker">Reference case</span><strong>${esc(ml0512PublicManifest.title)}</strong><p class="muted">${ml0512PublicManifest.evidenceCount} материалов · ${ml0512PublicManifest.deductionCount} дедукций · ${ml0512PublicManifest.estimatedMinutes.min}–${ml0512PublicManifest.estimatedMinutes.max} минут</p><span class="security">${esc(ml0512PublicManifest.runtimePolicy)}</span></div><div class="card"><span class="kicker">Security contract</span>${Object.entries(ml0512PublicManifest.clientContract).map(([k,v])=>`<div class="row"><span class="muted">${esc(k)}</span><span class="chip ok">${v?'yes':'no'}</span></div>`).join('')}</div>${ml0512PublicManifest.locations.map(l=>`<div class="card"><span class="kicker">Локация</span><strong>${esc(l.title)}</strong><span class="muted">${esc(l.id)}</span></div>`).join('')}${ml0512PublicManifest.people.map(p=>`<div class="card"><span class="kicker">Персонаж</span><strong>${esc(p.name)}</strong><span class="muted">${esc(p.role)}</span></div>`).join('')}</div>`}
+function renderState(){viewTitle.textContent='Runtime state';viewNote.textContent='semantic state survives refresh';view.innerHTML=`<pre class="statebox">${esc(JSON.stringify(state,null,2))}</pre>`}
+
+function renderRight(){document.querySelector('[data-proof]').innerHTML=Object.keys(contractCase.proofClasses).map(k=>`<div class="${state.proofClasses[k]?'on':''}">${esc(k)} · ${state.proofClasses[k]?'✓':'—'}</div>`).join('');document.querySelector('[data-milestones]').innerHTML=state.milestones.map(m=>`<span class="chip ok">${esc(m)}</span>`).join('');const h=state.hypotheses[0];document.querySelector('[data-hypothesis]').innerHTML=h?`<div class="card"><strong>${esc(h.subjectId)} → ${esc(h.claim)}</strong><div class="chips"><span class="chip ${h.status==='contradicted'?'bad':'warn'}">${esc(h.status)}</span>${(h.contradictedBy||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div></div>`:`<button class="btn" data-add-hypothesis>Зафиксировать версию: Альфа причастен</button>`;const interaction=state.interactions.FINAL_BETA_CONFRONTATION;let html='';if(state.milestones.includes('CASE_COMPLETED'))html='<div class="card"><strong>CASE COMPLETED</strong><p class="muted">Reconstruction принята.</p></div>';else if(state.milestones.includes('RECONSTRUCTION_AVAILABLE'))html='<button class="btn primary" data-reconstruct>Отправить тестовую reconstruction</button>';else if(interaction&&!interaction.triggered&&state.milestones.includes('FINAL_INTERROGATION_AVAILABLE'))html='<button class="btn primary" data-confront>Начать финальную конфронтацию</button>';else html='<p class="muted">Соберите proof classes. Доказательств недостаточно для финала.</p>';document.querySelector('[data-final]').innerHTML=html}
+
+function bind(){view.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>run({type:'OPEN_EVIDENCE',evidenceId:b.dataset.open}));view.querySelectorAll('[data-open-section]').forEach(b=>b.onclick=()=>run({type:'OPEN_EVIDENCE_SECTION',evidenceId:b.dataset.openSection,section:b.dataset.section}));view.querySelectorAll('[data-present]').forEach(b=>b.onclick=()=>run({type:'PRESENT_EVIDENCE',evidenceId:b.dataset.present,characterId:b.dataset.person}));view.querySelectorAll('[data-deduction]').forEach(b=>b.onclick=()=>run({type:'ATTEMPT_DEDUCTION',deductionId:b.dataset.deduction,choiceId:b.dataset.choice}));document.querySelector('[data-add-hypothesis]')?.addEventListener('click',()=>run({type:'ADD_HYPOTHESIS',subjectId:'alpha',claim:'CAUSED_INCIDENT'}));document.querySelector('[data-confront]')?.addEventListener('click',()=>run({type:'TRIGGER_INTERACTION',interactionId:'FINAL_BETA_CONFRONTATION'}));document.querySelector('[data-reconstruct]')?.addEventListener('click',()=>run({type:'SUBMIT_RECONSTRUCTION',answers:contractCase.expectedReconstruction}))}
+function render(){renderMetrics();if(currentTab==='evidence')renderEvidence();if(currentTab==='people')renderPeople();if(currentTab==='deductions')renderDeductions();if(currentTab==='timeline')renderTimeline();if(currentTab==='manifest')renderManifest();if(currentTab==='state')renderState();renderRight();document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab));bind()}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{currentTab=b.dataset.tab;render()}));
+document.querySelector('[data-entitlement]').addEventListener('click',()=>run({type:'SET_ENTITLEMENT',entitlement:state.entitlement==='demo'?'owned':'demo'}));
+document.querySelector('[data-reset]').addEventListener('click',()=>{if(!confirm('Сбросить state внутреннего стенда?'))return;state=freshState();persist();render()});
+</script>
+</body>
+</html>
