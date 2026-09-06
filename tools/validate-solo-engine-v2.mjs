@@ -11,12 +11,16 @@ assert.equal(ml0512Case.deductions.length, 11, 'ML-0512 must expose 11 system de
 assert(unique(ids(ml0512Case.evidence)), 'duplicate evidence id');
 assert(unique(ids(ml0512Case.characters)), 'duplicate character id');
 assert(unique(ids(ml0512Case.deductions)), 'duplicate deduction id');
+assert(unique(ids(ml0512Case.interactions)), 'duplicate interaction id');
 
 function act(state, action) {
   return processSoloAction(ml0512Case, state, action);
 }
 function open(state, evidenceId) {
   return act(state, { type: 'OPEN_EVIDENCE', evidenceId });
+}
+function openSection(state, evidenceId, section) {
+  return act(state, { type: 'OPEN_EVIDENCE_SECTION', evidenceId, section });
 }
 function present(state, evidenceId, characterId) {
   return act(state, { type: 'PRESENT_EVIDENCE', evidenceId, characterId });
@@ -66,10 +70,13 @@ state = solve(state, 'D09');
 state = present(state, 'E19', 'sofia');
 assert(state.characters.sofia.state >= 2, 'Sofia did not move to version 2');
 
-// Denis branch reveals the historical provenance fraud.
+// Denis unlocks a historical evidence section; merely unlocking it must not reveal the deduction.
 state = open(state, 'E23');
 state = present(state, 'E23', 'denis');
 assert(state.evidence.E23.sections.historical_observations.unlocked, 'historical observations not unlocked');
+assert.equal(state.deductions.D06.available, false, 'D06 leaked before historical observations were examined');
+state = openSection(state, 'E23', 'historical_observations');
+assert.equal(state.deductions.D06.available, true, 'D06 did not unlock after historical observations were examined');
 state = solve(state, 'D06');
 state = open(state, 'E24');
 state = solve(state, 'D10');
@@ -85,8 +92,11 @@ state = present(state, 'E17', 'sofia');
 state = present(state, 'E24', 'sofia');
 state = present(state, 'E21', 'sofia');
 assert(state.milestones.includes('FINAL_INTERROGATION_AVAILABLE'), 'final interrogation not available');
-assert(state.milestones.includes('CONFESSION_OBTAINED'), 'confession threshold did not trigger');
-assert(state.milestones.includes('RECONSTRUCTION_AVAILABLE'), 'reconstruction not unlocked');
+assert(!state.milestones.includes('CONFESSION_OBTAINED'), 'confession triggered without an explicit final confrontation');
+assert(!state.milestones.includes('RECONSTRUCTION_AVAILABLE'), 'reconstruction leaked before confession');
+state = act(state, { type: 'TRIGGER_INTERACTION', interactionId: 'FINAL_SOFIA_CONFRONTATION' });
+assert(state.milestones.includes('CONFESSION_OBTAINED'), 'explicit final confrontation did not trigger confession');
+assert(state.milestones.includes('RECONSTRUCTION_AVAILABLE'), 'reconstruction not unlocked after confession');
 
 // Confession still does not complete the case: holistic reconstruction is mandatory.
 state = act(state, { type: 'SUBMIT_RECONSTRUCTION', answers: ml0512Case.expectedReconstruction });
@@ -97,6 +107,7 @@ assert(state.milestones.includes('CASE_COMPLETED'), 'case completion milestone m
 const roundTrip = JSON.parse(JSON.stringify(state));
 assert.equal(roundTrip.completed, true, 'state roundtrip lost completion');
 assert.equal(roundTrip.characters.sofia.statementVersion, 3, 'statement history state lost');
+assert.equal(roundTrip.interactions.FINAL_SOFIA_CONFRONTATION.triggered, true, 'interaction state lost');
 
 console.log(JSON.stringify({
   verdict: 'SOLO_ENGINE_V2_FOUNDATION_PASS',
@@ -105,7 +116,8 @@ console.log(JSON.stringify({
   demoGateStable: true,
   premiumIsolation: true,
   antonFalseSolution: true,
-  nonlinearBranches: true,
+  evidenceMustBeExamined: true,
+  explicitFinalConfrontation: true,
   confessionProofClasses: true,
   reconstructionRequired: true,
   refreshRoundTrip: true,
