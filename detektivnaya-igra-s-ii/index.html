@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#061019">
   <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Закрытый прототип Mystery Logic: детективное расследование со свободным допросом, где факты дела остаются неизменными.">
+  <meta name="description" content="Mystery Logic: живое детективное расследование со свободным допросом подозреваемых, проверкой алиби и предъявлением доказательств.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.4-avatar1">
-  <title>Детективная игра с ИИ — закрытый прототип Mystery Logic</title>
+  <link rel="stylesheet" href="../assets/ai01-onboarding.css?v=0.1.0">
+  <title>Восемь минут без камеры — AI-расследование Mystery Logic</title>
 </head>
 <body class="aid-body">
   <header class="aid-topbar">
@@ -18,7 +19,7 @@
       <span class="aid-brand-mark">ML</span>
       <span><strong>Mystery Logic</strong><small>свободный допрос</small></span>
     </a>
-    <div class="aid-topmeta"><span class="aid-dot"></span> Закрытый прототип</div>
+    <div class="aid-topmeta"><span class="aid-dot"></span> Дело AI-01</div>
   </header>
 
   <main class="aid-app" data-ai-detective>
@@ -26,17 +27,30 @@
       <div class="aid-intro-copy">
         <p class="aid-kicker">Дело AI-01 · кража в закрытом архиве</p>
         <h1>Восемь минут<br>без камеры.</h1>
-        <p class="aid-lead">Из закрытого фонда исчез оригинал письма 1912 года. В 21:24 оно ещё лежало в папке, а в 21:36 папка оказалась пустой. Внутри этого окна камера служебного коридора восемь минут не работала. В 21:31 дверь фонда открыли действующей картой и персональным PIN.</p>
-        <div class="aid-rule"><strong>Вы — следователь. Виновный среди этих троих.</strong><span>После 21:00 на объекте были только три фигуранта: архивист Марина Лебедева, инженер безопасности Антон Руденко и исследователь Лев Орлов. Допросите каждого. Проверьте, где он был, имел ли доступ к фонду и чем подтверждает свои слова. Найдите ложь, исключите невиновных и соберите доказательную цепочку против того, кто похитил письмо.</span></div>
-        <button class="aid-primary" type="button" data-action="start">Принять дело</button>
+        <p class="aid-lead">Из закрытого фонда исчез оригинал письма 1912 года. В 21:24 оно ещё было на месте. В 21:36 папка оказалась пустой. Между этими моментами камера служебного коридора восемь минут не работала, а дверь фонда открыли действующей картой и персональным PIN.</p>
+
+        <div class="aid-mission">
+          <strong>Вы — следователь. Установите, кто забрал письмо, и докажите это.</strong>
+          <span>На объекте были только трое: архивист Марина Лебедева, инженер безопасности Антон Руденко и исследователь Лев Орлов. Виновный среди них.</span>
+        </div>
+
+        <div class="aid-howto" aria-label="Как вести расследование">
+          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами. Готовых реплик нет.</small></span></div>
+          <div class="aid-howto-step"><b>2</b><span><strong>Проверяйте</strong><small>Изучайте материалы и предъявляйте их подозреваемым.</small></span></div>
+          <div class="aid-howto-step"><b>3</b><span><strong>Соберите версию</strong><small>Сравните показания, исключите невиновных и объясните цепочку доказательств.</small></span></div>
+        </div>
+
+        <p class="aid-start-note"><strong>С чего начать:</strong> после старта в комнату пригласят Марину. Спросите, где она была между 21:24 и 21:36.</p>
+        <button class="aid-primary aid-start-button" type="button" data-action="start">Принять дело</button>
       </div>
       <aside class="aid-case-stamp" aria-label="Карточка дела">
+        <p class="aid-kicker">Исходные данные</p>
         <div class="aid-stamp-line"><span>ПРЕСТУПЛЕНИЕ</span><strong>Похищение оригинала</strong></div>
         <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Письмо №12/1912</strong></div>
         <div class="aid-stamp-line"><span>ОКНО ПРОПАЖИ</span><strong>21:24:36–21:36:08</strong></div>
         <div class="aid-stamp-line"><span>КАМЕРА</span><strong>нет сигнала 21:27–21:35</strong></div>
         <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong>3 человека · виновный среди них</strong></div>
-        <div class="aid-stamp-seal">Что уже известно: в 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в окно пропажи не зафиксировано.</div>
+        <div class="aid-stamp-seal"><strong>Ключевой факт на старте</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в окно пропажи не зафиксировано.</div>
       </aside>
     </section>
 
@@ -47,7 +61,7 @@
           <h2>Что подтверждено</h2>
         </div>
         <div class="aid-evidence-list" data-evidence-list></div>
-        <p class="aid-panel-hint">Нажмите на материал, чтобы предъявить его в следующем вопросе. Часть материалов откроется только после проверки показаний.</p>
+        <p class="aid-panel-hint"><strong>Как предъявить улику:</strong> нажмите на материал, затем задайте вопрос. Выбранный материал будет приложен к реплике. Часть материалов откроется только после проверки показаний.</p>
       </aside>
 
       <section class="aid-interrogation">
@@ -57,7 +71,7 @@
             <p class="aid-kicker">Допрос</p>
             <h2 data-suspect-name>—</h2>
             <p data-suspect-role>—</p>
-            <p><strong>Следственная задача:</strong> выясните, где этот человек был в окно пропажи, что знает о доступе к фонду и чем может подтвердить свои слова. Сверяйте показания с материалами и ищите противоречия.</p>
+            <p class="aid-room-guide"><strong>Первый ориентир:</strong> установите, где человек был в окно пропажи. Затем проверяйте доступ к фонду, алиби и детали. Другого фигуранта можно вызвать вкладками сверху.</p>
           </div>
           <div class="aid-room-status" data-room-status>Допрос идёт</div>
         </div>
@@ -107,11 +121,11 @@
           <h2>Зацепки</h2>
         </div>
         <div class="aid-notes" data-notes>
-          <p class="aid-empty-note">Пока ничего. Значимые сведения будут фиксироваться здесь, но вывод игра за вас не сделает.</p>
+          <p class="aid-empty-note">Здесь будут автоматически фиксироваться важные сведения, которые вы получили на допросах. Решение игра за вас не сделает.</p>
         </div>
         <div class="aid-theory-box" data-theory-box>
           <p class="aid-kicker" data-theory-kicker>Когда будете готовы</p>
-          <p class="aid-theory-hint" data-theory-hint>Когда доказательств достаточно, сформулируйте собственную версию дела.</p>
+          <p class="aid-theory-hint" data-theory-hint>Когда сможете назвать виновного и объяснить цепочку доказательств, переходите к собственной версии дела.</p>
           <button class="aid-secondary" type="button" data-action="theory">Собрать версию</button>
         </div>
       </aside>
@@ -155,7 +169,7 @@
     </section>
   </main>
 
-  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты фиксированы. Собеседники отвечают только в пределах того, что знают.</span></footer>
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты дела фиксированы. Подозреваемые отвечают только в пределах того, что знают, и могут скрывать правду.</span></footer>
   <script src="../assets/ai-avatar-auth-bootstrap.js?v=0.0.3&rev=dialogue-latency-wait1" defer></script>
   <script src="../assets/ai-avatar-provider.js?v=0.0.5-sessiontransport2" defer></script>
   <script src="../assets/ai-avatar-wait-resume.js?v=0.0.1" defer></script>
