@@ -1,6 +1,6 @@
 export const ml0512PublicManifest = Object.freeze({
   id: 'ML-0512',
-  version: '0.9.0',
+  version: '0.9.1',
   title: 'Тринадцатая минута',
   mode: 'solo',
   tier: 'premium',
@@ -22,7 +22,9 @@ export const ml0512PublicManifest = Object.freeze({
     { id: 'denis', name: 'Денис Воронов', role: 'Аналитик данных' },
   ],
   clientContract: {
-    receivesOnlyUnlockedEvidence: true,
+    storyUnlockStateMayPersistWithoutContent: true,
+    receivesOnlyAuthorizedEvidenceContent: true,
+    entitlementEvaluatedServerSide: true,
     deductionAnswersStayServerSide: true,
     characterCanonStaysServerSide: true,
     reconstructionAnswersStayServerSide: true,
