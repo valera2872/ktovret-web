@@ -31,68 +31,61 @@ function removeInternalReleaseGateAssets(siteRoot) {
   return { removed: true };
 }
 
-function rewriteTextOrigins(siteRoot) {
-  let files = 0;
-  let replacements = 0;
-  for (const file of walk(siteRoot)) {
-    const before = fs.readFileSync(file, 'utf8');
-    let after = before;
-    if (STAGING_ORIGIN) {
-      const stagingBase = STAGING_ORIGIN.replace(/\/$/, '');
-      const productionBase = SITE_ORIGIN.replace(/\/$/, '');
-      const count = after.split(stagingBase).length - 1;
-      if (count) {
-        after = after.replaceAll(stagingBase, productionBase);
-        replacements += count;
+function applyPremiumSeoIndexPolicy(siteRoot) {
+  if (SITE_ORIGIN !== PRODUCTION_ORIGIN) return { pages: 0, sitemapExcluded: 0, indexableUrls: null };
+
+  const caseRoot = path.join(siteRoot, 'ru', 'cases');
+  const premiumSlugs = new Set();
+  let pages = 0;
+
+  if (fs.existsSync(caseRoot)) {
+    for (const entry of fs.readdirSync(caseRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const file = path.join(caseRoot, entry.name, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      let html = fs.readFileSync(file, 'utf8');
+      if (!html.includes('data-premium-seo-teaser="true"')) continue;
+
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)">/i)?.[1];
+      if (!canonical) throw new Error(`Premium SEO teaser has no canonical: ru/cases/${entry.name}/`);
+      premiumSlugs.add(entry.name);
+
+      if (!/<meta name="robots" content="noindex,follow">/i.test(html)) {
+        html = html.replace(
+          /(<meta name="viewport"[^>]*>)/i,
+          '$1<meta name="robots" content="noindex,follow">',
+        );
+        fs.writeFileSync(file, html);
       }
-    }
-    if (after !== before) {
-      fs.writeFileSync(file, after);
-      files++;
+      pages += 1;
     }
   }
-  return { files, replacements };
-}
 
-function applyPremiumSeoIndexPolicy(siteRoot) {
-  const premiumRoot = path.join(siteRoot, 'ru', 'cases');
-  if (!fs.existsSync(premiumRoot)) return { pages: 0, sitemapExcluded: 0, sitemapRemovedNow: 0, indexableUrls: 0, expectedIndexableUrls: 0 };
-
-  let pages = 0;
-  const premiumSlugs = new Set();
-  for (const entry of fs.readdirSync(premiumRoot, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const file = path.join(premiumRoot, entry.name, 'index.html');
-    if (!fs.existsSync(file)) continue;
-    let html = fs.readFileSync(file, 'utf8');
-    if (!html.includes('data-case-access="premium"')) continue;
-    premiumSlugs.add(entry.name);
-    const robots = '<meta name="robots" content="noindex,follow,max-image-preview:large">';
-    if (/<meta\s+name=["']robots["'][^>]*>/i.test(html)) {
-      html = html.replace(/<meta\s+name=["']robots["'][^>]*>/i, robots);
-    } else {
-      html = html.replace(/<\/head>/i, `${robots}\n</head>`);
-    }
-    fs.writeFileSync(file, html);
-    pages++;
+  if (pages !== 85 || premiumSlugs.size !== 85) {
+    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, slugs=${premiumSlugs.size}`);
   }
 
   const sitemapFile = path.join(siteRoot, 'sitemap.xml');
-  if (!fs.existsSync(sitemapFile)) {
-    throw new Error('Production sitemap missing before premium SEO index policy');
-  }
+  if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
   const before = fs.readFileSync(sitemapFile, 'utf8');
+  const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
+  const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
   let sitemapRemovedNow = 0;
-  const after = before.replace(/\s*<url>\s*<loc>([\s\S]*?)<\/loc>[\s\S]*?<\/url>/gi, (block, rawLoc) => {
+
+  const after = before.replace(urlBlockPattern, (block) => {
+    const loc = block.match(locPattern)?.[1]?.trim().replaceAll('&amp;', '&');
+    if (!loc) return block;
+
     let pathname = '';
     try {
-      pathname = new URL(String(rawLoc).trim().replaceAll('&amp;', '&'), SITE_ORIGIN).pathname;
+      pathname = new URL(loc, SITE_ORIGIN).pathname;
     } catch {
       return block;
     }
+
     const match = pathname.match(/\/ru\/cases\/([^/?#]+)\/?$/i);
     if (!match || !premiumSlugs.has(match[1])) return block;
-    sitemapRemovedNow++;
+    sitemapRemovedNow += 1;
     return '';
   });
 
@@ -137,35 +130,57 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls, expectedIndexableUrls };
 }
 
-function validateProductionOrigin(siteRoot) {
-  const forbidden = [
-    'https://valera2872.github.io/ktovret-web/',
-    'https://valera2872.github.io/ktovret-web',
-  ];
-  const offenders = [];
-  for (const file of walk(siteRoot)) {
-    const text = fs.readFileSync(file, 'utf8');
-    for (const marker of forbidden) {
-      if (text.includes(marker)) offenders.push(`${path.relative(siteRoot, file)} => ${marker}`);
+export function applySiteOrigin(siteRoot) {
+  const files = walk(siteRoot);
+  let changedFiles = 0;
+  let replacements = 0;
+
+  if (SITE_ORIGIN !== STAGING_ORIGIN) {
+    for (const file of files) {
+      const before = fs.readFileSync(file, 'utf8');
+      const count = before.split(STAGING_ORIGIN).length - 1;
+      if (!count) continue;
+      fs.writeFileSync(file, before.replaceAll(STAGING_ORIGIN, SITE_ORIGIN));
+      changedFiles += 1;
+      replacements += count;
     }
   }
-  if (offenders.length) {
-    throw new Error(`Production bundle still contains staging origins:\n${offenders.slice(0, 25).join('\n')}`);
+
+  fs.writeFileSync(
+    path.join(siteRoot, 'robots.txt'),
+    `User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: ${siteUrl('sitemap.xml')}\n`,
+  );
+
+  if (SITE_ORIGIN !== STAGING_ORIGIN) {
+    const leftovers = walk(siteRoot).filter((file) => fs.readFileSync(file, 'utf8').includes(STAGING_ORIGIN));
+    if (leftovers.length) {
+      throw new Error(`После production origin остались staging URL: ${leftovers.map((file) => path.relative(siteRoot, file)).join(', ')}`);
+    }
   }
+
+  return { siteOrigin: SITE_ORIGIN, changedFiles, replacements, sitemap: siteUrl('sitemap.xml') };
 }
 
-export function applySiteOriginPostprocess(siteRoot) {
-  const rewrite = rewriteTextOrigins(siteRoot);
-  const removedReleaseGate = removeInternalReleaseGateAssets(siteRoot);
-  const premiumSeo = applyPremiumSeoIndexPolicy(siteRoot);
+const readArg = (name, fallback = '') => {
+  const args = process.argv.slice(2);
+  const index = args.indexOf(`--${name}`);
+  return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
+};
+
+export function registerSiteOriginFinalizer() {
+  const entry = path.basename(process.argv[1] || '');
+  if (entry !== 'import-mobile-cases.mjs') return false;
+  const siteRoot = path.resolve(readArg('site', '.'));
   prepareLastAriaFinalNeutral(siteRoot);
-  applyLastAriaFinalNeutral(siteRoot);
-  validateProductionOrigin(siteRoot);
-  return {
-    siteOrigin: SITE_ORIGIN,
-    rewrite,
-    removedReleaseGate,
-    premiumSeo,
-    canonicalExample: siteUrl('dela/'),
-  };
+  process.once('beforeExit', () => {
+    applyLastAriaFinalNeutral(siteRoot);
+    applySiteOrigin(siteRoot);
+    removeInternalReleaseGateAssets(siteRoot);
+    setImmediate(() => {
+      applySiteOrigin(siteRoot);
+      applyPremiumSeoIndexPolicy(siteRoot);
+      removeInternalReleaseGateAssets(siteRoot);
+    });
+  });
+  return true;
 }
