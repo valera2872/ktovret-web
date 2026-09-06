@@ -16,9 +16,9 @@ const INPUT_USD_PER_M=0.20;
 const CACHED_INPUT_USD_PER_M=0.02;
 const OUTPUT_USD_PER_M=1.20;
 const DEMO_SESSION_LIMIT=30;
-const DEMO_VISITOR_DAILY_LIMIT=60;
-const DEMO_NETWORK_DAILY_LIMIT=240;
-const DEMO_DAILY_BUDGET_USD=0.50;
+const DEMO_VISITOR_DAILY_LIMIT=180;
+const DEMO_NETWORK_DAILY_LIMIT=2000;
+const DEMO_DAILY_BUDGET_USD=10.00;
 const MARINA_MIN_CONFESSION_QUESTIONS=5;
 const INITIAL_EVIDENCE=new Set(["E01","E02","E03"]);
 const DEFAULT_RESISTANCE:ResistanceLevel="medium";
@@ -137,7 +137,6 @@ function marinaConfessionReady(activeNotes:Set<string>,discoveredEvidence:Set<st
 }
 
 function confrontationReady(q:string,resistance:ResistanceLevel){return resistance==="hard"?isFinalConfrontation(q):isAccusation(q)}
-
 function legacyDeepConfessionReady(suspect:string,q:string,history:HistoryItem[],serverTurnsBefore:number,resistance:ResistanceLevel){
   if(resistance!=="hard")return false;
   if(suspect!=="marina"||serverTurnsBefore<12||!isFinalConfrontation(q))return false;
@@ -298,7 +297,7 @@ Deno.serve(async(req:Request)=>{
   const session=clean(body.session_id,96);if(!validSession(session))return json({error:"invalid_session"},400);
   const action=clean(body.action,32);
   const resistance=resistanceLevel(body.resistance_level);
-  if(action==="status")return json({ai_ready:Boolean(OPENAI_API_KEY),metering_ready:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY),model:MODEL,quota_profile:"demo",session_limit:DEMO_SESSION_LIMIT,visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT,network_daily_limit:DEMO_NETWORK_DAILY_LIMIT,resistance_level:resistance,resistance_levels:["easy","medium","hard"]});
+  if(action==="status")return json({ai_ready:Boolean(OPENAI_API_KEY),metering_ready:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY),model:MODEL,quota_profile:"public-preview",session_limit:DEMO_SESSION_LIMIT,visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT,network_daily_limit:DEMO_NETWORK_DAILY_LIMIT,resistance_level:resistance,resistance_levels:["easy","medium","hard"]});
   const discoveredNotes=ids(body.discovered_note_ids);
   const discoveredEvidence=ids(body.discovered_evidence_ids);
   for(const id of INITIAL_EVIDENCE)discoveredEvidence.add(id);
@@ -342,7 +341,7 @@ Deno.serve(async(req:Request)=>{
     completed=true;
     EdgeRuntime.waitUntil(completePromise);
     console.log("ai_interrogation_reply_ready",JSON.stringify({suspect,elapsed_ms:Date.now()-requestStarted,input_tokens:result.usage.inputTokens,output_tokens:result.usage.outputTokens}));
-    return json({reply:result.text,notes:unlocked.notes,unlocked_evidence_ids:unlocked.unlockedEvidenceIds,mode:"ai",model:MODEL,interrogation_stage:stage,resistance_level:resistance,quota:{profile:"demo",session_remaining:claim.session_remaining,visitor_remaining_today:claim.visitor_remaining_today},usage:{input_tokens:result.usage.inputTokens,cached_input_tokens:result.usage.cachedInputTokens,output_tokens:result.usage.outputTokens,cost_usd:Number(result.usage.costUsd.toFixed(8))}});
+    return json({reply:result.text,notes:unlocked.notes,unlocked_evidence_ids:unlocked.unlockedEvidenceIds,mode:"ai",model:MODEL,interrogation_stage:stage,resistance_level:resistance,quota:{profile:"public-preview",session_remaining:claim.session_remaining,visitor_remaining_today:claim.visitor_remaining_today},usage:{input_tokens:result.usage.inputTokens,cached_input_tokens:result.usage.cachedInputTokens,output_tokens:result.usage.outputTokens,cost_usd:Number(result.usage.costUsd.toFixed(8))}});
   }catch(e){
     console.error("ai_interrogation_error",String(e));
     if(claimId&&!completed){try{await rpc("ai_detective_release_turn",{p_claim_id:claimId})}catch(releaseError){console.error("quota_release_error",String(releaseError))}}

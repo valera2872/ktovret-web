@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {applyPremiumSurfaceV2} from './premium-surface-v2-postprocess.mjs';
 
-const VERSION='3.2.0';
+const VERSION='3.3.0';
 const SKIP_DIRS=new Set(['.git','.github','node_modules','tools','tests','artifacts','docs','ops','supabase','old.bac','admin']);
 
 function relativeAsset(fromDir,asset){return path.relative(fromDir,asset).replaceAll(path.sep,'/');}
@@ -30,8 +30,11 @@ export function applyLogicSitewide(siteRoot){
   const root=path.resolve(siteRoot);
   const styleFile=path.join(root,'assets','logic-sitewide.css');
   const scriptFile=path.join(root,'assets','logic-sitewide.js');
+  const ai01PromoStyleFile=path.join(root,'assets','ai01-launch-promo.css');
+  const ai01PromoScriptFile=path.join(root,'assets','ai01-launch-promo.js');
   if(!fs.existsSync(styleFile)||!fs.existsSync(scriptFile)) throw new Error('logic sitewide assets missing');
-  let pages=0,navPatched=0,legacyLinksRewritten=0,styledPages=0;
+  if(!fs.existsSync(ai01PromoStyleFile)||!fs.existsSync(ai01PromoScriptFile)) throw new Error('AI-01 launch promo assets missing');
+  let pages=0,navPatched=0,legacyLinksRewritten=0,styledPages=0,aiPromoPages=0;
 
   const walk=(dir)=>{
     for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
@@ -66,14 +69,31 @@ export function applyLogicSitewide(siteRoot){
         html=html.replace(/<\/body>/i,`${scriptTag}\n</body>`);
       }
 
+      const aiPromoStyleHref=relativeAsset(dir,ai01PromoStyleFile);
+      const aiPromoStyleTag=`<link data-ai01-launch-promo-style rel="stylesheet" href="${aiPromoStyleHref}?v=${VERSION}">`;
+      if(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i.test(html)){
+        html=html.replace(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i,aiPromoStyleTag);
+      }else{
+        html=html.replace(/<\/head>/i,`${aiPromoStyleTag}\n</head>`);
+        aiPromoPages++;
+      }
+      const aiPromoScriptSrc=relativeAsset(dir,ai01PromoScriptFile);
+      const aiPromoScriptTag=`<script data-ai01-launch-promo-script src="${aiPromoScriptSrc}?v=${VERSION}" defer></script>`;
+      if(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i.test(html)){
+        html=html.replace(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i,aiPromoScriptTag);
+      }else{
+        html=html.replace(/<\/body>/i,`${aiPromoScriptTag}\n</body>`);
+      }
+
       if(html!==before){fs.writeFileSync(file,html);pages++;}
     }
   };
   walk(root);
   const home=fs.readFileSync(path.join(root,'index.html'),'utf8');
   if(!home.includes('data-logic-home-launch')||!home.includes('data-logic-sitewide-style')||!home.includes('data-logic-sitewide')) throw new Error('logic sitewide: homepage launch integration incomplete');
+  if(!home.includes('data-ai01-launch-promo-style')||!home.includes('data-ai01-launch-promo-script')) throw new Error('AI-01 launch promo: homepage integration incomplete');
   if(home.includes('class="ref-nav"')&&!home.includes('>Головоломки</a>')) throw new Error('logic sitewide: homepage puzzle nav missing');
   if(home.includes('class="ref-nav"')&&!home.includes('data-nav-daily')) throw new Error('logic sitewide: daily Telegram nav missing');
   const premiumSurface=applyPremiumSurfaceV2(root);
-  return {version:VERSION,pages,navPatched,legacyLinksRewritten,styledPages,telegramRetention:true,premiumSurface};
+  return {version:VERSION,pages,navPatched,legacyLinksRewritten,styledPages,aiPromoPages,telegramRetention:true,ai01PromoPublic:false,premiumSurface};
 }

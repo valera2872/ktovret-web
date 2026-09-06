@@ -78,9 +78,11 @@ assert.match(edge,/input_tokens_details\?\.cached_tokens/,'cached tokens must be
 assert.match(edge,/INPUT_USD_PER_M=0\.20/,'current Luna input price must be represented in metering');
 assert.match(edge,/CACHED_INPUT_USD_PER_M=0\.02/,'current Luna cached-input price must be represented in metering');
 assert.match(edge,/OUTPUT_USD_PER_M=1\.20/,'current Luna output price must be represented in metering');
-assert.match(edge,/DEMO_SESSION_LIMIT=30/,'server must grant the demo 30 successful AI turns');
-assert.match(edge,/DEMO_VISITOR_DAILY_LIMIT=60/,'server must allow a normal replay without making the AI an unlimited proxy');
-assert.match(edge,/DEMO_NETWORK_DAILY_LIMIT=240/,'network ceiling must stay above normal household play while limiting abuse');
+assert.match(edge,/DEMO_SESSION_LIMIT=30/,'server must grant the case 30 successful AI turns');
+assert.match(edge,/DEMO_VISITOR_DAILY_LIMIT=180/,'public preview must allow multiple normal replays while remaining bounded per visitor');
+assert.match(edge,/DEMO_NETWORK_DAILY_LIMIT=2000/,'public preview must tolerate launch traffic behind shared networks while retaining an abuse ceiling');
+assert.match(edge,/DEMO_DAILY_BUDGET_USD=10\.00/,'public preview must not be shut down by the old tiny global test budget');
+assert.match(edge,/quota_profile:"public-preview"/,'status must expose the launch-preview quota profile');
 assert.match(edge,/p_session_limit:DEMO_SESSION_LIMIT/,'effective turn ceiling must be selected server-side');
 assert.match(edge,/p_visitor_daily_limit:DEMO_VISITOR_DAILY_LIMIT/,'effective visitor ceiling must be selected server-side');
 assert.match(edge,/p_network_daily_limit:DEMO_NETWORK_DAILY_LIMIT/,'effective network ceiling must be selected server-side');
@@ -90,7 +92,7 @@ assert.doesNotMatch(edge,/SOFT_LIMIT_MAX|buckets=new Map/,'in-memory-only rate l
 assert.match(migration,/p_session_limit integer default 14/,'database RPC keeps a conservative fallback if callers omit an explicit profile');
 assert.match(migration,/p_visitor_daily_limit integer default 30/,'database RPC keeps a conservative visitor fallback');
 assert.match(migration,/p_network_daily_limit integer default 120/,'database RPC keeps a conservative network fallback');
-assert.match(migration,/p_daily_budget_usd numeric default 0\.50/,'test rollout must have a hard $0.50 daily AI budget');
+assert.match(migration,/p_daily_budget_usd numeric default 0\.50/,'database RPC keeps a conservative global fallback when callers omit an explicit profile');
 assert.match(migration,/p_session_rpm integer default 6/,'a human-scale per-session rate limit is required');
 assert.match(migration,/p_network_rpm integer default 30/,'network-wide burst protection is required');
 assert.match(migration,/status='claimed' and created_at < now\(\) - interval '5 minutes'/,'stale cost reservations must self-heal');

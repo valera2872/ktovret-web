@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#061019">
   <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Mystery Logic: живое детективное расследование со свободным допросом подозреваемых, проверкой алиби и предъявлением доказательств.">
+  <meta name="description" content="Mystery Logic: бесплатное AI-расследование со свободным допросом подозреваемых, проверкой алиби и предъявлением доказательств.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.4-avatar1">
   <link rel="stylesheet" href="../assets/ai01-onboarding.css?v=0.1.0">
-  <title>Восемь минут без камеры — AI-расследование Mystery Logic</title>
+  <link rel="stylesheet" href="../assets/ai01-public-release.css?v=0.1.0">
+  <link rel="stylesheet" href="../assets/ai01-voice-input.css?v=0.1.0">
+  <title>Восемь минут без камеры — бесплатное AI-расследование Mystery Logic</title>
 </head>
 <body class="aid-body">
   <header class="aid-topbar">
@@ -19,13 +21,13 @@
       <span class="aid-brand-mark">ML</span>
       <span><strong>Mystery Logic</strong><small>свободный допрос</small></span>
     </a>
-    <div class="aid-topmeta"><span class="aid-dot"></span> Дело AI-01</div>
+    <div class="aid-topmeta"><span class="aid-dot"></span> AI-расследование · бесплатно</div>
   </header>
 
   <main class="aid-app" data-ai-detective>
     <section class="aid-intro" data-view="intro">
       <div class="aid-intro-copy">
-        <p class="aid-kicker">Дело AI-01 · кража в закрытом архиве</p>
+        <p class="aid-kicker">Кража в закрытом архиве</p>
         <h1>Восемь минут<br>без камеры.</h1>
         <p class="aid-lead">Из закрытого фонда исчез оригинал письма 1912 года. В 21:24 оно ещё было на месте. В 21:36 папка оказалась пустой. Между этими моментами камера служебного коридора восемь минут не работала, а дверь фонда открыли действующей картой и персональным PIN.</p>
 
@@ -35,7 +37,7 @@
         </div>
 
         <div class="aid-howto" aria-label="Как вести расследование">
-          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами. Готовых реплик нет.</small></span></div>
+          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами — голосом или текстом. Готовых реплик нет.</small></span></div>
           <div class="aid-howto-step"><b>2</b><span><strong>Проверяйте</strong><small>Изучайте материалы и предъявляйте их подозреваемым.</small></span></div>
           <div class="aid-howto-step"><b>3</b><span><strong>Соберите версию</strong><small>Сравните показания, исключите невиновных и объясните цепочку доказательств.</small></span></div>
         </div>
@@ -108,9 +110,16 @@
           </div>
           <label class="aid-sr-only" for="aid-question">Ваш вопрос</label>
           <textarea id="aid-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
+          <div class="aid-voice-status" data-ai01-voice-status aria-live="polite" hidden></div>
           <div class="aid-composer-actions">
             <span data-turn-counter>0 / 30 вопросов</span>
-            <button class="aid-send" type="submit">Задать вопрос</button>
+            <div class="aid-composer-buttons">
+              <button class="aid-voice-button" type="button" data-ai01-voice aria-pressed="false" title="Задать вопрос голосом">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0Z"/></svg>
+                <span data-ai01-voice-label>Сказать</span>
+              </button>
+              <button class="aid-send" type="submit">Задать вопрос</button>
+            </div>
           </div>
         </form>
       </section>
@@ -152,7 +161,7 @@
       <button class="aid-back" type="button" data-action="resolution-back">← Материалы дела</button>
       <div class="aid-resolution-hero">
         <p class="aid-kicker">Секретный пакет C · доступ открыт</p>
-        <h2>Дело AI-01 раскрыто.</h2>
+        <h2>Дело раскрыто.</h2>
         <p>Признание — финальная точка расследования. Здесь только награда: восстановленная цепочка событий и фрагмент шифра Закрытого архива.</p>
       </div>
       <div class="aid-resolution-grid aid-resolution-grid-final">
@@ -166,13 +175,24 @@
         <button class="aid-secondary" type="button" data-action="restart-case">Пройти дело заново</button>
         <a class="aid-primary" href="../">Взять другое дело</a>
       </div>
+      <div class="aid-public-interest">
+        <strong>Хотите продолжение такого формата?</strong>
+        <p>Это первое бесплатное AI-расследование Mystery Logic. Ваш выбор поможет решить, что делать следующим.</p>
+        <div class="aid-public-interest-actions">
+          <button class="aid-secondary" type="button" data-ai01-interest="more">Хочу ещё AI-дело</button>
+          <button class="aid-secondary" type="button" data-ai01-interest="live">Хочу попробовать Live</button>
+        </div>
+        <p class="aid-public-interest-note" data-ai01-interest-note hidden></p>
+      </div>
     </section>
   </main>
 
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты дела фиксированы. Подозреваемые отвечают только в пределах того, что знают, и могут скрывать правду.</span></footer>
+  <script src="../assets/ai01-public-analytics.js?v=0.1.0" defer></script>
   <script src="../assets/ai-avatar-auth-bootstrap.js?v=0.0.3&rev=dialogue-latency-wait1" defer></script>
   <script src="../assets/ai-avatar-provider.js?v=0.0.5-sessiontransport2" defer></script>
   <script src="../assets/ai-avatar-wait-resume.js?v=0.0.1" defer></script>
   <script src="../assets/ai-detective-vslice.js?v=0.3.6" defer></script>
+  <script src="../assets/ai01-voice-input.js?v=0.1.0" defer></script>
 </body>
 </html>
