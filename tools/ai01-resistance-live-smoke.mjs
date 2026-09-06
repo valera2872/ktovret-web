@@ -26,7 +26,13 @@ async function call(body){
 
 function assert(condition,message,data){if(!condition)throw new Error(`${message}\n${JSON.stringify(data,null,2)}`)}
 function hasConfession(data){return Array.isArray(data.notes)&&data.notes.some(note=>note?.id==='N-MARINA-CONFESSION')}
-function replyConfesses(data){return /я\s+(взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я/i.test(String(data.reply||''))}
+function replyConfesses(data){
+  const text=String(data.reply||'');
+  const confession=/я\s+(взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я/i;
+  if(!confession.test(text))return false;
+  const explicitNegation=/(?:не\s+(?:могу|буду|стану|готова|собираюсь)[^.!?]{0,100}|не\s+признаю[^.!?]{0,100})(?:я\s+(?:взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я)/i;
+  return !explicitNegation.test(text);
+}
 
 const status=await call({action:'status',session_id:'status',resistance_level:'medium'});
 assert(status.ai_ready===true&&status.metering_ready===true,'AI status must be ready',status);
