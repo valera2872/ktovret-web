@@ -37,6 +37,16 @@ function pcmDurationMs(buffer){return Math.max(500,Math.ceil(buffer.byteLength/(
 function telemetry(phase,detail={}){
   try{window.dispatchEvent(new CustomEvent("ml:avatar-telemetry",{detail:{phase,at:Date.now(),...detail}}))}catch{}
 }
+function normalizeLiveError(error){
+  const message=String(error?.message||error||"");
+  if(/insufficient\s+credits|not\s+enough\s+credits|credit\s+balance/i.test(message)){
+    const failure=new Error("avatar_budget_exhausted");
+    failure.code="avatar_budget_exhausted";
+    failure.providerMessage=message;
+    return failure;
+  }
+  return error;
+}
 window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth={},onDisconnected})=>{
   const sdk=await import(SDK_URL);
   const LiveAvatarSession=sdk.LiveAvatarSession;
@@ -121,7 +131,7 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
       if(sdk.AgentEventsEnum?.AVATAR_SPEAK_ENDED){speakEndedHandler=event=>telemetry("avatar_speak_ended",{suspectId,eventId:String(event?.event_id||"")});live.on(sdk.AgentEventsEnum.AVATAR_SPEAK_ENDED,speakEndedHandler)}
       unlock=()=>{if(video){prepareVideo();attach();void video.play().catch(()=>{})}};
       window.addEventListener("pointerdown",unlock,{passive:true});
-      await live.start();
+      try{await live.start()}catch(error){const failure=normalizeLiveError(error);telemetry("sdk_start_error",{suspectId,code:String(failure?.code||failure?.message||"avatar_start_failed"),providerMessage:String(failure?.providerMessage||error?.message||"")});throw failure}
       telemetry("sdk_start_done",{suspectId,elapsedMs:Date.now()-connectStarted});
       if(disconnected)return false;
       connected=true;
@@ -162,8 +172,9 @@ window.MLHeyGenLiveAvatarFactory=async({session,video,suspectId,ttsEndpoint,auth
       if(disconnected||!streamReady){const failure=new Error("avatar_session_disconnected");failure.code="avatar_session_disconnected";throw failure}
       const durationMs=pcmDurationMs(pcm);
       try{live.interrupt()}catch{}
-      const eventId=live.repeatAudio(toBase64(pcm));
-      telemetry("repeat_audio_sent",{suspectId,eventId:String(eventId||""),durationMs,totalElapsedMs:Date.now()-ttsStarted});
+      let eventId="";
+      try{eventId=live.repeatAudio(toBase64(pcm))||""}catch(error){throw normalizeLiveError(error)}
+      telemetry("repeat_audio_sent",{suspectId,eventId:String(eventId),durationMs,totalElapsedMs:Date.now()-ttsStarted});
       return {ok:true,durationMs};
     },
     async disconnect(){
