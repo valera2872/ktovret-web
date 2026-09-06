@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build:avatar-sdk": "esbuild tools/ai-liveavatar-sdk-entry.mjs --bundle --format=esm --platform=browser --target=es2022 --outfile=assets/vendor/liveavatar-web-sdk.mjs --minify --legal-comments=none"
+    "build:avatar-sdk": "esbuild tools/ai-liveavatar-sdk-entry.mjs --bundle --format=esm --platform=browser --target=es2022 --outfile=assets/vendor/liveavatar-web-sdk.mjs --minify --legal-comments=none",
+    "test:solo-engine-v2": "node tools/validate-solo-engine-v2.mjs"
   },
   "dependencies": {
     "@heygen/liveavatar-web-sdk": "0.0.18"
