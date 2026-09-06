@@ -42,6 +42,8 @@ export function createInitialSoloState(caseDef, options = {}) {
   }
   const timeline = {};
   for (const fact of caseDef.timeline || []) timeline[fact.id] = { established: false, visible: false };
+  const interactions = {};
+  for (const interaction of caseDef.interactions || []) interactions[interaction.id] = { triggered: false };
 
   const state = {
     schemaVersion: SOLO_ENGINE_SCHEMA_VERSION,
@@ -54,6 +56,7 @@ export function createInitialSoloState(caseDef, options = {}) {
     characters,
     deductions,
     timeline,
+    interactions,
     proofClasses: {},
     hypotheses: [],
     hintsUsed: [],
@@ -86,6 +89,10 @@ export function evaluateRule(rule, state, caseDef) {
     const spec = rule.evidenceSectionUnlocked;
     return Boolean(state.evidence[spec?.evidenceId]?.sections?.[spec?.section]?.unlocked);
   }
+  if ('evidenceSectionOpened' in rule) {
+    const spec = rule.evidenceSectionOpened;
+    return Boolean(state.evidence[spec?.evidenceId]?.sections?.[spec?.section]?.opened);
+  }
   if ('deductionConfirmed' in rule) return state.deductions[rule.deductionConfirmed]?.result === 'confirmed';
   if ('milestoneReached' in rule) return state.milestones.includes(rule.milestoneReached);
   if ('fact' in rule || 'customFact' in rule) return state.facts.includes(rule.fact || rule.customFact);
@@ -103,6 +110,7 @@ export function evaluateRule(rule, state, caseDef) {
   if ('timelineFactEstablished' in rule) return Boolean(state.timeline[rule.timelineFactEstablished]?.established);
   if ('entitlement' in rule) return asArray(rule.entitlement).includes(state.entitlement);
   if ('proofClass' in rule) return Boolean(state.proofClasses[rule.proofClass]);
+  if ('interactionTriggered' in rule) return Boolean(state.interactions[rule.interactionTriggered]?.triggered);
   throw new Error(`solo_rule_unknown:${JSON.stringify(rule)}`);
 }
 
@@ -340,6 +348,18 @@ export function processSoloAction(caseDef, inputState, action) {
       recordEvent(state, action, { claim: action.claim });
       break;
 
+    case 'TRIGGER_INTERACTION': {
+      const interaction = (caseDef.interactions || []).find((item) => item.id === action.interactionId);
+      const runtime = state.interactions[action.interactionId];
+      if (!interaction || !runtime || runtime.triggered || !evaluateRule(interaction.unlockRule, state, caseDef)) {
+        throw new Error(`solo_interaction_unavailable:${action.interactionId}`);
+      }
+      runtime.triggered = true;
+      applyEffects(caseDef, state, interaction.effects || []);
+      recordEvent(state, action, { interactionId: action.interactionId });
+      break;
+    }
+
     case 'USE_HINT':
       addUnique(state.hintsUsed, action.hintId);
       recordEvent(state, action, { hintId: action.hintId });
@@ -373,6 +393,11 @@ export function listAvailableSoloActions(caseDef, state) {
     const runtime = state.evidence[item.id];
     if (runtime?.unlocked && !runtime.opened) actions.push({ type: 'OPEN_EVIDENCE', evidenceId: item.id });
     if (runtime?.opened) {
+      for (const section of item.sections || []) {
+        if (runtime.sections?.[section]?.unlocked && !runtime.sections[section].opened) {
+          actions.push({ type: 'OPEN_EVIDENCE_SECTION', evidenceId: item.id, section });
+        }
+      }
       for (const character of caseDef.characters || []) {
         if (!runtime.presentedTo[character.id]) actions.push({ type: 'PRESENT_EVIDENCE', evidenceId: item.id, characterId: character.id });
       }
@@ -382,6 +407,11 @@ export function listAvailableSoloActions(caseDef, state) {
     const runtime = state.deductions[deduction.id];
     if (runtime?.available && runtime.result !== 'confirmed') {
       for (const choice of deduction.choices || []) actions.push({ type: 'ATTEMPT_DEDUCTION', deductionId: deduction.id, choiceId: choice });
+    }
+  }
+  for (const interaction of caseDef.interactions || []) {
+    if (!state.interactions[interaction.id]?.triggered && evaluateRule(interaction.unlockRule, state, caseDef)) {
+      actions.push({ type: 'TRIGGER_INTERACTION', interactionId: interaction.id });
     }
   }
   return actions;
