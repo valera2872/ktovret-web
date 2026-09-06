@@ -66,7 +66,7 @@ const characters = [
       {id:0,statementVersion:1,disclosureLevel:0},
       {id:1,statementVersion:1,disclosureLevel:0,enterRule:{deductionConfirmed:'D05'}},
       {id:2,statementVersion:2,disclosureLevel:2,enterRule:{all:[{milestoneReached:'SOFIA_ENTRY_CONFIRMED'},{evidencePresented:{evidenceId:'E19',characterId:'sofia'}}]},effects:[{type:'ADD_CONTRADICTION',characterId:'sofia',contradictionId:'SOFIA_LOCATION_VERSION_1'}]},
-      {id:5,statementVersion:3,disclosureLevel:5,enterRule:{all:[{proofClass:'presence'},{proofClass:'contradiction'},{proofClass:'time'},{proofClass:'motive'},{proofClass:'mechanism'}]},effects:[{type:'SET_MILESTONE',id:'CONFESSION_OBTAINED'},{type:'UNLOCK_RECONSTRUCTION',id:'FINAL_RECONSTRUCTION'}]},
+      {id:5,statementVersion:3,disclosureLevel:5,enterRule:{all:[{proofClass:'presence'},{proofClass:'contradiction'},{proofClass:'time'},{proofClass:'motive'},{proofClass:'mechanism'},{fact:'FINAL_SOFIA_CONFRONTATION_STARTED'}]},effects:[{type:'SET_MILESTONE',id:'CONFESSION_OBTAINED'},{type:'UNLOCK_RECONSTRUCTION',id:'FINAL_RECONSTRUCTION'}]},
     ],
   },
 ];
@@ -77,7 +77,7 @@ const deductions = [
   {id:'D03',unlockRule:{all:[{deductionConfirmed:'D02'},{evidenceOpened:'E11'}]},choices:['ANTON_REDIRECTED_B2','LEV_REDIRECTED_B2','AUTOMATIC_FAILOVER'],correctChoice:'ANTON_REDIRECTED_B2',effectsOnConfirm:[{type:'ADD_FACT',id:'ANTON_REDIRECTED_B2'}]},
   {id:'D04',unlockRule:{all:[{deductionConfirmed:'D03'},{evidenceOpened:'E16'},{evidenceOpened:'E17'}]},choices:['ANTON_AT_DEATH_LOCATION','ANTON_NOT_AT_DEATH_LOCATION','LOCATION_UNKNOWN'],correctChoice:'ANTON_NOT_AT_DEATH_LOCATION',effectsOnConfirm:[{type:'SET_MILESTONE',id:'ANTON_ELIMINATED_FROM_DEATH'},{type:'DISPROVE_HYPOTHESIS',matcher:{subjectId:'anton',claim:'CAUSED_DEATH'},by:'D04'}]},
   {id:'D05',unlockRule:{all:[{evidenceOpened:'E07'},{evidenceOpened:'E18'}]},choices:['SOFIA_SAW_FROM_ANALYSIS','SOFIA_COULD_NOT_SEE_RAW_EVENT_FROM_ANALYSIS','RAW_EVENT_WAS_IN_ARCHIVE'],correctChoice:'SOFIA_COULD_NOT_SEE_RAW_EVENT_FROM_ANALYSIS',effectsOnConfirm:[{type:'ADD_CONTRADICTION',characterId:'sofia',contradictionId:'SOFIA_RAW_KNOWLEDGE'},{type:'SET_MILESTONE',id:'SOFIA_LOCATION_CONTRADICTION'}]},
-  {id:'D06',unlockRule:{all:[{evidenceOpened:'E13'},{evidenceSectionUnlocked:{evidenceId:'E23',section:'historical_observations'}}]},choices:['HISTORICAL_FILES_VALID','HISTORICAL_FILES_REATTRIBUTED','DENIS_CREATED_FILES'],correctChoice:'HISTORICAL_FILES_REATTRIBUTED',effectsOnConfirm:[{type:'SET_MILESTONE',id:'HISTORICAL_FRAUD_FOUND'}]},
+  {id:'D06',unlockRule:{all:[{evidenceOpened:'E13'},{evidenceSectionOpened:{evidenceId:'E23',section:'historical_observations'}}]},choices:['HISTORICAL_FILES_VALID','HISTORICAL_FILES_REATTRIBUTED','DENIS_CREATED_FILES'],correctChoice:'HISTORICAL_FILES_REATTRIBUTED',effectsOnConfirm:[{type:'SET_MILESTONE',id:'HISTORICAL_FRAUD_FOUND'}]},
   {id:'D07',unlockRule:{milestoneReached:'SOFIA_ENTRY_CONFIRMED'},choices:['SOFIA_ENTERED','MILA_ENTERED','UNKNOWN_ENTRY'],correctChoice:'SOFIA_ENTERED',effectsOnConfirm:[{type:'ADD_FACT',id:'SOFIA_ENTERED_CONFIRMED'}]},
   {id:'D08',unlockRule:{all:[{deductionConfirmed:'D05'},{deductionConfirmed:'D07'}]},choices:['SOFIA_INITIAL_ALIBI_VALID','SOFIA_INITIAL_ALIBI_FALSE','TIMEZONE_ERROR'],correctChoice:'SOFIA_INITIAL_ALIBI_FALSE',effectsOnConfirm:[{type:'ADD_CONTRADICTION',characterId:'sofia',contradictionId:'SOFIA_INITIAL_ALIBI_FALSE'}]},
   {id:'D09',unlockRule:{all:[{deductionConfirmed:'D05'},{deductionConfirmed:'D07'},{evidenceOpened:'E17'},{evidenceOpened:'E19'}]},choices:['SOFIA_LEFT_BEFORE_FALL','SOFIA_PRESENT_AT_DEATH','PRESENCE_UNKNOWN'],correctChoice:'SOFIA_PRESENT_AT_DEATH',effectsOnConfirm:[{type:'SET_MILESTONE',id:'SOFIA_PRESENT_AT_DEATH'}]},
@@ -109,6 +109,15 @@ const milestoneRules = [
   {id:'FINAL_INTERROGATION_AVAILABLE',when:{all:[{proofClass:'presence'},{proofClass:'contradiction'},{proofClass:'time'},{proofClass:'motive'},{proofClass:'mechanism'}]}},
 ];
 
+const interactions = [
+  {
+    id:'FINAL_SOFIA_CONFRONTATION',
+    characterId:'sofia',
+    unlockRule:{milestoneReached:'FINAL_INTERROGATION_AVAILABLE'},
+    effects:[{type:'ADD_FACT',id:'FINAL_SOFIA_CONFRONTATION_STARTED'}],
+  },
+];
+
 const expectedReconstruction = {
   thirteen_minutes:{actor:'anton',source:'B2',declaredSource:'SP4',motive:'HIDE_UNAUTHORIZED_FAILURE'},
   death:{actor:'sofia',location:'spectral_hall',mechanism:'PUSH_AND_FALL',object:'OPTICAL_BASE',time:'022536'},
@@ -126,7 +135,7 @@ const deepEqual = (a,b) => {
 
 export const ml0512Case = {
   id:'ML-0512',
-  version:'0.8.0',
+  version:'0.8.1',
   schemaVersion:1,
   metadata:{titleKey:'case.ML0512.title',mode:'solo',tier:'premium',difficulty:'hard',estimatedMinutes:{min:50,max:70}},
   locations:[
@@ -142,6 +151,7 @@ export const ml0512Case = {
   proofClasses,
   timeline,
   milestoneRules,
+  interactions,
   demo:{enabled:true,endCondition:{milestoneReached:'SOURCE_IDENTIFIED_AS_B2'},gateId:'full_case'},
   expectedReconstruction,
   isReconstructionCorrect:(answers)=>deepEqual(answers,expectedReconstruction),
