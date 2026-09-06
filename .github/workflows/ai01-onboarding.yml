@@ -1,0 +1,26 @@
+name: AI-01 onboarding
+
+on:
+  pull_request:
+    paths:
+      - 'detektivnaya-igra-s-ii/index.html'
+      - 'assets/ai01-onboarding.css'
+      - 'tests/ai01-onboarding-contract.mjs'
+      - '.github/workflows/ai01-onboarding.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'detektivnaya-igra-s-ii/index.html'
+      - 'assets/ai01-onboarding.css'
+      - 'tests/ai01-onboarding-contract.mjs'
+      - '.github/workflows/ai01-onboarding.yml'
+
+jobs:
+  onboarding-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/ai01-onboarding-contract.mjs
