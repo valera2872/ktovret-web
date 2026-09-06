@@ -1,5 +1,5 @@
-const premiumRule = { entitlement: ['owned', 'club', 'admin'] };
-const premiumAfterDemo = { all: [premiumRule, { milestoneReached: 'DEMO_INSIGHT' }] };
+const premiumAccess = { entitlement: ['owned', 'club', 'admin'] };
+const afterDemo = { milestoneReached: 'DEMO_INSIGHT' };
 
 const evidence = [
   { id: 'A01', type: 'log' },
@@ -9,13 +9,13 @@ const evidence = [
   { id: 'A05', type: 'log', unlockRule: { deductionConfirmed: 'Q01' } },
   { id: 'A06', type: 'statement' },
   { id: 'A07', type: 'statement' },
-  { id: 'B01', type: 'log', unlockRule: premiumAfterDemo },
-  { id: 'B02', type: 'evidence_bundle', unlockRule: { milestoneReached: 'ALPHA_VIOLATION_EXPOSED' } },
-  { id: 'B03', type: 'wearable_data', unlockRule: premiumAfterDemo },
-  { id: 'B04', type: 'evidence_bundle', unlockRule: premiumAfterDemo, sections: ['summary', 'hidden_detail'] },
-  { id: 'B05', type: 'document', unlockRule: premiumAfterDemo },
-  { id: 'B06', type: 'photo', unlockRule: premiumAfterDemo },
-  { id: 'B07', type: 'medical', unlockRule: { all: [premiumRule, { evidenceOpened: 'B06' }] } },
+  { id: 'B01', type: 'log', unlockRule: afterDemo, accessRule: premiumAccess },
+  { id: 'B02', type: 'evidence_bundle', unlockRule: { milestoneReached: 'ALPHA_VIOLATION_EXPOSED' }, accessRule: premiumAccess },
+  { id: 'B03', type: 'wearable_data', unlockRule: afterDemo, accessRule: premiumAccess },
+  { id: 'B04', type: 'evidence_bundle', unlockRule: afterDemo, accessRule: premiumAccess, sections: ['summary', 'hidden_detail'] },
+  { id: 'B05', type: 'document', unlockRule: afterDemo, accessRule: premiumAccess },
+  { id: 'B06', type: 'photo', unlockRule: afterDemo, accessRule: premiumAccess },
+  { id: 'B07', type: 'medical', unlockRule: { evidenceOpened: 'B06' }, accessRule: premiumAccess },
 ];
 
 const characters = [
@@ -40,11 +40,11 @@ const characters = [
 const deductions = [
   { id: 'Q01', unlockRule: { all: [{ evidenceOpened: 'A01' }, { evidenceOpened: 'A02' }] }, choices: ['POWER_OK', 'SYSTEM_IMPOSSIBLE', 'RANDOM_ERROR'], correctChoice: 'SYSTEM_IMPOSSIBLE', contradictedChoices: ['POWER_OK'], effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'STARTING_CONTRADICTION' }] },
   { id: 'Q02', unlockRule: { all: [{ evidenceOpened: 'A03' }, { evidenceOpened: 'A04' }, { evidenceOpened: 'A05' }] }, choices: ['SOURCE_X', 'SOURCE_Y', 'UNKNOWN'], correctChoice: 'SOURCE_Y', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'DEMO_INSIGHT' }] },
-  { id: 'Q03', unlockRule: { all: [{ deductionConfirmed: 'Q02' }, { evidenceOpened: 'B01' }] }, choices: ['ALPHA_CHANGED_ROUTE', 'AUTOMATIC_CHANGE', 'NO_CHANGE'], correctChoice: 'ALPHA_CHANGED_ROUTE', effectsOnConfirm: [{ type: 'ADD_FACT', id: 'ALPHA_CHANGED_ROUTE' }] },
-  { id: 'Q04', unlockRule: { all: [{ deductionConfirmed: 'Q03' }, { evidenceOpened: 'B02' }, { evidenceOpened: 'B03' }] }, choices: ['ALPHA_AT_SCENE', 'ALPHA_ELIMINATED', 'UNKNOWN'], correctChoice: 'ALPHA_ELIMINATED', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'ALPHA_ELIMINATED' }, { type: 'DISPROVE_HYPOTHESIS', matcher: { subjectId: 'alpha', claim: 'CAUSED_INCIDENT' }, by: 'Q04' }] },
-  { id: 'Q05', unlockRule: { evidenceSectionOpened: { evidenceId: 'B04', section: 'hidden_detail' } }, choices: ['BETA_PRESENT', 'BETA_ABSENT', 'UNKNOWN'], correctChoice: 'BETA_PRESENT', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'BETA_PRESENCE_ESTABLISHED' }] },
-  { id: 'Q06', unlockRule: { all: [{ deductionConfirmed: 'Q05' }, { evidenceOpened: 'B05' }] }, choices: ['BETA_MOTIVE', 'NO_MOTIVE', 'UNKNOWN'], correctChoice: 'BETA_MOTIVE', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'BETA_MOTIVE_ESTABLISHED' }] },
-  { id: 'Q07', unlockRule: { all: [{ evidenceOpened: 'B06' }, { evidenceOpened: 'B07' }] }, choices: ['MECHANISM_MATCHES', 'MECHANISM_EXCLUDED', 'UNKNOWN'], correctChoice: 'MECHANISM_MATCHES', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'MECHANISM_ESTABLISHED' }] },
+  { id: 'Q03', unlockRule: { all: [{ deductionConfirmed: 'Q02' }, { evidenceOpened: 'B01' }] }, accessRule: premiumAccess, choices: ['ALPHA_CHANGED_ROUTE', 'AUTOMATIC_CHANGE', 'NO_CHANGE'], correctChoice: 'ALPHA_CHANGED_ROUTE', effectsOnConfirm: [{ type: 'ADD_FACT', id: 'ALPHA_CHANGED_ROUTE' }] },
+  { id: 'Q04', unlockRule: { all: [{ deductionConfirmed: 'Q03' }, { evidenceOpened: 'B02' }, { evidenceOpened: 'B03' }] }, accessRule: premiumAccess, choices: ['ALPHA_AT_SCENE', 'ALPHA_ELIMINATED', 'UNKNOWN'], correctChoice: 'ALPHA_ELIMINATED', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'ALPHA_ELIMINATED' }, { type: 'DISPROVE_HYPOTHESIS', matcher: { subjectId: 'alpha', claim: 'CAUSED_INCIDENT' }, by: 'Q04' }] },
+  { id: 'Q05', unlockRule: { evidenceSectionOpened: { evidenceId: 'B04', section: 'hidden_detail' } }, accessRule: premiumAccess, choices: ['BETA_PRESENT', 'BETA_ABSENT', 'UNKNOWN'], correctChoice: 'BETA_PRESENT', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'BETA_PRESENCE_ESTABLISHED' }] },
+  { id: 'Q06', unlockRule: { all: [{ deductionConfirmed: 'Q05' }, { evidenceOpened: 'B05' }] }, accessRule: premiumAccess, choices: ['BETA_MOTIVE', 'NO_MOTIVE', 'UNKNOWN'], correctChoice: 'BETA_MOTIVE', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'BETA_MOTIVE_ESTABLISHED' }] },
+  { id: 'Q07', unlockRule: { all: [{ evidenceOpened: 'B06' }, { evidenceOpened: 'B07' }] }, accessRule: premiumAccess, choices: ['MECHANISM_MATCHES', 'MECHANISM_EXCLUDED', 'UNKNOWN'], correctChoice: 'MECHANISM_MATCHES', effectsOnConfirm: [{ type: 'SET_MILESTONE', id: 'MECHANISM_ESTABLISHED' }] },
 ];
 
 const proofClasses = {
@@ -61,12 +61,12 @@ const timeline = [
 
 const milestoneRules = [
   { id: 'DEMO_COMPLETE', when: { milestoneReached: 'DEMO_INSIGHT' } },
-  { id: 'PREMIUM_UNLOCKED', when: premiumRule },
+  { id: 'PREMIUM_EVER_ACTIVATED', when: premiumAccess },
   { id: 'FINAL_INTERROGATION_AVAILABLE', when: { all: [{ proofClass: 'presence' }, { proofClass: 'motive' }, { proofClass: 'mechanism' }] } },
 ];
 
 const interactions = [
-  { id: 'FINAL_BETA_CONFRONTATION', characterId: 'beta', unlockRule: { milestoneReached: 'FINAL_INTERROGATION_AVAILABLE' }, effects: [{ type: 'ADD_FACT', id: 'FINAL_BETA_CONFRONTATION_STARTED' }] },
+  { id: 'FINAL_BETA_CONFRONTATION', characterId: 'beta', unlockRule: { milestoneReached: 'FINAL_INTERROGATION_AVAILABLE' }, accessRule: premiumAccess, effects: [{ type: 'ADD_FACT', id: 'FINAL_BETA_CONFRONTATION_STARTED' }] },
 ];
 
 const expectedReconstruction = {
@@ -78,7 +78,7 @@ const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export const soloEngineV2ContractCase = {
   id: 'ENGINE-V2-CONTRACT',
-  version: '1.0.0',
+  version: '1.1.0',
   initialEvidence: ['A01', 'A02', 'A06', 'A07'],
   evidence,
   characters,
@@ -87,6 +87,7 @@ export const soloEngineV2ContractCase = {
   timeline,
   milestoneRules,
   interactions,
+  reconstructionAccessRule: premiumAccess,
   expectedReconstruction,
   isReconstructionCorrect: (answers) => deepEqual(answers, expectedReconstruction),
 };
