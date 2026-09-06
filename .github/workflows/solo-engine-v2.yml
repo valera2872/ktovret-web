@@ -1,0 +1,36 @@
+name: Validate Solo Engine 2.0
+
+on:
+  pull_request:
+    paths:
+      - 'assets/solo-engine-v2-core.mjs'
+      - 'assets/cases/ml-0512-case.mjs'
+      - 'tools/validate-solo-engine-v2.mjs'
+      - 'package.json'
+      - '.github/workflows/solo-engine-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/solo-engine-v2-core.mjs'
+      - 'assets/cases/ml-0512-case.mjs'
+      - 'tools/validate-solo-engine-v2.mjs'
+      - 'package.json'
+      - '.github/workflows/solo-engine-v2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  solo-engine-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate engine syntax
+        run: node --check assets/solo-engine-v2-core.mjs
+      - name: Validate ML-0512 package syntax
+        run: node --check assets/cases/ml-0512-case.mjs
+      - name: Run Solo Engine 2.0 contract
+        run: node tools/validate-solo-engine-v2.mjs
