@@ -5,8 +5,9 @@ on:
     paths:
       - 'assets/solo-engine-v2-core.mjs'
       - 'assets/cases/ml-0512-case.mjs'
-      - 'tools/fixtures/solo-engine-v2-contract-case.mjs'
+      - 'assets/cases/solo-engine-v2-contract-case.mjs'
       - 'tools/validate-solo-engine-v2.mjs'
+      - 'admin/solo-engine-v2-preview/**'
       - 'package.json'
       - '.github/workflows/solo-engine-v2.yml'
   push:
@@ -14,8 +15,9 @@ on:
     paths:
       - 'assets/solo-engine-v2-core.mjs'
       - 'assets/cases/ml-0512-case.mjs'
-      - 'tools/fixtures/solo-engine-v2-contract-case.mjs'
+      - 'assets/cases/solo-engine-v2-contract-case.mjs'
       - 'tools/validate-solo-engine-v2.mjs'
+      - 'admin/solo-engine-v2-preview/**'
       - 'package.json'
       - '.github/workflows/solo-engine-v2.yml'
 
@@ -35,6 +37,6 @@ jobs:
       - name: Validate ML-0512 public manifest syntax
         run: node --check assets/cases/ml-0512-case.mjs
       - name: Validate spoiler-free contract fixture syntax
-        run: node --check tools/fixtures/solo-engine-v2-contract-case.mjs
+        run: node --check assets/cases/solo-engine-v2-contract-case.mjs
       - name: Run Solo Engine 2.0 contract
         run: node tools/validate-solo-engine-v2.mjs
