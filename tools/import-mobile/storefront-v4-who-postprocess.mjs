@@ -1,12 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const VERSION='1.0.0';
+const VERSION='1.1.0';
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html,href,needle){
   if(html.includes(needle)) return html;
   return html.replace('</head>',`<link rel="stylesheet" href="${href}">\n</head>`);
+}
+
+function patchSeo(html){
+  const title='«Кто врёт?» — 100 детективных загадок | Mystery Logic';
+  const description='«Кто врёт?» — 100 коротких детективных загадок и дел с доказуемым ответом. 15 бесплатно. Решайте сами, вдвоём или вслух с семьёй.';
+  let out=html.replace(/<title>[\s\S]*?<\/title>/,`<title>${title}</title>`);
+  out=out.replace(/<meta name="description" content="[^"]*">/,`<meta name="description" content="${description}">`);
+  out=out.replace(/<meta property="og:title" content="[^"]*">/,`<meta property="og:title" content="${title}">`);
+  out=out.replace(/<meta property="og:description" content="[^"]*">/,`<meta property="og:description" content="${description}">`);
+  return out;
 }
 
 function header(){
@@ -28,6 +38,10 @@ function accessStrip(){
   return `<section class="ref-access-strip ref-who-access" aria-label="Что входит в Кто врёт"><div class="ref-access-stat"><span class="ico">♧</span><strong>15 дел</strong><span>бесплатно</span></div><div class="ref-access-stat"><span class="ico">▣</span><strong>85 дел</strong><span>в Первом томе</span></div><div class="ref-access-stat"><span class="ico">◷</span><strong>5–10 минут</strong><span>на одно дело</span></div><div class="ref-access-buy"><a class="ref-btn ref-btn-primary" href="../delo/chetyre-vhoda-v-arhiv/">Открыть первое дело →</a><small>Без регистрации · бесплатно</small></div></section>`;
 }
 
+function playModes(){
+  return `<section class="ref-who-modes" data-who-play-modes><div class="ref-who-modes-head"><p class="ref-kicker">Один формат · три сценария</p><h2>Не нужно собирать компанию или изучать правила</h2><p>Откройте короткое дело и выберите, как хотите его разгадывать прямо сейчас.</p></div><div class="ref-who-modes-grid"><article><span>01</span><strong>Самому</strong><p>Прочитайте материалы, выберите версию и сразу получите доказательный разбор.</p></article><article><span>02</span><strong>Вдвоём</strong><p>Решите одно и то же дело, сравните версии и посмотрите, кто первым заметил противоречие.</p></article><article><span>03</span><strong>Вслух с семьёй</strong><p>Один читает условие, остальные спорят о версиях. Подходит для дороги, ожидания или короткой семейной игры.</p></article></div></section>`;
+}
+
 function archiveSnapshot(cases){
   const free=cases.filter(item=>item.access==='free').slice(0,2);
   const paid=cases.filter(item=>item.access==='premium').slice(0,6);
@@ -41,7 +55,7 @@ function method(){
 }
 
 function seoCopy(){
-  return `<section class="ref-who-seo" id="about"><div><p class="ref-kicker">Серия «Кто врёт?»</p><h2>Короткие дела, где ответ можно доказать</h2></div><div class="ref-who-seo-copy"><p>Перед вами несколько версий одного события. Правильный ответ определяется не интуицией, а противоречием с материалами дела: временем, маршрутом, доступом, последовательностью событий или другим проверяемым условием.</p><p>Начните с <a href="../dela/">15 бесплатных расследований</a>. Полный <a href="../tom-1/">Первый том</a> добавляет ещё 85 дел одной покупкой без подписки. Другие подборки: <a href="../detektivnye-igry-onlayn/">детективные игры онлайн</a>, <a href="../detektivnye-zagadki-s-otvetami/">детективные загадки с ответами</a> и <a href="../logicheskie-detektivnye-zadachi/">логические детективные задачи</a>.</p></div></section>`;
+  return `<section class="ref-who-seo" id="about"><div><p class="ref-kicker">Серия «Кто врёт?»</p><h2>100 коротких детективных загадок с доказуемым ответом</h2></div><div class="ref-who-seo-copy"><p>Перед вами несколько версий одного события. Правильный ответ определяется не интуицией, а противоречием с материалами дела: временем, маршрутом, доступом, последовательностью событий или другим проверяемым условием.</p><p>Формат рассчитан на короткую игровую сессию: можно разгадывать дело самостоятельно, сравнивать версии вдвоём или читать условие вслух семье. Начните с <a href="../dela/">15 бесплатных расследований</a>. Полный <a href="../tom-1/">Первый том</a> добавляет ещё 85 дел одной покупкой без подписки.</p><p>Другие подборки Mystery Logic: <a href="../detektivnye-igry-onlayn/">детективные игры онлайн</a>, <a href="../detektivnye-zagadki-s-otvetami/">детективные загадки с ответами</a> и <a href="../logicheskie-detektivnye-zadachi/">логические детективные задачи</a>.</p></div></section>`;
 }
 
 function bottomBanner(){
@@ -49,7 +63,7 @@ function bottomBanner(){
 }
 
 function main(cases){
-  return `<main class="ref-main ref-wrap"><section class="ref-who-hero"><div class="ref-who-copy"><p class="ref-kicker">Серия детективных дел</p><h1>Кто врёт?</h1><p class="ref-who-lead">Перед вами несколько версий одного события. Изучите материалы, найдите противоречие и докажите, кто говорит неправду.</p><div class="ref-who-actions"><a class="ref-btn ref-btn-primary" href="../delo/chetyre-vhoda-v-arhiv/">Начать расследование</a><a class="ref-btn ref-btn-outline" href="../dela/">Открыть архив дел</a></div></div><div class="ref-who-art" aria-label="Блокнот с показаниями и лупа из утверждённого дизайна Mystery Logic"><div class="ref-who-crop"><img src="../assets/reference-home-lower.webp" data-reference-asset="who-approved-art" alt="Блокнот с материалами дела и лупа" width="1055" height="940"></div></div></section>${accessStrip()}<div class="ref-who-archive-head"><h2>Архив дел</h2><p>15 расследований доступны бесплатно. Первый том продолжает тот же архив и добавляет ещё 85 дел.</p></div>${archiveSnapshot(cases)}<div class="ref-who-after-grid"><a class="ref-btn ref-btn-outline" href="../dela/">Открыть 15 бесплатных дел →</a></div>${method()}${seoCopy()}${bottomBanner()}</main>`;
+  return `<main class="ref-main ref-wrap"><section class="ref-who-hero"><div class="ref-who-copy"><p class="ref-kicker">100 коротких детективных дел</p><h1>Кто врёт?</h1><p class="ref-who-lead">Одно дело занимает несколько минут: прочитайте версии, найдите противоречие и докажите ответ. Играйте сами, вдвоём или читайте условие вслух семье.</p><div class="ref-who-actions"><a class="ref-btn ref-btn-primary" href="../delo/chetyre-vhoda-v-arhiv/">Попробовать первое дело</a><a class="ref-btn ref-btn-outline" href="../dela/">15 бесплатных дел</a></div></div><div class="ref-who-art" aria-label="Блокнот с показаниями и лупа из утверждённого дизайна Mystery Logic"><div class="ref-who-crop"><img src="../assets/reference-home-lower.webp" data-reference-asset="who-approved-art" alt="Блокнот с материалами дела и лупа" width="1055" height="940"></div></div></section>${accessStrip()}${playModes()}<div class="ref-who-archive-head"><h2>Архив дел</h2><p>15 расследований доступны бесплатно. Если формат понравится, ещё 85 открываются одной покупкой за 99 ₽ без подписки.</p></div>${archiveSnapshot(cases)}<div class="ref-who-after-grid"><a class="ref-btn ref-btn-outline" href="../dela/">Открыть 15 бесплатных дел →</a></div>${method()}${seoCopy()}${bottomBanner()}</main>`;
 }
 
 export function applyStorefrontV4Who(siteRoot,cases){
@@ -62,7 +76,8 @@ export function applyStorefrontV4Who(siteRoot,cases){
   html=addStyle(html,`../assets/storefront-v4-who.css?v=${VERSION}`,'storefront-v4-who.css');
   const body=`<body class="ref-storefront ref-storefront-v41 ref-who-v4" data-storefront-v4-who="${VERSION}">${header()}${main(cases)}${footer()}</body>`;
   html=html.replace(/<body[\s\S]*?<\/body>/,body);
-  const required=['data-storefront-v4-who','data-reference-asset="who-approved-art"','data-reference-asset="archive-grid"','15 дел','85 дел','Как проходит расследование','storefront-v4-who.css'];
+  html=patchSeo(html);
+  const required=['data-storefront-v4-who','data-reference-asset="who-approved-art"','data-reference-asset="archive-grid"','data-who-play-modes','15 дел','85 дел','99 ₽','Вслух с семьёй','Как проходит расследование','storefront-v4-who.css'];
   for(const marker of required) if(!html.includes(marker)) throw new Error(`Who Lied v4 extension missing marker: ${marker}`);
   fs.writeFileSync(file,html);
   return {pages:1,version:VERSION};

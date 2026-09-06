@@ -3,16 +3,26 @@
 .ref-who-v4 .ref-who-hero{display:grid;grid-template-columns:47% 53%;align-items:center;min-height:430px;padding:34px 8px 18px;position:relative}
 .ref-who-v4 .ref-who-copy{padding-left:9px;position:relative;z-index:2}
 .ref-who-v4 .ref-who-copy h1{margin:12px 0 19px;color:var(--ref-cream);font:400 clamp(66px,6.8vw,92px)/.9 Georgia,serif;letter-spacing:-.045em}
-.ref-who-v4 .ref-who-lead{max-width:485px;margin:0;color:#d0c8bc;font-size:15px;line-height:1.68}
+.ref-who-v4 .ref-who-lead{max-width:520px;margin:0;color:#d0c8bc;font-size:15px;line-height:1.68}
 .ref-who-v4 .ref-who-actions{display:flex;gap:16px;margin-top:27px}
 .ref-who-v4 .ref-who-art{justify-self:end;width:min(100%,520px);padding:0 21px 20px;position:relative}
 .ref-who-v4 .ref-who-crop{position:relative;width:min(100%,455px);aspect-ratio:1.36;overflow:hidden;margin:0 auto;border:1px solid rgba(197,140,58,.42);border-radius:5px;background:#06131d;box-shadow:0 28px 48px rgba(0,0,0,.4);transform:rotate(-1.1deg)}
 .ref-who-v4 .ref-who-crop:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(224,183,102,.08)}
 .ref-who-v4 .ref-who-crop img{display:block;width:359.8%;max-width:none;height:auto;transform:translate(-34.6%,-30.5%);transform-origin:0 0}
 .ref-who-v4 .ref-who-access .ref-access-stat strong{white-space:nowrap}
+.ref-who-v4 .ref-who-modes{margin:34px 8px 42px;padding:31px;border:1px solid rgba(214,177,109,.18);border-radius:10px;background:linear-gradient(145deg,rgba(20,38,53,.72),rgba(7,20,31,.82))}
+.ref-who-v4 .ref-who-modes-head{display:grid;grid-template-columns:minmax(220px,.62fr) minmax(0,1.38fr);column-gap:44px;align-items:end}
+.ref-who-v4 .ref-who-modes-head .ref-kicker{grid-column:1/-1}
+.ref-who-v4 .ref-who-modes-head h2{margin:8px 0 0;color:#e5cfaa;font:400 clamp(26px,3.2vw,38px)/1.03 Georgia,serif}
+.ref-who-v4 .ref-who-modes-head>p:last-child{margin:0;color:#aaa194;font-size:13px;line-height:1.65}
+.ref-who-v4 .ref-who-modes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:27px;border:1px solid rgba(214,177,109,.12);background:rgba(214,177,109,.12)}
+.ref-who-v4 .ref-who-modes-grid article{min-height:190px;padding:25px;background:#0b1b29}
+.ref-who-v4 .ref-who-modes-grid article>span{display:block;color:#c9974e;font:700 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}
+.ref-who-v4 .ref-who-modes-grid article>strong{display:block;margin-top:25px;color:#f3e9da;font:400 24px/1.08 Georgia,serif}
+.ref-who-v4 .ref-who-modes-grid article>p{margin:11px 0 0;color:#a79f93;font-size:12px;line-height:1.65}
 .ref-who-v4 .ref-who-archive-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin:32px 8px 13px}
 .ref-who-v4 .ref-who-archive-head h2{margin:0;color:#dfc8a2;font:400 31px Georgia,serif}
-.ref-who-v4 .ref-who-archive-head p{max-width:500px;margin:0;color:#9f9689;font-size:12px;line-height:1.55;text-align:right}
+.ref-who-v4 .ref-who-archive-head p{max-width:540px;margin:0;color:#9f9689;font-size:12px;line-height:1.55;text-align:right}
 .ref-who-v4 .ref-who-after-grid{display:flex;justify-content:flex-end;margin:0 8px 26px}
 .ref-who-v4 .ref-who-after-grid .ref-btn{min-height:45px;font-size:13px}
 .ref-who-v4 .ref-who-method .ref-why-card strong{align-self:end}
@@ -26,6 +36,9 @@
  .ref-who-v4 .ref-who-hero{grid-template-columns:1fr;min-height:0;padding-top:34px}
  .ref-who-v4 .ref-who-copy{padding-left:0}
  .ref-who-v4 .ref-who-art{justify-self:center;width:min(100%,520px);margin-top:24px}
+ .ref-who-v4 .ref-who-modes-head{grid-template-columns:1fr;gap:12px}
+ .ref-who-v4 .ref-who-modes-grid{grid-template-columns:1fr}
+ .ref-who-v4 .ref-who-modes-grid article{min-height:0}
  .ref-who-v4 .ref-who-seo{grid-template-columns:1fr;gap:18px}
 }
 @media(max-width:700px){
@@ -35,6 +48,8 @@
  .ref-who-v4 .ref-who-actions{display:grid;grid-template-columns:1fr;margin-top:22px}
  .ref-who-v4 .ref-who-art{padding:0 4px;margin-top:20px}
  .ref-who-v4 .ref-who-crop{width:min(96%,360px)}
+ .ref-who-v4 .ref-who-modes{margin:26px 0 34px;padding:22px 18px}
+ .ref-who-v4 .ref-who-modes-grid article{padding:21px}
  .ref-who-v4 .ref-who-archive-head{display:grid;margin-left:0;margin-right:0}
  .ref-who-v4 .ref-who-archive-head p{text-align:left}
  .ref-who-v4 .ref-who-after-grid{margin-left:0;margin-right:0}
