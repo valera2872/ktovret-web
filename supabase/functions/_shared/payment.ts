@@ -1,6 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 export const PRODUCT_ID = 'volume1'; // legacy default for old clients
+export const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
+export const CURRENT_WHO_LIED_OFFER_VERSION = '2026-09-06';
 export const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 export const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 export const YOOKASSA_SHOP_ID = Deno.env.get('YOOKASSA_SHOP_ID') || '';
@@ -39,6 +41,16 @@ export const productFor = (value: unknown) => {
   return PRODUCT_CATALOG[id] || null;
 };
 export const entitlementProductsFor = (value: unknown) => productFor(value)?.entitlementProductIds || [];
+export const isLegacyVolume1Order = (order: any) => Boolean(
+  order
+  && String(order.product_id || '') === 'volume1'
+  && String(order.metadata?.offer_version || '') !== CURRENT_WHO_LIED_OFFER_VERSION
+);
+export const entitlementProductsForOrder = (order: any) => {
+  const grants = [...entitlementProductsFor(order?.product_id)];
+  if (isLegacyVolume1Order(order) && !grants.includes(LEGACY_VOLUME_ALL_PRODUCT_ID)) grants.push(LEGACY_VOLUME_ALL_PRODUCT_ID);
+  return grants;
+};
 
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',')
@@ -123,7 +135,7 @@ export const paymentMatchesOrder = (payment: any, order: any) => {
 };
 
 const grantEntitlements = async (admin: any, order: any, paymentProvider: string, paymentReference: string) => {
-  const grants = entitlementProductsFor(order.product_id);
+  const grants = entitlementProductsForOrder(order);
   if (!grants.length) throw new Error('unknown_product');
   const now = new Date().toISOString();
   const rows = grants.map((productId) => ({
@@ -140,6 +152,7 @@ const grantEntitlements = async (admin: any, order: any, paymentProvider: string
       order_id: order.id,
       source: paymentProvider,
       purchase_product_id: order.product_id,
+      ...(productId === LEGACY_VOLUME_ALL_PRODUCT_ID ? { grandfathered_from_product_id: 'volume1' } : {}),
     },
     updated_at: now,
   }));
@@ -156,7 +169,7 @@ export const activateOrder = async (admin: any, order: any, payment: any) => {
   if (payment.status !== 'succeeded' || payment.paid !== true) throw new Error('payment_not_succeeded');
 
   const entitlements = await grantEntitlements(admin, order, 'yookassa', payment.id);
-  const primary = entitlements[0];
+  const primary = entitlements.find((item: any) => item.product_id === order.product_id) || entitlements[0];
   const { error: orderError } = await admin
     .from('payment_orders')
     .update({
