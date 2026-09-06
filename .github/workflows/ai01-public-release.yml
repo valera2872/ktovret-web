@@ -17,6 +17,7 @@ on:
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tests/ai01-public-release-contract.mjs'
       - 'tests/ai01-static-portraits-contract.mjs'
+      - 'tests/ai01-sitewide-launch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
   push:
@@ -36,6 +37,7 @@ on:
       - 'tools/import-mobile/logic-sitewide-postprocess.mjs'
       - 'tests/ai01-public-release-contract.mjs'
       - 'tests/ai01-static-portraits-contract.mjs'
+      - 'tests/ai01-sitewide-launch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
 
@@ -54,4 +56,5 @@ jobs:
       - run: node --check tools/import-mobile/logic-sitewide-postprocess.mjs
       - run: node tests/ai01-public-release-contract.mjs
       - run: node tests/ai01-static-portraits-contract.mjs
+      - run: node tests/ai01-sitewide-launch-contract.mjs
       - run: node tests/ai01-voice-input-contract.mjs
