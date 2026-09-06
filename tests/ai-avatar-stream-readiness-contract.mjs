@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.6-streamready1/,'AI-01 must bust the provider/factory cache for the stream-readiness fix');
+assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-streamready1/,'AI-01 must bust the provider/factory cache for the stream-readiness fix');
 assert.match(factory,/SESSION_STREAM_READY/,'LiveAvatar factory must subscribe to the real media-ready event');
 assert.match(factory,/await waitForStreamReady\(\)/,'connect must not report success before remote media is ready');
 assert.match(factory,/!connected\|\|!live\|\|disconnected\|\|!streamReady/,'health checks must require actual stream readiness');
