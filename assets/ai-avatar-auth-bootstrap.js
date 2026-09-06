@@ -4,7 +4,13 @@
   const AI01_OWNER_STORAGE='mysterylogic:ai01:owner-live-token';
   const AI01_ADMIN_PREVIEW='mysterylogic:ai01:admin-live-preview:v1';
   const AI01_RESISTANCE_STORAGE='mysterylogic:ai01:resistance:v1';
+  const AI01_STATE_STORAGE='ml_ai_demo_state_v4';
   const RESISTANCE_LEVELS=new Set(['easy','medium','hard']);
+  const AI01_OPENING_REWRITES=new Map([
+    ['После 21:25 я была во внутреннем дворике и разговаривала по телефону. В закрытый фонд больше не заходила.','После девяти двадцати пяти я была во внутреннем дворике — разговаривала по телефону. В фонд после этого не возвращалась.'],
+    ['Камеру сервисного коридора перезапускал я. Это была плановая работа. В это время я находился в комнате контроля.','Камеру в служебном коридоре перезапускал я — это была плановая работа. Всё это время я был в комнате контроля.'],
+    ['Я закончил работу около девяти двадцати и вышел. С архивом спорил, это правда, но после выхода не возвращался.','Я закончил примерно в девять двадцать и вышел. Да, с сотрудниками архива у меня был спор из-за доступа к материалам. Но после того как ушёл, я не возвращался.']
+  ]);
   const params=new URL(location.href).searchParams;
   const isAi01=/\/detektivnaya-igra-s-ii\/?$/.test(location.pathname);
   const adminPreviewRequested=isAi01&&params.get('live')==='1'&&params.get('admin_preview')==='1';
@@ -15,6 +21,22 @@
   const ownerLive=adminPreviewRequested&&adminPreviewSession&&adminPreviewParent;
   const ownerToken=ownerLive?String(localStorage.getItem(AI01_OWNER_STORAGE)||'').trim():'';
   const ownerTokenValid=ownerToken.length>=32&&ownerToken.length<=512;
+
+  function polishAi01Text(value){const text=String(value||'');return AI01_OPENING_REWRITES.get(text)||text}
+  function migrateSavedOpenings(){
+    if(!isAi01)return;
+    try{
+      const saved=JSON.parse(sessionStorage.getItem(AI01_STATE_STORAGE)||'null');
+      if(!saved?.transcripts||typeof saved.transcripts!=='object')return;
+      let changed=false;
+      for(const messages of Object.values(saved.transcripts))if(Array.isArray(messages))for(const message of messages){
+        if(!message||typeof message.text!=='string')continue;
+        const next=polishAi01Text(message.text);if(next!==message.text){message.text=next;changed=true}
+      }
+      if(changed)sessionStorage.setItem(AI01_STATE_STORAGE,JSON.stringify(saved));
+    }catch{}
+  }
+  migrateSavedOpenings();
 
   function readResistance(){
     try{const value=sessionStorage.getItem(AI01_RESISTANCE_STORAGE)||'';if(RESISTANCE_LEVELS.has(value))return value}catch{}
@@ -36,7 +58,10 @@
         const url=typeof input==='string'?input:(input instanceof URL?input.href:String(input?.url||''));
         if(url.includes('/functions/v1/ai-interrogation-v1')&&init&&typeof init.body==='string'){
           const body=JSON.parse(init.body);
-          if(body&&typeof body==='object')init={...init,body:JSON.stringify({...body,resistance_level:readResistance()})};
+          if(body&&typeof body==='object'){
+            const history=Array.isArray(body.history)?body.history.slice(-6).map(item=>({...item,text:polishAi01Text(item?.text)})):body.history;
+            init={...init,body:JSON.stringify({...body,...(Array.isArray(history)?{history}:{}),resistance_level:readResistance()})};
+          }
         }
       }catch{}
       return nativeFetch(input,init);
@@ -106,6 +131,18 @@
     });
   }
 
-  const mount=()=>{mountResistanceControl();if(ownerLive)mountOwnerLiveControl()};
+  function mountOpeningPolish(){
+    if(!isAi01)return;
+    const transcript=document.querySelector('[data-ai-detective] [data-transcript]');
+    if(!transcript)return;
+    const apply=()=>transcript.querySelectorAll('.aid-message.is-suspect:not(.aid-typing)').forEach(message=>{
+      const textNode=message.children?.[1];if(!textNode)return;
+      const next=polishAi01Text(textNode.textContent||'');if(next!==textNode.textContent)textNode.textContent=next;
+    });
+    apply();
+    const observer=new MutationObserver(apply);observer.observe(transcript,{childList:true,subtree:true});
+  }
+
+  const mount=()=>{mountResistanceControl();mountOpeningPolish();if(ownerLive)mountOwnerLiveControl()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
