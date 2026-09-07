@@ -1,7 +1,11 @@
-import { adminClient, cleanOrigin, corsHeaders, isAllowedOrigin, json, sha256 } from '../_shared/last-aria-payment.ts';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
+  .split(',').map((value) => value.trim().replace(/\/$/, '')).filter(Boolean);
 const BROWSER_KEY_RE = /^[a-f0-9]{48}$/;
-const CASE_ID_RE = /^[A-Za-z0-9:_-]{2,160}$/;
+const CASE_ID_RE = /^[A-Za-z0-9:_.-]{2,160}$/;
 const KINDS = new Set(['short','premium','ai','custom']);
 const MODES = new Set(['solo','partner','party','ai','text','live']);
 const DIFFICULTIES = new Set(['too_easy','just_right','too_hard']);
@@ -9,6 +13,22 @@ const WANT_MORE = new Set(['yes','maybe','no']);
 const LIKED = new Set(['story','evidence','atmosphere','deduction','finale','teamplay','characters','interrogation','pace']);
 const IMPROVE = new Set(['unclear_next_step','too_hard','too_easy','need_hints','too_long','too_short','weak_finale','technical_issue']);
 
+const cleanOrigin = (value = '') => String(value || '').trim().replace(/\/$/, '');
+const allowedOrigin = (origin = '') => !origin || ALLOWED_ORIGINS.includes(cleanOrigin(origin));
+const corsHeaders = (origin = '') => ({
+  'content-type': 'application/json; charset=utf-8',
+  'cache-control': 'no-store',
+  'vary': 'Origin',
+  ...(origin && allowedOrigin(origin) ? { 'access-control-allow-origin': cleanOrigin(origin) } : {}),
+  'access-control-allow-methods': 'POST, OPTIONS',
+  'access-control-allow-headers': 'content-type',
+});
+const json = (status: number, body: unknown, origin = '') =>
+  new Response(JSON.stringify(body), { status, headers: corsHeaders(origin) });
+const sha256 = async (value: string) => {
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('');
+};
 const optionalText = (value: unknown, max: number) => {
   const text = String(value || '').trim().replace(/\s+/g, ' ');
   return text ? text.slice(0, max) : null;
@@ -26,11 +46,12 @@ const cleanPath = (value: unknown) => {
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
   if (req.method === 'OPTIONS') {
-    if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
+    if (!allowedOrigin(origin)) return new Response(null, { status: 403 });
     return new Response(null, { status: 204, headers: corsHeaders(origin) });
   }
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
-  if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
+  if (!allowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return json(503, { error: 'service_not_configured' }, origin);
 
   let body: any = {};
   try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }, origin); }
@@ -42,7 +63,8 @@ Deno.serve(async (req: Request) => {
   const rating = Number(body.rating);
   const difficultyRaw = String(body.difficulty || '').trim();
   const wantMoreRaw = String(body.wantMore || '').trim();
-  const comment = String(body.comment || '').trim().slice(0, 2000);
+  const rawComment = String(body.comment || '').trim();
+  const comment = rawComment.slice(0, 2000);
   const displayName = optionalText(body.displayName, 80);
   const likedTags = cleanTags(body.likedTags, LIKED);
   const improvementTags = cleanTags(body.improvementTags, IMPROVE);
@@ -52,10 +74,10 @@ Deno.serve(async (req: Request) => {
   if (!BROWSER_KEY_RE.test(browserKey)) return json(400, { error: 'invalid_browser_key' }, origin);
   if (!CASE_ID_RE.test(caseId)) return json(400, { error: 'invalid_case_id' }, origin);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return json(400, { error: 'invalid_rating' }, origin);
-  if (String(body.comment || '').trim().length > 2000) return json(400, { error: 'comment_too_long' }, origin);
+  if (rawComment.length > 2000) return json(400, { error: 'comment_too_long' }, origin);
 
   const reviewerKeyHash = await sha256(browserKey);
-  const admin = adminClient();
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   let completionVerified = false;
   if (caseKindRaw === 'short') {
     const { data: completion } = await admin.from('case_first_results')
