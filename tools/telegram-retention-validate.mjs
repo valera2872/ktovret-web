@@ -22,7 +22,7 @@ const css=read('assets/logic-sitewide.css');
 for(const marker of ['.ml-telegram-sticky','.ml-telegram-retention','.ml-who-lied-bridge','[data-nav-daily]']) must(css,marker,'retention styles');
 
 const post=read('tools/import-mobile/logic-sitewide-postprocess.mjs');
-for(const marker of ['Мини-дело дня ↗','data-nav-daily','data-telegram-cta="header"','data-logic-sitewide-style','telegramRetention:true',"VERSION='3.3.0'"]) must(post,marker,'sitewide generator');
+for(const marker of ['Мини-дело дня ↗','data-nav-daily','data-telegram-cta="header"','data-logic-sitewide-style','telegramRetention:true',"VERSION='3.3.1'"]) must(post,marker,'sitewide generator');
 
 const who=read('tools/import-mobile/storefront-v4-who-postprocess.mjs');
 for(const marker of ['data-who-play-modes','Вслух с семьёй','99 ₽','100 коротких детективных загадок']) must(who,marker,'Who Lied product framing');

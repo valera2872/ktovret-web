@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const handoff=fs.readFileSync('RELEASE_AI01_TEXT_20260907.md','utf8');
+assert.ok(handoff.includes('reconcile with latest `main`'),'fresh-main reconciliation step missing');
+assert.ok(handoff.includes('AI-01 public Text release workflow green'),'AI-01 release gate missing');
+assert.ok(handoff.includes('AI detective vertical slice green'),'AI vertical slice gate missing');
+assert.ok(handoff.includes('production Beget bundle green'),'production validation step missing');
+assert.ok(handoff.includes('Last Aria'),'Last Aria regression guard missing');
+assert.ok(handoff.includes('Do not merge while any release-blocking check is red'),'red-check merge guard missing');
+console.log('AI-01 release branch contract OK');
