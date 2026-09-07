@@ -17,8 +17,8 @@ function assertThrows(fn: () => unknown, expected: string) {
   throw new Error(`expected throw: ${expected}`);
 }
 
-const PRIVATE_DEDUCTION_ANSWER = 'PRIVATE_ROUTE_TRUTH';
-const PRIVATE_RECONSTRUCTION_ANSWER = 'PRIVATE_FINAL_TRUTH';
+const PRIVATE_DEDUCTION_ANSWER = 'CHOICE_B';
+const PRIVATE_RECONSTRUCTION_ANSWER = 'FINAL_B';
 const PRIVATE_EFFECT_FACT = 'PRIVATE_EFFECT_FACT';
 
 const definition = parseSoloDefinition({
@@ -57,7 +57,7 @@ const definition = parseSoloDefinition({
     },
     {
       id: 'D2', title: 'Premium deduction', prompt: 'What happened?',
-      choices: [{ id: 'WRONG_PRIVATE', label: 'Wrong private' }, { id: PRIVATE_DEDUCTION_ANSWER, label: 'Private correct choice label' }],
+      choices: [{ id: 'CHOICE_A', label: 'Alternative A' }, { id: PRIVATE_DEDUCTION_ANSWER, label: 'Alternative B' }],
       correct_choice: PRIVATE_DEDUCTION_ANSWER,
       unlock_rule: { evidence_opened: 'P1' },
       access_rule: { entitlement: ['owned','club','admin'] },
@@ -74,7 +74,7 @@ const definition = parseSoloDefinition({
   interactions: [],
   reconstruction: {
     access_rule: { entitlement: ['owned','club','admin'] },
-    fields: [{ id: 'final', prompt: 'Final reconstruction?', options: [{ id: 'WRONG_FINAL', label: 'Wrong' }, { id: PRIVATE_RECONSTRUCTION_ANSWER, label: 'Final answer option' }] }],
+    fields: [{ id: 'final', prompt: 'Final reconstruction?', options: [{ id: 'FINAL_A', label: 'Alternative A' }, { id: PRIVATE_RECONSTRUCTION_ANSWER, label: 'Alternative B' }] }],
     expected: { final: PRIVATE_RECONSTRUCTION_ANSWER },
   },
   client_flags: { demo_complete_milestone: 'DEMO_COMPLETE', confession_milestone: 'CONFESSION_OBTAINED' },
@@ -119,20 +119,28 @@ Deno.test('Solo V2 Club expiry preserves progress but removes protected content'
   assert(renewed.evidence.find((x: any) => x.id === 'P1').body === 'PREMIUM_BODY', 'Club renewal did not restore protected content');
 });
 
-Deno.test('Solo V2 never serializes private answers or effects in safe payload', () => {
+Deno.test('Solo V2 safe payload never identifies correctness or private effects', () => {
   let state = createInitialSoloServerState(runtime, 'demo');
   state = processSoloServerAction(runtime, state, { type: 'OPEN_EVIDENCE', evidence_id: 'A1' }, 'demo');
   state = processSoloServerAction(runtime, state, { type: 'ATTEMPT_DEDUCTION', deduction_id: 'D1', choice_id: 'DEMO_CORRECT' }, 'demo');
   state = processSoloServerAction(runtime, state, { type: 'OPEN_EVIDENCE', evidence_id: 'P1' }, 'owned');
-  state = processSoloServerAction(runtime, state, { type: 'ATTEMPT_DEDUCTION', deduction_id: 'D2', choice_id: PRIVATE_DEDUCTION_ANSWER }, 'owned');
-  const safe: any = safeSoloPayload(runtime, state, 4, 'owned');
-  const serialized = JSON.stringify(safe);
 
-  assert(!serialized.includes(PRIVATE_DEDUCTION_ANSWER), 'correct deduction answer leaked');
-  assert(!serialized.includes(PRIVATE_EFFECT_FACT), 'private effect/fact leaked');
-  assert(!serialized.includes(PRIVATE_RECONSTRUCTION_ANSWER), 'expected reconstruction leaked');
+  // Before answering, both alternatives are intentionally visible. The secret is which one is correct.
+  let safe: any = safeSoloPayload(runtime, state, 3, 'owned');
+  const d2 = safe.deductions.find((x: any) => x.id === 'D2');
+  assert(d2.choices.length === 2, 'player choices must be visible');
+  let serialized = JSON.stringify(safe);
   assert(!serialized.includes('correct_choice'), 'correct_choice field leaked');
-  assert(!serialized.includes('effects_on_confirm'), 'private effects leaked');
+  assert(!serialized.includes('effects_on_confirm'), 'private effects structure leaked');
+  assert(!serialized.includes(PRIVATE_EFFECT_FACT), 'private effect/fact leaked');
+  assert(!serialized.includes('expected'), 'expected reconstruction structure leaked before reconstruction');
+
+  state = processSoloServerAction(runtime, state, { type: 'ATTEMPT_DEDUCTION', deduction_id: 'D2', choice_id: PRIVATE_DEDUCTION_ANSWER }, 'owned');
+  safe = safeSoloPayload(runtime, state, 4, 'owned');
+  serialized = JSON.stringify(safe);
+  assert(!serialized.includes('correct_choice'), 'correct_choice field leaked after confirmation');
+  assert(!serialized.includes('effects_on_confirm'), 'private effects leaked after confirmation');
+  assert(!serialized.includes(PRIVATE_EFFECT_FACT), 'private confirmed effect leaked');
   assert(!serialized.includes('expected'), 'expected reconstruction structure leaked');
   assert(safe.flags.reconstructionStoryUnlocked === true, 'reconstruction story flag missing');
   assert(Array.isArray(safe.reconstruction.fields), 'authorized reconstruction fields missing');
