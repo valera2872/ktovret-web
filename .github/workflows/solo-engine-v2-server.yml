@@ -5,6 +5,9 @@ on:
     paths:
       - 'supabase/functions/_shared/solo-engine-v2-runtime.ts'
       - 'supabase/functions/_shared/solo-engine-v2-runtime.test.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-view.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-controller.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-controller.test.ts'
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/migrations/20260907014500_solo_engine_v2_server_state.sql'
       - '.github/workflows/solo-engine-v2-server.yml'
@@ -13,6 +16,9 @@ on:
     paths:
       - 'supabase/functions/_shared/solo-engine-v2-runtime.ts'
       - 'supabase/functions/_shared/solo-engine-v2-runtime.test.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-view.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-controller.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-controller.test.ts'
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/migrations/20260907014500_solo_engine_v2_server_state.sql'
       - '.github/workflows/solo-engine-v2-server.yml'
@@ -29,11 +35,23 @@ jobs:
         with:
           deno-version: v2.x
       - name: Check shared runtime
-        run: deno check supabase/functions/_shared/solo-engine-v2-runtime.ts
+        run: |
+          deno check supabase/functions/_shared/solo-engine-v2-runtime.ts
+          deno check supabase/functions/_shared/solo-engine-v2-view.ts
+          deno check supabase/functions/_shared/solo-engine-v2-controller.ts
       - name: Check Edge Function
         run: deno check supabase/functions/solo-session-v2/index.ts
       - name: Run server privacy and entitlement contract
-        run: deno test supabase/functions/_shared/solo-engine-v2-runtime.test.ts
+        run: |
+          deno test supabase/functions/_shared/solo-engine-v2-runtime.test.ts
+          deno test supabase/functions/_shared/solo-engine-v2-controller.test.ts
+      - name: Assert endpoint uses strict client view
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='supabase/functions/solo-session-v2/index.ts'
+          grep -q "safeSoloClientPayload" "$file"
+          ! grep -q "safeSoloPayload(runtime" "$file"
       - name: Validate migration security contract
         shell: bash
         run: |
