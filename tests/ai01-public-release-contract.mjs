@@ -32,6 +32,11 @@ assert.ok(postprocess.includes('data-ai01-launch-promo-script'),'sitewide promo 
 assert.ok(postprocess.includes("'admin'"),'admin must stay outside public sitewide injection');
 
 assert.ok(portraitCss.includes('background-size:300% 100%'),'portrait sprite layout missing');
+assert.ok(portraitCss.includes('aspect-ratio:4/5'),'portrait must preserve the 4:5 source panel ratio');
+assert.ok(portraitCss.includes('height:100%;width:auto'),'portrait must derive width from its fixed aspect ratio');
+assert.ok(portraitCss.includes('left:50%'),'portrait must stay centered in the wide interrogation stage');
+assert.ok(portraitCss.includes('transform:translateX(-50%)'),'portrait centering transform missing');
+assert.ok(portraitCss.includes('min-height:320px'),'desktop dossier portrait stage is unexpectedly shallow');
 assert.ok(portraitCss.includes('[data-suspect="marina"]'),'Marina portrait mapping missing');
 assert.ok(portraitCss.includes('[data-suspect="anton"]'),'Anton portrait mapping missing');
 assert.ok(portraitCss.includes('[data-suspect="lev"]'),'Lev portrait mapping missing');
