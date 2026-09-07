@@ -6,13 +6,13 @@ import {
   loadSoloSessionByEntitlement,
   loadSoloSessionByKey,
   normalizeStoredSoloState,
-  processSoloServerAction,
   resolveEntitlementById,
   resolveEntitlementByToken,
   saveSoloSession,
   type SoloAccessMode,
   type SoloEntitlement,
 } from '../_shared/solo-engine-v2-runtime.ts';
+import { processAuthorizedSoloAction } from '../_shared/solo-engine-v2-controller.ts';
 import { safeSoloClientPayload } from '../_shared/solo-engine-v2-view.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
@@ -46,7 +46,7 @@ function errorStatus(code: string) {
   if (['invalid_case_id','invalid_request','solo_session_token_invalid','solo_hypothesis_invalid','solo_hint_invalid'].includes(code)) return 400;
   if (['access_denied','access_revoked','access_expired','access_wrong_case','solo_evidence_access_denied','solo_evidence_section_access_denied','solo_present_invalid','solo_deduction_access_denied','solo_interaction_unavailable','solo_reconstruction_access_denied','solo_case_completed'].includes(code)) return 403;
   if (['case_not_found','solo_session_not_found'].includes(code)) return 404;
-  if (['solo_session_state_conflict','solo_session_merge_required','solo_session_entitlement_conflict'].includes(code)) return 409;
+  if (['solo_session_state_conflict','solo_session_merge_required','solo_session_entitlement_conflict','solo_deduction_already_confirmed'].includes(code)) return 409;
   if (['solo_case_not_ready','solo_canon_rotation_required'].includes(code)) return 423;
   if (['solo_store_not_configured','solo_store_unavailable'].includes(code)) return 503;
   return 400;
@@ -128,10 +128,10 @@ Deno.serve(async (req: Request) => {
     const revision = Number.isInteger(Number(row.revision)) ? Number(row.revision) : 0;
     const normalized = normalizeStoredSoloState(row.state, runtime, accessMode);
     const action = { ...body, type: actionType };
-    const nextState = processSoloServerAction(runtime, normalized, action, accessMode);
+    const nextState = processAuthorizedSoloAction(runtime, normalized, action, accessMode);
 
     let nextRevision = revision;
-    if (MUTATING.has(actionType)) {
+    if (MUTATING.has(actionType) && JSON.stringify(nextState) !== JSON.stringify(normalized)) {
       const saved = await saveSoloSession({ supabaseUrl: SUPABASE_URL, serviceRole: SERVICE_ROLE_KEY, runtime, sessionKey, expectedRevision: revision, state: nextState });
       nextRevision = saved.revision;
     }
