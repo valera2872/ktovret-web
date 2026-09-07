@@ -78,10 +78,10 @@
     return null;
   };
 
-  const modeLiked = (mode) => {
-    const extra = mode === 'partner' ? [['teamplay','Игра вдвоём']]
-      : mode === 'ai' ? [['characters','Персонажи'],['interrogation','Свободный допрос']]
-      : mode === 'short' ? [['pace','Короткий формат']] : [];
+  const likedFor = (context) => {
+    const extra = context.mode === 'partner' ? [['teamplay','Игра вдвоём']]
+      : context.mode === 'ai' ? [['characters','Персонажи'],['interrogation','Свободный допрос']]
+      : context.caseKind === 'short' ? [['pace','Короткий формат']] : [];
     return [...likedBase, ...extra];
   };
   const pills = (items, attr) => items.map(([id,label]) => `<button class="ml-feedback-pill" type="button" data-${attr}="${esc(id)}" aria-pressed="false">${esc(label)}</button>`).join('');
@@ -110,7 +110,7 @@
         <div class="ml-feedback-section"><span class="ml-feedback-label">Сложность</span><div class="ml-feedback-pills">${pills([['too_easy','Слишком легко'],['just_right','В самый раз'],['too_hard','Слишком сложно']],'feedback-difficulty')}</div></div>
         <div class="ml-feedback-section"><span class="ml-feedback-label">Хотите ещё таких расследований?</span><div class="ml-feedback-pills">${pills([['yes','Да'],['maybe','Возможно'],['no','Нет']],'feedback-more')}</div></div>
       </div>
-      <div class="ml-feedback-section"><span class="ml-feedback-label">Что понравилось? <small>Можно несколько</small></span><div class="ml-feedback-pills">${pills(modeLiked(context.mode),'feedback-liked')}</div></div>
+      <div class="ml-feedback-section"><span class="ml-feedback-label">Что понравилось? <small>Можно несколько</small></span><div class="ml-feedback-pills">${pills(likedFor(context),'feedback-liked')}</div></div>
       <div class="ml-feedback-section"><span class="ml-feedback-label">Что стоит улучшить? <small>Можно несколько</small></span><div class="ml-feedback-pills">${pills(improveBase,'feedback-improve')}</div></div>
       <label class="ml-feedback-section"><span class="ml-feedback-label" data-feedback-comment-label>Хотите добавить пару слов? <small>Необязательно</small></span><textarea data-feedback-comment maxlength="2000" placeholder="Что особенно запомнилось или что помешало получить удовольствие?"></textarea></label>
       <p class="ml-feedback-tags-note">Не указывайте телефон, e-mail и другие личные данные.</p>
@@ -125,10 +125,7 @@
     const status = card.querySelector('[data-feedback-status]');
     const comment = card.querySelector('[data-feedback-comment]');
     const sync = () => { submit.disabled = busy || rating < 1; };
-    const toggleSingle = (selector, value, setter) => {
-      setter(value);
-      card.querySelectorAll(selector).forEach((node) => { const on = node.dataset[selector.includes('difficulty') ? 'feedbackDifficulty' : 'feedbackMore'] === value; node.classList.toggle('is-on', on); node.setAttribute('aria-pressed', String(on)); });
-    };
+
     card.querySelectorAll('[data-feedback-rating]').forEach((button) => button.addEventListener('click', () => {
       rating = Number(button.dataset.feedbackRating || 0);
       card.querySelectorAll('[data-feedback-rating]').forEach((node) => { const n=Number(node.dataset.feedbackRating||0); node.classList.toggle('is-on',n<=rating); node.setAttribute('aria-checked',String(n===rating)); });
@@ -152,13 +149,21 @@
 
     card.querySelector('[data-feedback-skip]')?.addEventListener('click', () => { track('review_skip',context); card.remove(); });
     submit.addEventListener('click', async () => {
-      if (busy || rating < 1) return; busy=true; sync(); status.textContent='Сохраняем обратную связь…';
+      if (busy || rating < 1) return;
+      busy=true; sync(); status.textContent='Сохраняем обратную связь…';
+      const commentValue = String(comment?.value || '').trim();
+      const displayName = String(card.querySelector('[data-feedback-name]')?.value || '').trim();
+      const wantsPublication = Boolean(card.querySelector('[data-feedback-publish]')?.checked);
+      const publicationConsent = wantsPublication && commentValue.length > 0;
+      if (wantsPublication && !commentValue) {
+        status.textContent='Для публикации нужен комментарий. Оценку можно отправить и без текста.';
+        busy=false; sync(); return;
+      }
       try {
         const response = await fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
           browserKey:browserKey(),caseId:context.caseId,caseKind:context.caseKind,mode:context.mode,rating,difficulty,wantMore,
-          likedTags:[...liked],improvementTags:[...improve],comment:String(comment?.value||'').trim(),
-          displayName:String(card.querySelector('[data-feedback-name]')?.value||'').trim(),
-          publicationConsent:Boolean(card.querySelector('[data-feedback-publish]')?.checked),sourcePath:location.pathname,feedbackVersion:VERSION
+          likedTags:[...liked],improvementTags:[...improve],comment:commentValue,displayName,publicationConsent,
+          sourcePath:location.pathname,feedbackVersion:VERSION
         }),cache:'no-store',credentials:'omit'});
         let body={}; try{body=await response.json();}catch{}
         if(!response.ok) throw new Error(body.error||`http_${response.status}`);
