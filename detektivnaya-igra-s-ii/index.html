@@ -29,9 +29,9 @@
   <main class="aid-app" data-ai-detective>
     <section class="aid-intro" data-view="intro">
       <div class="aid-intro-copy">
-        <p class="aid-kicker">Кража в закрытом архиве</p>
+        <p class="aid-kicker">Похищение в закрытом архиве</p>
         <h1>Восемь минут<br>без камеры.</h1>
-        <p class="aid-lead">Из закрытого фонда исчез оригинал письма 1912 года. В 21:24 оно ещё было на месте. В 21:36 папка оказалась пустой. Между этими моментами камера служебного коридора восемь минут не работала, а дверь фонда открыли действующей картой и персональным PIN.</p>
+        <p class="aid-lead">Из закрытого фонда пропал оригинал письма 1912 года — редкий документ со страховой оценкой 26 000 €. В 21:24 он ещё находился в папке C-12, а в 21:36 папка оказалась пустой. С 21:27 до 21:35 камера служебного коридора проходила плановый перезапуск: запись в этот период не велась. В 21:31 дверь фонда открыли действующей картой и персональным PIN.</p>
 
         <div class="aid-mission">
           <strong>Вы — следователь. Установите, кто забрал письмо, и докажите это.</strong>
@@ -49,12 +49,13 @@
       </div>
       <aside class="aid-case-stamp" aria-label="Карточка дела">
         <p class="aid-kicker">Исходные данные</p>
-        <div class="aid-stamp-line"><span>ПРЕСТУПЛЕНИЕ</span><strong>Похищение оригинала</strong></div>
-        <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Письмо №12/1912</strong></div>
-        <div class="aid-stamp-line"><span>ОКНО ПРОПАЖИ</span><strong>21:24:36–21:36:08</strong></div>
-        <div class="aid-stamp-line"><span>КАМЕРА</span><strong>нет сигнала 21:27–21:35</strong></div>
+        <div class="aid-stamp-line"><span>ПРЕСТУПЛЕНИЕ</span><strong>Похищение ценного документа</strong></div>
+        <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Оригинал письма №12/1912</strong></div>
+        <div class="aid-stamp-line"><span>СТРАХОВАЯ ОЦЕНКА</span><strong>26 000 €</strong></div>
+        <div class="aid-stamp-line"><span>ПЕРИОД ИСЧЕЗНОВЕНИЯ</span><strong>21:24:36–21:36:08</strong></div>
+        <div class="aid-stamp-line"><span>КАМЕРА</span><strong>плановый перезапуск 21:27–21:35</strong></div>
         <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong>3 человека · виновный среди них</strong></div>
-        <div class="aid-stamp-seal"><strong>Запись системы контроля</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в окно пропажи не зафиксировано.</div>
+        <div class="aid-stamp-seal"><strong>Запись системы контроля</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в этот период не зафиксировано.</div>
       </aside>
     </section>
 
@@ -102,7 +103,7 @@
           <div>
             <p class="aid-kicker">Признание зафиксировано</p>
             <strong>Марина призналась. Но расследование ещё не окончено.</strong>
-            <span>Признание — это часть доказательств. Сформулируйте собственную версию и покажите, как факты складываются в единую цепочку.</span>
+            <span>Признание — это часть доказательств. Сформулируйте собственную версию: кто, как и зачем совершил похищение, и покажите, как факты складываются в единую цепочку.</span>
           </div>
           <button class="aid-primary" type="button" data-action="theory">Собрать финальную версию</button>
           <button class="aid-primary" type="button" hidden data-action="bonus-inline">Открыть пакет C</button>
@@ -149,12 +150,12 @@
       <div class="aid-theory-grid">
         <div>
           <p class="aid-kicker">Ваша версия</p>
-          <h2>Кто ответственен за исчезновение письма?</h2>
-          <p>Назовите человека и опишите цепочку фактов. Даже признание не закрывает дело само по себе: версия должна подтверждаться тем, что вы установили в ходе расследования.</p>
+          <h2>Кто похитил письмо — и зачем?</h2>
+          <p>Назовите человека, объясните мотив и восстановите цепочку фактов. Даже признание не закрывает дело само по себе: версия должна объяснять не только кто и как совершил похищение, но и почему.</p>
         </div>
         <form class="aid-theory-form" data-theory-form>
           <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
-          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Какие независимые факты связывают человека с фондом в нужное время?" required></textarea></label>
+          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Свяжите мотив, доступ, местонахождение, время и алиби остальных." required></textarea></label>
           <button class="aid-primary" type="submit">Проверить версию</button>
         </form>
       </div>
@@ -171,7 +172,8 @@
       <div class="aid-resolution-grid aid-resolution-grid-final">
         <div><small>21:31</small><strong>Персональный доступ</strong><span>E-14 и PIN открыли фонд.</span></div>
         <div><small>21:34</small><strong>Ложное алиби</strong><span>Сетевой лог оставляет Марину внутри.</span></div>
-        <div><small>КАМЕРА</small><strong>Окно было известно</strong><span>Время перезапуска она выяснила заранее.</span></div>
+        <div><small>КАМЕРА</small><strong>Время перезапуска было известно</strong><span>Марина выяснила его заранее.</span></div>
+        <div><small>МОТИВ</small><strong>Финансовое давление</strong><span>Просроченный долг и высокая стоимость письма дали ей причину рискнуть.</span></div>
         <div><small>АЛИБИ</small><strong>Остальные исключены</strong><span>Антон и Лев подтверждены независимыми следами.</span></div>
       </div>
       <div class="aid-cipher-reward" data-cipher-reward></div>
@@ -232,6 +234,6 @@
   <script src="../assets/ai-detective-vslice.js?v=0.3.6&rev=agency1" defer></script>
   <script src="../assets/ai01-voice-input.js?v=0.1.0" defer></script>
   <script src="../assets/ai01-static-portraits.js?v=0.1.0" defer></script>
-  <script src="../assets/ai01-feedback.js?v=0.1.0" defer></script>
+  <script src="../assets/ai01-feedback.js?v=0.1.1&rev=motive1" defer></script>
 </body>
 </html>
