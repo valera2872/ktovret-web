@@ -2,23 +2,43 @@
   'use strict';
 
   const COPY={
-    evidenceTitle:'Плановый перезапуск камеры',
-    evidenceBody:'С 21:27:10 до 21:35:42 камера служебного коридора проходила плановый перезапуск; запись в этот период не велась. Заявка создана в 20:15.'
+    cameraStamp:'Камеры наблюдения были недоступны из-за планового перезапуска · 21:27–21:35',
+    evidenceTitle:'Недоступность камер наблюдения',
+    evidenceBody:'С 21:27:10 до 21:35:42 камеры наблюдения были недоступны из-за планового перезапуска. Запись в этот период не велась. Заявка на работы создана в 20:15.'
   };
 
   function patchDynamicCopy(root=document){
+    const lead=root.querySelector?.('.aid-lead');
+    if(lead?.textContent?.includes('камера служебного коридора проходила плановый перезапуск')){
+      lead.textContent=lead.textContent.replace(
+        'С 21:27 до 21:35 камера служебного коридора проходила плановый перезапуск: запись в этот период не велась.',
+        'С 21:27 до 21:35 камеры наблюдения были недоступны из-за планового перезапуска. Запись в этот период не велась.'
+      );
+    }
+
+    root.querySelectorAll?.('.aid-stamp-line').forEach(line=>{
+      const label=line.querySelector('span');
+      const value=line.querySelector('strong');
+      if(label?.textContent?.trim()==='КАМЕРА'&&value)value.textContent=COPY.cameraStamp;
+    });
+
     root.querySelectorAll?.('.aid-evidence-card').forEach(card=>{
       const title=card.querySelector('strong');
       const body=card.querySelector('p');
-      if(title?.textContent?.trim()==='Окно перезапуска камеры')title.textContent=COPY.evidenceTitle;
-      if(body?.textContent?.includes('не передавала сигнал с 21:27:10 до 21:35:42'))body.textContent=COPY.evidenceBody;
+      if(title&&['Окно перезапуска камеры','Плановый перезапуск камеры'].includes(title.textContent?.trim()||''))title.textContent=COPY.evidenceTitle;
+      if(body&&(body.textContent?.includes('не передавала сигнал с 21:27:10 до 21:35:42')||body.textContent?.includes('камера служебного коридора проходила плановый перезапуск')))body.textContent=COPY.evidenceBody;
     });
+
+    root.querySelectorAll?.('.aid-resolution-grid strong').forEach(title=>{
+      if(title.textContent?.trim()==='Окно было известно')title.textContent='Время перезапуска было известно';
+    });
+
     root.querySelectorAll?.('.aid-note').forEach(note=>{
       note.childNodes.forEach(node=>{
         if(node.nodeType!==Node.TEXT_NODE)return;
         node.textContent=node.textContent
-          .replaceAll('окно отключения камеры','время планового перезапуска камеры')
-          .replaceAll('окно камеры','время перезапуска камеры');
+          .replaceAll('окно отключения камеры','время планового перезапуска камер')
+          .replaceAll('окно камеры','время перезапуска камер');
       });
     });
   }
