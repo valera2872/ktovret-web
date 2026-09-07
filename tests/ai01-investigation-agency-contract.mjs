@@ -24,9 +24,10 @@ assert.ok(html.includes('26 000 €'),'document value must be concrete enough to
 assert.ok(html.includes('ПЕРИОД ИСЧЕЗНОВЕНИЯ'),'case timing label must use natural Russian');
 assert.ok(!html.includes('ОКНО ПРОПАЖИ'),'awkward Russian label must not return');
 assert.ok(!html.includes('нет сигнала 21:27–21:35'),'camera downtime must not be described as a vague signal loss');
-assert.ok(html.includes('плановый перезапуск 21:27–21:35'),'camera downtime must be explained as planned technical work');
-assert.ok(feedback.includes('Плановый перезапуск камеры'),'dynamic evidence title must use natural Russian');
-assert.ok(feedback.includes('запись в этот период не велась'),'dynamic evidence body must explain what the technical interruption meant');
+assert.ok(feedback.includes("cameraStamp:'Камеры наблюдения были недоступны из-за планового перезапуска · 21:27–21:35'"),'camera stamp must explain what happened in plain Russian');
+assert.ok(feedback.includes("evidenceTitle:'Недоступность камер наблюдения'"),'dynamic evidence title must describe the player-facing fact, not the maintenance action');
+assert.ok(feedback.includes('камеры наблюдения были недоступны из-за планового перезапуска. Запись в этот период не велась.'),'camera evidence must state unavailability and its cause directly');
+assert.ok(feedback.includes("title.textContent='Время перезапуска было известно'"),'final reconstruction must avoid technical-jargon window wording');
 
 assert.ok(edge.includes('function isMotiveReference'),'free interrogation must recognize motive questions');
 assert.ok(edge.includes('N-MARINA-MOTIVE'),'motive must be persistent investigation state');
