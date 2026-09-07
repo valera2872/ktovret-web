@@ -9,7 +9,7 @@ const cleanOrigin = (value = '') => value.trim().replace(/\/$/, '');
 const allowedOrigin = (origin = '') => !origin || configuredOrigins.includes(cleanOrigin(origin));
 const headers = (origin = '') => ({
   'content-type': 'application/json; charset=utf-8',
-  'cache-control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=300',
+  'cache-control': 'public, max-age=60, s-maxage=60, stale-while-revalidate=60',
   'vary': 'Origin',
   ...(origin && allowedOrigin(origin) ? { 'access-control-allow-origin': cleanOrigin(origin) } : {}),
 });
@@ -35,7 +35,20 @@ const publicReviewKey = (caseId = '') => {
 };
 
 const automatedPlayer = (name = '') => /^(?:CI|RG)\b/i.test(String(name || '').trim());
-type Proof = { reviewCount: number; ratingTotal: number; playerKeys: Set<string> };
+type PublicReview = {
+  rating: number;
+  comment: string;
+  displayName: string;
+  difficulty: string;
+  createdAt: string;
+};
+type Proof = {
+  ratingCount: number;
+  ratingTotal: number;
+  reviewCount: number;
+  playerKeys: Set<string>;
+  reviews: PublicReview[];
+};
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -59,25 +72,51 @@ Deno.serve(async (req: Request) => {
   });
   const proof = new Map<string, Proof>();
   const ensure = (key: string) => {
-    if (!proof.has(key)) proof.set(key, { reviewCount: 0, ratingTotal: 0, playerKeys: new Set() });
+    if (!proof.has(key)) {
+      proof.set(key, {
+        ratingCount: 0,
+        ratingTotal: 0,
+        reviewCount: 0,
+        playerKeys: new Set(),
+        reviews: [],
+      });
+    }
     return proof.get(key)!;
   };
 
-  // Public rating is owner-moderated. Pending/rejected reviews and CI audit rows
-  // cannot affect either the average stars or the displayed review count.
-  const { data: reviews, error: reviewsError } = await admin
+  // Rating and text publication are deliberately separate contracts.
+  // Every genuine v2 player rating can affect the aggregate unless explicitly rejected.
+  // A text review is public only after owner moderation AND explicit publication consent.
+  // audit_* rows and the legacy v1 QA corpus are excluded from both public surfaces.
+  const { data: feedback, error: feedbackError } = await admin
     .from('case_reviews')
-    .select('case_id,rating')
-    .eq('moderation_status', 'approved')
+    .select('case_id,rating,comment,difficulty,display_name,publication_consent,moderation_status,feedback_version,created_at')
+    .eq('feedback_version', 'v2')
     .limit(10000);
-  if (reviewsError) return json(503, { error: 'reviews_read_failed' }, origin);
-  for (const row of reviews || []) {
+  if (feedbackError) return json(503, { error: 'reviews_read_failed' }, origin);
+
+  for (const row of feedback || []) {
     const key = publicReviewKey(row.case_id);
     const rating = Number(row.rating || 0);
     if (!key || !Number.isInteger(rating) || rating < 1 || rating > 5) continue;
+
     const item = ensure(key);
-    item.reviewCount += 1;
-    item.ratingTotal += rating;
+    if (row.moderation_status !== 'rejected') {
+      item.ratingCount += 1;
+      item.ratingTotal += rating;
+    }
+
+    const comment = String(row.comment || '').trim();
+    if (row.moderation_status === 'approved' && row.publication_consent === true && comment) {
+      item.reviewCount += 1;
+      item.reviews.push({
+        rating,
+        comment: comment.slice(0, 2000),
+        displayName: String(row.display_name || '').trim().slice(0, 80),
+        difficulty: String(row.difficulty || '').trim().slice(0, 40),
+        createdAt: String(row.created_at || ''),
+      });
+    }
   }
 
   // Clean browser funnel: funnel-analytics.js exits immediately for navigator.webdriver,
@@ -133,18 +172,24 @@ Deno.serve(async (req: Request) => {
 
   const items: Record<string, unknown> = {};
   for (const [key, item] of proof.entries()) {
+    const publicReviews = item.reviews
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      .slice(0, 3);
     items[key] = {
-      rating: item.reviewCount ? Math.round((item.ratingTotal / item.reviewCount) * 10) / 10 : null,
+      rating: item.ratingCount ? Math.round((item.ratingTotal / item.ratingCount) * 10) / 10 : null,
+      ratingCount: item.ratingCount,
       reviewCount: item.reviewCount,
       completedPlayers: item.playerKeys.size,
+      reviews: publicReviews,
     };
   }
 
   return json(200, {
     ok: true,
-    moderation: 'approved_only',
-    ratingThreshold: 3,
-    playerThreshold: 10,
+    ratingPolicy: 'genuine_v2_non_rejected',
+    reviewPolicy: 'approved_with_publication_consent',
+    ratingThreshold: 1,
+    playerThreshold: 1,
     items,
   }, origin);
 });
