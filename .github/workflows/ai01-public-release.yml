@@ -4,8 +4,11 @@ on:
   pull_request:
     paths:
       - 'detektivnaya-igra-s-ii/index.html'
+      - 'assets/ai-detective-vslice.js'
       - 'assets/ai01-public-release.css'
       - 'assets/ai01-public-analytics.js'
+      - 'assets/ai01-feedback.css'
+      - 'assets/ai01-feedback.js'
       - 'assets/ai01-launch-promo.css'
       - 'assets/ai01-launch-promo.js'
       - 'assets/ai01-static-portraits.css'
@@ -23,13 +26,17 @@ on:
       - 'tests/ai01-launch-budget-contract.mjs'
       - 'tests/ai01-release-branch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
+      - 'tests/ai01-investigation-agency-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
   push:
     branches: [main]
     paths:
       - 'detektivnaya-igra-s-ii/index.html'
+      - 'assets/ai-detective-vslice.js'
       - 'assets/ai01-public-release.css'
       - 'assets/ai01-public-analytics.js'
+      - 'assets/ai01-feedback.css'
+      - 'assets/ai01-feedback.js'
       - 'assets/ai01-launch-promo.css'
       - 'assets/ai01-launch-promo.js'
       - 'assets/ai01-static-portraits.css'
@@ -47,6 +54,7 @@ on:
       - 'tests/ai01-launch-budget-contract.mjs'
       - 'tests/ai01-release-branch-contract.mjs'
       - 'tests/ai01-voice-input-contract.mjs'
+      - 'tests/ai01-investigation-agency-contract.mjs'
       - '.github/workflows/ai01-public-release.yml'
 
 jobs:
@@ -57,8 +65,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: node --check assets/ai-detective-vslice.js
       - run: node --check assets/ai01-launch-promo.js
       - run: node --check assets/ai01-public-analytics.js
+      - run: node --check assets/ai01-feedback.js
       - run: node --check assets/ai01-static-portraits.js
       - run: node --check assets/ai01-voice-input.js
       - run: node --check tools/import-mobile/logic-sitewide-postprocess.mjs
@@ -70,3 +80,4 @@ jobs:
       - run: node tests/ai01-launch-budget-contract.mjs
       - run: node tests/ai01-release-branch-contract.mjs
       - run: node tests/ai01-voice-input-contract.mjs
+      - run: node tests/ai01-investigation-agency-contract.mjs
