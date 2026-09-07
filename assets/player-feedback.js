@@ -35,6 +35,7 @@ function wire(root,cfg){const state={rating:0,difficulty:null,liked:new Set(),di
 function completionAnchor(cfg){for(const s of String(cfg.anchor||'').split(',')){const el=document.querySelector(s.trim());if(el&&el.getClientRects().length)return el}return document.querySelector('main')}
 function reveal(cfg){if(!cfg||alreadyDone(cfg.id))return;setTimeout(()=>render(cfg,completionAnchor(cfg)),700)}
 const cfg=config();if(!cfg)return;
+if(cfg.mode==='ai')document.querySelector('[data-ai01-feedback-form]')?.remove();
 window.MysteryLogicFeedback={version:VERSION,open:(extra={})=>reveal({...cfg,...extra})};
 window.addEventListener('ml:solo_complete',()=>reveal(cfg));
 window.addEventListener('ml:feedback_open',()=>reveal(cfg));

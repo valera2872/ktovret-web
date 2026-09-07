@@ -13,6 +13,8 @@ for(const tag of ['plot','evidence','logic','atmosphere','characters','technical
 for(const route of ['2317','poslednyaya-ariya','detektivnye-igry-dlya-odnogo','detektivnaya-igra-s-ii']) assert(js.includes(route)&&post.includes(route),`feedback route missing: ${route}`);
 assert(js.includes("ml:solo_complete"));
 assert(js.includes('game_complete'));
+assert(js.includes("cfg.mode==='ai'"));
+assert(js.includes("[data-ai01-feedback-form]"));
 assert(css.includes('.ml-feedback__stars'));
 assert(css.includes('@media(max-width:640px)'));
 assert(endpoint.includes("moderation_status: 'pending'"));
