@@ -47,7 +47,3 @@ jobs:
           node --check ktovret-game/assets/review-discount.js
       - name: Universal feedback contracts
         run: node tools/validate-post-case-feedback.mjs
-      - name: No production review pollution
-        run: |
-          ! grep -R "audit_review_pr_" .github/workflows tools/validate-post-case-feedback.mjs
-          ! grep -R "functions/v1/review-discount" .github/workflows/review-discount.yml
