@@ -5,10 +5,15 @@
   if (!root || !window.KtoVretWeb?.case?.id) return;
 
   let opened = false;
+  const visible = (node) => {
+    if (!node || node.hidden || node.getAttribute('aria-hidden') === 'true') return false;
+    const style = getComputedStyle(node);
+    return style.display !== 'none' && style.visibility !== 'hidden' && node.getClientRects().length > 0;
+  };
   const loadFeedback = () => {
     if (opened) return;
     const result = root.querySelector('.ktv-result, #ktv-result');
-    if (!result) return;
+    if (!visible(result)) return;
     opened = true;
 
     const open = () => window.MysteryLogicFeedback?.open?.({
@@ -37,6 +42,6 @@
   };
 
   const observer = new MutationObserver(loadFeedback);
-  observer.observe(root, { childList: true, subtree: true });
+  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden','class','style','aria-hidden'] });
   loadFeedback();
 })();
