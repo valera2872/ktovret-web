@@ -199,6 +199,10 @@
       }
     }
 
+    // Internal co-op gameplay buttons are intentionally NOT counted here.
+    // cognitive-coop-analytics.js records stage/hint/handoff/decision events
+    // with semantic labels. Counting every button as primary_action inflated the
+    // conversion funnel and made gameplay activity look like CTA conversion.
     return null;
   };
 
