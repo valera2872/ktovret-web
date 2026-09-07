@@ -14,9 +14,12 @@ alter table public.case_reviews
   add column if not exists want_more text null,
   add column if not exists case_kind text not null default 'short',
   add column if not exists mode text null,
-  add column if not exists feedback_version smallint not null default 2,
+  add column if not exists feedback_version smallint not null default 1,
   add column if not exists source_path text null,
   add column if not exists completion_verified boolean not null default false;
+
+alter table public.case_reviews
+  alter column feedback_version set default 2;
 
 alter table public.case_reviews
   drop constraint if exists case_reviews_want_more_check,
@@ -41,3 +44,41 @@ create index if not exists case_reviews_product_feedback_idx
 create index if not exists case_reviews_rating_idx
   on public.case_reviews (rating, created_at desc)
   where case_id not like 'audit_review_%';
+
+create or replace view public.case_feedback_overview as
+select
+  case_id,
+  max(case_kind) as case_kind,
+  max(mode) as mode,
+  count(*)::bigint as response_count,
+  round(avg(rating)::numeric, 2) as avg_rating,
+  count(*) filter (where difficulty = 'too_easy')::bigint as too_easy_count,
+  count(*) filter (where difficulty = 'just_right')::bigint as just_right_count,
+  count(*) filter (where difficulty = 'too_hard')::bigint as too_hard_count,
+  count(*) filter (where want_more = 'yes')::bigint as want_more_yes_count,
+  count(*) filter (where want_more = 'maybe')::bigint as want_more_maybe_count,
+  count(*) filter (where want_more = 'no')::bigint as want_more_no_count,
+  count(*) filter (where nullif(btrim(comment), '') is not null)::bigint as comment_count,
+  max(created_at) as latest_feedback_at
+from public.case_reviews
+where feedback_version >= 2
+  and case_id not like 'audit_review_%'
+group by case_id;
+
+create or replace view public.case_feedback_tag_counts as
+select case_id, 'liked'::text as tag_kind, tag, count(*)::bigint as response_count
+from public.case_reviews r
+cross join lateral unnest(r.liked_tags) as tag
+where r.feedback_version >= 2
+  and r.case_id not like 'audit_review_%'
+group by case_id, tag
+union all
+select case_id, 'improve'::text as tag_kind, tag, count(*)::bigint as response_count
+from public.case_reviews r
+cross join lateral unnest(r.improvement_tags) as tag
+where r.feedback_version >= 2
+  and r.case_id not like 'audit_review_%'
+group by case_id, tag;
+
+comment on view public.case_feedback_overview is 'Mystery Logic internal post-case survey summary; excludes legacy/audit rows.';
+comment on view public.case_feedback_tag_counts is 'Mystery Logic internal liked/improvement tag frequencies; excludes legacy/audit rows.';
