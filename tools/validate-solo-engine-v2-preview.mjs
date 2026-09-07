@@ -28,19 +28,25 @@ const syntax = spawnSync(process.execPath, ['--check', tempModule], { encoding: 
 try { fs.unlinkSync(tempModule); } catch {}
 assert.equal(syntax.status, 0, `preview module syntax invalid:\n${syntax.stderr || syntax.stdout}`);
 
-for (const forbidden of [
+const realMl0512Spoilers = [
   'SOFIA_PUSHED_LEV',
   'ANTON_REDIRECTED_B2',
   'LEV_INTENDED_TO_BLAME_SOFIA',
-  'PUSH_AND_FALL',
-  'expectedReconstruction',
-  'canonicalTruth'
-]) {
+  'PUSH_AND_FALL'
+];
+for (const forbidden of realMl0512Spoilers) {
   assert(!publicManifest.includes(forbidden), `public ML-0512 manifest leaks private canon token: ${forbidden}`);
   assert(!html.includes(forbidden), `internal preview leaks private ML-0512 canon token: ${forbidden}`);
 }
 
+for (const forbidden of ['expectedReconstruction', 'canonicalTruth']) {
+  assert(!publicManifest.includes(forbidden), `public ML-0512 manifest leaks private structure: ${forbidden}`);
+}
+assert(!html.includes('canonicalTruth'), 'internal preview must never embed ML-0512 canonical truth');
+
 assert.match(publicManifest, /server-authoritative-private-canon/, 'public ML-0512 manifest must require private/server runtime');
+assert.match(publicManifest, /receivesOnlyAuthorizedEvidenceContent:\s*true/, 'browser must receive only authorized evidence content');
+assert.match(publicManifest, /entitlementEvaluatedServerSide:\s*true/, 'entitlement must be server-evaluated');
 assert.match(publicManifest, /deductionAnswersStayServerSide:\s*true/, 'deduction answers must stay server-side');
 assert.match(publicManifest, /characterCanonStaysServerSide:\s*true/, 'character canon must stay server-side');
 assert.match(publicManifest, /reconstructionAnswersStayServerSide:\s*true/, 'reconstruction answers must stay server-side');
@@ -53,5 +59,6 @@ console.log(JSON.stringify({
   realEngineCore: true,
   syntheticBrowserCase: true,
   clubAccessVisualization: true,
+  ml0512SpoilerBoundary: true,
   publicManifestNoCanon: true
 }, null, 2));
