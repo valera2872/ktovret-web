@@ -9,6 +9,8 @@ on:
       - 'assets/journey-analytics.js'
       - 'assets/solo-conversion.css'
       - 'assets/review-admin.*'
+      - 'assets/feedback-insights.css'
+      - 'tests/feedback-insights.test.js'
       - 'tools/import-mobile-cases.mjs'
       - 'tools/inject-funnel-analytics.mjs'
       - 'tools/import-mobile/funnel-analytics-postprocess.mjs'
@@ -24,6 +26,8 @@ on:
       - 'assets/journey-analytics.js'
       - 'assets/solo-conversion.css'
       - 'assets/review-admin.*'
+      - 'assets/feedback-insights.css'
+      - 'tests/feedback-insights.test.js'
       - 'tools/import-mobile-cases.mjs'
       - 'tools/inject-funnel-analytics.mjs'
       - 'tools/import-mobile/funnel-analytics-postprocess.mjs'
@@ -52,6 +56,7 @@ jobs:
           node --check tools/inject-funnel-analytics.mjs
           node --check tools/import-mobile/funnel-analytics-postprocess.mjs
           node --check tools/import-mobile-cases.mjs
+          node tests/feedback-insights.test.js
           grep -q "solo-407-case" assets/journey-analytics.js
           grep -q "premium-case" assets/journey-analytics.js
           grep -q "data-solo-conversion-v3" tools/import-mobile/funnel-analytics-postprocess.mjs
@@ -59,6 +64,7 @@ jobs:
           grep -q 'noindex,nofollow,noarchive' admin/reviews/index.html
           grep -q 'data-admin-login' admin/reviews/index.html
           grep -q 'data-funnel-panel' admin/reviews/index.html
+          grep -q 'data-feedback-panel' admin/reviews/index.html
           grep -q 'sessionStorage' assets/review-admin.js
           grep -q 'enable row level security' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
           grep -q 'revoke all on public.site_funnel_events from anon, authenticated' supabase/migrations/20260827090000_review_moderation_funnel_analytics.sql
@@ -92,9 +98,11 @@ jobs:
           });
           if (funnel.status !== 200) throw new Error(`funnel endpoint ${funnel.status}: ${await funnel.text()}`);
 
-          const moderation = await fetch('https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/review-moderation?status=pending', {
-            headers: {origin, authorization:'Bearer MLADM-this-is-deliberately-not-a-valid-owner-key-0000'},
-          });
-          if (moderation.status !== 401) throw new Error(`moderation auth boundary ${moderation.status}: ${await moderation.text()}`);
-          console.log(JSON.stringify({journeyFunnelWrite:true,moderationUnauthorizedBlocked:true}, null, 2));
+          for (const query of ['?status=pending', '?mode=feedback&days=30']) {
+            const moderation = await fetch(`https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/review-moderation${query}`, {
+              headers: {origin, authorization:'Bearer MLADM-this-is-deliberately-not-a-valid-owner-key-0000'},
+            });
+            if (moderation.status !== 401) throw new Error(`moderation auth boundary ${query} ${moderation.status}: ${await moderation.text()}`);
+          }
+          console.log(JSON.stringify({journeyFunnelWrite:true,moderationUnauthorizedBlocked:true,feedbackInsightsUnauthorizedBlocked:true}, null, 2));
           NODE
