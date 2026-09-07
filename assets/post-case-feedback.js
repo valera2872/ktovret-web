@@ -5,7 +5,6 @@
   const ENDPOINT = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/case-feedback';
   const CLIENT_KEY_STORAGE = 'mysterylogic:challenge:client-key';
   const VERSION = 2;
-  const mounted = new Set();
   let explicitContext = null;
 
   const labels = {
@@ -91,8 +90,7 @@
   };
 
   const mount = (context) => {
-    if (!context?.caseId || !context.mount || mounted.has(context.caseId) || document.querySelector(`[data-ml-feedback-case="${CSS.escape(context.caseId)}"]`)) return;
-    mounted.add(context.caseId);
+    if (!context?.caseId || !context.mount || document.querySelector(`[data-ml-feedback-case="${CSS.escape(context.caseId)}"]`)) return;
     ensureCss();
     const card = document.createElement('section');
     card.className = 'ml-feedback-card';
