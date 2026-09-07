@@ -1,0 +1,47 @@
+name: Validate Solo Engine 2.0 server runtime
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/solo-engine-v2-runtime.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-runtime.test.ts'
+      - 'supabase/functions/solo-session-v2/**'
+      - 'supabase/migrations/20260907014500_solo_engine_v2_server_state.sql'
+      - '.github/workflows/solo-engine-v2-server.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/solo-engine-v2-runtime.ts'
+      - 'supabase/functions/_shared/solo-engine-v2-runtime.test.ts'
+      - 'supabase/functions/solo-session-v2/**'
+      - 'supabase/migrations/20260907014500_solo_engine_v2_server_state.sql'
+      - '.github/workflows/solo-engine-v2-server.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  solo-engine-v2-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check shared runtime
+        run: deno check supabase/functions/_shared/solo-engine-v2-runtime.ts
+      - name: Check Edge Function
+        run: deno check supabase/functions/solo-session-v2/index.ts
+      - name: Run server privacy and entitlement contract
+        run: deno test supabase/functions/_shared/solo-engine-v2-runtime.test.ts
+      - name: Validate migration security contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='supabase/migrations/20260907014500_solo_engine_v2_server_state.sql'
+          grep -q 'enable row level security' "$file"
+          grep -q 'revoke all on table public.solo_case_definitions from public, anon, authenticated' "$file"
+          grep -q 'revoke all on table public.solo_case_sessions from public, anon, authenticated' "$file"
+          grep -q 'on delete set null' "$file"
+          grep -q 'PRIVATE_CANON_PRODUCTION' "$file"
+          grep -q 'production_eligible' "$file"
