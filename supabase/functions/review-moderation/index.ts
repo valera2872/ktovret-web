@@ -86,6 +86,111 @@ const summarizeFunnel = (events: any[]) => {
   };
 };
 
+const hasFeedbackContext = (value: unknown) => Boolean(
+  value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value as Record<string, unknown>).length,
+);
+const safeTags = (value: unknown) => Array.isArray(value)
+  ? value.filter((item) => typeof item === 'string').slice(0, 12)
+  : [];
+const genuineFeedback = (row: any) => {
+  const caseId = String(row?.case_id || '');
+  return Boolean(
+    caseId &&
+    !caseId.startsWith('audit_review_pr_') &&
+    !caseId.startsWith('ci:') &&
+    hasFeedbackContext(row?.feedback_context),
+  );
+};
+const publicFeedbackRow = (row: any) => ({
+  id: row.id,
+  case_id: row.case_id,
+  rating: Number(row.rating || 0),
+  comment: String(row.comment || ''),
+  difficulty: row.difficulty || null,
+  display_name: row.display_name || null,
+  publication_consent: Boolean(row.publication_consent),
+  moderation_status: row.moderation_status || 'pending',
+  liked_tags: safeTags(row.liked_tags),
+  disliked_tags: safeTags(row.disliked_tags),
+  more_cases_interest: row.more_cases_interest || null,
+  feedback_context: hasFeedbackContext(row.feedback_context) ? {
+    mode: String(row.feedback_context?.mode || '').slice(0, 80) || null,
+    path: String(row.feedback_context?.path || '').slice(0, 240) || null,
+    version: String(row.feedback_context?.version || '').slice(0, 80) || null,
+  } : {},
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+});
+
+const summarizeFeedback = (rows: any[]) => {
+  const stars: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+  const difficulty: Record<string, number> = { too_easy: 0, just_right: 0, too_hard: 0, unknown: 0 };
+  const moreCases: Record<string, number> = { yes: 0, maybe: 0, no: 0, unknown: 0 };
+  const liked: Record<string, number> = {};
+  const disliked: Record<string, number> = {};
+  const byCase = new Map<string, any>();
+  let ratingSum = 0;
+
+  for (const row of rows) {
+    const rating = Math.max(1, Math.min(5, Number(row.rating || 0)));
+    stars[String(rating)] = (stars[String(rating)] || 0) + 1;
+    ratingSum += rating;
+    const d = ['too_easy', 'just_right', 'too_hard'].includes(String(row.difficulty)) ? String(row.difficulty) : 'unknown';
+    difficulty[d] = (difficulty[d] || 0) + 1;
+    const more = ['yes', 'maybe', 'no'].includes(String(row.more_cases_interest)) ? String(row.more_cases_interest) : 'unknown';
+    moreCases[more] = (moreCases[more] || 0) + 1;
+    for (const tag of safeTags(row.liked_tags)) liked[tag] = (liked[tag] || 0) + 1;
+    for (const tag of safeTags(row.disliked_tags)) disliked[tag] = (disliked[tag] || 0) + 1;
+
+    const caseId = String(row.case_id || 'unknown');
+    if (!byCase.has(caseId)) byCase.set(caseId, {
+      caseId,
+      mode: String(row.feedback_context?.mode || 'unknown'),
+      responses: 0,
+      ratingSum: 0,
+      wantMoreYes: 0,
+      disliked: {},
+      latestAt: null,
+    });
+    const item = byCase.get(caseId)!;
+    item.responses += 1;
+    item.ratingSum += rating;
+    if (more === 'yes') item.wantMoreYes += 1;
+    for (const tag of safeTags(row.disliked_tags)) item.disliked[tag] = (item.disliked[tag] || 0) + 1;
+    if (!item.latestAt || new Date(row.updated_at).getTime() > new Date(item.latestAt).getTime()) item.latestAt = row.updated_at;
+  }
+
+  const sortedTags = (source: Record<string, number>) => Object.entries(source)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tag, count]) => ({ tag, count }));
+  const cases = [...byCase.values()].map((item) => {
+    const topProblem = sortedTags(item.disliked)[0] || null;
+    return {
+      caseId: item.caseId,
+      mode: item.mode,
+      responses: item.responses,
+      averageRating: Number((item.ratingSum / item.responses).toFixed(2)),
+      wantMoreYes: item.wantMoreYes,
+      wantMoreRate: item.responses ? Math.round((item.wantMoreYes / item.responses) * 100) : 0,
+      topProblem,
+      latestAt: item.latestAt,
+    };
+  }).sort((a, b) => b.responses - a.responses || b.averageRating - a.averageRating);
+
+  const answeredMore = moreCases.yes + moreCases.maybe + moreCases.no;
+  return {
+    responses: rows.length,
+    averageRating: rows.length ? Number((ratingSum / rows.length).toFixed(2)) : null,
+    stars,
+    difficulty,
+    moreCases,
+    wantMoreYesRate: answeredMore ? Math.round((moreCases.yes / answeredMore) * 100) : null,
+    liked: sortedTags(liked),
+    disliked: sortedTags(disliked),
+    cases,
+  };
+};
+
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
   if (req.method === 'OPTIONS') {
@@ -120,6 +225,31 @@ Deno.serve(async (req: Request) => {
       }, origin);
     }
 
+    if (url.searchParams.get('mode') === 'feedback') {
+      const daysRaw = String(url.searchParams.get('days') || '30');
+      const days = daysRaw === 'all' ? null : Math.max(1, Math.min(365, Number(daysRaw) || 30));
+      const { data, error } = await admin
+        .from('case_reviews')
+        .select('id,case_id,rating,comment,difficulty,display_name,publication_consent,moderation_status,liked_tags,disliked_tags,more_cases_interest,feedback_context,feedback_version,created_at,updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(5000);
+      if (error) return json(503, { error: 'feedback_read_failed' }, origin);
+      const cutoff = days ? Date.now() - days * 86_400_000 : null;
+      const genuine = (data || []).filter((row) => genuineFeedback(row) && (!cutoff || new Date(row.updated_at).getTime() >= cutoff));
+      const safe = genuine.map(publicFeedbackRow);
+      const redFlags = safe.filter((row) =>
+        row.rating <= 3 || row.disliked_tags.some((tag: string) => ['technical', 'navigation', 'finale', 'too_hard'].includes(tag)),
+      ).slice(0, 80);
+      return json(200, {
+        ok: true,
+        days: days ?? 'all',
+        generatedAt: new Date().toISOString(),
+        summary: summarizeFeedback(genuine),
+        redFlags,
+        recent: safe.slice(0, 100),
+      }, origin);
+    }
+
     const status = String(url.searchParams.get('status') || 'pending');
     if (!['pending', 'approved', 'rejected', 'all'].includes(status)) {
       return json(400, { error: 'invalid_status' }, origin);
@@ -127,7 +257,7 @@ Deno.serve(async (req: Request) => {
 
     let query = admin
       .from('case_reviews')
-      .select('id,case_id,rating,comment,difficulty,display_name,publication_consent,moderation_status,moderation_note,moderated_at,created_at,updated_at')
+      .select('id,case_id,rating,comment,difficulty,display_name,publication_consent,moderation_status,moderation_note,moderated_at,liked_tags,disliked_tags,more_cases_interest,feedback_context,feedback_version,created_at,updated_at')
       .order('created_at', { ascending: false })
       .limit(300);
     if (status !== 'all') query = query.eq('moderation_status', status);
