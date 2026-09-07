@@ -7,6 +7,9 @@
   const caseId = root.matches('[data-case407-app]') ? 'coop:407'
     : root.matches('[data-casearia-app]') ? 'coop:last-aria'
       : 'coop:2317';
+  const caseTitle = root.matches('[data-case407-app]') ? 'Номер 407'
+    : root.matches('[data-casearia-app]') ? 'Последняя ария'
+      : 'Последний звонок в 23:17';
 
   const stage = () => {
     const active = root.querySelector('[data-action="stage"].is-active');
@@ -43,4 +46,22 @@
     if (event.target.matches('[data-final-form],.casearia-final-form')) send('final-submit', 'Проверил финальную версию');
     else if (event.target.matches('[data-decision-form]')) send('decision-submit', 'Проверил промежуточную версию');
   }, true);
+
+  let feedbackOpened = false;
+  const revealVisible = () => Boolean(root.querySelector('.case2317-reveal,.case407-reveal,.casearia-reveal,[data-case-reveal],[data-case-complete]'));
+  const openFeedback = () => {
+    if (feedbackOpened || !revealVisible()) return;
+    feedbackOpened = true;
+    const open = () => window.MysteryLogicFeedback?.open?.({ caseId, title: caseTitle, mode: 'partner' });
+    if (window.MysteryLogicFeedback) { open(); return; }
+    const script = document.createElement('script');
+    script.src = '/assets/player-feedback.js?v=2.0.0';
+    script.defer = true;
+    script.dataset.mlPlayerFeedback = 'true';
+    script.addEventListener('load', open, { once: true });
+    document.head.appendChild(script);
+  };
+  const revealObserver = new MutationObserver(openFeedback);
+  revealObserver.observe(root, { childList: true, subtree: true });
+  openFeedback();
 })();
