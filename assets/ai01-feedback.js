@@ -1,5 +1,41 @@
 (()=>{
   'use strict';
+
+  const COPY={
+    evidenceTitle:'Плановый перезапуск камеры',
+    evidenceBody:'С 21:27:10 до 21:35:42 камера служебного коридора проходила плановый перезапуск; запись в этот период не велась. Заявка создана в 20:15.'
+  };
+
+  function patchDynamicCopy(root=document){
+    root.querySelectorAll?.('.aid-evidence-card').forEach(card=>{
+      const title=card.querySelector('strong');
+      const body=card.querySelector('p');
+      if(title?.textContent?.trim()==='Окно перезапуска камеры')title.textContent=COPY.evidenceTitle;
+      if(body?.textContent?.includes('не передавала сигнал с 21:27:10 до 21:35:42'))body.textContent=COPY.evidenceBody;
+    });
+    root.querySelectorAll?.('.aid-note').forEach(note=>{
+      note.childNodes.forEach(node=>{
+        if(node.nodeType!==Node.TEXT_NODE)return;
+        node.textContent=node.textContent
+          .replaceAll('окно отключения камеры','время планового перезапуска камеры')
+          .replaceAll('окно камеры','время перезапуска камеры');
+      });
+    });
+  }
+
+  patchDynamicCopy();
+  const app=document.querySelector('[data-ai-detective]');
+  if(app){
+    const observer=new MutationObserver(mutations=>{
+      for(const mutation of mutations){
+        for(const node of mutation.addedNodes){
+          if(node.nodeType===Node.ELEMENT_NODE)patchDynamicCopy(node);
+        }
+      }
+    });
+    observer.observe(app,{childList:true,subtree:true});
+  }
+
   const form=document.querySelector('[data-ai01-feedback-form]');
   if(!form)return;
   const status=form.querySelector('[data-ai01-feedback-status]');
