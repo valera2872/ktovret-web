@@ -9,11 +9,11 @@ import {
   processSoloServerAction,
   resolveEntitlementById,
   resolveEntitlementByToken,
-  safeSoloPayload,
   saveSoloSession,
   type SoloAccessMode,
   type SoloEntitlement,
 } from '../_shared/solo-engine-v2-runtime.ts';
+import { safeSoloClientPayload } from '../_shared/solo-engine-v2-view.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
@@ -44,7 +44,7 @@ function bearer(req: Request) {
 }
 function errorStatus(code: string) {
   if (['invalid_case_id','invalid_request','solo_session_token_invalid','solo_hypothesis_invalid','solo_hint_invalid'].includes(code)) return 400;
-  if (['access_denied','access_revoked','access_expired','access_wrong_case','solo_evidence_access_denied','solo_evidence_section_access_denied','solo_present_invalid','solo_deduction_access_denied','solo_interaction_unavailable','solo_reconstruction_access_denied'].includes(code)) return 403;
+  if (['access_denied','access_revoked','access_expired','access_wrong_case','solo_evidence_access_denied','solo_evidence_section_access_denied','solo_present_invalid','solo_deduction_access_denied','solo_interaction_unavailable','solo_reconstruction_access_denied','solo_case_completed'].includes(code)) return 403;
   if (['case_not_found','solo_session_not_found'].includes(code)) return 404;
   if (['solo_session_state_conflict','solo_session_merge_required','solo_session_entitlement_conflict'].includes(code)) return 409;
   if (['solo_case_not_ready','solo_canon_rotation_required'].includes(code)) return 423;
@@ -137,7 +137,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return json(200, {
-      ...safeSoloPayload(runtime, nextState, nextRevision, accessMode),
+      ...safeSoloClientPayload(runtime, nextState, nextRevision, accessMode),
       sessionToken: issuedSessionToken,
       resume: {
         viaSessionToken: Boolean(rawSessionToken || issuedSessionToken),
