@@ -97,6 +97,12 @@ function isMotiveReference(q:string){return hasAny(q,["зачем","почему
 function isAntonAlibiReference(q:string){return hasAny(q,["антон","руденко"])&&hasAny(q,["алиби","комната контроля","консоль","21:28","21:35","исключ"])}
 function isLevAlibiReference(q:string){return hasAny(q,["орлов","лев"])&&hasAny(q,["алиби","вышел","выход","проездной","21:23","21:27","исключ"])}
 function isAccusation(q:string){return hasAny(q,["вы взяли","вы брали","взяли письмо","брали письмо","вы украли","вы похитили","это сделали вы","это были вы","признай","признайтесь","признаете","признаётесь","признаетесь","винов","письмо взяли","письмо украли","похитили письмо"])}
+function isAdaptiveConfrontation(q:string){
+  if(isAccusation(q))return true;
+  const conclusion=hasAny(q,["это вы","вы это сделали","получается вы","получается, вы","значит вы","значит, вы","только вы","кроме вас","остаетесь вы","остаётесь вы","всё сходится на вас","все сходится на вас","всё указывает на вас","все указывает на вас","как вы это объясните","как это объясните","что вы на это скажете","объясните тогда","вы лжете","вы лжёте","вы врете","вы врёте","вы соврали","соврали"]);
+  const caseReference=isAccessReference(q)||isLocationReference(q)||isWindowReference(q)||hasAny(q,["письм","фонд","алиби","доказ","факт","противореч"]);
+  return conclusion&&caseReference;
+}
 
 function referencedKnownEvidence(q:string,discoveredEvidence:Set<string>){
   const out:string[]=[];
@@ -123,9 +129,12 @@ function isFinalConfrontation(q:string){
 
 function marinaPressureScore(activeNotes:Set<string>,discoveredEvidence:Set<string>){
   let score=0;
-  if(activeNotes.has("N-MARINA-ACCESS"))score+=2;
-  if(activeNotes.has("N-MARINA-LOCATION"))score+=2;
-  if(activeNotes.has("N-MARINA-WINDOW"))score+=1;
+  const accessEstablished=activeNotes.has("N-MARINA-ACCESS")||(discoveredEvidence.has("E03")&&discoveredEvidence.has("E04"));
+  const locationEstablished=activeNotes.has("N-MARINA-LOCATION")||discoveredEvidence.has("E05");
+  const windowEstablished=activeNotes.has("N-MARINA-WINDOW")||activeNotes.has("N-ANTON-WINDOW");
+  if(accessEstablished)score+=2;
+  if(locationEstablished)score+=2;
+  if(windowEstablished)score+=1;
   if(discoveredEvidence.has("E06"))score+=1;
   if(discoveredEvidence.has("E07"))score+=1;
   return score;
@@ -138,7 +147,7 @@ function marinaConfessionReady(activeNotes:Set<string>,discoveredEvidence:Set<st
   return qc.marina>=4&&score>=5;
 }
 
-function confrontationReady(q:string,resistance:ResistanceLevel){return resistance==="hard"?isFinalConfrontation(q):isAccusation(q)}
+function confrontationReady(q:string,resistance:ResistanceLevel){return resistance==="hard"?isFinalConfrontation(q):isAdaptiveConfrontation(q)}
 function legacyDeepConfessionReady(suspect:string,q:string,history:HistoryItem[],serverTurnsBefore:number,resistance:ResistanceLevel){
   if(resistance!=="hard")return false;
   if(suspect!=="marina"||serverTurnsBefore<12||!isFinalConfrontation(q))return false;
