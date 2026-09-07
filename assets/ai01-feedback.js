@@ -19,7 +19,10 @@
     root.querySelectorAll?.('.aid-stamp-line').forEach(line=>{
       const label=line.querySelector('span');
       const value=line.querySelector('strong');
-      if(label?.textContent?.trim()==='КАМЕРА'&&value)value.textContent=COPY.cameraStamp;
+      if(label?.textContent?.trim()==='КАМЕРА'&&value){
+        label.textContent='КАМЕРЫ НАБЛЮДЕНИЯ';
+        value.textContent=COPY.cameraStamp;
+      }
     });
 
     root.querySelectorAll?.('.aid-evidence-card').forEach(card=>{
