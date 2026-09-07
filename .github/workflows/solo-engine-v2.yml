@@ -6,9 +6,13 @@ on:
       - 'assets/solo-engine-v2-core.mjs'
       - 'assets/cases/ml-0512-case.mjs'
       - 'assets/cases/solo-engine-v2-contract-case.mjs'
+      - 'assets/solo-v2-client.mjs'
+      - 'assets/solo-v2-client.css'
       - 'tools/validate-solo-engine-v2.mjs'
       - 'tools/validate-solo-engine-v2-preview.mjs'
+      - 'tools/validate-solo-v2-live-preview.mjs'
       - 'admin/solo-engine-v2-preview/**'
+      - 'admin/solo-v2-live-preview/**'
       - 'package.json'
       - '.github/workflows/solo-engine-v2.yml'
   push:
@@ -17,9 +21,13 @@ on:
       - 'assets/solo-engine-v2-core.mjs'
       - 'assets/cases/ml-0512-case.mjs'
       - 'assets/cases/solo-engine-v2-contract-case.mjs'
+      - 'assets/solo-v2-client.mjs'
+      - 'assets/solo-v2-client.css'
       - 'tools/validate-solo-engine-v2.mjs'
       - 'tools/validate-solo-engine-v2-preview.mjs'
+      - 'tools/validate-solo-v2-live-preview.mjs'
       - 'admin/solo-engine-v2-preview/**'
+      - 'admin/solo-v2-live-preview/**'
       - 'package.json'
       - '.github/workflows/solo-engine-v2.yml'
 
@@ -42,5 +50,7 @@ jobs:
         run: node --check assets/cases/solo-engine-v2-contract-case.mjs
       - name: Run Solo Engine 2.0 contract
         run: node tools/validate-solo-engine-v2.mjs
-      - name: Validate internal preview security boundary
+      - name: Validate internal prototype security boundary
         run: node tools/validate-solo-engine-v2-preview.mjs
+      - name: Validate server-connected Premium Solo client
+        run: node tools/validate-solo-v2-live-preview.mjs
