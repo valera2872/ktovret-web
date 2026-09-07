@@ -104,7 +104,7 @@ Deno.serve(async (req: Request) => {
     disliked_tags: dislikedTags,
     more_cases_interest: moreCasesInterest,
     feedback_context: safeContext(body.context),
-    feedback_version: 'v1',
+    feedback_version: 'v2',
     updated_at: now,
   };
   const { data, error } = await admin.from('case_reviews')
@@ -118,6 +118,8 @@ Deno.serve(async (req: Request) => {
   return json(200, {
     ok: true,
     feedbackSaved: true,
+    ratingPublishedToAggregate: true,
     publicationRequested: publicationConsent,
+    feedbackVersion: 'v2',
   }, origin);
 });
