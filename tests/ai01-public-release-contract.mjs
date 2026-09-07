@@ -7,7 +7,7 @@ const promoCss=fs.readFileSync('assets/ai01-launch-promo.css','utf8');
 const analytics=fs.readFileSync('assets/ai01-public-analytics.js','utf8');
 const portraitCss=fs.readFileSync('assets/ai01-static-portraits.css','utf8');
 const portraitJs=fs.readFileSync('assets/ai01-static-portraits.js','utf8');
-const portraitData=fs.readFileSync('assets/ai01-suspects-strip.b64.txt','utf8').trim();
+const portraitImage=fs.readFileSync('assets/ai01-suspects-strip.jpg');
 const postprocess=fs.readFileSync('tools/import-mobile/logic-sitewide-postprocess.mjs','utf8');
 const production=fs.readFileSync('.github/workflows/production-beget.yml','utf8');
 
@@ -35,10 +35,12 @@ assert.ok(portraitCss.includes('background-size:300% 100%'),'portrait sprite lay
 assert.ok(portraitCss.includes('[data-suspect="marina"]'),'Marina portrait mapping missing');
 assert.ok(portraitCss.includes('[data-suspect="anton"]'),'Anton portrait mapping missing');
 assert.ok(portraitCss.includes('[data-suspect="lev"]'),'Lev portrait mapping missing');
-assert.ok(portraitJs.includes('ai01-suspects-strip.b64.txt'),'portrait sprite loader missing');
+assert.ok(portraitJs.includes('ai01-suspects-strip.jpg'),'portrait sprite loader missing');
 assert.ok(portraitJs.includes('has-live-video'),'Live overlay compatibility missing');
-assert.ok(portraitData.length>20000,'portrait sprite payload unexpectedly small');
-assert.match(portraitData,/^[A-Za-z0-9+/=]+$/,'portrait sprite payload must be base64');
+assert.ok(portraitImage.length>10000,'portrait sprite payload unexpectedly small');
+assert.equal(portraitImage[0],0xff,'portrait sprite must be JPEG');
+assert.equal(portraitImage[1],0xd8,'portrait sprite must be JPEG');
+assert.equal(portraitImage[2],0xff,'portrait sprite must be JPEG');
 
 for(const eventName of ['ai01_case_started','ai01_first_question','ai01_three_questions','ai01_suspect_switched','ai01_evidence_selected','ai01_theory_submitted','ai01_case_completed','ai01_more_case_interest','ai01_live_interest']) {
   assert.ok(analytics.includes(eventName),`missing AI-01 analytics event: ${eventName}`);

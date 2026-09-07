@@ -5,6 +5,7 @@
   const video=stage?.querySelector('[data-avatar-video]');
   if(!stage)return;
 
+  const SPRITE_URL='../assets/ai01-suspects-strip.jpg?v=0.1.0';
   const setVisible=()=>{
     stage.hidden=false;
     stage.setAttribute('aria-hidden','false');
@@ -16,24 +17,22 @@
     stage.classList.toggle('has-live-video',live);
     if(!live)setVisible();
   };
+  const markPortraitReady=()=>{
+    stage.style.setProperty('--ai01-portrait-sprite',`url("${SPRITE_URL}")`);
+    stage.classList.add('ai01-static-portrait-ready');
+    setVisible();
+    syncVideo();
+  };
 
-  fetch('../assets/ai01-suspects-strip.b64.txt',{cache:'force-cache',credentials:'same-origin'})
-    .then(response=>{
-      if(!response.ok)throw new Error('portrait_sprite_unavailable');
-      return response.text();
-    })
-    .then(value=>{
-      const encoded=String(value||'').trim();
-      if(!encoded||!/^[A-Za-z0-9+/=]+$/.test(encoded))throw new Error('portrait_sprite_invalid');
-      stage.style.setProperty('--ai01-portrait-sprite',`url("data:image/jpeg;base64,${encoded}")`);
-      stage.classList.add('ai01-static-portrait-ready');
-      setVisible();
-      syncVideo();
-    })
-    .catch(()=>{
-      setVisible();
-      stage.classList.remove('ai01-static-portrait-ready');
-    });
+  const sprite=new Image();
+  sprite.decoding='async';
+  sprite.onload=markPortraitReady;
+  sprite.onerror=()=>{
+    setVisible();
+    stage.classList.remove('ai01-static-portrait-ready');
+  };
+  sprite.src=SPRITE_URL;
+  if(sprite.complete&&sprite.naturalWidth>0)markPortraitReady();
 
   if(video){
     for(const eventName of ['playing','loadedmetadata','pause','emptied','abort'])video.addEventListener(eventName,syncVideo,{passive:true});
