@@ -72,9 +72,9 @@ Deno.test('reconstruction equality is independent of PostgreSQL jsonb object-key
     timeline: [], proof_classes: [], milestone_rules: [], interactions: [],
     reconstruction: {
       fields: [
-        { id: 'alpha', prompt: 'Alpha', options: [{ id: 'A', label: 'A' }] },
-        { id: 'middle', prompt: 'Middle', options: [{ id: 'M', label: 'M' }] },
-        { id: 'zeta', prompt: 'Zeta', options: [{ id: 'Z', label: 'Z' }] },
+        { id: 'alpha', prompt: 'Alpha', options: [{ id: 'A', label: 'A' }, { id: 'A2', label: 'A2' }] },
+        { id: 'middle', prompt: 'Middle', options: [{ id: 'M', label: 'M' }, { id: 'M2', label: 'M2' }] },
+        { id: 'zeta', prompt: 'Zeta', options: [{ id: 'Z', label: 'Z' }, { id: 'Z2', label: 'Z2' }] },
       ],
       // This order intentionally differs from the submitted object below,
       // modelling a definition after a PostgreSQL jsonb round-trip.
