@@ -18,7 +18,7 @@
     <h1>Premium Solo V2</h1>
     <p>Закрытый стенд настоящего server-authoritative клиента. Канон и правильные ответы в браузер не загружаются.</p>
     <form data-owner-form>
-      <label>Ключ владельца<input data-owner-token type="password" autocomplete="off" spellcheck="false" placeholder="MLADM-…"></label>
+      <label>Preview token<input data-owner-token type="password" autocomplete="off" spellcheck="false" placeholder="MLPREVIEW-…"></label>
       <button class="solo-button solo-button--primary" type="submit">Открыть стенд</button>
       <div class="solo-error" data-owner-error></div>
     </form>
@@ -42,7 +42,7 @@
     </header>
 
     <section class="solo-runtime-bar">
-      <div><span>Дело</span><strong data-runtime-case>ML-0512</strong></div>
+      <div><span>Дело</span><strong data-runtime-case>закрыто</strong></div>
       <div><span>Версия</span><strong data-runtime-version>—</strong></div>
       <div><span>Действий</span><strong data-runtime-sequence>0</strong></div>
       <div><span>Сессия</span><strong data-runtime-session>новая</strong></div>
@@ -53,13 +53,12 @@
       <div>
         <p class="solo-eyebrow">Закрытый runtime</p>
         <h2>Подключить расследование</h2>
-        <p>Demo запускается без оплаты. Для проверки покупки/Club можно добавить entitlement token — он не сохраняется в localStorage.</p>
+        <p>Preview token уже ограничен одним внутренним делом и автоматически используется как entitlement. Канон и правильные ответы остаются на сервере.</p>
       </div>
       <div class="solo-connect__controls">
-        <label>Case ID<input data-case-id value="ML-0512" spellcheck="false"></label>
-        <label>Entitlement token <input data-access-token type="password" autocomplete="off" placeholder="необязательно"></label>
+        <label>Case ID<input data-case-id value="" spellcheck="false" readonly></label>
+        <label>Preview entitlement <input data-access-token type="password" autocomplete="off" readonly></label>
         <button class="solo-button solo-button--primary" data-start>Начать / продолжить</button>
-        <button class="solo-button" data-reset-session>Новая demo-сессия</button>
       </div>
       <div class="solo-error" data-connect-error></div>
     </section>
@@ -135,6 +134,7 @@
     <div data-dialog-content></div>
   </dialog>
 
+  <script type="module" src="../../assets/solo-v2-preview-auth.mjs"></script>
   <script type="module" src="../../assets/solo-v2-client.mjs"></script>
 </body>
 </html>
