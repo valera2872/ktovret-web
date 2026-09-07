@@ -1,26 +1,28 @@
 # AI-01 Text release candidate — 2026-09-07
 
-Branch: `release/ai01-text-public-20260907`
+## Public product
+- Free Text investigation: «Восемь минут без камеры».
+- Free-form typed interrogation plus microphone speech-to-text.
+- Static dossier portraits for Marina, Anton and Lev.
+- Evidence presentation, memory of testimony, suspect switching, theory and final reconstruction retained.
+- LiveAvatar is not part of the public offer and remains owner-preview only.
 
-Status: **prepared in isolation, do not merge until the parallel Last Aria work lands in `main`.**
+## Rollout
+- Sitewide promo is enabled in the release branch.
+- First public stability cohort stays `noindex,follow` and out of sitemap.
+- Production must strip `admin/ai01-live-preview` and `assets/ai-liveavatar-factory.js`.
+- Public Text play has no paid LiveAvatar dependency.
 
-Public product shape:
-- free complete AI-01 Text investigation;
-- static dossier portraits for Marina, Anton and Lev;
-- free-form typed questions;
-- microphone speech-to-text input;
-- evidence presentation, testimony memory, theory and finale;
-- post-finale intent signals for another AI case and future Live;
-- sitewide launch promo enabled in this branch;
-- Live owner preview and LiveAvatar factory remain excluded from production.
+## Portrait packaging
+- Static suspect artwork is shipped as `assets/ai01-suspects-strip.jpg` rather than an inline/base64 payload.
+- Release contracts validate JPEG signature and minimum payload size.
 
-Initial release remains `noindex,follow` and outside the sitemap for the first stability cohort. Indexing is a separate follow-up after production feedback.
+## Release gate
+Before merge:
+1. reconcile with latest `main`;
+2. AI-01 public Text release workflow green;
+3. AI detective vertical slice green;
+4. production Beget bundle green;
+5. Last Aria and existing premium/SEO regression checks remain green.
 
-Before merge after Last Aria:
-1. reconcile branch with fresh `main`;
-2. inspect changed-file overlap;
-3. run AI-01 public Text release CI;
-4. run full AI detective vertical slice;
-5. run production Beget validation;
-6. verify sitewide promo on representative pages and portrait/voice behavior on desktop + mobile;
-7. merge only with green checks.
+Do not merge while any release-blocking check is red.
