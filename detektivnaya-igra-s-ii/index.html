@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../assets/ai01-onboarding.css?v=0.1.0">
   <link rel="stylesheet" href="../assets/ai01-public-release.css?v=0.1.0">
   <link rel="stylesheet" href="../assets/ai01-voice-input.css?v=0.1.0">
+  <link rel="stylesheet" href="../assets/ai01-feedback.css?v=0.1.0">
   <title>Восемь минут без камеры — бесплатное AI-расследование Mystery Logic</title>
 </head>
 <body class="aid-body">
@@ -53,7 +54,7 @@
         <div class="aid-stamp-line"><span>ОКНО ПРОПАЖИ</span><strong>21:24:36–21:36:08</strong></div>
         <div class="aid-stamp-line"><span>КАМЕРА</span><strong>нет сигнала 21:27–21:35</strong></div>
         <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong>3 человека · виновный среди них</strong></div>
-        <div class="aid-stamp-seal"><strong>Ключевой факт на старте</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в окно пропажи не зафиксировано.</div>
+        <div class="aid-stamp-seal"><strong>Запись системы контроля</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в окно пропажи не зафиксировано.</div>
       </aside>
     </section>
 
@@ -99,11 +100,12 @@
 
         <div class="aid-case-progress" data-case-progress hidden>
           <div>
-            <p class="aid-kicker">Дело раскрыто</p>
-            <strong>Марина призналась. Расследование завершено.</strong>
-            <span>Никаких дополнительных экзаменов. Вам доступен секретный пакет дела и награда за раскрытие.</span>
+            <p class="aid-kicker">Признание зафиксировано</p>
+            <strong>Марина призналась. Но расследование ещё не окончено.</strong>
+            <span>Признание — это часть доказательств. Сформулируйте собственную версию и покажите, как факты складываются в единую цепочку.</span>
           </div>
-          <button class="aid-primary" type="button" data-action="bonus-inline">Открыть пакет C</button>
+          <button class="aid-primary" type="button" data-action="theory">Собрать финальную версию</button>
+          <button class="aid-primary" type="button" hidden data-action="bonus-inline">Открыть пакет C</button>
         </div>
 
         <form class="aid-composer" data-composer>
@@ -114,7 +116,7 @@
           <textarea id="aid-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
           <div class="aid-voice-status" data-ai01-voice-status aria-live="polite" hidden></div>
           <div class="aid-composer-actions">
-            <span data-turn-counter>0 / 30 вопросов</span>
+            <span data-turn-counter hidden>0 / 30 вопросов</span>
             <div class="aid-composer-buttons">
               <button class="aid-voice-button" type="button" data-ai01-voice aria-pressed="false" title="Задать вопрос голосом">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0Z"/></svg>
@@ -128,15 +130,15 @@
 
       <aside class="aid-panel aid-notes-panel">
         <div class="aid-panel-head">
-          <p class="aid-kicker">Следственный блокнот</p>
-          <h2>Зацепки</h2>
+          <p class="aid-kicker">Следственный протокол</p>
+          <h2>Полученные сведения</h2>
         </div>
         <div class="aid-notes" data-notes>
-          <p class="aid-empty-note">Здесь будут автоматически фиксироваться важные сведения, которые вы получили на допросах. Решение игра за вас не сделает.</p>
+          <p class="aid-empty-note">Здесь сохраняются полученные на допросах сведения без готовых выводов. Что из этого важно — решаете вы.</p>
         </div>
         <div class="aid-theory-box" data-theory-box>
           <p class="aid-kicker" data-theory-kicker>Когда будете готовы</p>
-          <p class="aid-theory-hint" data-theory-hint>Когда сможете назвать виновного и объяснить цепочку доказательств, переходите к собственной версии дела.</p>
+          <p class="aid-theory-hint" data-theory-hint>Когда доказательств достаточно, сформулируйте собственную версию дела.</p>
           <button class="aid-secondary" type="button" data-action="theory">Собрать версию</button>
         </div>
       </aside>
@@ -148,7 +150,7 @@
         <div>
           <p class="aid-kicker">Ваша версия</p>
           <h2>Кто ответственен за исчезновение письма?</h2>
-          <p>Назовите человека и опишите цепочку фактов. Версия пройдёт проверку только в том случае, если необходимые подтверждения действительно получены вами в ходе расследования.</p>
+          <p>Назовите человека и опишите цепочку фактов. Даже признание не закрывает дело само по себе: версия должна подтверждаться тем, что вы установили в ходе расследования.</p>
         </div>
         <form class="aid-theory-form" data-theory-form>
           <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
@@ -164,7 +166,7 @@
       <div class="aid-resolution-hero">
         <p class="aid-kicker">Секретный пакет C · доступ открыт</p>
         <h2>Дело раскрыто.</h2>
-        <p>Признание — финальная точка расследования. Здесь только награда: восстановленная цепочка событий и фрагмент шифра Закрытого архива.</p>
+        <p>Ваша версия подтверждена доказательствами. Теперь можно сверить восстановленную цепочку событий и забрать фрагмент шифра Закрытого архива.</p>
       </div>
       <div class="aid-resolution-grid aid-resolution-grid-final">
         <div><small>21:31</small><strong>Персональный доступ</strong><span>E-14 и PIN открыли фонд.</span></div>
@@ -177,15 +179,48 @@
         <button class="aid-secondary" type="button" data-action="restart-case">Пройти дело заново</button>
         <a class="aid-primary" href="../">Взять другое дело</a>
       </div>
-      <div class="aid-public-interest">
-        <strong>Хотите продолжение такого формата?</strong>
-        <p>Это первое бесплатное AI-расследование Mystery Logic. Ваш выбор поможет решить, что делать следующим.</p>
-        <div class="aid-public-interest-actions">
-          <button class="aid-secondary" type="button" data-ai01-interest="more">Хочу ещё AI-дело</button>
-          <button class="aid-secondary" type="button" data-ai01-interest="live">Хочу попробовать Live</button>
+
+      <form class="aid-feedback" data-ai01-feedback-form>
+        <h3>Как вам расследование?</h3>
+        <p>Три коротких вопроса. Ответы нужны нам, чтобы понять, каким делать следующее AI-дело.</p>
+        <div class="aid-feedback-grid">
+          <fieldset class="aid-feedback-field">
+            <legend>Что вам понравилось?</legend>
+            <div class="aid-feedback-options">
+              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="free_interrogation"><span>Свобода задавать любые вопросы</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="characters"><span>Подозреваемые и их ответы</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="evidence"><span>Улики и сопоставление фактов</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="atmosphere"><span>Атмосфера расследования</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="voice"><span>Голосовой ввод</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="aid-feedback-field">
+            <legend>Что стоит улучшить?</legend>
+            <div class="aid-feedback-options">
+              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="ai_answers"><span>Качество ответов AI</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="difficulty"><span>Сложность дела</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="more_evidence"><span>Нужно больше улик и материалов</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="more_suspects"><span>Нужно больше подозреваемых</span></label>
+              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="interface"><span>Интерфейс и понятность</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="aid-feedback-field aid-feedback-comment">
+            <legend>Хотите ещё такие AI-расследования?</legend>
+            <div class="aid-feedback-options">
+              <label class="aid-feedback-option"><input type="radio" name="more" value="more"><span>Хочу ещё AI-дело</span></label>
+              <label class="aid-feedback-option"><input type="radio" name="more" value="live"><span>Хочу попробовать Live</span></label>
+              <label class="aid-feedback-option"><input type="radio" name="more" value="both"><span>И то и другое</span></label>
+              <label class="aid-feedback-option"><input type="radio" name="more" value="not_yet"><span>Пока не уверен</span></label>
+            </div>
+          </fieldset>
         </div>
-        <p class="aid-public-interest-note" data-ai01-interest-note hidden></p>
-      </div>
+        <div class="aid-feedback-actions">
+          <button class="aid-secondary" type="submit">Отправить ответ</button>
+          <p class="aid-feedback-status" data-ai01-feedback-status hidden></p>
+        </div>
+      </form>
     </section>
   </main>
 
@@ -194,8 +229,9 @@
   <script src="../assets/ai-avatar-auth-bootstrap.js?v=0.0.3&rev=dialogue-latency-wait1" defer></script>
   <script src="../assets/ai-avatar-provider.js?v=0.0.5-streamready1" defer></script>
   <script src="../assets/ai-avatar-wait-resume.js?v=0.0.1" defer></script>
-  <script src="../assets/ai-detective-vslice.js?v=0.3.6" defer></script>
+  <script src="../assets/ai-detective-vslice.js?v=0.3.6&rev=agency1" defer></script>
   <script src="../assets/ai01-voice-input.js?v=0.1.0" defer></script>
   <script src="../assets/ai01-static-portraits.js?v=0.1.0" defer></script>
+  <script src="../assets/ai01-feedback.js?v=0.1.0" defer></script>
 </body>
 </html>
