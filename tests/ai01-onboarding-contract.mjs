@@ -9,12 +9,20 @@ for(const phrase of [
   'Допрашивайте',
   'Проверяйте',
   'Соберите версию',
-  'С чего начать:',
-  'после старта в комнату пригласят Марину',
+  'Свободное расследование:',
+  'ход расследования определяете вы',
   'Принять дело',
-  'Первый ориентир:',
+  'Свободный допрос:',
+  'спрашивайте о том, что считаете важным',
   'placeholder="Задайте свой вопрос…"'
 ]) assert.ok(html.includes(phrase),`missing onboarding phrase: ${phrase}`);
+
+for(const leakedHint of [
+  'Первый ориентир:',
+  'установите, где человек был в окно пропажи',
+  'после старта в комнату пригласят Марину',
+  'Спросите, где она была между 21:24 и 21:36'
+]) assert.ok(!html.includes(leakedHint),`investigation hint must not be shown: ${leakedHint}`);
 
 assert.ok(html.includes('../assets/ai01-onboarding.css?v=0.1.0'),'onboarding stylesheet must be loaded');
 assert.ok(css.includes('.aid-howto'),'onboarding steps styles must exist');
