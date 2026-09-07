@@ -2,7 +2,7 @@ const clone = (value) => structuredClone(value);
 const unique = (values) => [...new Set(values)];
 const asArray = (value) => Array.isArray(value) ? value : value == null ? [] : [value];
 
-export const SOLO_ENGINE_SCHEMA_VERSION = 1;
+export const SOLO_ENGINE_SCHEMA_VERSION = 2;
 
 export function createInitialSoloState(caseDef, options = {}) {
   const initialEvidence = new Set(caseDef.initialEvidence || []);
@@ -112,6 +112,24 @@ export function evaluateRule(rule, state, caseDef) {
   if ('proofClass' in rule) return Boolean(state.proofClasses[rule.proofClass]);
   if ('interactionTriggered' in rule) return Boolean(state.interactions[rule.interactionTriggered]?.triggered);
   throw new Error(`solo_rule_unknown:${JSON.stringify(rule)}`);
+}
+
+function evidenceDefinition(caseDef, evidenceId) {
+  return (caseDef.evidence || []).find((item) => item.id === evidenceId) || null;
+}
+
+export function isEvidenceAccessible(caseDef, state, evidenceId) {
+  const runtime = state.evidence[evidenceId];
+  const definition = evidenceDefinition(caseDef, evidenceId);
+  if (!runtime?.unlocked || !definition) return false;
+  return evaluateRule(definition.accessRule, state, caseDef);
+}
+
+export function isDeductionAccessible(caseDef, state, deductionId) {
+  const runtime = state.deductions[deductionId];
+  const definition = (caseDef.deductions || []).find((item) => item.id === deductionId);
+  if (!runtime?.available || !definition) return false;
+  return evaluateRule(definition.accessRule, state, caseDef);
 }
 
 function addUnique(list, value) {
@@ -291,8 +309,8 @@ export function processSoloAction(caseDef, inputState, action) {
       break;
 
     case 'OPEN_EVIDENCE': {
+      if (!isEvidenceAccessible(caseDef, state, action.evidenceId)) throw new Error(`solo_evidence_access_denied:${action.evidenceId}`);
       const item = state.evidence[action.evidenceId];
-      if (!item?.unlocked) throw new Error(`solo_evidence_locked:${action.evidenceId}`);
       item.opened = true;
       item.examined = true;
       recordEvent(state, action, { evidenceId: action.evidenceId });
@@ -302,7 +320,9 @@ export function processSoloAction(caseDef, inputState, action) {
     case 'OPEN_EVIDENCE_SECTION': {
       const item = state.evidence[action.evidenceId];
       const section = item?.sections?.[action.section];
-      if (!item?.unlocked || !section?.unlocked) throw new Error(`solo_evidence_section_locked:${action.evidenceId}:${action.section}`);
+      if (!isEvidenceAccessible(caseDef, state, action.evidenceId) || !section?.unlocked) {
+        throw new Error(`solo_evidence_section_access_denied:${action.evidenceId}:${action.section}`);
+      }
       section.opened = true;
       recordEvent(state, action, { evidenceId: action.evidenceId, section: action.section });
       break;
@@ -311,7 +331,7 @@ export function processSoloAction(caseDef, inputState, action) {
     case 'PRESENT_EVIDENCE': {
       const item = state.evidence[action.evidenceId];
       const character = state.characters[action.characterId];
-      if (!item?.opened || !character) throw new Error('solo_present_invalid');
+      if (!isEvidenceAccessible(caseDef, state, action.evidenceId) || !item?.opened || !character) throw new Error('solo_present_invalid');
       item.presentedTo[action.characterId] = true;
       addUnique(character.evidenceExposure, action.evidenceId);
       recordEvent(state, action, { evidenceId: action.evidenceId, characterId: action.characterId });
@@ -322,6 +342,7 @@ export function processSoloAction(caseDef, inputState, action) {
       const def = (caseDef.deductions || []).find((item) => item.id === action.deductionId);
       const runtime = state.deductions[action.deductionId];
       if (!def || !runtime?.available) throw new Error(`solo_deduction_unavailable:${action.deductionId}`);
+      if (!isDeductionAccessible(caseDef, state, action.deductionId)) throw new Error(`solo_deduction_access_denied:${action.deductionId}`);
       runtime.attempts += 1;
       runtime.selectedChoice = action.choiceId ?? null;
       if (action.choiceId === def.correctChoice) {
@@ -351,7 +372,7 @@ export function processSoloAction(caseDef, inputState, action) {
     case 'TRIGGER_INTERACTION': {
       const interaction = (caseDef.interactions || []).find((item) => item.id === action.interactionId);
       const runtime = state.interactions[action.interactionId];
-      if (!interaction || !runtime || runtime.triggered || !evaluateRule(interaction.unlockRule, state, caseDef)) {
+      if (!interaction || !runtime || runtime.triggered || !evaluateRule(interaction.unlockRule, state, caseDef) || !evaluateRule(interaction.accessRule, state, caseDef)) {
         throw new Error(`solo_interaction_unavailable:${action.interactionId}`);
       }
       runtime.triggered = true;
@@ -367,6 +388,7 @@ export function processSoloAction(caseDef, inputState, action) {
 
     case 'SUBMIT_RECONSTRUCTION': {
       if (!state.milestones.includes('RECONSTRUCTION_AVAILABLE')) throw new Error('solo_reconstruction_locked');
+      if (!evaluateRule(caseDef.reconstructionAccessRule, state, caseDef)) throw new Error('solo_reconstruction_access_denied');
       state.reconstruction = clone(action.answers || {});
       const complete = typeof caseDef.isReconstructionCorrect === 'function'
         ? caseDef.isReconstructionCorrect(state.reconstruction)
@@ -391,8 +413,9 @@ export function listAvailableSoloActions(caseDef, state) {
   const actions = [];
   for (const item of caseDef.evidence || []) {
     const runtime = state.evidence[item.id];
-    if (runtime?.unlocked && !runtime.opened) actions.push({ type: 'OPEN_EVIDENCE', evidenceId: item.id });
-    if (runtime?.opened) {
+    const accessible = isEvidenceAccessible(caseDef, state, item.id);
+    if (accessible && !runtime.opened) actions.push({ type: 'OPEN_EVIDENCE', evidenceId: item.id });
+    if (accessible && runtime.opened) {
       for (const section of item.sections || []) {
         if (runtime.sections?.[section]?.unlocked && !runtime.sections[section].opened) {
           actions.push({ type: 'OPEN_EVIDENCE_SECTION', evidenceId: item.id, section });
@@ -405,12 +428,12 @@ export function listAvailableSoloActions(caseDef, state) {
   }
   for (const deduction of caseDef.deductions || []) {
     const runtime = state.deductions[deduction.id];
-    if (runtime?.available && runtime.result !== 'confirmed') {
+    if (runtime?.available && runtime.result !== 'confirmed' && isDeductionAccessible(caseDef, state, deduction.id)) {
       for (const choice of deduction.choices || []) actions.push({ type: 'ATTEMPT_DEDUCTION', deductionId: deduction.id, choiceId: choice });
     }
   }
   for (const interaction of caseDef.interactions || []) {
-    if (!state.interactions[interaction.id]?.triggered && evaluateRule(interaction.unlockRule, state, caseDef)) {
+    if (!state.interactions[interaction.id]?.triggered && evaluateRule(interaction.unlockRule, state, caseDef) && evaluateRule(interaction.accessRule, state, caseDef)) {
       actions.push({ type: 'TRIGGER_INTERACTION', interactionId: interaction.id });
     }
   }
