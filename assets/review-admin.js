@@ -10,6 +10,7 @@
   const loginError = document.querySelector('[data-admin-login-error]');
   const appError = document.querySelector('[data-admin-error]');
   const reviewPanel = document.querySelector('[data-review-panel]');
+  const feedbackPanel = document.querySelector('[data-feedback-panel]');
   const funnelPanel = document.querySelector('[data-funnel-panel]');
   let activeTab = 'pending';
   let token = '';
@@ -22,7 +23,17 @@
     too_easy: 'Слишком легко',
     just_right: 'В самый раз',
     too_hard: 'Слишком сложно',
+    unknown: 'Не указано',
   }[value] || 'Сложность не указана');
+  const likeLabel = (value) => ({
+    plot: 'Сюжет', evidence: 'Улики', logic: 'Логика', atmosphere: 'Атмосфера', characters: 'Персонажи', finale: 'Финал',
+  }[value] || value);
+  const dislikeLabel = (value) => ({
+    too_easy: 'Слишком легко', too_hard: 'Слишком сложно', navigation: 'Непонятная навигация',
+    too_much_text: 'Слишком много текста', hints: 'Подсказки', finale: 'Финал', technical: 'Техническая проблема', nothing: 'Ничего не мешало',
+  }[value] || value);
+  const moreLabel = (value) => ({ yes: 'Да', maybe: 'Возможно', no: 'Нет', unknown: 'Не указано' }[value] || value);
+  const modeLabel = (value) => ({ short: 'Короткое', solo: 'Solo', partner: 'Partner', ai: 'AI', unknown: '—' }[value] || value || '—');
 
   const pageLabel = (value) => ({
     home: 'Главная',
@@ -40,27 +51,26 @@
   }[value] || value);
 
   const eventLabel = (value) => ({
-    page_view: 'Просмотр страницы',
-    engaged_15s: 'Остался 15 секунд',
-    engaged_45s: 'Остался 45 секунд',
-    scroll_50: 'Долистал до 50%',
-    primary_action: 'Главный CTA',
-    format_choice: 'Выбрал формат',
-    game_open: 'Открыл дело',
-    game_accept: 'Принял дело',
-    game_answer_attempt: 'Проверил версию',
-    game_complete: 'Завершил дело',
-    review_view: 'Увидел отзыв',
-    review_submit: 'Отправил отзыв',
-    checkout_open: 'Открыл оплату',
-    checkout_start: 'Начал оплату',
-    checkout_success: 'Успешная оплата',
-    no_action_45s: '45 секунд без действия',
-    diagnostic_choice: 'Ответил на диагностический вопрос',
+    page_view: 'Просмотр страницы', engaged_15s: 'Остался 15 секунд', engaged_45s: 'Остался 45 секунд',
+    scroll_50: 'Долистал до 50%', primary_action: 'Главный CTA', format_choice: 'Выбрал формат',
+    game_open: 'Открыл дело', game_accept: 'Принял дело', game_answer_attempt: 'Проверил версию',
+    game_complete: 'Завершил дело', review_view: 'Увидел отзыв', review_submit: 'Отправил отзыв',
+    checkout_open: 'Открыл оплату', checkout_start: 'Начал оплату', checkout_success: 'Успешная оплата',
+    no_action_45s: '45 секунд без действия', diagnostic_choice: 'Ответил на диагностический вопрос',
   }[value] || value);
 
   const setBusy = (busy) => app?.classList.toggle('mla-loading', Boolean(busy));
   const setError = (message = '') => { if (appError) appError.textContent = message; };
+  const formatDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    }).format(date);
+  };
+  const starsText = (rating) => {
+    const safe = Math.max(0, Math.min(5, Number(rating || 0)));
+    return '★'.repeat(safe) + '☆'.repeat(5 - safe);
+  };
 
   const lock = () => {
     token = '';
@@ -99,15 +109,18 @@
   };
 
   const reviewCard = (review) => {
-    const stars = '★'.repeat(Math.max(0, Math.min(5, Number(review.rating || 0)))) +
-      '☆'.repeat(Math.max(0, 5 - Math.min(5, Number(review.rating || 0))));
-    const date = new Date(review.created_at);
-    const dateLabel = Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(date);
     const name = review.display_name ? esc(review.display_name) : 'Без имени';
     const consent = Boolean(review.publication_consent);
     const status = String(review.moderation_status || 'pending');
+    const liked = Array.isArray(review.liked_tags) ? review.liked_tags : [];
+    const disliked = Array.isArray(review.disliked_tags) ? review.disliked_tags : [];
+    const more = review.more_cases_interest ? moreLabel(review.more_cases_interest) : '';
+    const signals = [
+      ...liked.map((tag) => `<span class="mla-signal-tag is-like">+ ${esc(likeLabel(tag))}</span>`),
+      ...disliked.map((tag) => `<span class="mla-signal-tag is-dislike">− ${esc(dislikeLabel(tag))}</span>`),
+      ...(more ? [`<span class="mla-signal-tag">Ещё: ${esc(more)}</span>`] : []),
+    ].join('');
+    const comment = String(review.comment || '').trim();
 
     return `<article class="mla-review" data-review-id="${esc(review.id)}">
       <div>
@@ -117,11 +130,12 @@
             <span class="mla-badge">${esc(difficultyLabel(review.difficulty))}</span>
             <span class="mla-badge ${consent ? 'is-consent' : 'is-private'}">${consent ? 'Можно публиковать' : 'Только внутренняя обратная связь'}</span>
           </div>
-          <span class="mla-stars" aria-label="${Number(review.rating || 0)} из 5">${stars}</span>
+          <span class="mla-stars" aria-label="${Number(review.rating || 0)} из 5">${starsText(review.rating)}</span>
         </div>
         <h3>${name}</h3>
-        <blockquote>${esc(review.comment)}</blockquote>
-        <time>${esc(dateLabel)}${status !== 'pending' && review.moderated_at ? ` · ${status === 'approved' ? 'одобрено' : 'отклонено'}` : ''}</time>
+        ${signals ? `<div class="mla-signal-tags">${signals}</div>` : ''}
+        <blockquote>${comment ? esc(comment) : '<span class="mla-muted">Без текстового комментария</span>'}</blockquote>
+        <time>${esc(formatDate(review.created_at))}${status !== 'pending' && review.moderated_at ? ` · ${status === 'approved' ? 'одобрено' : 'отклонено'}` : ''}</time>
       </div>
       <aside class="mla-review-side">
         <label><span class="mla-kicker">Внутренняя заметка</span><textarea class="mla-review-note" data-review-note placeholder="Необязательно">${esc(review.moderation_note || '')}</textarea></label>
@@ -147,6 +161,82 @@
       if (empty) empty.hidden = Boolean((data.reviews || []).length);
     } catch (error) {
       setError(error.message || 'Не удалось загрузить отзывы.');
+    } finally { setBusy(false); }
+  };
+
+  const barRows = (items, total, labeler = (value) => value) => {
+    const rows = Array.isArray(items) ? items : Object.entries(items || {}).map(([tag, count]) => ({ tag, count }));
+    const max = Math.max(1, ...rows.map((item) => Number(item.count || 0)));
+    return rows.map((item) => {
+      const count = Number(item.count || 0);
+      const pct = total ? Math.round((count / total) * 100) : 0;
+      const width = count ? Math.max(4, Math.round((count / max) * 100)) : 0;
+      return `<div class="mla-bar-row"><span>${esc(labeler(item.tag))}</span><div class="mla-bar-track"><i style="width:${width}%"></i></div><b>${count}</b><small>${pct}%</small></div>`;
+    }).join('') || '<div class="mla-empty mla-empty--small">Пока нет данных.</div>';
+  };
+
+  const feedbackSignalCard = (row) => {
+    const liked = (row.liked_tags || []).map((tag) => `<span class="mla-signal-tag is-like">+ ${esc(likeLabel(tag))}</span>`).join('');
+    const disliked = (row.disliked_tags || []).map((tag) => `<span class="mla-signal-tag is-dislike">− ${esc(dislikeLabel(tag))}</span>`).join('');
+    const mode = modeLabel(row.feedback_context?.mode);
+    const comment = String(row.comment || '').trim();
+    return `<article class="mla-signal-card">
+      <div class="mla-signal-card__head"><div><strong>${esc(row.case_id)}</strong><span>${esc(mode)} · ${esc(formatDate(row.updated_at))}</span></div><b class="mla-stars">${starsText(row.rating)}</b></div>
+      <div class="mla-signal-tags">${liked}${disliked}${row.more_cases_interest ? `<span class="mla-signal-tag">Ещё: ${esc(moreLabel(row.more_cases_interest))}</span>` : ''}</div>
+      ${comment ? `<p>${esc(comment)}</p>` : '<p class="mla-muted">Без текстового комментария</p>'}
+    </article>`;
+  };
+
+  const loadFeedback = async () => {
+    setBusy(true); setError('');
+    try {
+      const days = String(document.querySelector('[data-feedback-days]')?.value || '30');
+      const data = await request(`?mode=feedback&days=${encodeURIComponent(days)}`);
+      const summary = data.summary || {};
+      const responses = Number(summary.responses || 0);
+      const avg = summary.averageRating == null ? '—' : Number(summary.averageRating).toFixed(2);
+      const wantMore = summary.wantMoreYesRate == null ? '—' : `${Number(summary.wantMoreYesRate)}%`;
+      const redCount = Number((data.redFlags || []).length);
+      const cards = document.querySelector('[data-feedback-cards]');
+      if (cards) cards.innerHTML = [
+        ['Реальных ответов', responses, days === 'all' ? 'за всё время' : `за ${days} дн.`],
+        ['Средняя оценка', avg, responses ? 'из 5' : 'пока нет данных'],
+        ['Хотят ещё', wantMore, 'среди ответивших на вопрос'],
+        ['Сигналов к разбору', redCount, 'низкая оценка или явная проблема'],
+      ].map(([label, value, note]) => `<article class="mla-funnel-card"><small>${label}</small><strong>${value}</strong><span>${note}</span></article>`).join('');
+
+      const starItems = ['5', '4', '3', '2', '1'].map((tag) => ({ tag, count: Number(summary.stars?.[tag] || 0) }));
+      const difficultyItems = ['just_right', 'too_easy', 'too_hard', 'unknown'].map((tag) => ({ tag, count: Number(summary.difficulty?.[tag] || 0) }));
+      const moreItems = ['yes', 'maybe', 'no', 'unknown'].map((tag) => ({ tag, count: Number(summary.moreCases?.[tag] || 0) }));
+      const stars = document.querySelector('[data-feedback-stars]');
+      const difficulty = document.querySelector('[data-feedback-difficulty]');
+      const more = document.querySelector('[data-feedback-more]');
+      const liked = document.querySelector('[data-feedback-liked]');
+      const disliked = document.querySelector('[data-feedback-disliked]');
+      if (stars) stars.innerHTML = barRows(starItems, responses, (tag) => `${tag} ★`);
+      if (difficulty) difficulty.innerHTML = barRows(difficultyItems, responses, difficultyLabel);
+      if (more) more.innerHTML = barRows(moreItems, responses, moreLabel);
+      if (liked) liked.innerHTML = barRows(summary.liked || [], responses, likeLabel);
+      if (disliked) disliked.innerHTML = barRows(summary.disliked || [], responses, dislikeLabel);
+
+      const cases = document.querySelector('[data-feedback-cases]');
+      if (cases) cases.innerHTML = (summary.cases || []).map((item) => `<tr>
+        <td><strong>${esc(item.caseId)}</strong></td>
+        <td>${esc(modeLabel(item.mode))}</td>
+        <td>${Number(item.responses || 0)}</td>
+        <td>${Number(item.averageRating || 0).toFixed(2)} ★</td>
+        <td>${Number(item.wantMoreRate || 0)}%</td>
+        <td>${item.topProblem ? `${esc(dislikeLabel(item.topProblem.tag))} · ${Number(item.topProblem.count)}` : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="6">Пока нет реальных ответов.</td></tr>';
+
+      const redCounter = document.querySelector('[data-feedback-red-count]');
+      const redFlags = document.querySelector('[data-feedback-red-flags]');
+      const recent = document.querySelector('[data-feedback-recent]');
+      if (redCounter) redCounter.textContent = String(redCount);
+      if (redFlags) redFlags.innerHTML = (data.redFlags || []).map(feedbackSignalCard).join('') || '<div class="mla-empty mla-empty--small">Пока нет критических сигналов.</div>';
+      if (recent) recent.innerHTML = (data.recent || []).map(feedbackSignalCard).join('') || '<div class="mla-empty mla-empty--small">Пока реальных ответов нет.</div>';
+    } catch (error) {
+      setError(error.message || 'Не удалось загрузить сигналы игроков.');
     } finally { setBusy(false); }
   };
 
@@ -200,9 +290,12 @@
   const showTab = (tab) => {
     activeTab = tab;
     document.querySelectorAll('[data-tab]').forEach((button) => button.classList.toggle('is-active', button.dataset.tab === tab));
-    if (reviewPanel) reviewPanel.hidden = tab === 'funnel';
+    if (reviewPanel) reviewPanel.hidden = tab === 'funnel' || tab === 'feedback';
+    if (feedbackPanel) feedbackPanel.hidden = tab !== 'feedback';
     if (funnelPanel) funnelPanel.hidden = tab !== 'funnel';
-    if (tab === 'funnel') loadFunnel(); else loadReviews(tab);
+    if (tab === 'funnel') loadFunnel();
+    else if (tab === 'feedback') loadFeedback();
+    else loadReviews(tab);
   };
 
   document.addEventListener('click', async (event) => {
@@ -229,6 +322,7 @@
   });
 
   document.querySelector('[data-funnel-days]')?.addEventListener('change', loadFunnel);
+  document.querySelector('[data-feedback-days]')?.addEventListener('change', loadFeedback);
 
   loginForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
