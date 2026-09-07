@@ -8,6 +8,7 @@
   <title>Mystery Logic — отзывы и продуктовые сигналы</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/review-admin.css?v=1.1.0">
+  <link rel="stylesheet" href="../../assets/feedback-insights.css?v=1.0.0">
 </head>
 <body class="mla-body">
   <main class="mla-shell">
@@ -62,36 +63,18 @@
         <div class="mla-insight-cards" data-feedback-cards></div>
 
         <div class="mla-insight-grid">
-          <section class="mla-funnel-section">
-            <h3>Оценки</h3>
-            <div class="mla-bars" data-feedback-stars></div>
-          </section>
-          <section class="mla-funnel-section">
-            <h3>Сложность</h3>
-            <div class="mla-bars" data-feedback-difficulty></div>
-          </section>
-          <section class="mla-funnel-section">
-            <h3>Хотят ещё</h3>
-            <div class="mla-bars" data-feedback-more></div>
-          </section>
+          <section class="mla-funnel-section"><h3>Оценки</h3><div class="mla-bars" data-feedback-stars></div></section>
+          <section class="mla-funnel-section"><h3>Сложность</h3><div class="mla-bars" data-feedback-difficulty></div></section>
+          <section class="mla-funnel-section"><h3>Хотят ещё</h3><div class="mla-bars" data-feedback-more></div></section>
         </div>
 
         <div class="mla-insight-grid mla-insight-grid--two">
-          <section class="mla-funnel-section">
-            <h3>Что нравится</h3>
-            <p>Сильные элементы, которые стоит сохранять и усиливать.</p>
-            <div class="mla-bars" data-feedback-liked></div>
-          </section>
-          <section class="mla-funnel-section">
-            <h3>Что мешает</h3>
-            <p>Прямой список причин недовольства игроков.</p>
-            <div class="mla-bars" data-feedback-disliked></div>
-          </section>
+          <section class="mla-funnel-section"><h3>Что нравится</h3><p>Сильные элементы, которые стоит сохранять и усиливать.</p><div class="mla-bars" data-feedback-liked></div></section>
+          <section class="mla-funnel-section"><h3>Что мешает</h3><p>Прямой список причин недовольства игроков.</p><div class="mla-bars" data-feedback-disliked></div></section>
         </div>
 
         <section class="mla-funnel-section">
-          <h3>По расследованиям</h3>
-          <p>Сравниваем не продажи, а впечатление после завершения дела.</p>
+          <h3>По расследованиям</h3><p>Сравниваем не продажи, а впечатление после завершения дела.</p>
           <div class="mla-table-wrap"><table class="mla-table"><thead><tr><th>Дело</th><th>Формат</th><th>Ответов</th><th>Средняя оценка</th><th>Хотят ещё</th><th>Главная проблема</th></tr></thead><tbody data-feedback-cases></tbody></table></div>
         </section>
 
@@ -100,10 +83,7 @@
           <div class="mla-signal-list" data-feedback-red-flags></div>
         </section>
 
-        <section class="mla-funnel-section">
-          <h3>Последние ответы</h3>
-          <div class="mla-signal-list" data-feedback-recent></div>
-        </section>
+        <section class="mla-funnel-section"><h3>Последние ответы</h3><div class="mla-signal-list" data-feedback-recent></div></section>
       </section>
 
       <section data-funnel-panel hidden>
@@ -117,10 +97,7 @@
           <p>Сравниваем просмотры с первым осмысленным действием. Высокая доля «45 секунд без действия» — кандидат на упрощение первого экрана.</p>
           <div class="mla-table-wrap"><table class="mla-table"><thead><tr><th>Страница</th><th>Просмотры</th><th>Действия</th><th>Открыли игру</th><th>Приняли дело</th><th>Завершили</th><th>45 с без действия</th></tr></thead><tbody data-funnel-pages></tbody></table></div>
         </section>
-        <section class="mla-funnel-section">
-          <h3>События</h3>
-          <div class="mla-event-grid" data-funnel-events></div>
-        </section>
+        <section class="mla-funnel-section"><h3>События</h3><div class="mla-event-grid" data-funnel-events></div></section>
       </section>
 
       <p class="mla-error" data-admin-error role="alert"></p>
