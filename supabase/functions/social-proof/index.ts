@@ -21,6 +21,7 @@ const gameKeyFromPath = (raw = '') => {
   if (path === '/detektivnye-igry-dlya-dvoih/2317/') return 'coop-2317';
   if (path === '/detektivnye-igry-dlya-dvoih/407/') return 'coop-407';
   if (path === '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/') return 'last_aria';
+  if (path === '/detektivnaya-igra-s-ii/' || path === '/ai-investigation/') return 'case:ai:01';
   return '';
 };
 
@@ -120,7 +121,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // Clean browser funnel: funnel-analytics.js exits immediately for navigator.webdriver,
-  // so these are suitable public completion counts for short cases and Solo 407.
+  // so these are suitable public completion counts for short cases, Solo 407 and AI-01.
   const { data: funnelCompletions, error: funnelError } = await admin
     .from('site_funnel_events')
     .select('visitor_key_hash,page_path,metadata')
@@ -131,7 +132,7 @@ Deno.serve(async (req: Request) => {
     const player = String(row.visitor_key_hash || '');
     if (!player) continue;
     const gameKey = gameKeyFromPath(row.page_path);
-    if (gameKey === 'solo-407') {
+    if (gameKey === 'solo-407' || gameKey === 'case:ai:01') {
       ensure(gameKey).playerKeys.add(player);
       continue;
     }
