@@ -1,6 +1,5 @@
 import {
-  PRODUCT_ID,
-  VOLUME1_PRICE_RUB,
+  entitlementProductsForOrder,
   formatAmount,
 } from './payment.ts';
 import { RUSSIAN_TRUSTED_CA_CERTS } from './russian-ca.ts';
@@ -15,9 +14,7 @@ export const amountToKopecks = (value: unknown) => {
   return Math.round(Number(formatted) * 100);
 };
 
-export const tbankConfigReady = () => Boolean(
-  TBANK_TERMINAL_KEY && TBANK_PASSWORD && amountToKopecks(VOLUME1_PRICE_RUB) > 0,
-);
+export const tbankConfigReady = () => Boolean(TBANK_TERMINAL_KEY && TBANK_PASSWORD);
 
 const tokenEntries = (payload: Record<string, unknown>) => Object.entries(payload)
   .filter(([key, value]) => key !== 'Token'
@@ -101,51 +98,64 @@ const activateTbankEntitlement = async (admin: any, order: any, payment: any) =>
   if (!tbankPaymentMatchesOrder(payment, order)) throw new Error('payment_order_mismatch');
   if (String(payment.Status || '') !== 'CONFIRMED') throw new Error('payment_not_confirmed');
 
+  const grantIds = entitlementProductsForOrder(order);
+  if (!grantIds.length) throw new Error('unknown_product');
   const paymentId = String(payment.PaymentId);
-  const { data: entitlement, error: entitlementError } = await admin
-    .from('access_entitlements')
-    .upsert({
-      token_hash: order.token_hash,
-      product_id: PRODUCT_ID,
-      status: 'active',
-      payment_provider: 'tbank',
-      payment_reference: paymentId,
-      customer_email_hash: order.customer_email_hash || null,
-      starts_at: new Date().toISOString(),
-      expires_at: null,
-      revoked_at: null,
-      metadata: { order_id: order.id, source: 'tbank' },
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'token_hash' })
-    .select('id')
-    .single();
-  if (entitlementError || !entitlement?.id) throw entitlementError || new Error('entitlement_write_failed');
+  const now = new Date().toISOString();
+  const rows = grantIds.map((productId) => ({
+    token_hash: order.token_hash,
+    product_id: productId,
+    status: 'active',
+    payment_provider: 'tbank',
+    payment_reference: paymentId,
+    customer_email_hash: order.customer_email_hash || null,
+    starts_at: now,
+    expires_at: null,
+    revoked_at: null,
+    metadata: {
+      order_id: order.id,
+      source: 'tbank',
+      purchase_product_id: order.product_id,
+      ...(productId === 'legacy_volume_all' ? { grandfathered_from_product_id: 'volume1' } : {}),
+    },
+    updated_at: now,
+  }));
 
+  const { data: entitlements, error: entitlementError } = await admin
+    .from('access_entitlements')
+    .upsert(rows, { onConflict: 'token_hash,product_id' })
+    .select('id,product_id');
+  if (entitlementError || !entitlements?.length) throw entitlementError || new Error('entitlement_write_failed');
+
+  const primary = entitlements.find((item: any) => item.product_id === order.product_id) || entitlements[0];
   const { error: orderError } = await admin.from('payment_orders').update({
     status: 'paid',
     provider_status: 'CONFIRMED',
-    paid_at: order.paid_at || new Date().toISOString(),
-    entitlement_id: entitlement.id,
+    paid_at: order.paid_at || now,
+    entitlement_id: primary?.id || null,
     failure_code: null,
-    updated_at: new Date().toISOString(),
+    metadata: {
+      ...(order.metadata || {}),
+      entitlement_product_ids: entitlements.map((item: any) => item.product_id),
+    },
+    updated_at: now,
   }).eq('id', order.id);
   if (orderError) throw orderError;
-  return entitlement.id;
+  return primary?.id || null;
 };
 
 const refundTbankEntitlement = async (admin: any, order: any, payment: any) => {
   if (!tbankPaymentMatchesOrder(payment, order)) throw new Error('payment_order_mismatch');
   if (String(payment.Status || '') !== 'REFUNDED') throw new Error('payment_not_refunded');
+  const grantIds = entitlementProductsForOrder(order);
+  if (!grantIds.length) throw new Error('unknown_product');
   const now = new Date().toISOString();
-  if (order.entitlement_id) {
-    await admin.from('access_entitlements').update({
-      status: 'refunded', revoked_at: now, updated_at: now,
-    }).eq('id', order.entitlement_id);
-  } else {
-    await admin.from('access_entitlements').update({
-      status: 'refunded', revoked_at: now, updated_at: now,
-    }).eq('token_hash', order.token_hash).eq('product_id', PRODUCT_ID);
-  }
+
+  const { error: revokeError } = await admin.from('access_entitlements').update({
+    status: 'refunded', revoked_at: now, updated_at: now,
+  }).eq('token_hash', order.token_hash).in('product_id', grantIds);
+  if (revokeError) throw revokeError;
+
   const { error } = await admin.from('payment_orders').update({
     status: 'refunded', provider_status: 'REFUNDED', refunded_at: now, updated_at: now,
   }).eq('id', order.id);
