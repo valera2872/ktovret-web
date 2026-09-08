@@ -133,11 +133,11 @@ jobs:
           jq -e '.interrogation_stage == "confessed"' /tmp/confession.json
           jq -r '.reply' /tmp/confession.json | grep -Eiq 'я (взяла|украла|похитила) письмо|письмо взяла я'
 
-          call_api '{"action":"interrogate","session_id":"ci-ai-play-b","suspect_id":"marina","question":"Зачем вы это сделали? Почему вам понадобилось письмо именно в эту смену?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW","N-MARINA-CONFESSION"],"question_counts":{"marina":7,"anton":4,"lev":1}}' /tmp/motive.json
+          call_api '{"action":"interrogate","session_id":"ci-ai-play-c","suspect_id":"marina","question":"Зачем вы это сделали? Почему вам понадобилось письмо именно в эту смену?","evidence_id":"","history":[],"discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW","N-MARINA-CONFESSION"],"question_counts":{"marina":7,"anton":4,"lev":1}}' /tmp/motive.json
           assert_metered_ai /tmp/motive.json
           grep -Fq 'N-MARINA-MOTIVE' /tmp/motive.json
 
-          call_api '{"action":"check_theory","session_id":"ci-ai-play-b","suspect_id":"marina","reason":"E-14 и PIN открыли дверь в 21:31; журнал служебной Wi-Fi сети опроверг дворик; Марина заранее узнала у Антона время недоступности камер. У неё был просроченный долг, и она рассчитывала продать ценное письмо.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW","N-MARINA-CONFESSION","N-MARINA-MOTIVE"],"question_counts":{"marina":7,"anton":4,"lev":1}}' /tmp/final.json
+          call_api '{"action":"check_theory","session_id":"ci-ai-play-c","suspect_id":"marina","reason":"E-14 и PIN открыли дверь в 21:31; журнал служебной Wi-Fi сети опроверг дворик; Марина заранее узнала у Антона время недоступности камер. У неё был просроченный долг, и она рассчитывала продать ценное письмо.","discovered_evidence_ids":["E01","E02","E03","E04","E05","E06","E07"],"discovered_note_ids":["N-ANTON-WINDOW","N-MARINA-ACCESS","N-MARINA-LOCATION","N-MARINA-WINDOW","N-MARINA-CONFESSION","N-MARINA-MOTIVE"],"question_counts":{"marina":7,"anton":4,"lev":1}}' /tmp/final.json
           jq -e '.correct == true' /tmp/final.json
 
           code=$(curl --silent --output /tmp/denied.json --write-out '%{http_code}' "$API_URL" \
