@@ -13,6 +13,8 @@ const CASE_FRAGMENT={caseId:'AI-01',symbol:'Х',mark:'21:31'};
 const AVATAR_STAGES=new Set(['composed','defensive','cornered','breaking','confessed']);
 const AVATAR_STAGE_LABELS={composed:'держится спокойно',defensive:'защищается',cornered:'зажат фактами',breaking:'теряет контроль',confessed:'признание получено'};
 const INITIAL_EVIDENCE=['E01','E02','E03'];
+function consumeFreshStart(){try{const url=new URL(location.href);const requested=url.searchParams.get('fresh')==='1'||url.searchParams.get('reset')==='1';if(!requested)return;sessionStorage.removeItem(STORAGE_KEY);sessionStorage.removeItem('ml_ai_demo_session');url.searchParams.delete('fresh');url.searchParams.delete('reset');history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`)}catch{}}
+consumeFreshStart();
 const suspects=[
 {id:'marina',name:'Марина Лебедева',role:'архивист фонда',opening:'После 21:25 я была во внутреннем дворике и разговаривала по служебному телефону. В закрытый фонд больше не заходила.'},
 {id:'anton',name:'Антон Руденко',role:'инженер безопасности',opening:'С 21:27 до 21:35 камеры наблюдения служебного коридора были недоступны из-за планового перезапуска. В это время я находился в комнате контроля.'},
@@ -38,7 +40,7 @@ for(const s of suspects){if(!Array.isArray(state.transcripts[s.id])||!state.tran
 for(const id of INITIAL_EVIDENCE)state.evidenceIds.add(id);
 const $=sel=>root.querySelector(sel);const views={intro:$('[data-view="intro"]'),workspace:$('[data-view="workspace"]'),theory:$('[data-view="theory"]'),resolution:$('[data-view="resolution"]')};
 function saveState(){try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify({view:state.view,suspect:state.suspect,turns:state.turns,transcripts:state.transcripts,notes:[...state.notes.entries()],evidenceIds:[...state.evidenceIds],questionCounts:state.questionCounts,interrogationStages:state.interrogationStages,verdict:state.verdict}))}catch{}}
-function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]))}
 function showView(name){state.view=name;Object.entries(views).forEach(([k,node])=>node.hidden=k!==name);saveState();const resetScroll=()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0};resetScroll();requestAnimationFrame(()=>{resetScroll();requestAnimationFrame(resetScroll)});setTimeout(resetScroll,60)}
 function visibleEvidence(){return evidence.filter(e=>state.evidenceIds.has(e.id))}
 function renderEvidence(){const list=$('[data-evidence-list]');list.innerHTML=visibleEvidence().map(e=>`<button class="aid-evidence-card${state.attached===e.id?' is-selected':''}" type="button" data-evidence="${e.id}" aria-pressed="${state.attached===e.id?'true':'false'}"><small>${escapeHtml(e.code)}${state.attached===e.id?' · ПРИКРЕПЛЕНО':''}</small><strong>${escapeHtml(e.title)}</strong><p>${escapeHtml(e.body)}</p></button>`).join('');list.querySelectorAll('[data-evidence]').forEach(btn=>btn.addEventListener('click',()=>{state.attached=state.attached===btn.dataset.evidence?null:btn.dataset.evidence;renderEvidence();renderAttachment();saveState();if(state.attached)$('#aid-question')?.focus({preventScroll:true})}))}
