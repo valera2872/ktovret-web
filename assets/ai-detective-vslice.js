@@ -13,6 +13,8 @@ const CASE_FRAGMENT={caseId:'AI-01',symbol:'Х',mark:'21:31'};
 const AVATAR_STAGES=new Set(['composed','defensive','cornered','breaking','confessed']);
 const AVATAR_STAGE_LABELS={composed:'держится спокойно',defensive:'защищается',cornered:'зажат фактами',breaking:'теряет контроль',confessed:'признание получено'};
 const INITIAL_EVIDENCE=['E01','E02','E03'];
+function consumeFreshStart(){try{const url=new URL(location.href);const requested=url.searchParams.get('fresh')==='1'||url.searchParams.get('reset')==='1';if(!requested)return;sessionStorage.removeItem(STORAGE_KEY);sessionStorage.removeItem('ml_ai_demo_session');url.searchParams.delete('fresh');url.searchParams.delete('reset');history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`)}catch{}}
+consumeFreshStart();
 const suspects=[
 {id:'marina',name:'Марина Лебедева',role:'архивист фонда',opening:'После 21:25 я была во внутреннем дворике и разговаривала по служебному телефону. В закрытый фонд больше не заходила.'},
 {id:'anton',name:'Антон Руденко',role:'инженер безопасности',opening:'С 21:27 до 21:35 камеры наблюдения служебного коридора были недоступны из-за планового перезапуска. В это время я находился в комнате контроля.'},
