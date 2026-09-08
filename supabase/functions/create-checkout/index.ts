@@ -1,12 +1,11 @@
 import {
-  PRODUCT_ID,
   SUPABASE_URL,
-  VOLUME1_PRICE_RUB,
   adminClient,
   cleanOrigin,
   formatAmount,
   isAllowedOrigin,
   json,
+  productFor,
   sha256,
   validAccessToken,
   validEmail,
@@ -19,9 +18,7 @@ import {
   tbankRequest,
 } from '../_shared/tbank.ts';
 
-const description = Deno.env.get('VOLUME1_DESCRIPTION') || 'Mystery Logic — полный том «Кто врёт?»';
-const receiptName = Deno.env.get('VOLUME1_RECEIPT_NAME') || 'Цифровой доступ Mystery Logic — том «Кто врёт?»';
-const OFFER_VERSION = '2026-08-16';
+const OFFER_VERSION = '2026-09-06';
 const PRIVACY_VERSION = '2026-08-16';
 
 Deno.serve(async (req: Request) => {
@@ -36,6 +33,13 @@ Deno.serve(async (req: Request) => {
 
   let body: any = {};
   try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }, origin); }
+
+  // New checkout must always name the product explicitly. This prevents an old
+  // cached storefront from silently falling back to Volume I after the 50+50 split.
+  const requestedProductId = String(body.productId || '').trim();
+  if (!requestedProductId) return json(400, { error: 'invalid_product' }, origin);
+  const product = productFor(requestedProductId);
+  if (!product) return json(400, { error: 'invalid_product' }, origin);
 
   const accessToken = String(body.accessToken || '').trim();
   const requestId = String(body.requestId || '').trim();
@@ -62,15 +66,15 @@ Deno.serve(async (req: Request) => {
   returnUrl.hash = '';
   returnUrl.search = '';
 
-  const amountValue = formatAmount(VOLUME1_PRICE_RUB);
-  const amount = amountToKopecks(VOLUME1_PRICE_RUB);
+  const amountValue = formatAmount(product.priceRub);
+  const amount = amountToKopecks(product.priceRub);
   if (!amountValue || amount <= 0) return json(503, { error: 'payment_service_not_configured' }, origin);
 
   const receipt = {
     Email: email,
     Taxation: 'usn_income',
     Items: [{
-      Name: receiptName.slice(0, 128),
+      Name: product.receiptName.slice(0, 128),
       Price: amount,
       Quantity: 1,
       Amount: amount,
@@ -86,12 +90,13 @@ Deno.serve(async (req: Request) => {
 
   const { data: existing, error: existingError } = await admin
     .from('payment_orders')
-    .select('id,token_hash,status,payment_provider,provider_payment_id,confirmation_url,return_url,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at')
+    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,return_url,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at')
     .eq('client_request_id', requestId)
     .maybeSingle();
   if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
   if (existing) {
     if (existing.token_hash !== tokenHash) return json(409, { error: 'request_id_conflict' }, origin);
+    if (existing.product_id !== product.id) return json(409, { error: 'request_product_conflict' }, origin);
     if (existing.payment_provider && existing.payment_provider !== 'tbank') {
       return json(409, { error: 'request_provider_conflict' }, origin);
     }
@@ -99,6 +104,7 @@ Deno.serve(async (req: Request) => {
       return json(200, {
         ok: true,
         reused: true,
+        productId: product.id,
         orderId: existing.id,
         status: existing.status,
         paymentId: existing.provider_payment_id,
@@ -113,16 +119,18 @@ Deno.serve(async (req: Request) => {
   successUrl.searchParams.set('payment_return', '1');
   successUrl.searchParams.set('payment_result', 'success');
   successUrl.searchParams.set('order_id', orderId);
+  successUrl.searchParams.set('product', product.id);
   const failUrl = new URL(returnUrl.href);
   failUrl.searchParams.set('payment_return', '1');
   failUrl.searchParams.set('payment_result', 'fail');
   failUrl.searchParams.set('order_id', orderId);
+  failUrl.searchParams.set('product', product.id);
   const notificationUrl = `${SUPABASE_URL}/functions/v1/tbank-webhook`;
 
   if (!existing) {
     const { error: insertError } = await admin.from('payment_orders').insert({
       id: orderId,
-      product_id: PRODUCT_ID,
+      product_id: product.id,
       token_hash: tokenHash,
       client_request_id: requestId,
       amount_value: amountValue,
@@ -139,6 +147,7 @@ Deno.serve(async (req: Request) => {
       privacy_acknowledged_at: acceptedAt,
       metadata: {
         source: 'web_checkout',
+        product_id: product.id,
         payment_provider: 'tbank',
         offer_version: OFFER_VERSION,
         offer_accepted_at: acceptedAt,
@@ -153,7 +162,7 @@ Deno.serve(async (req: Request) => {
     const payment = await tbankRequest('Init', {
       Amount: amount,
       OrderId: orderId,
-      Description: description.slice(0, 140),
+      Description: product.description.slice(0, 140),
       Language: language,
       NotificationURL: notificationUrl,
       SuccessURL: successUrl.href,
@@ -177,6 +186,7 @@ Deno.serve(async (req: Request) => {
 
     return json(200, {
       ok: true,
+      productId: product.id,
       orderId,
       paymentId,
       status: 'pending',
