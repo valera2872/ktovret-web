@@ -40,7 +40,9 @@ jobs:
 
       - name: Generate public SEO library
         working-directory: web
-        run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+        run: |
+          set -o pipefail
+          node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT" 2>&1 | tee generator.log
 
       - name: Validate generator syntax and SEO contract
         working-directory: web
@@ -140,10 +142,12 @@ jobs:
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
 
       - name: Upload generated SEO sample
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mysterylogic-seo-expansion-sample
           path: |
+            web/generator.log
             web/assets/generated/import-report.json
             web/sitemap.xml
             web/index.html
@@ -154,4 +158,5 @@ jobs:
             web/detektivnye-igry-dlya-odnogo/index.html
             web/logicheskie-zadachi
             web/ru/cases
+          if-no-files-found: warn
           retention-days: 7
