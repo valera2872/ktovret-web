@@ -16,11 +16,10 @@
     <div class="solo-login__mark">ML</div>
     <p class="solo-eyebrow">Mystery Logic · internal</p>
     <h1>Premium Solo V2</h1>
-    <p>Закрытый стенд настоящего server-authoritative клиента. Канон и правильные ответы в браузер не загружаются.</p>
+    <p>Проверяем персональную ссылку и подключаем закрытое расследование.</p>
     <form data-owner-form>
-      <label>Preview token<input data-owner-token type="password" autocomplete="off" spellcheck="false" placeholder="MLPREVIEW-…"></label>
-      <button class="solo-button solo-button--primary" type="submit">Открыть стенд</button>
-      <div class="solo-error" data-owner-error></div>
+      <input data-owner-token type="hidden" autocomplete="off">
+      <div class="solo-error" data-owner-error>Подключение…</div>
     </form>
   </main>
 
@@ -52,12 +51,12 @@
     <section class="solo-connect" data-connect>
       <div>
         <p class="solo-eyebrow">Закрытый runtime</p>
-        <h2>Подключить расследование</h2>
-        <p>Preview token уже ограничен одним внутренним делом и автоматически используется как entitlement. Канон и правильные ответы остаются на сервере.</p>
+        <h2>Подключаем расследование</h2>
+        <p>Доступ ограничен только этим внутренним делом. Канон и правильные ответы остаются на сервере.</p>
       </div>
       <div class="solo-connect__controls">
-        <label>Case ID<input data-case-id value="" spellcheck="false" readonly></label>
-        <label>Preview entitlement <input data-access-token type="password" autocomplete="off" readonly></label>
+        <input data-case-id type="hidden" value="">
+        <input data-access-token type="hidden" value="">
         <button class="solo-button solo-button--primary" data-start>Начать / продолжить</button>
       </div>
       <div class="solo-error" data-connect-error></div>
