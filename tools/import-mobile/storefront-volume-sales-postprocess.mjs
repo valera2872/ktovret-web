@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applySeoCtrModernization } from './seo-ctr-modernization.mjs';
 
-const VERSION='2.1.0';
+const VERSION='2.2.0';
 
 function addStyle(html){
   if(html.includes('storefront-volume-sales.css')) return html;
@@ -59,12 +59,22 @@ function normalizeOfferCopy(html){
   out=out.replaceAll('Первые 15 расследований','Первые 10 расследований');
   out=out.replaceAll('первых пятнадцати расследований','первых десяти расследований');
   out=out.replaceAll('Пятнадцать расследований','Десять расследований');
+  out=out.replaceAll('пятнадцать расследований','десять расследований');
   out=out.replaceAll('15 полноценных дел','10 полноценных дел');
+  out=out.replaceAll('Сто коротких дел: обстоятельства, показания, логические ограничения и единственный доказуемый ответ. 15 расследований доступны бесплатно.','110 коротких дел: обстоятельства, показания, улики и один доказуемый ответ. Первые 10 дел доступны бесплатно.');
   out=out.replaceAll('100 коротких расследований с доказуемыми ответами. 15 дел доступны бесплатно в браузере.','110 коротких расследований с доказуемыми ответами. 10 дел доступны бесплатно в браузере.');
   out=out.replaceAll('100 расследований</h2><p class="product-summary-lead">Начните с открытого архива. Полный том продолжает тот же прогресс и добавляет ещё 85 дел без подписки.','110 расследований</h2><p class="product-summary-lead">Начните с 10 бесплатных дел. Затем доступны два платных тома по 50 расследований — можно купить один том или оба сразу.');
   out=out.replaceAll('<strong>15</strong><span>полных дел доступны бесплатно</span></div><div><strong>85</strong><span>дополнительных дел в первом томе</span>','<strong>10</strong><span>полных дел доступны бесплатно</span></div><div><strong>50 + 50</strong><span>платных дел в двух томах</span>');
   out=out.replaceAll('Если формат понравится, <a href="../tom-1/">полный первый том</a> открывает ещё 85 дел одной покупкой без подписки.','Если формат понравится, <a href="../tom-1/">два платных тома</a> дают ещё 100 расследований: по 50 дел за 199 ₽ или оба тома за 299 ₽, без подписки.');
   out=out.replaceAll('В первом томе 100 активных дел, из них 15 доступны бесплатно в браузере.','Всего доступно 110 дел: 10 бесплатных и 100 платных в двух томах по 50.');
+  out=out.replaceAll('В общем каталоге Mystery Logic уже собраны 100 активных дел: эти 10 доступны бесплатно, остальные 85 относятся к полному первому тому и будут открываться после подключения доступа.','В общем каталоге Mystery Logic 110 активных дел: 10 доступны бесплатно, а ещё 100 расследований разделены на два платных тома по 50.');
+  out=out.replaceAll('15 дел можно пройти бесплатно, а полный Первый том содержит 100 расследований.','10 дел можно пройти бесплатно, а ещё 100 расследований разделены на Том I и Том II по 50 дел.');
+  out=out.replaceAll('Да. Пятнадцать расследований открыты бесплатно; остальные входят в полный первый том.','Да. Десять расследований открыты бесплатно; ещё 100 дел распределены по двум платным томам по 50.');
+  out=out.replaceAll('Регистрация для первых пятнадцати расследований не требуется.','Регистрация для первых десяти расследований не требуется.');
+  out=out.replaceAll('Первый том Mystery Logic объединяет 100 коротких детективных дел, логических загадок и расследований. 10 дел доступны бесплатно, ещё 85 открываются одной покупкой за 99 ₽.','Mystery Logic предлагает 100 платных расследований в двух томах по 50. Том I и Том II стоят по 199 ₽, комплект — 299 ₽.');
+  out=out.replaceAll('Первый том Mystery Logic: 100 коротких детективных дел. 10 доступны бесплатно, ещё 85 открываются одной покупкой за 99 ₽ без подписки.','100 платных детективных дел Mystery Logic разделены на два тома по 50. Каждый том стоит 199 ₽, комплект — 299 ₽ без подписки.');
+  out=out.replaceAll('Все 100 дел','Все 110 дел');
+  out=out.replaceAll('Перейти в каталог 100 дел','Перейти в каталог 110 дел');
   return out;
 }
 
@@ -77,10 +87,42 @@ function enforceOfferCopy(siteRoot){
     const after=normalizeOfferCopy(before);
     fs.writeFileSync(file,after);
     patched+=1;
-    const stale=[/15\s+бесплатн/iu,/15\s+дел\s+(?:доступны|можно|бесплат)/iu,/первых\s+пятнадцати\s+расследован/iu,/ещё\s+85\s+дел/iu,/85\s+дополнительных\s+дел/iu];
+    const stale=[
+      /15\s+бесплатн/iu,
+      /15\s+дел\s+(?:доступны|можно|бесплат)/iu,
+      /первых\s+пятнадцати\s+расследован/iu,
+      /пятнадцать\s+расследован/iu,
+      /ещё\s+85\s+дел/iu,
+      /85\s+дополнительных\s+дел/iu,
+      /100\s+активных\s+дел/iu,
+      /одной\s+покупкой\s+за\s+99\s*₽/iu,
+    ];
     const hit=stale.find((pattern)=>pattern.test(after));
     if(hit) throw new Error(`Who Lied offer copy is stale in ${relative}: ${hit}`);
   }
+  return patched;
+}
+
+function patchPremiumCaseCopy(siteRoot,cases){
+  let patched=0;
+  for(const item of cases.filter(value=>value.access==='premium')){
+    const file=path.join(siteRoot,item.seoPath,'index.html');
+    if(!fs.existsSync(file)) throw new Error(`Missing premium SEO teaser: ${item.seoPath}`);
+    const label=item.productId==='volume2'?'Том II':'Том I';
+    const lowerLabel=item.productId==='volume2'?'том II':'том I';
+    const locative=item.productId==='volume2'?'Томе II':'Томе I';
+    let html=fs.readFileSync(file,'utf8');
+    html=html.replaceAll('Первый том',label);
+    html=html.replaceAll('первый том',lowerLabel);
+    html=html.replaceAll('Первого тома',label);
+    html=html.replaceAll('первого тома',label);
+    html=html.replaceAll('первом томе',locative);
+    html=html.replaceAll('Первом томе',locative);
+    fs.writeFileSync(file,html);
+    patched+=1;
+    if(item.productId==='volume2'&&/перв(?:ый|ого|ом)\s+том/iu.test(html)) throw new Error(`Volume II teaser still references Volume I: ${item.seoPath}`);
+  }
+  if(patched!==100) throw new Error(`Expected 100 premium SEO teasers, got ${patched}`);
   return patched;
 }
 
@@ -92,5 +134,6 @@ export function applyStorefrontVolumeSales(siteRoot,cases){
   fs.writeFileSync(file,after);
   const seo=applySeoCtrModernization(siteRoot);
   const offerCopyPages=enforceOfferCopy(siteRoot);
-  return {pages:1,version:VERSION,seoCtrPages:seo.pages,seoCtrHomeTitle:seo.homeTitle,offerCopyPages};
+  const premiumSeoTeasers=patchPremiumCaseCopy(siteRoot,cases);
+  return {pages:1,version:VERSION,seoCtrPages:seo.pages,seoCtrHomeTitle:seo.homeTitle,offerCopyPages,premiumSeoTeasers};
 }
