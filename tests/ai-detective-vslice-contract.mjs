@@ -12,11 +12,14 @@ assert.match(html,/name="robots" content="noindex,follow"/,'experimental route m
 assert.match(html,/data-ai-detective/,'AI detective root missing');
 assert.match(html,/Восемь минут<br>без камеры\./,'first-screen incident must be literal and understandable');
 assert.doesNotMatch(html,/Архив погас/i,'nonsensical archive wording must not return');
+assert.match(html,/камеры наблюдения служебного коридора были недоступны из-за планового перезапуска/i,'camera outage must be written in natural Russian');
+assert.match(html,/КАМЕРЫ НАБЛЮДЕНИЯ/,'case card must describe the camera system, not a fragmentary technical state');
+assert.doesNotMatch(html,/Окно перезапуска камеры/i,'technical "window" wording must not return to player-facing copy');
 assert.match(html,/placeholder="Задайте свой вопрос…"/,'composer must invite free questioning without a suggested solution path');
 assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not pretend that audio is being recorded');
 assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
 assert.match(html,/0 \/ 30 вопросов/,'demo must give the player enough room to investigate naturally');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.6/,'avatar-ready client must have a fresh cache key');
+assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.7/,'Wi-Fi alibi discovery client must have a fresh cache key');
 assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'avatar shell needs an isolated presentation layer');
 assert.match(html,/data-avatar-stage[^>]*hidden/,'realtime avatar shell must stay dark until a provider stream is connected');
 assert.match(html,/data-avatar-video/,'avatar shell needs a real video target rather than a fake chat decoration');
@@ -30,6 +33,10 @@ assert.match(client,/VISITOR_KEY='ml_ai_demo_visitor_v1'/,'persistent anonymous 
 assert.match(client,/localStorage\.getItem\(VISITOR_KEY\)/,'visitor identity must survive a new tab/session');
 assert.match(client,/visitor_id:state\.visitor/,'every API request must carry the persistent visitor id');
 assert.match(client,/INITIAL_EVIDENCE=\['E01','E02','E03'\]/,'only neutral evidence may be visible at start');
+assert.match(client,/разговаривала по служебному телефону/,'Marina opening must make the later Wi-Fi check logically fair');
+assert.match(client,/title:'Журнал служебной Wi-Fi сети'/,'E05 must be presented as an internal Wi-Fi log, not carrier geolocation');
+assert.match(client,/Контроллер служебной Wi-Fi сети фиксирует/,'E05 must explain the technical source of the location contradiction');
+assert.doesNotMatch(client,/title:'Сетевой лог телефона'/,'ambiguous carrier-like evidence name must not return');
 assert.match(client,/evidenceIds:new Set/,'discovered evidence state is required');
 assert.match(client,/discovered_evidence_ids/,'client must send discovered evidence state to server');
 assert.match(client,/sessionStorage\.setItem\(STORAGE_KEY/,'refresh must preserve the investigation inside the tab');
@@ -100,6 +107,10 @@ assert.match(migration,/revoke all on public\.ai_detective_ai_calls from public,
 assert.match(migration,/grant execute on function public\.ai_detective_claim_turn[\s\S]*to service_role/,'quota mutation RPC must be service-role only');
 
 assert.match(edge,/INITIAL_EVIDENCE=new Set\(\["E01","E02","E03"\]\)/,'server must share the same initial evidence boundary');
+assert.match(edge,/function isMarinaAlibiCheck/,'natural alibi-verification questions need a dedicated discovery path');
+assert.match(edge,/if\(isMarinaAlibiCheck\(q\)\)unlockedEvidence\.push\("E05"\)/,'asking Anton how to verify Marina must unlock the Wi-Fi log without a magic phrase');
+assert.doesNotMatch(edge,/qc\.marina>0&&hasAny\(q,[\s\S]{0,500}E05/,'Marina opening statement is already enough to make her alibi checkable');
+assert.match(edge,/внутренний журнал архива, а не геолокация мобильного оператора/,'Anton must be able to explain why this is Wi-Fi evidence rather than carrier geolocation');
 assert.match(edge,/locationEstablished=evidenceId==="E05"\|\|\(discoveredEvidence\.has\("E05"\)&&isLocationReference\(q\)\)/,'a discovered network log can be cited naturally without reattaching its card');
 assert.match(edge,/accessEstablished=.*discoveredEvidence\.has\("E03"\).*discoveredEvidence\.has\("E04"\).*isAccessReference\(q\)/,'known door and credential evidence must retain force in later confrontation');
 assert.match(edge,/discoveredNotes\.has\("N-ANTON-WINDOW"\)&&isWindowReference\(q\)/,'Marina cannot be confronted with Anton knowledge before Anton reveals it');
