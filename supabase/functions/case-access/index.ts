@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',')
   .map((value) => value.trim().replace(/\/$/, ''))
@@ -75,19 +76,26 @@ Deno.serve(async (req: Request) => {
   if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
   if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
 
-  const { data: entitlement, error: entitlementError } = await admin
+  // Exact ownership is preferred. legacy_volume_all is the private grandfathering
+  // entitlement for customers who bought the historical 85-case package before
+  // the catalog became two 50-case volumes.
+  const acceptedProducts = [paidCase.product_id, LEGACY_VOLUME_ALL_PRODUCT_ID];
+  const { data: entitlementRows, error: entitlementError } = await admin
     .from('access_entitlements')
     .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
     .eq('token_hash', tokenHash)
-    .eq('product_id', paidCase.product_id)
-    .eq('status', 'active')
-    .maybeSingle();
+    .in('product_id', acceptedProducts)
+    .eq('status', 'active');
 
   if (entitlementError) return json(503, { error: 'access_check_failed' }, origin);
+  const usable = (item: any) => Boolean(item
+    && !item.revoked_at
+    && (!item.starts_at || new Date(item.starts_at) <= now)
+    && (!item.expires_at || new Date(item.expires_at) > now));
+  const rows = entitlementRows || [];
+  const entitlement = rows.find((item: any) => item.product_id === paidCase.product_id && usable(item))
+    || rows.find((item: any) => item.product_id === LEGACY_VOLUME_ALL_PRODUCT_ID && usable(item));
   if (!entitlement) return json(403, { error: 'access_denied' }, origin);
-  if (entitlement.revoked_at) return json(403, { error: 'access_revoked' }, origin);
-  if (entitlement.starts_at && new Date(entitlement.starts_at) > now) return json(403, { error: 'access_not_started' }, origin);
-  if (entitlement.expires_at && new Date(entitlement.expires_at) <= now) return json(403, { error: 'access_expired' }, origin);
 
   const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
     ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || ''))
@@ -116,6 +124,8 @@ Deno.serve(async (req: Request) => {
     metadata: {
       source: 'case_access',
       access_source: entitlement.metadata?.source || 'purchase',
+      entitlement_product_id: entitlement.product_id,
+      grandfathered: entitlement.product_id === LEGACY_VOLUME_ALL_PRODUCT_ID,
       source_origin: origin || null,
       experience_tier: tier,
     },
