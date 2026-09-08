@@ -3,7 +3,7 @@ import path from 'node:path';
 import { ensureDir } from './common.mjs';
 import { siteUrl } from './site-config.mjs';
 
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 const HUB = 'detektivnye-igry-dlya-odnogo';
 const CASE = `${HUB}/407`;
 let finalizerRegistered = false;
@@ -14,13 +14,34 @@ const hubPage = () => `<!doctype html><html lang="ru"><head><meta charset="utf-8
 
 const casePage = () => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050a0f"><meta name="robots" content="noindex,follow"><meta name="description" content="Номер 407 — большое самостоятельное детективное расследование Mystery Logic для одного игрока."><link rel="canonical" href="${siteUrl(`${CASE}/`)}"><link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml"><link rel="preload" href="../../assets/room-407-evidence.webp" as="image" type="image/webp"><link rel="stylesheet" href="../../assets/mysterylogic.css"><link rel="stylesheet" href="../../assets/case-407-solo.css?v=${VERSION}"><title>Номер 407 — детективное расследование для одного</title></head><body class="solo407-body">${header('../../')}<main class="solo407-shell" data-solo407-app><section class="solo407-entry"><div class="solo407-entry-copy"><p class="solo407-kicker">Загрузка дела ML-0407</p><h1>Номер 407</h1><p>Подготавливаем материалы расследования…</p></div></section></main><script src="../../assets/case-407-data.js?v=${VERSION}"></script><script src="../../assets/case-407-solo.js?v=${VERSION}"></script></body></html>`;
 
+function normalizeWhoLiedOffer(html) {
+  let out = html;
+  out = out.replace(/15(?=\s+бесплатн)/giu, '10');
+  out = out.replaceAll('<strong>15</strong><span>дел можно пройти бесплатно</span>', '<strong>10</strong><span>дел можно пройти бесплатно</span>');
+  out = out.replaceAll('100 коротких расследований, первые 15 доступны бесплатно', '110 коротких расследований, первые 10 доступны бесплатно');
+  out = out.replaceAll('Играть в 15 дел бесплатно', 'Играть в 10 дел бесплатно');
+  out = out.replaceAll('«Кто врёт?» и 15 бесплатных мини-дел', '«Кто врёт?» и 10 бесплатных мини-дел');
+  return out;
+}
+
 function patchTwoPlayerLanding(siteRoot) {
   const file = path.join(siteRoot, 'detektivnye-igry-dlya-dvoih/index.html');
   if (!fs.existsSync(file)) return;
-  let html = fs.readFileSync(file, 'utf8');
+  let html = normalizeWhoLiedOffer(fs.readFileSync(file, 'utf8'));
   if (!html.includes('solo407-format-switch')) {
     html = html.replace(/(<main[^>]*>)/, `$1\n<section class="solo407-format-switch"><span><strong>Играете один?</strong> Напарник не нужен — у нас есть отдельные полноценные solo-расследования.</span><a href="../${HUB}/">Открыть игры для одного →</a></section>`);
     if (!html.includes('case-407-solo.css')) html = html.replace('</head>', `  <link rel="stylesheet" href="../assets/case-407-solo.css?v=${VERSION}">\n</head>`);
+  }
+  if (/15\s+бесплатн/iu.test(html)) throw new Error('Two-player hub still contains legacy 15-free offer');
+  fs.writeFileSync(file, html);
+}
+
+function patchSoloHubOffer(siteRoot) {
+  const file = path.join(siteRoot, HUB, 'index.html');
+  if (!fs.existsSync(file)) return;
+  const html = normalizeWhoLiedOffer(fs.readFileSync(file, 'utf8'));
+  if (/15\s+бесплатн/iu.test(html) || /первые\s+15\s+доступны\s+бесплатно/iu.test(html) || /Играть\s+в\s+15\s+дел\s+бесплатно/iu.test(html)) {
+    throw new Error('Solo hub still contains legacy 15-free offer');
   }
   fs.writeFileSync(file, html);
 }
@@ -40,6 +61,7 @@ function patchHome(siteRoot) {
 export function finalizeSolo407(siteRoot) {
   patchHome(siteRoot);
   patchTwoPlayerLanding(siteRoot);
+  patchSoloHubOffer(siteRoot);
   const sitemap = path.join(siteRoot, 'sitemap.xml');
   if (fs.existsSync(sitemap)) {
     let xml = fs.readFileSync(sitemap, 'utf8');
