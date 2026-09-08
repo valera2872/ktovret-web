@@ -25,6 +25,9 @@ requireText(server, "from('duel_rooms')", 'co-op room mapping');
 requireText(server, "/^(?:CI|RG)\\b/i", 'automated co-op player exclusion');
 requireText(server, 'ratingThreshold: 1', 'rating appears from first genuine rating');
 requireText(server, 'playerThreshold: 1', 'confirmed completions are visible immediately');
+requireText(server, "/detektivnaya-igra-s-ii/", 'AI-01 server path mapping');
+requireText(server, "return 'case:ai:01'", 'AI-01 canonical social-proof key');
+requireText(server, "gameKey === 'case:ai:01'", 'AI-01 completion counting');
 
 requireText(feedback, "feedback_version: 'v2'", 'new feedback cohort version');
 requireText(feedback, 'ratingPublishedToAggregate: true', 'rating aggregate disclosure');
@@ -42,6 +45,7 @@ requireText(client, '/detektivnye-igry-dlya-odnogo/407/', 'solo 407 mapping');
 requireText(client, '/detektivnye-igry-dlya-dvoih/2317/', '23:17 mapping');
 requireText(client, '/detektivnye-igry-dlya-dvoih/407/', 'co-op 407 mapping');
 requireText(client, '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/', 'Last Aria mapping');
+requireText(client, "'/detektivnaya-igra-s-ii/': 'case:ai:01'", 'AI-01 public route mapping');
 
 requireText(injector, 'data-ml-social-proof-client', 'production HTML injection');
 requireText(injector, 'assets/social-proof.js', 'social-proof asset production requirement');
@@ -50,4 +54,4 @@ if (server.includes("from('case_first_results')")) {
   throw new Error('Public completion counts must not use legacy case_first_results because historical CI rows are not distinguishable');
 }
 
-console.log('Social proof release contract OK: genuine ratings, consented reviews, confirmed completions, individual pages and cards.');
+console.log('Social proof release contract OK: genuine ratings, consented reviews, confirmed completions, individual pages, AI-01 and cards.');

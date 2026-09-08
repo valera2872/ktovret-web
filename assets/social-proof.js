@@ -7,6 +7,8 @@
     '/detektivnye-igry-dlya-dvoih/2317/': 'coop-2317',
     '/detektivnye-igry-dlya-dvoih/407/': 'coop-407',
     '/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/': 'last_aria',
+    '/detektivnaya-igra-s-ii/': 'case:ai:01',
+    '/ai-investigation/': 'case:ai:01',
   };
 
   const cleanPath = (href = '') => {
