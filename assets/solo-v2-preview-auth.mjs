@@ -1,6 +1,8 @@
 const PREVIEW_AUTH_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-preview-auth';
 const LEGACY_OWNER_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial';
+const SOLO_ENDPOINT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-v2';
 const OWNER_KEY='mysterylogic:review-admin-token:v1';
+const SESSION_PREFIX='mysterylogic:solo-v2-session:';
 
 const nativeFetch=window.fetch.bind(window);
 let previewToken='';
@@ -50,6 +52,27 @@ function autoStartCase(){
   },0);
 }
 
+async function recoverStaleSoloSession(input,init,response,url){
+  if(response.ok||!url.startsWith(SOLO_ENDPOINT))return response;
+  const method=String(init?.method||'GET').toUpperCase();
+  if(method!=='POST')return response;
+
+  let requestBody={};
+  try{requestBody=JSON.parse(String(init?.body||'{}'))}catch{return response}
+  if(requestBody?.action!=='SNAPSHOT'||!requestBody?.session_token)return response;
+
+  let responseBody={};
+  try{responseBody=await response.clone().json()}catch{return response}
+  if(responseBody?.error!=='solo_session_not_found')return response;
+
+  const caseId=String(requestBody?.case_id||previewCaseId||'').trim();
+  try{localStorage.removeItem(`${SESSION_PREFIX}${caseId||'unknown'}`)}catch{}
+
+  const retryBody={...requestBody,action:'START'};
+  delete retryBody.session_token;
+  return nativeFetch(input,{...init,body:JSON.stringify(retryBody)});
+}
+
 window.fetch=async(input,init={})=>{
   const url=typeof input==='string'?input:String(input?.url||'');
   if(url.startsWith(LEGACY_OWNER_ENDPOINT)){
@@ -68,7 +91,8 @@ window.fetch=async(input,init={})=>{
     }
     return response;
   }
-  return nativeFetch(input,init);
+  const response=await nativeFetch(input,init);
+  return recoverStaleSoloSession(input,init,response,url);
 };
 
 const app=document.querySelector('[data-solo-app]');
