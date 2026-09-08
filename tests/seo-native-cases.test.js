@@ -11,21 +11,29 @@ const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
 const analytics = fs.readFileSync(path.join(root, 'assets/analytics-events.js'), 'utf8');
 const freeSeoCases = catalog.cases.filter((item) => item.seoPublished === true);
 const premiumCases = catalog.cases.filter((item) => item.access === 'premium');
+const volume1Cases = catalog.cases.filter((item) => item.productId === 'volume1');
+const volume2Cases = catalog.cases.filter((item) => item.productId === 'volume2');
 const indexableCollections = catalog.collections.filter((item) => item.indexable === true && item.status === 'published');
 const sitemapLocs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 
-assert.equal(catalog.schemaVersion, 4);
-assert.equal(catalog.totalCases, 100);
-assert.equal(catalog.seoNativeCaseCount, 15, '15 free cases remain the fully playable SEO-native set');
-assert.equal(freeSeoCases.length, 15);
-assert.equal(premiumCases.length, 85);
+assert.equal(catalog.schemaVersion, 5);
+assert.equal(catalog.totalCases, 110);
+assert.equal(catalog.freeCount, 10);
+assert.equal(catalog.premiumCount, 100);
+assert.equal(catalog.volume1Count, 50);
+assert.equal(catalog.volume2Count, 50);
+assert.equal(catalog.seoNativeCaseCount, 10, '10 free cases remain the fully playable SEO-native set');
+assert.equal(freeSeoCases.length, 10);
+assert.equal(premiumCases.length, 100);
+assert.equal(volume1Cases.length, 50);
+assert.equal(volume2Cases.length, 50);
 assert.ok(premiumCases.every((item) => item.seoPublished === false), 'premium payloads must not become public SEO-native payloads');
-assert.equal(report.seoCasePages, 100, 'all 100 cases need an indexable /ru/cases/ route');
-assert.equal(report.premiumSeoTeaserPages, 85, '85 premium cases need safe teaser pages');
+assert.equal(report.seoCasePages, 110, 'all 110 cases need an indexable /ru/cases/ route');
+assert.equal(report.premiumSeoTeaserPages, 100, '100 premium cases need safe teaser pages');
 assert.equal(report.wordstatHubPages, 3, 'three Wordstat expansion hubs are required');
 assert.equal(report.indexableUrls, sitemapLocs.length, 'import report must equal the generated sitemap boundary');
 assert.equal(new Set(sitemapLocs).size, sitemapLocs.length, 'sitemap URLs must be unique across SEO generators');
-assert.ok(report.indexableUrls >= 133, 'SEO expansion + 20-puzzle Expert vertical must expose the expanded indexable boundary');
+assert.ok(report.indexableUrls >= 143, 'SEO expansion + 20-puzzle Expert vertical must expose the expanded indexable boundary');
 assert.equal(report.soloHubPage, 'detektivnye-igry-dlya-odnogo');
 assert.equal(report.soloCaseRoute, 'detektivnye-igry-dlya-odnogo/407');
 assert.equal(report.soloMaterials, 18);
@@ -39,7 +47,7 @@ assert.equal(indexableCollections.length, 1);
 const collection = indexableCollections[0];
 assert.equal(collection.id, 'free-detective-cases');
 assert.equal(collection.route, 'ru/besplatnye-detektivnye-dela/');
-assert.equal(collection.caseIds.length, 15);
+assert.equal(collection.caseIds.length, 10);
 
 const titles = new Set();
 const descriptions = new Set();
@@ -77,6 +85,7 @@ for (const item of catalog.cases) {
     assert.ok(html.includes('data-seo-answer'), `${item.id} needs answer choices in server HTML`);
     assert.ok(html.includes('data-seo-collection-link'), `${item.id} needs collection link`);
     assert.ok(html.includes('data-wordstat-seo-copy'), `${item.id} needs expanded Wordstat copy`);
+    assert.equal(item.productId, null, `${item.id} free case must not carry a paid product entitlement`);
   } else {
     assert.equal(item.path, item.legacyPath, `${item.id} premium runtime route must remain locked/legacy`);
     assert.ok(html.includes('data-premium-seo-teaser="true"'), `${item.id} needs premium teaser marker`);
@@ -85,7 +94,9 @@ for (const item of catalog.cases) {
     assert.ok(!html.includes('data-seo-statements'), `${item.id} teaser must not expose statements`);
     assert.ok(!html.includes('reasoningSteps'), `${item.id} teaser must not expose reasoning`);
     assert.ok(!html.includes('correctOption'), `${item.id} teaser must not expose the answer`);
-    assert.ok(html.includes('Первый том'), `${item.id} teaser must explain access`);
+    assert.ok(['volume1', 'volume2'].includes(item.productId), `${item.id} premium case needs a volume entitlement`);
+    const expectedVolumeLabel = item.productId === 'volume2' ? 'Том II' : 'Том I';
+    assert.ok(html.includes(expectedVolumeLabel), `${item.id} teaser must explain access through ${expectedVolumeLabel}`);
   }
 
   const titleMatch = html.match(/<title>(.*?)<\/title>/);
@@ -96,17 +107,19 @@ for (const item of catalog.cases) {
   descriptions.add(descriptionMatch[1]);
 }
 
-assert.equal(titles.size, 100, 'all 100 SEO case titles must be unique');
-assert.equal(descriptions.size, 100, 'all 100 SEO case descriptions must be unique');
-assert.equal(fs.readdirSync(path.join(root, 'ru', 'cases'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).length, 100, 'must generate 100 SEO case pages');
+assert.equal(titles.size, 110, 'all 110 SEO case titles must be unique');
+assert.equal(descriptions.size, 110, 'all 110 SEO case descriptions must be unique');
+assert.equal(fs.readdirSync(path.join(root, 'ru', 'cases'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).length, 110, 'must generate 110 SEO case pages');
 
 const collectionFile = path.join(root, collection.route, 'index.html');
 assert.ok(fs.existsSync(collectionFile));
 const collectionHtml = fs.readFileSync(collectionFile, 'utf8');
-assert.ok(collectionHtml.includes('15 бесплатных детективных дел онлайн'), 'collection H1 must reflect Wordstat copy');
+assert.ok(collectionHtml.includes('10 бесплатных детективных дел'), 'collection H1 must reflect current free catalog size');
 assert.ok(collectionHtml.includes('CollectionPage'));
 assert.ok(collectionHtml.includes('ItemList'));
 assert.ok(!collectionHtml.includes('noindex'));
+assert.ok(!/15\s+бесплатн/iu.test(collectionHtml), 'collection must not regress to 15 free cases');
+assert.ok(!/ещ[ёе]\s+85\s+дел/iu.test(collectionHtml), 'collection must not regress to the 85-case paid model');
 for (const item of freeSeoCases) assert.ok(collectionHtml.includes(item.path), `collection must link to ${item.id}`);
 
 for (const route of ['golovolomki-onlayn/','zagadki-na-logiku-dlya-vzroslyh/','detektivnye-igry-dlya-dvoih/','detektivnye-igry-dlya-odnogo/']) {
@@ -147,6 +160,8 @@ assert.ok(sitemap.includes(`<loc>${base}logicheskie-zadachi/domino-razbienie-4x5
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 assert.ok(home.includes('>Головоломки</a>'), 'top navigation must expose the puzzle vertical');
 assert.ok(home.includes('data-logic-home-launch'), 'homepage must link into the puzzle funnel');
+assert.ok(home.includes('10 бесплатных'), 'homepage must expose the current free offer');
+assert.ok(!/15\s+бесплатн/iu.test(home), 'homepage must not regress to 15 free cases');
 
 const soloCaseFile = path.join(root, 'detektivnye-igry-dlya-odnogo', '407', 'index.html');
 assert.ok(fs.existsSync(soloCaseFile), 'solo 407 runtime route is missing');
@@ -159,4 +174,4 @@ for (const event of ['case_view','case_started','answer_selected','answer_correc
 assert.ok(analytics.includes('location.search'));
 assert.ok(analytics.includes("robots.content = 'noindex,follow'"));
 
-console.log(`seo expansion tests passed: 100 case SEO routes + hubs + 20 Expert puzzles = ${report.indexableUrls} unique URLs`);
+console.log(`seo expansion tests passed: 110 case SEO routes + hubs + 20 Expert puzzles = ${report.indexableUrls} unique URLs`);
