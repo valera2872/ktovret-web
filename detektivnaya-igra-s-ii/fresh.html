@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Новое расследование — Mystery Logic</title>
+</head>
+<body>
+  <p>Начинаем новое расследование…</p>
+  <script>
+    try {
+      sessionStorage.removeItem('ml_ai_demo_state_v4');
+      sessionStorage.removeItem('ml_ai_demo_session');
+    } catch (_) {}
+    location.replace('./?fresh_test=1');
+  </script>
+</body>
+</html>
