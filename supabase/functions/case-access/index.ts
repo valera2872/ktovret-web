@@ -3,6 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
+const WHO_LIED_VOLUME_PRODUCTS = new Set(['volume1', 'volume2']);
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',')
   .map((value) => value.trim().replace(/\/$/, ''))
@@ -76,10 +77,13 @@ Deno.serve(async (req: Request) => {
   if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
   if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
 
-  // Exact ownership is preferred. legacy_volume_all is the private grandfathering
-  // entitlement for customers who bought the historical 85-case package before
-  // the catalog became two 50-case volumes.
-  const acceptedProducts = [paidCase.product_id, LEGACY_VOLUME_ALL_PRODUCT_ID];
+  // Exact ownership is preferred. legacy_volume_all is accepted only for the
+  // two Who Lied volume product ids; it must never unlock AI, Last Aria or any
+  // other premium product that happens to use this shared endpoint.
+  const isWhoLiedVolume = WHO_LIED_VOLUME_PRODUCTS.has(String(paidCase.product_id || ''));
+  const acceptedProducts = isWhoLiedVolume
+    ? [paidCase.product_id, LEGACY_VOLUME_ALL_PRODUCT_ID]
+    : [paidCase.product_id];
   const { data: entitlementRows, error: entitlementError } = await admin
     .from('access_entitlements')
     .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
@@ -94,7 +98,7 @@ Deno.serve(async (req: Request) => {
     && (!item.expires_at || new Date(item.expires_at) > now));
   const rows = entitlementRows || [];
   const entitlement = rows.find((item: any) => item.product_id === paidCase.product_id && usable(item))
-    || rows.find((item: any) => item.product_id === LEGACY_VOLUME_ALL_PRODUCT_ID && usable(item));
+    || (isWhoLiedVolume ? rows.find((item: any) => item.product_id === LEGACY_VOLUME_ALL_PRODUCT_ID && usable(item)) : null);
   if (!entitlement) return json(403, { error: 'access_denied' }, origin);
 
   const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
