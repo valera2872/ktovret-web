@@ -5,7 +5,7 @@ import { applyLastAriaFinalNeutral, prepareLastAriaFinalNeutral } from './last-a
 
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.json']);
 const PRODUCTION_ORIGIN = 'https://mysterylogic.com/';
-const BASELINE_INDEXABLE_URLS = 49;
+const BASELINE_INDEXABLE_URLS = 50;
 
 const walk = (root) => {
   const files = [];

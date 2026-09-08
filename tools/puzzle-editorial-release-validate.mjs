@@ -38,7 +38,7 @@ if(ready){
   assert(Number(report.logicAudiencePuzzles||0)>0,'ready release must expose approved quick puzzles');
   assert(report.logicAudiencePages===expectedPublished.length,'indexable collection route count mismatch');
   assert(report.logicAudienceCollections===expectedPublished.length,'collection count mismatch');
-  assert(report.indexableUrls===49+expectedPublished.length,'final sitemap count must equal baseline plus strong collections');
+  assert(report.indexableUrls===50+expectedPublished.length,'final sitemap count must equal baseline plus strong collections');
   assert(countDirs('golovolomki')===report.logicAudiencePuzzles,'approved quick task directory count mismatch');
   for(const [kind,item] of Object.entries(collections)){
     const shouldPublish=item.count>=item.min;
@@ -67,7 +67,7 @@ if(ready){
   assert(report.logicAudiencePages===0,'locked release must expose zero audience collection routes');
   assert(report.logicAudiencePuzzles===0,'locked release must expose zero quick puzzles');
   assert(report.logicAudienceCollections===0,'locked release must expose zero audience collections');
-  assert(report.indexableUrls===49,'locked release must remain at 49 indexable URLs');
+  assert(report.indexableUrls===50,'locked release must remain at 50 indexable URLs');
   assert(!exists('golovolomki'),'locked release must not contain quick puzzle directory');
   for(const item of Object.values(collections)){
     assert(!exists(item.route),`locked release must not contain collection: ${item.route}`);
