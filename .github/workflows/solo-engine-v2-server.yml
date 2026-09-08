@@ -11,7 +11,10 @@ on:
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-preview-auth/**'
       - 'assets/solo-v2-preview-auth.mjs'
+      - 'assets/solo-v2-onboarding.mjs'
+      - 'assets/solo-v2-onboarding.css'
       - 'admin/solo-v2-live-preview/**'
+      - 'tools/validate-solo-v2-onboarding.mjs'
       - 'supabase/migrations/*solo_engine_v2*.sql'
       - '.github/workflows/solo-engine-v2-server.yml'
   push:
@@ -25,7 +28,10 @@ on:
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-preview-auth/**'
       - 'assets/solo-v2-preview-auth.mjs'
+      - 'assets/solo-v2-onboarding.mjs'
+      - 'assets/solo-v2-onboarding.css'
       - 'admin/solo-v2-live-preview/**'
+      - 'tools/validate-solo-v2-onboarding.mjs'
       - 'supabase/migrations/*solo_engine_v2*.sql'
       - '.github/workflows/solo-engine-v2-server.yml'
 
@@ -50,7 +56,11 @@ jobs:
           deno check supabase/functions/solo-session-v2/index.ts
           deno check supabase/functions/solo-preview-auth/index.ts
       - name: Check preview bootstrap syntax
-        run: node --check assets/solo-v2-preview-auth.mjs
+        run: |
+          node --check assets/solo-v2-preview-auth.mjs
+          node --check assets/solo-v2-onboarding.mjs
+      - name: Validate cinematic onboarding contract
+        run: node tools/validate-solo-v2-onboarding.mjs
       - name: Run server privacy and entitlement contract
         run: |
           deno test supabase/functions/_shared/solo-engine-v2-runtime.test.ts
@@ -72,12 +82,13 @@ jobs:
           grep -q 'noindex,nofollow,noarchive' "$html"
           grep -q 'MLPREVIEW-' "$html"
           grep -q 'solo-v2-preview-auth.mjs' "$html"
+          grep -q 'solo-v2-onboarding.mjs' "$html"
           ! grep -q 'MLADM-' "$html"
           grep -q 'solo-preview-auth' "$bootstrap"
           grep -q "metadata.source === 'internal_preview'" "$auth"
           grep -q "metadata.solo_access_mode === 'owned'" "$auth"
           grep -q 'allowedCases.length === 1' "$auth"
-          ! grep -R -q 'ML0512_PREVIEW_' "$html" "$bootstrap"
+          ! grep -R -q 'ML0512_PREVIEW_' "$html" "$bootstrap" 'assets/solo-v2-onboarding.mjs'
       - name: Validate migration security contract
         shell: bash
         run: |

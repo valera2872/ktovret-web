@@ -6,18 +6,19 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="ml-preview-token-prefix" content="MLPREVIEW-">
   <meta name="theme-color" content="#071019">
-  <title>Mystery Logic — Premium Solo V2 live preview</title>
+  <title>Тринадцатая минута — Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/solo-v2-client.css">
+  <link rel="stylesheet" href="../../assets/solo-v2-onboarding.css">
 </head>
 <body>
   <div class="solo-bg" aria-hidden="true"><span></span><span></span><span></span></div>
 
   <main class="solo-login" data-owner-login>
     <div class="solo-login__mark">ML</div>
-    <p class="solo-eyebrow">Mystery Logic · internal</p>
-    <h1>Premium Solo V2</h1>
-    <p>Проверяем персональную ссылку и подключаем закрытое расследование.</p>
+    <p class="solo-eyebrow">Mystery Logic</p>
+    <h1>Тринадцатая минута</h1>
+    <p>Подключаем закрытое расследование…</p>
     <form data-owner-form>
       <input data-owner-token type="hidden" autocomplete="off">
       <div class="solo-error" data-owner-error>Подключение…</div>
@@ -25,115 +26,91 @@
   </main>
 
   <main class="solo-app" data-solo-app hidden>
-    <header class="solo-header">
-      <div class="solo-brand">
-        <div class="solo-brand__mark">ML</div>
-        <div>
-          <p class="solo-eyebrow">Premium investigation · server runtime</p>
-          <h1 data-case-title>Solo Engine 2.0</h1>
-          <p data-case-subtitle>Загрузка расследования…</p>
-        </div>
-      </div>
-      <div class="solo-header__actions">
-        <span class="solo-access-pill" data-access-pill>demo</span>
-        <button class="solo-button" data-refresh>Обновить</button>
-        <button class="solo-button solo-button--quiet" data-owner-lock>Закрыть</button>
-      </div>
-    </header>
-
-    <section class="solo-runtime-bar">
-      <div><span>Дело</span><strong data-runtime-case>закрыто</strong></div>
-      <div><span>Версия</span><strong data-runtime-version>—</strong></div>
-      <div><span>Действий</span><strong data-runtime-sequence>0</strong></div>
-      <div><span>Сессия</span><strong data-runtime-session>новая</strong></div>
-      <div><span>Статус</span><strong data-runtime-status>ожидание</strong></div>
-    </section>
-
-    <section class="solo-connect" data-connect>
-      <div>
-        <p class="solo-eyebrow">Закрытый runtime</p>
-        <h2>Подключаем расследование</h2>
-        <p>Доступ ограничен только этим внутренним делом. Канон и правильные ответы остаются на сервере.</p>
-      </div>
-      <div class="solo-connect__controls">
-        <input data-case-id type="hidden" value="">
-        <input data-access-token type="hidden" value="">
-        <button class="solo-button solo-button--primary" data-start>Начать / продолжить</button>
-      </div>
-      <div class="solo-error" data-connect-error></div>
-    </section>
-
-    <section class="solo-investigation" data-investigation hidden>
-      <aside class="solo-sidebar">
-        <nav class="solo-nav" aria-label="Разделы расследования">
-          <button class="is-active" data-tab="evidence"><span>01</span><b>Материалы</b><em data-count-evidence>0</em></button>
-          <button data-tab="people"><span>02</span><b>Люди</b><em data-count-people>0</em></button>
-          <button data-tab="deductions"><span>03</span><b>Дедукции</b><em data-count-deductions>0</em></button>
-          <button data-tab="timeline"><span>04</span><b>Хронология</b><em data-count-timeline>0</em></button>
-          <button data-tab="hypotheses"><span>05</span><b>Версии</b><em data-count-hypotheses>0</em></button>
-          <button data-tab="reconstruction"><span>06</span><b>Реконструкция</b><em data-count-reconstruction>—</em></button>
-        </nav>
-
-        <div class="solo-sidebar__card">
-          <p class="solo-eyebrow">Прогресс</p>
-          <div class="solo-progress"><i data-progress-bar></i></div>
-          <strong data-progress-label>Расследование начато</strong>
-          <small data-progress-note>Сервер хранит состояние партии.</small>
-        </div>
-
-        <div class="solo-sidebar__card solo-sidebar__card--proof" data-proof-summary>
-          <p class="solo-eyebrow">Позиция</p>
-          <strong data-proof-count>0 / 0</strong>
-          <small>доказательных классов собрано</small>
-        </div>
-      </aside>
-
-      <section class="solo-workspace">
-        <header class="solo-workspace__head">
-          <div>
-            <p class="solo-eyebrow" data-view-eyebrow>Следственные материалы</p>
-            <h2 data-view-title>Материалы дела</h2>
+    <section class="solo-onboarding" data-solo-onboarding hidden>
+      <section class="ml-onb-stage ml-film is-active" data-onb-stage="film">
+        <div class="ml-film__frames" aria-hidden="true">
+          <div class="ml-film__frame is-active" data-film-frame>
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+              <defs><linearGradient id="n1" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#07131f"/><stop offset="1" stop-color="#010509"/></linearGradient><radialGradient id="g1"><stop stop-color="#7ea0b3" stop-opacity=".75"/><stop offset="1" stop-color="#203849" stop-opacity="0"/></radialGradient></defs>
+              <rect width="1600" height="900" fill="url(#n1)"/><circle cx="1240" cy="170" r="230" fill="url(#g1)" opacity=".25"/>
+              <g fill="#c7d6de" opacity=".65"><circle cx="140" cy="120" r="2"/><circle cx="260" cy="210" r="1.5"/><circle cx="420" cy="105" r="1.5"/><circle cx="610" cy="190" r="2"/><circle cx="980" cy="115" r="1.5"/><circle cx="1320" cy="95" r="2"/><circle cx="1450" cy="250" r="1.5"/></g>
+              <path d="M0 650 C250 590 420 620 650 560 C900 500 1200 570 1600 500 L1600 900 L0 900Z" fill="#02070b"/>
+              <g transform="translate(910 330)"><rect x="0" y="170" width="420" height="180" rx="18" fill="#071019" stroke="#34505f"/><path d="M80 170 A130 130 0 0 1 340 170Z" fill="#0b1821" stroke="#59717e"/><rect x="200" y="75" width="20" height="95" fill="#213846"/><circle cx="210" cy="70" r="18" fill="#314d5b"/><rect x="360" y="210" width="16" height="42" fill="#8e5b48"/><circle cx="368" cy="205" r="7" fill="#d58762"/></g>
+              <text x="92" y="790" fill="#7c929d" font-family="system-ui" font-size="22" letter-spacing="5">МЕРИДИАН-7 · НОЧНАЯ СМЕНА</text>
+            </svg>
           </div>
-          <div class="solo-workspace__tools" data-view-tools></div>
-        </header>
-        <div class="solo-view" data-view></div>
+          <div class="ml-film__frame" data-film-frame>
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="n2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#08141d"/><stop offset="1" stop-color="#02070b"/></linearGradient></defs><rect width="1600" height="900" fill="url(#n2)"/><g transform="translate(720 180)"><rect width="650" height="470" rx="26" fill="#07131b" stroke="#38515e"/><rect x="45" y="55" width="560" height="290" rx="14" fill="#02090d" stroke="#243b47"/><text x="85" y="125" fill="#7e96a1" font-family="monospace" font-size="24">SP-4 / POWER</text><text x="85" y="205" fill="#d78f82" font-family="monospace" font-size="56">OFFLINE</text><text x="85" y="270" fill="#657b86" font-family="monospace" font-size="22">02:16:08 · BUS 0.0V</text><circle cx="520" cy="190" r="24" fill="#6c2e2d"/><circle cx="520" cy="190" r="10" fill="#f06c63"/></g><g stroke="#294550" stroke-width="4" opacity=".75"><path d="M120 640H620"/><path d="M180 570H560"/><path d="M250 500H500"/></g></svg>
+          </div>
+          <div class="ml-film__frame" data-film-frame>
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><rect width="1600" height="900" fill="#03090e"/><g transform="translate(650 150)"><rect width="720" height="520" rx="22" fill="#07151d" stroke="#34515e"/><text x="55" y="80" fill="#91a6b0" font-family="monospace" font-size="21">SP-4 ARCHIVE STREAM</text><path d="M55 245 C120 160 180 330 245 230 S370 145 430 245 S550 330 665 205" fill="none" stroke="#d3ad73" stroke-width="5"/><g fill="#8ca0aa" font-family="monospace" font-size="19"><text x="55" y="330">02:17:42  exposure received</text><text x="55" y="365">02:19:31  exposure received</text><text x="55" y="400">02:22:08  exposure received</text><text x="55" y="435">02:26:11  exposure received</text><text x="55" y="470">02:29:48  exposure received</text></g></g><text x="120" y="745" fill="#e1bd83" font-family="Georgia" font-size="96">+13:00</text></svg>
+          </div>
+          <div class="ml-film__frame" data-film-frame>
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="n4" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#08121a"/><stop offset="1" stop-color="#020609"/></linearGradient></defs><rect width="1600" height="900" fill="url(#n4)"/><path d="M0 650L620 420L1600 500V900H0Z" fill="#040a0e"/><g transform="translate(900 430)" opacity=".9"><ellipse cx="170" cy="220" rx="180" ry="48" fill="#010305"/><path d="M90 190 C120 110 205 105 250 165 L330 245 L280 270 L205 205 L135 250 L70 245Z" fill="#15242d"/><circle cx="122" cy="135" r="42" fill="#1b2d37"/><rect x="330" y="265" width="72" height="44" rx="5" fill="#a28256" transform="rotate(-18 330 265)"/></g><rect x="1030" y="150" width="330" height="70" rx="12" fill="#311d1b" stroke="#8c5148"/><text x="1075" y="195" fill="#e5a79c" font-family="monospace" font-size="24">02:30 · ТРЕВОГА</text></svg>
+          </div>
+        </div>
+        <div class="ml-film__shade"></div><div class="ml-film__grain"></div>
+        <div class="ml-film__copy">
+          <p class="ml-film__eyebrow">Mystery Logic · расследование</p>
+          <h1 class="ml-film__line" data-film-line>Ночная смена на <strong>«Меридиане-7»</strong>.</h1>
+          <div class="ml-film__actions"><button class="ml-onb-primary" data-onb-continue>Узнать, что произошло</button><button class="ml-onb-secondary" data-onb-skip>Пропустить заставку</button></div>
+          <div class="ml-film__progress"><i class="is-active" data-film-dot></i><i data-film-dot></i><i data-film-dot></i><i data-film-dot></i></div>
+        </div>
       </section>
 
-      <aside class="solo-rail">
-        <section class="solo-rail__section">
-          <div class="solo-rail__head"><span>Последнее изменение</span><b data-last-event>—</b></div>
-          <p data-last-message>Откройте расследование.</p>
-        </section>
+      <section class="ml-onb-stage ml-briefing" data-onb-stage="briefing">
+        <div class="ml-brief-visual" aria-hidden="true">
+          <svg viewBox="0 0 700 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="bv" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#142d3b"/><stop offset="1" stop-color="#03080c"/></linearGradient></defs><rect width="700" height="900" fill="url(#bv)"/><circle cx="525" cy="170" r="115" fill="#456473" opacity=".22"/><path d="M0 640 C190 580 330 610 700 505V900H0Z" fill="#040a0e"/><g transform="translate(160 330)"><rect width="390" height="260" rx="20" fill="#08151d" stroke="#607784"/><path d="M70 0 A125 125 0 0 1 320 0Z" fill="#10232e" stroke="#728994"/><rect x="185" y="-90" width="20" height="90" fill="#405965"/><circle cx="195" cy="-100" r="20" fill="#5b737d"/></g><g transform="translate(66 705)" fill="#d6e0e4"><circle cx="34" cy="34" r="34" fill="#1a303c"/><circle cx="145" cy="34" r="34" fill="#1b3441"/><circle cx="256" cy="34" r="34" fill="#203642"/><circle cx="367" cy="34" r="34" fill="#152c37"/></g></svg>
+          <div class="ml-brief-visual__caption"><b>Обсерватория «Меридиан-7»</b><span>Удалённая станция. Ночная смена. Четыре сотрудника и один погибший директор.</span></div>
+        </div>
+        <div class="ml-brief-copy">
+          <p class="ml-brief-kicker">Дело ML-0512 · «Тринадцатая минута»</p>
+          <h1>Что произошло этой ночью</h1>
+          <p class="ml-brief-lead">На обсерватории произошли <strong>два события, которые могут быть связаны</strong>. Спектрограф SP-4 был официально отключён в 02:16, но ещё тринадцать минут в архив поступали новые наблюдения. В 02:30 рядом с прибором нашли мёртвым директора станции — <strong>Льва Арсеньева</strong>.</p>
+          <div class="ml-brief-block"><h2>Что уже известно</h2><p>На станции в критические минуты находились четыре сотрудника. Каждый утверждает, что занимался своей работой и знает лишь часть происходившего. Но журналы доступа, системные записи и первые показания не складываются в одну непротиворечивую картину.</p></div>
+          <div class="ml-brief-block"><h2>Что нужно установить</h2><ul class="ml-mission-list"><li data-n="1">Почему отключённый прибор продолжал отправлять данные.</li><li data-n="2">Кто находился в нужных зонах станции в критические минуты.</li><li data-n="3">Кто и в чём лжёт — и связана ли эта ложь со смертью директора.</li><li data-n="4">Что на самом деле произошло с Арсеньевым и что он сам скрывал до гибели.</li></ul></div>
+          <div class="ml-case-facts"><span>Solo</span><span>50–70 минут</span><span>24 материала</span><span>4 сотрудника</span><span>11 дедукций</span><span>финальная реконструкция</span></div>
+          <div class="ml-brief-actions"><button class="ml-onb-primary" data-onb-to-primer>Понятно. Что делать сначала?</button></div>
+        </div>
+      </section>
 
-        <section class="solo-rail__section">
-          <div class="solo-rail__head"><span>Доказательная позиция</span></div>
-          <div class="solo-proof-list" data-proof-list><p class="solo-muted">Пока не раскрыта.</p></div>
-        </section>
-
-        <section class="solo-rail__section">
-          <div class="solo-rail__head"><span>Доступные действия</span></div>
-          <div class="solo-interactions" data-interactions><p class="solo-muted">Нет специальных действий.</p></div>
-        </section>
-
-        <section class="solo-rail__section solo-rail__section--security">
-          <span class="solo-lock-icon">⌁</span>
-          <div><b>Private canon boundary</b><p>Правильные ответы, правила переходов и финальная истина остаются на сервере.</p></div>
-        </section>
-      </aside>
+      <section class="ml-onb-stage ml-primer" data-onb-stage="primer">
+        <div class="ml-primer__inner">
+          <div class="ml-primer__head"><p class="ml-brief-kicker">Ваш первый шаг</p><h1>Не нужно разбираться во всём сразу</h1><p>Начните с общей картины. Сначала поймите, что произошло, как устроена станция и что утверждают люди. Технические детали можно разбирать уже потом.</p></div>
+          <div class="ml-primer-grid">
+            <article class="ml-primer-card"><div class="ml-primer-card__icon">01</div><h3>Сводка происшествия</h3><p>Время отключения прибора, обнаружения тела и первые зафиксированные обстоятельства.</p></article>
+            <article class="ml-primer-card"><div class="ml-primer-card__icon">MAP</div><h3>Схема станции</h3><p>Где находятся спектральный зал, технический блок, операторская и служебные проходы.</p></article>
+            <article class="ml-primer-card"><div class="ml-primer-card__icon">4×</div><h3>Первые показания</h3><p>Что Антон, София, Мила и Денис рассказывают о своей ночной смене.</p></article>
+            <article class="ml-primer-card"><div class="ml-primer-card__icon">SP4</div><h3>Журнал отключения</h3><p>Только после общей картины переходите к вопросу, как выключенный прибор мог продолжать «работать».</p></article>
+          </div>
+          <div class="ml-primer__task"><div><b>Первая задача расследования</b><span>Разберитесь, действительно ли данные после 02:16 мог создать сам SP-4.</span></div><button class="ml-onb-primary" data-onb-enter>Начать расследование</button></div>
+          <div class="ml-brief-actions"><button class="ml-onb-secondary" data-onb-back>Назад к вводной</button></div>
+        </div>
+      </section>
     </section>
 
-    <footer class="solo-footer">
-      <span>Internal preview · noindex</span>
-      <span data-footer-session>session: —</span>
-      <span data-footer-revision>revision: 0</span>
-    </footer>
+    <div class="solo-runtime-shell" data-solo-runtime-shell hidden>
+      <header class="solo-header">
+        <div class="solo-brand"><div class="solo-brand__mark">ML</div><div><p class="solo-eyebrow">Mystery Logic · расследование</p><h1 data-case-title>Тринадцатая минута</h1><p data-case-subtitle>Загрузка материалов…</p></div></div>
+        <div class="solo-header__actions"><span class="solo-access-pill" data-access-pill>demo</span><button class="solo-button" data-refresh>Обновить</button><button class="solo-button solo-button--quiet" data-owner-lock>Закрыть</button></div>
+      </header>
+      <section class="solo-runtime-bar"><div><span>Дело</span><strong data-runtime-case>закрыто</strong></div><div><span>Версия</span><strong data-runtime-version>—</strong></div><div><span>Действий</span><strong data-runtime-sequence>0</strong></div><div><span>Сессия</span><strong data-runtime-session>новая</strong></div><div><span>Статус</span><strong data-runtime-status>ожидание</strong></div></section>
+      <section class="solo-connect" data-connect hidden><div><p class="solo-eyebrow">Подготовка дела</p><h2>Собираем материалы расследования</h2><p>Восстанавливаем вашу партию и загружаем только доступные сейчас материалы.</p></div><div class="solo-connect__controls"><input data-case-id type="hidden" value=""><input data-access-token type="hidden" value=""><button class="solo-button solo-button--primary" data-start>Начать / продолжить</button></div><div class="solo-error" data-connect-error></div></section>
+      <section class="solo-investigation" data-investigation hidden>
+        <aside class="solo-sidebar">
+          <nav class="solo-nav" aria-label="Разделы расследования"><button class="is-active" data-tab="evidence"><span>01</span><b>Материалы</b><em data-count-evidence>0</em></button><button data-tab="people"><span>02</span><b>Люди</b><em data-count-people>0</em></button><button data-tab="deductions"><span>03</span><b>Дедукции</b><em data-count-deductions>0</em></button><button data-tab="timeline"><span>04</span><b>Хронология</b><em data-count-timeline>0</em></button><button data-tab="hypotheses"><span>05</span><b>Версии</b><em data-count-hypotheses>0</em></button><button data-tab="reconstruction"><span>06</span><b>Реконструкция</b><em data-count-reconstruction>—</em></button></nav>
+          <div class="solo-sidebar__card"><p class="solo-eyebrow">Прогресс</p><div class="solo-progress"><i data-progress-bar></i></div><strong data-progress-label>Расследование начато</strong><small data-progress-note>Сервер хранит состояние партии.</small></div>
+          <div class="solo-sidebar__card solo-sidebar__card--proof" data-proof-summary><p class="solo-eyebrow">Позиция</p><strong data-proof-count>0 / 0</strong><small>доказательных классов собрано</small></div>
+        </aside>
+        <section class="solo-workspace"><header class="solo-workspace__head"><div><p class="solo-eyebrow" data-view-eyebrow>Следственные материалы</p><h2 data-view-title>Материалы дела</h2></div><div class="solo-workspace__tools" data-view-tools></div></header><div class="solo-view" data-view></div></section>
+        <aside class="solo-rail"><section class="solo-rail__section"><div class="solo-rail__head"><span>Последнее изменение</span><b data-last-event>—</b></div><p data-last-message>Откройте расследование.</p></section><section class="solo-rail__section"><div class="solo-rail__head"><span>Доказательная позиция</span></div><div class="solo-proof-list" data-proof-list><p class="solo-muted">Пока не раскрыта.</p></div></section><section class="solo-rail__section"><div class="solo-rail__head"><span>Доступные действия</span></div><div class="solo-interactions" data-interactions><p class="solo-muted">Нет специальных действий.</p></div></section><section class="solo-rail__section solo-rail__section--security"><span class="solo-lock-icon">⌁</span><div><b>Private canon boundary</b><p>Правильные ответы, правила переходов и финальная истина остаются на сервере.</p></div></section></aside>
+      </section>
+      <footer class="solo-footer"><span>Internal preview · noindex</span><span data-footer-session>session: —</span><span data-footer-revision>revision: 0</span></footer>
+    </div>
   </main>
 
-  <dialog class="solo-dialog" data-dialog>
-    <button class="solo-dialog__close" data-dialog-close aria-label="Закрыть">×</button>
-    <div data-dialog-content></div>
-  </dialog>
-
+  <dialog class="solo-dialog" data-dialog><button class="solo-dialog__close" data-dialog-close aria-label="Закрыть">×</button><div data-dialog-content></div></dialog>
+  <script type="module" src="../../assets/solo-v2-onboarding.mjs"></script>
   <script type="module" src="../../assets/solo-v2-preview-auth.mjs"></script>
   <script type="module" src="../../assets/solo-v2-client.mjs"></script>
 </body>
