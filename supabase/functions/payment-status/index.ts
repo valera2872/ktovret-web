@@ -1,8 +1,8 @@
 import {
-  PRODUCT_ID,
   adminClient,
   cleanOrigin,
   corsHeaders,
+  entitlementProductsForOrder,
   isAllowedOrigin,
   json,
   paymentConfigReady,
@@ -38,11 +38,13 @@ Deno.serve(async (req: Request) => {
     .from('payment_orders')
     .select('*')
     .eq('id', orderId)
-    .eq('product_id', PRODUCT_ID)
     .maybeSingle();
   if (orderError) return json(503, { error: 'order_lookup_failed' }, origin);
   if (!order) return json(404, { error: 'order_not_found' }, origin);
   if (order.token_hash !== tokenHash) return json(403, { error: 'order_access_denied' }, origin);
+
+  const grantIds = entitlementProductsForOrder(order);
+  if (!grantIds.length) return json(400, { error: 'invalid_product' }, origin);
 
   const provider = String(order.payment_provider || (order.yookassa_payment_id ? 'yookassa' : 'tbank'));
   if (provider === 'tbank' && !tbankConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
@@ -56,19 +58,26 @@ Deno.serve(async (req: Request) => {
         : await refreshPaymentOrder(admin, order);
     }
 
-    const { data: entitlement } = await admin
+    const { data: entitlements, error: entitlementError } = await admin
       .from('access_entitlements')
-      .select('status,expires_at,revoked_at')
+      .select('product_id,status,expires_at,revoked_at')
       .eq('token_hash', tokenHash)
-      .eq('product_id', PRODUCT_ID)
-      .maybeSingle();
-    const entitled = entitlement?.status === 'active'
-      && !entitlement?.revoked_at
-      && (!entitlement?.expires_at || new Date(entitlement.expires_at) > new Date());
+      .in('product_id', grantIds);
+    if (entitlementError) return json(503, { error: 'access_check_failed' }, origin);
+
+    const now = new Date();
+    const active = new Set((entitlements || [])
+      .filter((item: any) => item.status === 'active'
+        && !item.revoked_at
+        && (!item.expires_at || new Date(item.expires_at) > now))
+      .map((item: any) => String(item.product_id)));
+    const entitled = grantIds.every((productId) => active.has(productId));
 
     return json(200, {
       ok: true,
       orderId: order.id,
+      productId: order.product_id,
+      entitlementProductIds: grantIds,
       paymentId: provider === 'tbank' ? order.provider_payment_id : order.yookassa_payment_id,
       provider,
       status: refreshed.status,
