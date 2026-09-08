@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applySeoCtrModernization } from './seo-ctr-modernization.mjs';
 
-const VERSION='2.2.1';
+const VERSION='2.2.2';
 
 function addStyle(html){
   if(html.includes('storefront-volume-sales.css')) return html;
@@ -48,6 +48,7 @@ const OFFER_ROUTES=[
 
 function normalizeOfferCopy(html){
   let out=html;
+  out=out.replace(/15(?=\s+бесплатн)/giu,'10');
   out=out.replaceAll('15 бесплатных дел','10 бесплатных дел');
   out=out.replaceAll('15 бесплатных расследований','10 бесплатных расследований');
   out=out.replaceAll('15 дел доступны бесплатно','10 дел доступны бесплатно');
