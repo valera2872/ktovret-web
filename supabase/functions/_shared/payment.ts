@@ -1,11 +1,56 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-export const PRODUCT_ID = 'volume1';
+export const PRODUCT_ID = 'volume1'; // legacy default for old clients
+export const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
+export const CURRENT_WHO_LIED_OFFER_VERSION = '2026-09-06';
 export const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 export const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 export const YOOKASSA_SHOP_ID = Deno.env.get('YOOKASSA_SHOP_ID') || '';
 export const YOOKASSA_SECRET_KEY = Deno.env.get('YOOKASSA_SECRET_KEY') || '';
-export const VOLUME1_PRICE_RUB = Deno.env.get('VOLUME1_PRICE_RUB') || '';
+
+export const PRODUCT_CATALOG = {
+  volume1: {
+    id: 'volume1',
+    label: 'Том I',
+    priceRub: 199,
+    receiptName: 'Mystery Logic — «Кто врёт?», Том I (50 дел)',
+    description: 'Mystery Logic — «Кто врёт?», Том I: 50 расследований',
+    entitlementProductIds: ['volume1'],
+  },
+  volume2: {
+    id: 'volume2',
+    label: 'Том II',
+    priceRub: 199,
+    receiptName: 'Mystery Logic — «Кто врёт?», Том II (50 дел)',
+    description: 'Mystery Logic — «Кто врёт?», Том II: 50 расследований',
+    entitlementProductIds: ['volume2'],
+  },
+  volume_bundle_1_2: {
+    id: 'volume_bundle_1_2',
+    label: 'Том I + Том II',
+    priceRub: 299,
+    receiptName: 'Mystery Logic — «Кто врёт?», Том I + Том II (100 дел)',
+    description: 'Mystery Logic — «Кто врёт?»: два тома, 100 расследований',
+    entitlementProductIds: ['volume1', 'volume2'],
+  },
+} as const;
+
+export type ProductId = keyof typeof PRODUCT_CATALOG;
+export const productFor = (value: unknown) => {
+  const id = String(value || PRODUCT_ID).trim() as ProductId;
+  return PRODUCT_CATALOG[id] || null;
+};
+export const entitlementProductsFor = (value: unknown) => productFor(value)?.entitlementProductIds || [];
+export const isLegacyVolume1Order = (order: any) => Boolean(
+  order
+  && String(order.product_id || '') === 'volume1'
+  && String(order.metadata?.offer_version || '') !== CURRENT_WHO_LIED_OFFER_VERSION
+);
+export const entitlementProductsForOrder = (order: any) => {
+  const grants = [...entitlementProductsFor(order?.product_id)];
+  if (isLegacyVolume1Order(order) && !grants.includes(LEGACY_VOLUME_ALL_PRODUCT_ID)) grants.push(LEGACY_VOLUME_ALL_PRODUCT_ID);
+  return grants;
+};
 
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',')
@@ -56,7 +101,7 @@ export const formatAmount = (value: unknown) => {
 };
 
 export const paymentConfigReady = () => Boolean(
-  SUPABASE_URL && SERVICE_ROLE_KEY && YOOKASSA_SHOP_ID && YOOKASSA_SECRET_KEY && formatAmount(VOLUME1_PRICE_RUB),
+  SUPABASE_URL && SERVICE_ROLE_KEY && YOOKASSA_SHOP_ID && YOOKASSA_SECRET_KEY,
 );
 
 const basicAuth = () => `Basic ${btoa(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`)}`;
@@ -84,47 +129,63 @@ export const paymentMatchesOrder = (payment: any, order: any) => {
   if (!payment || !order) return false;
   if (String(payment.id || '') !== String(order.yookassa_payment_id || '')) return false;
   if (String(payment.metadata?.order_id || '') !== String(order.id || '')) return false;
-  if (String(payment.metadata?.product_id || '') !== PRODUCT_ID) return false;
+  if (String(payment.metadata?.product_id || '') !== String(order.product_id || '')) return false;
   if (String(payment.amount?.currency || '') !== String(order.currency || 'RUB')) return false;
   return formatAmount(payment.amount?.value) === formatAmount(order.amount_value);
+};
+
+const grantEntitlements = async (admin: any, order: any, paymentProvider: string, paymentReference: string) => {
+  const grants = entitlementProductsForOrder(order);
+  if (!grants.length) throw new Error('unknown_product');
+  const now = new Date().toISOString();
+  const rows = grants.map((productId) => ({
+    token_hash: order.token_hash,
+    product_id: productId,
+    status: 'active',
+    payment_provider: paymentProvider,
+    payment_reference: paymentReference,
+    customer_email_hash: order.customer_email_hash || null,
+    starts_at: now,
+    expires_at: null,
+    revoked_at: null,
+    metadata: {
+      order_id: order.id,
+      source: paymentProvider,
+      purchase_product_id: order.product_id,
+      ...(productId === LEGACY_VOLUME_ALL_PRODUCT_ID ? { grandfathered_from_product_id: 'volume1' } : {}),
+    },
+    updated_at: now,
+  }));
+  const { data, error } = await admin
+    .from('access_entitlements')
+    .upsert(rows, { onConflict: 'token_hash,product_id' })
+    .select('id,product_id');
+  if (error || !data?.length) throw error || new Error('entitlement_write_failed');
+  return data;
 };
 
 export const activateOrder = async (admin: any, order: any, payment: any) => {
   if (!paymentMatchesOrder(payment, order)) throw new Error('payment_order_mismatch');
   if (payment.status !== 'succeeded' || payment.paid !== true) throw new Error('payment_not_succeeded');
 
-  const { data: entitlement, error: entitlementError } = await admin
-    .from('access_entitlements')
-    .upsert({
-      token_hash: order.token_hash,
-      product_id: PRODUCT_ID,
-      status: 'active',
-      payment_provider: 'yookassa',
-      payment_reference: payment.id,
-      customer_email_hash: order.customer_email_hash || null,
-      starts_at: new Date().toISOString(),
-      expires_at: null,
-      revoked_at: null,
-      metadata: { order_id: order.id, source: 'yookassa' },
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'token_hash' })
-    .select('id')
-    .single();
-
-  if (entitlementError || !entitlement?.id) throw entitlementError || new Error('entitlement_write_failed');
-
+  const entitlements = await grantEntitlements(admin, order, 'yookassa', payment.id);
+  const primary = entitlements.find((item: any) => item.product_id === order.product_id) || entitlements[0];
   const { error: orderError } = await admin
     .from('payment_orders')
     .update({
       status: 'paid',
       paid_at: new Date().toISOString(),
-      entitlement_id: entitlement.id,
+      entitlement_id: primary?.id || null,
       failure_code: null,
+      metadata: {
+        ...(order.metadata || {}),
+        entitlement_product_ids: entitlements.map((item: any) => item.product_id),
+      },
       updated_at: new Date().toISOString(),
     })
     .eq('id', order.id);
   if (orderError) throw orderError;
-  return entitlement.id;
+  return primary?.id || null;
 };
 
 export const refreshPaymentOrder = async (admin: any, order: any) => {

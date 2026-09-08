@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const HOME_TITLE='Детективные игры онлайн — 15 бесплатных дел без регистрации';
-const HOME_DESCRIPTION='15 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.';
+const HOME_TITLE='Детективные игры онлайн — 10 бесплатных дел без регистрации';
+const HOME_DESCRIPTION='10 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.';
 const TARGETS=new Map([
   ['dela/index.html','Онлайн-детективы — выбрать дело и начать расследование'],
   ['kto-vret/index.html','Кто врёт? — бесплатная детективная игра онлайн'],
@@ -31,7 +31,7 @@ function setDescription(html,description){
   return out;
 }
 function sitelinkHeader(){
-  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="./" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация"><a href="./delo/chetyre-vhoda-v-arhiv/">Играть бесплатно</a><a data-nav-solo href="./detektivnye-igry-dlya-odnogo/">Для одного</a><a data-nav-coop href="./detektivnye-igry-dlya-dvoih/">Для двоих</a><a href="./dela/">Все дела</a><a href="#method">Как играть</a></nav><a class="ref-login ref-dossier-cta" href="./tom-1/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Первый том</a></header>`;
+  return `<header class="ref-header ref-wrap ref-functional-header" data-functional-nav="v2"><a class="ref-brand" href="./" aria-label="Mystery Logic — главная"><span class="ref-brand-mark">ML</span><span class="ref-brand-copy"><strong>Mystery Logic</strong><small>Детективные дела</small></span></a><nav class="ref-nav" aria-label="Основная навигация"><a href="./delo/chetyre-vhoda-v-arhiv/">Играть бесплатно</a><a data-nav-solo href="./detektivnye-igry-dlya-odnogo/">Для одного</a><a data-nav-coop href="./detektivnye-igry-dlya-dvoih/">Для двоих</a><a href="./dela/">Все дела</a><a href="#method">Как играть</a></nav><a class="ref-login ref-dossier-cta" href="./tom-1/"><span class="ref-dossier-icon" aria-hidden="true">▤</span>Тома</a></header>`;
 }
 function patchHome(siteRoot){
   const file=path.join(siteRoot,'index.html');
