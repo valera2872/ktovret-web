@@ -5,25 +5,50 @@ const OWNER_KEY='mysterylogic:review-admin-token:v1';
 const nativeFetch=window.fetch.bind(window);
 let previewToken='';
 let previewCaseId='';
+let autoStarted=false;
+let fragmentCredential=false;
+
+function tokenFromFragment(){
+  const raw=decodeURIComponent(String(location.hash||'').replace(/^#/,''));
+  return raw.startsWith('MLPREVIEW-')?raw:'';
+}
 
 try{
-  const saved=sessionStorage.getItem(OWNER_KEY)||'';
-  if(saved && !saved.startsWith('MLPREVIEW-')) sessionStorage.removeItem(OWNER_KEY);
+  const fromFragment=tokenFromFragment();
+  if(fromFragment){
+    previewToken=fromFragment;
+    fragmentCredential=true;
+  }else{
+    const saved=sessionStorage.getItem(OWNER_KEY)||'';
+    if(saved.startsWith('MLPREVIEW-'))previewToken=saved;
+    else if(saved)sessionStorage.removeItem(OWNER_KEY);
+  }
 }catch{}
 
 function fillPreviewCredentials(){
+  const owner=document.querySelector('[data-owner-token]');
   const access=document.querySelector('[data-access-token]');
   const caseInput=document.querySelector('[data-case-id]');
-  if(access && previewToken) access.value=previewToken;
-  if(caseInput && previewCaseId) caseInput.value=previewCaseId;
+  if(owner && previewToken)owner.value=previewToken;
+  if(access && previewToken)access.value=previewToken;
+  if(caseInput && previewCaseId)caseInput.value=previewCaseId;
 }
 
-function captureOwnerToken(){
-  previewToken=String(document.querySelector('[data-owner-token]')?.value||'').trim();
-  queueMicrotask(fillPreviewCredentials);
+function clearFragmentAfterSuccessfulAuth(){
+  if(!fragmentCredential)return;
+  try{history.replaceState(null,'',`${location.pathname}${location.search}`)}catch{}
+  fragmentCredential=false;
 }
 
-document.querySelector('[data-owner-form]')?.addEventListener('submit',captureOwnerToken,true);
+function autoStartCase(){
+  if(autoStarted||!previewToken||!previewCaseId)return;
+  autoStarted=true;
+  setTimeout(()=>{
+    fillPreviewCredentials();
+    const start=document.querySelector('[data-start]');
+    if(start && !start.disabled)start.click();
+  },0);
+}
 
 window.fetch=async(input,init={})=>{
   const url=typeof input==='string'?input:String(input?.url||'');
@@ -36,7 +61,9 @@ window.fetch=async(input,init={})=>{
         const auth=String(init?.headers?.authorization||init?.headers?.Authorization||'');
         const bearer=auth.match(/^Bearer\s+(.+)$/i)?.[1]?.trim()||'';
         if(bearer)previewToken=bearer;
-        queueMicrotask(fillPreviewCredentials);
+        fillPreviewCredentials();
+        clearFragmentAfterSuccessfulAuth();
+        autoStartCase();
       }catch{}
     }
     return response;
@@ -46,5 +73,17 @@ window.fetch=async(input,init={})=>{
 
 const app=document.querySelector('[data-solo-app]');
 if(app){
-  new MutationObserver(()=>{if(!app.hidden)fillPreviewCredentials()}).observe(app,{attributes:true,attributeFilter:['hidden']});
+  new MutationObserver(()=>{if(!app.hidden){fillPreviewCredentials();autoStartCase()}}).observe(app,{attributes:true,attributeFilter:['hidden']});
 }
+
+window.addEventListener('load',()=>{
+  fillPreviewCredentials();
+  const form=document.querySelector('[data-owner-form]');
+  const error=document.querySelector('[data-owner-error]');
+  if(previewToken){
+    if(error)error.textContent='Подключение…';
+    form?.requestSubmit();
+  }else if(error){
+    error.textContent='Откройте стенд по персональной ссылке из чата.';
+  }
+},{once:true});
