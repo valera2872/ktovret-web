@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applySeoCtrModernization } from './seo-ctr-modernization.mjs';
 
-const VERSION='2.0.0';
+const VERSION='2.1.0';
 
 function addStyle(html){
   if(html.includes('storefront-volume-sales.css')) return html;
@@ -36,6 +36,54 @@ function patchVolume(html,cases){
   return out;
 }
 
+const OFFER_ROUTES=[
+  'index.html',
+  'kto-vret/index.html',
+  'dela/index.html',
+  'tom-1/index.html',
+  'detektivnye-igry-onlayn/index.html',
+  'kto-vret-igra/index.html',
+  'ru/besplatnye-detektivnye-dela/index.html',
+];
+
+function normalizeOfferCopy(html){
+  let out=html;
+  out=out.replaceAll('15 бесплатных дел','10 бесплатных дел');
+  out=out.replaceAll('15 бесплатных расследований','10 бесплатных расследований');
+  out=out.replaceAll('15 дел доступны бесплатно','10 дел доступны бесплатно');
+  out=out.replaceAll('15 дел можно пройти бесплатно','10 дел можно пройти бесплатно');
+  out=out.replaceAll('15 дел бесплатно','10 дел бесплатно');
+  out=out.replaceAll('Первые 15 дел','Первые 10 дел');
+  out=out.replaceAll('первые 15 дел','первые 10 дел');
+  out=out.replaceAll('первые 15 расследований','первые 10 расследований');
+  out=out.replaceAll('Первые 15 расследований','Первые 10 расследований');
+  out=out.replaceAll('первых пятнадцати расследований','первых десяти расследований');
+  out=out.replaceAll('Пятнадцать расследований','Десять расследований');
+  out=out.replaceAll('15 полноценных дел','10 полноценных дел');
+  out=out.replaceAll('100 коротких расследований с доказуемыми ответами. 15 дел доступны бесплатно в браузере.','110 коротких расследований с доказуемыми ответами. 10 дел доступны бесплатно в браузере.');
+  out=out.replaceAll('100 расследований</h2><p class="product-summary-lead">Начните с открытого архива. Полный том продолжает тот же прогресс и добавляет ещё 85 дел без подписки.','110 расследований</h2><p class="product-summary-lead">Начните с 10 бесплатных дел. Затем доступны два платных тома по 50 расследований — можно купить один том или оба сразу.');
+  out=out.replaceAll('<strong>15</strong><span>полных дел доступны бесплатно</span></div><div><strong>85</strong><span>дополнительных дел в первом томе</span>','<strong>10</strong><span>полных дел доступны бесплатно</span></div><div><strong>50 + 50</strong><span>платных дел в двух томах</span>');
+  out=out.replaceAll('Если формат понравится, <a href="../tom-1/">полный первый том</a> открывает ещё 85 дел одной покупкой без подписки.','Если формат понравится, <a href="../tom-1/">два платных тома</a> дают ещё 100 расследований: по 50 дел за 199 ₽ или оба тома за 299 ₽, без подписки.');
+  out=out.replaceAll('В первом томе 100 активных дел, из них 15 доступны бесплатно в браузере.','Всего доступно 110 дел: 10 бесплатных и 100 платных в двух томах по 50.');
+  return out;
+}
+
+function enforceOfferCopy(siteRoot){
+  let patched=0;
+  for(const relative of OFFER_ROUTES){
+    const file=path.join(siteRoot,relative);
+    if(!fs.existsSync(file)) continue;
+    const before=fs.readFileSync(file,'utf8');
+    const after=normalizeOfferCopy(before);
+    fs.writeFileSync(file,after);
+    patched+=1;
+    const stale=[/15\s+бесплатн/iu,/15\s+дел\s+(?:доступны|можно|бесплат)/iu,/первых\s+пятнадцати\s+расследован/iu,/ещё\s+85\s+дел/iu,/85\s+дополнительных\s+дел/iu];
+    const hit=stale.find((pattern)=>pattern.test(after));
+    if(hit) throw new Error(`Who Lied offer copy is stale in ${relative}: ${hit}`);
+  }
+  return patched;
+}
+
 export function applyStorefrontVolumeSales(siteRoot,cases){
   const file=path.join(siteRoot,'tom-1/index.html');
   if(!fs.existsSync(file)) return {pages:0,version:VERSION};
@@ -43,5 +91,6 @@ export function applyStorefrontVolumeSales(siteRoot,cases){
   const after=patchVolume(before,cases);
   fs.writeFileSync(file,after);
   const seo=applySeoCtrModernization(siteRoot);
-  return {pages:1,version:VERSION,seoCtrPages:seo.pages,seoCtrHomeTitle:seo.homeTitle};
+  const offerCopyPages=enforceOfferCopy(siteRoot);
+  return {pages:1,version:VERSION,seoCtrPages:seo.pages,seoCtrHomeTitle:seo.homeTitle,offerCopyPages};
 }
