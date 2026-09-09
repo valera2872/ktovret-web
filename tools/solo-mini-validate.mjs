@@ -30,7 +30,7 @@ try{
   const result=applySoloMiniInvestigations(root);
   if(result.cases!==10||result.routes.length!==11)fail('generator result counts invalid');
   const hub=fs.readFileSync(path.join(root,'detektivnye-igry-dlya-odnogo/mini/index.html'),'utf8');
-  if(!hub.includes('data-solo-mini-hub')||!hub.includes('10 бесплатных дел'))fail('hub markers missing');
+  if(!hub.includes('data-solo-mini-hub')||!hub.includes('<strong>10</strong><span>бесплатных дел</span>'))fail('hub markers missing');
   const patched=fs.readFileSync(path.join(solo,'index.html'),'utf8');
   if(!patched.includes('data-solo-mini-bridge')||!patched.includes('href="mini/"'))fail('Solo hub bridge missing');
   for(const item of cases){
