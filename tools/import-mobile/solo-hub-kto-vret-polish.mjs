@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { applySolo407PlayerFeedback } from './solo-407-player-feedback-postprocess.mjs';
+import { applySoloMiniInvestigations } from './solo-mini-postprocess.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
 
@@ -20,4 +21,5 @@ export function polishSoloKtoVret(siteRoot) {
 
   fs.writeFileSync(file, html);
   applySolo407PlayerFeedback(siteRoot);
+  applySoloMiniInvestigations(siteRoot);
 }
