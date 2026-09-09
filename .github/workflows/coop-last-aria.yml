@@ -69,8 +69,9 @@ jobs:
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/payment-status-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/tbank-webhook-last-aria/index.ts
           grep -q "productId:'volume1'" assets/paid-access-config.js
-          grep -q "productId:'volume2'" assets/paid-access-config.js
-          grep -q "productId:'volume_bundle_1_2'" assets/paid-access-config.js
+          grep -q "volume1:{label:'Том I',priceRub:199,caseCount:50}" assets/paid-access-config.js
+          grep -q "volume2:{label:'Том II',priceRub:199,caseCount:50}" assets/paid-access-config.js
+          grep -q "volume_bundle_1_2:{label:'Том I + Том II',priceRub:299,caseCount:100" assets/paid-access-config.js
           grep -q "volume1:" supabase/functions/_shared/payment.ts
           grep -q "volume2:" supabase/functions/_shared/payment.ts
           grep -q "volume_bundle_1_2:" supabase/functions/_shared/payment.ts
