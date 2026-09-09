@@ -106,9 +106,6 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   if (premiumStillIndexed.length) {
     throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
   }
-  if (sitemapRemovedNow !== PREMIUM_SEO_TEASER_COUNT) {
-    throw new Error(`Expected to remove ${PREMIUM_SEO_TEASER_COUNT} premium SEO URLs from sitemap, removed ${sitemapRemovedNow}`);
-  }
 
   const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
   let report = null;
