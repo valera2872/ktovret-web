@@ -57,12 +57,12 @@ jobs:
         with:
           node-version: 22
 
-      - name: Audit source library 100 / 15 / 85
+      - name: Audit source library 110 / 10 / 100
         if: env.KTOVRET_SOURCE_TOKEN != ''
         working-directory: web
         run: node tools/import-mobile/audit-library.mjs --source ../mobile-source --out ../qa-report.json --commit "$KTOVRET_SOURCE_COMMIT"
 
-      - name: Generate public 15/85 library from private source
+      - name: Generate public 10/100 library from private source
         if: env.KTOVRET_SOURCE_TOKEN != ''
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
@@ -126,16 +126,17 @@ jobs:
       - name: Validate public boundaries
         working-directory: web
         run: |
-          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
-          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
-          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
-          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
-          test "$(grep -rl 'data-seo-collection-link' ru/cases/*/index.html | wc -l)" -eq 15
+          set -euo pipefail
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 110
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 10
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 100
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 10
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 100
+          test "$(grep -rl 'data-seo-collection-link' ru/cases/*/index.html | wc -l)" -eq 10
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'window.KtoVretWeb=' | wc -l)" -eq 0
           test -f ru/besplatnye-detektivnye-dela/index.html
-          grep -q '15 бесплатных детективных дел онлайн' ru/besplatnye-detektivnye-dela/index.html
+          grep -q '10 бесплатных детективных дел онлайн' ru/besplatnye-detektivnye-dela/index.html
           grep -q 'CollectionPage' ru/besplatnye-detektivnye-dela/index.html
           grep -q 'ItemList' ru/besplatnye-detektivnye-dela/index.html
           test -f golovolomki-onlayn/index.html
@@ -144,17 +145,19 @@ jobs:
           test -f detektivnye-igry-dlya-odnogo/index.html
           test -f detektivnye-igry-dlya-odnogo/407/index.html
           grep -q '<meta name="robots" content="noindex,follow">' detektivnye-igry-dlya-odnogo/407/index.html
-          grep -q '"totalCases": 100' assets/generated/import-report.json
-          grep -q '"freeCases": 15' assets/generated/import-report.json
-          grep -q '"premiumCases": 85' assets/generated/import-report.json
-          grep -q '"seoNativeCases": 15' assets/generated/import-report.json
+          grep -q '"totalCases": 110' assets/generated/import-report.json
+          grep -q '"freeCases": 10' assets/generated/import-report.json
+          grep -q '"premiumCases": 100' assets/generated/import-report.json
+          grep -q '"volume1Cases": 50' assets/generated/import-report.json
+          grep -q '"volume2Cases": 50' assets/generated/import-report.json
+          grep -q '"seoNativeCases": 10' assets/generated/import-report.json
           grep -q '"indexableCollections": 1' assets/generated/import-report.json
           grep -q '"collectionPages": 1' assets/generated/import-report.json
-          grep -q '"seoCasePages": 100' assets/generated/import-report.json
-          grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
+          grep -q '"seoCasePages": 110' assets/generated/import-report.json
+          grep -q '"premiumSeoTeaserPages": 100' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
-          grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
+          grep -q '"twoPlayerRoomFreeCases": 10' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
           grep -q '"soloMaterials": 18' assets/generated/import-report.json
@@ -164,10 +167,10 @@ jobs:
           grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
           grep -q '"logicExpertAdultHub": "zagadki-na-logiku-dlya-vzroslyh/"' assets/generated/import-report.json
           node tools/staging-sitemap-boundary-validate.mjs
-          test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 10
           test "$(grep -l 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
           if test -f assets/premium.css; then
-            test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
+            test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 110
             test -f detektivnye-igry-onlayn/index.html
             test -f detektivnye-zagadki-s-otvetami/index.html
             test -f logicheskie-detektivnye-zadachi/index.html
@@ -179,9 +182,11 @@ jobs:
             test -f logicheskie-zadachi/domino-razbienie-4x5/index.html
             test ! -d logicheskie-zadachi/shest-pokazaniy
             test ! -d logicheskie-zadachi/arhivnaya-matrica-5x5
-            test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+            test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 10
             test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
-            grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+            grep -q '50 расследований за 199 ₽' tom-1/index.html
+            grep -q '299 ₽' tom-1/index.html
+            ! grep -Eqi '15[[:space:]]+бесплатн|ещ[ёе][[:space:]]+85[[:space:]]+дел|Открыть[[:space:]]+85[[:space:]]+дел[[:space:]]+за[[:space:]]+99' index.html dela/index.html kto-vret/index.html tom-1/index.html detektivnye-igry-dlya-odnogo/index.html detektivnye-igry-dlya-dvoih/index.html
             node tools/staging-sitemap-boundary-validate.mjs
             grep -q 'BreadcrumbList' detektivnye-igry-onlayn/index.html
             grep -q '<loc>https://valera2872.github.io/ktovret-web/ru/besplatnye-detektivnye-dela/</loc>' sitemap.xml
@@ -209,16 +214,16 @@ jobs:
           path: web/artifacts/responsive-smoke
           retention-days: 7
 
-      - name: Validate editorial 100-case conversion
+      - name: Validate editorial 110-case conversion
         if: env.KTOVRET_SOURCE_TOKEN != ''
         run: |
           cp -a web editorial
           node editorial/tools/import-mobile-cases.mjs --source mobile-source --site editorial --mode editorial --commit "$KTOVRET_SOURCE_COMMIT"
           node editorial/tools/import-mobile/validate-editorial-build.mjs --site editorial
-          test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' editorial/delo/*/index.html | wc -l)" -eq 110
           test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' editorial/delo/*/index.html | wc -l)" -eq 0
-          test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'data-premium-seo-teaser' editorial/ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(grep -rl 'data-seo-prerender' editorial/ru/cases/*/index.html | wc -l)" -eq 10
+          test "$(grep -rl 'data-premium-seo-teaser' editorial/ru/cases/*/index.html | wc -l)" -eq 100
           test -f editorial/ru/besplatnye-detektivnye-dela/index.html
           test -f editorial/detektivnye-igry-dlya-odnogo/index.html
           test -f editorial/detektivnye-igry-dlya-odnogo/407/index.html
@@ -248,14 +253,18 @@ jobs:
           test -f logicheskie-zadachi/index.html
           test -f logicheskie-zadachi/protokol-shesti-cifr/index.html
           test -f logicheskie-zadachi/domino-razbienie-4x5/index.html
-          grep -q '"freeCases": 15' assets/generated/import-report.json
-          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"totalCases": 110' assets/generated/import-report.json
+          grep -q '"freeCases": 10' assets/generated/import-report.json
+          grep -q '"premiumCases": 100' assets/generated/import-report.json
+          grep -q '"volume1Cases": 50' assets/generated/import-report.json
+          grep -q '"volume2Cases": 50' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
           node tools/staging-sitemap-boundary-validate.mjs
-          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 10
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
-          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          grep -q '50 расследований за 199 ₽' tom-1/index.html
+          grep -q '299 ₽' tom-1/index.html
 
       - name: Report requested validation
         if: always() && github.event_name == 'issue_comment' && github.event.comment.body == '/validate-ktovret-web'
@@ -270,7 +279,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **100 legacy / 15 playable / 85 locked**\n- SEO case routes: **100 indexable /ru/cases/ pages (15 playable + 85 spoiler-safe teasers)**\n- Wordstat hubs: **3 intent pages**\n- Expert logic: **20 expert puzzles / 23 logic routes**\n- Quick puzzles: **only exact owner-approved current versions; individual game routes are noindex**\n- Puzzle collections: **indexable only after content-strength thresholds**\n- Solo investigations: **1 indexable hub / Room 407 runtime noindex**\n- Sitemap: **validated dynamically against the approved collection set**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
+              body: `## Mystery Logic validation\n\n- Result: **${ok ? 'success' : 'failure'}**\n- Public boundary: **110 total / 10 playable / 100 locked**\n- Paid model: **50 Volume I + 50 Volume II; 199 / 199 / 299 ₽**\n- SEO case routes: **110 /ru/cases/ pages (10 playable + 100 spoiler-safe teasers)**\n- Wordstat hubs: **3 intent pages**\n- Expert logic: **20 expert puzzles / 23 logic routes**\n- Quick puzzles: **only exact owner-approved current versions; individual game routes are noindex**\n- Puzzle collections: **indexable only after content-strength thresholds**\n- Solo investigations: **1 indexable hub / Room 407 runtime noindex**\n- Sitemap: **validated dynamically against the approved collection set**\n- Private source audit runs when repository secret KTOVRET_SOURCE_TOKEN is configured.`
             });
 
   deploy:
