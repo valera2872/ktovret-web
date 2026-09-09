@@ -17,8 +17,10 @@ function startFilm(){stopFilm();showScene(0);timer=setInterval(()=>{if(scene<cap
 function stopFilm(){if(timer){clearInterval(timer);timer=null}}
 function applySimpleImages(){
   const hero=frames[0];
-  if(hero){hero.style.backgroundImage="url('./ml0512/hero.webp')";hero.querySelector('svg')?.style.setProperty('display','none')}
-  if(briefingVisual){briefingVisual.style.backgroundImage="url('./ml0512/briefing.webp')";briefingVisual.querySelector('svg')?.style.setProperty('display','none')}
+  const heroUrl=new URL('./ml0512/hero.webp',import.meta.url).href;
+  const briefingUrl=new URL('./ml0512/briefing.webp',import.meta.url).href;
+  if(hero){hero.style.backgroundImage=`url("${heroUrl}")`;hero.querySelector('svg')?.style.setProperty('display','none')}
+  if(briefingVisual){briefingVisual.style.backgroundImage=`url("${briefingUrl}")`;briefingVisual.querySelector('svg')?.style.setProperty('display','none')}
 }
 root?.querySelector('[data-onb-skip]')?.addEventListener('click',()=>showStage('briefing'));
 root?.querySelector('[data-onb-continue]')?.addEventListener('click',()=>showStage('briefing'));
