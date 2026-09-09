@@ -68,6 +68,7 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
   const sitemapFile = path.join(siteRoot, 'sitemap.xml');
   if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
   const before = fs.readFileSync(sitemapFile, 'utf8');
+  const beforeCount = (before.match(/<url\b[^>]*>/gi) || []).length;
   const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
   const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
   let sitemapRemovedNow = 0;
@@ -107,16 +108,15 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
   }
 
-  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
-  let report = null;
-  if (fs.existsSync(reportFile)) report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
-  const prePolicyIndexableUrls = Number(report?.indexableUrls || 0);
-  const expectedIndexableUrls = prePolicyIndexableUrls - PREMIUM_SEO_TEASER_COUNT;
+  const expectedIndexableUrls = beforeCount - sitemapRemovedNow;
   const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
-  if (!Number.isFinite(expectedIndexableUrls) || expectedIndexableUrls < 0 || indexableUrls !== expectedIndexableUrls) {
+  if (expectedIndexableUrls < 0 || indexableUrls !== expectedIndexableUrls) {
     throw new Error(`Expected final production sitemap boundary ${expectedIndexableUrls}, found ${indexableUrls}`);
   }
 
+  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
+  let report = null;
+  if (fs.existsSync(reportFile)) report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
   if (report) {
     report.indexableUrls = indexableUrls;
     report.premiumSeoNoindexPages = pages;
