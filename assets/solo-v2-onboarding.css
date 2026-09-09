@@ -63,6 +63,17 @@
 .solo-runtime-shell .solo-header{padding-top:18px}
 .solo-runtime-shell .solo-connect{grid-template-columns:1fr;padding:30px;text-align:center;place-items:center;background:rgba(9,23,32,.94)}
 .solo-runtime-shell .solo-connect>div:first-child{max-width:620px}.solo-runtime-shell .solo-connect__controls{display:none}.solo-runtime-shell .solo-connect h2{font-size:31px}.solo-runtime-shell .solo-connect p:not(.solo-eyebrow){font-size:15px;line-height:1.6}
+
+/* ML-0512 generated cinematic visual layer. The inline SVG scenes remain only as a no-network fallback. */
+.ml-film__frame{background-size:cover;background-repeat:no-repeat;background-position:center}
+.ml-film__frame:nth-child(1){background-image:url('./ml0512/intro-01-observatory.webp');background-position:center 48%}
+.ml-film__frame:nth-child(2){background-image:url('./ml0512/intro-02-spectral-room.webp');background-position:center 50%}
+.ml-film__frame:nth-child(3){background-image:url('./ml0512/intro-03-shutdown-data.webp');background-position:60% 50%}
+.ml-film__frame:nth-child(4){background-image:url('./ml0512/intro-04-body-found.webp');background-position:54% 54%}
+.ml-film__frame svg{opacity:0;pointer-events:none}
+.ml-brief-visual{background-image:url('./ml0512/intro-hero-briefing.webp');background-size:cover;background-repeat:no-repeat;background-position:center}
+.ml-brief-visual svg{opacity:0;pointer-events:none}
+
 @media(max-width:980px){.ml-briefing{grid-template-columns:1fr;align-content:start}.ml-brief-visual{min-height:430px}.ml-primer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ml-film__copy{margin-left:24px}.ml-film__line{min-height:125px}}
-@media(max-width:620px){.ml-briefing,.ml-primer{padding:22px 16px 34px}.ml-brief-visual{min-height:320px;border-radius:18px}.ml-brief-copy h1,.ml-primer h1{font-size:42px}.ml-brief-lead{font-size:18px}.ml-primer-grid{grid-template-columns:1fr}.ml-primer-card{min-height:auto}.ml-primer__task{align-items:flex-start;flex-direction:column}.ml-primer__task .ml-onb-primary{width:100%}.ml-film__copy{width:calc(100% - 32px);margin:0 16px 42px}.ml-film__line{font-size:42px;min-height:145px}.ml-film__actions{gap:8px}.ml-onb-primary,.ml-onb-secondary{width:100%;text-align:center}.ml-case-facts{gap:6px}}
+@media(max-width:620px){.ml-briefing,.ml-primer{padding:22px 16px 34px}.ml-brief-visual{min-height:320px;border-radius:18px;background-position:56% center}.ml-brief-copy h1,.ml-primer h1{font-size:42px}.ml-brief-lead{font-size:18px}.ml-primer-grid{grid-template-columns:1fr}.ml-primer-card{min-height:auto}.ml-primer__task{align-items:flex-start;flex-direction:column}.ml-primer__task .ml-onb-primary{width:100%}.ml-film__copy{width:calc(100% - 32px);margin:0 16px 42px}.ml-film__line{font-size:42px;min-height:145px}.ml-film__actions{gap:8px}.ml-onb-primary,.ml-onb-secondary{width:100%;text-align:center}.ml-case-facts{gap:6px}.ml-film__frame:nth-child(1){background-position:62% center}.ml-film__frame:nth-child(2){background-position:57% center}.ml-film__frame:nth-child(3){background-position:68% center}.ml-film__frame:nth-child(4){background-position:53% center}}
 @media(prefers-reduced-motion:reduce){.ml-film__grain{animation:none}.ml-film__frame{transition:none}.ml-onb-primary,.ml-onb-secondary{transition:none}}
