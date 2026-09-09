@@ -4,9 +4,11 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const LEGACY_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const origins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',').map((value) => value.trim().replace(/\/$/, '')).filter(Boolean);
+const EDITORIAL_KINDS = ['quick', 'expert', 'who_lied_case'];
 
 const cleanOrigin = (value = '') => value.trim().replace(/\/$/, '');
 const allowed = (origin = '') => !origin || origins.includes(cleanOrigin(origin));
+const validKind = (value = '') => EDITORIAL_KINDS.includes(value);
 const cors = (origin = '') => ({
   ...(origin && allowed(origin) ? { 'access-control-allow-origin': cleanOrigin(origin) } : {}),
   'access-control-allow-headers': 'authorization, content-type',
@@ -82,10 +84,12 @@ Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
 
   if (req.method === 'GET' && url.searchParams.get('mode') === 'approved-manifest') {
+    const kind = String(url.searchParams.get('kind') || 'quick').trim();
+    if (!validKind(kind)) return json(400, { error: 'invalid_kind' }, origin);
     const { data, error } = await admin
       .from('puzzle_editorial_queue')
       .select('puzzle_id,kind,content,moderated_at,updated_at')
-      .eq('kind', 'quick')
+      .eq('kind', kind)
       .eq('moderation_status', 'approved')
       .order('puzzle_id', { ascending: true });
     if (error) return json(503, { error: 'manifest_read_failed' }, origin);
@@ -95,29 +99,35 @@ Deno.serve(async (req: Request) => {
       approvedAt: row.moderated_at,
       updatedAt: row.updated_at,
     })));
-    return json(200, { ok: true, schemaVersion: 2, count: puzzles.length, puzzles }, origin);
+    return json(200, { ok: true, schemaVersion: 2, kind, count: puzzles.length, puzzles }, origin);
   }
 
   if (!(await authorize(req, admin))) return json(401, { error: 'unauthorized' }, origin);
 
   if (req.method === 'GET') {
     const status = String(url.searchParams.get('status') || 'pending');
+    const kind = String(url.searchParams.get('kind') || '').trim();
     if (!['pending', 'approved', 'rejected', 'all'].includes(status)) {
       return json(400, { error: 'invalid_status' }, origin);
     }
+    if (kind && !validKind(kind)) return json(400, { error: 'invalid_kind' }, origin);
+
     let query = admin
       .from('puzzle_editorial_queue')
       .select('puzzle_id,kind,slug,title,public_route,content,moderation_status,moderation_note,published_before_gate,moderated_at,created_at,updated_at')
       .order('puzzle_id', { ascending: true })
       .limit(500);
     if (status !== 'all') query = query.eq('moderation_status', status);
+    if (kind) query = query.eq('kind', kind);
     const { data, error } = await query;
     if (error) return json(503, { error: 'queue_read_failed' }, origin);
 
     const counts: Record<string, number> = { pending: 0, approved: 0, rejected: 0 };
-    const { data: countRows } = await admin.from('puzzle_editorial_queue').select('moderation_status');
+    let countQuery = admin.from('puzzle_editorial_queue').select('moderation_status');
+    if (kind) countQuery = countQuery.eq('kind', kind);
+    const { data: countRows } = await countQuery;
     for (const row of countRows || []) counts[row.moderation_status] = (counts[row.moderation_status] || 0) + 1;
-    return json(200, { ok: true, status, counts, puzzles: data || [] }, origin);
+    return json(200, { ok: true, status, kind: kind || 'all', counts, puzzles: data || [] }, origin);
   }
 
   if (req.method === 'POST') {
@@ -128,7 +138,7 @@ Deno.serve(async (req: Request) => {
     const id = String(body.id || '').trim();
     const status = String(body.status || '').trim();
     const note = String(body.note || '').trim().slice(0, 1500) || null;
-    if (!/^(quick|expert):[A-Za-z0-9_-]+$/.test(id) || !['approved', 'rejected', 'pending'].includes(status)) {
+    if (!/^(quick|expert|who_lied_case):[A-Za-z0-9_-]+$/.test(id) || !['approved', 'rejected', 'pending'].includes(status)) {
       return json(400, { error: 'invalid_moderation' }, origin);
     }
 
@@ -141,7 +151,7 @@ Deno.serve(async (req: Request) => {
         updated_at: new Date().toISOString(),
       })
       .eq('puzzle_id', id)
-      .select('puzzle_id,moderation_status,moderation_note,moderated_at,updated_at')
+      .select('puzzle_id,kind,moderation_status,moderation_note,moderated_at,updated_at')
       .maybeSingle();
     if (error || !data) return json(503, { error: 'moderation_update_failed' }, origin);
     return json(200, { ok: true, puzzle: data }, origin);
