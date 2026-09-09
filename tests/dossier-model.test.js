@@ -6,21 +6,21 @@ const root=path.resolve(__dirname,'..');
 const catalog=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/cases-index.json'),'utf8'));
 const report=JSON.parse(fs.readFileSync(path.join(root,'assets/generated/import-report.json'),'utf8'));
 
-assert.equal(catalog.totalCases,100);
-assert.equal(catalog.freeCount,15);
-assert.equal(catalog.premiumCount,85);
-assert.equal(catalog.cases.length,100);
-assert.equal(catalog.freeCases.length,15);
-assert.equal(new Set(catalog.cases.map(item=>item.id)).size,100);
-assert.equal(new Set(catalog.cases.map(item=>item.path)).size,100);
-assert.equal(report.witnessEnhancedPages,report.mode==='editorial'?100:15);
+assert.equal(catalog.totalCases,110);
+assert.equal(catalog.freeCount,10);
+assert.equal(catalog.premiumCount,100);
+assert.equal(catalog.cases.length,110);
+assert.equal(catalog.freeCases.length,10);
+assert.equal(new Set(catalog.cases.map(item=>item.id)).size,110);
+assert.equal(new Set(catalog.cases.map(item=>item.path)).size,110);
+assert.equal(report.witnessEnhancedPages,report.mode==='editorial'?110:10);
 
 global.KtoVretCatalog=catalog;
 delete require.cache[require.resolve('../assets/dossier-model.js')];
 const model=require('../assets/dossier-model.js');
-assert.equal(model.cases.length,15);
+assert.equal(model.cases.length,10);
 const empty={getItem:()=>null,removeItem:()=>undefined};
-assert.equal(model.summarize(model.readRecords(empty)).totalCases,15);
+assert.equal(model.summarize(model.readRecords(empty)).totalCases,10);
 
 const premiumGamePath=path.join(root,'assets/premium-game.css');
 assert.ok(fs.existsSync(premiumGamePath),'premium game stylesheet is missing');
@@ -98,4 +98,4 @@ for(const item of catalog.cases.filter(entry=>entry.access==='premium')){
   assert.ok(!html.includes('witness-cycle.css'),`interactive witness layer leaked into locked ${item.path}`);
 }
 
-console.log(`generated library tests passed: 100 total, 15 free, ${witnessPages} witness cases, ${multiWitnessPages} multi-witness, 85 locked`);
+console.log(`generated library tests passed: 110 total, 10 free, ${witnessPages} witness cases, ${multiWitnessPages} multi-witness, 100 locked`);
