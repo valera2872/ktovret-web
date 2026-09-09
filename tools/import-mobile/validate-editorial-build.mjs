@@ -21,7 +21,7 @@ const metrics = {
   maxOptions: 0,
 };
 
-if (catalog.totalCases !== 100 || catalog.cases.length !== 100) failures.push('Редакторский каталог должен содержать ровно 100 дел');
+if (catalog.totalCases !== 110 || catalog.cases.length !== 110) failures.push('Редакторский каталог должен содержать ровно 110 дел');
 
 for (const item of catalog.cases) {
   const pagePath = path.join(siteRoot, item.path, 'index.html');
