@@ -96,7 +96,10 @@ assert.ok(russianCa.includes('RUSSIAN_TRUSTED_ROOT_CA'),'Russian Trusted Root CA
 assert.ok(russianCa.includes('RUSSIAN_TRUSTED_SUB_CA'),'Russian Trusted Sub CA missing');
 assert.ok(russianCa.includes('-----BEGIN CERTIFICATE-----'),'Russian CA bundle must use PEM certificates');
 
-assert.ok(checkout.includes("const product = productFor(body.productId)"),'checkout must validate product server-side');
+assert.ok(checkout.includes("const requestedProductId = String(body.productId || '').trim()"),'checkout must require an explicit product id from the current storefront');
+assert.ok(checkout.includes("if (!requestedProductId) return json(400, { error: 'invalid_product' }"),'checkout must reject missing product ids instead of falling back to Volume I');
+assert.ok(checkout.includes('const product = productFor(requestedProductId)'),'checkout must validate the explicit product against the fixed server catalog');
+assert.ok(checkout.includes("if (!product) return json(400, { error: 'invalid_product' }"),'checkout must reject unknown products server-side');
 assert.ok(checkout.includes("tbankRequest('Init'"),'T-Bank checkout must initiate payment server-side');
 assert.ok(checkout.includes('Amount: amount'),'checkout must use server-derived kopeck amount');
 assert.ok(checkout.includes('OrderId: orderId'),'checkout must bind T-Bank payment to the internal order');
