@@ -2,6 +2,8 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
+const WHO_LIED_VOLUME_PRODUCTS = new Set(['volume1', 'volume2']);
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',')
   .map((value) => value.trim().replace(/\/$/, ''))
@@ -20,78 +22,79 @@ const json = (status: number, body: unknown, origin = '') => new Response(JSON.s
 const hex = (bytes: ArrayBuffer) => Array.from(new Uint8Array(bytes))
   .map((value) => value.toString(16).padStart(2, '0'))
   .join('');
-
-const sha256 = async (value: string) => hex(await crypto.subtle.digest(
-  'SHA-256',
-  new TextEncoder().encode(value),
-));
-
+const sha256 = async (value: string) => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)));
 const experienceTier = (metadata: Record<string, unknown> | null | undefined) =>
   String(metadata?.experience_tier || '').toLowerCase() === 'live' ? 'live' : 'text';
+const usableAt = (item: any, now: Date) => Boolean(item
+  && item.status === 'active'
+  && !item.revoked_at
+  && (!item.starts_at || new Date(item.starts_at) <= now)
+  && (!item.expires_at || new Date(item.expires_at) > now));
 
 Deno.serve(async (req: Request) => {
   const origin = (req.headers.get('origin') || '').replace(/\/$/, '');
   const allowedOrigin = !origin || configuredOrigins.includes(origin);
-
   if (req.method === 'OPTIONS') {
     if (!allowedOrigin) return new Response(null, { status: 403 });
-    return new Response(null, {
-      status: 204,
-      headers: {
-        ...(origin ? { 'access-control-allow-origin': origin } : {}),
-        'access-control-allow-headers': 'authorization, content-type',
-        'access-control-allow-methods': 'GET, OPTIONS',
-        'access-control-max-age': '600',
-        'vary': 'Origin',
-      },
-    });
+    return new Response(null, { status: 204, headers: {
+      ...(origin ? { 'access-control-allow-origin': origin } : {}),
+      'access-control-allow-headers': 'authorization, content-type',
+      'access-control-allow-methods': 'GET, OPTIONS',
+      'access-control-max-age': '600',
+      'vary': 'Origin',
+    }});
   }
-
   if (req.method !== 'GET') return json(405, { error: 'method_not_allowed' }, origin);
   if (!allowedOrigin) return json(403, { error: 'origin_not_allowed' });
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return json(503, { error: 'service_not_configured' }, origin);
 
   const auth = req.headers.get('authorization') || '';
-  const match = auth.match(/^Bearer\s+(.+)$/i);
-  const token = match?.[1]?.trim() || '';
+  const token = auth.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() || '';
   if (token.length < 32 || token.length > 512) return json(401, { error: 'access_token_required' }, origin);
-
   const caseId = new URL(req.url).searchParams.get('case_id')?.trim() || '';
   if (!/^[a-zA-Z0-9_:-]{3,160}$/.test(caseId)) return json(400, { error: 'invalid_case_id' }, origin);
 
   const tokenHash = await sha256(token);
   const now = new Date();
-  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: paidCase, error: caseError } = await admin
     .from('paid_case_payloads')
     .select('case_id,product_id,language,payload,payload_version')
     .eq('case_id', caseId)
     .eq('status', 'published')
     .maybeSingle();
-
   if (caseError) return json(503, { error: 'case_lookup_failed' }, origin);
   if (!paidCase) return json(404, { error: 'case_not_found' }, origin);
 
-  const { data: entitlement, error: entitlementError } = await admin
+  // Keep the ordinary security contract exact: every paid case first checks only
+  // its own product entitlement. Historical all-catalog ownership is a second,
+  // tightly-scoped fallback only for the two Who Lied volume products.
+  const { data: exactEntitlement, error: exactError } = await admin
     .from('access_entitlements')
     .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
     .eq('token_hash', tokenHash)
     .eq('product_id', paidCase.product_id)
     .eq('status', 'active')
     .maybeSingle();
+  if (exactError) return json(503, { error: 'access_check_failed' }, origin);
 
-  if (entitlementError) return json(503, { error: 'access_check_failed' }, origin);
+  let entitlement = usableAt(exactEntitlement, now) ? exactEntitlement : null;
+  const isWhoLiedVolume = WHO_LIED_VOLUME_PRODUCTS.has(String(paidCase.product_id || ''));
+  if (!entitlement && isWhoLiedVolume) {
+    const { data: legacyEntitlement, error: legacyError } = await admin
+      .from('access_entitlements')
+      .select('id,product_id,status,starts_at,expires_at,revoked_at,metadata')
+      .eq('token_hash', tokenHash)
+      .eq('product_id', LEGACY_VOLUME_ALL_PRODUCT_ID)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (legacyError) return json(503, { error: 'access_check_failed' }, origin);
+    if (usableAt(legacyEntitlement, now)) entitlement = legacyEntitlement;
+  }
   if (!entitlement) return json(403, { error: 'access_denied' }, origin);
-  if (entitlement.revoked_at) return json(403, { error: 'access_revoked' }, origin);
-  if (entitlement.starts_at && new Date(entitlement.starts_at) > now) return json(403, { error: 'access_not_started' }, origin);
-  if (entitlement.expires_at && new Date(entitlement.expires_at) <= now) return json(403, { error: 'access_expired' }, origin);
 
   const allowedCaseIds = Array.isArray(entitlement.metadata?.allowed_case_ids)
-    ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || ''))
-    : [];
+    ? entitlement.metadata.allowed_case_ids.map((value: unknown) => String(value || '')) : [];
   const scopedCaseId = String(entitlement.metadata?.case_id || '');
   if (allowedCaseIds.length && !allowedCaseIds.includes(caseId)) {
     return json(403, { error: entitlement.metadata?.source === 'player_reward' ? 'reward_wrong_case' : 'access_wrong_case' }, origin);
@@ -102,10 +105,7 @@ Deno.serve(async (req: Request) => {
 
   const tier = experienceTier(entitlement.metadata);
   const rawOrderId = String(entitlement.metadata?.order_id || '');
-  const orderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawOrderId)
-    ? rawOrderId
-    : null;
-
+  const orderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawOrderId) ? rawOrderId : null;
   const { error: auditError } = await admin.from('paid_access_audit').insert({
     entitlement_id: entitlement.id,
     order_id: orderId,
@@ -116,6 +116,8 @@ Deno.serve(async (req: Request) => {
     metadata: {
       source: 'case_access',
       access_source: entitlement.metadata?.source || 'purchase',
+      entitlement_product_id: entitlement.product_id,
+      grandfathered: entitlement.product_id === LEGACY_VOLUME_ALL_PRODUCT_ID,
       source_origin: origin || null,
       experience_tier: tier,
     },
@@ -129,10 +131,7 @@ Deno.serve(async (req: Request) => {
     language: paidCase.language,
     payloadVersion: paidCase.payload_version,
     experienceTier: tier,
-    features: {
-      freeTextInterrogation: true,
-      liveAvatar: tier === 'live',
-    },
+    features: { freeTextInterrogation: true, liveAvatar: tier === 'live' },
     config: paidCase.payload,
   }, origin);
 });

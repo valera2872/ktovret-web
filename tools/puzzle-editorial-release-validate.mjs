@@ -9,6 +9,7 @@ const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');
 const exists=rel=>fs.existsSync(path.join(root,rel));
 const assert=(condition,message)=>{if(!condition)throw new Error(`puzzle editorial release: ${message}`)};
 const countDirs=rel=>exists(rel)?fs.readdirSync(path.join(root,rel),{withFileTypes:true}).filter(item=>item.isDirectory()).length:0;
+const BASE_INDEXABLE_URLS=44;
 
 const report=JSON.parse(read('assets/generated/import-report.json'));
 const sitemap=read('sitemap.xml');
@@ -38,7 +39,7 @@ if(ready){
   assert(Number(report.logicAudiencePuzzles||0)>0,'ready release must expose approved quick puzzles');
   assert(report.logicAudiencePages===expectedPublished.length,'indexable collection route count mismatch');
   assert(report.logicAudienceCollections===expectedPublished.length,'collection count mismatch');
-  assert(report.indexableUrls===49+expectedPublished.length,'final sitemap count must equal baseline plus strong collections');
+  assert(report.indexableUrls===BASE_INDEXABLE_URLS+expectedPublished.length,'final sitemap count must equal baseline plus strong collections');
   assert(countDirs('golovolomki')===report.logicAudiencePuzzles,'approved quick task directory count mismatch');
   for(const [kind,item] of Object.entries(collections)){
     const shouldPublish=item.count>=item.min;
@@ -67,7 +68,7 @@ if(ready){
   assert(report.logicAudiencePages===0,'locked release must expose zero audience collection routes');
   assert(report.logicAudiencePuzzles===0,'locked release must expose zero quick puzzles');
   assert(report.logicAudienceCollections===0,'locked release must expose zero audience collections');
-  assert(report.indexableUrls===49,'locked release must remain at 49 indexable URLs');
+  assert(report.indexableUrls===BASE_INDEXABLE_URLS,'locked release must remain at the baseline indexable URL count');
   assert(!exists('golovolomki'),'locked release must not contain quick puzzle directory');
   for(const item of Object.values(collections)){
     assert(!exists(item.route),`locked release must not contain collection: ${item.route}`);

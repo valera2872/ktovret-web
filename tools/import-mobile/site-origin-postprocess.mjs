@@ -5,7 +5,7 @@ import { applyLastAriaFinalNeutral, prepareLastAriaFinalNeutral } from './last-a
 
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.json']);
 const PRODUCTION_ORIGIN = 'https://mysterylogic.com/';
-const BASELINE_INDEXABLE_URLS = 49;
+const PREMIUM_SEO_TEASER_COUNT = 100;
 
 const walk = (root) => {
   const files = [];
@@ -61,13 +61,14 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     }
   }
 
-  if (pages !== 85 || premiumSlugs.size !== 85) {
-    throw new Error(`Expected 85 premium SEO teasers, found pages=${pages}, slugs=${premiumSlugs.size}`);
+  if (pages !== PREMIUM_SEO_TEASER_COUNT || premiumSlugs.size !== PREMIUM_SEO_TEASER_COUNT) {
+    throw new Error(`Expected ${PREMIUM_SEO_TEASER_COUNT} premium SEO teasers, found pages=${pages}, slugs=${premiumSlugs.size}`);
   }
 
   const sitemapFile = path.join(siteRoot, 'sitemap.xml');
   if (!fs.existsSync(sitemapFile)) throw new Error('sitemap.xml is missing before premium SEO index policy');
   const before = fs.readFileSync(sitemapFile, 'utf8');
+  const beforeCount = (before.match(/<url\b[^>]*>/gi) || []).length;
   const urlBlockPattern = /<url\b[^>]*>[\s\S]*?<\/url>\s*/gi;
   const locPattern = /<loc\b[^>]*>([\s\S]*?)<\/loc>/i;
   let sitemapRemovedNow = 0;
@@ -107,27 +108,32 @@ function applyPremiumSeoIndexPolicy(siteRoot) {
     throw new Error(`Premium SEO URLs remain in sitemap: ${premiumStillIndexed.slice(0, 5).join(', ')}`);
   }
 
-  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
-  let report = null;
-  if (fs.existsSync(reportFile)) report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
-  const approvedCollectionRoutes = Number(report?.logicAudiencePages || 0);
-  const expectedIndexableUrls = BASELINE_INDEXABLE_URLS + approvedCollectionRoutes;
+  const expectedIndexableUrls = beforeCount - sitemapRemovedNow;
   const indexableUrls = (after.match(/<url\b[^>]*>/gi) || []).length;
-  if (indexableUrls !== expectedIndexableUrls) {
+  if (expectedIndexableUrls < 0 || indexableUrls !== expectedIndexableUrls) {
     throw new Error(`Expected final production sitemap boundary ${expectedIndexableUrls}, found ${indexableUrls}`);
   }
 
+  const reportFile = path.join(siteRoot, 'assets', 'generated', 'import-report.json');
+  let report = null;
+  if (fs.existsSync(reportFile)) report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
   if (report) {
     report.indexableUrls = indexableUrls;
     report.premiumSeoNoindexPages = pages;
-    report.premiumSeoSitemapExcluded = 85;
-    report.premiumSeoSitemapRemoved = 85;
+    report.premiumSeoSitemapExcluded = PREMIUM_SEO_TEASER_COUNT;
+    report.premiumSeoSitemapRemoved = PREMIUM_SEO_TEASER_COUNT;
     report.premiumSeoSitemapRemovedNow = sitemapRemovedNow;
-    report.approvedPuzzleCollectionUrls = approvedCollectionRoutes;
+    report.approvedPuzzleCollectionUrls = Number(report?.logicAudiencePages || 0);
     fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
   }
 
-  return { pages, sitemapExcluded: 85, sitemapRemovedNow, indexableUrls, expectedIndexableUrls };
+  return {
+    pages,
+    sitemapExcluded: PREMIUM_SEO_TEASER_COUNT,
+    sitemapRemovedNow,
+    indexableUrls,
+    expectedIndexableUrls,
+  };
 }
 
 export function applySiteOrigin(siteRoot) {

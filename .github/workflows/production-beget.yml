@@ -75,24 +75,27 @@ jobs:
         working-directory: web
         run: |
           set -euo pipefail
-          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 100
-          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 15
-          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 85
-          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
-          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
-          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
-          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' ru/cases/*/index.html | wc -l)" -eq 85
+          test "$(find delo -mindepth 2 -maxdepth 2 -name index.html | wc -l)" -eq 110
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 10
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 100
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 10
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 100
+          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' ru/cases/*/index.html | wc -l)" -eq 100
           test -f ru/besplatnye-detektivnye-dela/index.html
 
           test -f tom-1/index.html
-          grep -q 'Открыть 85 дел за 99 ₽' tom-1/index.html
+          grep -q '50 расследований за 199 ₽' tom-1/index.html
+          grep -q '100 платных дел' tom-1/index.html
+          grep -q '299 ₽' tom-1/index.html
           grep -q 'data-volume-email' tom-1/index.html
           grep -q 'data-volume-offer-accept' tom-1/index.html
           grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' tom-1/index.html
           ! grep -q 'name="robots" content="noindex' tom-1/index.html
-          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 15
+          test "$(grep -o 'class=\"case-card\"' dela/index.html | wc -l)" -eq 10
           test "$(grep -o 'data-access=\"premium\"' dela/index.html | wc -l)" -eq 0
+          ! grep -Eqi '15[[:space:]]+бесплатн|ещ[ёе][[:space:]]+85[[:space:]]+дел|85[[:space:]]+дополнительных[[:space:]]+дел|Открыть[[:space:]]+85[[:space:]]+дел[[:space:]]+за[[:space:]]+99' index.html dela/index.html tom-1/index.html kto-vret/index.html
 
           test -f detektivnye-igry-dlya-dvoih/index.html
           test -f detektivnye-igry-dlya-odnogo/index.html
@@ -118,7 +121,12 @@ jobs:
           grep -q 'puzzle-editorial' assets/puzzle-admin.js
           grep -q 'mysterylogic:review-admin-token:v1' assets/puzzle-admin.js
 
-          grep -q '"premiumSeoNoindexPages": 85' assets/generated/import-report.json
+          grep -q '"totalCases": 110' assets/generated/import-report.json
+          grep -q '"freeCases": 10' assets/generated/import-report.json
+          grep -q '"premiumCases": 100' assets/generated/import-report.json
+          grep -q '"volume1Cases": 50' assets/generated/import-report.json
+          grep -q '"volume2Cases": 50' assets/generated/import-report.json
+          grep -q '"premiumSeoNoindexPages": 100' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
@@ -142,6 +150,7 @@ jobs:
           grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/</loc>' sitemap.xml
           test "$(grep -o 'https://mysterylogic.com/logicheskie-zadachi/[^<]*/' sitemap.xml | wc -l)" -eq 20
           ! grep -q '<loc>https://mysterylogic.com/detektivnye-igry-dlya-odnogo/407/</loc>' sitemap.xml
+          test "$(grep -o '<url>' sitemap.xml | wc -l)" -eq 49
           grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts
@@ -256,6 +265,11 @@ jobs:
           grep -q 'noindex,nofollow,noarchive' production-web/admin/puzzles/index.html
           grep -q '<meta name="robots" content="noindex,follow">' production-web/detektivnye-igry-dlya-odnogo/407/index.html
           grep -q '<link rel="canonical" href="https://mysterylogic.com/tom-1/">' production-web/tom-1/index.html
+          grep -q '"totalCases": 110' production-web/assets/generated/import-report.json
+          grep -q '"freeCases": 10' production-web/assets/generated/import-report.json
+          grep -q '"premiumCases": 100' production-web/assets/generated/import-report.json
+          grep -q '"premiumSeoNoindexPages": 100' production-web/assets/generated/import-report.json
+          test "$(grep -o '<url>' production-web/sitemap.xml | wc -l)" -eq 49
           node web/tools/puzzle-editorial-release-validate.mjs --site production-web
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' production-web
           echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  production-web/assets/reference-home-hero.webp' | sha256sum -c -

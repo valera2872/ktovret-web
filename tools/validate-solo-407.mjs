@@ -29,7 +29,7 @@ const checks = [
   [solo.includes('solo407-hint-panel') && !solo.includes('alert('),'premium inline hints'],
   [post.includes('Детективные игры и квесты онлайн для одного — бесплатно'),'SEO title'],
   [post.includes('два формата бесплатно'),'clear two-format solo promise'],
-  [post.includes('solo407-kv') && post.includes('Играть в 15 дел бесплатно'),'Who Lies showcase and CTA'],
+  [post.includes('solo407-kv') && post.includes('Играть в 10 дел бесплатно'),'Who Lies showcase and CTA'],
   [post.includes('Четыре входа в архив') && post.includes('Три несинхронных журнала') && post.includes('Пять папок и пустое место'),'Who Lies starter cases'],
   [post.includes('solo407-format-switch'),'two-player rescue switch'],
   [post.includes('solo407-home-switch'),'home 1/2-player chooser'],
@@ -65,7 +65,7 @@ try {
   for(const [ok,label] of [
     [result.materials===18,'18 source materials'],
     [hub.includes('1 игрок')&&hub.includes('два формата бесплатно'),'solo hub promise'],
-    [hub.includes('solo407-kv')&&hub.includes('Играть в 15 дел бесплатно'),'Who Lies hub showcase'],
+    [hub.includes('solo407-kv')&&hub.includes('Играть в 10 дел бесплатно'),'Who Lies hub showcase'],
     [hub.includes('../assets/solo-hub-kto-vret.css?v=1.0.0'),'Who Lies showcase stylesheet'],
     [hub.includes('На контрольных точках фиксируете рабочую гипотезу; игра не сообщает, правы ли вы, пока дело не раскрыто.')&&!hub.includes('На контрольных точках фиксируете только то, что уже доказано материалами.'),'player-owned checkpoint promise'],
     [game.includes('data-solo407-app')&&game.includes('case-407-solo.js'),'solo case runtime'],

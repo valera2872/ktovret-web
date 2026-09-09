@@ -69,7 +69,16 @@ jobs:
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/payment-status-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/tbank-webhook-last-aria/index.ts
           grep -q "productId:'volume1'" assets/paid-access-config.js
-          grep -q "VOLUME1_PRICE_RUB" supabase/functions/create-checkout/index.ts
+          grep -q "volume1:{label:'Том I',priceRub:199,caseCount:50}" assets/paid-access-config.js
+          grep -q "volume2:{label:'Том II',priceRub:199,caseCount:50}" assets/paid-access-config.js
+          grep -q "volume_bundle_1_2:{label:'Том I + Том II',priceRub:299,caseCount:100" assets/paid-access-config.js
+          grep -q "volume1:" supabase/functions/_shared/payment.ts
+          grep -q "volume2:" supabase/functions/_shared/payment.ts
+          grep -q "volume_bundle_1_2:" supabase/functions/_shared/payment.ts
+          grep -q "priceRub: 199" supabase/functions/_shared/payment.ts
+          grep -q "priceRub: 299" supabase/functions/_shared/payment.ts
+          grep -q "productFor(requestedProductId)" supabase/functions/create-checkout/index.ts
+          grep -q "legacy_volume_all" supabase/functions/_shared/payment.ts
       - name: Validate backend transport contract
         working-directory: web
         run: node tools/validate-coop-last-aria-backend.mjs
@@ -100,11 +109,12 @@ jobs:
           grep -q 'второй игрок бесплатно' detektivnye-igry-dlya-dvoih/index.html
           ! grep -q 'poslednyaya-ariya' sitemap.xml
           ! grep -q 'ложное аудиоалиби' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          ! grep -Eqi '15[[:space:]]+бесплатн|ещ[ёе][[:space:]]+85[[:space:]]+дел|85[[:space:]]+дополнительных[[:space:]]+дел' detektivnye-igry-dlya-dvoih/index.html
       - name: Validate CTR-first SEO modernization
         working-directory: web
         run: |
-          grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел без регистрации</title>' index.html
-          grep -Fq '15 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.' index.html
+          grep -Fq '<title>Детективные игры онлайн — 10 бесплатных дел без регистрации</title>' index.html
+          grep -Fq '10 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.' index.html
           grep -Fq '<h1>Детективные<br>игры онлайн</h1>' index.html
           grep -Fq '>Играть бесплатно</a>' index.html
           grep -Fq '>Для двоих</a>' index.html
@@ -117,6 +127,7 @@ jobs:
           grep -Fq '<title>Онлайн-расследование «Последний звонок в 23:17» — детективная игра</title>' detektivnye-igry-dlya-dvoih/2317/index.html
           grep -Fq '<title>Онлайн-расследование «Номер 407» — детективная игра</title>' detektivnye-igry-dlya-dvoih/407/index.html
           grep -Fq '<title>Онлайн-расследование «Последняя ария» — детективная игра</title>' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          ! grep -Eqi '15[[:space:]]+бесплатн|первые[[:space:]]+15[[:space:]]+доступны[[:space:]]+бесплатно|Играть[[:space:]]+в[[:space:]]+15[[:space:]]+дел' detektivnye-igry-dlya-odnogo/index.html
       - name: Browser smoke both roles, final and reveal
         working-directory: web
         run: node tools/last-aria-browser-smoke.mjs

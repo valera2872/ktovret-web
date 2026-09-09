@@ -68,7 +68,7 @@ jobs:
         run: |
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceV41Version": "4.1.4"' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "5.0.0"' assets/generated/import-report.json
           grep -q 'storefront-reference-v41.css' index.html
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
@@ -80,10 +80,14 @@ jobs:
           grep -q 'data-volume-offer-accept' tom-1/index.html
           grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
-          grep -q '99 ₽' tom-1/index.html
-          grep -q '15 дел' dela/index.html
-          grep -q '"freeCases": 15' assets/generated/import-report.json
-          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '199 ₽' tom-1/index.html
+          grep -q '299 ₽' tom-1/index.html
+          grep -q '10 бесплатных дел' dela/index.html
+          grep -q '"totalCases": 110' assets/generated/import-report.json
+          grep -q '"freeCases": 10' assets/generated/import-report.json
+          grep -q '"premiumCases": 100' assets/generated/import-report.json
+          grep -q '"volume1Cases": 50' assets/generated/import-report.json
+          grep -q '"volume2Cases": 50' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
           grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
