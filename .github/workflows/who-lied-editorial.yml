@@ -1,0 +1,62 @@
+name: Validate Who Lied editorial gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/who-lied-editorial.yml'
+      - 'admin/cases/**'
+      - 'admin/puzzles/**'
+      - 'assets/case-admin.*'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/import-mobile/who-lied-commercial-copy-postprocess.mjs'
+      - 'tools/puzzle-editorial-release-validate.mjs'
+      - 'supabase/functions/puzzle-editorial/**'
+      - 'supabase/migrations/*who_lied_case*'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/who-lied-editorial.yml'
+      - 'admin/cases/**'
+      - 'admin/puzzles/**'
+      - 'assets/case-admin.*'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/import-mobile/who-lied-commercial-copy-postprocess.mjs'
+      - 'tools/puzzle-editorial-release-validate.mjs'
+      - 'supabase/functions/puzzle-editorial/**'
+      - 'supabase/migrations/*who_lied_case*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate admin and release contracts
+        run: |
+          set -euo pipefail
+          test -f admin/cases/index.html
+          test -f assets/case-admin.js
+          test -f assets/case-admin.css
+          grep -q 'noindex,nofollow,noarchive' admin/cases/index.html
+          grep -q 'Утверждение дел «Кто врёт?»' admin/cases/index.html
+          grep -q "const KIND = 'who_lied_case'" assets/case-admin.js
+          grep -q 'kind=${encodeURIComponent(KIND)}' assets/case-admin.js
+          grep -q 'Не опубликовано. Ждёт вашего решения.' assets/case-admin.js
+          grep -q "'who_lied_case'" supabase/functions/puzzle-editorial/index.ts
+          grep -q "who_lied_case" supabase/migrations/20260909102500_allow_who_lied_case_editorial_kind.sql
+          grep -q 'approved-manifest&kind=who_lied_case' tools/puzzle-editorial-release-validate.mjs
+          grep -q 'production supplement must contain exactly 10 reviewed cases' tools/puzzle-editorial-release-validate.mjs
+          grep -q '10 бесплатных законченных дел' tools/import-mobile/who-lied-commercial-copy-postprocess.mjs
+          grep -q 'двух томах по 50 дел' tools/import-mobile/who-lied-commercial-copy-postprocess.mjs
+          ! grep -q '15 бесплатных законченных дел' tools/import-mobile/who-lied-commercial-copy-postprocess.mjs
+          node --check assets/case-admin.js
+          node --check tools/import-mobile-cases.mjs
+          node --check tools/import-mobile/who-lied-commercial-copy-postprocess.mjs
+          node --check tools/puzzle-editorial-release-validate.mjs
