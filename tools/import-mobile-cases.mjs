@@ -30,6 +30,7 @@ import {applyStorefrontVolumeSales} from './import-mobile/storefront-volume-sale
 import {applyLogicHub} from './import-mobile/logic-hub-postprocess.mjs';
 import {applyLogicExpertSeo} from './import-mobile/logic-expert-seo-postprocess.mjs';
 import {applyLogicAudienceExpansion} from './import-mobile/logic-audience-postprocess.mjs';
+import {normalizeWhoLiedCommercialCopy} from './import-mobile/who-lied-commercial-copy-postprocess.mjs';
 import {preserveLogicAudienceLaunchMarker} from './import-mobile/logic-audience-release-compat.mjs';
 import {resolvePuzzleEditorialGate} from './import-mobile/puzzle-editorial-gate.mjs';
 import {applyLogicSitewide} from './import-mobile/logic-sitewide-postprocess.mjs';
@@ -96,6 +97,7 @@ const puzzleEditorial=editorial
 const logicAudience=puzzleEditorial.ready
   ? applyLogicAudienceExpansion(siteRoot)
   : {version:'1.0.0',routes:[],puzzles:0,collections:0,mainPatched:false,adultPatched:false,homePatched:false,kids:0,brain:0,detective:0,math:0,matches:0};
+normalizeWhoLiedCommercialCopy(siteRoot);
 const logicAudienceLaunchCompat=logicAudience.homePatched?preserveLogicAudienceLaunchMarker(siteRoot):false;
 const logicSitewide=applyLogicSitewide(siteRoot);
 const funnelAnalytics=applyFunnelAnalytics(siteRoot);

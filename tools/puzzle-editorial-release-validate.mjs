@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const tokens=process.argv.slice(2),args={};
 for(let i=0;i<tokens.length;i++) if(tokens[i].startsWith('--')) args[tokens[i].slice(2)]=tokens[i+1]&&!tokens[i+1].startsWith('--')?tokens[++i]:'true';
@@ -10,6 +11,12 @@ const exists=rel=>fs.existsSync(path.join(root,rel));
 const assert=(condition,message)=>{if(!condition)throw new Error(`puzzle editorial release: ${message}`)};
 const countDirs=rel=>exists(rel)?fs.readdirSync(path.join(root,rel),{withFileTypes:true}).filter(item=>item.isDirectory()).length:0;
 const BASE_INDEXABLE_URLS=44;
+const canonical=value=>{
+  if(Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if(value&&typeof value==='object') return `{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+};
+const fingerprint=value=>crypto.createHash('sha256').update(canonical(value)).digest('hex');
 
 const report=JSON.parse(read('assets/generated/import-report.json'));
 const sitemap=read('sitemap.xml');
@@ -76,4 +83,22 @@ if(ready){
   }
   assert(!sitemap.includes('https://mysterylogic.com/golovolomki/'),'locked sitemap leaked quick puzzles');
   console.log(`Puzzle editorial release LOCKED: ${report.logicAudienceEditorialExactApproved||0}/37 exact approvals; no publishable approved subset.`);
+}
+
+const productionWhoLiedGate=process.env.GITHUB_WORKFLOW==='Build Mystery Logic production bundle for Beget'&&process.env.GITHUB_EVENT_NAME==='push';
+if(productionWhoLiedGate){
+  assert(exists('content/who-lied-volume-2-supplement.json'),'Who Lied supplement file missing');
+  const supplement=JSON.parse(read('content/who-lied-volume-2-supplement.json'));
+  const cases=Array.isArray(supplement.cases)?supplement.cases:[];
+  assert(cases.length===10,'Who Lied production supplement must contain exactly 10 reviewed cases');
+  const response=await fetch('https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/puzzle-editorial?mode=approved-manifest&kind=who_lied_case',{headers:{accept:'application/json'}});
+  assert(response.ok,`Who Lied approval manifest unavailable: HTTP ${response.status}`);
+  const manifest=await response.json();
+  assert(manifest?.kind==='who_lied_case','Who Lied approval manifest kind mismatch');
+  assert(Number(manifest?.count||0)===10,'Who Lied production release requires exactly 10 approved cases');
+  const approved=new Set((manifest.puzzles||[]).map(item=>String(item.fingerprint||'')));
+  for(const item of cases){
+    assert(approved.has(fingerprint(item)),`unapproved Who Lied case in production supplement: ${item.id||item.title||'unknown'}`);
+  }
+  console.log('Who Lied editorial gate READY: all 10 production supplement cases match owner-approved drafts.');
 }
