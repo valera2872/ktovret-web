@@ -5,17 +5,17 @@ on:
     branches: [main]
     paths:
       - 'admin/solo-guided-preview/**'
-      - 'assets/solo-guided-preview-v2.mjs'
+      - 'assets/solo-guided-preview-v3.js'
       - 'assets/solo-guided-preview.css'
-      - 'tools/validate-solo-guided-preview-v2.mjs'
+      - 'tools/validate-solo-guided-preview-v3.mjs'
       - '.github/workflows/solo-guided-preview.yml'
   push:
     branches: [main]
     paths:
       - 'admin/solo-guided-preview/**'
-      - 'assets/solo-guided-preview-v2.mjs'
+      - 'assets/solo-guided-preview-v3.js'
       - 'assets/solo-guided-preview.css'
-      - 'tools/validate-solo-guided-preview-v2.mjs'
+      - 'tools/validate-solo-guided-preview-v3.mjs'
       - '.github/workflows/solo-guided-preview.yml'
 
 jobs:
@@ -27,10 +27,10 @@ jobs:
         with:
           node-version: 22
       - name: Validate client syntax
-        run: node --check assets/solo-guided-preview-v2.mjs
-      - name: Validate startup contract
-        run: node tools/validate-solo-guided-preview-v2.mjs
+        run: node --check assets/solo-guided-preview-v3.js
+      - name: Validate no-boot startup contract
+        run: node tools/validate-solo-guided-preview-v3.mjs
       - name: Protect Russian player copy
         run: |
           ! grep -n '—' admin/solo-guided-preview/index.html
-          ! grep -n '—' assets/solo-guided-preview-v2.mjs
+          ! grep -n '—' assets/solo-guided-preview-v3.js
