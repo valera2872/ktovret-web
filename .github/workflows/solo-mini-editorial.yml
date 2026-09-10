@@ -1,0 +1,36 @@
+name: Validate Solo Mini editorial review gate
+
+on:
+  pull_request:
+    paths:
+      - 'admin/solo-mini/**'
+      - 'assets/solo-mini-admin.*'
+      - 'supabase/functions/puzzle-editorial/index.ts'
+      - 'supabase/migrations/*solo_mini*'
+      - '.github/workflows/solo-mini-editorial.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin/solo-mini/**'
+      - 'assets/solo-mini-admin.*'
+      - 'supabase/functions/puzzle-editorial/index.ts'
+      - 'supabase/migrations/*solo_mini*'
+      - '.github/workflows/solo-mini-editorial.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate admin runtime syntax
+        run: node --check assets/solo-mini-admin.js
+      - name: Validate private review page
+        run: |
+          grep -q 'noindex,nofollow,noarchive' admin/solo-mini/index.html
+          grep -q 'Mini-расследования' admin/solo-mini/index.html
+          grep -q "const KIND = 'solo_mini_case'" assets/solo-mini-admin.js
+      - name: Validate isolated editorial kind
+        run: |
+          grep -q "'solo_mini_case'" supabase/functions/puzzle-editorial/index.ts
+          grep -q 'solo_mini_case' supabase/migrations/*solo_mini*.sql
+          grep -q 'approved-manifest' supabase/functions/puzzle-editorial/index.ts
