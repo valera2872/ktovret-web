@@ -17,13 +17,15 @@ assert(migration.includes('alter table public.puzzle_editorial_queue enable row 
 assert(migration.includes('revoke all on table public.puzzle_editorial_queue from anon, authenticated'),'client grants not revoked');
 assert(migration.includes('grant select, insert, update, delete on table public.puzzle_editorial_queue to service_role'),'service role grant missing');
 assert(edge.includes("url.searchParams.get('mode') === 'approved-manifest'"),'approved manifest missing');
-assert(edge.includes(".eq('kind', 'quick')"),'public release manifest must stay quick-only');
+assert(edge.includes("const EDITORIAL_KINDS = ['quick', 'expert', 'who_lied_case', 'solo_mini_case']"),'isolated editorial kinds missing');
+assert(edge.includes("url.searchParams.get('kind') || 'quick'"),'quick must remain default public release manifest kind');
+assert(edge.includes(".eq('kind', kind)"),'manifest must be scoped to requested validated kind');
 assert(edge.includes(".eq('moderation_status', 'approved')"),'manifest is not approved-only');
 assert(edge.includes('fingerprint: await sha256(canonical(row.content))'),'manifest fingerprint missing');
-assert(!/approved-manifest[\s\S]{0,900}content:\s*row\.content/.test(edge),'public manifest leaks puzzle content');
+assert(!/approved-manifest[\s\S]{0,1200}content:\s*row\.content/.test(edge),'public manifest leaks puzzle content');
 assert(edge.includes('if (!(await authorize(req, admin)))'),'owner authorization missing');
 assert(edge.includes(".from('review_moderation_access')"),'shared moderator access table missing');
-assert(edge.includes('/^(quick|expert):[A-Za-z0-9_-]+$/'),'Expert moderation IDs not allowed');
+assert(edge.includes('/^(quick|expert|who_lied_case|solo_mini_case):[A-Za-z0-9_-]+$/'),'isolated moderation IDs not allowed');
 assert(admin.includes('noindex,nofollow,noarchive'),'admin robots guard missing');
 assert(admin.includes('data-tab="pending"')&&admin.includes('data-tab="approved"')&&admin.includes('data-tab="rejected"'),'admin moderation tabs missing');
 assert(admin.includes('data-filter="matches"')&&admin.includes('data-filter="expert"')&&admin.includes('Expert — ретропроверка'),'legacy Expert separation missing');
