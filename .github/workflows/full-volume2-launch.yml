@@ -8,6 +8,7 @@ on:
       - 'content/volume2-launch/**'
       - 'content/who-lied-volume-2-supplement.json'
       - 'tools/release/assemble-volume2-launch.mjs'
+      - 'tools/release/normalize-full-volume2-launch.py'
       - 'tools/release/validate-full-volume2-launch.py'
       - 'tools/release/apply-ai01-banners.py'
       - 'tools/import-mobile/**'
@@ -68,6 +69,7 @@ jobs:
           node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
           node tools/enable-volume-checkout.mjs --site .
           python tools/release/apply-ai01-banners.py .
+          python tools/release/normalize-full-volume2-launch.py .
 
       - name: Validate exact 10 + 50 + 50 contract
         working-directory: web
