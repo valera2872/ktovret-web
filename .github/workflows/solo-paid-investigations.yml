@@ -1,0 +1,47 @@
+name: Validate paid Solo investigations
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/solo-investigations/volume-1/**'
+      - 'assets/solo-paid-access-config.js'
+      - 'assets/solo-investigations-checkout.js'
+      - 'assets/solo-investigations-player.js'
+      - 'assets/solo-paid-investigations.css'
+      - 'tools/import-mobile/solo-paid-investigations-postprocess.mjs'
+      - 'tools/import-mobile/solo-hub-kto-vret-polish.mjs'
+      - 'tools/solo-paid-investigations-validate.mjs'
+      - '.github/workflows/solo-paid-investigations.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/solo-investigations/volume-1/**'
+      - 'assets/solo-paid-access-config.js'
+      - 'assets/solo-investigations-checkout.js'
+      - 'assets/solo-investigations-player.js'
+      - 'assets/solo-paid-investigations.css'
+      - 'tools/import-mobile/solo-paid-investigations-postprocess.mjs'
+      - 'tools/import-mobile/solo-hub-kto-vret-polish.mjs'
+      - 'tools/solo-paid-investigations-validate.mjs'
+      - '.github/workflows/solo-paid-investigations.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax
+        run: |
+          node --check assets/solo-investigations-checkout.js
+          node --check assets/solo-investigations-player.js
+          node --check tools/import-mobile/solo-paid-investigations-postprocess.mjs
+          node --check tools/solo-paid-investigations-validate.mjs
+      - name: Content, routes, price and gate contract
+        run: node tools/solo-paid-investigations-validate.mjs
