@@ -12,6 +12,7 @@ on:
       - 'tools/import-mobile/solo-paid-investigations-postprocess.mjs'
       - 'tools/import-mobile/solo-hub-kto-vret-polish.mjs'
       - 'tools/solo-paid-investigations-validate.mjs'
+      - 'tools/release/generate-solo-v1-supabase-seed.mjs'
       - '.github/workflows/solo-paid-investigations.yml'
   push:
     branches: [main]
@@ -24,6 +25,7 @@ on:
       - 'tools/import-mobile/solo-paid-investigations-postprocess.mjs'
       - 'tools/import-mobile/solo-hub-kto-vret-polish.mjs'
       - 'tools/solo-paid-investigations-validate.mjs'
+      - 'tools/release/generate-solo-v1-supabase-seed.mjs'
       - '.github/workflows/solo-paid-investigations.yml'
 
 permissions:
@@ -43,5 +45,15 @@ jobs:
           node --check assets/solo-investigations-player.js
           node --check tools/import-mobile/solo-paid-investigations-postprocess.mjs
           node --check tools/solo-paid-investigations-validate.mjs
+          node --check tools/release/generate-solo-v1-supabase-seed.mjs
       - name: Content, routes, price and gate contract
         run: node tools/solo-paid-investigations-validate.mjs
+      - name: Generate reviewable Supabase seed
+        run: node tools/release/generate-solo-v1-supabase-seed.mjs . artifacts/solo-investigations-v1-payloads.sql
+      - name: Upload Solo seed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solo-investigations-v1-supabase-seed
+          path: artifacts/solo-investigations-v1-payloads.sql
+          retention-days: 7
+          if-no-files-found: error
