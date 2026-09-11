@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-export const PRODUCT_ID = 'volume1'; // legacy default for old clients
+export const PRODUCT_ID = 'volume1'; // stable legacy-compatible product id
 export const LEGACY_VOLUME_ALL_PRODUCT_ID = 'legacy_volume_all';
 export const CURRENT_WHO_LIED_OFFER_VERSION = '2026-09-06';
 export const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
@@ -11,27 +11,11 @@ export const YOOKASSA_SECRET_KEY = Deno.env.get('YOOKASSA_SECRET_KEY') || '';
 export const PRODUCT_CATALOG = {
   volume1: {
     id: 'volume1',
-    label: 'Том I',
+    label: 'Полный архив «Кто врёт?»',
     priceRub: 199,
-    receiptName: 'Mystery Logic — «Кто врёт?», Том I (50 дел)',
-    description: 'Mystery Logic — «Кто врёт?», Том I: 50 расследований',
+    receiptName: 'Mystery Logic — «Кто врёт?», полный архив (85 дел)',
+    description: 'Mystery Logic — «Кто врёт?»: 85 платных расследований',
     entitlementProductIds: ['volume1'],
-  },
-  volume2: {
-    id: 'volume2',
-    label: 'Том II',
-    priceRub: 199,
-    receiptName: 'Mystery Logic — «Кто врёт?», Том II (50 дел)',
-    description: 'Mystery Logic — «Кто врёт?», Том II: 50 расследований',
-    entitlementProductIds: ['volume2'],
-  },
-  volume_bundle_1_2: {
-    id: 'volume_bundle_1_2',
-    label: 'Том I + Том II',
-    priceRub: 299,
-    receiptName: 'Mystery Logic — «Кто врёт?», Том I + Том II (100 дел)',
-    description: 'Mystery Logic — «Кто врёт?»: два тома, 100 расследований',
-    entitlementProductIds: ['volume1', 'volume2'],
   },
 } as const;
 
