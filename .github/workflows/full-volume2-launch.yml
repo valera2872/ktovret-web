@@ -1,0 +1,164 @@
+name: Full Mystery Logic Volume II launch
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/full-volume2-launch.yml'
+      - 'content/volume2-launch/**'
+      - 'content/who-lied-volume-2-supplement.json'
+      - 'tools/release/assemble-volume2-launch.mjs'
+      - 'tools/release/validate-full-volume2-launch.py'
+      - 'tools/release/apply-ai01-banners.py'
+      - 'tools/import-mobile/**'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/enable-volume-checkout.mjs'
+      - 'assets/paid-access-config.js'
+      - 'assets/volume-storefront.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+
+jobs:
+  build-full-launch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "Repository secret KTOVRET_SOURCE_TOKEN is required" && exit 1)
+
+      - name: Checkout web release
+        uses: actions/checkout@v4
+        with:
+          path: web
+
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install release helper
+        run: python -m pip install --quiet beautifulsoup4
+
+      - name: Assemble ten new Volume II cases
+        working-directory: web
+        run: node tools/release/assemble-volume2-launch.mjs .
+
+      - name: Generate full public site
+        working-directory: web
+        run: |
+          set -euo pipefail
+          node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+          node tools/enable-volume-checkout.mjs --site .
+          python tools/release/apply-ai01-banners.py .
+
+      - name: Validate exact 10 + 50 + 50 contract
+        working-directory: web
+        run: |
+          set -euo pipefail
+          python tools/release/validate-full-volume2-launch.py .
+          node --check assets/volume-storefront.js
+          node --check assets/paid-case-loader.js
+          node --check assets/ai-detective-vslice.js
+          node --check assets/ai01-feedback.js
+          node --check assets/player-feedback.js
+          node --check assets/social-proof.js
+          node --check assets/review-admin.js
+
+      - name: Prepare exact Beget runtime
+        run: |
+          set -euo pipefail
+          cp -a web production-web
+          rm -rf \
+            production-web/.git production-web/.github production-web/tools production-web/tests \
+            production-web/artifacts production-web/supabase production-web/node_modules production-web/docs \
+            production-web/ops production-web/old.bac production-web/admin/ai01-live-preview \
+            production-web/content/volume2-launch
+          rm -f \
+            production-web/.gitignore production-web/preview-all-100.cmd production-web/README.md \
+            production-web/PROJECT_CHECKPOINT.md production-web/package.json production-web/package-lock.json \
+            production-web/site-origin.json production-web/release-web-mvp-0.1.0.txt \
+            production-web/content/who-lied-volume-2-supplement.json \
+            production-web/assets/ai-liveavatar-factory.js production-web/assets/vendor/liveavatar-web-sdk.mjs
+          rmdir production-web/content 2>/dev/null || true
+          rmdir production-web/assets/vendor 2>/dev/null || true
+          cat > production-web/.htaccess <<'HTACCESS'
+          Options -Indexes
+          DirectoryIndex index.html index.php
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{HTTPS} !=on [OR]
+            RewriteCond %{HTTP_HOST} !^mysterylogic\.com$ [NC]
+            RewriteRule ^ https://mysterylogic.com%{REQUEST_URI} [L,R=301]
+          </IfModule>
+          <IfModule mod_headers.c>
+            Header always set X-Content-Type-Options "nosniff"
+            Header always set Referrer-Policy "strict-origin-when-cross-origin"
+          </IfModule>
+          HTACCESS
+
+      - name: Stamp cache keys
+        id: release
+        run: |
+          set -euo pipefail
+          release="${GITHUB_SHA::12}"
+          echo "id=$release" >> "$GITHUB_OUTPUT"
+          while IFS= read -r -d '' file; do
+            sed -i -E "s/\?v=[0-9A-Za-z._-]+/?v=${release}/g" "$file"
+          done < <(find production-web -type f -name '*.html' -print0)
+
+      - name: Validate stripped runtime
+        env:
+          RELEASE: ${{ steps.release.outputs.id }}
+        run: |
+          set -euo pipefail
+          test -f production-web/.htaccess
+          test ! -d production-web/tools
+          test ! -d production-web/supabase
+          test "$(find production-web/delo -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
+          test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
+          test "$(find production-web/delo -mindepth 1 -maxdepth 1 -type d -regextype posix-extended -regex '.*/(10[1-9]|110)-.*' | wc -l)" -eq 10
+          grep -q '"totalCases":110' production-web/assets/generated/cases-index.json
+          grep -q '"freeCount":10' production-web/assets/generated/cases-index.json
+          grep -q '"volume1Count":50' production-web/assets/generated/cases-index.json
+          grep -q '"volume2Count":50' production-web/assets/generated/cases-index.json
+          grep -q "volume_bundle_1_2:{label:'Том I + Том II',priceRub:299,caseCount:100" production-web/assets/paid-access-config.js
+          grep -q 'data-volume-product="volume2"' production-web/tom-1/index.html
+          grep -q 'data-volume-product="volume_bundle_1_2"' production-web/tom-1/index.html
+          grep -q '299 ₽' production-web/tom-1/index.html
+          ! grep -Eq '15[[:space:]]+бесплатн|85[[:space:]]+(дел|расслед)|(^|[^0-9])99[[:space:]]*₽' production-web/index.html production-web/dela/index.html production-web/kto-vret/index.html production-web/kto-vret-igra/index.html production-web/tom-1/index.html
+          grep -q "ai01-feature-banner.css?v=${RELEASE}" production-web/index.html
+
+      - name: Package full launch artifact
+        working-directory: production-web
+        run: zip -qr ../mysterylogic-full-volume2-launch.zip .
+
+      - name: Upload full launch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-full-volume2-launch
+          path: mysterylogic-full-volume2-launch.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          echo "Full launch artifact built only; no Beget auto-deploy performed."
+          echo "Contract: 10 free + Volume I 50 / 199 RUB + Volume II 50 / 199 RUB + bundle 100 / 299 RUB."
