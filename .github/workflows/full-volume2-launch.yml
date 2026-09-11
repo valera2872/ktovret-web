@@ -139,26 +139,12 @@ jobs:
           done < <(find production-web -type f -name '*.html' -print0)
 
       - name: Validate stripped runtime
-        env:
-          RELEASE: ${{ steps.release.outputs.id }}
         run: |
           set -euo pipefail
           test -f production-web/.htaccess
           test ! -d production-web/tools
           test ! -d production-web/supabase
-          test "$(find production-web/delo -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
-          test "$(find production-web/ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
-          test "$(find production-web/delo -mindepth 1 -maxdepth 1 -type d -regextype posix-extended -regex '.*/(10[1-9]|110)-.*' | wc -l)" -eq 10
-          grep -q '"totalCases":110' production-web/assets/generated/cases-index.json
-          grep -q '"freeCount":10' production-web/assets/generated/cases-index.json
-          grep -q '"volume1Count":50' production-web/assets/generated/cases-index.json
-          grep -q '"volume2Count":50' production-web/assets/generated/cases-index.json
-          grep -q "volume_bundle_1_2:{label:'Том I + Том II',priceRub:299,caseCount:100" production-web/assets/paid-access-config.js
-          grep -q 'data-volume-product="volume2"' production-web/tom-1/index.html
-          grep -q 'data-volume-product="volume_bundle_1_2"' production-web/tom-1/index.html
-          grep -q '299 ₽' production-web/tom-1/index.html
-          ! grep -Eq '15[[:space:]]+бесплатн|85[[:space:]]+(дел|расслед)|(^|[^0-9])99[[:space:]]*₽' production-web/index.html production-web/dela/index.html production-web/kto-vret/index.html production-web/kto-vret-igra/index.html production-web/tom-1/index.html
-          grep -q "ai01-feature-banner.css?v=${RELEASE}" production-web/index.html
+          python web/tools/release/validate-full-volume2-launch.py production-web
 
       - name: Package full launch artifact
         working-directory: production-web
