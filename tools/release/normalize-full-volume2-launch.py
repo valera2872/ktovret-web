@@ -18,6 +18,10 @@ patches={
 ],
 'tom-1/index.html':[
 ('Экономия 99 ₽ относительно покупки по отдельности.','Выгоднее покупки двух томов по отдельности.'),
+('Цифровой доступ к полному первому тому: 100 логических расследований, из которых 15 доступны бесплатно, а 85 открываются одной покупкой.','Цифровой доступ к двум платным томам Mystery Logic: по 50 расследований в каждом. 10 стартовых дел доступны бесплатно.'),
+('"name":"Mystery Logic — Первый том «Кто врёт?»"','"name":"Mystery Logic — Том I и Том II «Кто врёт?»"'),
+('"price":"99"','"price":"299"'),
+('https://valera2872.github.io/ktovret-web/tom-1/','https://mysterylogic.com/tom-1/'),
 ],
 }
 
@@ -34,9 +38,10 @@ for rel,repls in patches.items():
         p.write_text(text,encoding='utf-8')
         changed.append(rel)
 
-# Explicit user-facing stale phrases are forbidden after the full launch.
-# Only exact commercial phrases are touched; unrelated numbers elsewhere are preserved.
+# Exact user-facing commercial phrases. Do not touch unrelated numbers such as
+# "10–15 минут" or case numbers/codes containing 15/85/99.
 html_repls=[
+('15 бесплатных законченных дел','10 бесплатных законченных дел'),
 ('15 бесплатных дел','10 бесплатных дел'),
 ('15 бесплатных расследований','10 бесплатных расследований'),
 ('15 дел доступны бесплатно','10 дел доступны бесплатно'),
@@ -47,6 +52,8 @@ html_repls=[
 ('первые 15 дел','первые 10 дел'),
 ('Первые 15 расследований','Первые 10 расследований'),
 ('первые 15 расследований','первые 10 расследований'),
+('>85</strong><p>дополнительных дел<br>в полном Томе', '>50</strong><p>дел<br>в полном Томе'),
+('85 дополнительных дел','50 дел'),
 ]
 for p in root.rglob('*.html'):
     parts=set(p.relative_to(root).parts)
