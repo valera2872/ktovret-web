@@ -9,7 +9,9 @@ const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');
 const exists=rel=>fs.existsSync(path.join(root,rel));
 const assert=(condition,message)=>{if(!condition)throw new Error(`puzzle editorial release: ${message}`)};
 const countDirs=rel=>exists(rel)?fs.readdirSync(path.join(root,rel),{withFileTypes:true}).filter(item=>item.isDirectory()).length:0;
-const BASE_INDEXABLE_URLS=44;
+// Baseline for the restored Who Lied catalog: 100 case SEO routes plus the existing
+// non-audience indexable hubs/collections. Audience collections are added below.
+const BASE_INDEXABLE_URLS=133;
 
 const report=JSON.parse(read('assets/generated/import-report.json'));
 const sitemap=read('sitemap.xml');
