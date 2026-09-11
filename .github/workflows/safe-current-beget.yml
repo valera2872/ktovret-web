@@ -1,0 +1,324 @@
+name: Safe current Mystery Logic release to Beget
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/safe-current-beget.yml'
+      - 'tools/release/**'
+      - 'assets/ai01-feature-banner.css'
+      - 'assets/ai01-home-banner.webp'
+      - 'assets/ai01-mobile-banner.webp'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
+  KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
+  MYSTERYLOGIC_SITE_ORIGIN: https://mysterylogic.com/
+
+concurrency:
+  group: mysterylogic-safe-current-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Require private source token
+        run: test -n "$KTOVRET_SOURCE_TOKEN" || (echo "Repository secret KTOVRET_SOURCE_TOKEN is required" && exit 1)
+
+      - name: Checkout web release
+        uses: actions/checkout@v4
+        with:
+          path: web
+
+      - name: Checkout private mobile content
+        uses: actions/checkout@v4
+        with:
+          repository: valera2872/ktovret
+          ref: ${{ env.KTOVRET_SOURCE_COMMIT }}
+          path: mobile-source
+          persist-credentials: false
+          token: ${{ env.KTOVRET_SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install safe release helper
+        run: python -m pip install --quiet beautifulsoup4
+
+      - name: Generate current public site
+        working-directory: web
+        run: |
+          set -euo pipefail
+          node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+          node tools/enable-volume-checkout.mjs --site .
+
+      - name: Apply approved safe release state
+        working-directory: web
+        run: |
+          set -euo pipefail
+          python tools/release/safe-current-release.py .
+          python tools/release/apply-ai01-banners.py .
+
+      - name: Validate exact commercial and SEO state
+        working-directory: web
+        run: |
+          set -euo pipefail
+          test "$(find delo -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(grep -rl 'window.KtoVretWeb=' delo/*/index.html | wc -l)" -eq 10
+          test "$(grep -rlE 'Материалы(, показания)? и решение не загружаются' delo/*/index.html | wc -l)" -eq 90
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 10
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 90
+          test "$(grep -rl 'name=\"robots\" content=\"noindex,follow\"' ru/cases/*/index.html | wc -l)" -eq 90
+          ! find delo ru/cases -mindepth 1 -maxdepth 1 -type d -regextype posix-extended -regex '.*/(10[1-9]|110)-.*' | grep -q .
+
+          grep -q '"totalCases":100' assets/generated/cases-index.json
+          grep -q '"freeCount":10' assets/generated/cases-index.json
+          grep -q '"premiumCount":90' assets/generated/cases-index.json
+          grep -q '"volume1Count":50' assets/generated/cases-index.json
+          grep -q '"volume2Count":40' assets/generated/cases-index.json
+
+          grep -q 'Том I «Кто врёт?» — 50 детективных дел за 199 ₽' tom-1/index.html
+          grep -q '50 расследований за 199 ₽' tom-1/index.html
+          grep -q 'Том II готовится' tom-1/index.html
+          grep -q "priceRub:199" assets/paid-access-config.js
+          grep -q "caseCount:50" assets/paid-access-config.js
+          ! grep -q 'volume_bundle_1_2' assets/paid-access-config.js
+          ! grep -q 'data-volume-product="volume2"' tom-1/index.html
+          ! grep -q 'data-volume-product="volume_bundle_1_2"' tom-1/index.html
+          ! grep -q '299 ₽' tom-1/index.html
+
+          ! grep -Eqi '15[[:space:]]+бесплатн|85[[:space:]].*99[[:space:]]*₽|110[[:space:]]+(дел|коротких|активных)|100[[:space:]]+платных|50[[:space:]]*\+[[:space:]]*50' index.html dela/index.html kto-vret/index.html kto-vret-igra/index.html tom-1/index.html detektivnye-igry-dlya-odnogo/index.html detektivnye-igry-dlya-dvoih/index.html ru/besplatnye-detektivnye-dela/index.html
+          ! grep -R -n --include='*.html' -E '\?product=volume2|\?product=volume_bundle_1_2' index.html dela kto-vret kto-vret-igra tom-1 detektivnye-igry-dlya-odnogo detektivnye-igry-dlya-dvoih ru/besplatnye-detektivnye-dela
+
+          test -f detektivnaya-igra-s-ii/index.html
+          test -f assets/ai-detective-vslice.css
+          test -f assets/ai-detective-vslice.js
+          test -f assets/post-case-feedback.js
+          test -f assets/post-case-feedback.css
+          test -f admin/reviews/index.html
+          test -f detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
+          test -f assets/case-aria-storefront.js
+
+          test -f assets/ai01-home-banner.webp
+          test -f assets/ai01-mobile-banner.webp
+          test -f assets/ai01-feature-banner.css
+          grep -q 'data-ai01-feature="home"' index.html
+          grep -q 'data-ai01-feature="solo"' detektivnye-igry-dlya-odnogo/index.html
+          grep -q 'detektivnaya-igra-s-ii/' index.html
+          grep -q 'detektivnaya-igra-s-ii/' detektivnye-igry-dlya-odnogo/index.html
+
+          node --check assets/volume-storefront.js
+          node --check assets/ai-detective-vslice.js
+          node --check assets/post-case-feedback.js
+
+      - name: Prepare exact Beget runtime
+        run: |
+          set -euo pipefail
+          cp -a web production-web
+          rm -rf \
+            production-web/.git production-web/.github production-web/tools production-web/tests \
+            production-web/artifacts production-web/supabase production-web/node_modules production-web/docs \
+            production-web/ops production-web/old.bac production-web/admin/ai01-live-preview
+          rm -f \
+            production-web/.gitignore production-web/preview-all-100.cmd production-web/README.md \
+            production-web/PROJECT_CHECKPOINT.md production-web/package.json production-web/package-lock.json \
+            production-web/site-origin.json production-web/release-web-mvp-0.1.0.txt \
+            production-web/assets/ai-liveavatar-factory.js production-web/assets/vendor/liveavatar-web-sdk.mjs
+          rmdir production-web/assets/vendor 2>/dev/null || true
+          cat > production-web/.htaccess <<'HTACCESS'
+          Options -Indexes
+          DirectoryIndex index.html index.php
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{HTTPS} !=on [OR]
+            RewriteCond %{HTTP_HOST} !^mysterylogic\.com$ [NC]
+            RewriteRule ^ https://mysterylogic.com%{REQUEST_URI} [L,R=301]
+          </IfModule>
+          <IfModule mod_headers.c>
+            Header always set X-Content-Type-Options "nosniff"
+            Header always set Referrer-Policy "strict-origin-when-cross-origin"
+          </IfModule>
+          HTACCESS
+
+      - name: Stamp cache keys
+        id: release
+        run: |
+          set -euo pipefail
+          release="${GITHUB_SHA::12}"
+          echo "id=$release" >> "$GITHUB_OUTPUT"
+          while IFS= read -r -d '' file; do
+            sed -i -E "s/\?v=[0-9A-Za-z._-]+/?v=${release}/g" "$file"
+          done < <(find production-web -type f -name '*.html' -print0)
+
+      - name: Validate runtime before upload
+        env:
+          RELEASE: ${{ steps.release.outputs.id }}
+        run: |
+          set -euo pipefail
+          test -f production-web/.htaccess
+          test -f production-web/assets/ai01-home-banner.webp
+          test -f production-web/assets/ai01-mobile-banner.webp
+          test "$(find production-web/delo -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          ! find production-web/delo -mindepth 1 -maxdepth 1 -type d -regextype posix-extended -regex '.*/(10[1-9]|110)-.*' | grep -q .
+          grep -q 'data-ai01-feature="home"' production-web/index.html
+          grep -q 'data-ai01-feature="solo"' production-web/detektivnye-igry-dlya-odnogo/index.html
+          grep -q "ai01-feature-banner.css?v=${RELEASE}" production-web/index.html
+          grep -q '50 расследований за 199 ₽' production-web/tom-1/index.html
+          ! grep -q '299 ₽' production-web/tom-1/index.html
+          test ! -d production-web/supabase
+          test ! -d production-web/tools
+
+      - name: Package safe release artifact
+        working-directory: production-web
+        run: zip -qr ../mysterylogic-safe-current.zip .
+
+      - name: Upload validated safe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-safe-current
+          path: mysterylogic-safe-current.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Check Beget deployment configuration
+        id: config
+        if: github.event_name != 'pull_request'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PATH: ${{ secrets.BEGET_PATH }}
+          BEGET_PORT: ${{ secrets.BEGET_PORT }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "$BEGET_HOST" ] || missing+=(BEGET_HOST)
+          [ -n "$BEGET_USER" ] || missing+=(BEGET_USER)
+          [ -n "$BEGET_PASSWORD" ] || missing+=(BEGET_PASSWORD)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Beget auto-deploy not armed. Missing: ${missing[*]}"
+            exit 0
+          fi
+          remote_path="${BEGET_PATH:-mysterylogic.com/public_html}"
+          port="${BEGET_PORT:-22}"
+          [ -n "$remote_path" ] && [ "$remote_path" != "/" ] || exit 1
+          case "$port" in (*[!0-9]*|'') exit 1;; esac
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          echo "remote_path=$remote_path" >> "$GITHUB_OUTPUT"
+          echo "port=$port" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare SSH transport
+        if: steps.config.outputs.configured == 'true'
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass rsync
+          mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+          ssh-keyscan -T 10 -p "$BEGET_PORT" -H "$BEGET_HOST" >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Guard target and create rollback archive
+        if: steps.config.outputs.configured == 'true'
+        id: backup
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+          RELEASE: ${{ steps.release.outputs.id }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          target="$BEGET_USER@$BEGET_HOST"
+          backup_name="mysterylogic-safe-${RELEASE}-$(date -u +%Y%m%dT%H%M%SZ).tgz"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$target" \
+            "set -eu; test -d '$BEGET_PATH'; test -f '$BEGET_PATH/index.html'; mkdir -p \"\$HOME/.mysterylogic-deploy-backups\"; tar -C '$BEGET_PATH' -czf \"\$HOME/.mysterylogic-deploy-backups/$backup_name\" ."
+          echo "name=$backup_name" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy validated safe runtime
+        if: steps.config.outputs.configured == 'true'
+        id: deploy
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"
+          rsync -az --delete-delay --delay-updates \
+            --exclude='.well-known/' --exclude='.well-known/***' --exclude='.user.ini' \
+            -e "sshpass -e ssh -p $BEGET_PORT -o StrictHostKeyChecking=yes -o ConnectTimeout=15" \
+            production-web/ "$BEGET_USER@$BEGET_HOST:$BEGET_PATH/"
+
+      - name: Smoke live site
+        if: steps.config.outputs.configured == 'true'
+        id: smoke
+        env:
+          RELEASE: ${{ steps.release.outputs.id }}
+        run: |
+          set -euo pipefail
+          fetch(){ curl --fail --silent --show-error --location --retry 5 --retry-delay 2 --connect-timeout 10 --max-time 30 "$1"; }
+          fetch 'https://mysterylogic.com/' > /tmp/home.html
+          fetch 'https://mysterylogic.com/tom-1/' > /tmp/tom1.html
+          fetch 'https://mysterylogic.com/detektivnye-igry-dlya-odnogo/' > /tmp/solo.html
+          fetch 'https://mysterylogic.com/detektivnaya-igra-s-ii/' > /tmp/ai.html
+          fetch 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/poslednyaya-ariya/' > /tmp/aria.html
+          fetch 'https://mysterylogic.com/assets/ai01-home-banner.webp' > /tmp/banner.webp
+          test -s /tmp/banner.webp
+          grep -q 'data-ai01-feature="home"' /tmp/home.html
+          grep -q 'data-ai01-feature="solo"' /tmp/solo.html
+          grep -q "ai01-feature-banner.css?v=${RELEASE}" /tmp/home.html
+          grep -q '50 расследований за 199 ₽' /tmp/tom1.html
+          ! grep -q '299 ₽' /tmp/tom1.html
+          grep -q 'ai-detective-vslice.js' /tmp/ai.html
+          grep -q 'case-aria-storefront.js' /tmp/aria.html
+          code="$(curl -s -o /dev/null -w '%{http_code}' 'https://mysterylogic.com/delo/101-chek-posle-zakrytiya/' || true)"
+          test "$code" = '404'
+          echo "Live smoke passed for ${RELEASE}"
+
+      - name: Roll back automatically on deploy smoke failure
+        if: failure() && steps.config.outputs.configured == 'true' && steps.backup.outputs.name != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
+        env:
+          BEGET_HOST: ${{ secrets.BEGET_HOST }}
+          BEGET_USER: ${{ secrets.BEGET_USER }}
+          BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+          BEGET_PORT: ${{ steps.config.outputs.port }}
+          BEGET_PATH: ${{ steps.config.outputs.remote_path }}
+          BACKUP_NAME: ${{ steps.backup.outputs.name }}
+        run: |
+          export SSHPASS="$BEGET_PASSWORD"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$BEGET_USER@$BEGET_HOST" \
+            "tar -xzf \"\$HOME/.mysterylogic-deploy-backups/$BACKUP_NAME\" -C '$BEGET_PATH'"
+          echo "::error::Deploy rolled back from $BACKUP_NAME"
+
+      - name: Deployment summary
+        if: always() && github.event_name != 'pull_request'
+        env:
+          CONFIGURED: ${{ steps.config.outputs.configured }}
+          RELEASE: ${{ steps.release.outputs.id }}
+        run: |
+          if [ "$CONFIGURED" = 'true' ]; then
+            echo "Safe Beget deployment attempted for $RELEASE"
+          else
+            echo "Safe artifact built; Beget secrets are not configured in GitHub Actions."
+          fi
