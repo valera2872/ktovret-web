@@ -57,38 +57,53 @@ for product in ['volume1','volume2','volume_bundle_1_2']:
     if f'data-volume-product="{product}"' not in store: fail(f'tom-1 missing selector for {product}')
 for needle in ['Том I','Том II','199 ₽','299 ₽','10']:
     if needle not in store: fail(f'tom-1 missing expected launch copy: {needle}')
-for stale in ['Том II готовится','Продажи ещё не открыты','100 расследований в одном томе']:
-    if stale in store: fail(f'tom-1 still contains stale safe-release copy: {stale}')
+for stale in [
+    'Том II готовится','Продажи ещё не открыты','100 расследований в одном томе',
+    'из которых 15 доступны бесплатно','85 открываются одной покупкой','"price":"99"',
+    'valera2872.github.io/ktovret-web/tom-1/'
+]:
+    if stale in store: fail(f'tom-1 still contains stale offer/schema copy: {stale}')
 
-core=[
-'index.html','dela/index.html','kto-vret/index.html','kto-vret-igra/index.html','tom-1/index.html',
-'detektivnye-igry-onlayn/index.html','detektivnye-igry-dlya-odnogo/index.html',
-'detektivnye-igry-dlya-dvoih/index.html','ru/besplatnye-detektivnye-dela/index.html']
-stale_patterns=[
-(re.compile(r'\b15\s+(?:бесплатн|дел\s+(?:доступ|можно)|полноценных\s+дел)',re.I),'15-free'),
-(re.compile(r'\b85\s+(?:дел|расследован|дополнительн)',re.I),'85-paid'),
-(re.compile(r'перв(?:ые|ых)\s+15\s+(?:дел|расследован)',re.I),'first-15'),
-(re.compile(r'(?<!\d)99\s*₽',re.I),'standalone-99'),
+# Scan the entire public HTML/JS runtime, not only the main screens. These are
+# deliberately narrow commercial signatures so case numbers, code 285 and
+# legitimate phrases such as "10–15 минут" are not false positives.
+sitewide_patterns=[
+    (re.compile(r'15\s+бесплатных(?:\s+законченных)?\s+(?:дел|расследований)',re.I),'15-free'),
+    (re.compile(r'15\s+(?:дел|расследований)\s+(?:доступны|можно)\s+бесплат',re.I),'15-free'),
+    (re.compile(r'перв(?:ые|ых)\s+15\s+(?:дел|расследований)',re.I),'first-15'),
+    (re.compile(r'>\s*85\s*</strong><p>\s*дополнительных\s+дел',re.I),'85-premium-card'),
+    (re.compile(r'85\s+дополнительных\s+дел',re.I),'85-paid'),
+    (re.compile(r'85\s+открываются\s+одной\s+покупкой',re.I),'85-paid'),
+    (re.compile(r'Открыть\s+ещ[ёе]\s+85',re.I),'old-85-cta'),
+    (re.compile(r'Том II готовится|Продажи ещё не открыты',re.I),'disabled-volume2'),
+    (re.compile(r'(?<!\d)99\s*₽',re.I),'standalone-99'),
 ]
-for rel in core:
-    text=read(Path(rel))
-    for pattern,label in stale_patterns:
-        if pattern.search(text): fail(f'{rel}: stale {label} copy')
-
-# Navigation and reusable Who Lied copy must not reintroduce the old offer.
-for rel in ['assets/logic-sitewide.js','assets/review-admin.js','ktovret-game/assets/dossier-nav.js']:
-    p=root/rel
-    if not p.exists(): continue
+for p in root.rglob('*'):
+    if p.suffix.lower() not in {'.html','.js'}: continue
+    parts=set(p.relative_to(root).parts)
+    if parts & {'.git','node_modules','old.bac','artifacts','tests'}: continue
     text=p.read_text(encoding='utf-8',errors='replace')
-    if re.search(r'15\s+бесплатных\s+дел|85\s+дел|Открыть\s+ещ[ёе]\s+85',text,re.I):
-        fail(f'{rel}: stale shared Who Lied offer copy')
+    for pattern,label in sitewide_patterns:
+        if pattern.search(text):
+            fail(f'{p.relative_to(root)}: stale {label} copy')
+
+# Every premium SEO teaser should advertise the actual size of its own volume.
+premium_teasers=0
+for p in (root/'ru/cases').glob('*/index.html') if (root/'ru/cases').exists() else []:
+    text=p.read_text(encoding='utf-8',errors='replace')
+    if 'data-premium-seo-teaser="true"' not in text: continue
+    premium_teasers+=1
+    if '>50</strong><p>дел<br>в полном Томе' not in text:
+        fail(f'{p.relative_to(root)}: premium teaser does not show 50-case volume')
+if premium_teasers!=100:
+    fail(f'expected 100 premium SEO teasers, got {premium_teasers}')
 
 # Ensure premium pages are split exactly 50/50.
 v1=[c for c in cases if c.get('productId')=='volume1']
 v2=[c for c in cases if c.get('productId')=='volume2']
 if len(v1)!=50 or len(v2)!=50: fail(f'volume split is {len(v1)} + {len(v2)}, expected 50 + 50')
 
-# New cases must be structurally deeper than the rejected one-step supplement.
+# New cases must exist in the rendered runtime.
 for c in cases:
     if c.get('id') not in new_ids: continue
     legacy=Path(c.get('legacyPath',''))/'index.html'
@@ -98,4 +113,4 @@ if errors:
     print('FULL VOLUME II LAUNCH VALIDATION FAILED')
     for e in errors: print(f' - {e}')
     raise SystemExit(1)
-print(json.dumps({'ok':True,**expected,'newCases':10,'prices':{'volume1':199,'volume2':199,'bundle':299}},ensure_ascii=False,indent=2))
+print(json.dumps({'ok':True,**expected,'newCases':10,'premiumSeoTeasers':premium_teasers,'prices':{'volume1':199,'volume2':199,'bundle':299}},ensure_ascii=False,indent=2))
