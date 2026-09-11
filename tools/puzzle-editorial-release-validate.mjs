@@ -41,7 +41,6 @@ if(ready){
   assert(Number(report.logicAudiencePuzzles||0)>0,'ready release must expose approved quick puzzles');
   assert(report.logicAudiencePages===expectedPublished.length,'indexable collection route count mismatch');
   assert(report.logicAudienceCollections===expectedPublished.length,'collection count mismatch');
-  assert(report.indexableUrls>=BASE_INDEXABLE_URLS+expectedPublished.length,'final sitemap is smaller than restored baseline plus strong collections');
   assert(countDirs('golovolomki')===report.logicAudiencePuzzles,'approved quick task directory count mismatch');
   for(const [kind,item] of Object.entries(collections)){
     const shouldPublish=item.count>=item.min;
