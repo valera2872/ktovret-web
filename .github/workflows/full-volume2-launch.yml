@@ -11,6 +11,7 @@ on:
       - 'tools/release/generate-volume2-supabase-seed.mjs'
       - 'tools/release/normalize-full-volume2-launch.py'
       - 'tools/release/validate-full-volume2-launch.py'
+      - 'tools/release/validate-volume2-depth.py'
       - 'tools/release/apply-ai01-banners.py'
       - 'tools/import-mobile/**'
       - 'tools/import-mobile-cases.mjs'
@@ -58,6 +59,10 @@ jobs:
 
       - name: Install release helper
         run: python -m pip install --quiet beautifulsoup4
+
+      - name: Validate owner-review depth contract
+        working-directory: web
+        run: python tools/release/validate-volume2-depth.py .
 
       - name: Assemble ten new Volume II cases and server seed
         working-directory: web
