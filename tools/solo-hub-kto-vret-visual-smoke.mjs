@@ -22,9 +22,6 @@ for (const marker of ['.solo407-kv{','.solo407-kv-head','.solo407-kv-cases','.so
   if (!css.includes(marker)) throw new Error(`showcase CSS marker missing: ${marker}`);
 }
 
-// The Solo hub polish now also generates the paid investigation ladder. Mirror the
-// production content inputs in this isolated render tree so the smoke test exercises
-// the same path instead of failing before rendering.
 const paidSource = path.join(repo, 'content', 'solo-investigations', 'volume-1');
 const paidTarget = path.join(renderRoot, 'content', 'solo-investigations', 'volume-1');
 if (!fs.existsSync(paidSource)) throw new Error('Paid Solo source directory missing');
@@ -39,12 +36,13 @@ for (const asset of ['mysterylogic.css','case-407-solo.css','solo-hub-kto-vret.c
 
 const hubFile = path.join(renderRoot, 'detektivnye-igry-dlya-odnogo', 'index.html');
 let hubHtml = fs.readFileSync(hubFile, 'utf8');
-for (const marker of ['<h2 id="solo407-kv-title"><em>«Кто врёт?»</em></h2>','Играть в 10 дел бесплатно','Четыре входа в архив']) {
+for (const marker of ['<h2 id="solo407-kv-title"><em>«Кто врёт?»</em></h2>','Играть в 15 дел бесплатно','Четыре входа в архив','85 дел открываются одним полным архивом за 199 ₽']) {
   if (!hubHtml.includes(marker)) throw new Error(`generated solo hub missing: ${marker}`);
 }
 if (!hubHtml.includes('data-solo-mini-bridge')) throw new Error('free Solo mini bridge missing');
 if (!hubHtml.includes('data-solo-paid-investigations')) throw new Error('paid Solo investigations bridge missing');
 if (hubHtml.includes('А ещё здесь есть')) throw new Error('generated solo hub still frames Who Lies as secondary');
+if (/110\s+коротких|два\s+платных\s+тома/iu.test(hubHtml)) throw new Error('abandoned Who Lied offer returned');
 hubHtml = hubHtml.replace('</body>', `<script>
 requestAnimationFrame(() => {
   const block = document.querySelector('.solo407-kv');
@@ -86,11 +84,11 @@ try {
   }
   const {stdout:dom} = await runChrome([...common,'--window-size=390,3200','--dump-dom',url]);
   if (!dom.includes('data-overflow="false"')) throw new Error('Who Lies showcase horizontal overflow');
-  for (const marker of ['Кто врёт?','Играть в 10 дел бесплатно','Четыре входа в архив','Мини-расследования','Расследования · Том I']) {
+  for (const marker of ['Кто врёт?','Играть в 15 дел бесплатно','Четыре входа в архив','Мини-расследования','Расследования · Том I']) {
     if (!dom.includes(marker)) throw new Error(`Who Lies showcase DOM missing: ${marker}`);
   }
   if (dom.includes('А ещё здесь есть')) throw new Error('Who Lies showcase secondary framing returned');
-  console.log(JSON.stringify({ktoVretShowcase:true,generatedHub:true,freeMini:true,paidSolo:true,desktop:true,mobile:true,horizontalOverflow:false,secondaryFraming:false},null,2));
+  console.log(JSON.stringify({ktoVretShowcase:true,generatedHub:true,freeMini:true,paidSolo:true,whoLiedFree:15,whoLiedPaid:85,desktop:true,mobile:true,horizontalOverflow:false,secondaryFraming:false},null,2));
 } finally {
   await new Promise((resolve) => server.close(resolve));
 }
