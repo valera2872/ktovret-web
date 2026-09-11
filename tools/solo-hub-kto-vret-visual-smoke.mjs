@@ -40,7 +40,7 @@ for (const marker of ['<h2 id="solo407-kv-title"><em>«Кто врёт?»</em></
   if (!hubHtml.includes(marker)) throw new Error(`generated solo hub missing: ${marker}`);
 }
 if (!hubHtml.includes('data-solo-mini-bridge')) throw new Error('free Solo mini bridge missing');
-if (!hubHtml.includes('data-solo-paid-investigations')) throw new Error('paid Solo investigations bridge missing');
+if (!hubHtml.includes('data-solo-paid-bridge')) throw new Error('paid Solo investigations bridge missing');
 if (hubHtml.includes('А ещё здесь есть')) throw new Error('generated solo hub still frames Who Lies as secondary');
 if (/110\s+коротких|два\s+платных\s+тома/iu.test(hubHtml)) throw new Error('abandoned Who Lied offer returned');
 hubHtml = hubHtml.replace('</body>', `<script>
