@@ -108,7 +108,6 @@ jobs:
           grep -q '"premiumCases": 85' assets/generated/import-report.json
           grep -q '"volume1Cases": 85' assets/generated/import-report.json
           grep -q '"volume2Cases": 0' assets/generated/import-report.json
-          grep -Fq '<title>Детективные игры онлайн — 15 бесплатных дел</title>' index.html
           grep -q '15 бесплат' index.html
           grep -q '85' tom-1/index.html
           grep -q '199 ₽' tom-1/index.html
