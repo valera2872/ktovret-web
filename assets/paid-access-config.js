@@ -5,10 +5,7 @@ window.MysteryLogicPaidAccessConfig={
   checkoutEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout',
   paymentStatusEndpoint:'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status',
   productId:'volume1',
-  products:{
-    volume1:{label:'Полный архив «Кто врёт?»',priceRub:199,caseCount:85}
-  },
-  // Keep the historical token key so existing purchasers retain their browser identity.
+  products:{volume1:{label:'Полный архив «Кто врёт?»',priceRub:199,caseCount:85}},
   tokenStorageKey:'mysterylogic:volume1:access-token',
   orderStorageKey:'mysterylogic:volume1:last-order-id',
   requestStorageKey:'mysterylogic:volume1:checkout-request-id'
