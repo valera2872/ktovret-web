@@ -81,7 +81,6 @@ jobs:
           set -euo pipefail
           python tools/release/validate-full-volume2-launch.py .
           node --check assets/volume-storefront.js
-          node --check assets/paid-case-loader.js
           node --check assets/ai-detective-vslice.js
           node --check assets/ai01-feedback.js
           node --check assets/player-feedback.js
