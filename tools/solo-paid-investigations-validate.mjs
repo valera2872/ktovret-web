@@ -36,4 +36,4 @@ try{
   const routes=fs.readdirSync(path.dirname(hub),{withFileTypes:true}).filter(d=>d.isDirectory()).length;
   if(routes!==10)fail(`expected 10 case routes, got ${routes}`);
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
-console.log(JSON.stringify({ok:true,cases:10,productId:'solo_investigations_v1',priceRub:99,publicationGate:'owner-review-required'},null,2));
+console.log(JSON.stringify({ok:true,cases:10,productId:'solo_investigations_v1',priceRub:99,publicationGate:'owner-authorized-release'},null,2));
