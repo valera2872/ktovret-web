@@ -40,7 +40,7 @@
     const wrap = document.createElement('aside');
     wrap.className = 'ml-who-lied-bridge';
     wrap.dataset.whoLiedBridge = 'after_case';
-    wrap.innerHTML = `<div class="ml-who-lied-bridge-copy"><span>Кто врёт? · продолжение</span><strong>Таких коротких расследований — 100.</strong><p>15 дел доступны бесплатно. Если формат понравился, ещё 85 открываются за 99 ₽ одной покупкой без подписки. Можно решать самому, вдвоём или читать условие вслух семье.</p></div><div class="ml-who-lied-bridge-actions"><a href="${siteHref('/dela/')}" data-who-lied-cta="next_free">Ещё бесплатное дело</a><a class="is-primary" href="${siteHref('/tom-1/')}" data-who-lied-cta="paid_99">Открыть ещё 85 — 99 ₽</a></div>`;
+    wrap.innerHTML = `<div class="ml-who-lied-bridge-copy"><span>Кто врёт? · продолжение</span><strong>Таких коротких расследований — 100.</strong><p>15 дел доступны бесплатно. Если формат понравился, ещё 85 открываются за 199 ₽ одной покупкой без подписки. Можно решать самому, вдвоём или читать условие вслух семье.</p></div><div class="ml-who-lied-bridge-actions"><a href="${siteHref('/dela/')}" data-who-lied-cta="next_free">Ещё бесплатное дело</a><a class="is-primary" href="${siteHref('/tom-1/')}" data-who-lied-cta="paid_199">Открыть ещё 85 — 199 ₽</a></div>`;
     return wrap;
   };
 
