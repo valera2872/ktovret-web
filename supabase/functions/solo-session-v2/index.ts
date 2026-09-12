@@ -44,12 +44,24 @@ function bearer(req: Request) {
 }
 function errorStatus(code: string) {
   if (['invalid_case_id','invalid_request','solo_session_token_invalid','solo_hypothesis_invalid','solo_hint_invalid'].includes(code)) return 400;
-  if (['access_denied','access_revoked','access_expired','access_wrong_case','solo_evidence_access_denied','solo_evidence_section_access_denied','solo_present_invalid','solo_deduction_access_denied','solo_interaction_unavailable','solo_reconstruction_access_denied','solo_case_completed'].includes(code)) return 403;
+  if (['access_denied','access_revoked','access_expired','access_wrong_case','solo_evidence_access_denied','solo_evidence_section_access_denied','solo_present_invalid','solo_deduction_access_denied','solo_interaction_unavailable','solo_reconstruction_access_denied','solo_case_completed','solo_reset_requires_entitlement'].includes(code)) return 403;
   if (['case_not_found','solo_session_not_found'].includes(code)) return 404;
   if (['solo_session_state_conflict','solo_session_merge_required','solo_session_entitlement_conflict','solo_deduction_already_confirmed'].includes(code)) return 409;
   if (['solo_case_not_ready','solo_canon_rotation_required'].includes(code)) return 423;
   if (['solo_store_not_configured','solo_store_unavailable'].includes(code)) return 503;
   return 400;
+}
+
+async function deleteSoloSession(sessionKey: string) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/solo_case_sessions?session_key=eq.${encodeURIComponent(sessionKey)}`, {
+    method: 'DELETE',
+    headers: {
+      apikey: SERVICE_ROLE_KEY,
+      authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+      prefer: 'return=minimal',
+    },
+  });
+  if (!response.ok) throw new Error('solo_store_unavailable');
 }
 
 const MUTATING = new Set([
@@ -103,6 +115,25 @@ Deno.serve(async (req: Request) => {
     } else if (presentedEntitlement) {
       row = await loadSoloSessionByEntitlement({ supabaseUrl: SUPABASE_URL, serviceRole: SERVICE_ROLE_KEY, runtime, entitlementId: presentedEntitlement.id });
       if (row) sessionKey = String(row.session_key || '');
+    }
+
+    if (actionType === 'RESET') {
+      if (!presentedEntitlement) throw new Error('solo_reset_requires_entitlement');
+      if (row && clean(row.entitlement_id, 80) && clean(row.entitlement_id, 80) !== presentedEntitlement.id) {
+        throw new Error('solo_session_entitlement_conflict');
+      }
+      if (row && sessionKey) await deleteSoloSession(sessionKey);
+      const created = await createSoloSession({ supabaseUrl: SUPABASE_URL, serviceRole: SERVICE_ROLE_KEY, runtime, entitlement: presentedEntitlement });
+      const accessMode: SoloAccessMode = presentedEntitlement.accessMode || 'demo';
+      return json(200, {
+        ...safeSoloClientPayload(runtime, created.state, created.revision, accessMode),
+        sessionToken: created.rawToken,
+        resume: {
+          viaSessionToken: true,
+          viaEntitlement: true,
+          reset: true,
+        },
+      }, origin);
     }
 
     if (!row) {
