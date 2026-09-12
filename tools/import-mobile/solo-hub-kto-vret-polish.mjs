@@ -4,6 +4,7 @@ import { applySolo407PlayerFeedback } from './solo-407-player-feedback-postproce
 import { applySoloMiniInvestigations } from './solo-mini-postprocess.mjs';
 import { applySoloPaidInvestigations } from './solo-paid-investigations-postprocess.mjs';
 import { applyPremiumUiUnification } from './premium-ui-unification-postprocess.mjs';
+import { rebuildApprovedAiBanner } from './rebuild-approved-ai-banner.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
 let finalizerRegistered = false;
@@ -55,11 +56,21 @@ function premiumVisualAssetsReady(siteRoot) {
   ].every((relative) => fs.existsSync(path.join(siteRoot, relative)));
 }
 
+function rebuildBannerWhenAvailable(siteRoot) {
+  const partsDir = path.join(siteRoot, 'assets', 'reference-parts');
+  if (!fs.existsSync(partsDir)) return false;
+  const parts = fs.readdirSync(partsDir).filter((name) => /^ai01-approved\.\d+\.b64\.txt$/.test(name));
+  if (!parts.length) return false;
+  rebuildApprovedAiBanner(siteRoot);
+  return true;
+}
+
 function registerFinalRestore(siteRoot) {
   if (finalizerRegistered) return;
   finalizerRegistered = true;
   process.once('beforeExit', () => {
     restoreWhoLiedOffer(siteRoot);
+    rebuildBannerWhenAvailable(siteRoot);
     if (premiumVisualAssetsReady(siteRoot)) {
       applyPremiumUiUnification(siteRoot);
       return;
