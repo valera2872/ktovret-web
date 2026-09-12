@@ -74,7 +74,5 @@ export function polishSoloKtoVret(siteRoot) {
   applySoloMiniInvestigations(siteRoot);
   applySoloPaidInvestigations(siteRoot);
   restoreWhoLiedOffer(siteRoot);
-  const premiumUi = applyPremiumUiUnification(siteRoot);
   registerFinalRestore(siteRoot);
-  return { premiumUi };
 }
