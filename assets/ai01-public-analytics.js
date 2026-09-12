@@ -5,6 +5,24 @@
   let questionCount = 0;
   let startedAt = 0;
 
+  const loadFeedback = () => {
+    if (!document.querySelector('link[data-ml-feedback-css]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/post-case-feedback.css?v=2';
+      link.dataset.mlFeedbackCss = 'true';
+      document.head.appendChild(link);
+    }
+    if (!window.MysteryLogicPostCaseFeedback && !document.querySelector('script[data-ml-feedback-loader]')) {
+      const script = document.createElement('script');
+      script.src = '/assets/post-case-feedback.js?v=2';
+      script.defer = true;
+      script.dataset.mlFeedbackLoader = 'true';
+      document.head.appendChild(script);
+    }
+  };
+  loadFeedback();
+
   const send = (eventName, metadata = {}) => {
     const payload = { case_id: 'ai01', case_slug: 'vosem-minut-bez-kamery', mode: 'text', ...metadata };
     try { window.MysteryLogicFunnel?.track?.(eventName, payload, location.pathname); } catch {}
@@ -77,6 +95,7 @@
         questions_asked: questionCount,
         elapsed_seconds: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       });
+      try { window.MysteryLogicPostCaseFeedback?.scan?.(); } catch {}
     };
     new MutationObserver(reportCompletion).observe(resolution, { attributes: true, attributeFilter: ['hidden'] });
     reportCompletion();

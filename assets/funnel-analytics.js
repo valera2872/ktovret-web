@@ -12,6 +12,29 @@
 
   if (location.pathname.startsWith('/admin/') || navigator.webdriver) return;
 
+  const loadPostCaseFeedback = () => {
+    const path = String(location.pathname || '/');
+    const relevant = /^\/(?:delo|ru\/cases)\//.test(path)
+      || /^\/detektivnye-igry-dlya-odnogo\/407\/?$/.test(path)
+      || /^\/detektivnye-igry-dlya-dvoih\/[^/]+\/?$/.test(path);
+    if (!relevant) return;
+    if (!document.querySelector('link[data-ml-feedback-css]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/post-case-feedback.css?v=2';
+      link.dataset.mlFeedbackCss = 'true';
+      document.head.appendChild(link);
+    }
+    if (!window.MysteryLogicPostCaseFeedback && !document.querySelector('script[data-ml-feedback-loader]')) {
+      const script = document.createElement('script');
+      script.src = '/assets/post-case-feedback.js?v=2';
+      script.defer = true;
+      script.dataset.mlFeedbackLoader = 'true';
+      document.head.appendChild(script);
+    }
+  };
+  loadPostCaseFeedback();
+
   const randomHex = (bytes) => Array.from(crypto.getRandomValues(new Uint8Array(bytes)), (value) =>
     value.toString(16).padStart(2, '0')).join('');
 

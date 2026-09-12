@@ -4,6 +4,24 @@
   const root = document.querySelector('[data-case2317-app],[data-case407-app],[data-casearia-app]');
   if (!root) return;
 
+  const loadFeedback = () => {
+    if (!document.querySelector('link[data-ml-feedback-css]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/post-case-feedback.css?v=2';
+      link.dataset.mlFeedbackCss = 'true';
+      document.head.appendChild(link);
+    }
+    if (!window.MysteryLogicPostCaseFeedback && !document.querySelector('script[data-ml-feedback-loader]')) {
+      const script = document.createElement('script');
+      script.src = '/assets/post-case-feedback.js?v=2';
+      script.defer = true;
+      script.dataset.mlFeedbackLoader = 'true';
+      document.head.appendChild(script);
+    }
+  };
+  loadFeedback();
+
   const caseId = root.matches('[data-case407-app]') ? 'coop:407'
     : root.matches('[data-casearia-app]') ? 'coop:last-aria'
       : 'coop:2317';
