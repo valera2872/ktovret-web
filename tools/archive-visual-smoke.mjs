@@ -61,7 +61,7 @@ async function render(page,viewport){
   if(dimensions.width!==expectedWidth||dimensions.height!==expectedHeight)throw new Error(`${page.name}/${viewport.name}: unexpected screenshot dimensions ${dimensions.width}x${dimensions.height}, expected ${expectedWidth}x${expectedHeight}`);
   if(dimensions.bytes<(scale===1?18000:60000))throw new Error(`${page.name}/${viewport.name}: screenshot suspiciously small (${dimensions.bytes})`);
   for(const marker of page.required)if(!dom.includes(marker)){const qa=dom.match(/data-ml-(?:checkout|case)-(?:config|elements|ready|open)="[^"]*"/g)?.join(', ')||'no QA markers';throw new Error(`${page.name}/${viewport.name}: missing marker ${marker}; ${qa}`)}
-  for(const marker of page.forbidden||[])if(dom.includes(marker))throw new Error(`${page.name}/${viewport.name}: forbidden marker remains: ${marker}`);
+  for(const marker of page.forbidden||[])if(dom.includes(marker)){const at=dom.indexOf(marker);const context=dom.slice(Math.max(0,at-320),Math.min(dom.length,at+520)).replace(/\s+/g,' ');throw new Error(`${page.name}/${viewport.name}: forbidden marker remains: ${marker}; context: ${context}`)}
   if(dom.includes('ReferenceError')||dom.includes('TypeError:'))throw new Error(`${page.name}/${viewport.name}: runtime failure detected`);
   results.push({page:page.name,path:page.path,viewport:viewport.name,scale,width:dimensions.width,height:dimensions.height,cssWidth:captureViewport.width,cssHeight:captureViewport.height,bytes:dimensions.bytes,screenshot:path.relative(siteRoot,screenshot)});
 }
