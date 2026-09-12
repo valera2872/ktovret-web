@@ -1,0 +1,188 @@
+.mli-interrogation {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(82, 205, 168, .24);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(82, 205, 168, .08), transparent 46%),
+    rgba(4, 14, 24, .72);
+}
+
+.mli-interrogation-head,
+.mli-interrogation-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mli-interrogation-head small,
+.mli-interrogation-turn small {
+  display: block;
+  color: #7f9bad;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.mli-interrogation-head h4 {
+  margin: 3px 0 0;
+  color: #f2f7f8;
+  font-size: 17px;
+}
+
+.mli-interrogation-head > span {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid rgba(82, 205, 168, .3);
+  border-radius: 999px;
+  color: #89d8bf;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.mli-interrogation-description,
+.mli-interrogation-boundary {
+  color: #a9bac4;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.mli-interrogation-transcript {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  margin: 14px 0;
+  overflow-y: auto;
+}
+
+.mli-interrogation-turn {
+  max-width: 88%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.mli-interrogation-turn.is-player {
+  justify-self: end;
+  border-color: rgba(108, 145, 255, .24);
+  background: rgba(75, 105, 190, .12);
+}
+
+.mli-interrogation-turn p,
+.mli-interrogation-empty {
+  margin: 4px 0 0;
+  color: #dbe5e8;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.mli-interrogation-empty {
+  margin: 0;
+  color: #718b9b;
+  font-style: italic;
+}
+
+.mli-interrogation-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.mli-interrogation-suggestions button {
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  color: #b8c8d1;
+  background: rgba(255, 255, 255, .035);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.mli-interrogation-suggestions button:hover,
+.mli-interrogation-suggestions button:focus-visible {
+  border-color: rgba(82, 205, 168, .42);
+  color: #e8f6f1;
+}
+
+.mli-interrogation-form label {
+  flex: 1 1 auto;
+}
+
+.mli-interrogation-form textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 12px;
+  color: #edf4f6;
+  background: rgba(2, 10, 18, .82);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.mli-interrogation-form textarea:focus {
+  border-color: rgba(82, 205, 168, .62);
+  outline: 2px solid rgba(82, 205, 168, .12);
+}
+
+.mli-interrogation-form > button {
+  min-height: 44px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 12px;
+  color: #06140f;
+  background: #67d3b1;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mli-interrogation-form > button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.mli-interrogation-boundary {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  position: relative;
+  font-size: 11px;
+}
+
+.mli-interrogation-boundary::before {
+  content: '◇';
+  position: absolute;
+  left: 1px;
+  color: #67d3b1;
+}
+
+@media (max-width: 640px) {
+  .mli-interrogation-head,
+  .mli-interrogation-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mli-interrogation-head > span {
+    align-self: flex-start;
+  }
+
+  .mli-interrogation-form > button {
+    width: 100%;
+  }
+
+  .mli-interrogation-turn {
+    max-width: 94%;
+  }
+}
