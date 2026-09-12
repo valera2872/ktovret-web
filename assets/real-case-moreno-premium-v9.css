@@ -1,0 +1,141 @@
+/* Moreno premium v0.9 — product UI aligned to accepted mockup. */
+:root{
+  --p9-bg:#07111c;
+  --p9-panel:#0d1d2b;
+  --p9-panel-2:#102333;
+  --p9-panel-3:#132a3d;
+  --p9-card:#0f2231;
+  --p9-text:#f3efe7;
+  --p9-muted:#9aa9b7;
+  --p9-muted-2:#718190;
+  --p9-gold:#d8b774;
+  --p9-gold-soft:#ead39b;
+  --p9-line:rgba(255,255,255,.075);
+  --p9-line-gold:rgba(216,183,116,.19);
+  --p9-green:#8fbea1;
+  --p9-shadow:0 24px 70px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body.moreno-body{
+  margin:0;
+  background:
+    radial-gradient(circle at 78% 0,rgba(216,183,116,.075),transparent 30rem),
+    radial-gradient(circle at 6% 24%,rgba(47,91,126,.14),transparent 30rem),
+    linear-gradient(180deg,#08131f 0%,#06101a 100%);
+  color:var(--p9-text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body.moreno-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.15;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,#000,transparent 78%)}
+
+/* Header */
+body.moreno-body .ml-brand-strip{position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.065);background:rgba(6,15,24,.88);backdrop-filter:blur(18px)}
+body.moreno-body .ml-brand-strip-inner{width:min(1440px,calc(100% - 36px));padding:11px 0}
+body.moreno-body .ml-brand{gap:10px}
+body.moreno-body .ml-brand-strip .ml-brand-mark{width:34px;height:34px;border-radius:11px;border:1px solid rgba(216,183,116,.32);background:rgba(216,183,116,.055);color:var(--p9-gold-soft);font-size:.66rem;box-shadow:none}
+body.moreno-body .ml-brand-copy strong{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:.92rem;font-weight:760;letter-spacing:.015em}
+body.moreno-body .moreno-header-note{color:#7f8d9a;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase}
+
+/* Case frame */
+body.moreno-body .v4-shell{width:min(1440px,calc(100% - 36px));padding:18px 0 46px}
+body.moreno-body .v4-top{margin:0 0 14px;padding:0 2px 12px;border:0;border-bottom:1px solid var(--p9-line);border-radius:0;background:transparent;backdrop-filter:none}
+body.moreno-body .v4-top strong{color:var(--p9-gold-soft);font-size:.66rem;letter-spacing:.15em}
+body.moreno-body .v4-top span{margin-top:3px;color:var(--p9-muted-2);font-size:.68rem}
+body.moreno-body .v4-reset{padding:7px 9px;border-radius:8px;color:#7e8d9a;font-size:.7rem}
+body.moreno-body .v4-reset:hover{background:rgba(255,255,255,.04);color:var(--p9-text)}
+
+/* 2-column product workspace */
+body.moreno-body .v4-work{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start;position:relative}
+body.moreno-body .v4-console{min-height:calc(100vh - 118px);padding:28px;border:1px solid var(--p9-line-gold);border-radius:24px;background:linear-gradient(150deg,rgba(15,35,51,.98),rgba(8,22,34,.99));box-shadow:var(--p9-shadow);overflow:hidden}
+
+/* Hero inside workspace — modern, not editorial */
+body.moreno-body .v4-console>header{position:relative;max-width:none;min-height:168px;padding:4px 250px 24px 2px;border-bottom:1px solid var(--p9-line)}
+body.moreno-body .v4-console>header:before{content:"";position:absolute;right:24px;top:4px;width:176px;height:132px;border:1px solid rgba(216,183,116,.13);border-radius:16px;background:
+  linear-gradient(90deg,transparent 28%,rgba(216,183,116,.16) 28.5%,rgba(216,183,116,.16) 29%,transparent 29.5%),
+  linear-gradient(90deg,transparent 71%,rgba(216,183,116,.12) 71.5%,rgba(216,183,116,.12) 72%,transparent 72.5%),
+  repeating-linear-gradient(0deg,transparent 0 24px,rgba(216,183,116,.14) 25px,transparent 26px 34px),
+  linear-gradient(145deg,rgba(216,183,116,.025),rgba(255,255,255,.008));opacity:.82}
+body.moreno-body .v4-console>header:after{content:"CASE 91-M";position:absolute;right:47px;bottom:27px;color:rgba(234,211,155,.55);font-size:.58rem;font-weight:800;letter-spacing:.18em}
+body.moreno-body .v4-kicker{margin:0;color:var(--p9-gold);font-size:.62rem;font-weight:800;letter-spacing:.16em}
+body.moreno-body .v4-console h1{margin:9px 0 0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:clamp(2.35rem,4vw,3.35rem);font-weight:760;line-height:1;letter-spacing:-.045em}
+body.moreno-body .v4-console>header>p:last-child{max-width:720px;margin:12px 0 0;color:var(--p9-muted);font-size:.92rem;line-height:1.55}
+
+/* Empty state becomes a compact operational status card */
+body.moreno-body .v4-journal-empty{display:grid;align-content:center;min-height:118px;margin:18px 0;padding:22px 24px;border:1px solid var(--p9-line);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.024),rgba(255,255,255,.006))}
+body.moreno-body .v4-journal-empty span{color:var(--p9-gold);font-size:.62rem;font-weight:800;letter-spacing:.14em}
+body.moreno-body .v4-journal-empty h2{margin:7px 0 0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-.015em}
+body.moreno-body .v4-journal-empty p{margin:5px 0 0;color:#8696a4;font-size:.84rem;line-height:1.45}
+
+/* Journal / one player order */
+body.moreno-body .v4-journal{display:grid;gap:14px;margin:18px 0}
+body.moreno-body .v4-log{display:block;padding:18px;border:1px solid var(--p9-line);border-radius:17px;background:rgba(255,255,255,.018);box-shadow:inset 0 1px rgba(255,255,255,.014)}
+body.moreno-body .v4-log-no{display:none}
+body.moreno-body .v4-command{margin:0 0 12px;color:#ebe7df;font-size:.86rem;font-weight:650;line-height:1.45}
+body.moreno-body .v4-command:before{content:"ВЫ";display:inline-flex;margin-right:9px;padding:3px 7px;border-radius:6px;background:rgba(216,183,116,.08);color:var(--p9-gold-soft);font-size:.55rem;font-weight:800;letter-spacing:.12em;vertical-align:1px}
+
+/* Bundled result cards */
+body.moreno-body .v6-bundle{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;counter-reset:p9card}
+body.moreno-body .v6-item{counter-increment:p9card;position:relative;min-height:118px;padding:16px 16px 15px;border:1px solid rgba(255,255,255,.07);border-left:1px solid rgba(255,255,255,.07);border-radius:14px;background:linear-gradient(145deg,rgba(18,42,60,.98),rgba(11,27,40,.96));box-shadow:0 10px 24px rgba(0,0,0,.10)}
+body.moreno-body .v6-item:before{content:"0" counter(p9card);position:absolute;right:13px;top:12px;color:rgba(216,183,116,.48);font-size:.57rem;font-weight:800;letter-spacing:.08em}
+body.moreno-body .v6-item h3{margin:0;padding-right:28px;color:#f2eee7;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:.94rem;font-weight:700;line-height:1.35}
+body.moreno-body .v6-item p{margin:8px 0 0!important;color:#94a3b1;font-size:.8rem;line-height:1.48}
+body.moreno-body .v6-item.statement{border-color:rgba(143,190,161,.18)}
+body.moreno-body .v6-item.limit,body.moreno-body .v6-item.dead{border-color:rgba(185,120,112,.19);opacity:1}
+body.moreno-body .v6-item.hypothesis{border-color:rgba(216,183,116,.24)}
+body.moreno-body .v6-item:only-child{grid-column:1/-1;min-height:0}
+
+/* Composer */
+body.moreno-body .v4-composer{position:sticky;bottom:10px;margin-top:18px;padding:14px;border:1px solid rgba(216,183,116,.25);border-radius:16px;background:rgba(7,18,28,.95);box-shadow:0 18px 48px rgba(0,0,0,.31);backdrop-filter:blur(18px)}
+body.moreno-body .v4-composer:before{content:"AI DISPATCH";display:block;margin:0 0 9px;color:var(--p9-gold);font-size:.58rem;font-weight:850;letter-spacing:.15em}
+body.moreno-body .v4-composer label{margin-bottom:7px;color:#aab5bf;font-size:.64rem;font-weight:700;letter-spacing:.07em;text-transform:none}
+body.moreno-body .v4-composer textarea{min-height:78px;padding:13px 14px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:#081724;color:var(--p9-text);font-size:.92rem;line-height:1.5;box-shadow:inset 0 1px 5px rgba(0,0,0,.24)}
+body.moreno-body .v4-composer textarea:focus{border-color:rgba(216,183,116,.45);box-shadow:0 0 0 3px rgba(216,183,116,.05),inset 0 1px 5px rgba(0,0,0,.22)}
+body.moreno-body .v4-composer>div{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:9px}
+body.moreno-body .v4-composer span{color:#728290;font-size:.66rem}
+body.moreno-body .v4-composer button{min-width:124px;min-height:43px;padding:10px 18px;border:0;border-radius:10px;background:linear-gradient(180deg,#ead6a2,#d2ae68);color:#14212c;font-size:.85rem;font-weight:800;box-shadow:0 8px 20px rgba(216,183,116,.12);transition:.15s ease}
+body.moreno-body .v4-composer button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+
+/* Right evidence dashboard */
+body.moreno-body .v4-evidence{position:sticky;top:72px;max-height:calc(100vh - 92px);overflow:auto;border:1px solid var(--p9-line-gold);border-radius:20px;background:linear-gradient(160deg,#0d1d2b,#081722);box-shadow:0 18px 50px rgba(0,0,0,.20)}
+body.moreno-body .v4-evidence-head{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:17px 17px 15px;border-bottom:1px solid var(--p9-line)}
+body.moreno-body .v4-evidence-head strong{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:.96rem;font-weight:730}
+body.moreno-body .v4-evidence-head strong:before{content:"▱";margin-right:8px;color:var(--p9-gold)}
+body.moreno-body .v4-evidence-head span{grid-column:2;grid-row:1/3;display:grid;place-items:center;width:27px;height:27px;border-radius:999px;background:rgba(216,183,116,.085);color:var(--p9-gold-soft);font-size:.66rem}
+body.moreno-body .v4-evidence-head:after{content:"материалы дела";grid-column:1;color:#687987;font-size:.59rem;letter-spacing:.08em;text-transform:uppercase}
+body.moreno-body .v4-evidence article{margin:10px;padding:13px 13px 12px;border:1px solid rgba(255,255,255,.065);border-radius:12px;background:rgba(255,255,255,.018)}
+body.moreno-body .v4-evidence small{color:var(--p9-gold);font-size:.56rem;font-weight:800;letter-spacing:.10em}
+body.moreno-body .v4-evidence p{margin:6px 0 0;color:#96a5b2;font-size:.76rem;line-height:1.46}
+body.moreno-body .v4-empty{margin:0;padding:17px;color:#83929f;font-size:.78rem;line-height:1.48}
+body.moreno-body .v4-hyp{background:rgba(216,183,116,.035)}
+
+/* Opening stays cinematic but in same modern language */
+body.moreno-body .v4-opening{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:18px}
+body.moreno-body .v4-opening-copy,body.moreno-body .v4-victim{border-radius:24px;border-color:var(--p9-line-gold);box-shadow:var(--p9-shadow)}
+body.moreno-body .v4-opening-copy{padding:clamp(34px,5vw,64px);background:linear-gradient(145deg,#11283b,#091927)}
+body.moreno-body .v4-opening h1{margin:13px 0 0;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:clamp(3rem,6vw,5.6rem);font-weight:790;letter-spacing:-.06em;line-height:.9}
+body.moreno-body .v4-lead{max-width:760px;margin-top:24px;color:#b8c4cf;font-size:1.02rem;line-height:1.6}
+body.moreno-body .v4-brief article{border-radius:14px;background:rgba(255,255,255,.02)}
+body.moreno-body .v4-accept{border-radius:10px;background:linear-gradient(180deg,#ead6a2,#d2ae68)}
+
+@media(max-width:1080px){
+  body.moreno-body .v4-work{grid-template-columns:minmax(0,1fr) 290px}
+  body.moreno-body .v4-console{padding:24px}
+  body.moreno-body .v4-console>header{padding-right:210px}
+  body.moreno-body .v4-console>header:before{width:150px}
+}
+@media(max-width:900px){
+  body.moreno-body .v4-work,body.moreno-body .v4-opening{grid-template-columns:1fr}
+  body.moreno-body .v4-evidence{position:static;max-height:none}
+  body.moreno-body .v4-console>header{padding-right:2px}
+  body.moreno-body .v4-console>header:before,body.moreno-body .v4-console>header:after{display:none}
+}
+@media(max-width:620px){
+  body.moreno-body .ml-brand-strip-inner,body.moreno-body .v4-shell{width:calc(100% - 18px)}
+  body.moreno-body .moreno-header-note{display:none}
+  body.moreno-body .v4-console{padding:18px 14px;border-radius:18px}
+  body.moreno-body .v4-console h1{font-size:2rem}
+  body.moreno-body .v4-console>header{min-height:auto;padding-bottom:16px}
+  body.moreno-body .v6-bundle{grid-template-columns:1fr}
+  body.moreno-body .v4-composer>div{align-items:stretch;flex-direction:column}
+  body.moreno-body .v4-composer button{width:100%}
+  body.moreno-body .v4-opening-copy{padding:28px 20px}
+}
