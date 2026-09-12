@@ -2,13 +2,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { applySeoCtrModernization } from './seo-ctr-modernization.mjs';
 
-const VERSION='3.0.0';
+const VERSION='3.0.1';
 const PRICE_RUB=199;
 const esc=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
 function addStyle(html){
   if(html.includes('storefront-volume-sales.css')) return html;
   return html.replace('</head>',`<link rel="stylesheet" href="../assets/storefront-volume-sales.css?v=${VERSION}">\n</head>`);
+}
+
+function patchProductJsonLd(html){
+  let patched=false;
+  const out=html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,(full,raw)=>{
+    let data;
+    try{data=JSON.parse(raw);}catch{return full;}
+    if(data?.['@type']!=='Product'||!String(data?.offers?.url||'').includes('/tom-1/')) return full;
+    data.offers={...(data.offers||{}),price:String(PRICE_RUB),priceCurrency:'RUB',availability:'https://schema.org/InStock',url:'https://mysterylogic.com/tom-1/'};
+    data.description='Цифровой доступ к архиву «Кто врёт?»: 100 логических расследований, из которых 15 доступны бесплатно, а ещё 85 открываются одной покупкой.';
+    patched=true;
+    return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+  });
+  if(!patched) throw new Error('volume sales: Product JSON-LD not found');
+  if(out.includes('"price":"99"')) throw new Error('volume sales: stale 99 RUB structured price remains');
+  if(!out.includes(`"price":"${PRICE_RUB}"`)) throw new Error('volume sales: 199 RUB structured price missing');
+  return out;
 }
 
 function premiumArchives(cases){
@@ -36,7 +53,7 @@ function closingCta(){
 }
 
 function patchVolume(html,cases){
-  let out=addStyle(html);
+  let out=patchProductJsonLd(addStyle(html));
   out=out.replace('<section class="ref-access-strip">','<section class="ref-access-strip" id="volume-access">');
   out=out.replace('<section class="ref-access-strip" data-volume-storefront-v2>','<section class="ref-access-strip" data-volume-storefront-v2 id="volume-access">');
   out=out.replace('<span>закрыты</span>','<span>в полном архиве</span>');
