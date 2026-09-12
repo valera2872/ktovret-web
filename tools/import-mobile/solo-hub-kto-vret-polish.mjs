@@ -3,6 +3,7 @@ import path from 'node:path';
 import { applySolo407PlayerFeedback } from './solo-407-player-feedback-postprocess.mjs';
 import { applySoloMiniInvestigations } from './solo-mini-postprocess.mjs';
 import { applySoloPaidInvestigations } from './solo-paid-investigations-postprocess.mjs';
+import { applyPremiumUiUnification } from './premium-ui-unification-postprocess.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
 let finalizerRegistered = false;
@@ -48,7 +49,10 @@ function restoreWhoLiedOffer(siteRoot) {
 function registerFinalRestore(siteRoot) {
   if (finalizerRegistered) return;
   finalizerRegistered = true;
-  process.once('beforeExit', () => restoreWhoLiedOffer(siteRoot));
+  process.once('beforeExit', () => {
+    restoreWhoLiedOffer(siteRoot);
+    applyPremiumUiUnification(siteRoot);
+  });
 }
 
 export function polishSoloKtoVret(siteRoot) {
@@ -70,5 +74,7 @@ export function polishSoloKtoVret(siteRoot) {
   applySoloMiniInvestigations(siteRoot);
   applySoloPaidInvestigations(siteRoot);
   restoreWhoLiedOffer(siteRoot);
+  const premiumUi = applyPremiumUiUnification(siteRoot);
   registerFinalRestore(siteRoot);
+  return { premiumUi };
 }
