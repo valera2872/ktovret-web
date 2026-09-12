@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#081018">
   <title>Тринадцатая минута | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260912-1">
+  <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260912-2">
 </head>
 <body>
   <main class="guided" data-app>
@@ -53,10 +53,10 @@
     <div data-notes-content></div>
   </dialog>
 
-  <script defer src="../../assets/solo-guided-preview-v3.js?v=20260912-1"></script>
+  <script defer src="../../assets/solo-guided-preview-v3.js?v=20260912-2"></script>
   <script>
     (() => {
-      const endpoint = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-v2';
+      const endpoint = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-reset';
       const caseId = 'ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
       const tokenKey = 'mysterylogic:guided-preview-token:v1';
       const sessionKey = `mysterylogic:solo-guided-session:${caseId}`;
@@ -76,7 +76,6 @@
           const accessToken = fragmentToken.startsWith('MLPREVIEW-') ? fragmentToken : savedToken;
           if (!accessToken) throw new Error('Персональная ссылка не найдена.');
 
-          const sessionToken = localStorage.getItem(sessionKey) || '';
           const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
@@ -85,17 +84,12 @@
             },
             cache: 'no-store',
             credentials: 'omit',
-            body: JSON.stringify({
-              action: 'RESET',
-              case_id: caseId,
-              ...(sessionToken ? { session_token: sessionToken } : {}),
-            }),
+            body: JSON.stringify({ case_id: caseId }),
           });
           const body = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(body?.error || 'Не удалось начать заново.');
+          if (!response.ok || body?.reset !== true) throw new Error(body?.error || 'Не удалось начать заново.');
 
-          if (body.sessionToken) localStorage.setItem(sessionKey, body.sessionToken);
-          else localStorage.removeItem(sessionKey);
+          localStorage.removeItem(sessionKey);
           location.reload();
         } catch (error) {
           button.disabled = false;
