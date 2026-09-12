@@ -26,14 +26,13 @@ jobs:
         run: |
           node --check assets/real-case-moreno-budget-v51.js
           node --check assets/real-case-moreno-ai-v6.js
-          node --check assets/real-case-moreno-premium-v8.js
           node --check tools/real-case-moreno-v6-smoke.mjs
           node --check tools/real-case-moreno-v6-visual.mjs
-          node --check tools/real-case-moreno-premium-v8-smoke.mjs
+          node --check tools/real-case-moreno-v9-premium-visual.mjs
       - name: Regress v0.6 against real player transcript
         run: node tools/real-case-moreno-v6-smoke.mjs
-      - name: Verify premium v0.8 structural DOM
-        run: node tools/real-case-moreno-premium-v8-smoke.mjs
+      - name: Verify and capture premium v0.9 composition
+        run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Capture v0.6 visual audit
         run: node tools/real-case-moreno-v6-visual.mjs
       - name: Upload slice audit
@@ -42,9 +41,9 @@ jobs:
           name: real-case-moreno-v6-audit
           path: artifacts/real-case-moreno-v6
           retention-days: 7
-      - name: Upload premium v0.8 audit
+      - name: Upload premium v0.9 audit
         uses: actions/upload-artifact@v4
         with:
-          name: real-case-moreno-v8-audit
-          path: artifacts/real-case-moreno-v8
+          name: real-case-moreno-v9-audit
+          path: artifacts/real-case-moreno-v9
           retention-days: 7
