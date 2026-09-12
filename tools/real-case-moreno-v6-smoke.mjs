@@ -3,9 +3,11 @@ import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} fro
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const html=fs.readFileSync(path.join(root,'realnye-dela/pozharnaya-lestnica-1991/index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'assets/real-case-moreno-ai-v6.js'),'utf8');
-for(const x of ['real-case-moreno-ai-v6.js?v=0.6.0','real-case-moreno-v6.css?v=0.6.0','real-case-moreno-compact.css'])if(!html.includes(x))throw new Error(`route missing ${x}`);
+for(const x of ['real-case-moreno-ai-v6.js?v=0.6.0','real-case-moreno-v6.css?v=0.6.0','real-case-moreno-compact.css','real-case-moreno-premium-v7.css?v=0.7.0'])if(!html.includes(x))throw new Error(`route missing ${x}`);
 for(const x of ["const VERSION='0.6.0'",'ai-moreno-investigator-v2','recent_history','operations','interview_occupants','unsupported_forensic'])if(!js.includes(x))throw new Error(`v6 missing ${x}`);
 for(const banned of ['OPENAI_API_KEY','SUPABASE_SERVICE_ROLE_KEY','api.openai.com/v1/responses'])if(js.includes(banned))throw new Error(`secret leak ${banned}`);
+const premium=fs.readFileSync(path.join(root,'assets/real-case-moreno-premium-v7.css'),'utf8');
+for(const x of ['--v7-gold','grid-template-columns:190px minmax(0,1fr) 320px','counter-reset:v7result','v4-evidence-head'])if(!premium.includes(x))throw new Error(`premium v7 missing ${x}`);
 const anon=(js.match(/const SUPABASE_ANON='([^']+)'/)||[])[1];if(!anon)throw new Error('anon missing');
 const endpoint='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v2';
 const visitor=`v-moreno-v6-ci-${Date.now().toString(36)}`;const session=`moreno-v6-ci-${Date.now().toString(36)}`;
@@ -20,4 +22,4 @@ x=await live('экспертиза положения тела и определ
 x=await live('хочу допросить мать и дочерей',{completed:['people','witnessLocated','canvass'],focus:'second_floor_witness',last:'second_floor_witness'});noAsk(x,'switch from witness');if(!(ops(x).includes('interview_daughters')&&(ops(x).includes('interview_mother')||ops(x).includes('interview_occupants'))))throw new Error(`mother+daughters not delegated: ${JSON.stringify(x)}`);
 x=await live('зафиксировать его ответ и перейти к допросу жильцов квартиры',{completed:['people','witnessLocated','canvass'],focus:'second_floor_witness',last:'second_floor_witness'});noAsk(x,'leave witness');if(!ops(x).includes('end_interview')||!ops(x).includes('interview_occupants'))throw new Error(`did not leave witness and continue: ${JSON.stringify(x)}`);
 x=await live('как мне вызвать на допрос бойфренда?',{completed:['people'],focus:'older_daughter',last:'older_daughter'});noAsk(x,'switch daughter to boyfriend');if(!(x.operations||[]).some(o=>o.op==='start_interview'&&o.target==='boyfriend'))throw new Error(`boyfriend switch failed: ${JSON.stringify(x)}`);
-console.log(JSON.stringify({version:'0.6.0',plannerPolicy:status.planner_policy,status:'ok',transcriptRegressions:8},null,2));
+console.log(JSON.stringify({version:'0.6.0',visual:'0.7.0',plannerPolicy:status.planner_policy,status:'ok',transcriptRegressions:8},null,2));
