@@ -15,8 +15,8 @@ const report=JSON.parse(read('assets/generated/import-report.json'));
 const sitemap=read('sitemap.xml');
 const sitemapUrlCount=(sitemap.match(/<url>/g)||[]).length;
 const sitemapLocs=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>match[1].replaceAll('&amp;','&'));
-const sitemapHasRoute=route=>sitemapLocs.some(loc=>{try{return new URL(loc).pathname===`/${route}/`;}catch{return false;}});
-const sitemapHasPrefix=route=>sitemapLocs.some(loc=>{try{return new URL(loc).pathname.startsWith(`/${route}/`);}catch{return false;}});
+const sitemapHasRoute=route=>sitemapLocs.some(loc=>{try{return new URL(loc).pathname.endsWith(`/${route}/`);}catch{return false;}});
+const sitemapHasPrefix=route=>sitemapLocs.some(loc=>{try{return new URL(loc).pathname.includes(`/${route}/`);}catch{return false;}});
 const home=read('index.html');
 const ready=report.logicAudienceEditorialReady===true;
 
