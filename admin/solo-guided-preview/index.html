@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#081018">
   <title>Тринадцатая минута | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260910-3">
+  <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260912-1">
 </head>
 <body>
   <main class="guided" data-app>
@@ -32,7 +32,10 @@
           <p class="guided-kicker" data-chapter>Начало расследования</p>
           <strong>Тринадцатая минута</strong>
         </div>
-        <button class="guided-quiet" data-notes>Что уже известно</button>
+        <div>
+          <button class="guided-quiet" data-notes>Что уже известно</button>
+          <button class="guided-quiet" data-restart>Начать сначала</button>
+        </div>
       </header>
 
       <div class="guided-stage" data-stage></div>
@@ -50,6 +53,57 @@
     <div data-notes-content></div>
   </dialog>
 
-  <script defer src="../../assets/solo-guided-preview-v3.js?v=20260910-3"></script>
+  <script defer src="../../assets/solo-guided-preview-v3.js?v=20260912-1"></script>
+  <script>
+    (() => {
+      const endpoint = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-v2';
+      const caseId = 'ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
+      const tokenKey = 'mysterylogic:guided-preview-token:v1';
+      const sessionKey = `mysterylogic:solo-guided-session:${caseId}`;
+      const button = document.querySelector('[data-restart]');
+      if (!button) return;
+
+      button.addEventListener('click', async () => {
+        if (!window.confirm('Начать расследование заново? Текущий прогресс будет удалён.')) return;
+
+        const oldText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Сбрасываем...';
+
+        try {
+          const fragmentToken = decodeURIComponent(String(location.hash || '').replace(/^#/, ''));
+          const savedToken = sessionStorage.getItem(tokenKey) || '';
+          const accessToken = fragmentToken.startsWith('MLPREVIEW-') ? fragmentToken : savedToken;
+          if (!accessToken) throw new Error('Персональная ссылка не найдена.');
+
+          const sessionToken = localStorage.getItem(sessionKey) || '';
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              authorization: `Bearer ${accessToken}`,
+            },
+            cache: 'no-store',
+            credentials: 'omit',
+            body: JSON.stringify({
+              action: 'RESET',
+              case_id: caseId,
+              ...(sessionToken ? { session_token: sessionToken } : {}),
+            }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(body?.error || 'Не удалось начать заново.');
+
+          if (body.sessionToken) localStorage.setItem(sessionKey, body.sessionToken);
+          else localStorage.removeItem(sessionKey);
+          location.reload();
+        } catch (error) {
+          button.disabled = false;
+          button.textContent = oldText;
+          window.alert(error instanceof Error ? error.message : 'Не удалось начать заново.');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
