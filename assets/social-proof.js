@@ -62,6 +62,8 @@
       .ml-social-proof .empty-rating{color:#91a0ad;font-weight:800}
       .ml-social-proof .dot{opacity:.4}
       .ml-social-proof.compact{font-size:.72rem;margin:8px 0 10px}
+      .coop-entry-choice .ml-social-proof{margin:2px 0 1px;font-size:.66rem;gap:5px 7px;color:#b9ad9d}
+      .coop-entry-choice .ml-social-proof .empty-rating{color:#9c948a}
       .ml-social-proof.current{width:max-content;max-width:100%;padding:8px 11px;border:1px solid rgba(231,201,143,.2);border-radius:999px;background:rgba(7,17,29,.48);backdrop-filter:blur(8px);font-size:.78rem;margin:10px 0 16px}
       .ml-public-reviews{margin:34px auto 24px;padding:24px;border:1px solid rgba(231,201,143,.18);border-radius:24px;background:linear-gradient(145deg,rgba(17,36,54,.88),rgba(7,18,30,.94));box-shadow:0 18px 48px rgba(0,0,0,.18)}
       .ml-public-reviews-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 18px;align-items:end;margin-bottom:16px}
@@ -183,6 +185,22 @@
       const key = gameKeyFromPath(anchor.getAttribute('href') || '');
       if (!key) return;
       const item = items[key] || {};
+
+      // The two-player format cards are a CSS grid. A proof node inserted as a sibling
+      // becomes an extra grid item and pushes the cards into a diagonal layout.
+      // Keep the proof inside its own card so both format cards stay aligned.
+      const coopChoice = anchor.closest('.coop-entry-choice');
+      if (coopChoice) {
+        if (coopChoice.dataset.mlProofDone === key) return;
+        const proof = makeProof(item, { compact: true, showEmptyRating: Number(item.completedPlayers || 0) > 0 });
+        if (!proof) return;
+        coopChoice.dataset.mlProofDone = key;
+        const action = coopChoice.querySelector('b');
+        if (action) action.insertAdjacentElement('beforebegin', proof);
+        else coopChoice.appendChild(proof);
+        return;
+      }
+
       const container = anchor.closest('.solo407-hub-card,.case407-catalog,.coop-hero,.ml-case-card,article,section');
       if (!container || container.dataset.mlProofDone === key) return;
       const proof = makeProof(item, { showEmptyRating: Number(item.completedPlayers || 0) > 0 });
