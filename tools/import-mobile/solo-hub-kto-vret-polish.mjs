@@ -3,6 +3,8 @@ import path from 'node:path';
 import { applySolo407PlayerFeedback } from './solo-407-player-feedback-postprocess.mjs';
 import { applySoloMiniInvestigations } from './solo-mini-postprocess.mjs';
 import { applySoloPaidInvestigations } from './solo-paid-investigations-postprocess.mjs';
+import { applyPremiumUiUnification } from './premium-ui-unification-postprocess.mjs';
+import { rebuildApprovedAiBanner } from './rebuild-approved-ai-banner.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
 let finalizerRegistered = false;
@@ -45,10 +47,42 @@ function restoreWhoLiedOffer(siteRoot) {
   }
 }
 
+function premiumVisualAssetsReady(siteRoot) {
+  return [
+    'assets/ai01-home-banner.webp',
+    'assets/ai01-mobile-banner.webp',
+    'assets/reference-archive-hero.webp',
+    'assets/reference-format-volume-archive.webp',
+  ].every((relative) => fs.existsSync(path.join(siteRoot, relative)));
+}
+
+function rebuildBannerWhenAvailable(siteRoot) {
+  const partsDir = path.join(siteRoot, 'assets', 'reference-parts');
+  if (!fs.existsSync(partsDir)) return false;
+  const parts = fs.readdirSync(partsDir).filter((name) => /^ai01-approved\.\d+\.b64\.txt$/.test(name));
+  if (!parts.length) return false;
+  rebuildApprovedAiBanner(siteRoot);
+  return true;
+}
+
 function registerFinalRestore(siteRoot) {
   if (finalizerRegistered) return;
   finalizerRegistered = true;
-  process.once('beforeExit', () => restoreWhoLiedOffer(siteRoot));
+  process.once('beforeExit', () => {
+    restoreWhoLiedOffer(siteRoot);
+    rebuildBannerWhenAvailable(siteRoot);
+    if (premiumVisualAssetsReady(siteRoot)) {
+      applyPremiumUiUnification(siteRoot);
+      return;
+    }
+    // Some focused regression/visual tests intentionally create only the Solo 407
+    // slice and do not reconstruct the large approved WebP assets. Do not make those
+    // partial workspaces fail at process exit. Full production builds always prepare
+    // these assets before this finalizer and therefore still run all premium asserts.
+    if (process.env.MYSTERYLOGIC_SITE_ORIGIN) {
+      throw new Error('premium ui: required production visual assets were not prepared');
+    }
+  });
 }
 
 export function polishSoloKtoVret(siteRoot) {
