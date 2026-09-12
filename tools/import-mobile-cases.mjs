@@ -35,12 +35,13 @@ import {resolvePuzzleEditorialGate} from './import-mobile/puzzle-editorial-gate.
 import {applyLogicSitewide} from './import-mobile/logic-sitewide-postprocess.mjs';
 import {applyFunnelAnalytics} from './import-mobile/funnel-analytics-postprocess.mjs';
 import {applyPlayerFeedback} from './import-mobile/player-feedback-postprocess.mjs';
+import {polishSoloKtoVret} from './import-mobile/solo-hub-kto-vret-polish.mjs';
 import {registerSiteOriginFinalizer} from './import-mobile/site-origin-postprocess.mjs';
 
 registerSiteOriginFinalizer();
 
 const tokens=process.argv.slice(2),args={};for(let i=0;i<tokens.length;i++)if(tokens[i].startsWith('--'))args[tokens[i].slice(2)]=tokens[i+1]&&!tokens[i+1].startsWith('--')?tokens[++i]:'true';
-const sourceRoot=path.resolve(args.source||'../mobile-source'),siteRoot=path.resolve(args.site||'.'),mode=args.mode||'public',sourceCommit=args.commit||'51c178f4dceba7bdb859e1e5d0c3244150438c0d',editorial=mode==='editorial';
+const sourceRoot=path.resolve(args.source||'../mobile-source'),siteRoot=path.resolve(args.site||'.'),mode=args.mode||'public',sourceCommit=args.commit||'a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd',editorial=mode==='editorial';
 const lib=loadLibrary(sourceRoot,sourceCommit),generated=path.join(siteRoot,'assets/generated');
 ensureDir(generated);
 const seoNativeCaseCount=lib.meta.filter(item=>item.seoPublished===true).length,indexableCollectionCount=lib.collections.filter(item=>item.indexable===true&&item.status==='published').length;
@@ -100,6 +101,11 @@ const logicAudienceLaunchCompat=logicAudience.homePatched?preserveLogicAudienceL
 const logicSitewide=applyLogicSitewide(siteRoot);
 const funnelAnalytics=applyFunnelAnalytics(siteRoot);
 const playerFeedback=applyPlayerFeedback(siteRoot);
+
+// Finalize the Solo product ladder after all generic storefront/sitewide passes so
+// later postprocessors cannot reintroduce the abandoned 10 / 50+50 Who Lied copy.
+polishSoloKtoVret(siteRoot);
+
 const base='https://valera2872.github.io/ktovret-web/';
 const collectionUrls=collectionPages.map(item=>`${base}${item.route}`);
 const logicUrls=[...logicExpertSeo.routes,...logicAudience.routes].map(route=>`${base}${route}`);

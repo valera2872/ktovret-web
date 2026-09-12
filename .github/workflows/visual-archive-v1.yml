@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  KTOVRET_SOURCE_COMMIT: 51c178f4dceba7bdb859e1e5d0c3244150438c0d
+  KTOVRET_SOURCE_COMMIT: a2ad0f80e70beeb91d478f0bcf98d0ea31cc05dd
   KTOVRET_SOURCE_TOKEN: ${{ secrets.KTOVRET_SOURCE_TOKEN }}
 
 jobs:
@@ -66,9 +66,10 @@ jobs:
       - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
+          set -euo pipefail
           grep -q '"storefrontReferencePages": 3' assets/generated/import-report.json
           grep -q '"storefrontReferenceV41Pages": 3' assets/generated/import-report.json
-          grep -q '"storefrontReferenceV41Version": "5.0.0"' assets/generated/import-report.json
+          grep -q '"storefrontReferenceV41Version": "5.1.0"' assets/generated/import-report.json
           grep -q 'storefront-reference-v41.css' index.html
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
@@ -81,13 +82,14 @@ jobs:
           grep -q 'data-volume-privacy-ack' tom-1/index.html
           grep -q 'data-volume-buy' tom-1/index.html
           grep -q '199 ₽' tom-1/index.html
-          grep -q '299 ₽' tom-1/index.html
-          grep -q '10 бесплатных дел' dela/index.html
-          grep -q '"totalCases": 110' assets/generated/import-report.json
-          grep -q '"freeCases": 10' assets/generated/import-report.json
-          grep -q '"premiumCases": 100' assets/generated/import-report.json
-          grep -q '"volume1Cases": 50' assets/generated/import-report.json
-          grep -q '"volume2Cases": 50' assets/generated/import-report.json
+          ! grep -q '299 ₽' tom-1/index.html
+          ! grep -q 'Том II' tom-1/index.html
+          grep -Eqi '15[[:space:]]+бесплатн' dela/index.html
+          grep -q '"totalCases": 100' assets/generated/import-report.json
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"volume1Cases": 85' assets/generated/import-report.json
+          grep -q '"volume2Cases": 0' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
           grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
@@ -96,6 +98,8 @@ jobs:
           grep -q 'solo407-home-switch' index.html
           grep -q '>Головоломки</a>' index.html
           test -f detektivnye-igry-dlya-odnogo/index.html
+          test -f detektivnye-igry-dlya-odnogo/mini/index.html
+          test -f detektivnye-igry-dlya-odnogo/rassledovaniya/index.html
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test "$(find logicheskie-zadachi -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 20

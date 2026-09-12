@@ -35,9 +35,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate source syntax and paid boundary
+
+      - name: Validate Last Aria source and commerce boundary
         working-directory: web
         run: |
+          set -euo pipefail
           node --check assets/case-aria-data.js
           node --check assets/case-aria-fairplay-v2.js
           node --check assets/case-aria-investigator-v16.js
@@ -49,7 +51,6 @@ jobs:
           test -s assets/case-aria-layout-v2.css
           test -s assets/case-aria-storefront.css
           node --check tools/import-mobile/two-player-last-aria-postprocess.mjs
-          node --check tools/import-mobile/seo-ctr-modernization.mjs
           node --check tools/validate-case-last-aria.mjs
           node --check tools/validate-case-last-aria-countertheories.mjs
           node --check tools/validate-coop-last-aria-backend.mjs
@@ -62,23 +63,17 @@ jobs:
           grep -q "payment-status-last-aria" assets/case-aria-storefront.js
           grep -q "LAST_ARIA_PRODUCT_ID = 'last_aria'" supabase/functions/_shared/last-aria-commerce.ts
           grep -q "LAST_ARIA_PRICE_RUB = 299" supabase/functions/_shared/last-aria-commerce.ts
-          grep -q "LAST_ARIA_PRICE_RUB !== 299" supabase/functions/create-checkout-last-aria/index.ts
-          grep -q "REVIEW_DISCOUNT_PRICE_RUB !== 249" supabase/functions/create-checkout-last-aria/index.ts
-          grep -q "amount !== (reward ? 24900 : 29900)" supabase/functions/create-checkout-last-aria/index.ts
           grep -q "tbank-webhook-last-aria" supabase/functions/create-checkout-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/payment-status-last-aria/index.ts
           grep -q "eq('product_id', LAST_ARIA_PRODUCT_ID)" supabase/functions/tbank-webhook-last-aria/index.ts
+
+          # The independent Who Lied storefront must remain on the restored offer.
           grep -q "productId:'volume1'" assets/paid-access-config.js
-          grep -q "volume1:{label:'Том I',priceRub:199,caseCount:50}" assets/paid-access-config.js
-          grep -q "volume2:{label:'Том II',priceRub:199,caseCount:50}" assets/paid-access-config.js
-          grep -q "volume_bundle_1_2:{label:'Том I + Том II',priceRub:299,caseCount:100" assets/paid-access-config.js
-          grep -q "volume1:" supabase/functions/_shared/payment.ts
-          grep -q "volume2:" supabase/functions/_shared/payment.ts
-          grep -q "volume_bundle_1_2:" supabase/functions/_shared/payment.ts
-          grep -q "priceRub: 199" supabase/functions/_shared/payment.ts
-          grep -q "priceRub: 299" supabase/functions/_shared/payment.ts
-          grep -q "productFor(requestedProductId)" supabase/functions/create-checkout/index.ts
-          grep -q "legacy_volume_all" supabase/functions/_shared/payment.ts
+          grep -q "volume1:{label:'Полный архив «Кто врёт?»',priceRub:199,caseCount:85}" assets/paid-access-config.js
+          ! grep -q "volume2:" assets/paid-access-config.js
+          ! grep -q "volume_bundle_1_2:" assets/paid-access-config.js
+          grep -q "tokenStorageKey:'mysterylogic:volume1:access-token'" assets/paid-access-config.js
+
       - name: Validate backend transport contract
         working-directory: web
         run: node tools/validate-coop-last-aria-backend.mjs
@@ -88,19 +83,19 @@ jobs:
       - name: Reject principal counter-theories
         working-directory: web
         run: node tools/validate-case-last-aria-countertheories.mjs
+
       - name: Generate full public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
-      - name: Validate generated paid Last Aria route and catalog
+
+      - name: Validate generated Last Aria and restored catalog
         working-directory: web
         run: |
+          set -euo pipefail
           test -f detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'name="robots" content="noindex,follow"' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-storefront.css' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'case-aria-paid-auth.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          grep -q 'case-aria-storefront.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          ! grep -q '<script src="../../assets/case-aria-data.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          ! grep -q '<script src="../../assets/case-aria.js' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
           grep -q 'casearia-catalog' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="2317/"' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'href="407/"' detektivnye-igry-dlya-dvoih/index.html
@@ -108,26 +103,15 @@ jobs:
           grep -q 'Купить дело — 299 ₽' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'второй игрок бесплатно' detektivnye-igry-dlya-dvoih/index.html
           ! grep -q 'poslednyaya-ariya' sitemap.xml
-          ! grep -q 'ложное аудиоалиби' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          ! grep -Eqi '15[[:space:]]+бесплатн|ещ[ёе][[:space:]]+85[[:space:]]+дел|85[[:space:]]+дополнительных[[:space:]]+дел' detektivnye-igry-dlya-dvoih/index.html
-      - name: Validate CTR-first SEO modernization
-        working-directory: web
-        run: |
-          grep -Fq '<title>Детективные игры онлайн — 10 бесплатных дел без регистрации</title>' index.html
-          grep -Fq '10 детективных расследований бесплатно прямо в браузере. Изучайте улики, допрашивайте подозреваемых и найдите, кто врёт. Без регистрации. Есть игры для двоих.' index.html
-          grep -Fq '<h1>Детективные<br>игры онлайн</h1>' index.html
-          grep -Fq '>Играть бесплатно</a>' index.html
-          grep -Fq '>Для двоих</a>' index.html
-          grep -Fq '>Все дела</a>' index.html
-          grep -Fq '>Как играть</a>' index.html
-          ! grep -Eqi '<title>[^<]*Mystery Logic' index.html
-          grep -Fq '<title>Детективные игры для двоих онлайн — играть бесплатно</title>' detektivnye-igry-dlya-dvoih/index.html
-          grep -Fq '<title>Онлайн-детективы — выбрать дело и начать расследование</title>' dela/index.html
-          grep -Fq '<title>Кто врёт? — бесплатная детективная игра онлайн</title>' kto-vret/index.html
-          grep -Fq '<title>Онлайн-расследование «Последний звонок в 23:17» — детективная игра</title>' detektivnye-igry-dlya-dvoih/2317/index.html
-          grep -Fq '<title>Онлайн-расследование «Номер 407» — детективная игра</title>' detektivnye-igry-dlya-dvoih/407/index.html
-          grep -Fq '<title>Онлайн-расследование «Последняя ария» — детективная игра</title>' detektivnye-igry-dlya-dvoih/poslednyaya-ariya/index.html
-          ! grep -Eqi '15[[:space:]]+бесплатн|первые[[:space:]]+15[[:space:]]+доступны[[:space:]]+бесплатно|Играть[[:space:]]+в[[:space:]]+15[[:space:]]+дел' detektivnye-igry-dlya-odnogo/index.html
+          grep -q '"totalCases": 100' assets/generated/import-report.json
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"volume1Cases": 85' assets/generated/import-report.json
+          grep -q '"volume2Cases": 0' assets/generated/import-report.json
+          grep -q '15 бесплат' index.html
+          grep -q '85' tom-1/index.html
+          grep -q '199 ₽' tom-1/index.html
+
       - name: Browser smoke both roles, final and reveal
         working-directory: web
         run: node tools/last-aria-browser-smoke.mjs

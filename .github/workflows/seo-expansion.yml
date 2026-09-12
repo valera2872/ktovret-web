@@ -70,22 +70,22 @@ jobs:
       - name: Validate spoiler-safe dynamic URL boundary
         working-directory: web
         run: |
-          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 110
-          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 10
-          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 100
+          test "$(find ru/cases -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 100
+          test "$(grep -rl 'data-seo-prerender' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'data-premium-seo-teaser' ru/cases/*/index.html | wc -l)" -eq 85
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'window.KtoVretWeb=' | wc -l)" -eq 0
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'data-seo-statements' | wc -l)" -eq 0
           test "$(grep -l 'data-premium-seo-teaser' ru/cases/*/index.html | xargs grep -l 'correctOption' | wc -l)" -eq 0
           test "$(grep -rl 'name=\"robots\" content=\"noindex' ru/cases/*/index.html | wc -l)" -eq 0
-          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 110
+          test "$(grep -rl 'noindex,follow' delo/*/index.html | wc -l)" -eq 100
           node tools/staging-sitemap-boundary-validate.mjs
-          grep -q '"totalCases": 110' assets/generated/import-report.json
-          grep -q '"freeCases": 10' assets/generated/import-report.json
-          grep -q '"premiumCases": 100' assets/generated/import-report.json
-          grep -q '"volume1Cases": 50' assets/generated/import-report.json
-          grep -q '"volume2Cases": 50' assets/generated/import-report.json
-          grep -q '"seoCasePages": 110' assets/generated/import-report.json
-          grep -q '"premiumSeoTeaserPages": 100' assets/generated/import-report.json
+          grep -q '"totalCases": 100' assets/generated/import-report.json
+          grep -q '"freeCases": 15' assets/generated/import-report.json
+          grep -q '"premiumCases": 85' assets/generated/import-report.json
+          grep -q '"volume1Cases": 85' assets/generated/import-report.json
+          grep -q '"volume2Cases": 0' assets/generated/import-report.json
+          grep -q '"seoCasePages": 100' assets/generated/import-report.json
+          grep -q '"premiumSeoTeaserPages": 85' assets/generated/import-report.json
           grep -q '"wordstatHubPages": 3' assets/generated/import-report.json
           grep -q '"logicHubPuzzles": 20' assets/generated/import-report.json
           grep -q '"logicHubPages": 23' assets/generated/import-report.json
@@ -93,7 +93,7 @@ jobs:
           grep -q '"logicExpertMainHub": "golovolomki-onlayn/"' assets/generated/import-report.json
           grep -q '"logicExpertAdultHub": "zagadki-na-logiku-dlya-vzroslyh/"' assets/generated/import-report.json
           grep -q '"twoPlayerRoomPage": "detektivnye-igry-dlya-dvoih"' assets/generated/import-report.json
-          grep -q '"twoPlayerRoomFreeCases": 10' assets/generated/import-report.json
+          grep -q '"twoPlayerRoomFreeCases": 15' assets/generated/import-report.json
           grep -q '"soloHubPage": "detektivnye-igry-dlya-odnogo"' assets/generated/import-report.json
           grep -q '"soloCaseRoute": "detektivnye-igry-dlya-odnogo/407"' assets/generated/import-report.json
           grep -q '"soloMaterials": 18' assets/generated/import-report.json
@@ -101,8 +101,10 @@ jobs:
           grep -R -q 'Павел ошибается: в 18:10 он пользовался не личной картой, а ключом' ru/cases/*/index.html
           grep -q 'Все необходимые сведения есть в материалах дела' index.html
           grep -q 'Определить правильную последовательность' index.html
-          grep -q '<title>Детективные игры онлайн — 10 бесплатных дел без регистрации</title>' index.html
-          ! grep -R -E -i '15[[:space:]]+бесплатн|ещ[ёе][[:space:]]+85[[:space:]]+дел|85[[:space:]]+дополнительных[[:space:]]+дел|100[[:space:]]+активных[[:space:]]+дел|одной[[:space:]]+покупкой[[:space:]]+за[[:space:]]+99[[:space:]]*₽' index.html kto-vret/index.html dela/index.html tom-1/index.html detektivnye-igry-onlayn/index.html kto-vret-igra/index.html ru/besplatnye-detektivnye-dela/index.html
+          grep -q '15 бесплат' index.html
+          grep -q '85' tom-1/index.html
+          grep -q '199 ₽' tom-1/index.html
+          ! grep -Eqi 'Том II|volume_bundle_1_2|100[[:space:]]+платных[[:space:]]+дел' tom-1/index.html
           test -f golovolomki-onlayn/index.html
           test -f zagadki-na-logiku-dlya-vzroslyh/index.html
           test -f detektivnye-igry-dlya-dvoih/index.html
@@ -137,8 +139,8 @@ jobs:
           grep -q 'Создайте комнату' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'Ответы друг друга скрыты до финала' detektivnye-igry-dlya-dvoih/index.html
           grep -q 'solo407-format-switch' detektivnye-igry-dlya-dvoih/index.html
-          test "$(grep -rl 'data-duel-storage-isolation' ru/cases/*/index.html | wc -l)" -eq 10
-          test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 10
+          test "$(grep -rl 'data-duel-storage-isolation' ru/cases/*/index.html | wc -l)" -eq 15
+          test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | wc -l)" -eq 15
           test "$(grep -rl 'duel-room-client.js' ru/cases/*/index.html | xargs grep -l 'data-premium-seo-teaser' | wc -l)" -eq 0
 
       - name: Upload generated SEO sample

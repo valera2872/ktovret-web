@@ -1,14 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import {fileURLToPath} from 'node:url';
 import {slugify,estimate} from './common.mjs';
 import {SEO_POLICY,buildEditorialCollections,isSeoPublishedCase} from './seo-policy.mjs';
 
-const FREE_CASE_COUNT=10;
-const VOLUME_SIZE=50;
 const EXPECTED_SOURCE_CASES=100;
-const SUPPLEMENT_PATH=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../content/who-lied-volume-2-supplement.json');
+const FREE_CASE_COUNT=15;
+const PREMIUM_CASE_COUNT=85;
+const CORE_PRODUCT_ID='volume1';
 
 const known=new Map([
   ['first_r3_001_four_archive_entries',['chetyre-vhoda-v-arhiv','ktovret:web:demo:v4:first_r3_001_four_archive_entries']],
@@ -39,14 +38,6 @@ function loadCopyOverrides(sourceRoot){
   const root=JSON.parse(fs.readFileSync(overridePath,'utf8'));
   const raw=root?.cases&&typeof root.cases==='object'?root.cases:{};
   return new Map(Object.entries(raw));
-}
-
-function loadSupplement(){
-  if(!fs.existsSync(SUPPLEMENT_PATH))return {sets:[],cases:[]};
-  const root=JSON.parse(fs.readFileSync(SUPPLEMENT_PATH,'utf8'));
-  const sets=Array.isArray(root?.sets)?root.sets:[];
-  const cases=Array.isArray(root?.cases)?root.cases:[];
-  return {sets,cases};
 }
 
 function mergeObject(target,patch){
@@ -108,33 +99,14 @@ export function loadLibrary(sourceRoot,sourceCommit){
   if(active.length!==EXPECTED_SOURCE_CASES)throw new Error(`Исходных записей ${sourceEntries}, устаревших ID ${deprecated.size}, активных дел ${active.length}; ожидалось ${EXPECTED_SOURCE_CASES}`);
   for(const overrideId of copyOverrides.keys())if(!ids.has(overrideId))throw new Error(`Редакторская правка ссылается на неактивное дело: ${overrideId}`);
 
-  const supplement=loadSupplement();
-  for(const set of supplement.sets){
-    if(!set?.id)throw new Error('Дополнительный набор без id');
-    if(sets.has(set.id))throw new Error(`Повтор ID дополнительного набора: ${set.id}`);
-    sets.set(set.id,set);
-  }
-  for(const rawItem of supplement.cases){
-    if(!rawItem?.id)throw new Error('Дополнительное дело без id');
-    if(ids.has(rawItem.id))throw new Error(`Повтор активного ID: ${rawItem.id}`);
-    ids.add(rawItem.id);
-    active.push({...rawItem,__asset:'content/who-lied-volume-2-supplement.json'});
-  }
-
   const setFor=item=>sets.get(item.setId)||{id:item.setId||'other',title:'Другие расследования',description:'',order:999,isPremium:true,isListed:true};
   const sourceFree=active.filter(item=>setFor(item).isPremium===false);
   const sourcePremium=active.filter(item=>setFor(item).isPremium!==false);
-  if(sourceFree.length!==15||sourcePremium.length!==(EXPECTED_SOURCE_CASES-15+supplement.cases.length)){
-    throw new Error(`Нарушена исходная редакционная группировка: ${sourceFree.length} free-source / ${sourcePremium.length} premium-source`);
+  if(sourceFree.length!==FREE_CASE_COUNT||sourcePremium.length!==PREMIUM_CASE_COUNT){
+    throw new Error(`Нарушена исходная редакционная группировка: ${sourceFree.length} free / ${sourcePremium.length} premium`);
   }
 
-  // Commercial packaging is deliberately independent of the legacy mobile sets.
-  // Cases 1–10 are the permanent free sampler. Cases 11–60 form Volume I,
-  // and 61–110 form Volume II. This keeps the original first 100 case order stable.
   const ordered=[...sourceFree,...sourcePremium];
-  const expectedTotal=FREE_CASE_COUNT+(VOLUME_SIZE*2);
-  if(ordered.length!==expectedTotal)throw new Error(`Для модели 10 + 50 + 50 нужно ${expectedTotal} дел, найдено ${ordered.length}`);
-
   const used=new Set();let structuredCount=0,multiStageCount=0,multipleSelectionCount=0;
   const freeCollectionId=SEO_POLICY.collections.find(item=>item.source==='free')?.id||'free-detective-cases';
   const cases=ordered.map((item,index)=>{
@@ -155,8 +127,8 @@ export function loadLibrary(sourceRoot,sourceCommit){
     if(!item.id||!item.title||!item.intro||!item.explanation?.fullReason)throw new Error(`Неполное дело ${item.id||item.__asset}`);
 
     const access=index<FREE_CASE_COUNT?'free':'premium';
-    const productId=access==='free'?null:(index<FREE_CASE_COUNT+VOLUME_SIZE?'volume1':'volume2');
-    const volumeNumber=productId==='volume1'?1:productId==='volume2'?2:null;
+    const productId=access==='free'?null:CORE_PRODUCT_ID;
+    const volumeNumber=access==='free'?null:1;
     const status='published',legacyPath=`delo/${slug}/`,language=SEO_POLICY.defaultLanguage||'ru',seoPath=`${language}/cases/${slug}/`;
     const seoPublished=isSeoPublishedCase({access,status}),canonicalPath=seoPublished?seoPath:legacyPath,collectionIds=access==='free'?[set.id,freeCollectionId]:[set.id];
     return{
@@ -192,15 +164,15 @@ export function loadLibrary(sourceRoot,sourceCommit){
     structuredAnswer:(item.answerStages||[]).length>0
   }));
 
-  const volume1Count=meta.filter(item=>item.productId==='volume1').length;
-  const volume2Count=meta.filter(item=>item.productId==='volume2').length;
-  if(meta.filter(item=>item.access==='free').length!==FREE_CASE_COUNT||volume1Count!==VOLUME_SIZE||volume2Count!==VOLUME_SIZE){
-    throw new Error(`Неверная коммерческая упаковка: free=${meta.filter(item=>item.access==='free').length}, volume1=${volume1Count}, volume2=${volume2Count}`);
+  const volume1Count=meta.filter(item=>item.productId===CORE_PRODUCT_ID).length;
+  const volume2Count=0;
+  if(meta.filter(item=>item.access==='free').length!==FREE_CASE_COUNT||volume1Count!==PREMIUM_CASE_COUNT){
+    throw new Error(`Неверная коммерческая упаковка: free=${meta.filter(item=>item.access==='free').length}, paid=${volume1Count}`);
   }
 
   return{
     sourceCommit,assets,sourceEntries,deprecatedCount:deprecated.size,copyOverrideCount,structuredCount,multiStageCount,multipleSelectionCount,
-    supplementalCount:supplement.cases.length,totalCases:meta.length,freeCount:FREE_CASE_COUNT,premiumCount:VOLUME_SIZE*2,volume1Count,volume2Count,
+    supplementalCount:0,totalCases:meta.length,freeCount:FREE_CASE_COUNT,premiumCount:PREMIUM_CASE_COUNT,volume1Count,volume2Count,
     cases,collections,meta,freeMeta:meta.filter(item=>item.access==='free')
   };
 }

@@ -11,6 +11,8 @@ const must=(text,fragment,label)=>{if(!text.includes(fragment))throw new Error(`
 const sitewide=read('assets/logic-sitewide.js');
 for(const placement of ['sticky','after_puzzle','after_case','after_solo_case']) must(sitewide,placement,'sitewide retention placement');
 for(const marker of ['ml:logic_complete','ml:solo_complete','step_view','primary_action','telegram-retention','who-lied-offer','data-who-lied-cta','ml_telegram_click','18_000']) must(sitewide,marker,'sitewide retention runtime');
+for(const marker of ['ещё 85 открываются за 199 ₽','data-who-lied-cta="paid_199"','Открыть ещё 85 — 199 ₽']) must(sitewide,marker,'Who Lied retention offer');
+if(/85[^\n]{0,100}(?:за|—)\s*99\s*₽/iu.test(sitewide) || sitewide.includes('paid_99')) throw new Error('stale 85-case / 99 ₽ Who Lied retention offer remains');
 if(sitewide.includes("sendFunnel('telegram_prompt_view'")) throw new Error('unsupported telegram_prompt_view event must not be sent to funnel endpoint');
 if(sitewide.includes("sendFunnel('telegram_click'")) throw new Error('unsupported telegram_click event must not be sent to funnel endpoint');
 if(!sitewide.includes("/^\\/detektivnye-igry-dlya-odnogo\\/407$/.test(path)")) throw new Error('Solo 407 must be excluded from sticky Telegram prompts');
@@ -25,6 +27,7 @@ const post=read('tools/import-mobile/logic-sitewide-postprocess.mjs');
 for(const marker of ['Мини-дело дня ↗','data-nav-daily','data-telegram-cta="header"','data-logic-sitewide-style','telegramRetention:true',"VERSION='3.3.1'"]) must(post,marker,'sitewide generator');
 
 const who=read('tools/import-mobile/storefront-v4-who-postprocess.mjs');
-for(const marker of ['data-who-play-modes','Вслух с семьёй','199 / 299 ₽','110 коротких детективных дел','50 + 50']) must(who,marker,'Who Lied product framing');
+for(const marker of ['data-who-play-modes','Вслух с семьёй','199 ₽','100 коротких детективных дел','15 бесплатных расследований','85 дел']) must(who,marker,'Who Lied product framing');
+if(who.includes('199 / 299 ₽') || who.includes('110 коротких детективных дел') || who.includes('50 + 50')) throw new Error('Who Lied product framing still contains abandoned two-volume offer');
 
-console.log(JSON.stringify({telegramRetention:true,allowedFunnelEvents:['step_view','primary_action'],placements:['header','sticky','after_puzzle','after_case','after_solo_case'],whoLiedBridge:true,solo407EarlyPromptSuppressed:true},null,2));
+console.log(JSON.stringify({telegramRetention:true,allowedFunnelEvents:['step_view','primary_action'],placements:['header','sticky','after_puzzle','after_case','after_solo_case'],whoLiedBridge:true,solo407EarlyPromptSuppressed:true,whoLiedOffer:'100/15/85/199'},null,2));
