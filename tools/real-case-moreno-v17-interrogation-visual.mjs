@@ -2,13 +2,19 @@
 import fs from 'node:fs';import http from 'node:http';import path from 'node:path';import {spawn} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');const out=path.join(root,'artifacts','real-case-moreno-v17');fs.mkdirSync(out,{recursive:true});
 const chrome=['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].find(fs.existsSync);if(!chrome)throw new Error('Chrome missing');
+const premiumHtml=fs.readFileSync(path.join(root,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html'),'utf8');
+const routerPos=premiumHtml.indexOf('real-case-moreno-ai-router-v17.js'),clientPos=premiumHtml.indexOf('real-case-moreno-ai-v6.js');
+if(routerPos<0)throw new Error('v0.17 premium route does not load AI router');
+if(clientPos<0)throw new Error('v0.17 premium route does not load v6 client');
+if(routerPos>clientPos)throw new Error('v0.17 AI router must load before the v6 client');
+for(const token of ['real-case-moreno-reference-v17.css','real-case-moreno-reference-v17.js','moreno-reference-v17'])if(!premiumHtml.includes(token))throw new Error(`v0.17 premium wiring missing: ${token}`);
 const I=(title,body,kind='result')=>({title,body,kind}),J=(command,items)=>({command,items});
 const target='бойфренд старшей дочери';
 const journal=[
  J('вызвать бойфренда старшей дочери на допрос',[I('Прямой допрос открыт',`Перед вами ${target}. Можно задавать вопросы или в любой момент отдать следственной группе другое распоряжение.`,'interview')]),
  J('Где вы были и что делали перед выстрелами?',[I(`Ответ: ${target}`,'По его версии, он спал в кресле в гостиной, проснулся от звука двух выстрелов, затем вышел на пожарную лестницу и обнаружил там Patricia.','statement')]),
- J('Покажи ему результаты баллистики',[I(`Ответ: ${target}`,'Вы предъявили результат баллистики: извлечённый из тела Patricia снаряд был совместим с выстрелом из оружия калибра .38. Реакция этого собеседника на такое предъявление в открытых официальных материалах не опубликована; игра не будет её реконструировать.','statement')]),
- J('Предъяви ему проверку версии о сне в кресле',[I(`Ответ: ${target}`,'Вы предъявили позднейшее признание женщины, защищавшей бойфренда в 1991 году: по её словам, она лгала полиции и большому жюри, а он спрятал оружие в кресле и затем избавился от него. Это расходится с его ранее зафиксированной версией о сне в кресле. Реакция самого бойфренда на такое предъявление в открытых официальных материалах не опубликована; игра не будет её реконструировать.','statement')]),
+ J('Покажи ему результаты баллистики',[I(`Ответ: ${target}`,'Вы предъявили результат баллистики: извлечённый из тела Patricia снаряд был совместим с выстрелом из оружия калибра .38. В доступных официальных материалах реакция этого собеседника на такое предъявление не зафиксирована.','statement')]),
+ J('Предъяви ему проверку версии о сне в кресле',[I(`Ответ: ${target}`,'Вы предъявили позднейшее признание женщины, защищавшей бойфренда в 1991 году: по её словам, она лгала полиции и большому жюри, а он спрятал оружие в кресле и затем избавился от него. Это расходится с его ранее зафиксированной версией о сне в кресле. В доступных официальных материалах реакция самого бойфренда на такое предъявление не зафиксирована.','statement')]),
  J('Кто стрелял?',[I(`Ответ: ${target}`,'Он утверждает, что не видел момент выстрела и не знает, кто стрелял.','statement')]),
  J('провести криминалистическую реконструкцию',[I('Криминалистическая реконструкция','Положение входного ранения и нисходящая траектория были совместимы с выстрелом из района дверного проёма квартиры. Точный угол в публичном материале не опубликован.')])
 ];
@@ -26,6 +32,6 @@ try{
  if((dom.match(/ref17-interrogation-log/g)||[]).length<5)throw new Error('v0.17 interrogation thread did not preserve sequential turns');
  for(const forbidden of ['ПРАВИЛЬНЫЙ ОТВЕТ','КЛЮЧЕВАЯ УЛИКА','ВИНОВЕН'])if(dom.includes(forbidden))throw new Error(`solution cue leaked: ${forbidden}`);
  for(const [name,w,h] of [['interrogation-desktop',1648,1100],['interrogation-mobile',390,1040]])await run(['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--window-size=${w},${h}`,'--force-device-scale-factor=1','--hide-scrollbars','--virtual-time-budget=2000',`--screenshot=${path.join(out,`${name}.png`)}`,url]);
- fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.7.0',threadTurns:5,confrontation:true,sourceGroundedReactionGuard:true,solutionCueGuard:true,screenshots:2},null,2));
- console.log('captured Moreno v0.17 interrogation and confrontation audit');
+ fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.7.1',threadTurns:5,confrontation:true,sourceGroundedReactionGuard:true,solutionCueGuard:true,premiumRouterOrderGuard:true,screenshots:2},null,2));
+ console.log('captured Moreno v0.17 interrogation, confrontation and router-order audit');
 }finally{await new Promise(r=>server.close(r))}
