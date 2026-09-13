@@ -16,8 +16,9 @@ body.moreno-reference-v17 .ref17-thread-start.ref17-thread-end:before{top:24px;b
 body.moreno-reference-v17 .ref17-interrogation-log+.ref17-interrogation-log{margin-top:-5px!important}
 
 /* User's turn is legible as a question/action, without chat-bubble styling. */
-body.moreno-reference-v17 .ref17-interrogation-log .v4-command{margin:0 0 11px!important;padding:9px 11px 10px!important;border-left:1px solid rgba(183,201,210,.20);background:rgba(255,255,255,.012);color:#d7dee1!important;font-family:Georgia,serif;font-size:.88rem!important;line-height:1.45}
+body.moreno-reference-v17 .ref17-interrogation-log .v4-command{margin:0 0 11px!important;padding:9px 11px 10px 44px!important;border-left:1px solid rgba(183,201,210,.20);background:rgba(255,255,255,.012);color:#d7dee1!important;font-family:Georgia,serif;font-size:.88rem!important;line-height:1.45}
 body.moreno-reference-v17 .ref17-turn-label{display:block;margin-bottom:5px;color:#71828c!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:8px!important;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+body.moreno-reference-v17 .ref17-interrogation-log .ref13-meta{display:none!important}
 
 /* Interrogation cards shed generic operation thumbnails and completion badges. */
 body.moreno-reference-v17 .ref17-interrogation-log .v6-item{min-height:0!important;padding:0 16px 14px!important;border-radius:8px!important}
@@ -68,7 +69,7 @@ body.moreno-reference-v17 .ref17-focus-strip em{color:#677985;font-size:9px;font
  body.moreno-reference-v17 .ref17-interrogation-log{row-gap:6px!important}
  body.moreno-reference-v17 .ref17-interrogation-log:before{left:27px}
  body.moreno-reference-v17 .ref17-thread-head>span:last-child{display:none}
- body.moreno-reference-v17 .ref17-interrogation-log .v4-command{padding:8px 9px!important;font-size:.82rem!important}
+ body.moreno-reference-v17 .ref17-interrogation-log .v4-command{padding:8px 9px 8px 40px!important;font-size:.82rem!important}
  body.moreno-reference-v17 .ref17-interrogation-log .v6-item{padding:0 12px 12px!important}
  body.moreno-reference-v17 .ref17-interrogation-log .ref16-statebar{margin:0 -12px 10px!important;padding:7px 12px 6px!important}
  body.moreno-reference-v17 .ref17-evidence-tag{font-size:7px}
