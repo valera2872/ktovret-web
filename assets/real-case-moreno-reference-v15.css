@@ -12,6 +12,17 @@ body.moreno-reference-v15 .ref10-nav .active{color:#f0e8dc!important}
 body.moreno-reference-v15 .ref10-search{transition:border-color .16s ease,background .16s ease}
 body.moreno-reference-v15 .ref10-search:hover{border-color:rgba(220,185,115,.20)!important;background:#0b1b28!important}
 
+/* Left cinematic rail is viewport-stable: a growing journal must not re-crop the photograph. */
+@media(min-width:821px){
+  body.moreno-reference-v15 .v4-work:before,
+  body.moreno-reference-v15 .v4-work:after{
+    grid-column:1!important;grid-row:1!important;position:sticky!important;top:61px!important;align-self:start!important;
+    width:268px!important;height:calc(100vh - 61px)!important;min-height:calc(100vh - 61px)!important
+  }
+  body.moreno-reference-v15 .v4-work:before{z-index:0!important}
+  body.moreno-reference-v15 .v4-work:after{z-index:3!important}
+}
+
 /* Long journal: clear separation between consecutive work orders without visual noise. */
 body.moreno-reference-v15 .v4-journal{gap:15px!important}
 body.moreno-reference-v15 .v4-log{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -44,11 +55,8 @@ body.moreno-reference-v15 .v4-evidence .ref11-folder-card small{letter-spacing:-
 body.moreno-reference-v15 .ref11-folder-chevron{transition:color .16s ease,transform .16s ease}
 body.moreno-reference-v15 .ref11-folder-quote{margin-bottom:8px!important}
 
-/* Composer remains available through a long investigation, but never hides content. */
-@media(min-width:821px){
-  body.moreno-reference-v15 .v4-composer{position:sticky!important;bottom:12px!important;z-index:8!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-  body.moreno-reference-v15 .v4-journal{padding-bottom:3px!important}
-}
+/* Composer follows the journal in document flow. This prevents it covering evidence in long sessions. */
+body.moreno-reference-v15 .v4-composer{position:relative!important;bottom:auto!important;z-index:8!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 body.moreno-reference-v15 .v4-composer textarea{transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
 body.moreno-reference-v15 .v4-composer textarea:hover{border-color:rgba(255,255,255,.15)!important;background:#0a1b26!important}
 body.moreno-reference-v15 .v4-composer textarea:focus{border-color:rgba(220,185,115,.48)!important;box-shadow:0 0 0 3px rgba(220,185,115,.055)!important;background:#0a1b26!important}
