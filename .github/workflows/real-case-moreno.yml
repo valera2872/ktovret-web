@@ -30,13 +30,13 @@ jobs:
           node --check tools/real-case-moreno-v6-smoke.mjs
           node --check tools/real-case-moreno-v6-visual.mjs
           node --check tools/real-case-moreno-v9-premium-visual.mjs
-      - name: Capture v0.11 accepted-mockup fidelity
+      - name: Capture v0.12 accepted-mockup fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
-      - name: Upload v0.11 mockup audit
+      - name: Upload v0.12 mockup audit
         uses: actions/upload-artifact@v4
         with:
-          name: real-case-moreno-v11-audit
-          path: artifacts/real-case-moreno-v11
+          name: real-case-moreno-v12-audit
+          path: artifacts/real-case-moreno-v12
           retention-days: 7
       - name: Regress v0.6 against real player transcript
         run: node tools/real-case-moreno-v6-smoke.mjs
