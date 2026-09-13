@@ -60,15 +60,17 @@ function enhance(){
     if(head&&!evidence.querySelector('.ref11-source-report'))head.insertAdjacentHTML('afterend',folderReport());
     const found=[...evidence.querySelectorAll('article:not(.ref11-source-report):not(.v4-hyp)')].length;
     const counter=head?.querySelector('span');
-    if(counter)counter.textContent=`${found+1} ${found===0?'материал':found<4?'материала':'материалов'}`;
+    const counterText=`${found+1} ${found===0?'материал':found<4?'материала':'материалов'}`;
+    if(counter&&counter.textContent!==counterText)counter.textContent=counterText;
     evidence.querySelectorAll('article:not(.ref11-source-report) small').forEach(s=>{
       const raw=s.textContent.trim();
-      if(titleMap[raw])s.textContent=titleMap[raw];
+      if(titleMap[raw]&&s.textContent!==titleMap[raw])s.textContent=titleMap[raw];
     });
   }
 
   work.querySelectorAll('.v6-item').forEach((card,i)=>{
-    card.dataset.ref11Index=String(i+1);
+    const idx=String(i+1);
+    if(card.dataset.ref11Index!==idx)card.dataset.ref11Index=idx;
     if(!card.querySelector('.ref11-card-status'))card.insertAdjacentHTML('beforeend','<div class="ref11-card-status"><span>✓</span> Завершено</div>');
   });
 
@@ -79,7 +81,10 @@ function enhance(){
   const form=work.querySelector('.v4-composer');
   if(form){
     const box=form.querySelector('textarea');
-    if(box){box.placeholder='Напишите, что нужно сделать…';box.setAttribute('aria-label','Следственное распоряжение');}
+    if(box){
+      if(box.placeholder!=='Напишите, что нужно сделать…')box.placeholder='Напишите, что нужно сделать…';
+      if(box.getAttribute('aria-label')!=='Следственное распоряжение')box.setAttribute('aria-label','Следственное распоряжение');
+    }
     const status=form.querySelector('div > span');
     if(status&&/ИИ понимает язык/.test(status.textContent))status.textContent='Shift + Enter — новая строка';
     const btn=form.querySelector('button');
@@ -91,5 +96,5 @@ let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV11={version:'1.1.0',refresh:enhance};
+window.MLMorenoReferenceV11={version:'1.1.1',refresh:enhance};
 })();
