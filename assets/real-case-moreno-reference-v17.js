@@ -15,7 +15,7 @@ function targetFromCard(card){
   return'';
 }
 function isConfrontation(card){return /^Вы предъявили\s/i.test(norm(card.querySelector('p')?.textContent))}
-function isContradiction(card){return isConfrontation(card)&&/\bЭто расходится\b/i.test(norm(card.querySelector('p')?.textContent))}
+function isContradiction(card){return isConfrontation(card)&&/Это расходится/i.test(norm(card.querySelector('p')?.textContent))}
 function isAnswer(card){return /^Ответ:\s*/i.test(norm(card.querySelector('h3')?.textContent))}
 function isOpen(card){return /^Прямой допрос открыт$/i.test(norm(card.querySelector('h3')?.textContent))}
 function isInterrogationCard(card){return isAnswer(card)||isOpen(card)||isConfrontation(card)}
@@ -97,5 +97,5 @@ function enhance(){enhanceLogs();enhanceFocus()}
 let scheduled=false;function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV17={version:'1.7.0',refresh:enhance};
+window.MLMorenoReferenceV17={version:'1.7.1',refresh:enhance};
 })();
