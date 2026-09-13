@@ -7,6 +7,7 @@ import { applyPremiumUiUnification } from './premium-ui-unification-postprocess.
 import { rebuildApprovedAiBanner } from './rebuild-approved-ai-banner.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
+const SOLO_CARD_PROOF_VERSION = '20260913a';
 let finalizerRegistered = false;
 
 function restoreWhoLiedOfferInHtml(html) {
@@ -47,6 +48,27 @@ function restoreWhoLiedOffer(siteRoot) {
   }
 }
 
+function patchSoloCardSocialProof(siteRoot) {
+  const asset = path.join(siteRoot, 'assets', 'solo-card-social-proof.js');
+  if (!fs.existsSync(asset)) {
+    if (process.env.MYSTERYLOGIC_SITE_ORIGIN) throw new Error('Solo card social proof asset missing');
+    return;
+  }
+
+  const hubs = [
+    [path.join(siteRoot, HUB, 'mini', 'index.html'), '../../assets/solo-card-social-proof.js'],
+    [path.join(siteRoot, HUB, 'rassledovaniya', 'index.html'), '../../assets/solo-card-social-proof.js'],
+  ];
+
+  for (const [file, src] of hubs) {
+    if (!fs.existsSync(file)) continue;
+    let html = fs.readFileSync(file, 'utf8');
+    html = html.replace(/<script[^>]+solo-card-social-proof\.js[^>]*><\/script>\s*/giu, '');
+    html = html.replace('</body>', `<script data-solo-card-social-proof src="${src}?v=${SOLO_CARD_PROOF_VERSION}" defer></script>\n</body>`);
+    fs.writeFileSync(file, html);
+  }
+}
+
 function premiumVisualAssetsReady(siteRoot) {
   return [
     'assets/ai01-home-banner.webp',
@@ -73,8 +95,10 @@ function registerFinalRestore(siteRoot) {
     rebuildBannerWhenAvailable(siteRoot);
     if (premiumVisualAssetsReady(siteRoot)) {
       applyPremiumUiUnification(siteRoot);
+      patchSoloCardSocialProof(siteRoot);
       return;
     }
+    patchSoloCardSocialProof(siteRoot);
     // Some focused regression/visual tests intentionally create only the Solo 407
     // slice and do not reconstruct the large approved WebP assets. Do not make those
     // partial workspaces fail at process exit. Full production builds always prepare
@@ -104,5 +128,6 @@ export function polishSoloKtoVret(siteRoot) {
   applySoloMiniInvestigations(siteRoot);
   applySoloPaidInvestigations(siteRoot);
   restoreWhoLiedOffer(siteRoot);
+  patchSoloCardSocialProof(siteRoot);
   registerFinalRestore(siteRoot);
 }
