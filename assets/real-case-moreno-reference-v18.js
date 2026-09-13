@@ -1,0 +1,15 @@
+(()=>{
+'use strict';
+const app=document.querySelector('[data-moreno-app]');if(!app)return;
+document.body.classList.add('moreno-reference-v18');
+const LABELS={boyfriend:'Бойфренд старшей дочери',mother:'Приёмная мать Patricia',older_daughter:'Старшая дочь',younger_daughter:'Младшая дочь',second_floor_witness:'Бывший житель второго этажа'};
+const norm=s=>String(s||'').replace(/\s+/g,' ').trim();
+function memory(){return window.MLMorenoAIRouterV18?.buildMemory?.()||{entries:[]}}
+function rewriteMemoryLogs(){for(const log of app.querySelectorAll('.v4-log')){const cards=[...log.querySelectorAll('.v6-item')],mem=cards.filter(card=>/^Память дела:/i.test(norm(card.querySelector('p')?.textContent)));if(!mem.length)continue;log.classList.add('ref18-memory-log');for(const c of ['ref17-interrogation-log','ref17-thread-start','ref17-thread-middle','ref17-thread-end'])log.classList.remove(c);log.querySelector(':scope > .ref17-thread-head')?.remove();const command=log.querySelector('.v4-command');command?.querySelector('.ref17-turn-label')?.remove();for(const card of mem){card.classList.add('ref18-memory-card');for(const c of ['ref17-answer','ref17-open','ref17-confrontation','ref17-contradiction'])card.classList.remove(c);const h=card.querySelector('h3');if(h&&h.dataset.v18!=='1'){h.dataset.v18='1';h.textContent='Следственная память'}let bar=card.querySelector(':scope > .ref16-statebar');if(bar){bar.className='ref16-statebar ref18-memory-state';bar.innerHTML='<i class="ref18-memory-glyph" aria-hidden="true"><b></b><b></b><b></b></i><strong>ПАМЯТЬ ДЕЛА</strong><span>только уже зафиксированные материалы</span>'}}}}
+function renderPanel(){const evidence=app.querySelector('.v4-evidence'),head=evidence?.querySelector('.v4-evidence-head');if(!evidence||!head)return;const entries=memory().entries||[];let panel=evidence.querySelector(':scope > .ref18-memory-panel');if(!entries.length){panel?.remove();return}const groups=new Map();for(const e of entries){if(!LABELS[e.actor_id])continue;const g=groups.get(e.actor_id)||{statement:0,confrontation:0};g[e.type==='confrontation'?'confrontation':'statement']++;groups.set(e.actor_id,g)}if(!groups.size){panel?.remove();return}if(!panel){panel=document.createElement('section');panel.className='ref18-memory-panel';head.insertAdjacentElement('afterend',panel)}const rows=[...groups.entries()].map(([id,g])=>`<div class="ref18-memory-person"><span>${LABELS[id]}</span><b>${g.statement} отв. · ${g.confrontation} предъявл.</b></div>`).join('');panel.innerHTML=`<div class="ref18-memory-head"><strong>Следственная память</strong><span>${entries.length}</span></div>${rows}<p>Можно спросить: «что он говорил?», «что я ему уже предъявлял?», «какие здесь расхождения?»</p>`}
+function enhance(){rewriteMemoryLogs();renderPanel()}
+let scheduled=false;function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
+new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
+enhance();
+window.MLMorenoReferenceV18={version:'1.8.0',refresh:enhance,getMemory:memory};
+})();
