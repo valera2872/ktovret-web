@@ -1,0 +1,9 @@
+/* Final fidelity corrections: preserve warm window light and restore source-report microcopy. */
+body.moreno-reference-v11 .v4-work:before{
+  filter:saturate(.74) brightness(.60) contrast(1.07) sepia(.04)!important;
+  box-shadow:inset -78px 0 105px rgba(4,14,23,.36),inset 0 -190px 190px rgba(2,9,15,.48),inset 0 0 0 999px rgba(5,20,31,.08)!important;
+}
+body.moreno-reference-v11 .v4-journal-empty .ref11-report-head span{display:block!important;color:var(--r11-gold)!important;font-size:9px!important;letter-spacing:.13em!important}
+body.moreno-reference-v11 .v4-journal-empty .ref11-report-facts{display:flex!important}
+body.moreno-reference-v11 .v4-journal-empty .ref11-report-facts span{display:inline-flex!important;color:#81919f!important;font-size:10px!important;letter-spacing:0!important}
+@media(max-width:820px){body.moreno-reference-v11 .v4-journal-empty .ref11-report-facts{display:grid!important}}
