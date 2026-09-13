@@ -9,6 +9,12 @@ function state(){return window.MLMorenoV6?.getState?.()||{completed:[]}}
 function countKnownPeople(done){let n=done.has('people')?4:0;if(done.has('witnessLocated'))n+=1;return n}
 function countOf(done,ids){return ids.filter(id=>done.has(id)).length}
 function setText(el,value){if(el&&el.textContent!==value)el.textContent=value}
+function materialPreview(i){
+  if(i===0)return '<div class="ref13-material mat-door" aria-hidden="true"><i class="m-wall"></i><i class="m-door"></i><i class="m-edge"></i><i class="m-knob"></i></div>';
+  if(i===1)return '<div class="ref13-material mat-docs" aria-hidden="true"><i class="m-paper p1"><b></b><b></b><b></b></i><i class="m-paper p2"><b></b><b></b><b></b></i></div>';
+  if(i===2)return '<div class="ref13-material mat-note" aria-hidden="true"><i class="m-note"><b></b><b></b><b></b></i><i class="m-clip"></i></div>';
+  return '<div class="ref13-material mat-witness" aria-hidden="true"><i class="m-window"></i><i class="m-head"></i><i class="m-body"></i></div>';
+}
 
 function enhanceLogs(){
   app.querySelectorAll('.v4-log').forEach((log,i)=>{
@@ -16,7 +22,8 @@ function enhanceLogs(){
     if(!log.querySelector('.ref13-log-time'))log.insertAdjacentHTML('afterbegin',`<span class="ref13-log-time">Ход ${String(i+1).padStart(2,'0')}</span>`);
     const command=log.querySelector('.v4-command');
     if(command&&!log.querySelector('.ref13-meta'))command.insertAdjacentHTML('afterend',`<div class="ref13-meta"><span class="spark">✦</span><b>${bundle?`Выполнено ${bundle} ${one(bundle,'действие','действия','действий')} по распоряжению`:'Результат внесён в журнал'}</b><i></i><span>материалы сохранены</span></div>`);
-    log.querySelectorAll('.v6-item').forEach(card=>{
+    log.querySelectorAll('.v6-item').forEach((card,idx)=>{
+      if(!card.querySelector('.ref13-material'))card.insertAdjacentHTML('beforeend',materialPreview(idx%4));
       if(!card.querySelector('.ref13-preview-label'))card.insertAdjacentHTML('beforeend','<span class="ref13-preview-label">визуальный индекс</span>');
     });
   });
@@ -54,5 +61,5 @@ let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV13={version:'1.3.1',refresh:enhance};
+window.MLMorenoReferenceV13={version:'1.3.2',refresh:enhance};
 })();
