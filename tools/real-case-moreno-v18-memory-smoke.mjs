@@ -31,7 +31,9 @@ const cross=await post({...base,action:'interrogate',target:'boyfriend',question
 if(cross.memory_target!=='second_floor_witness'||!String(cross.reply).includes('мужчину, стоявшего над ней'))throw new Error(`Cross-person memory failed: ${JSON.stringify(cross)}`);
 const noFocus=await post({...base,focus:'',last_target:'',action:'plan',command:'Напомни, что говорил бойфренд про выстрелы?'});
 if(noFocus.operations?.[0]?.op!=='clarify'||!String(noFocus.operations?.[0]?.note).startsWith('Память дела:')||String(noFocus.operations?.[0]?.note).includes('__ML_MEMORY__'))throw new Error(`Desk memory should return a direct memory card without opening an interview: ${JSON.stringify(noFocus)}`);
-for(const text of [statements.reply,confrontations.reply,contradictions.reply,cross.reply,noFocus.operations?.[0]?.note])if(/виновен|ключевая улика|правильный ответ/i.test(String(text)))throw new Error(`Solution cue leaked into memory: ${text}`);
+const caseWide=await post({...base,focus:'',last_target:'second_floor_witness',action:'plan',command:'Какие здесь расхождения?'});
+if(caseWide.operations?.[0]?.op!=='clarify'||!String(caseWide.operations?.[0]?.note).includes('сне в кресле')||!String(caseWide.operations?.[0]?.note).includes('спрятал оружие в кресле'))throw new Error(`Case-wide contradiction recall followed the last contact instead of the registered clash: ${JSON.stringify(caseWide)}`);
+for(const text of [statements.reply,confrontations.reply,contradictions.reply,cross.reply,noFocus.operations?.[0]?.note,caseWide.operations?.[0]?.note])if(/виновен|ключевая улика|правильный ответ/i.test(String(text)))throw new Error(`Solution cue leaked into memory: ${text}`);
 const forwarded=await post({...base,action:'plan',command:'Покажи ему результаты баллистики'});
 if(forwarded.operations?.[0]?.question!=='__ML_PRESENT__:ballistics')throw new Error(`v4 did not preserve v3 confrontation routing: ${JSON.stringify(forwarded)}`);
 console.log('Moreno v0.18 deployed investigative memory smoke passed');
