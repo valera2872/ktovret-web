@@ -3,10 +3,12 @@ import fs from 'node:fs';import http from 'node:http';import path from 'node:pat
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');const out=path.join(root,'artifacts','real-case-moreno-v17');fs.mkdirSync(out,{recursive:true});
 const chrome=['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].find(fs.existsSync);if(!chrome)throw new Error('Chrome missing');
 const premiumHtml=fs.readFileSync(path.join(root,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html'),'utf8');
-const routerPos=premiumHtml.indexOf('real-case-moreno-ai-router-v17.js'),clientPos=premiumHtml.indexOf('real-case-moreno-ai-v6.js');
-if(routerPos<0)throw new Error('v0.17 premium route does not load AI router');
-if(clientPos<0)throw new Error('v0.17 premium route does not load v6 client');
-if(routerPos>clientPos)throw new Error('v0.17 AI router must load before the v6 client');
+const routerMatch=premiumHtml.match(/real-case-moreno-ai-router-v(\d+)\.js/),routerPos=routerMatch?premiumHtml.indexOf(routerMatch[0]):-1,clientPos=premiumHtml.indexOf('real-case-moreno-ai-v6.js');
+if(routerPos<0)throw new Error('premium route does not load a Moreno AI router');
+if(clientPos<0)throw new Error('premium route does not load v6 client');
+if(routerPos>clientPos)throw new Error('Moreno AI router must load before the v6 client');
+if(Number(routerMatch?.[1]||0)<17)throw new Error(`premium route regressed below v0.17 router: ${routerMatch?.[0]||'missing'}`);
+if(routerMatch?.[1]==='18'){const router18=fs.readFileSync(path.join(root,'assets','real-case-moreno-ai-router-v18.js'),'utf8');if(!router18.includes('/ai-moreno-investigator-v4'))throw new Error('v0.18 router does not target investigative-memory v4');}
 for(const token of ['real-case-moreno-reference-v17.css','real-case-moreno-reference-v17.js','moreno-reference-v17'])if(!premiumHtml.includes(token))throw new Error(`v0.17 premium wiring missing: ${token}`);
 const I=(title,body,kind='result')=>({title,body,kind}),J=(command,items)=>({command,items});
 const target='бойфренд старшей дочери';
@@ -32,6 +34,6 @@ try{
  if((dom.match(/ref17-interrogation-log/g)||[]).length<5)throw new Error('v0.17 interrogation thread did not preserve sequential turns');
  for(const forbidden of ['ПРАВИЛЬНЫЙ ОТВЕТ','КЛЮЧЕВАЯ УЛИКА','ВИНОВЕН'])if(dom.includes(forbidden))throw new Error(`solution cue leaked: ${forbidden}`);
  for(const [name,w,h] of [['interrogation-desktop',1648,1100],['interrogation-mobile',390,1040]])await run(['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--window-size=${w},${h}`,'--force-device-scale-factor=1','--hide-scrollbars','--virtual-time-budget=2000',`--screenshot=${path.join(out,`${name}.png`)}`,url]);
- fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.7.1',threadTurns:5,confrontation:true,sourceGroundedReactionGuard:true,solutionCueGuard:true,premiumRouterOrderGuard:true,screenshots:2},null,2));
- console.log('captured Moreno v0.17 interrogation, confrontation and router-order audit');
+ fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.7.2',threadTurns:5,confrontation:true,sourceGroundedReactionGuard:true,solutionCueGuard:true,premiumRouterOrderGuard:true,currentRouter:routerMatch?.[0]||null,screenshots:2},null,2));
+ console.log('captured Moreno v0.17 interrogation, confrontation and version-agnostic router-order audit');
 }finally{await new Promise(r=>server.close(r))}
