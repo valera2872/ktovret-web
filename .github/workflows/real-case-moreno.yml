@@ -8,6 +8,7 @@ on:
       - 'realnye-dela/pozharnaya-lestnica-1991-premium/**'
       - 'assets/real-case-moreno-*'
       - 'tools/real-case-moreno-*.mjs'
+      - 'supabase/functions/ai-moreno-investigator-v3/**'
       - '.github/workflows/real-case-moreno.yml'
   workflow_dispatch:
 
@@ -35,7 +36,10 @@ jobs:
           node --check tools/real-case-moreno-v6-visual.mjs
           node --check tools/real-case-moreno-v9-premium-visual.mjs
           node --check tools/real-case-moreno-v16-visual.mjs
+          node --check tools/real-case-moreno-v17-confrontation-smoke.mjs
           node --check tools/real-case-moreno-v17-interrogation-visual.mjs
+      - name: Smoke deployed v0.17 confrontation contract
+        run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
