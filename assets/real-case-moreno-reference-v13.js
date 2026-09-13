@@ -8,6 +8,7 @@ const one=(n,a,b,c)=>n%10===1&&n%100!==11?a:n%10>=2&&n%10<=4&&(n%100<10||n%100>=
 function state(){return window.MLMorenoV6?.getState?.()||{completed:[]}}
 function countKnownPeople(done){let n=done.has('people')?4:0;if(done.has('witnessLocated'))n+=1;return n}
 function countOf(done,ids){return ids.filter(id=>done.has(id)).length}
+function setText(el,value){if(el&&el.textContent!==value)el.textContent=value}
 
 function enhanceLogs(){
   app.querySelectorAll('.v4-log').forEach((log,i)=>{
@@ -27,21 +28,21 @@ function enhanceFolder(){
     const meta=card.querySelector('b');
     if(card.classList.contains('people')){
       const n=countKnownPeople(done);
-      if(meta&&n)meta.textContent=`${n} ${one(n,'лицо','лица','лиц')} · люди и свидетели`;
+      if(meta&&n)setText(meta,`${n} ${one(n,'лицо','лица','лиц')} · люди и свидетели`);
       if(!card.querySelector('.ref13-avatars')&&n){
         const dots=Math.min(n,5);card.querySelector('p')?.insertAdjacentHTML('beforebegin',`<div class="ref13-avatars">${'<span></span>'.repeat(dots)}${n>5?`<em>+${n-5}</em>`:''}</div>`);
       }
     }
-    if(card.classList.contains('reconstruction')&&meta){const n=countOf(done,['scene','ballistics','trajectory']);if(n)meta.textContent=`${n} ${one(n,'материал','материала','материалов')} · сцена и физика`}
-    if(card.classList.contains('conflict')&&meta){const n=countOf(done,['motive','weapon']);if(n)meta.textContent=`${n} ${one(n,'материал','материала','материалов')} · отношения и доступ`}
-    if(card.classList.contains('alibi')&&meta){const n=countOf(done,['interview','alibi']);if(n)meta.textContent=`${n} ${one(n,'материал','материала','материалов')} · показания`}
+    if(card.classList.contains('reconstruction')&&meta){const n=countOf(done,['scene','ballistics','trajectory']);if(n)setText(meta,`${n} ${one(n,'материал','материала','материалов')} · сцена и физика`)}
+    if(card.classList.contains('conflict')&&meta){const n=countOf(done,['motive','weapon']);if(n)setText(meta,`${n} ${one(n,'материал','материала','материалов')} · отношения и доступ`)}
+    if(card.classList.contains('alibi')&&meta){const n=countOf(done,['interview','alibi']);if(n)setText(meta,`${n} ${one(n,'материал','материала','материалов')} · показания`)}
   });
 }
 
 function enhanceComposer(){
   const form=app.querySelector('.v4-composer');if(!form)return;
   const box=form.querySelector('textarea');
-  if(box)box.placeholder='Напишите, что нужно сделать… Можно объединить несколько действий.';
+  if(box&&box.placeholder!=='Напишите, что нужно сделать… Можно объединить несколько действий.')box.placeholder='Напишите, что нужно сделать… Можно объединить несколько действий.';
   if(!form.querySelector('.ref13-composer-foot')){
     const last=form.querySelector(':scope > div');
     if(last)last.insertAdjacentHTML('beforebegin','<div class="ref13-composer-foot"><span>Shift + Enter — новая строка</span><span class="ref13-ai"><i></i>ИИ-помощник активен</span></div>');
@@ -53,5 +54,5 @@ let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV13={version:'1.3.0',refresh:enhance};
+window.MLMorenoReferenceV13={version:'1.3.1',refresh:enhance};
 })();
