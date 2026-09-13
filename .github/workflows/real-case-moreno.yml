@@ -25,14 +25,17 @@ jobs:
       - name: Validate JavaScript
         run: |
           node --check assets/real-case-moreno-budget-v51.js
+          node --check assets/real-case-moreno-ai-router-v17.js
           node --check assets/real-case-moreno-ai-v6.js
           node --check assets/real-case-moreno-reference-v11.js
           node --check assets/real-case-moreno-reference-v13.js
           node --check assets/real-case-moreno-reference-v16.js
+          node --check assets/real-case-moreno-reference-v17.js
           node --check tools/real-case-moreno-v6-smoke.mjs
           node --check tools/real-case-moreno-v6-visual.mjs
           node --check tools/real-case-moreno-v9-premium-visual.mjs
           node --check tools/real-case-moreno-v16-visual.mjs
+          node --check tools/real-case-moreno-v17-interrogation-visual.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
@@ -48,6 +51,14 @@ jobs:
         with:
           name: real-case-moreno-v16-audit
           path: artifacts/real-case-moreno-v16
+          retention-days: 7
+      - name: Capture v0.17 interrogation and confrontation audit
+        run: node tools/real-case-moreno-v17-interrogation-visual.mjs
+      - name: Upload v0.17 interrogation audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v17-audit
+          path: artifacts/real-case-moreno-v17
           retention-days: 7
       - name: Regress v0.6 against real player transcript
         run: node tools/real-case-moreno-v6-smoke.mjs
