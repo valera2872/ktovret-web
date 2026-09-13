@@ -4,21 +4,6 @@ const app=document.querySelector('[data-moreno-app]');
 if(!app)return;
 document.body.classList.add('moreno-reference-v11');
 
-const titleMap={
-  'ОСМОТР':'Осмотр сцены',
-  'КРУГ ЛИЦ':'Круг лиц',
-  'ВЕРСИЯ БОЙФРЕНДА':'Версия бойфренда',
-  'НОВЫЙ КОНТАКТ':'Новый контакт',
-  'НЕЗАВИСИМЫЙ СВИДЕТЕЛЬ':'Независимый свидетель',
-  'СОПОСТАВЛЕНИЕ':'Сопоставление',
-  'БАЛЛИСТИКА':'Баллистика',
-  'РЕКОНСТРУКЦИЯ':'Реконструкция',
-  'ОРУЖИЕ':'Оружие',
-  'КОНФЛИКТ':'Конфликт',
-  'ПРОВЕРКА АЛИБИ':'Проверка алиби',
-  'ВАША ВЕРСИЯ':'Ваша версия'
-};
-
 function rail(){return `
   <div class="ref11-rail-ui" aria-hidden="true">
     <div class="ref11-rail-copy">КАЖДАЯ<br>КВАРТИРА<br>ХРАНИТ<br>СВОЮ ИСТОРИЮ</div>
@@ -28,7 +13,7 @@ function rail(){return `
       <div><span>2</span><i></i><b>этаж</b></div>
       <div><span>1</span><i></i><b>этаж</b></div>
     </div>
-    <div class="ref11-location"><strong>MALDEN · 1991</strong><span>пожарная лестница<br>третьего этажа</span></div>
+    <div class="ref11-location"><strong>MALDEN · 1991</strong><span>Люди ближе,<br>чем кажется.</span></div>
   </div>`}
 
 function initialReport(){return `
@@ -40,7 +25,43 @@ function initialReport(){return `
     <span><b>не найдено</b> оружие и гильза</span>
   </div>`}
 
-function folderReport(){return `<article class="ref11-source-report"><small>Исходный рапорт</small><p>Patricia Moreno, 17 лет. Найдена на площадке пожарной лестницы третьего этажа. На месте не обнаружены оружие и гильза.</p></article>`}
+const has=(set,...ids)=>ids.some(id=>set.has(id));
+function folderCard(kind,title,meta,body){return `<article class="ref11-folder-card ${kind}"><div class="ref11-folder-icon" aria-hidden="true"></div><div><small>${title}</small>${meta?`<b>${meta}</b>`:''}<p>${body}</p></div><span class="ref11-folder-chevron">›</span></article>`}
+function buildFolder(evidence){
+  if(evidence.dataset.ref11Folder==='1')return;
+  evidence.dataset.ref11Folder='1';
+  const originalCount=evidence.querySelectorAll('article:not(.v4-hyp)').length;
+  const state=window.MLMorenoV6?.getState?.()||{};
+  const done=new Set(state.completed||[]);
+  const groups=[];
+
+  if(has(done,'people','interview','occupantsInterviewed','daughtersInterviewed','motherInterviewed','canvass','witnessLocated','witnessDescription')){
+    groups.push(folderCard('people','Круг лиц','люди и свидетели','Жильцы квартиры, найденные свидетели и установленные связи.'));
+  }
+  if(has(done,'scene','ballistics','trajectory')){
+    groups.push(folderCard('reconstruction','Реконструкция','сцена и физика','Осмотр сцены, баллистика и пространственная реконструкция выстрела.'));
+  }
+  if(has(done,'motive','weapon')){
+    groups.push(folderCard('conflict','Конфликт','отношения и доступ','Угрозы, напряжённые отношения и проверка доступа к оружию.'));
+  }
+  if(has(done,'interview','alibi')){
+    groups.push(folderCard('alibi','Проверка алиби','показания и расхождения','Версии присутствовавших, подтверждения и выявленные расхождения.'));
+  }
+
+  const head=evidence.querySelector('.v4-evidence-head');
+  const count=Math.max(1,originalCount+1);
+  const counter=head?.querySelector('span');
+  if(counter)counter.textContent=`${count} ${count===1?'материал':count<5?'материала':'материалов'}`;
+  [...evidence.children].forEach(el=>{if(el!==head)el.remove()});
+
+  if(!groups.length){
+    evidence.insertAdjacentHTML('beforeend',folderCard('report','Исходный рапорт','1 материал','Patricia Moreno, 17 лет. Пожарная лестница третьего этажа; оружие и гильза на месте не обнаружены.'));
+  }else{
+    evidence.insertAdjacentHTML('beforeend',groups.join(''));
+    evidence.insertAdjacentHTML('beforeend','<div class="ref11-folder-quote"><i></i><p>Факты не упрямы.<br>Они просто требуют<br>внимания.</p><span></span></div>');
+  }
+  if(state.hypothesis)evidence.insertAdjacentHTML('beforeend',folderCard('hypothesis','Ваша версия','рабочая гипотеза',String(state.hypothesis)));
+}
 
 function enhance(){
   const work=app.querySelector('.v4-work');
@@ -55,18 +76,7 @@ function enhance(){
   }
 
   const evidence=work.querySelector('.v4-evidence');
-  if(evidence){
-    const head=evidence.querySelector('.v4-evidence-head');
-    if(head&&!evidence.querySelector('.ref11-source-report'))head.insertAdjacentHTML('afterend',folderReport());
-    const found=[...evidence.querySelectorAll('article:not(.ref11-source-report):not(.v4-hyp)')].length;
-    const counter=head?.querySelector('span');
-    const counterText=`${found+1} ${found===0?'материал':found<4?'материала':'материалов'}`;
-    if(counter&&counter.textContent!==counterText)counter.textContent=counterText;
-    evidence.querySelectorAll('article:not(.ref11-source-report) small').forEach(s=>{
-      const raw=s.textContent.trim();
-      if(titleMap[raw]&&s.textContent!==titleMap[raw])s.textContent=titleMap[raw];
-    });
-  }
+  if(evidence)buildFolder(evidence);
 
   work.querySelectorAll('.v6-item').forEach((card,i)=>{
     const idx=String(i+1);
@@ -96,5 +106,5 @@ let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV11={version:'1.1.1',refresh:enhance};
+window.MLMorenoReferenceV11={version:'1.1.2',refresh:enhance};
 })();
