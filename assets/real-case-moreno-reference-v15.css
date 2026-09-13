@@ -1,0 +1,75 @@
+/* Moreno v0.15 — micro-polish and long-session rhythm. */
+body.moreno-reference-v15{--r15-gold:#dcb973;--r15-line:rgba(230,204,153,.13);--r15-hover:rgba(233,205,150,.18)}
+
+/* Remove internal/prototyping labels from the finished surface. */
+body.moreno-reference-v15 .ref13-preview-label{display:none!important}
+
+/* Top shell: quieter chrome, clearer selected section. */
+body.moreno-reference-v15 .ref10-topbar{box-shadow:0 1px rgba(255,255,255,.025),0 12px 30px rgba(0,0,0,.08)!important}
+body.moreno-reference-v15 .ref10-nav span{transition:color .16s ease,opacity .16s ease}
+body.moreno-reference-v15 .ref10-nav span:hover{color:#d4dbe0!important}
+body.moreno-reference-v15 .ref10-nav .active{color:#f0e8dc!important}
+body.moreno-reference-v15 .ref10-search{transition:border-color .16s ease,background .16s ease}
+body.moreno-reference-v15 .ref10-search:hover{border-color:rgba(220,185,115,.20)!important;background:#0b1b28!important}
+
+/* Long journal: clear separation between consecutive work orders without visual noise. */
+body.moreno-reference-v15 .v4-journal{gap:15px!important}
+body.moreno-reference-v15 .v4-log{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+body.moreno-reference-v15 .v4-log:hover{border-color:rgba(230,204,153,.24)!important;box-shadow:0 22px 58px rgba(0,0,0,.23),inset 0 1px rgba(255,255,255,.018)!important}
+body.moreno-reference-v15 .v4-log+.v4-log{margin-top:1px!important}
+body.moreno-reference-v15 .v4-log:not(:last-child) .v4-command{color:#e5dfd6!important}
+body.moreno-reference-v15 .v4-log:not(:last-child) .ref13-meta{opacity:.82}
+
+/* Result cards: small optical lift on hover, no gamey animation. */
+body.moreno-reference-v15 .v6-item{transition:border-color .16s ease,box-shadow .16s ease,background .16s ease,transform .16s ease}
+@media(hover:hover){
+  body.moreno-reference-v15 .v6-item:hover{transform:translateY(-1px);border-color:rgba(230,204,153,.20)!important;box-shadow:inset 0 1px rgba(255,255,255,.022),0 12px 30px rgba(0,0,0,.12)!important;background:linear-gradient(145deg,#112c3e 0%,#0b1f2e 72%,#091b28 100%)!important}
+}
+body.moreno-reference-v15 .v6-item h3{font-weight:600!important}
+body.moreno-reference-v15 .ref11-card-status{transition:border-color .16s ease,background .16s ease;color .16s ease}
+body.moreno-reference-v15 .v6-item:hover .ref11-card-status{border-color:rgba(220,185,115,.32)!important;background:rgba(220,185,115,.055)!important;color:#e4c17c!important}
+
+/* Material thumbnails feel less like generated graphics and more like quiet index cards. */
+body.moreno-reference-v15 .ref13-material{filter:saturate(.80) brightness(.92);transition:filter .16s ease,transform .16s ease,border-color .16s ease}
+@media(hover:hover){body.moreno-reference-v15 .v6-item:hover .ref13-material{filter:saturate(.88) brightness(.98);transform:translateY(-1px);border-color:rgba(222,192,137,.16)!important}}
+
+/* Working folder: clearer vertical rhythm and premium hover state. */
+body.moreno-reference-v15 .v4-evidence{scrollbar-width:thin;scrollbar-color:#233b4a transparent}
+body.moreno-reference-v15 .v4-evidence .ref11-folder-card{transition:border-color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease}
+@media(hover:hover){
+  body.moreno-reference-v15 .v4-evidence .ref11-folder-card:hover{transform:translateX(-1px);border-color:rgba(230,204,153,.19)!important;background:linear-gradient(145deg,rgba(17,40,55,.99),rgba(9,24,35,.99))!important;box-shadow:inset 0 1px rgba(255,255,255,.018),0 10px 25px rgba(0,0,0,.10)!important}
+  body.moreno-reference-v15 .v4-evidence .ref11-folder-card:hover .ref11-folder-chevron{color:#d7b873!important;transform:translate(1px,-50%)!important}
+}
+body.moreno-reference-v15 .v4-evidence .ref11-folder-card small{letter-spacing:-.012em!important}
+body.moreno-reference-v15 .ref11-folder-chevron{transition:color .16s ease,transform .16s ease}
+body.moreno-reference-v15 .ref11-folder-quote{margin-bottom:8px!important}
+
+/* Composer remains available through a long investigation, but never hides content. */
+@media(min-width:821px){
+  body.moreno-reference-v15 .v4-composer{position:sticky!important;bottom:12px!important;z-index:8!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  body.moreno-reference-v15 .v4-journal{padding-bottom:3px!important}
+}
+body.moreno-reference-v15 .v4-composer textarea{transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
+body.moreno-reference-v15 .v4-composer textarea:hover{border-color:rgba(255,255,255,.15)!important;background:#0a1b26!important}
+body.moreno-reference-v15 .v4-composer textarea:focus{border-color:rgba(220,185,115,.48)!important;box-shadow:0 0 0 3px rgba(220,185,115,.055)!important;background:#0a1b26!important}
+body.moreno-reference-v15 .v4-composer button{transition:transform .14s ease,filter .14s ease,box-shadow .14s ease}
+body.moreno-reference-v15 .v4-composer button:active{transform:translateY(0)!important;filter:brightness(.97)!important;box-shadow:0 5px 15px rgba(190,145,69,.15),inset 0 1px rgba(255,255,255,.28)!important}
+body.moreno-reference-v15 .v4-composer button:focus-visible{outline:2px solid rgba(239,207,146,.72)!important;outline-offset:3px!important}
+body.moreno-reference-v15 .v4-composer textarea:focus-visible{outline:none!important}
+
+/* Better keyboard visibility for the rest of the shell. */
+body.moreno-reference-v15 :is(button,a,[tabindex]):focus-visible{outline:1px solid rgba(225,191,126,.58);outline-offset:3px}
+
+/* Make full-page scrolling feel deliberate in long sessions. */
+body.moreno-reference-v15 .v4-console{scroll-behavior:smooth}
+body.moreno-reference-v15 .v4-log{scroll-margin-top:78px}
+
+@media(max-width:820px){
+  body.moreno-reference-v15 .v4-composer{position:static!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  body.moreno-reference-v15 .v4-log:hover,body.moreno-reference-v15 .v6-item:hover,body.moreno-reference-v15 .ref11-folder-card:hover{transform:none!important}
+  body.moreno-reference-v15 .v4-journal{gap:12px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.moreno-reference-v15 *,body.moreno-reference-v15 *:before,body.moreno-reference-v15 *:after{transition:none!important;scroll-behavior:auto!important}
+}
