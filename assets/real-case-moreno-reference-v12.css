@@ -1,0 +1,112 @@
+/* Moreno reference v1.2 — fidelity pass against the accepted premium mockup. */
+body.moreno-reference-v12{--r12-gold:#d7b16b;--r12-gold-hi:#efd49b;--r12-text:#ece6dc;--r12-muted:#8999a7}
+
+/* Header proportions / typography */
+body.moreno-reference-v12 .ref10-topbar{height:60px!important;grid-template-columns:430px 1fr 515px!important;background:#07131e!important;border-color:rgba(255,255,255,.075)!important}
+body.moreno-reference-v12 .ref10-brand{padding-left:31px!important;gap:18px!important}
+body.moreno-reference-v12 .ref10-brand strong{font-size:25px!important;letter-spacing:-.015em!important}
+body.moreno-reference-v12 .ref10-tagline{font-size:8px!important;letter-spacing:.23em!important;color:#7b8d9b!important}
+body.moreno-reference-v12 .ref10-nav{gap:34px!important}
+body.moreno-reference-v12 .ref10-nav span{font-size:12px!important;color:#8898a7!important}
+body.moreno-reference-v12 .ref10-nav .active{color:#e8e2d9!important}
+body.moreno-reference-v12 .ref10-search{height:37px!important;width:228px!important;border-color:rgba(255,255,255,.11)!important;background:#0a1925!important}
+body.moreno-reference-v12 .ref10-tools{gap:17px!important;padding-right:28px!important}
+
+/* Workspace exact proportions */
+body.moreno-reference-v12 .v4-work{grid-template-columns:268px minmax(720px,1fr) 348px!important;min-height:calc(100vh - 60px)!important}
+body.moreno-reference-v12 .v4-console{min-height:calc(100vh - 60px)!important;padding:25px 31px 28px!important;background:radial-gradient(circle at 60% 0,rgba(31,63,83,.20),transparent 360px),linear-gradient(180deg,#0a1a27 0%,#071521 100%)!important}
+body.moreno-reference-v12 .v4-evidence{top:60px!important;min-height:calc(100vh - 60px)!important;max-height:calc(100vh - 60px)!important}
+
+/* Left cinematic rail: warmer and more legible, closer to the accepted mockup */
+body.moreno-reference-v12 .v4-work:before{filter:saturate(.80) brightness(.72) contrast(1.03) sepia(.20)!important;background-position:50% center!important;box-shadow:inset -42px 0 68px rgba(3,10,16,.22),inset 0 -125px 155px rgba(2,8,13,.30)!important}
+body.moreno-reference-v12 .v4-work:after{background:linear-gradient(90deg,rgba(3,10,16,.03),rgba(3,10,16,.015) 64%,rgba(3,10,16,.25))!important}
+body.moreno-reference-v12 .ref11-rail-copy{top:43px!important;left:30px!important;font-size:10px!important;line-height:1.62!important;letter-spacing:.17em!important;color:#bdc6cc!important}
+body.moreno-reference-v12 .ref11-floors{top:245px!important;left:31px!important;width:161px!important;gap:39px!important}
+body.moreno-reference-v12 .ref11-floors div{grid-template-columns:23px 1fr 38px!important;font-size:10px!important;color:#9ca9b2!important}
+body.moreno-reference-v12 .ref11-floors div b{color:#9ba8b1!important}
+body.moreno-reference-v12 .ref11-location{left:31px!important;right:30px!important;bottom:39px!important}
+body.moreno-reference-v12 .ref11-location strong{font-size:10px!important;color:#d0d5d7!important}
+body.moreno-reference-v12 .ref11-location span{font-size:11px!important;color:#99a4aa!important}
+
+/* Main investigation header */
+body.moreno-reference-v12 .v4-console>header{min-height:139px!important;padding:0 250px 12px 0!important}
+body.moreno-reference-v12 .v4-console>header:before{top:0!important;font-size:9px!important;color:#ddb76c!important}
+body.moreno-reference-v12 .v4-console>header:after{right:4px!important;top:7px!important;width:205px!important;color:#aaa096!important;font-size:12px!important}
+body.moreno-reference-v12 .v4-console h1{margin:29px 0 0!important;font-size:55px!important;line-height:.96!important;letter-spacing:-.035em!important;color:#f0e9de!important}
+body.moreno-reference-v12 .v4-console>header>p:last-child{margin-top:11px!important;font-size:14px!important;color:#9aabb8!important}
+
+/* Empty intake card: source-grounded but visually as rich as the reference cards */
+body.moreno-reference-v12 .v4-journal-empty{position:relative!important;min-height:166px!important;margin:4px 0 14px!important;padding:18px 205px 18px 19px!important;border-radius:12px!important;border:1px solid rgba(225,194,134,.16)!important;background:linear-gradient(145deg,rgba(15,35,49,.98),rgba(8,22,32,.98))!important;overflow:hidden!important}
+body.moreno-reference-v12 .v4-journal-empty:after{content:"";position:absolute;right:18px;top:18px;width:164px;height:128px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(4,11,17,.03),rgba(4,11,17,.18)),url('https://www.middlesexda.com/sites/g/files/vyhlif11841/f/styles/news_image/public/news/capture_3.jpg?itok=RK3zkJ6R') center 28%/cover no-repeat;filter:saturate(.78) brightness(.78);box-shadow:inset 0 0 28px rgba(0,0,0,.22)}
+body.moreno-reference-v12 .ref11-report-head{padding-bottom:11px!important}
+body.moreno-reference-v12 .ref11-report-title{margin-top:14px!important;font-size:18px!important;line-height:1.25!important;color:#efe9df!important}
+body.moreno-reference-v12 .ref11-report-facts{margin-top:17px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px!important}
+body.moreno-reference-v12 .ref11-report-facts span{display:grid!important;gap:4px!important;padding:9px 10px!important;border:1px solid rgba(255,255,255,.055);border-radius:6px;background:rgba(255,255,255,.018);font-size:9px!important;line-height:1.25!important;color:#778996!important}
+body.moreno-reference-v12 .ref11-report-facts b{font-size:10px!important;color:#c4cdd2!important}
+
+/* Player command journal: closer to mockup container rhythm */
+body.moreno-reference-v12 .v4-journal{gap:13px!important;margin:4px 0 14px!important}
+body.moreno-reference-v12 .v4-log{padding:17px 18px 17px!important;border-radius:12px!important;border-color:rgba(255,255,255,.115)!important;box-shadow:0 12px 30px rgba(0,0,0,.15)!important}
+body.moreno-reference-v12 .v4-command{font-size:15px!important;color:#ece6dd!important}
+body.moreno-reference-v12 .v4-command:before{width:34px!important;height:34px!important;background:linear-gradient(145deg,#425568,#223345)!important}
+
+/* Operation cards — stronger visual hierarchy and thumbnail treatment */
+body.moreno-reference-v12 .v6-bundle{gap:11px!important}
+body.moreno-reference-v12 .v6-item{min-height:183px!important;padding:17px 149px 48px 16px!important;border-radius:9px!important;background:linear-gradient(145deg,#102839,#0a1c2a)!important}
+body.moreno-reference-v12 .v6-item h3{font-size:15px!important;line-height:1.28!important;color:#ece7de!important}
+body.moreno-reference-v12 .v6-item p{font-size:11px!important;line-height:1.55!important;color:#94a4b1!important}
+body.moreno-reference-v12 .v6-item:after{right:14px!important;top:15px!important;width:126px!important;height:113px!important;border-radius:6px!important;background-size:74px 74px!important;background-color:#0a1924!important}
+body.moreno-reference-v12 .ref11-card-status{bottom:11px!important;color:#d9b876!important;background:rgba(214,176,105,.045)!important}
+
+/* Composer: same low profile and balance as the mockup */
+body.moreno-reference-v12 .v4-composer{position:sticky!important;bottom:10px!important;margin-top:13px!important;padding:11px 12px 10px!important;border-radius:9px!important;border:1px solid rgba(225,194,134,.29)!important;background:linear-gradient(180deg,rgba(10,26,38,.985),rgba(7,20,30,.985))!important;box-shadow:0 20px 48px rgba(0,0,0,.28)!important}
+body.moreno-reference-v12 .v4-composer label{font-size:11px!important;margin-bottom:6px!important;color:#d8d2c8!important}
+body.moreno-reference-v12 .v4-composer textarea{height:61px!important;min-height:61px!important;padding:13px 14px!important;border-radius:7px!important;background:#091923!important;border-color:rgba(255,255,255,.10)!important;font-size:12px!important}
+body.moreno-reference-v12 .v4-composer>div{margin-top:7px!important}
+body.moreno-reference-v12 .v4-composer>div>span{margin-left:0!important;margin-right:auto!important;padding-left:2px!important;color:#647684!important}
+body.moreno-reference-v12 .v4-composer button{min-width:139px!important;min-height:50px!important;border-radius:7px!important;background:linear-gradient(180deg,#efd49a,#cda45e)!important;box-shadow:0 9px 22px rgba(185,139,63,.20)!important}
+
+/* Right folder: thumbnail cards like the accepted mockup, but only discovered groups appear. */
+body.moreno-reference-v12 .v4-evidence{padding:27px 18px 24px!important;background:linear-gradient(180deg,#081721,#06131d 68%,#06111a)!important}
+body.moreno-reference-v12 .v4-evidence-head{padding:0 0 20px 49px!important}
+body.moreno-reference-v12 .v4-evidence-head strong{font-size:23px!important;color:#ebe5dc!important}
+body.moreno-reference-v12 .v4-evidence .ref11-folder-card{position:relative;grid-template-columns:31px minmax(0,1fr) 10px!important;min-height:119px!important;padding:14px 73px 14px 13px!important;border-radius:9px!important;background:linear-gradient(145deg,rgba(15,36,50,.96),rgba(8,22,32,.98))!important}
+body.moreno-reference-v12 .ref11-folder-icon{width:27px!important;height:27px!important;background-size:21px 21px!important}
+body.moreno-reference-v12 .v4-evidence .ref11-folder-card small{font-size:15px!important;line-height:1.16!important}
+body.moreno-reference-v12 .ref11-folder-card b{font-size:9px!important;color:#8d9ca8!important}
+body.moreno-reference-v12 .v4-evidence .ref11-folder-card p{font-size:10px!important;line-height:1.48!important;color:#8796a2!important}
+body.moreno-reference-v12 .ref11-folder-card:before{content:"";position:absolute;right:12px;top:16px;width:48px;height:68px;border-radius:5px;border:1px solid rgba(255,255,255,.075);background:linear-gradient(145deg,rgba(213,174,99,.07),rgba(255,255,255,.018));opacity:.9}
+body.moreno-reference-v12 .ref11-folder-card.people:before{background:radial-gradient(circle at 50% 30%,rgba(199,173,116,.35) 0 9%,transparent 10%),radial-gradient(circle at 32% 36%,rgba(126,145,158,.32) 0 8%,transparent 9%),radial-gradient(circle at 68% 37%,rgba(126,145,158,.28) 0 8%,transparent 9%),linear-gradient(145deg,#172937,#0b1720)}
+body.moreno-reference-v12 .ref11-folder-card.reconstruction:before{background:repeating-linear-gradient(90deg,transparent 0 11px,rgba(151,169,178,.22) 12px 13px),repeating-linear-gradient(0deg,transparent 0 14px,rgba(151,169,178,.18) 15px 16px),linear-gradient(145deg,#152734,#0b1720)}
+body.moreno-reference-v12 .ref11-folder-card.conflict:before{background:repeating-linear-gradient(-7deg,#6e665b 0 2px,#4f4a42 3px 5px,#2f3030 6px 7px);opacity:.62}
+body.moreno-reference-v12 .ref11-folder-card.alibi:before{background:radial-gradient(circle at 50% 46%,transparent 0 18px,rgba(199,173,116,.30) 19px 20px,transparent 21px),linear-gradient(90deg,transparent 48%,rgba(199,173,116,.34) 49% 51%,transparent 52%),linear-gradient(#152734,#0b1720)}
+body.moreno-reference-v12 .ref11-folder-card.report:before{background:linear-gradient(180deg,rgba(5,12,18,.06),rgba(5,12,18,.18)),url('https://www.middlesexda.com/sites/g/files/vyhlif11841/f/styles/news_image/public/news/capture_3.jpg?itok=RK3zkJ6R') center 28%/cover no-repeat;filter:saturate(.65) brightness(.72)}
+body.moreno-reference-v12 .ref11-folder-chevron{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:18px!important;color:#718390!important}
+body.moreno-reference-v12 .ref11-folder-quote{margin-top:28px!important;background:linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.004))!important}
+
+@media(max-width:1180px){
+  body.moreno-reference-v12 .ref10-topbar{grid-template-columns:320px 1fr 350px!important}
+  body.moreno-reference-v12 .ref10-tagline{display:none!important}
+  body.moreno-reference-v12 .ref10-search{display:none!important}
+  body.moreno-reference-v12 .v4-work{grid-template-columns:225px minmax(0,1fr) 300px!important}
+  body.moreno-reference-v12 .ref11-rail-ui{width:225px!important}
+  body.moreno-reference-v12 .v4-work:before{width:225px!important}
+}
+@media(max-width:820px){
+  body.moreno-reference-v12 .ref10-topbar{height:54px!important;grid-template-columns:1fr auto!important;padding:0 14px!important}
+  body.moreno-reference-v12 .ref10-brand{padding-left:0!important}.ref10-brand strong{font-size:20px!important}
+  body.moreno-reference-v12 .ref10-nav,body.moreno-reference-v12 .ref10-sun,body.moreno-reference-v12 .ref10-usercopy,body.moreno-reference-v12 .ref10-chevron{display:none!important}
+  body.moreno-reference-v12 .v4-work{display:block!important;min-height:calc(100vh - 54px)!important}
+  body.moreno-reference-v12 .ref11-rail-ui,body.moreno-reference-v12 .v4-work:before,body.moreno-reference-v12 .v4-work:after{display:none!important}
+  body.moreno-reference-v12 .v4-console{padding:18px 14px 20px!important}
+  body.moreno-reference-v12 .v4-console>header{min-height:auto!important;padding:0 0 14px!important}
+  body.moreno-reference-v12 .v4-console>header:after{display:none!important}
+  body.moreno-reference-v12 .v4-console h1{font-size:38px!important;margin-top:27px!important}
+  body.moreno-reference-v12 .v4-journal-empty{min-height:0!important;padding:15px!important}
+  body.moreno-reference-v12 .v4-journal-empty:after{display:none!important}
+  body.moreno-reference-v12 .ref11-report-facts{grid-template-columns:1fr!important}
+  body.moreno-reference-v12 .v6-bundle{grid-template-columns:1fr!important}
+  body.moreno-reference-v12 .v6-item{padding-right:112px!important}
+  body.moreno-reference-v12 .v6-item:after{width:92px!important;height:92px!important}
+  body.moreno-reference-v12 .v4-evidence{position:relative!important;top:auto!important;min-height:0!important;max-height:none!important;border-left:0!important;border-top:1px solid rgba(255,255,255,.08)!important}
+}
