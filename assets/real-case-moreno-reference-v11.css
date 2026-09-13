@@ -1,0 +1,103 @@
+/* Moreno reference v1.1 — fidelity pass against the accepted premium mockup. */
+body.moreno-reference-v11{--r11-gold:#d7b36f;--r11-gold-soft:#ecd49d;--r11-line:rgba(228,199,142,.16);--r11-text:#ece7de;--r11-muted:#8b9aaa}
+
+/* Left rail: same role and rhythm as the accepted mockup, but only source-safe labels. */
+body.moreno-reference-v11 .v4-work:before{
+  filter:saturate(.58) brightness(.53) contrast(1.09) sepia(.10) hue-rotate(162deg)!important;
+  background-position:54% center!important;
+  box-shadow:inset -70px 0 90px rgba(3,11,18,.33),inset 0 -180px 180px rgba(2,8,13,.42)!important;
+}
+body.moreno-reference-v11 .v4-work:after{content:""!important;background:linear-gradient(90deg,rgba(3,10,16,.04),rgba(3,10,16,.02) 60%,rgba(3,10,16,.32))!important;padding:0!important}
+.ref11-rail-ui{position:absolute;z-index:4;left:0;top:0;bottom:0;width:268px;pointer-events:none;color:#9cabb8;font-family:Georgia,"Times New Roman",serif}
+.ref11-rail-copy{position:absolute;left:31px;top:48px;font-size:11px;line-height:1.72;letter-spacing:.16em;color:#a7b4be;text-shadow:0 1px 10px rgba(0,0,0,.55)}
+.ref11-floors{position:absolute;left:31px;top:245px;width:153px;display:grid;gap:38px}
+.ref11-floors div{display:grid;grid-template-columns:22px 1fr 34px;align-items:center;gap:9px;color:#81909d;font-size:11px;letter-spacing:.08em;text-transform:lowercase}
+.ref11-floors div i{height:1px;background:rgba(196,209,218,.31)}
+.ref11-floors div b{font-weight:400;color:#7f8e9a}
+.ref11-floors div.active{color:#e5c681}
+.ref11-floors div.active i{background:#d9b66f;box-shadow:0 0 12px rgba(217,182,111,.22)}
+.ref11-floors div.active span{position:relative;padding-left:15px}
+.ref11-floors div.active span:before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#e2bd70;box-shadow:0 0 14px rgba(226,189,112,.55)}
+.ref11-location{position:absolute;left:31px;right:26px;bottom:42px;padding-top:15px;border-top:1px solid rgba(255,255,255,.12);display:grid;gap:8px}
+.ref11-location strong{font-size:11px;font-weight:500;letter-spacing:.14em;color:#b8c1c8}
+.ref11-location span{font-size:11px;line-height:1.55;font-style:italic;color:#788994;text-transform:none;letter-spacing:.02em}
+
+/* Main header: tighten vertical rhythm to match the mockup. */
+body.moreno-reference-v11 .v4-console{padding:24px 29px 26px!important}
+body.moreno-reference-v11 .v4-console>header{min-height:132px!important;padding:0 245px 10px 0!important}
+body.moreno-reference-v11 .v4-console>header:before{top:1px!important;font-size:9px!important;letter-spacing:.11em!important}
+body.moreno-reference-v11 .v4-console>header:after{top:5px!important;right:5px!important;width:205px!important;font-size:12px!important;color:#9a9288!important}
+body.moreno-reference-v11 .v4-console h1{margin:30px 0 0!important;font-size:54px!important;line-height:.93!important;letter-spacing:-.038em!important}
+body.moreno-reference-v11 .v4-console>header>p:last-child{margin-top:10px!important;font-size:14px!important;line-height:1.42!important;color:#95a5b2!important}
+
+/* Empty state becomes a real initial-report surface rather than a generic blank card. */
+body.moreno-reference-v11 .v4-journal-empty{min-height:136px!important;margin:3px 0 14px!important;padding:17px 18px!important;border-color:rgba(226,194,132,.15)!important;background:linear-gradient(145deg,rgba(14,33,47,.95),rgba(8,21,31,.95))!important}
+.ref11-report-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ref11-report-head span{display:block!important;color:var(--r11-gold)!important;font-family:Inter,ui-sans-serif,sans-serif!important;font-size:9px!important;font-weight:800!important;letter-spacing:.13em!important}
+.ref11-report-head em{color:#687a89;font-family:Inter,ui-sans-serif,sans-serif;font-size:9px;font-style:normal;letter-spacing:.04em}
+.ref11-report-title{margin-top:12px;color:#ece7de;font-family:Georgia,"Times New Roman",serif;font-size:17px;line-height:1.25}
+.ref11-report-facts{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:11px;color:#8292a0;font-size:10px}
+.ref11-report-facts span{display:inline-flex!important;gap:5px;align-items:baseline;color:#81919f!important;font-size:10px!important;letter-spacing:0!important}
+.ref11-report-facts b{color:#b8c2ca;font-weight:600}
+
+/* Journal command block. */
+body.moreno-reference-v11 .v4-journal{margin:3px 0 14px!important}
+body.moreno-reference-v11 .v4-log{position:relative;padding:17px 18px 16px!important;border-color:rgba(255,255,255,.105)!important;border-radius:13px!important;background:linear-gradient(150deg,rgba(12,30,43,.99),rgba(7,19,29,.98))!important}
+.ref11-log-menu{position:absolute;right:18px;top:17px;color:#70808d;font-size:12px;letter-spacing:2px}
+body.moreno-reference-v11 .v4-command{margin-bottom:15px!important;padding-left:44px!important;font-size:15px!important;line-height:1.35!important}
+body.moreno-reference-v11 .v4-command:after{margin-top:7px!important;font-size:10px!important;color:#758695!important}
+
+/* Operation cards: exact density and hierarchy of the reference. */
+body.moreno-reference-v11 .v6-bundle{gap:10px!important}
+body.moreno-reference-v11 .v6-item{min-height:174px!important;padding:17px 142px 49px 16px!important;border-color:rgba(227,196,136,.18)!important;border-radius:9px!important;background:linear-gradient(145deg,#102637,#0a1c2a)!important}
+body.moreno-reference-v11 .v6-item:before{left:15px!important;top:15px!important;width:27px!important;height:27px!important;border-radius:8px!important;background:rgba(213,174,99,.055)!important;color:#e0bd78!important}
+body.moreno-reference-v11 .v6-item h3{margin-left:40px!important;font-size:15px!important;line-height:1.25!important;min-height:37px}
+body.moreno-reference-v11 .v6-item p{margin-top:12px!important;font-size:11px!important;line-height:1.52!important;color:#91a1af!important}
+body.moreno-reference-v11 .v6-item:after{right:14px!important;top:15px!important;width:120px!important;height:107px!important;border-radius:5px!important;border:1px solid rgba(255,255,255,.07)!important;opacity:1!important;background-color:#0b1822!important;background-repeat:no-repeat!important;background-position:center!important;background-size:68px 68px!important;box-shadow:inset 0 0 28px rgba(0,0,0,.26)!important}
+body.moreno-reference-v11 .v6-item:nth-child(1):after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72' fill='none'%3E%3Ccircle cx='27' cy='27' r='9' stroke='%23bca979' stroke-width='2'/%3E%3Ccircle cx='47' cy='30' r='7' stroke='%237f91a0' stroke-width='2'/%3E%3Cpath d='M12 55c2-11 10-17 21-17s18 6 20 17M39 51c2-7 7-11 14-11 5 0 9 2 12 7' stroke='%23a89b79' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
+body.moreno-reference-v11 .v6-item:nth-child(2):after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72' fill='none'%3E%3Crect x='18' y='10' width='36' height='50' rx='3' stroke='%23bca979' stroke-width='2'/%3E%3Cpath d='M25 23h22M25 32h22M25 41h16M25 50h18' stroke='%237f91a0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
+body.moreno-reference-v11 .v6-item:nth-child(3):after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72' fill='none'%3E%3Ccircle cx='31' cy='31' r='16' stroke='%23bca979' stroke-width='2'/%3E%3Cpath d='m43 43 13 13' stroke='%23bca979' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M23 31h16M31 23v16' stroke='%237f91a0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
+body.moreno-reference-v11 .v6-item:nth-child(4):after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72' fill='none'%3E%3Ccircle cx='36' cy='25' r='10' stroke='%23bca979' stroke-width='2'/%3E%3Cpath d='M17 57c3-13 10-20 19-20s16 7 19 20' stroke='%2391a1af' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M51 18h11M56.5 12.5v11' stroke='%237f91a0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")!important}
+.ref11-card-status{position:absolute;left:16px;bottom:12px;display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(213,174,99,.24);border-radius:6px;color:#d5b575;font-family:Inter,ui-sans-serif,sans-serif;font-size:9px;line-height:1;background:rgba(213,174,99,.035)}
+.ref11-card-status span{display:grid;place-items:center;width:13px;height:13px;border:1px solid rgba(213,174,99,.48);border-radius:50%;font-size:8px}
+
+/* Composer: visually identical role to the mockup, much less like a generic form. */
+body.moreno-reference-v11 .v4-composer{position:sticky!important;bottom:12px!important;margin-top:12px!important;padding:12px 13px 10px!important;border-color:rgba(226,194,132,.29)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(10,26,38,.98),rgba(7,20,30,.98))!important}
+body.moreno-reference-v11 .v4-composer label{margin-bottom:7px!important;font-size:11px!important;color:#cfc9bf!important}
+body.moreno-reference-v11 .v4-composer textarea{height:58px!important;min-height:58px!important;max-height:118px!important;padding:12px 13px!important;border-radius:7px!important;background:#081722!important;font-size:12px!important;resize:vertical}
+body.moreno-reference-v11 .v4-composer textarea::placeholder{color:#5f7180;opacity:1}
+body.moreno-reference-v11 .v4-composer>div{margin-top:7px!important}
+body.moreno-reference-v11 .v4-composer>div>span{margin-left:auto;margin-right:13px;color:#637584!important;font-size:9px!important}
+body.moreno-reference-v11 .v4-composer button{min-width:139px!important;min-height:50px!important;padding:0 17px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:15px;border-radius:7px!important;font-size:14px!important}
+.ref11-arrow{font-family:Inter,ui-sans-serif,sans-serif;font-size:17px;line-height:1;font-weight:500}
+
+/* Right folder: stronger hierarchy, real initial report, closer card rhythm. */
+body.moreno-reference-v11 .v4-evidence{padding:26px 18px 22px!important;background:linear-gradient(180deg,#081721,#06131d 65%,#06111a)!important}
+body.moreno-reference-v11 .v4-evidence-head{padding:0 0 18px 48px!important}
+body.moreno-reference-v11 .v4-evidence-head strong{font-size:22px!important}
+body.moreno-reference-v11 .v4-evidence-head span{margin-top:5px!important;color:#8797a4!important;font-size:10px!important;white-space:nowrap}
+body.moreno-reference-v11 .v4-empty{display:none!important}
+body.moreno-reference-v11 .v4-evidence article{position:relative;margin:0 0 11px!important;min-height:105px;padding:15px 68px 14px 14px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:9px!important;background:linear-gradient(145deg,rgba(15,35,49,.92),rgba(9,24,35,.95))!important;overflow:hidden}
+body.moreno-reference-v11 .v4-evidence article:after{content:"";position:absolute;right:13px;top:16px;width:42px;height:42px;border:1px solid rgba(213,174,99,.16);border-radius:7px;background:linear-gradient(145deg,rgba(213,174,99,.08),rgba(255,255,255,.018))}
+body.moreno-reference-v11 .v4-evidence article small{display:block;color:#e1ddd5!important;font-family:Georgia,"Times New Roman",serif!important;font-size:14px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;line-height:1.2}
+body.moreno-reference-v11 .v4-evidence article p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px!important;color:#81919e!important;font-size:10px!important;line-height:1.48!important}
+.ref11-source-report{border-color:rgba(213,174,99,.16)!important}
+.ref11-source-report:after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 42 42' fill='none'%3E%3Cpath d='M12 7h14l5 5v23H12V7Z' stroke='%23bca979' stroke-width='1.5'/%3E%3Cpath d='M26 7v6h6M16 19h11M16 24h11M16 29h8' stroke='%237f91a0' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:center!important}
+
+/* Prevent inherited v10 pseudo-card imagery from competing with the v11 cards. */
+body.moreno-reference-v11 .v4-evidence article:nth-of-type(n):after{opacity:1}
+
+@media(max-width:1180px){
+  .ref11-rail-ui{display:none}
+  body.moreno-reference-v11 .v4-console>header{padding-right:20px!important}
+  body.moreno-reference-v11 .v4-console>header:after{display:none}
+}
+@media(max-width:820px){
+  body.moreno-reference-v11 .v4-console{padding:18px 15px 22px!important}
+  body.moreno-reference-v11 .v4-console>header{min-height:118px!important}
+  body.moreno-reference-v11 .v4-console h1{font-size:40px!important}
+  body.moreno-reference-v11 .v6-item{padding-right:16px!important;min-height:155px!important;padding-bottom:46px!important}
+  body.moreno-reference-v11 .v6-item:after{display:none!important}
+  body.moreno-reference-v11 .v4-composer{bottom:6px!important}
+  .ref11-report-facts{display:grid;gap:5px}
+}
