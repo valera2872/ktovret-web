@@ -49,7 +49,10 @@ function enhanceCard(card){
     bar.className='ref16-statebar';
     card.insertBefore(bar,card.firstChild);
   }
-  bar.innerHTML=`${stateGlyph(type)}<strong>${meta.label}</strong><span>${meta.note}</span>`;
+  if(bar.dataset.state!==type){
+    bar.dataset.state=type;
+    bar.innerHTML=`${stateGlyph(type)}<strong>${meta.label}</strong><span>${meta.note}</span>`;
+  }
 }
 
 function enhance(){app.querySelectorAll('.v6-item').forEach(enhanceCard)}
@@ -57,5 +60,5 @@ let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV16={version:'1.6.0',refresh:enhance,classify};
+window.MLMorenoReferenceV16={version:'1.6.1',refresh:enhance,classify};
 })();
