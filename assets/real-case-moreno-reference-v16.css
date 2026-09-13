@@ -1,0 +1,68 @@
+/* Moreno v0.16 — distinct investigative states without evidentiary scoring. */
+body.moreno-reference-v16{--r16-ink:#d9dfe2;--r16-muted:#82909a;--r16-line:rgba(213,224,230,.12);--r16-paper:rgba(255,255,255,.025)}
+
+body.moreno-reference-v16 .v6-item{position:relative;overflow:hidden}
+body.moreno-reference-v16 .ref16-statebar{display:flex;align-items:center;gap:8px;margin:-1px -1px 13px;padding:8px 12px 7px;border-bottom:1px solid var(--r16-line);background:linear-gradient(90deg,rgba(255,255,255,.018),transparent 72%);font-size:10px;line-height:1.15;letter-spacing:.08em;text-transform:uppercase;color:var(--r16-muted)}
+body.moreno-reference-v16 .ref16-statebar strong{font-size:10px;font-weight:700;letter-spacing:.115em;color:#bec8cd}
+body.moreno-reference-v16 .ref16-statebar span{margin-left:auto;text-transform:none;letter-spacing:.005em;font-size:10px;color:#71808a;white-space:nowrap}
+body.moreno-reference-v16 .ref16-glyph{position:relative;display:inline-block;flex:0 0 18px;width:18px;height:14px;opacity:.78}
+body.moreno-reference-v16 .ref16-glyph b{position:absolute;display:block;box-sizing:border-box}
+
+/* Witness statement / interview transcript: typographic quotation rail, not a truth signal. */
+body.moreno-reference-v16 .ref16-interview{background:linear-gradient(145deg,#10293a 0%,#0b202e 100%)!important}
+body.moreno-reference-v16 .ref16-interview:after{content:'“';position:absolute;right:14px;bottom:-16px;font:52px/1 Georgia,serif;color:rgba(205,218,223,.055);pointer-events:none}
+body.moreno-reference-v16 .ref16-interview .ref16-glyph b{left:2px;width:14px;height:1px;background:#9eb0b9}
+body.moreno-reference-v16 .ref16-interview .ref16-glyph b:nth-child(1){top:3px;width:9px}
+body.moreno-reference-v16 .ref16-interview .ref16-glyph b:nth-child(2){top:7px}
+body.moreno-reference-v16 .ref16-interview .ref16-glyph b:nth-child(3){top:11px;width:11px}
+
+/* Forensics: quiet measurement grid. */
+body.moreno-reference-v16 .ref16-forensic{background-image:linear-gradient(rgba(173,196,207,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(173,196,207,.025) 1px,transparent 1px),linear-gradient(145deg,#102838,#0a1e2b)!important;background-size:18px 18px,18px 18px,auto!important}
+body.moreno-reference-v16 .ref16-forensic .ref16-statebar{border-bottom-color:rgba(181,204,215,.16)}
+body.moreno-reference-v16 .ref16-forensic .ref16-glyph{border:1px solid rgba(164,190,202,.55);border-radius:50%}
+body.moreno-reference-v16 .ref16-forensic .ref16-glyph b:nth-child(1){left:8px;top:-2px;width:1px;height:16px;background:#9eb5c0;transform:rotate(35deg)}
+body.moreno-reference-v16 .ref16-forensic .ref16-glyph b:nth-child(2){left:1px;top:6px;width:14px;height:1px;background:rgba(158,181,192,.7)}
+body.moreno-reference-v16 .ref16-forensic .ref16-glyph b:nth-child(3){left:8px;top:1px;width:1px;height:3px;background:#b4c6ce}
+body.moreno-reference-v16 .ref16-forensic .ref16-glyph b:nth-child(4){left:8px;bottom:1px;width:1px;height:3px;background:#b4c6ce}
+
+/* Contradiction: two incompatible document lines. No red/green success coding. */
+body.moreno-reference-v16 .ref16-contradiction{background:linear-gradient(145deg,#142a37 0%,#0b1f2b 100%)!important}
+body.moreno-reference-v16 .ref16-contradiction .ref16-statebar{background:linear-gradient(90deg,rgba(218,190,135,.035),transparent 68%)}
+body.moreno-reference-v16 .ref16-contradiction .ref16-statebar strong{color:#d3c5a9}
+body.moreno-reference-v16 .ref16-contradiction .ref16-glyph b{left:1px;width:16px;height:1px;background:#b7a782;transform-origin:center}
+body.moreno-reference-v16 .ref16-contradiction .ref16-glyph b:nth-child(1){top:4px;transform:rotate(18deg)}
+body.moreno-reference-v16 .ref16-contradiction .ref16-glyph b:nth-child(2){top:9px;transform:rotate(-18deg)}
+
+/* Source limit / uncertainty: incomplete document edge. */
+body.moreno-reference-v16 .ref16-uncertain{border-style:dashed!important;background:linear-gradient(145deg,#0d2331,#091b27)!important}
+body.moreno-reference-v16 .ref16-uncertain .ref16-statebar{border-bottom-style:dashed;background:transparent}
+body.moreno-reference-v16 .ref16-uncertain .ref16-statebar strong{color:#aeb9bf}
+body.moreno-reference-v16 .ref16-uncertain .ref16-glyph{border:1px dashed #8799a2;border-radius:2px}
+body.moreno-reference-v16 .ref16-uncertain .ref16-glyph b{right:-2px;bottom:-2px;width:6px;height:6px;background:#0b1f2c;border-left:1px dashed #8799a2;border-top:1px dashed #8799a2}
+
+/* Dead end: intentionally quiet and visually recessed. */
+body.moreno-reference-v16 .ref16-deadend{background:linear-gradient(145deg,#0c202c,#091923)!important;box-shadow:inset 0 1px rgba(255,255,255,.012)!important}
+body.moreno-reference-v16 .ref16-deadend .ref16-statebar{opacity:.78}
+body.moreno-reference-v16 .ref16-deadend .ref16-glyph b:nth-child(1){left:1px;top:6px;width:15px;height:1px;background:#7d8a91}
+body.moreno-reference-v16 .ref16-deadend .ref16-glyph b:nth-child(2){right:1px;top:3px;width:6px;height:7px;border:1px solid #7d8a91;border-left:0}
+body.moreno-reference-v16 .ref16-deadend h3,body.moreno-reference-v16 .ref16-deadend p{color:#aeb8bd!important}
+
+/* New case material: paper tab treatment, deliberately neutral about importance. */
+body.moreno-reference-v16 .ref16-evidence:before{content:'';position:absolute;right:17px;top:0;width:34px;height:4px;background:rgba(212,190,148,.20);border-radius:0 0 2px 2px}
+body.moreno-reference-v16 .ref16-evidence .ref16-glyph{border:1px solid rgba(179,193,200,.58);border-radius:1px}
+body.moreno-reference-v16 .ref16-evidence .ref16-glyph:after{content:'';position:absolute;right:-1px;top:-1px;width:5px;height:5px;border-left:1px solid rgba(179,193,200,.58);border-bottom:1px solid rgba(179,193,200,.58);background:#10283a}
+body.moreno-reference-v16 .ref16-evidence .ref16-glyph b{left:3px;top:8px;width:9px;height:1px;background:#93a4ac}
+
+/* Player hypothesis and system messages retain their own quieter identity. */
+body.moreno-reference-v16 .ref16-hypothesis .ref16-statebar strong{color:#cbb98f}
+body.moreno-reference-v16 .ref16-system .ref16-statebar{opacity:.70}
+
+/* The visual type is procedural only: do not make any state look like a solution or success. */
+body.moreno-reference-v16 .v6-item.ref16-interview:hover .ref11-card-status,
+body.moreno-reference-v16 .v6-item.ref16-forensic:hover .ref11-card-status,
+body.moreno-reference-v16 .v6-item.ref16-contradiction:hover .ref11-card-status,
+body.moreno-reference-v16 .v6-item.ref16-evidence:hover .ref11-card-status{color:#d6c395!important;border-color:rgba(220,185,115,.24)!important;background:rgba(220,185,115,.035)!important}
+
+@media(max-width:1100px){body.moreno-reference-v16 .ref16-statebar span{display:none}}
+@media(max-width:560px){body.moreno-reference-v16 .ref16-statebar{padding:7px 10px 6px;margin-bottom:10px}.ref16-statebar strong{font-size:9px!important}}
+@media(prefers-reduced-motion:reduce){body.moreno-reference-v16 .ref16-statebar,body.moreno-reference-v16 .ref16-glyph{transition:none!important}}
