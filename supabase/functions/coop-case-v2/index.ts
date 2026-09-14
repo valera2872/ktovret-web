@@ -19,6 +19,7 @@ const playerSelect = 'id,room_id,role,player_key_hash,player_name,joined_at,star
 
 type AdminClient = ReturnType<typeof createClient>;
 type Row = Record<string, any>;
+type PartnerRole = 'creator' | 'guest';
 
 const json = (status: number, body: unknown, origin = '') => new Response(JSON.stringify(body), {
   status,
@@ -74,10 +75,30 @@ const getPlayerState = async (admin: AdminClient, roomId: string, playerId: stri
   return result.data as Row | null;
 };
 
-const visibleEvidence = (caseConfig: typeof ZERO_CONTAINER_CASE, role: 'creator' | 'guest', chapter: number) =>
+const visibleEvidence = (caseConfig: typeof ZERO_CONTAINER_CASE, role: PartnerRole, chapter: number) =>
   Object.values(caseConfig.evidence)
     .filter((item) => item.role === role && item.chapter <= chapter)
     .map((item) => ({ ...item }));
+
+const publicCheckpointUi = (caseConfig: typeof ZERO_CONTAINER_CASE, role: PartnerRole) => {
+  const ui = caseConfig.checkpointUi;
+  return {
+    photo_observation: ui.photo_observation,
+    t04391_link: {
+      id: ui.t04391_link.id,
+      title: ui.t04391_link.title,
+      lead: ui.t04391_link.lead,
+      options: ui.t04391_link.roleOptions[role],
+    },
+  };
+};
+
+const matchesExpected = (value: unknown, expected: unknown) => {
+  if (typeof expected === 'string') return String(value || '') === expected;
+  if (!expected || typeof expected !== 'object' || !value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const actual = value as Record<string, unknown>;
+  return Object.entries(expected as Record<string, unknown>).every(([key, expectedValue]) => actual[key] === expectedValue);
+};
 
 const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) => {
   const caseConfig = getCase(room.case_id);
@@ -95,7 +116,7 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
   const playerState = await getPlayerState(admin, room.id, me.id);
   if (!caseState || !playerState) return { error: 'partner_state_missing' };
 
-  const role = me.role as 'creator' | 'guest';
+  const role = me.role as PartnerRole;
   const roleConfig = caseConfig.roles[role];
   const chapter = Number(caseState.chapter) || 1;
   const privateState = playerState.private_state || {};
@@ -114,6 +135,7 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
       brief: caseConfig.brief,
       chapters: Object.values(caseConfig.chapters),
       initialHypothesisOptions: caseConfig.initialHypothesisOptions,
+      checkpointUi: publicCheckpointUi(caseConfig, role),
     },
     room: {
       code: room.code,
@@ -133,6 +155,7 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
       started: Boolean(me.started_at),
       completed: Boolean(me.completed_at),
       firstHypothesis: privateState.firstHypothesis || null,
+      checkpoints: privateState.checkpoints || {},
     },
     opponent: opponent ? {
       joined: true,
@@ -147,6 +170,8 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
       revision: Number(caseState.revision) || 1,
       shared: {
         initialHypothesesComplete: Boolean(sharedState.initialHypothesesComplete),
+        photoComparisonSolved: Boolean(sharedState.photoComparisonSolved),
+        t04391Linked: Boolean(sharedState.t04391Linked),
       },
     },
     evidence: visibleEvidence(caseConfig, role, chapter),
@@ -233,7 +258,11 @@ Deno.serve(async (req: Request) => {
       case_version: caseConfig.version,
       chapter: 1,
       revision: 1,
-      shared_state: { initialHypothesesComplete: false },
+      shared_state: {
+        initialHypothesesComplete: false,
+        photoComparisonSolved: false,
+        t04391Linked: false,
+      },
     });
 
     const playerStateResult = await admin.from('partner_v2_player_state').insert({
@@ -327,36 +356,70 @@ Deno.serve(async (req: Request) => {
 
   if (action === 'submit_checkpoint') {
     const checkpointId = String(body.checkpointId || '').trim();
-    if (checkpointId !== 'initial_hypothesis') return json(400, { error: 'unsupported_checkpoint' }, origin);
-
     const clientRevision = Number(body.clientRevision);
     if (!Number.isInteger(clientRevision) || clientRevision < 1) return json(400, { error: 'invalid_revision' }, origin);
 
     const players = await getPlayers(admin, activeRoom.id);
     const me = players.find((player) => player.player_key_hash === browserKeyHash) || null;
     if (!me) return json(403, { error: 'not_joined' }, origin);
+    const role = me.role as PartnerRole;
 
-    const value = String(body.value || '').trim();
-    const rpc = await admin.rpc('partner_v2_submit_initial_hypothesis', {
+    if (checkpointId === 'initial_hypothesis') {
+      const value = String(body.value || '').trim();
+      const rpc = await admin.rpc('partner_v2_submit_initial_hypothesis', {
+        p_room_id: activeRoom.id,
+        p_player_id: me.id,
+        p_role: role,
+        p_value: value,
+        p_expected_revision: clientRevision,
+      });
+      if (rpc.error) {
+        console.error('partner_v2_initial_checkpoint_failed', rpc.error.code, rpc.error.message);
+        return json(503, { error: 'checkpoint_failed' }, origin);
+      }
+      const result = rpc.data as Row;
+      if (!result?.ok) return json(result?.error === 'state_conflict' ? 409 : 400, result || { error: 'checkpoint_failed' }, origin);
+      view = await buildView(admin, activeRoom, browserKeyHash);
+      return json(200, { ...(view as Row), checkpointResult: { id: checkpointId, correct: true, sharedUnlocked: Boolean(result.initialHypothesesComplete) } }, origin);
+    }
+
+    const rules = caseConfig.checkpointRules as unknown as Record<string, any>;
+    const rule = rules[checkpointId];
+    if (!rule) return json(400, { error: 'unsupported_checkpoint' }, origin);
+
+    const value = body.value ?? null;
+    const expected = rule.expected?.[role];
+    const isCorrect = matchesExpected(value, expected);
+
+    const rpc = await admin.rpc('partner_v2_submit_gate_checkpoint', {
       p_room_id: activeRoom.id,
       p_player_id: me.id,
-      p_role: me.role,
+      p_role: role,
+      p_checkpoint_key: checkpointId,
       p_value: value,
+      p_is_correct: isCorrect,
+      p_shared_key: rule.sharedKey,
+      p_unlock_chapter: rule.unlockChapter,
       p_expected_revision: clientRevision,
     });
+
     if (rpc.error) {
-      console.error('partner_v2_checkpoint_failed', rpc.error.code, rpc.error.message);
+      console.error('partner_v2_gate_checkpoint_failed', checkpointId, rpc.error.code, rpc.error.message);
       return json(503, { error: 'checkpoint_failed' }, origin);
     }
 
     const result = rpc.data as Row;
-    if (!result?.ok) {
-      const status = result?.error === 'state_conflict' ? 409 : 400;
-      return json(status, result || { error: 'checkpoint_failed' }, origin);
-    }
+    if (!result?.ok) return json(result?.error === 'state_conflict' ? 409 : 400, result || { error: 'checkpoint_failed' }, origin);
 
     view = await buildView(admin, activeRoom, browserKeyHash);
-    return json(200, view, origin);
+    return json(200, {
+      ...(view as Row),
+      checkpointResult: {
+        id: checkpointId,
+        correct: Boolean(result.correct),
+        sharedUnlocked: Boolean(result.sharedUnlocked),
+      },
+    }, origin);
   }
 
   return json(400, { error: 'invalid_action' }, origin);
