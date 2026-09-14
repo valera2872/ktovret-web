@@ -1,9 +1,42 @@
 (() => {
   'use strict';
   const METRIKA_ID = 111664459;
+  const HERO_VARIANT = 'hero-v2';
   const once = new Set();
   let questionCount = 0;
   let startedAt = 0;
+
+  const sendFunnel = (eventName, metadata = {}, target = '') => {
+    try { window.MysteryLogicFunnel?.track?.(eventName, metadata, target); } catch {}
+  };
+
+  const optimizeHero = () => {
+    const intro = document.querySelector('[data-view="intro"]');
+    const title = intro?.querySelector('h1');
+    const start = intro?.querySelector('[data-action="start"]');
+    if (!intro || !title || !start || intro.dataset.ai01Hero === HERO_VARIANT) return;
+
+    intro.dataset.ai01Hero = HERO_VARIANT;
+    start.textContent = 'Начать расследование';
+    start.dataset.ai01HeroCta = HERO_VARIANT;
+
+    const promise = document.createElement('p');
+    promise.className = 'aid-lead';
+    promise.dataset.ai01HeroPromise = HERO_VARIANT;
+    promise.textContent = 'Допрашивайте трёх подозреваемых своими словами, предъявляйте улики и проверяйте их ответы. Готовых реплик и заранее заданного маршрута нет.';
+    title.insertAdjacentElement('afterend', promise);
+    promise.insertAdjacentElement('afterend', start);
+
+    const oldNote = intro.querySelector('.aid-start-note');
+    if (oldNote) oldNote.remove();
+
+    const note = document.createElement('p');
+    note.className = 'aid-start-note';
+    note.id = 'ai01-hero-note';
+    note.textContent = 'Сразу откроется досье и первый допрос. Бесплатно, без регистрации.';
+    start.setAttribute('aria-describedby', note.id);
+    start.insertAdjacentElement('afterend', note);
+  };
 
   const send = (eventName, metadata = {}) => {
     const payload = { case_id: 'ai01', case_slug: 'vosem-minut-bez-kamery', mode: 'text', ...metadata };
@@ -18,7 +51,9 @@
     send(eventName, metadata);
   };
 
-  sendOnce('view', 'ai01_case_viewed');
+  optimizeHero();
+  sendOnce('view', 'ai01_case_viewed', { hero_variant: HERO_VARIANT });
+  sendFunnel('step_view', { flow: 'ai-demo', step: 'entry', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
 
   document.addEventListener('click', (event) => {
     const target = event.target?.closest?.('button,a,[data-action]');
@@ -27,7 +62,8 @@
 
     if (action === 'start') {
       startedAt = Date.now();
-      sendOnce('start', 'ai01_case_started');
+      sendOnce('start', 'ai01_case_started', { hero_variant: HERO_VARIANT });
+      sendFunnel('step_view', { flow: 'ai-demo', step: 'start', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
       return;
     }
 
@@ -77,10 +113,19 @@
         questions_asked: questionCount,
         elapsed_seconds: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       });
+      if (!once.has('funnel_complete')) {
+        once.add('funnel_complete');
+        sendFunnel('game_complete', {
+          flow: 'ai-demo',
+          case_id: 'ai01',
+          signature: 'resolution',
+          position: questionCount,
+        }, 'ai01-resolution');
+      }
     };
     new MutationObserver(reportCompletion).observe(resolution, { attributes: true, attributeFilter: ['hidden'] });
     reportCompletion();
   }
 
-  window.MysteryLogicAI01Analytics = { track: send };
+  window.MysteryLogicAI01Analytics = { track: send, heroVariant: HERO_VARIANT };
 })();
