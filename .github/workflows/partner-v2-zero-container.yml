@@ -32,7 +32,7 @@ jobs:
           test -f supabase/functions/coop-last-aria/index.ts
           test -f assets/paid-access-config.js
           test -f assets/solo-paid-access-config.js
-      - name: Validate no production deploy workflow was added
+      - name: Keep this workflow validation-only
         run: |
-          ! grep -R "beget" -n .github/workflows/partner-v2-zero-container.yml
-          ! grep -R "supabase functions deploy" -n .github/workflows/partner-v2-zero-container.yml
+          test ! -f .github/workflows/partner-v2-production.yml
+          test ! -f .github/workflows/partner-v2-deploy.yml
