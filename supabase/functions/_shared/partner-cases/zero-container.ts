@@ -35,41 +35,34 @@ export const ZERO_CONTAINER_CASE = {
     2: {
       id: 2,
       title: '16 минут',
-      objective: 'Отделите движение поезда от судьбы груза. Пока не пытайтесь обвинить конкретного человека.',
+      objective: 'Отделите движение поезда от судьбы груза. Затем сравните физические признаки контейнера на двух устройствах.',
+    },
+    3: {
+      id: 3,
+      title: 'ТК-0',
+      objective: 'Свяжите техническую заявку с объектом и исполнителем. Один экран знает, что перемещали, второй знает, кто это сделал.',
     },
   },
   evidence: {
     M01: {
-      id: 'M01',
-      role: 'creator',
-      chapter: 1,
-      type: 'map',
-      tag: 'Схема участка',
-      title: 'Узел Вектор-12',
+      id: 'M01', role: 'creator', chapter: 1, type: 'map', tag: 'Схема участка', title: 'Узел Вектор-12',
       body: [
         'Петля Б используется для временного удержания грузовых составов и технологического обслуживания.',
         'Рядом с петлей проходит твердая техническая площадка, на которой может работать контейнерная техника.',
         'Промышленная ветка подключается отдельной стрелкой 12Б.'
       ],
       facts: ['Петля Б', 'Техническая площадка рядом', 'Отдельная промышленная ветка'],
-      payload: {
-        points: [
-          { id: 'main', label: 'Главный путь' },
-          { id: 'loop_b', label: 'Петля Б' },
-          { id: 'industrial', label: 'Промышленная ветка' },
-          { id: 'tech_b', label: 'Техническая площадка Б' },
-          { id: 'box3', label: 'Сервисный бокс 3' },
-          { id: 'gate', label: 'Сервисные ворота' }
-        ]
-      }
+      payload: { points: [
+        { id: 'main', label: 'Главный путь' },
+        { id: 'loop_b', label: 'Петля Б' },
+        { id: 'industrial', label: 'Промышленная ветка' },
+        { id: 'tech_b', label: 'Техническая площадка Б' },
+        { id: 'box3', label: 'Сервисный бокс 3' },
+        { id: 'gate', label: 'Сервисные ворота' }
+      ] }
     },
     M02: {
-      id: 'M02',
-      role: 'creator',
-      chapter: 1,
-      type: 'log',
-      tag: 'GPS локомотива',
-      title: 'Маршрут состава №214',
+      id: 'M02', role: 'creator', chapter: 1, type: 'log', tag: 'GPS локомотива', title: 'Маршрут состава №214',
       body: [
         '00:52 - Северный терминал, отправление.',
         '01:31 - Пост 7, движение.',
@@ -81,12 +74,7 @@ export const ZERO_CONTAINER_CASE = {
       facts: ['Потеря GPS-сигнала: 0 сек.', 'Отклонение от маршрута: не зарегистрировано']
     },
     M03: {
-      id: 'M03',
-      role: 'creator',
-      chapter: 1,
-      type: 'log',
-      tag: 'Журнал стрелок',
-      title: 'Вектор-12, 01:55-02:27',
+      id: 'M03', role: 'creator', chapter: 1, type: 'log', tag: 'Журнал стрелок', title: 'Вектор-12, 01:55-02:27',
       body: [
         'Стрелка 12А: положение ПЕТЛЯ Б.',
         'Стрелка 12Б: промышленная ветка, состояние БЛОКИРОВКА.',
@@ -96,12 +84,7 @@ export const ZERO_CONTAINER_CASE = {
       facts: ['Состав не уходил на промышленную ветку']
     },
     G01: {
-      id: 'G01',
-      role: 'guest',
-      chapter: 1,
-      type: 'document',
-      tag: 'Грузовая накладная',
-      title: 'CAXU 771204 2',
+      id: 'G01', role: 'guest', chapter: 1, type: 'document', tag: 'Грузовая накладная', title: 'CAXU 771204 2',
       body: [
         'Вагон: 06.',
         'Груз: 8 промышленных оптических измерительных модулей в транспортных рамах.',
@@ -112,30 +95,13 @@ export const ZERO_CONTAINER_CASE = {
       facts: ['8 410 кг', 'Пломба S-417', 'Вагон 06']
     },
     G02: {
-      id: 'G02',
-      role: 'guest',
-      chapter: 1,
-      type: 'photo',
-      tag: 'Контрольное фото',
-      title: 'Контейнер перед отправлением, 00:39:51',
-      body: [
-        'На правой нижней части корпуса видна небольшая прямоугольная сварная заплата.',
-        'На правой створке есть узкая вертикальная вмятина.',
-        'Под последними цифрами номера проходит длинная неглубокая царапина.'
-      ],
-      facts: ['Сварная заплата', 'Вертикальная вмятина', 'Царапина под номером'],
-      payload: {
-        imageStatus: 'placeholder',
-        imageKey: 'zero-container-departure'
-      }
+      id: 'G02', role: 'guest', chapter: 1, type: 'photo', tag: 'Контрольное фото', title: 'Контейнер перед отправлением, 00:39:51',
+      body: ['Изображение сохранено системой отправочного контроля. Сравнивайте номер и физические особенности корпуса.'],
+      facts: [],
+      payload: { imageStatus: 'placeholder', imageKey: 'zero-container-departure', observationProfile: 'departure' }
     },
     G03: {
-      id: 'G03',
-      role: 'guest',
-      chapter: 1,
-      type: 'access',
-      tag: 'Контроль доступа',
-      title: 'Складская зона С',
+      id: 'G03', role: 'guest', chapter: 1, type: 'access', tag: 'Контроль доступа', title: 'Складская зона С',
       body: [
         '00:12:03 - N. SAVELIEV, вход.',
         '00:18:41 - GUEST-07, вход.',
@@ -146,12 +112,7 @@ export const ZERO_CONTAINER_CASE = {
       facts: ['GUEST-07 находился в зоне 6 минут 38 секунд', 'Показание Савельева противоречит журналу']
     },
     M04: {
-      id: 'M04',
-      role: 'creator',
-      chapter: 2,
-      type: 'audio-transcript',
-      tag: 'Диспетчерская связь',
-      title: 'Остановка на Векторе-12',
+      id: 'M04', role: 'creator', chapter: 2, type: 'audio-transcript', tag: 'Диспетчерская связь', title: 'Остановка на Векторе-12',
       body: [
         '02:04:18. Волкова: Двести четырнадцатый, после входного приготовьтесь к остановке на петле Б.',
         'Машинист: Принял. Причина?',
@@ -162,13 +123,14 @@ export const ZERO_CONTAINER_CASE = {
       ],
       facts: ['Фактическая остановка: 16 минут 11 секунд']
     },
+    M05: {
+      id: 'M05', role: 'creator', chapter: 2, type: 'photo', tag: 'Камера въезда', title: 'Контейнер на Южном терминале, 03:07:41',
+      body: ['Система распознавания уверенно читает номер CAXU 771204 2. Сравните с описанием корпуса, которое есть только у напарника.'],
+      facts: ['Номер распознан: CAXU 771204 2', 'Уверенность OCR: 99,2 %'],
+      payload: { imageStatus: 'placeholder', imageKey: 'zero-container-arrival', observationProfile: 'arrival' }
+    },
     G04: {
-      id: 'G04',
-      role: 'guest',
-      chapter: 2,
-      type: 'weighing',
-      tag: 'Контрольное взвешивание',
-      title: 'Масса почти не изменилась',
+      id: 'G04', role: 'guest', chapter: 2, type: 'weighing', tag: 'Контрольное взвешивание', title: 'Масса почти не изменилась',
       body: [
         'Отправление: 8 410 кг.',
         'Прибытие: 8 420 кг.',
@@ -176,6 +138,38 @@ export const ZERO_CONTAINER_CASE = {
         'Статус: контроль пройден.'
       ],
       facts: ['Разница: +10 кг', 'Крупная потеря груза не отразилась на общей массе']
+    },
+    M06: {
+      id: 'M06', role: 'creator', chapter: 3, type: 'machine-log', tag: 'Терминальная техника', title: 'R-4, журнал задания',
+      body: [
+        '02:08:11 - оператор D. RYBAKOV, авторизация.',
+        '02:09:02 - принято задание Т-04391.',
+        '02:19:14 - задание завершено.',
+        'Зона: Вектор-12, техническая площадка Б.'
+      ],
+      facts: ['Исполнитель Т-04391: Денис Рыбаков', 'Машина: R-4']
+    },
+    G05: {
+      id: 'G05', role: 'guest', chapter: 3, type: 'document', tag: 'Внутренняя заявка', title: 'Т-04391',
+      body: [
+        'Создано: 01:49:03.',
+        'Пользователь: OPS.SHARED.',
+        'Объект: ТК-0.',
+        'Операция: ПЕРЕМЕЩЕНИЕ.',
+        'Откуда: подготовительная площадка.',
+        'Куда: техническая площадка Б.',
+        'Окно выполнения: 02:05-02:20.'
+      ],
+      facts: ['Объект Т-04391: ТК-0']
+    },
+    G06: {
+      id: 'G06', role: 'guest', chapter: 3, type: 'reference', tag: 'Внутренний справочник', title: 'Что такое ТК-0',
+      body: [
+        'Технический контейнерный корпус без международной регистрации.',
+        'Используется для учебных, ремонтных и технологических операций.',
+        'Собственная масса пустого корпуса: около 2,2 т.'
+      ],
+      facts: ['ТК-0 не отслеживается как коммерческий груз', 'Пустой корпус: около 2,2 т']
     }
   },
   initialHypothesisOptions: [
@@ -184,7 +178,58 @@ export const ZERO_CONTAINER_CASE = {
     { id: 'during_stop', label: 'Во время остановки' },
     { id: 'after_arrival', label: 'После прибытия' },
     { id: 'insufficient', label: 'Пока недостаточно данных' }
-  ]
+  ],
+  checkpointUi: {
+    photo_observation: {
+      id: 'photo_observation',
+      title: 'Проверка идентичности контейнера',
+      lead: 'Опишите напарнику повреждения корпуса и независимо отметьте, что видно на вашем изображении.',
+      fields: [
+        { id: 'patch', label: 'Сварная заплата справа внизу' },
+        { id: 'scratch', label: 'Длинная царапина под номером' }
+      ],
+      options: [
+        { id: 'present', label: 'Есть' },
+        { id: 'absent', label: 'Нет' },
+        { id: 'unsure', label: 'Не уверен' }
+      ]
+    },
+    t04391_link: {
+      id: 't04391_link',
+      title: 'Свяжите Т-04391',
+      lead: 'У каждого игрока есть только половина ответа. Сначала обсудите документы, затем выберите свою часть связи.',
+      roleOptions: {
+        creator: [
+          { id: 'rybakov_r4', label: 'R-4 / Денис Рыбаков' },
+          { id: 'volkova', label: 'Анна Волкова' },
+          { id: 'train214', label: 'Состав №214' }
+        ],
+        guest: [
+          { id: 'tk0', label: 'ТК-0' },
+          { id: 'caxu', label: 'CAXU 771204 2' },
+          { id: 's417', label: 'Пломба S-417' }
+        ]
+      }
+    }
+  },
+  checkpointRules: {
+    photo_observation: {
+      sharedKey: 'photoComparisonSolved',
+      unlockChapter: 3,
+      expected: {
+        creator: { patch: 'absent', scratch: 'absent' },
+        guest: { patch: 'present', scratch: 'present' }
+      }
+    },
+    t04391_link: {
+      sharedKey: 't04391Linked',
+      unlockChapter: 4,
+      expected: {
+        creator: 'rybakov_r4',
+        guest: 'tk0'
+      }
+    }
+  }
 } as const;
 
 export type ZeroContainerRole = keyof typeof ZERO_CONTAINER_CASE.roles;
