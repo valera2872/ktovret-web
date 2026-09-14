@@ -7,7 +7,17 @@
   let startedAt = 0;
 
   const sendFunnel = (eventName, metadata = {}, target = '') => {
-    try { window.MysteryLogicFunnel?.track?.(eventName, metadata, target); } catch {}
+    const track = window.MysteryLogicFunnel?.track;
+    if (typeof track !== 'function') return false;
+    try { track(eventName, metadata, target); return true; } catch { return false; }
+  };
+  const sendFunnelEventually = (key, eventName, metadata = {}, target = '', attempts = 20) => {
+    if (once.has(key)) return;
+    if (sendFunnel(eventName, metadata, target)) {
+      once.add(key);
+      return;
+    }
+    if (attempts > 0) setTimeout(() => sendFunnelEventually(key, eventName, metadata, target, attempts - 1), 100);
   };
 
   const optimizeHero = () => {
@@ -53,7 +63,7 @@
 
   optimizeHero();
   sendOnce('view', 'ai01_case_viewed', { hero_variant: HERO_VARIANT });
-  sendFunnel('step_view', { flow: 'ai-demo', step: 'entry', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
+  sendFunnelEventually('funnel_entry', 'step_view', { flow: 'ai-demo', step: 'entry', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
 
   document.addEventListener('click', (event) => {
     const target = event.target?.closest?.('button,a,[data-action]');
@@ -63,7 +73,7 @@
     if (action === 'start') {
       startedAt = Date.now();
       sendOnce('start', 'ai01_case_started', { hero_variant: HERO_VARIANT });
-      sendFunnel('step_view', { flow: 'ai-demo', step: 'start', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
+      sendFunnelEventually('funnel_start', 'step_view', { flow: 'ai-demo', step: 'start', case_id: 'ai01', signature: HERO_VARIANT }, 'ai01-hero');
       return;
     }
 
@@ -113,15 +123,12 @@
         questions_asked: questionCount,
         elapsed_seconds: startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0,
       });
-      if (!once.has('funnel_complete')) {
-        once.add('funnel_complete');
-        sendFunnel('game_complete', {
-          flow: 'ai-demo',
-          case_id: 'ai01',
-          signature: 'resolution',
-          position: questionCount,
-        }, 'ai01-resolution');
-      }
+      sendFunnelEventually('funnel_complete', 'game_complete', {
+        flow: 'ai-demo',
+        case_id: 'ai01',
+        signature: 'resolution',
+        position: questionCount,
+      }, 'ai01-resolution');
     };
     new MutationObserver(reportCompletion).observe(resolution, { attributes: true, attributeFilter: ['hidden'] });
     reportCompletion();
