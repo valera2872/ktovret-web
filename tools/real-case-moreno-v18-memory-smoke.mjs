@@ -16,7 +16,8 @@ const memory={entries:[
  {turn:5,actor_id:'second_floor_witness',actor:'бывший житель второго этажа',type:'statement',command:'Что вы видели после выстрела?',title:'Ответ: бывший житель второго этажа',body:'После громкого звука он видел Patricia и мужчину, стоявшего над ней; затем мужчина отступил обратно в квартиру и закрыл дверь.'},
  {turn:6,actor_id:'boyfriend',actor:'бойфренд старшей дочери',type:'confrontation',command:'Покажи ему результаты баллистики',title:'Ответ: бойфренд старшей дочери',body:'Вы предъявили результат баллистики: извлечённый из тела Patricia снаряд был совместим с выстрелом из оружия калибра .38. В доступных официальных материалах реакция этого собеседника на такое предъявление не зафиксирована.'}
 ]};
-const base={session_id:'ci-v18-memory',visitor_id:'ci-v18',completed:['people','interview','alibi','ballistics','witnessLocated','canvass'],focus:'boyfriend',last_target:'boyfriend',recent_history:'',memory};
+const stamp=Date.now().toString(36);
+const base={session_id:`ci-v18-memory-${stamp}`,visitor_id:`v-ci-v18-${stamp}`,completed:['people','interview','alibi','ballistics','witnessLocated','canvass'],focus:'boyfriend',last_target:'boyfriend',recent_history:'',memory};
 const status=await post({action:'status'});if(status.version!==4||status.upstream!=='ai-moreno-investigator-v3'||status.player_leads_investigation!==true||!String(status.planner_policy).includes('retrieval-only-memory'))throw new Error(`Unexpected v4 status: ${JSON.stringify(status)}`);
 const statementsPlan=await post({...base,action:'plan',command:'Напомни, что он говорил про выстрелы?'});oneMemoryOp(statementsPlan,'statements');
 const statements=await post({...base,action:'interrogate',target:'boyfriend',question:'__ML_MEMORY__:statements:boyfriend'});
