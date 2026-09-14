@@ -1,0 +1,38 @@
+name: Validate Partner V2 Zero Container
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feature/partner-v2-zero-container
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-partner-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate browser syntax
+        run: node --check assets/partner-v2-engine.js
+      - name: Run Partner V2 source contracts
+        run: node --test tests/partner-v2-zero-container.test.mjs
+      - name: Protect existing product boundaries
+        run: |
+          test -f assets/case-2317.js
+          test -f assets/case-407.js
+          test -f supabase/functions/coop-2317/index.ts
+          test -f supabase/functions/coop-407/index.ts
+          test -f supabase/functions/coop-last-aria/index.ts
+          test -f assets/paid-access-config.js
+          test -f assets/solo-paid-access-config.js
+      - name: Validate no production deploy workflow was added
+        run: |
+          ! grep -R "beget" -n .github/workflows/partner-v2-zero-container.yml
+          ! grep -R "supabase functions deploy" -n .github/workflows/partner-v2-zero-container.yml
