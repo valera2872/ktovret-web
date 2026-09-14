@@ -21,11 +21,11 @@ const port=await new Promise(r=>server.listen(0,'127.0.0.1',()=>r(server.address
 const run=(args,capture=false)=>new Promise((resolve,reject)=>{const c=spawn(chrome,args);let stdout='',stderr='';c.stdout.on('data',d=>stdout+=d);c.stderr.on('data',d=>stderr+=d);c.on('close',code=>code===0?resolve(capture?stdout:''):reject(new Error(stderr||`chrome ${code}`)))});
 try{
  const dom=await run(['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--virtual-time-budget=2000','--dump-dom',url],true);
- for(const token of ['ref18-memory-panel','ref18-memory-person','ref18-memory-log','ref18-memory-card','ПАМЯТЬ ДЕЛА','2 отв. · 1 предъявл.'])if(!dom.includes(token))throw new Error(`v0.18 memory token missing: ${token}`);
+ for(const token of ['ref18-memory-panel','ref18-memory-person','ref18-memory-log','ref18-memory-card','ПАМЯТЬ ДЕЛА','2 отв. · 1 предъявл.','Здесь хранится только то, что вы уже получили в ходе расследования.'])if(!dom.includes(token))throw new Error(`v0.18 memory token missing: ${token}`);
  if(dom.includes('прямой допрос · бойфренд'))throw new Error('desk memory incorrectly reopened direct interrogation');
- if(!dom.includes('что он говорил?')||!dom.includes('что я ему уже предъявлял?'))throw new Error('v0.18 memory query affordances missing');
+ if(dom.includes('Можно спросить:')||dom.includes('какие здесь расхождения?'))throw new Error('v0.18 memory panel still contains investigative hints');
  for(const forbidden of ['ПРАВИЛЬНЫЙ ОТВЕТ','КЛЮЧЕВАЯ УЛИКА','ВИНОВЕН'])if(dom.includes(forbidden))throw new Error(`solution cue leaked: ${forbidden}`);
  for(const [name,w,h] of [['memory-desktop',1648,1100],['memory-mobile',390,1040]])await run(['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',`--window-size=${w},${h}`,'--force-device-scale-factor=1','--hide-scrollbars','--virtual-time-budget=2200',`--screenshot=${path.join(out,`${name}.png`)}`,url]);
- fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.8.0',journalDerived:true,statementEntries:2,confrontationEntries:1,memoryReplyExcludedFromIndex:true,deskRecallDoesNotOpenInterview:true,solutionCueGuard:true,screenshots:2},null,2));
- console.log('captured Moreno v0.18 investigative memory audit');
+ fs.writeFileSync(path.join(out,'audit.json'),JSON.stringify({version:'1.8.2',journalDerived:true,statementEntries:2,confrontationEntries:1,memoryReplyExcludedFromIndex:true,deskRecallDoesNotOpenInterview:true,playerLed:true,noInvestigativeHints:true,solutionCueGuard:true,screenshots:2},null,2));
+ console.log('captured Moreno v0.18 retrieval-only investigative memory audit');
 }finally{await new Promise(r=>server.close(r))}
