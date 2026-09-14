@@ -12,7 +12,7 @@ const memory={entries:[
  {entry_id:'t3-i1',turn:3,actor_id:'boyfriend',actor:'бойфренд старшей дочери',type:'statement',command:'Кто стрелял?',title:'Ответ: бойфренд старшей дочери',body:'Он утверждает, что не видел момент выстрела и не знает, кто стрелял.'},
  {entry_id:'t5-i1',turn:5,actor_id:'second_floor_witness',actor:'бывший житель второго этажа',type:'statement',command:'Что вы видели?',title:'Ответ: бывший житель второго этажа',body:'После громкого звука он видел Patricia и мужчину, стоявшего над ней; затем мужчина отступил обратно в квартиру и закрыл дверь.'}
 ]};
-const base={session_id:`ci-v19-${nonce}`,visitor_id:`v-ci-v19-${nonce}`,completed:['people','interview','witnessLocated','canvass','ballistics'],focus:'boyfriend',last_target:'boyfriend',recent_history:'',memory};
+const base={session_id:`ci-v19-${nonce}`,visitor_id:`v-ci-v19-${nonce}`,completed:['people','interview','witnessLocated','canvass','ballistics','alibi'],focus:'boyfriend',last_target:'boyfriend',recent_history:'',memory};
 const status=await post({action:'status'});if(status.version!==5||status.upstream!=='ai-moreno-investigator-v4'||status.player_leads_investigation!==true||status.automatic_contradiction_detection!==false)throw new Error(`bad v5 status ${JSON.stringify(status)}`);
 const plan=await post({...base,action:'plan',command:'Предъяви ему показания соседа'});
 if(plan.mode!=='manual_statement_confrontation_plan'||plan.operations?.length!==1)throw new Error(`active-focus manual confrontation plan failed: ${JSON.stringify(plan)}`);
@@ -30,4 +30,5 @@ const noTarget=await post({...base,focus:'',last_target:'boyfriend',action:'plan
 if(noTarget.mode!=='manual_statement_selection_required'||!String(noTarget.operations?.[0]?.note).includes('кому предъявить'))throw new Error(`missing recipient should not be inferred: ${JSON.stringify(noTarget)}`);
 const playerLed=await post({...base,action:'plan',command:'Кто врёт?'});if(playerLed.mode!=='player_led_guardrail'||!String(playerLed.operations?.[0]?.note).includes('Вывод остаётся за следователем'))throw new Error(`v5 bypassed v4 player-led guardrail: ${JSON.stringify(playerLed)}`);
 const evidence=await post({...base,action:'plan',command:'Покажи ему результаты баллистики'});if(evidence.operations?.[0]?.question!=='__ML_PRESENT__:ballistics')throw new Error(`v5 intercepted ordinary evidence presentation: ${JSON.stringify(evidence)}`);
+const oldAlibi=await post({...base,action:'plan',command:'Предъяви ему проверку версии о сне в кресле'});if(oldAlibi.operations?.[0]?.question!=='__ML_PRESENT__:alibi')throw new Error(`v5 misread an old evidence confrontation as witness-statement presentation: ${JSON.stringify(oldAlibi)}`);
 console.log('Moreno v0.19 live player-led cross-statement smoke passed');
