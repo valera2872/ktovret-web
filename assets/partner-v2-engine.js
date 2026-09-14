@@ -14,7 +14,6 @@
   let roomState = null;
   let pollTimer = null;
   let busy = false;
-  let lastRevision = 0;
   let toastTimer = null;
 
   const escapeHtml = (value = '') => String(value)
@@ -83,7 +82,7 @@
     not_joined: 'Сначала войдите в комнату.',
     partner_not_joined: 'Второй игрок еще не подключился.',
     unsupported_case: 'Это расследование пока недоступно.',
-    state_conflict: 'Напарник только что обновил состояние дела. Получаю свежие данные.'
+    state_conflict: 'Напарник только что обновил состояние дела.'
   }[error?.message] || 'Не удалось связаться с комнатой. Попробуйте еще раз.');
 
   const setRoomQuery = (code) => {
@@ -188,6 +187,25 @@
       </div>`)}
   `);
 
+  const scheduleLobbyPoll = () => {
+    clearPoll();
+    pollTimer = setTimeout(async () => {
+      if (!roomState?.room?.code) return;
+      const previous = roomState;
+      try {
+        const next = await api({ action: 'status', code: previous.room.code });
+        const changed = next.bothJoined !== previous.bothJoined || next.me?.started !== previous.me?.started || next.opponent?.started !== previous.opponent?.started;
+        roomState = next;
+        if (next.me?.started) renderGame(next);
+        else if (changed) renderLobby(next);
+        else scheduleLobbyPoll();
+      } catch {
+        roomState = previous;
+        scheduleLobbyPoll();
+      }
+    }, POLL_MS);
+  };
+
   const renderLobby = (state, message = '') => {
     clearPoll();
     roomState = state;
@@ -207,17 +225,7 @@
           <button class="partner-v2-button is-primary" type="button" data-action="start" ${state.bothJoined ? '' : 'disabled'}>Начать расследование</button>
         </div>`)}
     `);
-
-    pollTimer = setTimeout(async () => {
-      if (!roomState?.room?.code) return;
-      try {
-        const next = await api({ action: 'status', code: roomState.room.code });
-        if (next.me?.started) renderGame(next);
-        else renderLobby(next);
-      } catch {
-        renderLobby(state);
-      }
-    }, POLL_MS);
+    scheduleLobbyPoll();
   };
 
   const evidenceHtml = (item) => {
@@ -273,10 +281,33 @@
     </aside>`;
   };
 
+  const scheduleGamePoll = () => {
+    clearPoll();
+    pollTimer = setTimeout(async () => {
+      if (!roomState?.room?.code) return;
+      const previous = roomState;
+      try {
+        const next = await api({ action: 'status', code: previous.room.code });
+        const changed = next.state?.revision !== previous.state?.revision || next.state?.chapter !== previous.state?.chapter || next.me?.firstHypothesis !== previous.me?.firstHypothesis;
+        roomState = next;
+        if (changed) {
+          if ((next.state?.chapter || 0) > (previous.state?.chapter || 0)) {
+            toast('Напарник завершил checkpoint. Открыт новый пакет материалов.');
+          }
+          renderGame(next);
+        } else {
+          scheduleGamePoll();
+        }
+      } catch {
+        roomState = previous;
+        scheduleGamePoll();
+      }
+    }, POLL_MS);
+  };
+
   const renderGame = (state, message = '') => {
     clearPoll();
     roomState = state;
-    lastRevision = state.state?.revision || lastRevision;
     const chapter = state.state.chapter || 1;
     const currentChapter = (state.case.chapters || []).find((item) => item.id === chapter) || state.case.chapters?.[0];
     const evidence = state.evidence || [];
@@ -309,22 +340,7 @@
         ${boardHtml(state)}
       </div>
     `);
-
-    pollTimer = setTimeout(async () => {
-      if (!roomState?.room?.code) return;
-      try {
-        const next = await api({ action: 'status', code: roomState.room.code });
-        if ((next.state?.revision || 0) !== lastRevision || next.state?.chapter !== roomState.state?.chapter) {
-          if (next.state?.chapter > roomState.state?.chapter) toast('Напарник завершил checkpoint. Открыт новый пакет материалов.');
-          renderGame(next);
-        } else {
-          roomState = next;
-          renderGame(next);
-        }
-      } catch {
-        pollTimer = setTimeout(() => renderGame(state, 'Связь с комнатой временно потеряна. Состояние сохранено на сервере.'), POLL_MS);
-      }
-    }, POLL_MS);
+    scheduleGamePoll();
   };
 
   const createRoom = async () => {
@@ -354,15 +370,12 @@
       return;
     } catch (error) {
       if (error.message !== 'not_joined') {
-        if (error.message === 'wrong_case') renderHome(errorText(error));
-        else {
-          try {
-            const preview = await api({ action: 'preview', code });
-            setRoomQuery(code);
-            renderJoin(code, preview);
-          } catch (previewError) {
-            renderHome(errorText(previewError));
-          }
+        try {
+          const preview = await api({ action: 'preview', code });
+          setRoomQuery(code);
+          renderJoin(code, preview, error.message === 'wrong_case' ? errorText(error) : '');
+        } catch (previewError) {
+          renderHome(errorText(previewError));
         }
         return;
       }
@@ -409,32 +422,34 @@
     }
   };
 
+  const postHypothesis = async (value, state, allowRetry) => {
+    try {
+      return await api({
+        action: 'submit_checkpoint',
+        code: state.room.code,
+        checkpointId: 'initial_hypothesis',
+        value,
+        clientRevision: state.state.revision,
+      });
+    } catch (error) {
+      if (allowRetry && error.message === 'state_conflict') {
+        const fresh = await api({ action: 'status', code: state.room.code });
+        if (fresh.me.firstHypothesis) return fresh;
+        return postHypothesis(value, fresh, false);
+      }
+      throw error;
+    }
+  };
+
   const submitHypothesis = async (value) => {
     if (!roomState || busy || roomState.me.firstHypothesis) return;
     busy = true;
     try {
-      const state = await api({
-        action: 'submit_checkpoint',
-        code: roomState.room.code,
-        checkpointId: 'initial_hypothesis',
-        value,
-        clientRevision: roomState.state.revision,
-      });
+      const state = await postHypothesis(value, roomState, true);
       track('zero_first_hypothesis', { room_code: state.room.code, role: state.me.role, hypothesis: value });
       renderGame(state);
     } catch (error) {
-      if (error.message === 'state_conflict') {
-        try {
-          const fresh = await api({ action: 'status', code: roomState.room.code });
-          roomState = fresh;
-          toast('Напарник обновил дело. Повторите выбор на свежем состоянии.');
-          renderGame(fresh);
-        } catch {
-          renderGame(roomState, errorText(error));
-        }
-      } else {
-        renderGame(roomState, errorText(error));
-      }
+      renderGame(roomState, errorText(error));
     } finally {
       busy = false;
     }
