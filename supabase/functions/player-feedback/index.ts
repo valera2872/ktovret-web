@@ -84,7 +84,12 @@ Deno.serve(async (req: Request) => {
   if (!BROWSER_RE.test(browserKey)) return json(400, { error: 'invalid_browser_key' }, origin);
   if (!CASE_RE.test(caseId)) return json(400, { error: 'invalid_case_id' }, origin);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return json(400, { error: 'invalid_rating' }, origin);
-  if (comment.length > 2000) return json(400, { error: 'feedback_too_long' }, origin);
+  if (rating <= 2 && comment.length < 20) {
+    return json(400, {
+      error: 'low_rating_reason_required',
+      message: 'Для оценки 1–2 звезды нужно кратко объяснить причину (минимум 20 символов).',
+    }, origin);
+  }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   const reviewerKeyHash = await sha256(browserKey);
@@ -107,6 +112,7 @@ Deno.serve(async (req: Request) => {
     feedback_version: 'v2',
     updated_at: now,
   };
+
   const { data, error } = await admin.from('case_reviews')
     .upsert(payload, { onConflict: 'case_id,reviewer_key_hash' })
     .select('id').single();
@@ -118,7 +124,8 @@ Deno.serve(async (req: Request) => {
   return json(200, {
     ok: true,
     feedbackSaved: true,
-    ratingPublishedToAggregate: true,
+    ratingPublishedToAggregate: false,
+    moderationStatus: 'pending',
     publicationRequested: publicationConsent,
     feedbackVersion: 'v2',
   }, origin);
