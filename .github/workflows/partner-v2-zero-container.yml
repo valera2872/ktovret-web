@@ -20,9 +20,11 @@ jobs:
         with:
           node-version: 22
       - name: Validate browser syntax
-        run: node --check assets/partner-v2-engine.js
+        run: |
+          node --check assets/partner-v2-engine.js
+          node --check assets/partner-v2-checkpoints.js
       - name: Run Partner V2 source contracts
-        run: node --test tests/partner-v2-zero-container.test.mjs
+        run: node --test tests/partner-v2-*.test.mjs
       - name: Protect existing product boundaries
         run: |
           test -f assets/case-2317.js
