@@ -87,10 +87,58 @@
     });
   };
 
+  const roomCode = () => {
+    try { return String(new URL(location.href).searchParams.get('room') || '').trim().toUpperCase().slice(0, 16); }
+    catch { return ''; }
+  };
+  const sendFunnel = (eventName, metadata, target) => {
+    const send = window.MysteryLogicFunnel?.track;
+    if (typeof send !== 'function') return false;
+    try { send(eventName, metadata, target); return true; } catch { return false; }
+  };
+  const sendRoomOnce = (kind, eventName, metadata, target) => {
+    const code = roomCode();
+    if (!code) return false;
+    const key = `mysterylogic:analytics:coop407:${kind}:${code}`;
+    try { if (localStorage.getItem(key) === '1') return true; } catch {}
+    if (!sendFunnel(eventName, metadata, target)) return false;
+    try { localStorage.setItem(key, '1'); } catch {}
+    return true;
+  };
+  const reportJourney = () => {
+    const code = roomCode();
+    if (!code) return;
+
+    if (root.querySelector('[data-final-form]')) {
+      sendRoomOnce('final', 'step_view', {
+        flow: 'coop-entry',
+        step: 'final',
+        case_id: 'coop:407',
+        signature: code,
+      }, 'coop-407-final');
+    }
+
+    const reveal = root.querySelector('.case2317-reveal');
+    if (reveal) {
+      sendRoomOnce('complete', 'game_complete', {
+        flow: 'coop-entry',
+        case_id: 'coop:407',
+        signature: code,
+      }, 'coop-407');
+      sendRoomOnce('reveal', 'step_view', {
+        flow: 'coop-entry',
+        step: 'reveal',
+        case_id: 'coop:407',
+        signature: code,
+      }, 'coop-407-reveal');
+    }
+  };
+
   const patch = () => {
     patchEvidence(root);
     patchStageUi(root);
     patchFeedback(root);
+    reportJourney();
   };
 
   let scheduled = false;
@@ -101,6 +149,8 @@
   };
   new MutationObserver(schedule).observe(root, { childList: true, subtree: true });
   patch();
+  setTimeout(reportJourney, 250);
+  setTimeout(reportJourney, 1000);
 
-  window.ML407ReleaseGate = Object.freeze({ revision: '1.0', blindSpoilerNeutral: true, finalEvidenceNeutral: true, balancedFinalOptions: true });
+  window.ML407ReleaseGate = Object.freeze({ revision: '1.0', blindSpoilerNeutral: true, finalEvidenceNeutral: true, balancedFinalOptions: true, completionAnalytics: true });
 })();
