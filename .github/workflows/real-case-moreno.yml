@@ -10,6 +10,7 @@ on:
       - 'tools/real-case-moreno-*.mjs'
       - 'supabase/functions/ai-moreno-investigator-v3/**'
       - 'supabase/functions/ai-moreno-investigator-v4/**'
+      - 'supabase/functions/ai-moreno-investigator-v5/**'
       - '.github/workflows/real-case-moreno.yml'
   workflow_dispatch:
 
@@ -29,12 +30,14 @@ jobs:
           node --check assets/real-case-moreno-budget-v51.js
           node --check assets/real-case-moreno-ai-router-v17.js
           node --check assets/real-case-moreno-ai-router-v18.js
+          node --check assets/real-case-moreno-ai-router-v19.js
           node --check assets/real-case-moreno-ai-v6.js
           node --check assets/real-case-moreno-reference-v11.js
           node --check assets/real-case-moreno-reference-v13.js
           node --check assets/real-case-moreno-reference-v16.js
           node --check assets/real-case-moreno-reference-v17.js
           node --check assets/real-case-moreno-reference-v18.js
+          node --check assets/real-case-moreno-reference-v19.js
           node --check tools/real-case-moreno-v6-smoke.mjs
           node --check tools/real-case-moreno-v6-visual.mjs
           node --check tools/real-case-moreno-v9-premium-visual.mjs
@@ -43,10 +46,14 @@ jobs:
           node --check tools/real-case-moreno-v17-interrogation-visual.mjs
           node --check tools/real-case-moreno-v18-memory-smoke.mjs
           node --check tools/real-case-moreno-v18-memory-visual.mjs
+          node --check tools/real-case-moreno-v19-cross-statement-smoke.mjs
+          node --check tools/real-case-moreno-v19-cross-statement-visual.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
         run: node tools/real-case-moreno-v18-memory-smoke.mjs
+      - name: Smoke deployed v0.19 manual statement confrontation contract
+        run: node tools/real-case-moreno-v19-cross-statement-smoke.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
@@ -78,6 +85,14 @@ jobs:
         with:
           name: real-case-moreno-v18-audit
           path: artifacts/real-case-moreno-v18
+          retention-days: 7
+      - name: Capture v0.19 manual statement confrontation audit
+        run: node tools/real-case-moreno-v19-cross-statement-visual.mjs
+      - name: Upload v0.19 cross-statement audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v19-audit
+          path: artifacts/real-case-moreno-v19
           retention-days: 7
       - name: Regress v0.6 against real player transcript
         run: node tools/real-case-moreno-v6-smoke.mjs
