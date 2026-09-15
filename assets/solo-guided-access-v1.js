@@ -5,7 +5,8 @@
   const CASE_ID = 'ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
   const SESSION_KEY = `mysterylogic:solo-guided-session:${CASE_ID}`;
   const PUBLIC_TOKEN = 'MLPREVIEW-PUBLIC';
-  const SOLO_PATH = '/functions/v1/solo-session-v2';
+  const PRIVATE_SOLO_PATH = '/functions/v1/solo-session-v2';
+  const PUBLIC_SOLO_PATH = '/functions/v1/solo-guided-session-public-v1';
   const PRIVATE_INTERROGATION_PATH = '/functions/v1/solo-guided-interrogate-v1';
   const PUBLIC_INTERROGATION_PATH = '/functions/v1/solo-guided-interrogate-public-v1';
 
@@ -25,24 +26,19 @@
     return new Headers(source || {});
   }
 
-  async function publicReset(url, input, init, headers) {
+  async function publicReset(url, init, headers) {
     let body = {};
     try { body = JSON.parse(String(init?.body || '{}')); } catch {}
     if (String(body.action || '').toUpperCase() !== 'RESET') return null;
 
     try { localStorage.removeItem(SESSION_KEY); } catch {}
-
-    const nextBody = {
-      action: 'START',
-      case_id: CASE_ID,
-    };
     headers.delete('authorization');
 
     const response = await nativeFetch(url, {
       ...init,
       method: 'POST',
       headers,
-      body: JSON.stringify(nextBody),
+      body: JSON.stringify({ action: 'START', case_id: CASE_ID }),
     });
     if (!response.ok) return response;
 
@@ -54,6 +50,7 @@
         viaSessionToken: true,
         viaEntitlement: false,
         reset: true,
+        publicPreview: true,
       },
     }), {
       status: response.status,
@@ -68,8 +65,9 @@
     const auth = headers.get('authorization') || '';
     const isPublicMarker = auth === `Bearer ${PUBLIC_TOKEN}`;
 
-    if (url.includes(SOLO_PATH) && isPublicMarker) {
-      const resetResponse = await publicReset(url, input, init, headers);
+    if (url.includes(PRIVATE_SOLO_PATH) && isPublicMarker) {
+      url = url.replace(PRIVATE_SOLO_PATH, PUBLIC_SOLO_PATH);
+      const resetResponse = await publicReset(url, init, headers);
       if (resetResponse) return resetResponse;
       headers.delete('authorization');
       return nativeFetch(url, { ...init, headers });
