@@ -3,6 +3,8 @@ import path from 'node:path';
 
 const NAV_LINK='<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/">Реальные расследования <span class="ml-nav-new-badge">NEW</span></a>';
 const LAUNCH_BAR='<div class="ml-launchbar" data-real-investigations-launchbar role="status"><strong>Новый продукт</strong><a href="./realnye-dela/">Реальные расследования — первое дело уже доступно →</a></div>';
+const REAL_ROUTES=['https://mysterylogic.com/realnye-dela/','https://mysterylogic.com/realnye-dela/pozharnaya-lestnica-1991-premium/'];
+let sitemapFinalizerRegistered=false;
 
 const FEATURE=`<section class="ml-real-launch" id="real-investigations" data-real-investigations-launch>
   <div class="ml-real-launch-grid">
@@ -35,6 +37,24 @@ const FORMAT_CARD=`<a class="ref-format-card ref-format-card-real" data-real-inv
   <div class="ref-real-format-art"><img src="./assets/real-investigations-hero.svg" alt="Реальные расследования Mystery Logic" width="1200" height="900" loading="lazy" decoding="async"></div>
   <span class="ref-format-link">Открыть расследования →</span>
 </a>`;
+
+function finalizeSitemap(siteRoot){
+  const file=path.join(siteRoot,'sitemap.xml');
+  if(!fs.existsSync(file)) return;
+  let xml=fs.readFileSync(file,'utf8');
+  const lastmod=new Date().toISOString().slice(0,10);
+  for(const url of REAL_ROUTES){
+    if(xml.includes(`<loc>${url}</loc>`)) continue;
+    xml=xml.replace('</urlset>',`<url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>\n</urlset>`);
+  }
+  fs.writeFileSync(file,xml);
+}
+
+function registerSitemapFinalizer(siteRoot){
+  if(sitemapFinalizerRegistered) return;
+  sitemapFinalizerRegistered=true;
+  process.once('beforeExit',()=>finalizeSitemap(siteRoot));
+}
 
 export function preserveRealInvestigationsLaunch(siteRoot){
   const home=path.join(siteRoot,'index.html');
@@ -74,11 +94,12 @@ export function preserveRealInvestigationsLaunch(siteRoot){
     html=html.replace(match[0],patched);
   }
 
-  if(!html.includes('href="./realnye-dela/"')) throw new Error('Real investigations homepage route was not preserved');
   if(!html.includes('data-nav-real-investigations')) throw new Error('Real investigations nav item was not preserved');
+  if(!html.includes('data-real-investigations-launchbar')) throw new Error('Real investigations launch bar was not preserved');
   if(!html.includes('data-real-investigations-launch')) throw new Error('Real investigations launch feature was not preserved');
   if(!html.includes('data-real-investigations-card')) throw new Error('Real investigations product card was not preserved');
 
   fs.writeFileSync(home,html);
+  registerSitemapFinalizer(siteRoot);
   return {version:'1.1.0',homePatched:true,nav:true,launchbar:true,feature:true,card:true};
 }
