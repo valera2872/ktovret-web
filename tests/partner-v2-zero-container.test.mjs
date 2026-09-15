@@ -30,11 +30,11 @@ test('P0 checkpoint is atomic and revision protected', () => {
   assert.match(migration, /initialHypothesesComplete/);
 });
 
-test('generic Edge Function resolves case server-side and filters evidence by role', () => {
-  assert.match(edge, /CASE_REGISTRY/);
+test('generic Edge Function resolves the case server-side and filters evidence by role', () => {
+  assert.match(edge, /const getCase = \(caseId: string\) => caseId === CASE_ID \? ZERO_CONTAINER_CASE : null/);
   assert.match(edge, /visibleEvidence/);
   assert.match(edge, /item\.role === role/);
-  assert.match(edge, /item\.chapter <= chapter/);
+  assert.match(edge, /Number\(item\.chapter\) <= chapter/);
   assert.match(edge, /partner_v2_submit_initial_hypothesis/);
 });
 
