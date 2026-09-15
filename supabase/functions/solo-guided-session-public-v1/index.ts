@@ -46,6 +46,7 @@ Deno.serve(async(req:Request)=>{
 
   try{
     const runtime=await loadSoloRuntime({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId});
+    const accessMode='admin' as const;
     let row:any=null;
     let sessionKey='';
     let issuedSessionToken:string|null=null;
@@ -59,12 +60,13 @@ Deno.serve(async(req:Request)=>{
     if(!row){
       if(!['START','SNAPSHOT'].includes(actionType))throw new Error('solo_session_not_found');
       const created=await createSoloSession({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,entitlement:null});
-      row={session_key:created.sessionKey,case_id:runtime.caseId,entitlement_id:null,state:created.state,revision:created.revision};
+      const fullState=normalizeStoredSoloState(created.state,runtime,accessMode);
+      const saved=await saveSoloSession({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,sessionKey:created.sessionKey,expectedRevision:created.revision,state:fullState});
+      row={session_key:created.sessionKey,case_id:runtime.caseId,entitlement_id:null,state:fullState,revision:saved.revision};
       sessionKey=created.sessionKey;
       issuedSessionToken=created.rawToken;
     }
 
-    const accessMode='admin' as const;
     const revision=Number.isInteger(Number(row.revision))?Number(row.revision):0;
     const normalized=normalizeStoredSoloState(row.state,runtime,accessMode);
     const action={...body,type:actionType};
