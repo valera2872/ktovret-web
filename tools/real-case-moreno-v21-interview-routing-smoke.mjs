@@ -1,7 +1,7 @@
 const URL='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v7';
-const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
+const headers={'content-type':'application/json','x-ml-client-version':'moreno-public-v23',origin:'https://rawcdn.githack.com'};
 async function post(body){
-  const r=await fetch(URL,{method:'POST',headers:{'content-type':'application/json',apikey:ANON,authorization:`Bearer ${ANON}`,origin:'https://rawcdn.githack.com'},body:JSON.stringify(body)});
+  const r=await fetch(URL,{method:'POST',headers,body:JSON.stringify(body)});
   let data={};try{data=await r.json()}catch{}
   if(!r.ok)throw new Error(`HTTP ${r.status}: ${JSON.stringify(data)}`);
   return data;
