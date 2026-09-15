@@ -4,6 +4,7 @@ const html=fs.readFileSync('admin/solo-guided-preview/index.html','utf8');
 const js=fs.readFileSync('assets/solo-guided-preview-v3.js','utf8');
 const interrogationJs=fs.readFileSync('assets/solo-guided-interrogation-v1.js','utf8');
 const interrogationCss=fs.readFileSync('assets/solo-guided-interrogation-v1.css','utf8');
+const confrontationCss=fs.readFileSync('assets/solo-guided-confrontation-v1.css','utf8');
 const interrogationEdge=fs.readFileSync('supabase/functions/solo-guided-interrogate-v1/index.ts','utf8');
 const interrogationEdgeLower=interrogationEdge.toLowerCase();
 
@@ -35,6 +36,16 @@ if(!interrogationJs.includes("btn.textContent='Допросить'")) fail('stat
 if(!interrogationJs.includes("document.querySelector('[data-interrogations]')?.addEventListener")) fail('interrogation must start only from player action');
 if(interrogationJs.includes('fetch(SGI_ENDPOINT') && interrogationJs.indexOf('fetch(SGI_ENDPOINT') < interrogationJs.indexOf('async function sgiAsk')) fail('AI endpoint must not be called during startup');
 if(!interrogationCss.includes('.guided-interrogation__transcript')) fail('interrogation visual contract missing');
+
+if(!html.includes('solo-guided-confrontation-v1.css')) fail('guided page must load player-led confrontation styling');
+if(!confrontationCss.includes('.guided-confrontation__people')) fail('confrontation chooser styling missing');
+if(js.includes('autoCheckReactions')) fail('opened evidence must never be silently presented to every character');
+if(!js.includes("btn.onclick=()=>openConfrontation(btn.dataset.notePresent)")) fail('opened evidence must remain manually presentable from notes');
+if(!js.includes("$('[data-present-evidence]',stage).onclick=()=>openConfrontation(item.id)")) fail('current evidence card must expose manual confrontation');
+if(!js.includes("serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:characterId},true)")) fail('PRESENT_EVIDENCE must only run after explicit player target selection');
+if(!js.includes('Только после вашего решения материал становится известен этому человеку')) fail('confrontation UI must explain player agency');
+if(!js.includes('Все доступные сейчас факты изучены')) fail('stalled state must guide player back to evidence rather than auto-present');
+if(!js.includes('data-review-evidence')) fail('stalled state must provide a route back to found evidence');
 
 if(!interrogationEdge.includes('normalizeStoredSoloState')) fail('AI character must be derived from authoritative solo state');
 if(!interrogationEdge.includes("new Set(['anton','sofia','mila','denis'])")) fail('only canonical ML0512 characters may be interrogated');
