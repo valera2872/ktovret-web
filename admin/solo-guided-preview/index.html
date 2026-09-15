@@ -22,7 +22,10 @@
           <p>Незадолго до этого прибор аварийно отключился. Но ещё тринадцать минут после отключения в архив продолжали поступать новые данные, будто он всё ещё работал.</p>
           <p>В ту ночь на станции были только четыре сотрудника. Их рассказы не совпадают. Вам предстоит понять, что случилось с данными, кто лжёт и как погиб Арсеньев.</p>
         </div>
-        <button class="guided-primary" data-enter>Осмотреть место происшествия</button>
+        <div class="guided-actions">
+          <button class="guided-primary" type="button" data-enter>Осмотреть место происшествия</button>
+          <button class="guided-quiet" type="button" data-intro-restart hidden>Начать сначала</button>
+        </div>
       </div>
     </section>
 
@@ -33,8 +36,8 @@
           <strong>Тринадцатая минута</strong>
         </div>
         <div>
-          <button class="guided-quiet" data-notes>Что уже известно</button>
-          <button class="guided-quiet" data-restart>Начать сначала</button>
+          <button class="guided-quiet" type="button" data-notes>Что уже известно</button>
+          <button class="guided-quiet" type="button" data-restart>Начать сначала</button>
         </div>
       </header>
 
@@ -47,7 +50,7 @@
   </main>
 
   <dialog class="guided-notes" data-notes-dialog>
-    <button class="guided-notes__close" data-notes-close aria-label="Закрыть">×</button>
+    <button class="guided-notes__close" type="button" data-notes-close aria-label="Закрыть">×</button>
     <p class="guided-kicker">Ваши записи</p>
     <h2>Что уже известно</h2>
     <div data-notes-content></div>
@@ -60,15 +63,28 @@
       const caseId = 'ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
       const tokenKey = 'mysterylogic:guided-preview-token:v1';
       const sessionKey = `mysterylogic:solo-guided-session:${caseId}`;
-      const button = document.querySelector('[data-restart]');
-      if (!button) return;
+      const enterButton = document.querySelector('[data-enter]');
+      const introRestartButton = document.querySelector('[data-intro-restart]');
+      const gameRestartButton = document.querySelector('[data-restart]');
 
-      button.addEventListener('click', async () => {
+      let hasSavedSession = false;
+      try {
+        hasSavedSession = Boolean(localStorage.getItem(sessionKey));
+      } catch {}
+
+      if (hasSavedSession && enterButton && introRestartButton) {
+        enterButton.textContent = 'Продолжить расследование';
+        introRestartButton.hidden = false;
+      }
+
+      async function resetSession(button, enterAfterReset = false) {
+        if (!button) return;
         if (!window.confirm('Начать расследование заново? Текущий прогресс будет удалён.')) return;
 
         const oldText = button.textContent;
         button.disabled = true;
         button.textContent = 'Сбрасываем...';
+        if (enterButton) enterButton.disabled = true;
 
         try {
           const fragmentToken = decodeURIComponent(String(location.hash || '').replace(/^#/, ''));
@@ -92,13 +108,28 @@
           }
 
           localStorage.setItem(sessionKey, body.sessionToken);
+
+          if (enterAfterReset && enterButton) {
+            introRestartButton.hidden = true;
+            enterButton.textContent = 'Осмотреть место происшествия';
+            enterButton.disabled = false;
+            button.disabled = false;
+            button.textContent = oldText;
+            enterButton.click();
+            return;
+          }
+
           location.reload();
         } catch (error) {
           button.disabled = false;
           button.textContent = oldText;
+          if (enterButton) enterButton.disabled = false;
           window.alert(error instanceof Error ? error.message : 'Не удалось начать заново.');
         }
-      });
+      }
+
+      introRestartButton?.addEventListener('click', () => resetSession(introRestartButton, true));
+      gameRestartButton?.addEventListener('click', () => resetSession(gameRestartButton, false));
     })();
   </script>
 </body>
