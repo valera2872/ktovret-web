@@ -1,10 +1,6 @@
 #!/usr/bin/env node
-import fs from 'node:fs';import path from 'node:path';import {fileURLToPath} from 'node:url';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const client=fs.readFileSync(path.join(root,'assets','real-case-moreno-ai-v6.js'),'utf8');
-const anon=client.match(/const SUPABASE_ANON='([^']+)'/)?.[1];if(!anon)throw new Error('anon key missing');
 const url='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v10';
-const headers={'content-type':'application/json','apikey':anon,'authorization':`Bearer ${anon}`,'origin':'https://mysterylogic.com'};
+const headers={'content-type':'application/json','x-ml-client-version':'moreno-public-v23','origin':'https://mysterylogic.com'};
 const nonce=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 let seq=0;
 async function post(body){seq++;const identity={session_id:`sem-${nonce}-${seq}`,visitor_id:`v-sem-${nonce}`};const r=await fetch(url,{method:'POST',headers,body:JSON.stringify({...identity,...body})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(`semantic front door ${r.status}: ${JSON.stringify(data)}`);return data}
