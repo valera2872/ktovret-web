@@ -61,6 +61,7 @@ jobs:
           node --check tools/real-case-moreno-v21-interview-routing-smoke.mjs
           node --check tools/real-case-moreno-v22-active-interview-smoke.mjs
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
+          node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
@@ -75,6 +76,8 @@ jobs:
         run: node tools/real-case-moreno-v22-active-interview-smoke.mjs
       - name: Smoke deployed v0.23 semantic entity routing contract
         run: node tools/real-case-moreno-v23-semantic-entity-smoke.mjs
+      - name: Validate v0.24 player-led semantic action contract
+        run: node tools/real-case-moreno-v24-semantic-action-contract.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
