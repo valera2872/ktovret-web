@@ -26,5 +26,5 @@ window.fetch=(input,init={})=>{
  if(input instanceof Request&&input.url===FROM){const first=new Request(TO,input);const headers=publicHeaders(init.headers||first.headers);const request=new Request(first,{headers});const next={...init,headers,body:typeof init.body==='string'?augmentBody(init.body):init.body};return original(request,next)}
  return original(input,init);
 };
-window.MLMorenoAIRouterV23={version:'2.4.0',from:FROM,to:TO,buildMemory};
+window.MLMorenoAIRouterV23={version:'2.4.0',policy:'player-led-bounded-semantic-routing',from:FROM,to:TO,buildMemory};
 })();
