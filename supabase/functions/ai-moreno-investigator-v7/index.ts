@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
+const PUBLIC_ANON_KEY=Deno.env.get("SUPABASE_ANON_KEY")||"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
 const V6=`${SUPABASE_URL}/functions/v1/ai-moreno-investigator-v6`;
 
 const ALLOWED_ORIGINS=new Set([
@@ -30,6 +31,11 @@ function cors(origin:string){
     "cache-control":"no-store",
     "vary":"Origin"
   };
+}
+function clientAuthorized(req:Request){
+  const api=req.headers.get("apikey")||"";
+  const auth=req.headers.get("authorization")||"";
+  return Boolean(PUBLIC_ANON_KEY&&api===PUBLIC_ANON_KEY&&auth===`Bearer ${PUBLIC_ANON_KEY}`);
 }
 function hasInterviewIntent(command:string){
   const q=qnorm(command);
@@ -62,64 +68,27 @@ function deterministicInterviewPlan(body:any){
   if(!target)return null;
   const done=completedSet(body?.completed);
   const operations:any[]=[];
-  if(["boyfriend","mother","older_daughter","younger_daughter"].includes(target)&&!done.has("people")){
-    operations.push({op:"identify_people"});
-  }
-  if(target==="second_floor_witness"&&!done.has("witnessLocated")){
-    operations.push({op:"locate_witnesses"});
-  }
+  if(["boyfriend","mother","older_daughter","younger_daughter"].includes(target)&&!done.has("people"))operations.push({op:"identify_people"});
+  if(target==="second_floor_witness"&&!done.has("witnessLocated"))operations.push({op:"locate_witnesses"});
   operations.push({op:"start_interview",target});
-  return {
-    operations,
-    mode:"deterministic_interview_routing",
-    target,
-    player_led:true,
-    automatic_contradiction_detection:false
-  };
+  return {operations,mode:"deterministic_interview_routing",target,player_led:true,automatic_contradiction_detection:false};
 }
 async function forward(req:Request,body:any,headers:Record<string,string>){
-  const r=await fetch(V6,{
-    method:"POST",
-    headers:{
-      authorization:req.headers.get("authorization")||"",
-      apikey:req.headers.get("apikey")||"",
-      "content-type":"application/json",
-      origin:req.headers.get("origin")||"https://mysterylogic.com"
-    },
-    body:JSON.stringify(body)
-  });
-  const text=await r.text();
-  return new Response(text,{status:r.status,headers});
+  const r=await fetch(V6,{method:"POST",headers:{authorization:req.headers.get("authorization")||"",apikey:req.headers.get("apikey")||"","content-type":"application/json",origin:req.headers.get("origin")||"https://mysterylogic.com"},body:JSON.stringify(body)});
+  return new Response(await r.text(),{status:r.status,headers});
 }
 
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
-  if(origin&&!ALLOWED_ORIGINS.has(origin)){
-    return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});
-  }
+  if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});
   const headers=cors(origin||"https://mysterylogic.com");
   const json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});
   if(req.method==="OPTIONS")return new Response("ok",{headers});
+  if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);
   if(req.method!=="POST")return json({error:"method_not_allowed"},405);
+  let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}
 
-  let body:any;
-  try{body=await req.json()}catch{return json({error:"invalid_json"},400)}
-
-  if(clean(body?.action,30)==="status"){
-    return json({
-      version:7,
-      upstream:"ai-moreno-investigator-v6",
-      interrogation_mode:"live-character-speaking-brief",
-      explicit_interview_routing:"all-known-character-types",
-      neighboring_floor_aliases:true,
-      auto_establish_requested_contact:true,
-      player_leads_investigation:true,
-      automatic_contradiction_detection:false,
-      visual_contract:"unchanged"
-    });
-  }
-
-  const direct=deterministicInterviewPlan(body);
-  if(direct)return json(direct);
+  if(clean(body?.action,30)==="status")return json({version:7,upstream:"ai-moreno-investigator-v6",interrogation_mode:"live-character-speaking-brief",explicit_interview_routing:"all-known-character-types",neighboring_floor_aliases:true,auto_establish_requested_contact:true,client_auth:"public-key+origin",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});
+  const direct=deterministicInterviewPlan(body);if(direct)return json(direct);
   return forward(req,body,headers);
 });
