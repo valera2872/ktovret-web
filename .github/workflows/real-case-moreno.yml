@@ -13,6 +13,7 @@ on:
       - 'supabase/functions/ai-moreno-investigator-v5/**'
       - 'supabase/functions/ai-moreno-investigator-v6/**'
       - 'supabase/functions/ai-moreno-investigator-v7/**'
+      - 'supabase/functions/ai-moreno-investigator-v8/**'
       - '.github/workflows/real-case-moreno.yml'
   workflow_dispatch:
 
@@ -35,6 +36,7 @@ jobs:
           node --check assets/real-case-moreno-ai-router-v19.js
           node --check assets/real-case-moreno-ai-router-v20.js
           node --check assets/real-case-moreno-ai-router-v21.js
+          node --check assets/real-case-moreno-ai-router-v22.js
           node --check assets/real-case-moreno-ai-v6.js
           node --check assets/real-case-moreno-reference-v11.js
           node --check assets/real-case-moreno-reference-v13.js
@@ -54,6 +56,7 @@ jobs:
           node --check tools/real-case-moreno-v19-cross-statement-visual.mjs
           node --check tools/real-case-moreno-v20-live-interrogation-smoke.mjs
           node --check tools/real-case-moreno-v21-interview-routing-smoke.mjs
+          node --check tools/real-case-moreno-v22-active-interview-smoke.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
@@ -64,6 +67,8 @@ jobs:
         run: node tools/real-case-moreno-v20-live-interrogation-smoke.mjs
       - name: Smoke deployed v0.21 generalized interview routing contract
         run: node tools/real-case-moreno-v21-interview-routing-smoke.mjs
+      - name: Smoke deployed v0.22 active-interview routing contract
+        run: node tools/real-case-moreno-v22-active-interview-smoke.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
