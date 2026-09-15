@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 
 const html=fs.readFileSync('admin/solo-guided-preview/index.html','utf8');
-const js=fs.readFileSync('assets/solo-guided-preview-v3.js','utf8');
+const investigationJs=fs.readFileSync('assets/solo-investigation-v1.js','utf8');
+const investigationCss=fs.readFileSync('assets/solo-investigation-v1.css','utf8');
 const accessJs=fs.readFileSync('assets/solo-guided-access-v1.js','utf8');
 const interrogationJs=fs.readFileSync('assets/solo-guided-interrogation-v1.js','utf8');
 const interrogationCss=fs.readFileSync('assets/solo-guided-interrogation-v1.css','utf8');
@@ -17,24 +18,40 @@ const fail=(message)=>{throw new Error(message)};
 if(html.includes('Проверяем ссылку')) fail('technical boot gate must not be visible');
 if(html.includes('data-loading')) fail('loading screen must be removed from guided intro');
 if(html.includes('data-intro hidden')) fail('intro must be visible in static HTML');
-if(!html.includes('solo-guided-preview-v3.js')) fail('guided preview HTML must load classic v3 client');
+if(!html.includes('solo-investigation-v1.js')) fail('guided preview must load investigation hub client');
+if(!html.includes('solo-investigation-v1.css')) fail('guided preview must load investigation hub styling');
+if(html.includes('solo-guided-preview-v3.js')) fail('legacy conveyor client must not run beside investigation hub');
 if(html.includes('type="module"')) fail('guided preview must not depend on module loading');
 if(!html.includes('data-intro-restart')) fail('saved investigation must expose restart before resume');
 if(!html.includes("enterButton.textContent = 'Продолжить расследование'")) fail('saved investigation must make resume explicit');
 if(!html.includes("localStorage.getItem(sessionKey)")) fail('resume choice must be derived locally without startup network');
 if(!html.includes('resetSession(introRestartButton, true)')) fail('intro restart must reset the session before entering');
-if(js.includes('solo-preview-auth')) fail('v3 client must not call preview-auth on page load');
-if(!js.includes("const caseId='ML0512_PREVIEW_")) fail('v3 client must know the scoped preview alias without boot auth');
-if(!js.includes("$('[data-enter]')?.addEventListener")) fail('player entry action must be explicit');
-if(!js.includes("await ensureSession();await advance()")) fail('session must start only after player enters investigation');
-if(!js.includes('AbortController')) fail('network calls need a timeout guard');
+if(!html.includes('Начать расследование')) fail('intro action must describe investigation, not force scene inspection');
+
+if(!investigationJs.includes('function renderHub')) fail('investigation hub renderer missing');
+if(!investigationJs.includes('Что проверим дальше?')) fail('hub must frame player choice explicitly');
+if(!investigationJs.includes('Осмотр и материалы')) fail('hub must expose material inspection');
+if(!investigationJs.includes('Люди на станции')) fail('hub must expose people as a separate investigation track');
+if(!investigationJs.includes('Версии и противоречия')) fail('hub must expose hypotheses separately');
+if(!investigationJs.includes("stage.querySelectorAll('[data-open-evidence]')")) fail('evidence must open only after player selects a lead');
+if(investigationJs.includes('function advance(')||investigationJs.includes('nextEvidence()')) fail('legacy automatic evidence conveyor must be absent');
+if(!investigationJs.includes("const NON_PRESENTABLE=new Set(['E01','E02'])")) fail('orientation evidence must not be immediately presentable');
+if(!investigationJs.includes("function canPresent(item)")) fail('presentation eligibility gate missing');
+if(!investigationJs.includes("serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:characterId},true)")) fail('evidence presentation must require explicit target selection');
+if(!investigationJs.includes('Предъявлять его кому-либо необязательно')) fail('UI must explain that confrontation is optional');
+if(!investigationJs.includes('renderPeople')) fail('people overview missing');
+if(!investigationJs.includes('MysteryLogicInterrogation')) fail('hub must launch free-form interrogation');
+if(!investigationJs.includes('renderMaterials')) fail('collected evidence dossier missing');
+if(!investigationJs.includes('renderDeduction')) fail('player-led hypothesis checking missing');
+if(!investigationJs.includes('AbortController')) fail('network calls need a timeout guard');
+if(!investigationCss.includes('.investigation-section')) fail('investigation hub visual contract missing');
 
 if(!html.includes('solo-guided-access-v1.js')) fail('guided preview must load public preview bootstrap before client');
 if(!accessJs.includes("const PUBLIC_TOKEN = 'MLPREVIEW-PUBLIC'")) fail('public preview marker missing');
 if(!accessJs.includes("sessionStorage.setItem(TOKEN_KEY, PUBLIC_TOKEN)")) fail('public preview must bootstrap without a personal link');
 if(accessJs.includes('Вставьте персональную ссылку')||accessJs.includes('Персональный доступ')) fail('public preview must not ask player for a personal link');
-if(!accessJs.includes("PRIVATE_INTERROGATION_PATH")||!accessJs.includes("PUBLIC_INTERROGATION_PATH")) fail('public preview must route AI interrogation to public bounded endpoint');
-if(!accessJs.includes("headers.delete('authorization')")) fail('public session calls must not present a fake bearer token to solo-session-v2');
+if(!accessJs.includes('PRIVATE_INTERROGATION_PATH')||!accessJs.includes('PUBLIC_INTERROGATION_PATH')) fail('public preview must route AI interrogation to public bounded endpoint');
+if(!accessJs.includes("headers.delete('authorization')")) fail('public session calls must not present fake bearer token to solo-session-v2');
 if(!accessJs.includes("action: 'START'")) fail('public restart must create a fresh anonymous solo session');
 if(!soloSessionEdge.includes("previewOrigins = new Set(['https://rawcdn.githack.com'])")) fail('solo-session-v2 must explicitly allow rawcdn preview origin');
 
@@ -44,21 +61,11 @@ if(!html.includes('solo-guided-interrogation-v1.css')) fail('guided page must lo
 if(!interrogationJs.includes('solo-guided-interrogate-v1')) fail('interrogation client must use bounded server endpoint');
 if(!interrogationJs.includes("action:'INTERROGATE'")) fail('interrogation client must send explicit interrogation action');
 if(!interrogationJs.includes('recent_history:rows.slice(-8)')) fail('interrogation must preserve bounded per-character continuity');
-if(!interrogationJs.includes('MutationObserver')) fail('statement cards must gain interrogation without rewriting guided renderer');
-if(!interrogationJs.includes("btn.textContent='Допросить'")) fail('statement cards must expose free-form questioning');
-if(!interrogationJs.includes("document.querySelector('[data-interrogations]')?.addEventListener")) fail('interrogation must start only from player action');
-if(interrogationJs.includes('fetch(SGI_ENDPOINT') && interrogationJs.indexOf('fetch(SGI_ENDPOINT') < interrogationJs.indexOf('async function sgiAsk')) fail('AI endpoint must not be called during startup');
+if(!interrogationJs.includes('window.MysteryLogicInterrogation={open:sgiOpen}')) fail('investigation hub must be able to open a selected character');
 if(!interrogationCss.includes('.guided-interrogation__transcript')) fail('interrogation visual contract missing');
 
-if(!html.includes('solo-guided-confrontation-v1.css')) fail('guided page must load player-led confrontation styling');
+if(!html.includes('solo-guided-confrontation-v1.css')) fail('guided page must load confrontation styling');
 if(!confrontationCss.includes('.guided-confrontation__people')) fail('confrontation chooser styling missing');
-if(js.includes('autoCheckReactions')) fail('opened evidence must never be silently presented to every character');
-if(!js.includes("btn.onclick=()=>openConfrontation(btn.dataset.notePresent)")) fail('opened evidence must remain manually presentable from notes');
-if(!js.includes("$('[data-present-evidence]',stage).onclick=()=>openConfrontation(item.id)")) fail('current evidence card must expose manual confrontation');
-if(!js.includes("serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:characterId},true)")) fail('PRESENT_EVIDENCE must only run after explicit player target selection');
-if(!js.includes('Только после вашего решения материал становится известен этому человеку')) fail('confrontation UI must explain player agency');
-if(!js.includes('Все доступные сейчас факты изучены')) fail('stalled state must guide player back to evidence rather than auto-present');
-if(!js.includes('data-review-evidence')) fail('stalled state must provide a route back to found evidence');
 
 if(!interrogationEdge.includes('normalizeStoredSoloState')) fail('AI character must be derived from authoritative solo state');
 if(!interrogationEdge.includes("new Set(['anton','sofia','mila','denis'])")) fail('only canonical ML0512 characters may be interrogated');
@@ -79,5 +86,5 @@ if(!publicInterrogationEdge.includes('ai_detective_claim_turn')) fail('public AI
 if(!publicInterrogationEdge.includes('DAILY_BUDGET_USD=.60')) fail('public AI must keep a hard daily cost budget');
 if(!publicInterrogationEdge.includes("store:false")) fail('public AI responses must not be stored by model provider');
 
-if([html,js,accessJs,interrogationJs,interrogationEdge,publicInterrogationEdge].some(text=>text.includes('—'))) fail('Russian player-facing copy must not contain em dash');
-console.log('SOLO_GUIDED_PREVIEW_V3_PASS');
+if([html,investigationJs,accessJs,interrogationJs,interrogationEdge,publicInterrogationEdge].some(text=>text.includes('—'))) fail('Russian player-facing copy must not contain em dash');
+console.log('SOLO_INVESTIGATION_HUB_PASS');
