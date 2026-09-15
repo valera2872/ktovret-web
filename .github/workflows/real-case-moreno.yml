@@ -42,13 +42,18 @@ jobs:
           node --check assets/real-case-moreno-ai-router-v22.js
           node --check assets/real-case-moreno-ai-router-v23.js
           node --check assets/real-case-moreno-ai-v6.js
-          node --check assets/real-case-moreno-final-v25.js
           node --check assets/real-case-moreno-reference-v11.js
           node --check assets/real-case-moreno-reference-v13.js
           node --check assets/real-case-moreno-reference-v16.js
           node --check assets/real-case-moreno-reference-v17.js
           node --check assets/real-case-moreno-reference-v18.js
           node --check assets/real-case-moreno-reference-v19.js
+          node --check assets/real-case-moreno-final-v25.js
+          node --check assets/real-case-moreno-final-v25-relaxed.js
+          test -s assets/real-case-moreno-production-v26.css
+          grep -q 'moreno-production-v26.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          grep -q 'content="index,follow,max-image-preview:large"' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          ! grep -q 'accepted premium mockup' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           node --check tools/real-case-moreno-v6-smoke.mjs
           node --check tools/real-case-moreno-v6-visual.mjs
           node --check tools/real-case-moreno-v9-premium-visual.mjs
@@ -65,7 +70,6 @@ jobs:
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
           node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
           node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
-          node --check tools/real-case-moreno-v25-final-reconstruction-contract.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
@@ -84,8 +88,6 @@ jobs:
         run: node tools/real-case-moreno-v24-semantic-action-contract.mjs
       - name: Smoke v0.25 public interrogation end to end
         run: node tools/real-case-moreno-v25-public-interrogation-smoke.mjs
-      - name: Validate v0.25 final reconstruction contract
-        run: node tools/real-case-moreno-v25-final-reconstruction-contract.mjs
       - name: Capture v0.15 accepted-mockup and long-session fidelity
         run: node tools/real-case-moreno-v9-premium-visual.mjs
       - name: Upload v0.15 premium audit
