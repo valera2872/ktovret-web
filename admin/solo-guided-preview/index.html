@@ -8,6 +8,7 @@
   <title>Тринадцатая минута | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260914-1">
+  <link rel="stylesheet" href="../../assets/solo-guided-interrogation-v1.css?v=20260915-1">
 </head>
 <body>
   <main class="guided" data-app>
@@ -36,6 +37,7 @@
           <strong>Тринадцатая минута</strong>
         </div>
         <div>
+          <button class="guided-quiet" type="button" data-interrogations>Допросы</button>
           <button class="guided-quiet" type="button" data-notes>Что уже известно</button>
           <button class="guided-quiet" type="button" data-restart>Начать сначала</button>
         </div>
@@ -57,6 +59,7 @@
   </dialog>
 
   <script defer src="../../assets/solo-guided-preview-v3.js?v=20260914-1"></script>
+  <script defer src="../../assets/solo-guided-interrogation-v1.js?v=20260915-1"></script>
   <script>
     (() => {
       const endpoint = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-v2';
