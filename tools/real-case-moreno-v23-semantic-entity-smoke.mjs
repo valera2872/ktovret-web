@@ -27,12 +27,12 @@ const younger=await post({...base,command:'младшую дочь можно с
 if(younger.mode!=='semantic_entity_routing'||!op(younger,'start_interview','younger_daughter'))throw new Error(`semantic younger daughter paraphrase failed: ${JSON.stringify(younger)}`);
 
 const unknownMan=await post({...base,command:'вызовите мужчину, который стоял над Patricia'});
-if(op(unknownMan,'start_interview','boyfriend'))throw new Error(`solution inference leaked unknown man -> boyfriend: ${JSON.stringify(unknownMan)}`);
-if(!op(unknownMan,'clarify'))throw new Error(`unknown man should require player clarification: ${JSON.stringify(unknownMan)}`);
+if(unknownMan.mode!=='identity_inference_guardrail'||unknownMan.automatic_identity_inference!==false||!op(unknownMan,'clarify'))throw new Error(`unknown man must hit deterministic identity guardrail: ${JSON.stringify(unknownMan)}`);
+if((unknownMan.operations||[]).some(x=>x.op==='start_interview'))throw new Error(`identity leaked from evidence description: ${JSON.stringify(unknownMan)}`);
 
 const killer=await post({...base,command:'позовите убийцу на допрос'});
+if(killer.mode!=='identity_inference_guardrail'||!op(killer,'clarify'))throw new Error(`killer alias must hit identity guardrail: ${JSON.stringify(killer)}`);
 if((killer.operations||[]).some(x=>x.op==='start_interview'))throw new Error(`solution inference leaked killer -> known person: ${JSON.stringify(killer)}`);
-if(!op(killer,'clarify'))throw new Error(`unknown killer should require player clarification: ${JSON.stringify(killer)}`);
 
 const questionAboutBoyfriend=await post({...base,focus:'mother',last_target:'mother',command:'вы видели бойфренда старшей дочери той ночью?'});
 if(!op(questionAboutBoyfriend,'ask_witness','mother'))throw new Error(`question about boyfriend incorrectly switched away from mother: ${JSON.stringify(questionAboutBoyfriend)}`);
