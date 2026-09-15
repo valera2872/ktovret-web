@@ -7,10 +7,13 @@ on:
       - 'admin/solo-guided-preview/**'
       - 'assets/solo-guided-preview-v3.js'
       - 'assets/solo-guided-preview.css'
+      - 'assets/solo-guided-access-v1.js'
       - 'assets/solo-guided-interrogation-v1.js'
       - 'assets/solo-guided-interrogation-v1.css'
       - 'assets/solo-guided-confrontation-v1.css'
+      - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-guided-interrogate-v1/**'
+      - 'supabase/functions/solo-guided-interrogate-public-v1/**'
       - 'tools/validate-solo-guided-preview-v3.mjs'
       - '.github/workflows/solo-guided-preview.yml'
   push:
@@ -19,10 +22,13 @@ on:
       - 'admin/solo-guided-preview/**'
       - 'assets/solo-guided-preview-v3.js'
       - 'assets/solo-guided-preview.css'
+      - 'assets/solo-guided-access-v1.js'
       - 'assets/solo-guided-interrogation-v1.js'
       - 'assets/solo-guided-interrogation-v1.css'
       - 'assets/solo-guided-confrontation-v1.css'
+      - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-guided-interrogate-v1/**'
+      - 'supabase/functions/solo-guided-interrogate-public-v1/**'
       - 'tools/validate-solo-guided-preview-v3.mjs'
       - '.github/workflows/solo-guided-preview.yml'
 
@@ -36,6 +42,7 @@ jobs:
           node-version: 22
       - name: Validate client syntax
         run: |
+          node --check assets/solo-guided-access-v1.js
           node --check assets/solo-guided-preview-v3.js
           node --check assets/solo-guided-interrogation-v1.js
       - name: Validate no-boot startup contract
@@ -43,5 +50,6 @@ jobs:
       - name: Protect Russian player copy
         run: |
           ! grep -n '—' admin/solo-guided-preview/index.html
+          ! grep -n '—' assets/solo-guided-access-v1.js
           ! grep -n '—' assets/solo-guided-preview-v3.js
           ! grep -n '—' assets/solo-guided-interrogation-v1.js

@@ -19,6 +19,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
   .split(',').map((value) => value.trim().replace(/\/$/, '')).filter(Boolean);
+const previewOrigins = new Set(['https://rawcdn.githack.com']);
 
 const json = (status: number, body: unknown, origin = '') => new Response(JSON.stringify(body), {
   status,
@@ -71,7 +72,7 @@ const MUTATING = new Set([
 
 Deno.serve(async (req: Request) => {
   const origin = (req.headers.get('origin') || '').replace(/\/$/, '');
-  const allowedOrigin = !origin || configuredOrigins.includes(origin);
+  const allowedOrigin = !origin || configuredOrigins.includes(origin) || previewOrigins.has(origin);
   if (req.method === 'OPTIONS') {
     if (!allowedOrigin) return new Response(null, { status: 403 });
     return new Response(null, {
