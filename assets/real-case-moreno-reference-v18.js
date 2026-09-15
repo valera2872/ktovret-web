@@ -11,5 +11,5 @@ function enhance(){rewriteMemoryLogs();renderPanel()}
 let scheduled=false;function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true});
 enhance();
-window.MLMorenoReferenceV18={version:'1.8.6',refresh:enhance,getMemory:memory};
+window.MLMorenoReferenceV18={version:'1.8.6',compatibility:'semantic-router-v0.24',refresh:enhance,getMemory:memory};
 })();
