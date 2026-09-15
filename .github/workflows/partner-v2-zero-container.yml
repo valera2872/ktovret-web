@@ -2,7 +2,9 @@ name: Validate Partner V2 Zero Container
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - fix/premium-unify-ai-banners
   push:
     branches:
       - feature/partner-v2-zero-container
