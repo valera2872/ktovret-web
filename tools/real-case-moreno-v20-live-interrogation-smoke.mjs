@@ -13,6 +13,14 @@ const sid=`ci-v20-${nonce}`,vid=`v-ci-v20-${nonce}`;
 const base={session_id:sid,visitor_id:vid,completed:['people'],focus:'boyfriend',last_target:'boyfriend',recent_history:'',memory:{entries:[]}};
 const status=await post({action:'status'});if(status.version!==6||status.interrogation_mode!=='live-character-speaking-brief'||status.upstream!=='ai-moreno-investigator-v5')throw new Error(`bad v6 status ${JSON.stringify(status)}`);
 
+// Exact regression from the owner's walkthrough: switching away from a daughter must really activate the boyfriend,
+// and the immediately following natural question must stay addressed to him.
+const switchPlan=await post({...base,focus:'older_daughter',last_target:'older_daughter',action:'plan',command:'вызвать на допрос бойфренда дочери'});
+if(!(switchPlan.operations||[]).some(o=>o.op==='start_interview'&&o.target==='boyfriend'))throw new Error(`owner transcript did not switch daughter -> boyfriend: ${JSON.stringify(switchPlan)}`);
+if((switchPlan.operations||[]).some(o=>o.op==='ask_witness'&&o.target==='older_daughter'))throw new Error(`owner transcript leaked question back to daughter: ${JSON.stringify(switchPlan)}`);
+const weaponPlan=await post({...base,action:'plan',command:'у вас есть оружие?'});
+if(!(weaponPlan.operations||[]).some(o=>o.op==='ask_witness'&&o.target==='boyfriend'))throw new Error(`follow-up weapon question did not stay with boyfriend: ${JSON.stringify(weaponPlan)}`);
+
 const gun1=await post({...base,action:'interrogate',target:'boyfriend',question:'Вы владеете оружием?'});
 if(gun1.mode!=='ai_character')throw new Error(`weapon question did not use live character mode: ${JSON.stringify(gun1)}`);
 noTechnicalFallback(gun1.reply);
@@ -51,4 +59,4 @@ const playerLed=await post({...base,action:'plan',command:'Кто врёт?'});
 if(playerLed.mode!=='player_led_guardrail'||!String(playerLed.operations?.[0]?.note||'').includes('Вывод остаётся за следователем'))throw new Error(`player-led planner guardrail changed: ${JSON.stringify(playerLed)}`);
 
 console.log('Moreno v0.20 live character interrogation smoke passed');
-console.log(JSON.stringify({gun1:gun1.reply,gun2:gun2.reply,seen:seen.reply,premise:premise.reply,injection:injection.reply},null,2));
+console.log(JSON.stringify({switchPlan:switchPlan.operations,weaponPlan:weaponPlan.operations,gun1:gun1.reply,gun2:gun2.reply,seen:seen.reply,premise:premise.reply,injection:injection.reply},null,2));
