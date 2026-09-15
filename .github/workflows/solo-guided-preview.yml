@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - 'admin/solo-guided-preview/**'
-      - 'assets/solo-guided-preview-v3.js'
+      - 'assets/solo-investigation-v1.js'
+      - 'assets/solo-investigation-v1.css'
       - 'assets/solo-guided-preview.css'
       - 'assets/solo-guided-access-v1.js'
       - 'assets/solo-guided-interrogation-v1.js'
@@ -20,7 +21,8 @@ on:
     branches: [main]
     paths:
       - 'admin/solo-guided-preview/**'
-      - 'assets/solo-guided-preview-v3.js'
+      - 'assets/solo-investigation-v1.js'
+      - 'assets/solo-investigation-v1.css'
       - 'assets/solo-guided-preview.css'
       - 'assets/solo-guided-access-v1.js'
       - 'assets/solo-guided-interrogation-v1.js'
@@ -43,13 +45,13 @@ jobs:
       - name: Validate client syntax
         run: |
           node --check assets/solo-guided-access-v1.js
-          node --check assets/solo-guided-preview-v3.js
+          node --check assets/solo-investigation-v1.js
           node --check assets/solo-guided-interrogation-v1.js
-      - name: Validate no-boot startup contract
+      - name: Validate player-led investigation contract
         run: node tools/validate-solo-guided-preview-v3.mjs
       - name: Protect Russian player copy
         run: |
           ! grep -n '—' admin/solo-guided-preview/index.html
           ! grep -n '—' assets/solo-guided-access-v1.js
-          ! grep -n '—' assets/solo-guided-preview-v3.js
+          ! grep -n '—' assets/solo-investigation-v1.js
           ! grep -n '—' assets/solo-guided-interrogation-v1.js
