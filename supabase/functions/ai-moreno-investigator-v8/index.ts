@@ -68,9 +68,16 @@ function explicitPresentation(command:string){
   return /^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)\s+(?:ему|ей|собеседник[а-я]*|свидетел[а-я]*|бойфренд[а-я]*|матер[а-я]*|дочер[а-я]*|сосед[а-я]*)/.test(q)
     || /^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)[^.]{0,80}(?:показан[а-я]*|баллист[а-я]*|экспертиз[а-я]*|материал[а-я]*|улик[а-я]*|рапорт[а-я]*|результат[а-я]*)/.test(q);
 }
+function explicitExpertCall(command:string){
+  const q=qnorm(command);
+  const caller="(?:(?:я|мы)\\s+)?(?:(?:хочу|хотим|нужно|надо)\\s+)?(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*|зов[а-я]*|треб[а-я]*|запрос[а-я]*)";
+  const expert="(?:эксперт[а-я]*|криминалист[а-я]*|судмедэксперт[а-я]*|судебн[а-я]*\\s+медик[а-я]*|баллист[а-я]*)";
+  return new RegExp(`^${caller}[^.]{0,80}${expert}`).test(q)
+    || new RegExp(`^${expert}[^.]{0,50}(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*)`).test(q);
+}
 function explicitGlobalInvestigation(command:string){
   const q=qnorm(command);
-  if(explicitEndInterview(command)||explicitPresentation(command))return true;
+  if(explicitEndInterview(command)||explicitPresentation(command)||explicitExpertCall(command))return true;
   if(/^(?:моя\s+версия|рабочая\s+версия|зафиксир[а-я]*\s+(?:мою|версию)|запиш[а-я]*\s+(?:мою|версию)|переда[а-я]*\s+дело|заверш[а-я]*\s+расследован)/.test(q))return true;
   const action=/^(?:осмотр[а-я]*|провед[а-я]*|назнач[а-я]*|проверь[а-я]*|провер[а-я]*|установ[а-я]*|найд[а-я]*|разыщ[а-я]*|запрос[а-я]*|собер[а-я]*|свер[а-я]*|сопостав[а-я]*|исслед[а-я]*|проанализ[а-я]*|восстанов[а-я]*|реконструир[а-я]*)/.test(q);
   const object=/(мест[а-я]*\s+происшеств|баллист[а-я]*|траектор[а-я]*|экспертиз[а-я]*|алibi|алиб[а-я]*|телефон[а-я]*|звонк[а-я]*|камер[а-я]*|днк|отпечат[а-я]*|свидетел[а-я]*|жил[а-я]*\s+дом[а-я]*|оруж[а-я]*\s+(?:на|по)\s+экспертиз[а-я]*|криминалист[а-я]*)/.test(q);
@@ -125,6 +132,7 @@ Deno.serve(async(req:Request)=>{
       interrogation_mode:"active-witness-first",
       explicit_interview_routing:"all-known-character-types",
       neighboring_floor_aliases:true,
+      explicit_expert_calls:true,
       active_interview_default:"ask-current-character",
       global_action_requires_explicit_order:true,
       player_leads_investigation:true,
