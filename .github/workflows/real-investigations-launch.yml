@@ -1,0 +1,37 @@
+name: Validate Real Investigations launch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'realnye-dela/**'
+      - 'assets/real-investigations-hero.svg'
+      - 'assets/real-investigations-launch.css'
+      - 'sitemap.xml'
+      - 'tools/real-investigations-launch-validate.mjs'
+      - '.github/workflows/real-investigations-launch.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'realnye-dela/**'
+      - 'assets/real-investigations-hero.svg'
+      - 'assets/real-investigations-launch.css'
+      - 'sitemap.xml'
+      - 'tools/real-investigations-launch-validate.mjs'
+      - '.github/workflows/real-investigations-launch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/real-investigations-launch-validate.mjs
