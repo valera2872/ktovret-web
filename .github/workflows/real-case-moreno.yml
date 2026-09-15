@@ -15,6 +15,7 @@ on:
       - 'supabase/functions/ai-moreno-investigator-v7/**'
       - 'supabase/functions/ai-moreno-investigator-v8/**'
       - 'supabase/functions/ai-moreno-investigator-v9/**'
+      - 'supabase/functions/ai-moreno-investigator-v10/**'
       - '.github/workflows/real-case-moreno.yml'
   workflow_dispatch:
 
