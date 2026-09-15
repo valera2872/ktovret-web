@@ -4,6 +4,7 @@ const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const OPENAI_API_KEY=Deno.env.get("OPENAI_API_KEY")||"";
 const MODEL=Deno.env.get("AI_DETECTIVE_MODEL")||"gpt-5.6-luna";
+const PUBLIC_ANON_KEY=Deno.env.get("SUPABASE_ANON_KEY")||"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4";
 const V8=`${SUPABASE_URL}/functions/v1/ai-moreno-investigator-v8`;
 
 const ALLOWED_ORIGINS=new Set([
@@ -47,6 +48,10 @@ function cors(origin:string){
     "cache-control":"no-store",
     "vary":"Origin"
   };
+}
+function clientAuthorized(req:Request){
+  const api=req.headers.get("apikey")||"",auth=req.headers.get("authorization")||"";
+  return Boolean(PUBLIC_ANON_KEY&&api===PUBLIC_ANON_KEY&&auth===`Bearer ${PUBLIC_ANON_KEY}`);
 }
 function semanticCandidate(command:string){
   const q=qnorm(command);
@@ -205,10 +210,11 @@ Deno.serve(async(req:Request)=>{
   const headers=cors(origin||"https://mysterylogic.com");
   const json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});
   if(req.method==="OPTIONS")return new Response("ok",{headers});
+  if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);
   if(req.method!=="POST")return json({error:"method_not_allowed"},405);
   let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}
 
-  if(clean(body?.action,30)==="status")return json({version:9,upstream:"ai-moreno-investigator-v8",semantic_entity_parser:true,bounded_character_registry:true,bounded_expert_registry:true,solution_inference_forbidden:true,player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});
+  if(clean(body?.action,30)==="status")return json({version:9,upstream:"ai-moreno-investigator-v8",semantic_entity_parser:true,bounded_character_registry:true,bounded_expert_registry:true,solution_inference_forbidden:true,client_auth:"public-key+origin",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});
 
   if(clean(body?.action,30)==="plan"){
     const semantic=await classify(req,body);
