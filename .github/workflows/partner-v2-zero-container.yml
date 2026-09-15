@@ -39,7 +39,8 @@ jobs:
           test -f assets/solo-paid-access-config.js
       - name: Verify Partner V2 stays isolated
         run: |
-          grep -q "partner:zero-container" supabase/functions/coop-case-v2/index.ts
+          grep -q "partner:zero-container" supabase/functions/_shared/partner-cases/zero-container.ts
+          grep -q "coop-case-v2" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
           grep -q "partner_v2_submit_final_draft" supabase/migrations/20260915020000_partner_v2_final_consensus.sql
           grep -q "noindex,follow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
       - name: Keep this workflow validation-only
