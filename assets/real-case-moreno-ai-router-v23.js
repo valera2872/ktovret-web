@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const FROM='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v2';
-const TO='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v9';
+const TO='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-moreno-investigator-v10';
 const KEY='ml-realcase-moreno-ai-v6';
 const original=window.fetch.bind(window);
 const norm=s=>String(s||'').replace(/\s+/g,' ').trim();
@@ -24,5 +24,5 @@ window.fetch=(input,init={})=>{
  if(input instanceof Request&&input.url===FROM){const request=new Request(TO,input);return original(request,init)}
  return original(input,init);
 };
-window.MLMorenoAIRouterV23={version:'2.3.0',from:FROM,to:TO,buildMemory};
+window.MLMorenoAIRouterV23={version:'2.3.1',from:FROM,to:TO,buildMemory};
 })();
