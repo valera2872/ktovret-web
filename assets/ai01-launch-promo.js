@@ -37,6 +37,12 @@
   if (!enabled || dismissed) return;
   const path = String(location.pathname || '/');
   if (path.includes('/admin/') || /\/detektivnaya-igra-s-ii\/?$/.test(path)) return;
+
+  // Key storefronts now use the approved full-width AI artwork in the document flow.
+  // Never stack the old floating promo on top of those pages: it obscures cards and
+  // makes the two-player/Solo layouts look broken on desktop and mobile.
+  if (document.querySelector('[data-ai01-feature]')) return;
+  if (/\/(?:detektivnye-igry-dlya-odnogo|detektivnye-igry-dlya-dvoih|dela)\//.test(path)) return;
   if (document.querySelector('[data-ai01-launch-promo]')) return;
 
   const aside = document.createElement('aside');
