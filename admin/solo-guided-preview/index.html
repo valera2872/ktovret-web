@@ -8,6 +8,7 @@
   <title>Тринадцатая минута | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/solo-guided-preview.css?v=20260915-3">
+  <link rel="stylesheet" href="../../assets/solo-investigation-v1.css?v=20260916-1">
   <link rel="stylesheet" href="../../assets/solo-guided-interrogation-v1.css?v=20260915-1">
   <link rel="stylesheet" href="../../assets/solo-guided-confrontation-v1.css?v=20260915-1">
 </head>
@@ -25,7 +26,7 @@
           <p>В ту ночь на станции были только четыре сотрудника. Их рассказы не совпадают. Вам предстоит понять, что случилось с данными, кто лжёт и как погиб Арсеньев.</p>
         </div>
         <div class="guided-actions">
-          <button class="guided-primary" type="button" data-enter>Осмотреть место происшествия</button>
+          <button class="guided-primary" type="button" data-enter>Начать расследование</button>
           <button class="guided-quiet" type="button" data-intro-restart hidden>Начать сначала</button>
         </div>
       </div>
@@ -34,12 +35,12 @@
     <section class="guided-game" data-game hidden>
       <header class="guided-header">
         <div>
-          <p class="guided-kicker" data-chapter>Начало расследования</p>
+          <p class="guided-kicker" data-chapter>Расследование</p>
           <strong>Тринадцатая минута</strong>
         </div>
         <div>
           <button class="guided-quiet" type="button" data-interrogations>Допросы</button>
-          <button class="guided-quiet" type="button" data-notes>Что уже известно</button>
+          <button class="guided-quiet" type="button" data-notes>Досье</button>
           <button class="guided-quiet" type="button" data-restart>Начать сначала</button>
         </div>
       </header>
@@ -47,36 +48,34 @@
       <div class="guided-stage" data-stage></div>
 
       <footer class="guided-footer">
-        <span data-status>Расследование начато</span>
+        <span data-status>Вы решаете, что проверить дальше.</span>
       </footer>
     </section>
   </main>
 
   <dialog class="guided-notes" data-notes-dialog>
     <button class="guided-notes__close" type="button" data-notes-close aria-label="Закрыть">×</button>
-    <p class="guided-kicker">Ваши записи</p>
+    <p class="guided-kicker">Ваше досье</p>
     <h2>Что уже известно</h2>
     <div data-notes-content></div>
   </dialog>
 
   <script defer src="../../assets/solo-guided-hero-v1.js?v=20260915-1"></script>
   <script defer src="../../assets/solo-guided-access-v1.js?v=20260915-2"></script>
-  <script defer src="../../assets/solo-guided-preview-v3.js?v=20260915-2"></script>
-  <script defer src="../../assets/solo-guided-interrogation-v1.js?v=20260915-1"></script>
+  <script defer src="../../assets/solo-investigation-v1.js?v=20260916-1"></script>
+  <script defer src="../../assets/solo-guided-interrogation-v1.js?v=20260916-1"></script>
   <script>
     (() => {
       const endpoint = 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/solo-session-v2';
       const caseId = 'ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
-      const tokenKey = 'mysterylogic:guided-preview-token:v1';
       const sessionKey = `mysterylogic:solo-guided-session:${caseId}`;
+      const publicToken = 'MLPREVIEW-PUBLIC';
       const enterButton = document.querySelector('[data-enter]');
       const introRestartButton = document.querySelector('[data-intro-restart]');
       const gameRestartButton = document.querySelector('[data-restart]');
 
       let hasSavedSession = false;
-      try {
-        hasSavedSession = Boolean(localStorage.getItem(sessionKey));
-      } catch {}
+      try { hasSavedSession = Boolean(localStorage.getItem(sessionKey)); } catch {}
 
       if (hasSavedSession && enterButton && introRestartButton) {
         enterButton.textContent = 'Продолжить расследование';
@@ -93,16 +92,11 @@
         if (enterButton) enterButton.disabled = true;
 
         try {
-          const fragmentToken = decodeURIComponent(String(location.hash || '').replace(/^#/, ''));
-          const savedToken = sessionStorage.getItem(tokenKey) || '';
-          const accessToken = fragmentToken.startsWith('MLPREVIEW-') ? fragmentToken : savedToken;
-          if (!accessToken) throw new Error('Персональная ссылка не найдена.');
-
           const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'content-type': 'application/json',
-              authorization: `Bearer ${accessToken}`,
+              authorization: `Bearer ${publicToken}`,
             },
             cache: 'no-store',
             credentials: 'omit',
@@ -117,7 +111,7 @@
 
           if (enterAfterReset && enterButton) {
             introRestartButton.hidden = true;
-            enterButton.textContent = 'Осмотреть место происшествия';
+            enterButton.textContent = 'Начать расследование';
             enterButton.disabled = false;
             button.disabled = false;
             button.textContent = oldText;
