@@ -35,7 +35,8 @@ const neighboringFloorCold=await post({...base,completed:['people','ballistics',
 if(!op(neighboringFloorCold,'locate_witnesses')||!op(neighboringFloorCold,'start_interview','second_floor_witness'))throw new Error(`neighboring-floor witness prerequisite routing failed: ${JSON.stringify(neighboringFloorCold)}`);
 
 const present=await post({...base,focus:'boyfriend',last_target:'boyfriend',action:'plan',command:'предъяви ему результаты баллистики'});
-if(op(present,'ask_witness','boyfriend'))throw new Error(`evidence presentation was swallowed as an ordinary witness question: ${JSON.stringify(present)}`);
+const presentationOp=(present.operations||[]).find(x=>x.op==='ask_witness'&&x.target==='boyfriend');
+if(present.mode!=='deterministic_confrontation_plan'||presentationOp?.question!=='__ML_PRESENT__:ballistics')throw new Error(`evidence presentation did not route through confrontation sentinel: ${JSON.stringify(present)}`);
 
 console.log('Moreno v0.22 active-interview routing smoke passed');
 console.log(JSON.stringify({weaponInspection:weaponInspection.operations,motherConflict:motherConflict.operations,ballistics:ballistics.operations,expertCall:expertCall.operations,switchPlan:switchPlan.operations,neighboringFloor:neighboringFloor.operations,neighboringFloorCold:neighboringFloorCold.operations,present:present.operations},null,2));
