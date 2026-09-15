@@ -12,7 +12,7 @@ const sid=`ci-v22-${nonce}`,vid=`v-ci-v22-${nonce}`;
 const base={session_id:sid,visitor_id:vid,completed:['people','ballistics','motive'],recent_history:'',memory:{entries:[]}};
 
 const status=await post({action:'status'});
-if(status.version!==8||status.interrogation_mode!=='active-witness-first'||status.active_interview_default!=='ask-current-character'||status.neighboring_floor_aliases!==true)throw new Error(`bad v8 status ${JSON.stringify(status)}`);
+if(status.version!==8||status.interrogation_mode!=='active-witness-first'||status.active_interview_default!=='ask-current-character'||status.neighboring_floor_aliases!==true||status.explicit_expert_calls!==true)throw new Error(`bad v8 status ${JSON.stringify(status)}`);
 
 // Exact owner regression #1: a request addressed to the active boyfriend must remain his question,
 // even though it contains the verb "предъявить".
@@ -30,11 +30,15 @@ if(op(motherConflict,'check_relationships'))throw new Error(`mother conflict que
 const ballistics=await post({...base,focus:'mother',last_target:'mother',action:'plan',command:'проверь баллистику'});
 if(op(ballistics,'ask_witness','mother'))throw new Error(`explicit global ballistics order was stolen by active interview: ${JSON.stringify(ballistics)}`);
 
+// Exact owner regression #3: "вызываю экспертов" is an investigator order, never a witness question.
+const expertCall=await post({...base,focus:'second_floor_witness',last_target:'second_floor_witness',action:'plan',command:'вызываю экспертов'});
+if(op(expertCall,'ask_witness','second_floor_witness'))throw new Error(`expert call was swallowed by active witness interview: ${JSON.stringify(expertCall)}`);
+
 // Explicit switch must still route through v7 and activate the requested person.
 const switchPlan=await post({...base,focus:'mother',last_target:'mother',action:'plan',command:'вызови на допрос бойфренда старшей дочери'});
 if(!op(switchPlan,'start_interview','boyfriend'))throw new Error(`explicit witness switch failed: ${JSON.stringify(switchPlan)}`);
 
-// Exact owner regression #3: "свидетель с соседнего этажа" must switch away from the active boyfriend
+// Exact owner regression #4: "свидетель с соседнего этажа" must switch away from the active boyfriend
 // to the already-known second-floor witness, not be answered by the boyfriend.
 const neighboringFloor=await post({...base,completed:['people','ballistics','motive','witnessLocated'],focus:'boyfriend',last_target:'boyfriend',action:'plan',command:'вызываю свидетеля с соседнего этажа'});
 if(op(neighboringFloor,'ask_witness','boyfriend'))throw new Error(`neighboring-floor switch was swallowed by active boyfriend interview: ${JSON.stringify(neighboringFloor)}`);
@@ -49,4 +53,4 @@ const present=await post({...base,focus:'boyfriend',last_target:'boyfriend',acti
 if(op(present,'ask_witness','boyfriend'))throw new Error(`evidence presentation was swallowed as an ordinary witness question: ${JSON.stringify(present)}`);
 
 console.log('Moreno v0.22 active-interview routing smoke passed');
-console.log(JSON.stringify({weaponInspection:weaponInspection.operations,motherConflict:motherConflict.operations,ballistics:ballistics.operations,switchPlan:switchPlan.operations,neighboringFloor:neighboringFloor.operations,neighboringFloorCold:neighboringFloorCold.operations,present:present.operations},null,2));
+console.log(JSON.stringify({weaponInspection:weaponInspection.operations,motherConflict:motherConflict.operations,ballistics:ballistics.operations,expertCall:expertCall.operations,switchPlan:switchPlan.operations,neighboringFloor:neighboringFloor.operations,neighboringFloorCold:neighboringFloorCold.operations,present:present.operations},null,2));
