@@ -91,7 +91,7 @@ function chapterLabel(){
   if(confirmed>=2)return'Проверяем показания';
   return'Что произошло';
 }
-function updateChrome(message=''){if(chapterBox)chapterBox.textContent=chapterLabel();if(statusBox)statusBox.textContent=message||'Идите по следу. Решайте сами, что проверить и кому предъявить найденное.')}
+function updateChrome(message=''){if(chapterBox)chapterBox.textContent=chapterLabel();if(statusBox)statusBox.textContent=message||'Идите по следу. Решайте сами, что проверить и кому предъявить найденное.'}
 function renderWait(text='Проверяем, что изменилось...'){stage.innerHTML=`<div class="guided-wait"><div class="guided-spinner"></div><p>${esc(text)}</p></div>`}
 function evidenceById(id){return (payload?.evidence||[]).find(e=>e.id===id)}
 function characterByNameInTitle(title=''){return (payload?.characters||[]).find(p=>String(title).includes(String(p.name).split(' ')[0]))}
