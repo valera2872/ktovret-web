@@ -9,7 +9,7 @@ const interrogationCss=fs.readFileSync('assets/solo-guided-interrogation-v1.css'
 const confrontationCss=fs.readFileSync('assets/solo-guided-confrontation-v1.css','utf8');
 const interrogationEdge=fs.readFileSync('supabase/functions/solo-guided-interrogate-v1/index.ts','utf8');
 const publicInterrogationEdge=fs.readFileSync('supabase/functions/solo-guided-interrogate-public-v1/index.ts','utf8');
-const soloSessionEdge=fs.readFileSync('supabase/functions/solo-session-v2/index.ts','utf8');
+const publicSessionEdge=fs.readFileSync('supabase/functions/solo-guided-session-public-v1/index.ts','utf8');
 const interrogationEdgeLower=interrogationEdge.toLowerCase();
 const publicInterrogationEdgeLower=publicInterrogationEdge.toLowerCase();
 
@@ -36,7 +36,7 @@ if(!investigationJs.includes('Версии и противоречия')) fail('
 if(!investigationJs.includes("stage.querySelectorAll('[data-open-evidence]')")) fail('evidence must open only after player selects a lead');
 if(investigationJs.includes('function advance(')||investigationJs.includes('nextEvidence()')) fail('legacy automatic evidence conveyor must be absent');
 if(!investigationJs.includes("const NON_PRESENTABLE=new Set(['E01','E02'])")) fail('orientation evidence must not be immediately presentable');
-if(!investigationJs.includes("function canPresent(item)")) fail('presentation eligibility gate missing');
+if(!investigationJs.includes('function canPresent(item)')) fail('presentation eligibility gate missing');
 if(!investigationJs.includes("serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:characterId},true)")) fail('evidence presentation must require explicit target selection');
 if(!investigationJs.includes('Предъявлять его кому-либо необязательно')) fail('UI must explain that confrontation is optional');
 if(!investigationJs.includes('renderPeople')) fail('people overview missing');
@@ -50,10 +50,16 @@ if(!html.includes('solo-guided-access-v1.js')) fail('guided preview must load pu
 if(!accessJs.includes("const PUBLIC_TOKEN = 'MLPREVIEW-PUBLIC'")) fail('public preview marker missing');
 if(!accessJs.includes("sessionStorage.setItem(TOKEN_KEY, PUBLIC_TOKEN)")) fail('public preview must bootstrap without a personal link');
 if(accessJs.includes('Вставьте персональную ссылку')||accessJs.includes('Персональный доступ')) fail('public preview must not ask player for a personal link');
+if(!accessJs.includes('PRIVATE_SOLO_PATH')||!accessJs.includes('PUBLIC_SOLO_PATH')) fail('public preview must route solo state to dedicated public endpoint');
 if(!accessJs.includes('PRIVATE_INTERROGATION_PATH')||!accessJs.includes('PUBLIC_INTERROGATION_PATH')) fail('public preview must route AI interrogation to public bounded endpoint');
-if(!accessJs.includes("headers.delete('authorization')")) fail('public session calls must not present fake bearer token to solo-session-v2');
+if(!accessJs.includes("headers.delete('authorization')")) fail('public calls must not send fake bearer token to edge functions');
 if(!accessJs.includes("action: 'START'")) fail('public restart must create a fresh anonymous solo session');
-if(!soloSessionEdge.includes("previewOrigins = new Set(['https://rawcdn.githack.com'])")) fail('solo-session-v2 must explicitly allow rawcdn preview origin');
+
+if(!publicSessionEdge.includes("const accessMode='admin' as const")) fail('public prototype session must expose full case, not demo');
+if(!publicSessionEdge.includes('normalizeStoredSoloState(created.state,runtime,accessMode)')) fail('full access must be persisted from session start');
+if(!publicSessionEdge.includes('processAuthorizedSoloAction(runtime,normalized,action,accessMode)')) fail('public session must use authoritative solo engine');
+if(!publicSessionEdge.includes('safeSoloClientPayload(runtime,nextState,nextRevision,accessMode)')) fail('public session must use safe client projection');
+if(!publicSessionEdge.includes("'https://rawcdn.githack.com'")) fail('public session must allow rawcdn preview origin');
 
 if(!html.includes('data-interrogations')) fail('guided header must expose interrogations');
 if(!html.includes('solo-guided-interrogation-v1.js')) fail('guided page must load interrogation client');
