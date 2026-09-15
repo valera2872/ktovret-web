@@ -4,17 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07111d">
-  <meta name="description" content="Mystery Logic — детективные игры, логические загадки и головоломки, где каждую версию нужно доказать по фактам.">
-  <link rel="canonical" href="https://valera2872.github.io/ktovret-web/">
+  <meta name="description" content="Mystery Logic — детективные игры и реальные интерактивные расследования: изучайте факты, допрашивайте свидетелей и доказывайте собственную версию.">
+  <link rel="canonical" href="https://mysterylogic.com/">
   <link rel="icon" href="./assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./assets/mysterylogic.css">
   <link rel="stylesheet" href="./assets/premium.css?v=1.1.0">
-  <meta property="og:title" content="Mystery Logic — докажите свою версию">
-  <meta property="og:description" content="Детективные игры с честной логикой и однозначными решениями.">
+  <link rel="stylesheet" href="./assets/real-investigations-launch.css?v=1.0.0">
+  <meta property="og:title" content="Mystery Logic — детективные игры и реальные расследования">
+  <meta property="og:description" content="Короткие логические дела и новый формат: расследования, основанные на реальных событиях, со свободными AI-допросами.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://valera2872.github.io/ktovret-web/">
-  <title>Детективные игры онлайн — Mystery Logic</title>
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://valera2872.github.io/ktovret-web/#organization","name":"Mystery Logic","url":"https://valera2872.github.io/ktovret-web/"},{"@type":"WebSite","@id":"https://valera2872.github.io/ktovret-web/#website","name":"Mystery Logic","url":"https://valera2872.github.io/ktovret-web/","publisher":{"@id":"https://valera2872.github.io/ktovret-web/#organization"},"description":"Детективные игры, загадки и логические расследования.","inLanguage":"ru"}]}</script>
+  <meta property="og:url" content="https://mysterylogic.com/">
+  <meta property="og:image" content="https://mysterylogic.com/assets/real-investigations-hero.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Детективные игры и реальные расследования онлайн — Mystery Logic</title>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://mysterylogic.com/#organization","name":"Mystery Logic","url":"https://mysterylogic.com/"},{"@type":"WebSite","@id":"https://mysterylogic.com/#website","name":"Mystery Logic","url":"https://mysterylogic.com/","publisher":{"@id":"https://mysterylogic.com/#organization"},"description":"Детективные игры, логические дела и реальные интерактивные расследования.","inLanguage":"ru"}]}</script>
 </head>
 <body>
   <header class="ml-header ml-shell">
@@ -26,20 +29,22 @@
       <a href="#games">Игры</a>
       <a href="./detektivnye-igry-dlya-odnogo/">Для одного</a>
       <a href="./dela/">15 бесплатных дел</a>
+      <a class="ml-nav-new" href="./realnye-dela/">Реальные расследования <span class="ml-nav-new-badge">NEW</span></a>
       <a href="./tom-1/">Первый том</a>
-      <a href="#method">Метод</a>
-      <a class="ml-nav-cta" href="./delo/chetyre-vhoda-v-arhiv/">Открыть досье</a>
+      <a class="ml-nav-cta" href="./realnye-dela/pozharnaya-lestnica-1991-premium/">Открыть новое дело</a>
     </nav>
   </header>
 
   <main class="ml-shell">
+    <div class="ml-launchbar" role="status"><strong>Новый продукт</strong><a href="./realnye-dela/">Реальные расследования — первое дело уже доступно →</a></div>
+
     <section class="ml-hero">
       <div class="ml-hero-copy">
         <p class="ml-kicker">Бюро детективных игр</p>
         <h1>Mystery<br>Logic</h1>
-        <p class="ml-hero-lead">Интуиция приводит к версии. Логика превращает её в доказательство. В каждом деле все необходимые факты уже перед вами.</p>
+        <p class="ml-hero-lead">Интуиция приводит к версии. Логика превращает её в доказательство. От коротких логических дел до полноценных расследований реальных историй — вывод всегда остаётся за игроком.</p>
         <div class="ml-actions">
-          <a class="ml-button ml-button-primary" href="./delo/chetyre-vhoda-v-arhiv/">Получить первое досье</a>
+          <a class="ml-button ml-button-primary" href="./realnye-dela/">Реальные расследования · NEW</a>
           <a class="ml-button ml-button-secondary" href="./dela/">Открыть 15 бесплатных дел</a>
           <a class="ml-button ml-button-secondary" href="./tom-1/">Посмотреть первый том</a>
         </div>
@@ -61,19 +66,51 @@
         <a class="ml-preview-link" href="./delo/chetyre-vhoda-v-arhiv/">Открыть это дело →</a>
       </aside>
 
-      <div class="ml-trust" aria-label="Преимущества первого дела">
-        <div><strong>15 дел бесплатно</strong><span>Без регистрации и установки</span></div>
-        <div><strong>5–10 минут</strong><span>Законченное расследование за один подход</span></div>
-        <div><strong>Один ответ</strong><span>Решение следует из улик, а не из догадки</span></div>
+      <div class="ml-trust" aria-label="Форматы Mystery Logic">
+        <div><strong>Короткие дела</strong><span>Логическая задача за 5–10 минут</span></div>
+        <div><strong>Реальные расследования</strong><span>Свободный маршрут, AI-допросы и экспертизы</span></div>
+        <div><strong>Ваш вывод</strong><span>Система даёт факты, но не решает за игрока</span></div>
+      </div>
+    </section>
+
+    <section class="ml-section ml-real-launch" id="real-investigations">
+      <div class="ml-real-launch-grid">
+        <div class="ml-real-launch-copy">
+          <p class="ml-kicker">Новый продукт Mystery Logic</p>
+          <h2>Реальные расследования</h2>
+          <p class="ml-real-launch-lead">Реальные события. Настоящие люди. Ваше расследование.</p>
+          <p>Получайте материалы по своим решениям, задавайте свидетелям свободные вопросы, заказывайте проверки и собирайте собственную версию. ИИ понимает ваши распоряжения, но не отмечает противоречия и не называет виновного.</p>
+          <div class="ml-real-tags"><span>реальные дела</span><span>AI-допрос</span><span>свободный маршрут</span><span>финальная реконструкция</span></div>
+          <div class="ml-real-launch-actions">
+            <a class="ml-button ml-button-primary" href="./realnye-dela/">Открыть реальные расследования</a>
+            <a class="ml-button ml-button-secondary" href="./realnye-dela/pozharnaya-lestnica-1991-premium/">Начать первое дело</a>
+          </div>
+          <p class="ml-real-launch-note">Реальный исход дела остаётся закрытым, пока вы сами не сформулируете итоговую реконструкцию.</p>
+        </div>
+        <div class="ml-real-feature">
+          <img src="./assets/real-investigations-hero.svg" alt="Стилизованный ночной двор с пожарной лестницей и материалами расследования">
+          <div class="ml-real-feature-copy">
+            <span class="ml-real-feature-status">Первое реальное дело</span>
+            <h3>Девушка на пожарной лестнице</h3>
+            <p>Malden, 1991. Семнадцатилетнюю Patricia Moreno находят тяжело раненой на пожарной лестнице. Дело остаётся без обвинения почти три десятилетия.</p>
+            <a class="ml-real-feature-link" href="./realnye-dela/pozharnaya-lestnica-1991-premium/">Перейти к делу →</a>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="ml-section" id="games">
       <div class="ml-section-head">
-        <div><p class="ml-kicker">Доступно сейчас</p><h2>Начните с «Кто врёт?»</h2></div>
-        <p>На сайте уже доступен законченный Первый том: 100 коротких детективных дел с доказуемыми решениями. Первые 15 можно пройти бесплатно.</p>
+        <div><p class="ml-kicker">Доступно сейчас</p><h2>Выберите формат расследования</h2></div>
+        <p>Mystery Logic теперь работает в двух масштабах: короткие логические дела и длинные расследования, основанные на реальных событиях.</p>
       </div>
       <div class="ml-products">
+        <a class="ml-product ml-product-real" href="./realnye-dela/">
+          <span class="ml-product-status">Новый продукт</span>
+          <h3>Реальные расследования</h3>
+          <p>Изучайте опубликованные материалы реального дела, допрашивайте людей свободным языком, проверяйте версии и передавайте собственную итоговую реконструкцию.</p>
+          <span class="ml-product-link">Смотреть реальные дела →</span>
+        </a>
         <a class="ml-product ml-product-main" href="./kto-vret/">
           <span class="ml-product-status">Играть сейчас</span>
           <h3>Кто врёт?</h3>
@@ -104,17 +141,17 @@
       <div class="ml-manifesto">
         <div class="ml-manifesto-main">
           <p class="ml-kicker">Принцип Mystery Logic</p>
-          <h2>Честная детективная задача уважает игрока.</h2>
-          <p>Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки. Все необходимые данные находятся в материалах дела. Нужно только увидеть их связь.</p>
+          <h2>Честное расследование уважает игрока.</h2>
+          <p>Ключевая улика не возникает из воздуха, а решение не зависит от случайной догадки. В логических делах все необходимые данные находятся перед вами; в реальных расследованиях новые материалы открываются только как результат ваших действий. Связь между фактами всё равно должны увидеть вы.</p>
         </div>
-        <aside class="ml-manifesto-note"><strong>Каждая улика имеет значение.</strong><small>Первый том · 100 проверенных детективных задач</small></aside>
+        <aside class="ml-manifesto-note"><strong>Факты не подсказывают вывод. Они позволяют его доказать.</strong><small>Mystery Logic · люди · факты · ваши выводы</small></aside>
       </div>
     </section>
   </main>
 
   <footer class="ml-footer ml-shell">
     <span>© 2026 Mystery Logic</span>
-    <span class="ml-footer-links"><a href="./kto-vret/">Кто врёт?</a><a href="./dela/">Бесплатные дела</a><a href="./tom-1/">Первый том</a><a href="./detektivnye-igry-onlayn/">Детективные игры онлайн</a><a href="./logicheskie-detektivnye-zadachi/">Логические задачи</a></span>
+    <span class="ml-footer-links"><a href="./kto-vret/">Кто врёт?</a><a href="./dela/">Бесплатные дела</a><a href="./realnye-dela/">Реальные расследования</a><a href="./tom-1/">Первый том</a><a href="./detektivnye-igry-onlayn/">Детективные игры онлайн</a><a href="./logicheskie-detektivnye-zadachi/">Логические задачи</a></span>
   </footer>
 </body>
 </html>
