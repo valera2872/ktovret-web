@@ -41,9 +41,10 @@ test('server does not reveal the correct answer on failed final', () => {
   assert.doesNotMatch(edge, /correctAnswer/);
 });
 
-test('resolution is returned only after finalSolved', () => {
+test('resolution stays server-side until the room is solved', () => {
   assert.match(edge, /sharedState\.finalSolved \? ZERO_CONTAINER_FINAL\.reveal : null/);
   assert.match(migration, /partner_v2_mark_solved/);
+  assert.doesNotMatch(client, /GPS контролировал локомотив|Маркова изучает параметры CAXU/);
 });
 
 test('case page wires the final reconstruction after the checkpoint layer', () => {
