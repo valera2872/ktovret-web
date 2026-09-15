@@ -25,6 +25,7 @@ let shownReactions=new Set();
 let resultScene=null;
 let reconstructionAnswers={};
 let reconstructionIndex=0;
+let confrontationDialog=null;
 
 const evidenceOrder=['E01','E02','E05','E06','E07','E08','E03','E04','E11','E12','E09','E10','E15','E16','E13','E14','E19','E20','E21','E17','E18','E22','E23','E24'];
 
@@ -90,19 +91,23 @@ function chapterLabel(){
   if(confirmed>=2)return'Проверяем показания';
   return'Что произошло';
 }
-function updateChrome(message=''){if(chapterBox)chapterBox.textContent=chapterLabel();if(statusBox)statusBox.textContent=message||'Идите по следу. Игра сама покажет следующий шаг.'}
+function updateChrome(message=''){if(chapterBox)chapterBox.textContent=chapterLabel();if(statusBox)statusBox.textContent=message||'Идите по следу. Решайте сами, что проверить и кому предъявить найденное.'}
 function renderWait(text='Проверяем, что изменилось...'){stage.innerHTML=`<div class="guided-wait"><div class="guided-spinner"></div><p>${esc(text)}</p></div>`}
 function evidenceById(id){return (payload?.evidence||[]).find(e=>e.id===id)}
 function characterByNameInTitle(title=''){return (payload?.characters||[]).find(p=>String(title).includes(String(p.name).split(' ')[0]))}
+function characterById(id){return (payload?.characters||[]).find(p=>p.id===id)}
+function presentedNames(item){return (item?.presentedTo||[]).map(id=>characterById(id)?.name).filter(Boolean)}
 
 function renderEvidence(item){
   currentEvidenceId=item.id;
   const person=item.type==='statement'?characterByNameInTitle(item.title):null;
   const body=esc(item.body||'').replace(/\n/g,'<br>');
   const visual=['E01','E02'].includes(item.id)?'<div class="guided-card__image"></div>':'';
-  stage.innerHTML=`<article class="guided-card">${visual}<div class="guided-card__body"><p class="guided-kicker">${esc(item.type==='statement'?'Показание':'Новый факт')}</p>${person?`<div class="guided-person"><div class="guided-avatar">${esc(initials(person.name))}</div><div><h3>${esc(person.name)}</h3><p class="guided-role">${esc(person.role||'')}</p><p class="guided-quote">${body}</p></div></div>`:`<h2>${esc(item.title||'Материал')}</h2>${item.teaser?`<p class="guided-lead">${esc(item.teaser)}</p>`:''}<div class="guided-body">${body}</div>`}<div class="guided-actions"><button class="guided-action" data-evidence-continue>Продолжить расследование</button></div></div></article>`;
+  const presented=presentedNames(item);
+  stage.innerHTML=`<article class="guided-card">${visual}<div class="guided-card__body"><p class="guided-kicker">${esc(item.type==='statement'?'Показание':'Новый факт')}</p>${person?`<div class="guided-person"><div class="guided-avatar">${esc(initials(person.name))}</div><div><h3>${esc(person.name)}</h3><p class="guided-role">${esc(person.role||'')}</p><p class="guided-quote">${body}</p></div></div>`:`<h2>${esc(item.title||'Материал')}</h2>${item.teaser?`<p class="guided-lead">${esc(item.teaser)}</p>`:''}<div class="guided-body">${body}</div>`}${presented.length?`<p class="guided-presented">Уже предъявлено: ${presented.map(esc).join(', ')}</p>`:''}<div class="guided-actions"><button class="guided-action secondary" data-present-evidence>Предъявить кому-то</button><button class="guided-action" data-evidence-continue>Продолжить расследование</button></div></div></article>`;
+  $('[data-present-evidence]',stage).onclick=()=>openConfrontation(item.id);
   $('[data-evidence-continue]',stage).onclick=continueFromEvidence;
-  updateChrome('Изучите факт. Ничего раскладывать по вкладкам не нужно.');
+  updateChrome('Изучите факт. Вы сами решаете, нужно ли и кому его предъявить.');
 }
 async function openEvidence(item){
   renderWait('Открываем следующий материал...');
@@ -120,29 +125,65 @@ function collectChangedCharacters(before,after){
     }
   }
 }
-async function autoCheckReactions(evidenceId){
+function ensureConfrontationDialog(){
+  if(confrontationDialog)return confrontationDialog;
+  confrontationDialog=document.createElement('dialog');
+  confrontationDialog.className='guided-confrontation';
+  confrontationDialog.innerHTML='<button class="guided-confrontation__close" type="button" data-confront-close aria-label="Закрыть">×</button><div data-confront-content></div>';
+  document.body.appendChild(confrontationDialog);
+  $('[data-confront-close]',confrontationDialog).onclick=()=>confrontationDialog.close();
+  confrontationDialog.addEventListener('click',(e)=>{if(e.target===confrontationDialog)confrontationDialog.close()});
+  return confrontationDialog;
+}
+function confrontContent(){return $('[data-confront-content]',ensureConfrontationDialog())}
+function renderConfrontationChooser(evidenceId){
   const item=evidenceById(evidenceId);if(!item)return;
   const people=payload?.characters||[];
-  for(const person of people){
-    const fresh=evidenceById(evidenceId);if((fresh?.presentedTo||[]).includes(person.id))continue;
-    const before=payload.characters||[];
-    try{const body=await serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:person.id},true);collectChangedCharacters(before,body.characters||[])}catch{}
+  const presented=new Set(item.presentedTo||[]);
+  confrontContent().innerHTML=`<p class="guided-kicker">Предъявить материал</p><h2>Кому показать улику?</h2><p class="guided-confrontation__lead">Выберите собеседника сами. Только после вашего решения материал становится известен этому человеку и может изменить его показания.</p><div class="guided-confrontation__evidence"><strong>${esc(item.title||'Материал')}</strong><span>${esc(item.teaser||item.body||'').slice(0,260)}</span></div><div class="guided-confrontation__people">${people.map(person=>`<button type="button" class="guided-confrontation__person" data-confront-person="${esc(person.id)}" ${presented.has(person.id)?'disabled':''}><span class="guided-avatar">${esc(initials(person.name))}</span><span><strong>${esc(person.name)}</strong><small>${presented.has(person.id)?'Уже видел этот материал':esc(person.role||'')}</small></span></button>`).join('')}</div>`;
+  confrontationDialog.querySelectorAll('[data-confront-person]').forEach(btn=>btn.onclick=()=>presentEvidenceTo(evidenceId,btn.dataset.confrontPerson));
+}
+function openConfrontation(evidenceId){
+  const item=evidenceById(evidenceId);if(!item||!item.opened)return;
+  notesDialog?.close();
+  ensureConfrontationDialog();
+  renderConfrontationChooser(evidenceId);
+  if(!confrontationDialog.open)confrontationDialog.showModal();
+}
+async function presentEvidenceTo(evidenceId,characterId){
+  const item=evidenceById(evidenceId),person=characterById(characterId);if(!item||!person)return;
+  confrontContent().innerHTML=`<div class="guided-wait"><div class="guided-spinner"></div><p>Предъявляем материал: ${esc(person.name)}...</p></div>`;
+  const beforeVersion=Number(person.statementVersion||1);
+  try{
+    const body=await serverAction('PRESENT_EVIDENCE',{evidence_id:evidenceId,character_id:characterId},true);
+    const updated=(body.characters||[]).find(p=>p.id===characterId)||person;
+    const changed=Number(updated.statementVersion||1)>beforeVersion;
+    if(currentEvidenceId===evidenceId){const fresh=evidenceById(evidenceId);if(fresh)renderEvidence(fresh)}
+    if(notesDialog?.open)renderNotes();
+    confrontContent().innerHTML=`<div class="guided-confrontation__result"><p class="guided-kicker">${changed?'Показания изменились':'Материал предъявлен'}</p><h2>${esc(updated.name||person.name)}</h2>${changed?`<div class="guided-confrontation__statement"><p>${esc(updated.statement||'')}</p></div>`:'<div class="guided-confrontation__status">Новой версии показаний нет. Этот материал сам по себе не заставил собеседника изменить рассказ.</div>'}<div class="guided-confrontation__actions"><button class="guided-action secondary" type="button" data-confront-another>Предъявить другому</button><button class="guided-action" type="button" data-confront-done>Вернуться к расследованию</button></div></div>`;
+    $('[data-confront-another]',confrontationDialog).onclick=()=>renderConfrontationChooser(evidenceId);
+    $('[data-confront-done]',confrontationDialog).onclick=()=>confrontationDialog.close();
+    updateChrome(changed?`${updated.name} изменил показания после предъявления.`:`${updated.name} ознакомлен с материалом.`);
+  }catch(err){
+    confrontContent().innerHTML=`<p class="guided-kicker">Не получилось предъявить</p><h2>Материал остался у вас</h2><p class="guided-confrontation__lead">${esc(err?.message||String(err))}</p><div class="guided-confrontation__actions"><button class="guided-action" type="button" data-confront-retry>Попробовать ещё раз</button></div>`;
+    $('[data-confront-retry]',confrontationDialog).onclick=()=>renderConfrontationChooser(evidenceId);
   }
 }
 async function continueFromEvidence(){
-  setBusy(true);renderWait();
-  try{await autoCheckReactions(currentEvidenceId);currentEvidenceId='';await advance()}catch(err){renderFailure(err)}finally{setBusy(false)}
+  if(busy)return;
+  currentEvidenceId='';
+  try{await advance()}catch(err){renderFailure(err)}
 }
 function renderReaction(person){
   stage.innerHTML=`<article class="guided-card"><div class="guided-card__body"><p class="guided-kicker">Показания изменились</p><div class="guided-person"><div class="guided-avatar">${esc(initials(person.name))}</div><div><h3>${esc(person.name)}</h3><p class="guided-role">${esc(person.role||'')}</p><p class="guided-quote">${esc(person.statement||'')}</p></div></div><div class="guided-actions"><button class="guided-action" data-reaction-continue>Дальше</button></div></div></article>`;
   $('[data-reaction-continue]',stage).onclick=()=>{reactionQueue.shift();advance().catch(renderFailure)};
-  updateChrome('Новый факт заставил человека уточнить свою версию.');
+  updateChrome('Показания изменились после сделанного вами шага.');
 }
 function nextDeduction(){return (payload?.deductions||[]).find(d=>d.accessible&&d.result!=='confirmed'&&Array.isArray(d.choices)&&d.choices.length)}
 function renderDeduction(deduction,wrong=false){
   stage.innerHTML=`<article class="guided-card"><div class="guided-card__body"><p class="guided-kicker">Что вы думаете?</p><h2>${esc(deduction.title||'Какой вывод следует из фактов?')}</h2><p class="guided-lead">${esc(deduction.prompt||'Какой вариант лучше всего объясняет то, что вы уже узнали?')}</p>${wrong?'<div class="guided-result is-wrong">Этот вариант не сходится с уже известными фактами.</div>':''}<div class="guided-choice-list">${deduction.choices.map(c=>`<button class="guided-choice" data-deduction-choice="${esc(c.id)}">${esc(c.label)}</button>`).join('')}</div></div></article>`;
   stage.querySelectorAll('[data-deduction-choice]').forEach(btn=>btn.onclick=()=>answerDeduction(deduction.id,btn.dataset.deductionChoice));
-  updateChrome('Выберите версию. Никаких специальных действий не требуется.');
+  updateChrome('Выберите версию. Вывод остаётся за вами.');
 }
 async function answerDeduction(id,choiceId){
   if(busy)return;setBusy(true);renderWait('Проверяем вашу версию...');
@@ -179,10 +220,16 @@ async function advance(){
   const evidence=nextEvidence();if(evidence){await openEvidence(evidence);return}
   const interaction=nextInteraction();if(interaction){renderInteraction(interaction);return}
   if(payload?.reconstruction?.accessible){renderReconstruction();return}
-  stage.innerHTML='<article class="guided-card"><div class="guided-card__body"><h2>Проверяем следующий шаг</h2><p class="guided-lead">Все доступные сейчас факты изучены. Обновите состояние дела.</p><div class="guided-actions"><button class="guided-action" data-sync>Продолжить</button></div></div></article>';
+  stage.innerHTML='<article class="guided-card"><div class="guided-card__body"><p class="guided-kicker">Ваш ход</p><h2>Все доступные сейчас факты изучены</h2><p class="guided-lead">Если расследование не двигается, вернитесь к найденным материалам. Возможно, одну из улик стоит предъявить конкретному человеку или уточнить его версию на допросе.</p><div class="guided-actions"><button class="guided-action secondary" data-review-evidence>Открыть найденные улики</button><button class="guided-action" data-sync>Обновить состояние</button></div></div></article>';
+  $('[data-review-evidence]',stage).onclick=()=>{renderNotes();notesDialog.showModal()};
   $('[data-sync]',stage).onclick=async()=>{try{await serverAction('SNAPSHOT');await advance()}catch(err){renderFailure(err)}};
 }
-function renderNotes(){const opened=(payload?.evidence||[]).filter(e=>e.opened&&e.title);const confirmed=(payload?.deductions||[]).filter(d=>d.result==='confirmed'&&d.title);notesContent.innerHTML=`<section class="guided-note-section"><h3>Что найдено</h3>${opened.length?`<ul>${opened.map(e=>`<li>${esc(e.title)}</li>`).join('')}</ul>`:'<p>Пока ничего.</p>'}</section><section class="guided-note-section"><h3>Что установлено</h3>${confirmed.length?`<ul>${confirmed.map(d=>`<li>${esc(d.title)}</li>`).join('')}</ul>`:'<p>Пока окончательных выводов нет.</p>'}</section>`}
+function renderNotes(){
+  const opened=(payload?.evidence||[]).filter(e=>e.opened&&e.title);
+  const confirmed=(payload?.deductions||[]).filter(d=>d.result==='confirmed'&&d.title);
+  notesContent.innerHTML=`<section class="guided-note-section"><h3>Что найдено</h3>${opened.length?`<ul>${opened.map(e=>`<li class="guided-note-evidence"><span>${esc(e.title)}</span><button type="button" class="guided-note-present" data-note-present="${esc(e.id)}">Предъявить</button></li>`).join('')}</ul>`:'<p>Пока ничего.</p>'}</section><section class="guided-note-section"><h3>Что установлено</h3>${confirmed.length?`<ul>${confirmed.map(d=>`<li>${esc(d.title)}</li>`).join('')}</ul>`:'<p>Пока окончательных выводов нет.</p>'}</section>`;
+  notesContent.querySelectorAll('[data-note-present]').forEach(btn=>btn.onclick=()=>openConfrontation(btn.dataset.notePresent));
+}
 function renderFailure(err){setBusy(false);stage.innerHTML=`<article class="guided-card"><div class="guided-card__body"><p class="guided-kicker">Не получилось продолжить</p><h2>Связь с расследованием прервалась</h2><p class="guided-lead">${esc(err?.message||String(err))}</p><div class="guided-actions"><button class="guided-action" data-retry>Попробовать ещё раз</button></div></div></article>`;$('[data-retry]',stage).onclick=async()=>{payload=null;try{await ensureSession();await advance()}catch(e){renderFailure(e)}}}
 
 $('[data-enter]')?.addEventListener('click',async()=>{
