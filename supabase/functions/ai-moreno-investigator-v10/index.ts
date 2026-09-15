@@ -10,17 +10,30 @@ const ALLOWED_ORIGINS=new Set([
   "https://valera2872.github.io",
   "https://rawcdn.githack.com"
 ]);
+function clean(v:unknown,max=900){return typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,max):""}
+function qnorm(v:unknown){return clean(v,900).toLowerCase().replace(/ё/g,"е").replace(/[.,!?;:()«»"']/g," ").replace(/\s+/g," ").trim()}
 function cors(origin:string){return {"access-control-allow-origin":origin||"https://mysterylogic.com","access-control-allow-headers":"content-type, x-ml-client-version","access-control-allow-methods":"POST, OPTIONS","content-type":"application/json; charset=utf-8","cache-control":"no-store","vary":"Origin"}}
 function clientAuthorized(req:Request){return (req.headers.get("x-ml-client-version")||"")===PUBLIC_MARKER}
+function ambiguousEvidenceIdentity(body:any){
+  if(clean(body?.action,30)!=="plan")return false;
+  const q=qnorm(body?.command);if(!q)return false;
+  const summon=/(?:выз[а-я]*|позов[а-я]*|приглас[а-я]*|допрос[а-я]*|опрос[а-я]*|привед[а-я]*|достав[а-я]*|дай[а-я]*\s+поговор[а-я]*|хочу\s+поговор[а-я]*)/.test(q);
+  if(!summon)return false;
+  return /(?:убийц[а-я]*|стрелок[а-я]*|того\s+кто\s+стрел[а-я]*|тот\s+кто\s+стрел[а-я]*)/.test(q)
+    || /мужчин[а-я]*[^.]{0,80}(?:над\s+(?:patricia|патриц[а-я]*)|стоя[а-я]*\s+над)/.test(q)
+    || /(?:над\s+(?:patricia|патриц[а-я]*))[^.]{0,80}мужчин[а-я]*/.test(q);
+}
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
   if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});
   const headers=cors(origin||"https://mysterylogic.com");
+  const json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});
   if(req.method==="OPTIONS")return new Response("ok",{headers});
-  if(!clientAuthorized(req))return new Response(JSON.stringify({error:"unauthorized_client"}),{status:401,headers});
-  if(req.method!=="POST")return new Response(JSON.stringify({error:"method_not_allowed"}),{status:405,headers});
-  if(!ENV_ANON_KEY)return new Response(JSON.stringify({error:"upstream_public_key_missing"}),{status:503,headers});
-  const body=await req.text();
-  const r=await fetch(V9,{method:"POST",headers:{authorization:`Bearer ${ENV_ANON_KEY}`,apikey:ENV_ANON_KEY,"content-type":"application/json",origin:"https://mysterylogic.com"},body});
+  if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);
+  if(req.method!=="POST")return json({error:"method_not_allowed"},405);
+  if(!ENV_ANON_KEY)return json({error:"upstream_public_key_missing"},503);
+  let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}
+  if(ambiguousEvidenceIdentity(body))return json({operations:[{op:"clarify",note:"Уточните, кого именно из уже установленных людей вы хотите вызвать или допросить. Описание из материалов дела само по себе не устанавливает личность."}],mode:"identity_inference_guardrail",player_led:true,automatic_identity_inference:false,automatic_contradiction_detection:false});
+  const r=await fetch(V9,{method:"POST",headers:{authorization:`Bearer ${ENV_ANON_KEY}`,apikey:ENV_ANON_KEY,"content-type":"application/json",origin:"https://mysterylogic.com"},body:JSON.stringify(body)});
   return new Response(await r.text(),{status:r.status,headers});
 });
