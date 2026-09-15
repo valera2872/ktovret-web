@@ -9,5 +9,7 @@ const plan=await post({action:'plan',command:'что вы слышали в ту
 if(!op(plan,'ask_witness','boyfriend'))throw new Error(`active interview did not stay with boyfriend: ${JSON.stringify(plan)}`);
 const answer=await post({action:'interrogate',target:'boyfriend',question:'что вы слышали в ту ночь?',completed:['people'],focus:'boyfriend',last_target:'boyfriend'});
 if(answer.mode!=='ai_character'||answer.character!=='boyfriend'||!String(answer.reply||'').trim())throw new Error(`public interrogation failed: ${JSON.stringify(answer)}`);
-console.log('Moreno v0.25 public interrogation smoke passed');
-console.log(JSON.stringify({plan:plan.operations,reply:answer.reply,mode:answer.mode,character:answer.character},null,2));
+const finalPlan=await post({action:'plan',command:'Передаю итоговую реконструкцию. Подозреваемый: бойфренд старшей дочери приёмной матери Patricia. Версия: он мог совершить выстрел из района дверного проёма.',completed:['people','canvass','trajectory','weapon','motive'],focus:'',last_target:'boyfriend'});
+if(finalPlan.mode!=='player_final_reconstruction'||!op(finalPlan,'record_hypothesis')||!op(finalPlan,'submit_case'))throw new Error(`deterministic final submission failed: ${JSON.stringify(finalPlan)}`);
+console.log('Moreno v0.25 public interrogation and final submission smoke passed');
+console.log(JSON.stringify({plan:plan.operations,reply:answer.reply,final:finalPlan.operations},null,2));
