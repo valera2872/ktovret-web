@@ -3,7 +3,7 @@ import path from 'node:path';
 import { applySolo407PlayerFeedback } from './solo-407-player-feedback-postprocess.mjs';
 import { applySoloMiniInvestigations } from './solo-mini-postprocess.mjs';
 import { applySoloPaidInvestigations } from './solo-paid-investigations-postprocess.mjs';
-import { preserveRealInvestigationsLaunch } from './real-investigations-release-postprocess.mjs';
+import { registerRealInvestigationsReleaseFinalizer } from './real-investigations-release-postprocess.mjs';
 
 const HUB = 'detektivnye-igry-dlya-odnogo';
 let finalizerRegistered = false;
@@ -71,6 +71,6 @@ export function polishSoloKtoVret(siteRoot) {
   applySoloMiniInvestigations(siteRoot);
   applySoloPaidInvestigations(siteRoot);
   restoreWhoLiedOffer(siteRoot);
-  preserveRealInvestigationsLaunch(siteRoot);
+  registerRealInvestigationsReleaseFinalizer(siteRoot);
   registerFinalRestore(siteRoot);
 }
