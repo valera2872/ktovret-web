@@ -62,10 +62,12 @@ export function preserveRealInvestigationsLaunch(siteRoot){
   const casePage=path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html');
   const hero=path.join(siteRoot,'assets','real-investigations-hero.svg');
   const css=path.join(siteRoot,'assets','real-investigations-launch.css');
-  for(const file of [home,hub,casePage,hero,css]) if(!fs.existsSync(file)) throw new Error(`Real investigations release asset missing: ${file}`);
+  const compatCss=path.join(siteRoot,'assets','real-investigations-production-compat.css');
+  for(const file of [home,hub,casePage,hero,css,compatCss]) if(!fs.existsSync(file)) throw new Error(`Real investigations release asset missing: ${file}`);
 
   let html=fs.readFileSync(home,'utf8');
   if(!html.includes('real-investigations-launch.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-launch.css?v=1.1.0">\n</head>');
+  if(!html.includes('real-investigations-production-compat.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-production-compat.css?v=1.0.0">\n</head>');
 
   if(!html.includes('data-nav-real-investigations')){
     const logic='<a data-nav-logic href="./golovolomki-onlayn/">Головоломки</a>';
