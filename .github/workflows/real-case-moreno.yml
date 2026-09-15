@@ -1,0 +1,142 @@
+name: Real case Moreno vertical slice
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'realnye-dela/pozharnaya-lestnica-1991/**'
+      - 'realnye-dela/pozharnaya-lestnica-1991-premium/**'
+      - 'assets/real-case-moreno-*'
+      - 'tools/real-case-moreno-*.mjs'
+      - 'supabase/functions/ai-moreno-investigator-v3/**'
+      - 'supabase/functions/ai-moreno-investigator-v4/**'
+      - 'supabase/functions/ai-moreno-investigator-v5/**'
+      - 'supabase/functions/ai-moreno-investigator-v6/**'
+      - 'supabase/functions/ai-moreno-investigator-v7/**'
+      - 'supabase/functions/ai-moreno-investigator-v8/**'
+      - 'supabase/functions/ai-moreno-investigator-v9/**'
+      - 'supabase/functions/ai-moreno-investigator-v10/**'
+      - 'supabase/functions/ai-moreno-investigator-v11/**'
+      - '.github/workflows/real-case-moreno.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  slice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate JavaScript
+        run: |
+          node --check assets/real-case-moreno-budget-v51.js
+          node --check assets/real-case-moreno-ai-router-v17.js
+          node --check assets/real-case-moreno-ai-router-v18.js
+          node --check assets/real-case-moreno-ai-router-v19.js
+          node --check assets/real-case-moreno-ai-router-v20.js
+          node --check assets/real-case-moreno-ai-router-v21.js
+          node --check assets/real-case-moreno-ai-router-v22.js
+          node --check assets/real-case-moreno-ai-router-v23.js
+          node --check assets/real-case-moreno-ai-v6.js
+          node --check assets/real-case-moreno-reference-v11.js
+          node --check assets/real-case-moreno-reference-v13.js
+          node --check assets/real-case-moreno-reference-v16.js
+          node --check assets/real-case-moreno-reference-v17.js
+          node --check assets/real-case-moreno-reference-v18.js
+          node --check assets/real-case-moreno-reference-v19.js
+          node --check assets/real-case-moreno-final-v25.js
+          node --check assets/real-case-moreno-final-v25-relaxed.js
+          test -s assets/real-case-moreno-production-v26.css
+          grep -q 'moreno-production-v26.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          grep -q 'content="index,follow,max-image-preview:large"' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          ! grep -q 'accepted premium mockup' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          node --check tools/real-case-moreno-v6-smoke.mjs
+          node --check tools/real-case-moreno-v6-visual.mjs
+          node --check tools/real-case-moreno-v9-premium-visual.mjs
+          node --check tools/real-case-moreno-v16-visual.mjs
+          node --check tools/real-case-moreno-v17-confrontation-smoke.mjs
+          node --check tools/real-case-moreno-v17-interrogation-visual.mjs
+          node --check tools/real-case-moreno-v18-memory-smoke.mjs
+          node --check tools/real-case-moreno-v18-memory-visual.mjs
+          node --check tools/real-case-moreno-v19-cross-statement-smoke.mjs
+          node --check tools/real-case-moreno-v19-cross-statement-visual.mjs
+          node --check tools/real-case-moreno-v20-live-interrogation-smoke.mjs
+          node --check tools/real-case-moreno-v21-interview-routing-smoke.mjs
+          node --check tools/real-case-moreno-v22-active-interview-smoke.mjs
+          node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
+          node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
+          node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Smoke deployed v0.17 confrontation contract
+        run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
+      - name: Smoke deployed v0.18 investigative memory contract
+        run: node tools/real-case-moreno-v18-memory-smoke.mjs
+      - name: Smoke deployed v0.19 manual statement confrontation contract
+        run: node tools/real-case-moreno-v19-cross-statement-smoke.mjs
+      - name: Smoke deployed v0.20 live character interrogation contract
+        run: node tools/real-case-moreno-v20-live-interrogation-smoke.mjs
+      - name: Smoke deployed v0.21 generalized interview routing contract
+        run: node tools/real-case-moreno-v21-interview-routing-smoke.mjs
+      - name: Smoke deployed v0.22 active-interview routing contract
+        run: node tools/real-case-moreno-v22-active-interview-smoke.mjs
+      - name: Smoke deployed v0.23 semantic entity routing contract
+        run: node tools/real-case-moreno-v23-semantic-entity-smoke.mjs
+      - name: Validate v0.24 player-led semantic action contract
+        run: node tools/real-case-moreno-v24-semantic-action-contract.mjs
+      - name: Smoke v0.25 public interrogation end to end
+        run: node tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Capture v0.15 accepted-mockup and long-session fidelity
+        run: node tools/real-case-moreno-v9-premium-visual.mjs
+      - name: Upload v0.15 premium audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v15-audit
+          path: artifacts/real-case-moreno-v15
+          retention-days: 7
+      - name: Capture v0.16 investigative-state audit
+        run: node tools/real-case-moreno-v16-visual.mjs
+      - name: Upload v0.16 state audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v16-audit
+          path: artifacts/real-case-moreno-v16
+          retention-days: 7
+      - name: Capture v0.17 interrogation and confrontation audit
+        run: node tools/real-case-moreno-v17-interrogation-visual.mjs
+      - name: Upload v0.17 interrogation audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v17-audit
+          path: artifacts/real-case-moreno-v17
+          retention-days: 7
+      - name: Capture v0.18 investigative memory audit
+        run: node tools/real-case-moreno-v18-memory-visual.mjs
+      - name: Upload v0.18 memory audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v18-audit
+          path: artifacts/real-case-moreno-v18
+          retention-days: 7
+      - name: Capture v0.19 manual statement confrontation audit
+        run: node tools/real-case-moreno-v19-cross-statement-visual.mjs
+      - name: Upload v0.19 cross-statement audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v19-audit
+          path: artifacts/real-case-moreno-v19
+          retention-days: 7
+      - name: Regress v0.6 against real player transcript
+        run: node tools/real-case-moreno-v6-smoke.mjs
+      - name: Capture v0.6 visual audit
+        if: always()
+        run: node tools/real-case-moreno-v6-visual.mjs
+      - name: Upload slice audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-case-moreno-v6-audit
+          path: artifacts/real-case-moreno-v6
+          retention-days: 7

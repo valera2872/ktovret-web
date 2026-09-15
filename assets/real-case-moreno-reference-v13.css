@@ -1,0 +1,98 @@
+/* Moreno v0.13 — detail fidelity pass against the accepted premium mockup. */
+body.moreno-reference-v13{--r13-gold:#ddb974;--r13-panel:#0b1e2b;--r13-line:rgba(229,202,151,.14)}
+
+/* Make the command container read as a premium work order rather than a generic log card. */
+body.moreno-reference-v13 .v4-log{padding:19px 18px 18px!important;background:linear-gradient(145deg,rgba(12,29,42,.995),rgba(7,18,28,.995))!important;border:1px solid rgba(223,196,143,.14)!important;box-shadow:0 18px 46px rgba(0,0,0,.18)!important}
+body.moreno-reference-v13 .v4-command{padding-right:120px!important;margin-bottom:5px!important;color:#eee7dd!important;font-size:15px!important}
+body.moreno-reference-v13 .v4-command:after{display:none!important}
+.ref13-log-time{position:absolute;right:47px;top:20px;color:#738797;font:500 9px/1 Inter,ui-sans-serif,sans-serif;letter-spacing:.025em}
+.ref13-meta{display:flex;align-items:center;gap:8px;margin:2px 0 15px 44px;color:#7e909e;font:500 9px/1.2 Inter,ui-sans-serif,sans-serif}
+.ref13-meta .spark{color:#d8b369;font-size:12px;line-height:1}
+.ref13-meta b{color:#a7b3bc;font-weight:500}
+.ref13-meta i{width:3px;height:3px;border-radius:50%;background:#556b7a;display:inline-block}
+
+/* Replace flat pictograms with source-neutral material-style previews. They are visual indices, not evidence. */
+body.moreno-reference-v13 .v6-item:after{background-image:none!important;background-size:auto!important;overflow:hidden!important}
+body.moreno-reference-v13 .v6-item:nth-child(1):after{
+  background:
+    radial-gradient(circle at 77% 51%,#d6b36e 0 2px,#5d5543 3px 4px,transparent 5px),
+    linear-gradient(90deg,rgba(229,190,111,.18),transparent 15%),
+    linear-gradient(90deg,#101a21 0 7%,#24323a 8% 12%,#0b151c 13% 51%,#2b3940 52% 54%,#0d171e 55% 100%)!important;
+  box-shadow:inset 12px 0 25px rgba(219,172,84,.08),inset 0 0 32px rgba(0,0,0,.32)!important;
+}
+body.moreno-reference-v13 .v6-item:nth-child(2):after{
+  background:
+    repeating-linear-gradient(0deg,transparent 0 12px,rgba(54,55,50,.20) 13px 14px),
+    linear-gradient(160deg,transparent 0 17%,rgba(205,188,151,.18) 18% 72%,transparent 73%),
+    linear-gradient(18deg,transparent 0 10%,#837b6b 11% 74%,transparent 75%),
+    linear-gradient(145deg,#1b2427,#0c171d)!important;
+  filter:saturate(.65) sepia(.12)!important;
+}
+body.moreno-reference-v13 .v6-item:nth-child(3):after{
+  background:
+    linear-gradient(90deg,transparent 0 15%,rgba(44,36,28,.48) 16% 17%,transparent 18% 100%),
+    repeating-linear-gradient(0deg,transparent 0 14px,rgba(88,76,60,.32) 15px 16px),
+    linear-gradient(156deg,transparent 0 11%,#9d8f76 12% 84%,transparent 85%),
+    linear-gradient(145deg,#1b262d,#0b171f)!important;
+  filter:saturate(.58) brightness(.78)!important;
+}
+body.moreno-reference-v13 .v6-item:nth-child(4):after{
+  background:
+    radial-gradient(ellipse at 50% 32%,rgba(8,12,16,.98) 0 10%,transparent 11%),
+    radial-gradient(ellipse at 50% 74%,rgba(7,12,16,.98) 0 23%,transparent 24%),
+    linear-gradient(90deg,transparent 0 19%,rgba(116,145,164,.25) 20% 21%,transparent 22% 49%,rgba(116,145,164,.24) 50% 51%,transparent 52% 79%,rgba(116,145,164,.24) 80% 81%,transparent 82%),
+    linear-gradient(180deg,#243848,#10222f)!important;
+  box-shadow:inset 0 0 35px rgba(0,0,0,.36)!important;
+}
+.ref13-preview-label{position:absolute;right:19px;top:141px;color:#617583;font:700 7px/1 Inter,ui-sans-serif,sans-serif;letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
+
+/* Folder details — counts and avatar indices are derived only from already discovered state. */
+.ref13-avatars{display:flex;align-items:center;margin-top:8px;height:22px}
+.ref13-avatars span{width:21px;height:21px;margin-right:-6px;border-radius:50%;border:1px solid #344b5c;background:radial-gradient(circle at 50% 37%,#8a9ba7 0 17%,#283c49 18% 100%);box-shadow:0 0 0 2px #0b1e2b}
+.ref13-avatars span:nth-child(2){filter:brightness(.88)}.ref13-avatars span:nth-child(3){filter:sepia(.22)}.ref13-avatars span:nth-child(4){filter:brightness(.72)}.ref13-avatars span:nth-child(5){filter:saturate(.75)}
+.ref13-avatars em{margin-left:12px;color:#7f909d;font:500 9px/1 Inter,ui-sans-serif,sans-serif;font-style:normal}
+body.moreno-reference-v13 .ref11-folder-card.people{min-height:132px!important}
+body.moreno-reference-v13 .ref11-folder-card.people p{display:none!important}
+body.moreno-reference-v13 .ref11-folder-card b{color:#8496a4!important}
+
+/* Make right previews more like physical index thumbnails, still non-factual. */
+body.moreno-reference-v13 .ref11-folder-card:before{width:56px!important;height:76px!important;right:13px!important;top:15px!important;box-shadow:inset 0 0 22px rgba(0,0,0,.22),0 5px 12px rgba(0,0,0,.12)!important}
+body.moreno-reference-v13 .ref11-folder-card.people:before{
+  background:
+    radial-gradient(circle at 22% 42%,#7f909b 0 6%,#223543 7% 16%,transparent 17%),
+    radial-gradient(circle at 48% 37%,#b29a72 0 6%,#283c48 7% 17%,transparent 18%),
+    radial-gradient(circle at 74% 43%,#6f808b 0 6%,#223441 7% 16%,transparent 17%),
+    linear-gradient(145deg,#162a38,#0b1720)!important;
+}
+body.moreno-reference-v13 .ref11-folder-card.conflict:before{
+  background:repeating-linear-gradient(0deg,transparent 0 11px,rgba(46,43,38,.34) 12px 13px),linear-gradient(168deg,transparent 0 8%,#8c8575 9% 84%,transparent 85%),linear-gradient(145deg,#17252d,#0b171e)!important;
+  transform:rotate(-3deg);transform-origin:center;
+}
+body.moreno-reference-v13 .ref11-folder-card.alibi:before{
+  background:radial-gradient(circle at center,transparent 0 21px,rgba(204,174,108,.45) 22px 23px,transparent 24px),conic-gradient(from -90deg at 50% 50%,transparent 0 24%,rgba(204,174,108,.50) 25% 26%,transparent 27% 100%),linear-gradient(#1c2b35,#0b171f)!important;
+}
+
+/* Composer: denser tool-console footer, no non-functional fake controls. */
+.ref13-composer-foot{display:flex;align-items:center;gap:15px;min-height:20px;margin-top:6px;color:#667987;font:500 9px/1 Inter,ui-sans-serif,sans-serif}
+.ref13-ai{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:#8395a2}
+.ref13-ai i{width:6px;height:6px;border-radius:50%;background:#7eaa91;box-shadow:0 0 8px rgba(126,170,145,.28)}
+body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot){margin-top:5px!important}
+body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot)>span{display:none!important}
+body.moreno-reference-v13 .v4-composer textarea::placeholder{color:#637887!important}
+
+/* Slightly richer depth, closer to accepted screen without increasing clutter. */
+body.moreno-reference-v13 .v4-console{background:radial-gradient(circle at 48% -5%,rgba(35,72,95,.22),transparent 420px),linear-gradient(180deg,#0a1b28 0%,#071520 100%)!important}
+body.moreno-reference-v13 .v4-evidence{box-shadow:inset 1px 0 rgba(255,255,255,.035),-14px 0 35px rgba(0,0,0,.08)!important}
+body.moreno-reference-v13 .ref11-folder-quote p{font-size:14px!important;color:#a39b90!important}
+
+@media(max-width:820px){
+  .ref13-log-time{display:none}
+  .ref13-meta{margin-left:0;flex-wrap:wrap}
+  .ref13-preview-label{display:none}
+  .ref13-composer-foot{font-size:8px;gap:8px}
+  .ref13-ai{margin-left:auto}
+  body.moreno-reference-v13 .v6-item:nth-child(1):after,
+  body.moreno-reference-v13 .v6-item:nth-child(2):after,
+  body.moreno-reference-v13 .v6-item:nth-child(3):after,
+  body.moreno-reference-v13 .v6-item:nth-child(4):after{display:none!important}
+}

@@ -1,0 +1,60 @@
+/* v0.13.2 precision corrections after visual audit. */
+body.moreno-reference-v13 .v6-item:after{display:none!important}
+.ref13-material{position:absolute;right:14px;top:15px;width:126px;height:121px;border:1px solid rgba(255,255,255,.08);border-radius:6px;overflow:hidden;background:#0b1822;box-shadow:inset 0 0 28px rgba(0,0,0,.28),0 6px 14px rgba(0,0,0,.10);pointer-events:none}
+.ref13-material:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 28%,rgba(0,0,0,.12));pointer-events:none}
+
+/* Door / threshold */
+.mat-door{background:linear-gradient(90deg,#172630 0 15%,#101c24 16% 100%)}
+.mat-door .m-wall{position:absolute;inset:0 70% 0 0;background:linear-gradient(90deg,#857454,#493f33);opacity:.34}
+.mat-door .m-door{position:absolute;left:35px;top:7px;width:57px;height:108px;background:linear-gradient(90deg,#0a1319,#17242c 76%,#29363d);border-left:2px solid #3a4549;border-right:2px solid #34454d}
+.mat-door .m-edge{position:absolute;left:96px;top:0;width:4px;height:121px;background:#485860;opacity:.72}
+.mat-door .m-knob{position:absolute;left:78px;top:58px;width:7px;height:7px;border-radius:50%;background:#ddb66c;box-shadow:0 0 0 2px #62553c,0 0 14px rgba(221,182,108,.22)}
+
+/* Layered anonymous documents */
+.mat-docs{background:linear-gradient(145deg,#18242a,#0c171d)}
+.mat-docs .m-paper{position:absolute;width:88px;height:105px;border-radius:2px;background:#8f8777;box-shadow:0 8px 18px rgba(0,0,0,.28)}
+.mat-docs .p1{left:12px;top:14px;transform:rotate(-9deg);filter:brightness(.78)}
+.mat-docs .p2{right:9px;top:9px;transform:rotate(8deg);background:#a49b88}
+.mat-docs .m-paper b{display:block;height:1px;margin:18px 13px -10px;background:rgba(56,54,50,.36)}
+.mat-docs .m-paper b:nth-child(2){width:63%}.mat-docs .m-paper b:nth-child(3){width:45%}
+
+/* Neutral note card */
+.mat-note{background:linear-gradient(145deg,#18242a,#0b171d)}
+.mat-note .m-note{position:absolute;left:16px;top:19px;width:94px;height:77px;background:#a39479;transform:rotate(-5deg);box-shadow:0 9px 20px rgba(0,0,0,.28)}
+.mat-note .m-note:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.11),transparent 30%)}
+.mat-note .m-note b{display:block;height:1px;margin:19px 14px -9px;background:rgba(51,47,40,.38)}
+.mat-note .m-note b:nth-child(2){width:55%}.mat-note .m-note b:nth-child(3){width:72%}
+.mat-note .m-clip{position:absolute;right:20px;top:12px;width:10px;height:23px;border:2px solid #5f665f;border-left-color:transparent;border-radius:9px;transform:rotate(13deg)}
+
+/* Window / witness silhouette */
+.mat-witness{background:linear-gradient(180deg,#23394a,#102330)}
+.mat-witness .m-window{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 21%,rgba(137,163,179,.23) 22% 24%,transparent 25% 49%,rgba(137,163,179,.25) 50% 52%,transparent 53% 78%,rgba(137,163,179,.22) 79% 81%,transparent 82%),linear-gradient(180deg,transparent 0 38%,rgba(137,163,179,.18) 39% 41%,transparent 42%);opacity:.85}
+.mat-witness .m-head{position:absolute;left:54px;top:34px;width:19px;height:21px;border-radius:50%;background:#050b10}
+.mat-witness .m-body{position:absolute;left:42px;top:54px;width:44px;height:60px;border-radius:40% 40% 8px 8px;background:#050b10}
+
+body.moreno-reference-v13 .ref13-preview-label{right:18px!important;top:142px!important;color:#586d7b!important}
+
+/* Composer is one premium command row, matching the accepted reference. */
+body.moreno-reference-v13 .v4-composer{display:grid!important;grid-template-columns:minmax(0,1fr) 150px!important;grid-template-rows:auto 62px auto!important;column-gap:12px!important;row-gap:6px!important;padding:11px 12px 9px!important}
+body.moreno-reference-v13 .v4-composer label{grid-column:1/-1!important;grid-row:1!important;margin:0!important;align-self:end}
+body.moreno-reference-v13 .v4-composer textarea{grid-column:1!important;grid-row:2!important;width:100%!important;height:62px!important;min-height:62px!important;margin:0!important;box-sizing:border-box!important}
+body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot){grid-column:2!important;grid-row:2!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;margin:0!important}
+body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot)>span{display:none!important}
+body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot)>button{width:100%!important;height:62px!important;min-height:62px!important;margin:0!important;align-self:stretch!important}
+body.moreno-reference-v13 .ref13-composer-foot{grid-column:1/-1!important;grid-row:3!important;margin:0!important;min-height:18px!important;padding:0 2px!important}
+
+/* Give the result grid the same visual weight as the approved mockup. */
+body.moreno-reference-v13 .v6-item{min-height:202px!important;padding-right:153px!important}
+body.moreno-reference-v13 .v4-log{border-color:rgba(218,191,139,.17)!important}
+body.moreno-reference-v13 .ref11-folder-card{border-color:rgba(255,255,255,.10)!important}
+
+@media(max-width:820px){
+  .ref13-material{display:none!important}
+  body.moreno-reference-v13 .v4-composer{display:block!important;padding:10px!important}
+  body.moreno-reference-v13 .v4-composer label{display:block!important;margin-bottom:7px!important}
+  body.moreno-reference-v13 .v4-composer textarea{display:block!important;height:70px!important;min-height:70px!important}
+  body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot){display:flex!important;margin-top:8px!important;justify-content:flex-end!important}
+  body.moreno-reference-v13 .v4-composer>div:not(.ref13-composer-foot)>button{width:auto!important;height:48px!important;min-height:48px!important}
+  body.moreno-reference-v13 .ref13-composer-foot{display:flex!important;margin-top:7px!important}
+  body.moreno-reference-v13 .v6-item{padding-right:15px!important;min-height:174px!important}
+}

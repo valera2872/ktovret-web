@@ -1,0 +1,93 @@
+/* Moreno investigative sandbox — compact working typography pass.
+   Deliberately keeps the opening cinematic, but turns the investigation desk
+   from landing-page scale into an information-dense investigator workspace. */
+
+@media (min-width: 621px) {
+  .v4-opening h1 {
+    font-size: clamp(2.9rem, 5vw, 4.8rem);
+    line-height: .92;
+  }
+
+  .v4-console {
+    padding: clamp(24px, 3vw, 36px);
+  }
+
+  .v4-console h1 {
+    margin-top: 10px;
+    font-size: clamp(2.55rem, 4vw, 3.6rem);
+    line-height: .94;
+    letter-spacing: -.045em;
+  }
+
+  .v4-console > header > p:last-child {
+    margin-top: 14px;
+    font-size: .96rem;
+  }
+
+  .v4-journal-empty {
+    min-height: 220px;
+    margin: 20px 0;
+    padding: 24px 26px;
+  }
+
+  .v4-journal-empty h2 {
+    margin-top: 9px;
+    font-size: clamp(1.9rem, 2.8vw, 2.4rem);
+    line-height: 1;
+    letter-spacing: -.035em;
+  }
+
+  .v4-journal-empty p {
+    margin-bottom: 0;
+    font-size: .94rem;
+  }
+
+  .v4-journal {
+    margin: 22px 0;
+  }
+
+  .v4-reveal h1 {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .v4-opening h1,
+  .v4-reveal h1 {
+    font-size: clamp(2.25rem, 10vw, 3.35rem);
+    line-height: .94;
+  }
+
+  .v4-console h1 {
+    margin-top: 10px;
+    font-size: clamp(2.05rem, 9vw, 2.8rem);
+    line-height: .98;
+    letter-spacing: -.04em;
+  }
+
+  .v4-console > header > p:last-child {
+    margin-top: 12px;
+    font-size: .92rem;
+  }
+
+  .v4-journal-empty {
+    min-height: 180px;
+    margin: 18px 0;
+    padding: 20px 18px;
+  }
+
+  .v4-journal-empty h2 {
+    margin-top: 8px;
+    font-size: 1.9rem;
+    line-height: 1;
+  }
+
+  .v4-journal-empty p {
+    margin-bottom: 0;
+    font-size: .9rem;
+  }
+
+  .v4-journal {
+    margin: 18px 0;
+  }
+}
