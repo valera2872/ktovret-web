@@ -25,6 +25,7 @@ test('browser requires the third physical observation before existing submit han
   assert.match(polish, /data-photo-field="door_deformation"/);
   assert.match(polish, /Деформация правой створки двери/);
   assert.match(polish, /partner-v2-observation-row/);
+  assert.match(polish, /Отметьте все три признака перед фиксацией/);
 });
 
 test('later evidence is regrouped by its real chapter instead of one generic packet', () => {
@@ -56,6 +57,12 @@ test('editorial polish removes answer-like fact chips before final reconstructio
   assert.match(polish, /После предъявления телеметрии Рыбаков изменил объяснение операции/);
   assert.doesNotMatch(polish, /Маркова заранее переместила ТК-0 в сервисный бокс/);
   assert.doesNotMatch(polish, /Рыбаков сознательно скрывает характер операции/);
+});
+
+test('seal-number control no longer leaves whole-container swap unexplained', () => {
+  assert.match(polish, /Контроль пломбы/);
+  assert.match(polish, /сверяется читаемый номер с карточкой груза/);
+  assert.match(polish, /Отдельной проверки уникальности физической пломбы система не выполняет/);
 });
 
 test('solved case explicitly teaches that lying is not equivalent to guilt', () => {
