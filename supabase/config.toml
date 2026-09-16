@@ -1,0 +1,4 @@
+project_id = "ktovret-web-partner-v2-ci"
+
+[functions.coop-case-v2]
+verify_jwt = false

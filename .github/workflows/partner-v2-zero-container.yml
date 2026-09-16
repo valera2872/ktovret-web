@@ -1,0 +1,160 @@
+name: Validate Partner V2 Zero Container
+
+on:
+  pull_request:
+    branches:
+      - main
+      - fix/premium-unify-ai-banners
+  push:
+    branches:
+      - feature/partner-v2-zero-container
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_CLI_VERSION: 2.117.0
+  SUPABASE_TELEMETRY_DISABLED: 1
+
+jobs:
+  validate-partner-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate browser syntax
+        run: |
+          node --check assets/partner-v2-engine.js
+          node --check assets/partner-v2-checkpoints.js
+          node --check assets/partner-v2-final.js
+          node --check assets/partner-v2-polish.js
+          node --check assets/partner-v2-demo.js
+          node --check scripts/partner-v2-smoke.mjs
+          node --check scripts/partner-v2-local-smoke.mjs
+          node --check scripts/partner-v2-photo-tolerance-smoke.mjs
+          node --check scripts/partner-v2-browser-smoke.mjs
+      - name: Run Partner V2 source contracts
+        run: node --test tests/partner-v2-*.test.mjs
+      - name: Protect existing product boundaries
+        run: |
+          test -f assets/case-2317.js
+          test -f assets/case-407.js
+          test -f supabase/functions/coop-2317/index.ts
+          test -f supabase/functions/coop-407/index.ts
+          test -f supabase/functions/coop-last-aria/index.ts
+          test -f assets/paid-access-config.js
+          test -f assets/solo-paid-access-config.js
+      - name: Verify Partner V2 stays isolated
+        run: |
+          grep -q "partner:zero-container" supabase/functions/_shared/partner-cases/zero-container.ts
+          grep -q "coop-case-v2" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "partner_v2_submit_final_draft" supabase/migrations/20260915020000_partner_v2_final_consensus.sql
+          grep -q "v_photo_match_count >= 2" supabase/migrations/20260916070000_partner_v2_photo_tolerance.sql
+          grep -q "partner-v2-polish.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "noindex,follow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "partner-v2-demo.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/demo.html
+          grep -q "noindex,nofollow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/demo.html
+          ! grep -q "partner-v2-demo.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "verify_jwt = false" supabase/config.toml
+      - name: Keep this workflow validation-only
+        run: |
+          test ! -f .github/workflows/partner-v2-production.yml
+          test ! -f .github/workflows/partner-v2-deploy.yml
+
+  local-backend-smoke:
+    name: Local Supabase two-client smoke
+    needs: validate-partner-v2
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify pinned Supabase CLI commands
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} --version
+          npx --yes supabase@${SUPABASE_CLI_VERSION} start --help >/dev/null
+          npx --yes supabase@${SUPABASE_CLI_VERSION} functions serve --help >/dev/null
+          npx --yes supabase@${SUPABASE_CLI_VERSION} stop --help >/dev/null
+
+      - name: Start isolated local Supabase
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} start \
+            -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,logflare,vector,supavisor
+
+      - name: Verify local schema and migration history
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} status
+          npx --yes supabase@${SUPABASE_CLI_VERSION} migration list --local
+
+      - name: Serve coop-case-v2 locally
+        run: |
+          nohup npx --yes supabase@${SUPABASE_CLI_VERSION} functions serve coop-case-v2 --no-verify-jwt \
+            > /tmp/partner-v2-functions.log 2>&1 &
+          echo $! > /tmp/partner-v2-functions.pid
+
+          stable=0
+          for attempt in $(seq 1 90); do
+            code=$(curl -sS -o /tmp/partner-v2-probe.json -w "%{http_code}" \
+              -X POST \
+              -H 'content-type: application/json' \
+              -d '{}' \
+              http://127.0.0.1:54321/functions/v1/coop-case-v2 || true)
+
+            if [ "$code" = "400" ] && grep -q 'invalid_browser_key' /tmp/partner-v2-probe.json 2>/dev/null; then
+              stable=$((stable + 1))
+            else
+              stable=0
+            fi
+
+            if [ "$stable" -ge 3 ]; then
+              echo "coop-case-v2 is stable"
+              sleep 2
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "coop-case-v2 did not become stable"
+          cat /tmp/partner-v2-functions.log || true
+          cat /tmp/partner-v2-probe.json || true
+          exit 1
+
+      - name: Run two-client Partner V2 smoke
+        env:
+          LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
+        run: node scripts/partner-v2-local-smoke.mjs
+
+      - name: Verify tolerant three-sign photo checkpoint
+        env:
+          LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
+        run: node scripts/partner-v2-photo-tolerance-smoke.mjs
+
+      - name: Install browser smoke harness
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.55.0
+
+      - name: Run mobile + desktop browser UI smoke
+        env:
+          LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
+        run: |
+          BROWSER_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          test -n "$BROWSER_BIN"
+          BROWSER_BIN="$BROWSER_BIN" node scripts/partner-v2-browser-smoke.mjs
+
+      - name: Print local diagnostics on failure
+        if: failure()
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} status || true
+          echo '--- coop-case-v2 log ---'
+          cat /tmp/partner-v2-functions.log || true
+          echo '--- docker containers ---'
+          docker ps -a || true
+
+      - name: Stop and delete local Supabase data
+        if: always()
+        run: npx --yes supabase@${SUPABASE_CLI_VERSION} stop --no-backup || true
