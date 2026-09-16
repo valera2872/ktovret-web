@@ -1,0 +1,91 @@
+name: Validate Premium Partner review mode
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin/partner-premium-preview/index.html'
+      - 'admin/partner-premium-preview/review.js'
+      - 'supabase/functions/partner-review-v1/**'
+      - '.github/workflows/partner-premium-review-mode.yml'
+  push:
+    branches:
+      - 'feature/premium-partner-review-mode'
+    paths:
+      - 'admin/partner-premium-preview/index.html'
+      - 'admin/partner-premium-preview/review.js'
+      - 'supabase/functions/partner-review-v1/**'
+      - '.github/workflows/partner-premium-review-mode.yml'
+
+jobs:
+  validate-review-mode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate review browser script
+        run: node --check admin/partner-premium-preview/review.js
+      - name: Validate review isolation contract
+        run: |
+          set -euo pipefail
+          grep -q 'partner-review-v1' admin/partner-premium-preview/review.js
+          grep -q 'REVIEW MODE' admin/partner-premium-preview/review.js
+          grep -q "action:'RESET'" admin/partner-premium-preview/review.js
+          grep -q "action:'PROXY'" admin/partner-premium-preview/review.js
+          grep -q "guest=1" admin/partner-premium-preview/review.js
+          grep -q 'installProxy' admin/partner-premium-preview/review.js
+          test "$(grep -n '<script defer' admin/partner-premium-preview/index.html | head -1 | cut -d: -f2-)" = '  <script defer src="./review.js?v=20260916-2"></script>'
+          ! grep -q 'review.js' detektivnye-igry-dlya-dvoih/ne-publikovat/index.html
+          grep -q "metadata?.mode === 'review'" supabase/functions/partner-review-v1/index.ts
+          grep -q "action === 'RESET'" supabase/functions/partner-review-v1/index.ts
+          grep -q "action === 'REVOKE'" supabase/functions/partner-review-v1/index.ts
+          grep -q "action === 'PROXY'" supabase/functions/partner-review-v1/index.ts
+          grep -q "REVIEW_PROXY_TARGETS" supabase/functions/partner-review-v1/index.ts
+          grep -q "review_proxy_action_invalid" supabase/functions/partner-review-v1/index.ts
+      - name: Type-check review Edge Function
+        run: deno check --node-modules-dir=auto supabase/functions/partner-review-v1/index.ts
+      - name: Verify rawcdn review page
+        env:
+          REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          base="https://rawcdn.githack.com/${GITHUB_REPOSITORY}/${REVIEW_SHA}/admin/partner-premium-preview"
+          html="$(curl -fsSL "$base/index.html")"
+          script="$(curl -fsSL "$base/review.js")"
+          printf '%s' "$html" | grep -q 'НЕ ПУБЛИКОВАТЬ'
+          printf '%s' "$html" | grep -q './review.js?v=20260916-2'
+          printf '%s' "$script" | grep -q 'REVIEW MODE'
+          printf '%s' "$script" | grep -q 'installProxy'
+      - name: Verify live review gateway CORS
+        env:
+          PREVIEW_ORIGIN: https://rawcdn.githack.com
+          REVIEW: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/partner-review-v1
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          status="$(curl -sS -o /dev/null -D "$headers" -w '%{http_code}' -X OPTIONS \
+            -H "Origin: $PREVIEW_ORIGIN" \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: content-type' \
+            "$REVIEW")"
+          cat "$headers"
+          test "$status" = '204'
+          grep -qi '^access-control-allow-origin: https://rawcdn.githack.com' "$headers"
+
+          body="$(mktemp)"
+          headers2="$(mktemp)"
+          status2="$(curl -sS -o "$body" -D "$headers2" -w '%{http_code}' -X POST \
+            -H "Origin: $PREVIEW_ORIGIN" \
+            -H 'Content-Type: application/json' \
+            --data '{"action":"PROXY","reviewKey":"ml_review_00000000000000000000000000000000","target":"duel-room","payload":{"action":"status"}}' \
+            "$REVIEW")"
+          cat "$headers2"
+          cat "$body"
+          test "$status2" = '403'
+          grep -qi '^access-control-allow-origin: https://rawcdn.githack.com' "$headers2"
+          grep -q 'review_key_invalid' "$body"
