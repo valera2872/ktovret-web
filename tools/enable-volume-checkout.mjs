@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {applyApprovedAi01} from './release/ai01-approved-release.mjs';
 
 const args = process.argv.slice(2);
 const siteIndex = args.indexOf('--site');
 const siteRoot = path.resolve(siteIndex >= 0 && args[siteIndex + 1] ? args[siteIndex + 1] : '.');
+applyApprovedAi01(siteRoot);
 const pagePath = path.join(siteRoot, 'tom-1', 'index.html');
 const configPath = path.join(siteRoot, 'assets', 'paid-access-config.js');
 
