@@ -393,10 +393,26 @@ Deno.serve(async (req: Request) => {
     const role = me.role as PartnerRole;
 
     if (checkpointId === 'initial_hypothesis') {
-      if (Number((view as any).state?.chapter) !== 1) return json(409, { error: 'checkpoint_locked', requiredChapter: 1 }, origin);
+      const currentChapter = Number((view as any).state?.chapter) || 1;
+      const submitted = String(body.value || '').trim();
+      const stored = String((view as any).me?.firstHypothesis || '');
+      if (currentChapter !== 1) {
+        if (currentChapter > 1 && stored && submitted === stored) {
+          return json(200, {
+            ...(view as Row),
+            checkpointResult: {
+              id: checkpointId,
+              correct: true,
+              sharedUnlocked: Boolean((view as any).state?.shared?.initialHypothesesComplete),
+              idempotent: true,
+            },
+          }, origin);
+        }
+        return json(409, { error: 'checkpoint_locked', requiredChapter: 1 }, origin);
+      }
       const rpc = await admin.rpc('partner_v2_submit_initial_hypothesis', {
         p_room_id: activeRoom.id, p_player_id: me.id, p_role: role,
-        p_value: String(body.value || '').trim(), p_expected_revision: clientRevision,
+        p_value: submitted, p_expected_revision: clientRevision,
       });
       if (rpc.error) return json(503, { error: 'checkpoint_failed' }, origin);
       const result = rpc.data as Row;
@@ -411,7 +427,24 @@ Deno.serve(async (req: Request) => {
     if (!requiredChapter) return json(400, { error: 'unsupported_checkpoint' }, origin);
     const currentState = await getCaseState(admin, activeRoom.id);
     if (!currentState) return json(503, { error: 'partner_state_missing' }, origin);
-    if (Number(currentState.chapter) !== requiredChapter) {
+    const currentChapter = Number(currentState.chapter) || 1;
+    if (currentChapter !== requiredChapter) {
+      if (currentChapter > requiredChapter) {
+        const storedPlayerState = await getPlayerState(admin, activeRoom.id, me.id);
+        const storedCheckpoint = storedPlayerState?.private_state?.checkpoints?.[checkpointId] || null;
+        if (storedCheckpoint?.correct === true) {
+          view = await buildView(admin, activeRoom, browserKeyHash);
+          return json(200, {
+            ...(view as Row),
+            checkpointResult: {
+              id: checkpointId,
+              correct: true,
+              sharedUnlocked: Boolean(currentState.shared_state?.[rule.sharedKey]),
+              idempotent: true,
+            },
+          }, origin);
+        }
+      }
       return json(409, { error: 'checkpoint_locked', requiredChapter }, origin);
     }
     for (const key of rule.requiresShared || []) {
@@ -430,7 +463,7 @@ Deno.serve(async (req: Request) => {
     const result = rpc.data as Row;
     if (!result?.ok) return json(result?.error === 'state_conflict' ? 409 : 400, result || { error: 'checkpoint_failed' }, origin);
     view = await buildView(admin, activeRoom, browserKeyHash);
-    return json(200, { ...(view as Row), checkpointResult: { id: checkpointId, correct: Boolean(result.correct), sharedUnlocked: Boolean(result.sharedUnlocked) } }, origin);
+    return json(200, { ...(view as Row), checkpointResult: { id: checkpointId, correct: Boolean(result.correct), sharedUnlocked: Boolean(result.sharedUnlocked), idempotent: Boolean(result.idempotent) } }, origin);
   }
 
   if (action === 'submit_final') {
