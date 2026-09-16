@@ -44,6 +44,10 @@
     if (CODE_RE.test(text)) return text;
     return text.match(/[A-HJ-NP-Z2-9]{8}/)?.[0] || '';
   };
+  const membershipKey = (code) => `mysterylogic:partner-v2:${CASE_ID}:joined:${cleanCode(code)}`;
+  const wasJoined = (code) => localStorage.getItem(membershipKey(code)) === '1';
+  const markJoined = (code) => localStorage.setItem(membershipKey(code), '1');
+  const forgetJoined = (code) => localStorage.removeItem(membershipKey(code));
 
   const track = (event, params = {}) => {
     try {
@@ -351,6 +355,7 @@
     try {
       const state = await api({ action: 'create', caseId: CASE_ID, playerName: name });
       setRoomQuery(state.room.code);
+      markJoined(state.room.code);
       roomState = state;
       track('zero_room_created', { room_code: state.room.code });
       renderLobby(state);
@@ -362,22 +367,19 @@
   };
 
   const previewRoom = async (code) => {
-    try {
-      const state = await api({ action: 'status', code });
-      setRoomQuery(code);
-      if (state.me?.started) renderGame(state);
-      else renderLobby(state);
-      return;
-    } catch (error) {
-      if (error.message !== 'not_joined') {
-        try {
-          const preview = await api({ action: 'preview', code });
-          setRoomQuery(code);
-          renderJoin(code, preview, error.message === 'wrong_case' ? errorText(error) : '');
-        } catch (previewError) {
-          renderHome(errorText(previewError));
-        }
+    if (wasJoined(code)) {
+      try {
+        const state = await api({ action: 'status', code });
+        setRoomQuery(code);
+        if (state.me?.started) renderGame(state);
+        else renderLobby(state);
         return;
+      } catch (error) {
+        if (error.message === 'not_joined') forgetJoined(code);
+        else {
+          renderHome(errorText(error));
+          return;
+        }
       }
     }
 
@@ -397,6 +399,7 @@
     localStorage.setItem(NICK_STORAGE, name);
     try {
       const state = await api({ action: 'join', code, playerName: name });
+      markJoined(code);
       roomState = state;
       track('zero_partner_joined', { room_code: code });
       renderLobby(state);
