@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Демо — Нулевой контейнер | Mystery Logic</title>
+  <meta name="description" content="Внутренний демо-режим расследования «Нулевой контейнер»: обе роли в одном браузере.">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#071016">
+  <link rel="stylesheet" href="/assets/partner-v2.css?v=2">
+  <link rel="stylesheet" href="/assets/partner-v2-checkpoints.css?v=2">
+  <link rel="stylesheet" href="/assets/partner-v2-final.css?v=1">
+  <link rel="stylesheet" href="/assets/partner-v2-polish.css?v=1">
+  <link rel="stylesheet" href="/assets/partner-v2-map.css?v=1">
+</head>
+<body class="partner-v2-page">
+  <header class="partner-v2-sitebar">
+    <a class="partner-v2-brand" href="/">
+      <span class="partner-v2-brand-mark">ML</span>
+      <span>Mystery Logic</span>
+    </a>
+    <a class="partner-v2-navlink" href="/detektivnye-igry-dlya-dvoih/nulevoy-konteyner/">Обычный режим</a>
+  </header>
+
+  <main
+    data-partner-v2-app
+    data-partner-case-id="partner:zero-container"
+    data-partner-endpoint="/__partner-v2-demo"
+    aria-live="polite">
+    <noscript>Для демо нужен JavaScript.</noscript>
+  </main>
+
+  <script>
+    if (!new URL(location.href).searchParams.has('demo')) {
+      const url = new URL(location.href);
+      url.searchParams.set('demo', '1');
+      history.replaceState(null, '', url);
+    }
+  </script>
+  <script src="/assets/partner-v2-demo.js?v=1" defer></script>
+  <script src="/assets/partner-v2-engine.js?v=2" defer></script>
+  <script src="/assets/partner-v2-checkpoints.js?v=2" defer></script>
+  <script src="/assets/partner-v2-final.js?v=1" defer></script>
+  <script src="/assets/partner-v2-polish.js?v=1" defer></script>
+  <script src="/assets/partner-v2-map.js?v=1" defer></script>
+  <script src="/assets/partner-v2-hints.js?v=1" defer></script>
+</body>
+</html>
