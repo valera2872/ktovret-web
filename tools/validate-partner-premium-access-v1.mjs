@@ -85,12 +85,16 @@ must(commerceUi, [
   'privacyAcknowledged:true',
   'enterByCode',
   "searchParams.set('room',code)",
+  'ui.button.disabled=false',
+  'ui.name.disabled=false',
 ], 'commerce-ui');
 
 must(html, [
   '599 ₽ за всю комнату',
   'Платит один игрок, второй подключается бесплатно',
   'Войти по коду',
+  'data-create-name disabled',
+  'data-create disabled',
   'data-purchase-email',
   'data-purchase-offer',
   'data-purchase-privacy',
