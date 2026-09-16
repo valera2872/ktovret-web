@@ -291,18 +291,21 @@ try {
 
   const localUrl = `http://127.0.0.1:${PORT}${CASE_PATH}`;
   const lanUrl = LAN_MODE ? `http://${LAN_ADDRESS}:${PORT}${CASE_PATH}` : '';
+  const primaryUrl = LAN_MODE ? lanUrl : localUrl;
   console.log('\n[partner-v2-playtest] ГОТОВО');
-  console.log(`[partner-v2-playtest] Этот компьютер: ${localUrl}`);
   if (LAN_MODE) {
-    console.log(`[partner-v2-playtest] Телефон / второй компьютер в той же Wi-Fi сети: ${lanUrl}`);
+    console.log(`[partner-v2-playtest] Общий адрес для компьютера и второго устройства: ${lanUrl}`);
+    console.log(`[partner-v2-playtest] Резервный localhost-адрес только для этого компьютера: ${localUrl}`);
+    console.log('[partner-v2-playtest] Открывайте игру на компьютере через общий LAN-адрес — тогда «Скопировать приглашение» создаст ссылку, работающую на телефоне.');
     console.log('[partner-v2-playtest] В режиме --lan страница доступна устройствам вашей локальной сети только пока работает этот процесс.');
   } else {
+    console.log(`[partner-v2-playtest] Этот компьютер: ${localUrl}`);
     console.log('[partner-v2-playtest] Игрок 2 на этом компьютере: откройте тот же URL в режиме инкогнито или в другом браузере.');
     console.log('[partner-v2-playtest] Для телефона/второго ноутбука перезапустите с --lan.');
   }
-  console.log('[partner-v2-playtest] Первый игрок создаёт комнату и передаёт код второму.');
+  console.log('[partner-v2-playtest] Первый игрок создаёт комнату и передаёт код или ссылку второму.');
   console.log('[partner-v2-playtest] Для завершения нажмите Ctrl+C — тестовая база будет удалена.\n');
-  openBrowser(localUrl);
+  openBrowser(primaryUrl);
 } catch (error) {
   console.error(`[partner-v2-playtest] FAIL: ${error.message}`);
   await cleanup();
