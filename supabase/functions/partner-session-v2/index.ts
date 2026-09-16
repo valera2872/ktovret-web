@@ -6,7 +6,7 @@ import {
   processFullPartnerAction,
   safeFullPartnerView,
   type FullPartnerState,
-} from '../_shared/partner-engine-v2.ts';
+} from '../_shared/partner-engine-v2-secure.ts';
 import {
   FULL_PARTNER_CASE_ID,
   FULL_PARTNER_CASE_PATH,
