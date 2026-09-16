@@ -9,7 +9,7 @@
   <meta name="description" content="Экспериментальное расследование Mystery Logic для двух игроков: свободные допросы и самостоятельный поиск улик.">
   <link rel="icon" href="../../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../../assets/partner-premium-v2.css?v=20260916-2">
-  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260916-2">
+  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260916-3">
 </head>
 <body>
 <main class="p17" data-app>
@@ -59,7 +59,7 @@
 
     <div class="p17-grid">
       <section class="p17-panel" data-investigator hidden>
-        <div class="p17-panel__head"><p class="pp-eyebrow">Полевой следователь</p><h2>Что вы хотите сделать на месте?</h2><p>Осматривайте то, что считаете важным. Система не показывает список доступных действий.</p></div>
+        <div class="p17-panel__head"><p class="pp-eyebrow">Полевой следователь</p><h2>Что вы хотите сделать на месте?</h2><p>Осматривайте и опрашивайте тех, кого считаете важными. Система не показывает список доступных действий.</p></div>
         <form class="p17-form" data-field-form>
           <textarea maxlength="900" rows="2" placeholder="Опишите своё действие своими словами…" data-field-input></textarea>
           <button class="pp-secondary" type="submit">Выполнить</button>
@@ -89,10 +89,26 @@
         <div data-evidence></div>
       </aside>
     </div>
+
+    <section class="p17-final p17-panel" data-final-panel>
+      <div class="p17-panel__head"><p class="pp-eyebrow">Финальная реконструкция</p><h2>Сведите дело в одну причинную цепочку</h2><p>Это не тест с вариантами. Сформулируйте вашу версию своими словами. После отправки версия считается финальной и откроется полный разбор дела.</p></div>
+      <form class="p17-final-form" data-final-form hidden>
+        <label>Кто организовал исчезновение и что произошло?<textarea name="who" maxlength="1600" rows="3" required></textarea></label>
+        <label>Как Орлов физически покинул поезд и что было дальше?<textarea name="mechanism" maxlength="1600" rows="3" required></textarea></label>
+        <label>Почему телефон Орлова продолжал ехать вместе с поездом?<textarea name="phone" maxlength="1600" rows="3" required></textarea></label>
+        <label>Кто оказался в офисе в 00:58 и почему вы так считаете?<textarea name="office" maxlength="1600" rows="3" required></textarea></label>
+        <label>Зачем понадобилось исчезновение? Что было целью?<textarea name="motive" maxlength="1600" rows="3" required></textarea></label>
+        <label>Кто ещё солгал в этом деле, о чём и почему? Были ли они сообщниками?<textarea name="lies" maxlength="1600" rows="4" required></textarea></label>
+        <button class="pp-primary" type="submit" data-final-submit>Зафиксировать реконструкцию</button>
+      </form>
+      <div class="p17-final-wait" data-final-wait hidden><p>Финальную реконструкцию фиксирует Следователь. Обсудите версию вместе — результат появится на обоих устройствах.</p></div>
+      <div class="p17-final-result" data-final-result hidden></div>
+    </section>
+
     <footer class="p17-footer">Комната <span data-room-footer></span></footer>
   </section>
 </main>
 <div class="pp-toast" data-toast hidden></div>
-<script defer src="../../../assets/passenger17-v1.js?v=20260916-2"></script>
+<script defer src="../../../assets/passenger17-v1.js?v=20260916-3"></script>
 </body>
 </html>
