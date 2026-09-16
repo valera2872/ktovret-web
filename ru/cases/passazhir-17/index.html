@@ -9,7 +9,7 @@
   <meta name="description" content="Экспериментальное расследование Mystery Logic для двух игроков: свободные допросы и самостоятельный поиск улик.">
   <link rel="icon" href="../../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../../assets/partner-premium-v2.css?v=20260916-2">
-  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260916-1">
+  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260916-2">
 </head>
 <body>
 <main class="p17" data-app>
@@ -18,7 +18,7 @@
       <p class="pp-eyebrow">Mystery Logic · Investigation Sandbox</p>
       <h1>ПАССАЖИР №17</h1>
       <p class="p17-lead">В 23:46 Павел Орлов сел в ночной поезд №142. В 01:18 его купе пусто. Паспорт, телефон, деньги и вещи остались внутри. Но в 00:58 его личный пропуск открыл офис в другом городе.</p>
-      <p class="p17-rule"><strong>Здесь нет списка правильных действий.</strong> Вы сами решаете, кого допросить и что проверить.</p>
+      <p class="p17-rule"><strong>Здесь нет списка правильных действий.</strong> Вы сами решаете, кого допросить, что осмотреть и какие данные запросить.</p>
       <div class="p17-entry-grid">
         <div class="p17-box">
           <h2>Начать расследование</h2>
@@ -42,7 +42,7 @@
       <h2>Код <span data-room-code>────────</span></h2>
       <p data-lobby-status>Ждём второго игрока…</p>
       <div class="p17-actions"><button type="button" class="pp-primary" data-copy>Скопировать приглашение</button></div>
-      <p class="p17-muted">Создатель комнаты становится полевым следователем. Второй игрок — аналитиком. У вас разные инструменты.</p>
+      <p class="p17-muted">Создатель комнаты становится полевым следователем. Второй игрок — аналитиком. У вас разные инструменты и разные источники.</p>
     </div>
   </section>
 
@@ -59,6 +59,13 @@
 
     <div class="p17-grid">
       <section class="p17-panel" data-investigator hidden>
+        <div class="p17-panel__head"><p class="pp-eyebrow">Полевой следователь</p><h2>Что вы хотите сделать на месте?</h2><p>Осматривайте то, что считаете важным. Система не показывает список доступных действий.</p></div>
+        <form class="p17-form" data-field-form>
+          <textarea maxlength="900" rows="2" placeholder="Опишите своё действие своими словами…" data-field-input></textarea>
+          <button class="pp-secondary" type="submit">Выполнить</button>
+        </form>
+        <div class="p17-results" data-field-results></div>
+        <hr class="p17-divider">
         <div class="p17-panel__head"><p class="pp-eyebrow">Свободный допрос</p><h2>Сергей Лазарев</h2><p>Проводник вагона №6</p></div>
         <div class="p17-evidence" data-investigator-evidence></div>
         <div class="p17-chat" data-chat></div>
@@ -69,16 +76,16 @@
       </section>
 
       <section class="p17-panel" data-analyst hidden>
-        <div class="p17-panel__head"><p class="pp-eyebrow">Аналитическая работа</p><h2>Что вы хотите проверить?</h2><p>Сформулируйте запрос своими словами. Система не предлагает направления расследования.</p></div>
+        <div class="p17-panel__head"><p class="pp-eyebrow">Аналитическая работа</p><h2>Что вы хотите проверить?</h2><p>Запрашивайте журналы, записи и служебные данные своими словами. Система не предлагает направления расследования.</p></div>
         <form class="p17-form" data-query-form>
-          <textarea maxlength="900" rows="3" placeholder="Например, сформулируйте то, что считаете нужным проверить…" data-query-input></textarea>
+          <textarea maxlength="900" rows="3" placeholder="Сформулируйте, какие данные или источник хотите проверить…" data-query-input></textarea>
           <button class="pp-primary" type="submit">Отправить запрос</button>
         </form>
         <div class="p17-results" data-query-results></div>
       </section>
 
       <aside class="p17-panel">
-        <div class="p17-panel__head"><p class="pp-eyebrow">Найденные материалы</p><h2>Архив</h2></div>
+        <div class="p17-panel__head"><p class="pp-eyebrow">Найденные материалы</p><h2>Архив</h2><p>Часть материалов может быть видна только тому, кто их добыл, пока он не передаст их партнёру.</p></div>
         <div data-evidence></div>
       </aside>
     </div>
@@ -86,6 +93,6 @@
   </section>
 </main>
 <div class="pp-toast" data-toast hidden></div>
-<script defer src="../../../assets/passenger17-v1.js?v=20260916-1"></script>
+<script defer src="../../../assets/passenger17-v1.js?v=20260916-2"></script>
 </body>
 </html>
