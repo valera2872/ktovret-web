@@ -35,10 +35,15 @@ test('final organizer answer also carries a supported motive', () => {
   assert.match(config, /RET-184/);
 });
 
-test('final proof requires independent evidence categories including motive', () => {
-  assert.match(config, /requiredEvidenceCategories: \['identity', 'physical_execution', 'preparation', 'coordination', 'motive'\]/);
-  assert.match(config, /M09: \['preparation', 'motive', 'egress'\]/);
-  assert.match(config, /G10: \['preparation', 'motive'\]/);
+test('motive proof is intentionally split across both player roles', () => {
+  assert.match(config, /M09: \['preparation', 'motive_egress'\]/);
+  assert.match(config, /G13: \['motive_market'\]/);
+  assert.match(config, /requiredEvidenceCategories: \['identity', 'physical_execution', 'preparation', 'coordination', 'motive_egress', 'motive_market'\]/);
+  assert.match(config, /Журнал общего ящика не хранит персонального идентификатора пользователя/);
+  assert.match(config, /Сам по себе запрос не показывает, кто из сотрудников связал его с конкретным контейнером/);
+});
+
+test('final proof still uses generic evidence-category enforcement server-side', () => {
   assert.match(edge, /missingEvidenceCategory/);
   assert.match(edge, /evidence_gap/);
   assert.match(edge, /minEvidencePerPlayer/);
