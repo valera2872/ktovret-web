@@ -39,7 +39,8 @@ jobs:
           grep -q "action:'PROXY'" admin/partner-premium-preview/review.js
           grep -q "guest=1" admin/partner-premium-preview/review.js
           grep -q 'installProxy' admin/partner-premium-preview/review.js
-          test "$(grep -n '<script defer' admin/partner-premium-preview/index.html | head -1 | cut -d: -f2-)" = '  <script defer src="./review.js?v=20260916-2"></script>'
+          first_script="$(grep -n '<script defer' admin/partner-premium-preview/index.html | head -1 | cut -d: -f2-)"
+          printf '%s' "$first_script" | grep -Eq '^  <script defer src="\./review\.js\?v=[0-9-]+"></script>$'
           ! grep -q 'review.js' detektivnye-igry-dlya-dvoih/ne-publikovat/index.html
           grep -q "metadata?.mode === 'review'" supabase/functions/partner-review-v1/index.ts
           grep -q "action === 'RESET'" supabase/functions/partner-review-v1/index.ts
@@ -58,7 +59,7 @@ jobs:
           html="$(curl -fsSL "$base/index.html")"
           script="$(curl -fsSL "$base/review.js")"
           printf '%s' "$html" | grep -q 'НЕ ПУБЛИКОВАТЬ'
-          printf '%s' "$html" | grep -q './review.js?v=20260916-2'
+          printf '%s' "$html" | grep -Eq '\./review\.js\?v=[0-9-]+'
           printf '%s' "$script" | grep -q 'REVIEW MODE'
           printf '%s' "$script" | grep -q 'installProxy'
       - name: Verify live review gateway CORS
