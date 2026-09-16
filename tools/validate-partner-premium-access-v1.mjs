@@ -8,9 +8,12 @@ const required = [
   'supabase/functions/partner-access-v1/index.ts',
   'supabase/functions/partner-session-v2/index.ts',
   'supabase/functions/partner-interrogate-v2/index.ts',
+  'assets/partner-premium-commerce-v1.js',
+  'assets/partner-premium-commerce-v1.css',
+  'admin/partner-premium-preview/index.html',
 ];
 for (const file of required) if (!fs.existsSync(file)) throw new Error(`missing:${file}`);
-const [commerce, checkout, status, webhook, access, session, ai] = required.map((file) => fs.readFileSync(file, 'utf8'));
+const [commerce, checkout, status, webhook, access, session, ai, commerceUi, commerceCss, html] = required.map((file) => fs.readFileSync(file, 'utf8'));
 const must = (source, values, label) => { for (const value of values) if (!source.includes(value)) throw new Error(`${label}:missing:${value}`); };
 
 must(commerce, [
@@ -51,8 +54,8 @@ must(access, [
   'entitlement_id: entitlementId',
   'createInitialFullPartnerState()',
   'restoreOwner',
-  'partner_seats',
-].filter((value) => value !== 'partner_seats'), 'access');
+  'creator_key_hash: browserHash',
+], 'access');
 
 must(session, [
   'PARTNER_PRODUCT_ID',
@@ -62,7 +65,7 @@ must(session, [
   'entitlement_id',
 ], 'session');
 if (session.includes('createInitialFullPartnerState')) throw new Error('session must never mint paid game state');
-if (session.includes("method:'POST'" ) && session.includes('partner_room_states') && session.includes('ensureStateRow')) throw new Error('legacy state auto-create path remains');
+if (session.includes('ensureStateRow')) throw new Error('legacy state auto-create path remains');
 
 must(ai, [
   'PARTNER_PRODUCT_ID',
@@ -71,7 +74,35 @@ must(ai, [
   'entitlement_id',
 ], 'ai');
 
+must(commerceUi, [
+  'partner-access-v1',
+  'create-checkout-partner-v1',
+  'payment-status-partner-v1',
+  'const PRICE=599',
+  'if(roomParam)return',
+  "action:'CREATE_OR_RESUME'",
+  'offerAccepted:true',
+  'privacyAcknowledged:true',
+  'Войти по коду',
+], 'commerce-ui');
+
+must(html, [
+  '599 ₽ за всю комнату',
+  'Платит один игрок, второй подключается бесплатно',
+  'data-purchase-email',
+  'data-purchase-offer',
+  'data-purchase-privacy',
+  'data-guest-code',
+  'data-guest-code-submit',
+  'partner-premium-commerce-v1.css',
+  'partner-premium-commerce-v1.js',
+], 'entry-html');
+
+if (!commerceCss.includes('.pp-purchase-fields') || !commerceCss.includes('.pp-guest-code')) throw new Error('commerce UI styles missing');
+const coreScript = html.indexOf('partner-premium-v2.js');
+const commerceScript = html.indexOf('partner-premium-commerce-v1.js');
+if (coreScript < 0 || commerceScript < 0 || commerceScript <= coreScript) throw new Error('commerce layer must load after core game client');
 if (!checkout.includes('PARTNER_PRODUCT_ID') || !status.includes('PARTNER_PRODUCT_ID') || !webhook.includes('PARTNER_PRODUCT_ID')) throw new Error('commerce product scoping missing');
 if (checkout.includes('REVIEW_DISCOUNT')) throw new Error('Partner v1 must not inherit Last Aria discount rules');
 
-console.log('Premium Partner paid access v1 contract OK');
+console.log('Premium Partner paid access + commerce UI v1 contract OK');
