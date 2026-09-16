@@ -83,12 +83,14 @@ must(commerceUi, [
   "action:'CREATE_OR_RESUME'",
   'offerAccepted:true',
   'privacyAcknowledged:true',
-  'Войти по коду',
+  'enterByCode',
+  "searchParams.set('room',code)",
 ], 'commerce-ui');
 
 must(html, [
   '599 ₽ за всю комнату',
   'Платит один игрок, второй подключается бесплатно',
+  'Войти по коду',
   'data-purchase-email',
   'data-purchase-offer',
   'data-purchase-privacy',
