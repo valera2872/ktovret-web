@@ -36,8 +36,7 @@ const smoke = read('tools/archive-visual-smoke.mjs');
 const sitemap = read('sitemap.xml');
 const payloadDir='content/real-investigations-approved';
 const parts=fs.existsSync(payloadDir)?fs.readdirSync(payloadDir).filter(name=>/^banner\.part\d+\.b64$/.test(name)).sort():[];
-const payload=parts.map(name=>read(path.join(payloadDir,name)).trim()).join('');
-const art=payload?Buffer.from(payload,'base64'):Buffer.alloc(0);
+const art=parts.length?Buffer.concat(parts.map(name=>Buffer.from(read(path.join(payloadDir,name)).trim(),'base64'))):Buffer.alloc(0);
 const digest=art.length?createHash('sha256').update(art).digest('hex'):'';
 const dimensions=art.length?jpegDimensions(art):null;
 
