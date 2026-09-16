@@ -14,13 +14,30 @@ test('local human playtest runner parses as an ES module', () => {
   assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
-test('playtest runner is loopback-only and rewrites the game endpoint locally', () => {
+test('default playtest keeps Supabase on loopback and rewrites browser API to same-origin proxy', () => {
   assert.match(source, /const LOCAL_FUNCTION = 'http:\/\/127\.0\.0\.1:54321\/functions\/v1\/coop-case-v2'/);
-  assert.match(source, /const HOST = '127\.0\.0\.1'/);
+  assert.match(source, /const API_PATH = '\/__partner-v2-api'/);
   assert.ok(source.includes('/data-partner-endpoint="[^"]+"/'));
-  assert.ok(source.includes('`data-partner-endpoint="${LOCAL_FUNCTION}"`'));
+  assert.ok(source.includes('`data-partner-endpoint="${API_PATH}"`'));
+  assert.match(source, /const HOST = LAN_MODE \? '0\.0\.0\.0' : '127\.0\.0\.1'/);
   assert.doesNotMatch(source, /orknvuwknvsedjgqcfwc\.supabase\.co/);
-  assert.doesNotMatch(source, /0\.0\.0\.0/);
+});
+
+test('LAN mode is explicit and proxies phone requests back to loopback Supabase', () => {
+  assert.match(source, /args\.has\('--lan'\)/);
+  assert.match(source, /networkInterfaces/);
+  assert.match(source, /192\\\.168|10\\\.|172/);
+  assert.match(source, /url\.pathname === API_PATH/);
+  assert.match(source, /await fetch\(LOCAL_FUNCTION/);
+  assert.match(source, /Телефон \/ второй компьютер в той же Wi-Fi сети/);
+  assert.match(source, /В режиме --lan страница доступна устройствам вашей локальной сети/);
+});
+
+test('LAN static server exposes only the case page and assets, not the repository', () => {
+  assert.match(source, /const isCase = decoded === CASE_PATH/);
+  assert.match(source, /const isAsset = decoded\.startsWith\('\/assets\/'\)/);
+  assert.match(source, /if \(!isCase && !isAsset\) return null/);
+  assert.match(source, /response\.writeHead\(404\)\.end\('Not found'\)/);
 });
 
 test('playtest runner uses the same pinned free local Supabase stack as CI', () => {
@@ -39,7 +56,7 @@ test('playtest cleanup destroys local test data and contains no deploy/link comm
   assert.doesNotMatch(source, /['"]deploy['"]|['"]push['"]|['"]link['"]|project-ref/i);
 });
 
-test('human instructions require a separate browser identity for player two', () => {
+test('human instructions preserve separate player identities', () => {
   assert.match(source, /режиме инкогнито или в другом браузере/);
   assert.match(source, /Первый игрок создаёт комнату и передаёт код второму/);
 });
