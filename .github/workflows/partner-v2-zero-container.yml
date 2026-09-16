@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+env:
+  SUPABASE_CLI_VERSION: 2.117.0
+  SUPABASE_TELEMETRY_DISABLED: 1
+
 jobs:
   validate-partner-v2:
     runs-on: ubuntu-latest
@@ -26,6 +30,8 @@ jobs:
           node --check assets/partner-v2-engine.js
           node --check assets/partner-v2-checkpoints.js
           node --check assets/partner-v2-final.js
+          node --check scripts/partner-v2-smoke.mjs
+          node --check scripts/partner-v2-local-smoke.mjs
       - name: Run Partner V2 source contracts
         run: node --test tests/partner-v2-*.test.mjs
       - name: Protect existing product boundaries
@@ -43,7 +49,78 @@ jobs:
           grep -q "coop-case-v2" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
           grep -q "partner_v2_submit_final_draft" supabase/migrations/20260915020000_partner_v2_final_consensus.sql
           grep -q "noindex,follow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "verify_jwt = false" supabase/config.toml
       - name: Keep this workflow validation-only
         run: |
           test ! -f .github/workflows/partner-v2-production.yml
           test ! -f .github/workflows/partner-v2-deploy.yml
+
+  local-backend-smoke:
+    name: Local Supabase two-client smoke
+    needs: validate-partner-v2
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify pinned Supabase CLI commands
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} --version
+          npx --yes supabase@${SUPABASE_CLI_VERSION} start --help >/dev/null
+          npx --yes supabase@${SUPABASE_CLI_VERSION} functions serve --help >/dev/null
+          npx --yes supabase@${SUPABASE_CLI_VERSION} stop --help >/dev/null
+
+      - name: Start isolated local Supabase
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} start \
+            -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,logflare,vector,supavisor
+
+      - name: Verify local schema and migration history
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} status
+          npx --yes supabase@${SUPABASE_CLI_VERSION} migration list --local
+
+      - name: Serve coop-case-v2 locally
+        run: |
+          nohup npx --yes supabase@${SUPABASE_CLI_VERSION} functions serve coop-case-v2 --no-verify-jwt \
+            > /tmp/partner-v2-functions.log 2>&1 &
+          echo $! > /tmp/partner-v2-functions.pid
+
+          for attempt in $(seq 1 60); do
+            code=$(curl -sS -o /tmp/partner-v2-probe.json -w "%{http_code}" \
+              -X POST \
+              -H 'content-type: application/json' \
+              -d '{}' \
+              http://127.0.0.1:54321/functions/v1/coop-case-v2 || true)
+            if [ "$code" = "400" ]; then
+              echo "coop-case-v2 is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "coop-case-v2 did not become ready"
+          cat /tmp/partner-v2-functions.log || true
+          cat /tmp/partner-v2-probe.json || true
+          exit 1
+
+      - name: Run two-client Partner V2 smoke
+        env:
+          LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
+        run: node scripts/partner-v2-local-smoke.mjs
+
+      - name: Print local diagnostics on failure
+        if: failure()
+        run: |
+          npx --yes supabase@${SUPABASE_CLI_VERSION} status || true
+          echo '--- coop-case-v2 log ---'
+          cat /tmp/partner-v2-functions.log || true
+          echo '--- docker containers ---'
+          docker ps -a || true
+
+      - name: Stop and delete local Supabase data
+        if: always()
+        run: npx --yes supabase@${SUPABASE_CLI_VERSION} stop --no-backup || true
