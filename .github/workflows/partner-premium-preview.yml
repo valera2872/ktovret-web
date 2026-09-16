@@ -1,0 +1,49 @@
+name: Validate Premium Partner preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin/partner-premium-preview/**'
+      - 'assets/partner-premium-v1.js'
+      - 'assets/partner-premium-v1.css'
+      - 'supabase/functions/_shared/partner-ne-publikovat-v1.ts'
+      - 'supabase/functions/partner-session-v1/**'
+      - 'supabase/functions/partner-interrogate-v1/**'
+      - 'supabase/migrations/20260916074100_partner_room_states.sql'
+      - 'tools/validate-partner-premium-v1.mjs'
+      - '.github/workflows/partner-premium-preview.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin/partner-premium-preview/**'
+      - 'assets/partner-premium-v1.js'
+      - 'assets/partner-premium-v1.css'
+      - 'supabase/functions/_shared/partner-ne-publikovat-v1.ts'
+      - 'supabase/functions/partner-session-v1/**'
+      - 'supabase/functions/partner-interrogate-v1/**'
+      - 'supabase/migrations/20260916074100_partner_room_states.sql'
+      - 'tools/validate-partner-premium-v1.mjs'
+      - '.github/workflows/partner-premium-preview.yml'
+
+jobs:
+  validate-partner-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate browser client syntax
+        run: node --check assets/partner-premium-v1.js
+      - name: Validate Partner product contract
+        run: node tools/validate-partner-premium-v1.mjs
+      - name: Type-check shared Partner engine
+        run: deno check supabase/functions/_shared/partner-ne-publikovat-v1.ts
+      - name: Type-check Partner session function
+        run: deno check supabase/functions/partner-session-v1/index.ts
+      - name: Type-check Partner interrogation function
+        run: deno check supabase/functions/partner-interrogate-v1/index.ts
