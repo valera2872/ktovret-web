@@ -30,6 +30,16 @@ test('map makes the key route deduction visible without revealing the culprit', 
   assert.doesNotMatch(map, /Маркова|Рыбаков|винов/iu);
 });
 
+test('map preserves readable scale on narrow screens with horizontal pan', () => {
+  assert.match(map, /partner-v2-vector-map-scroll/);
+  assert.match(map, /На узком экране двигайте схему влево и вправо/);
+  assert.match(css, /\.partner-v2-vector-map-scroll\{overflow:hidden\}/);
+  assert.match(css, /overflow-x:auto/);
+  assert.match(css, /width:680px;min-width:680px;max-width:none/);
+  assert.match(css, /\.partner-v2-vector-map-pan-hint\{display:none\}/);
+  assert.match(css, /\.partner-v2-vector-map-pan-hint\{display:block/);
+});
+
 test('map has dedicated technical-system styling', () => {
   assert.match(css, /\.partner-v2-vector-map/);
   assert.match(css, /\.pv2-loop-track/);
