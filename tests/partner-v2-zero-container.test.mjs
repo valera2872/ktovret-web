@@ -49,6 +49,29 @@ test('generic Edge Function resolves the case server-side and filters evidence b
   assert.match(edge, /partner_v2_submit_initial_hypothesis/);
 });
 
+test('server owns readiness, evidence disclosure and checkpoint sequence', () => {
+  assert.match(edge, /const bothStarted = Boolean\(me\.started_at && opponent\?\.started_at\)/);
+  assert.match(edge, /evidence: bothStarted \? visibleEvidence\(role, chapter\) : \[\]/);
+  assert.match(edge, /initialHypothesisOptions: bothStarted && chapter === 1 \? caseConfig\.initialHypothesisOptions : \[\]/);
+  assert.match(edge, /checkpointUi: bothStarted \? checkpointUiForRole\(role, chapter, sharedState\) : \{\}/);
+  assert.match(edge, /finalUi: bothStarted && chapter >= 5 \? ZERO_CONTAINER_FINAL\.finalUi : null/);
+  assert.match(edge, /if \(!\(view as any\)\.bothStarted\) return json\(409, \{ error: 'game_not_started' \}/);
+  assert.match(edge, /const CHECKPOINT_CHAPTERS: Record<string, number>/);
+  assert.match(edge, /photo_observation: 2/);
+  assert.match(edge, /t04391_link: 3/);
+  assert.match(edge, /physical_operation: 4/);
+  assert.match(edge, /endpoint_link: 4/);
+  assert.match(edge, /Number\(currentState\.chapter\) !== requiredChapter/);
+  assert.match(edge, /error: 'checkpoint_locked', requiredChapter/);
+});
+
+test('future checkpoint choices are disclosed only when their gate is current', () => {
+  assert.match(edge, /chapter === 2 && !sharedState\.photoComparisonSolved/);
+  assert.match(edge, /chapter === 3 && !sharedState\.t04391Linked/);
+  assert.match(edge, /chapter === 4 && !sharedState\.physicalSwapProven/);
+  assert.match(edge, /chapter === 4 && sharedState\.physicalSwapProven && !sharedState\.endpoint184Linked/);
+});
+
 test('Zero Container P0 has separate evidence packs for both roles', () => {
   for (const id of ['M01', 'M02', 'M03', 'G01', 'G02', 'G03', 'M04', 'G04']) {
     assert.match(config, new RegExp(`\\b${id}:`));
