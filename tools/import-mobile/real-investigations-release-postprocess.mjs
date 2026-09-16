@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 
 const NAV_LINK='<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/">Реальные расследования <span class="ml-nav-new-badge">NEW</span></a>';
 const REAL_ROUTES=['https://mysterylogic.com/realnye-dela/','https://mysterylogic.com/realnye-dela/pozharnaya-lestnica-1991-premium/'];
@@ -31,15 +32,13 @@ function jpegDimensions(bytes){
     if(offset+2>bytes.length) break;
     const length=bytes.readUInt16BE(offset);
     if(length<2||offset+length>bytes.length) break;
-    if([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(marker)){
-      return {height:bytes.readUInt16BE(offset+3),width:bytes.readUInt16BE(offset+5)};
-    }
+    if([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(marker)) return {height:bytes.readUInt16BE(offset+3),width:bytes.readUInt16BE(offset+5)};
     offset+=length;
   }
   return null;
 }
 
-async function materializeApprovedBanner(siteRoot){
+function materializeApprovedBanner(siteRoot){
   const sourceDir=path.join(siteRoot,'content','real-investigations-approved');
   if(!fs.existsSync(sourceDir)) throw new Error('Approved Real Investigations banner payload directory missing');
   const parts=fs.readdirSync(sourceDir).filter(name=>/^banner\.part\d+\.b64$/.test(name)).sort();
@@ -50,7 +49,6 @@ async function materializeApprovedBanner(siteRoot){
   if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9) throw new Error('Approved Real Investigations banner is not a complete JPEG');
   const dimensions=jpegDimensions(bytes);
   if(!dimensions||dimensions.width!==900||dimensions.height!==322) throw new Error(`Approved Real Investigations banner dimensions changed: ${JSON.stringify(dimensions)}`);
-  const {createHash}=await import('node:crypto');
   const digest=createHash('sha256').update(bytes).digest('hex');
   if(digest!==APPROVED_BANNER_SHA256) throw new Error(`Approved Real Investigations banner digest mismatch: ${digest}`);
   const target=path.join(siteRoot,'assets','real-investigations-approved-banner.jpg');
@@ -132,8 +130,8 @@ function patchSolo(siteRoot){
   fs.writeFileSync(file,html);
 }
 
-export async function preserveRealInvestigationsLaunch(siteRoot){
-  const art=await materializeApprovedBanner(siteRoot);
+export function preserveRealInvestigationsLaunch(siteRoot){
+  const art=materializeApprovedBanner(siteRoot);
   const hub=path.join(siteRoot,'realnye-dela','index.html');
   const casePage=path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html');
   const hubCss=path.join(siteRoot,'assets','real-investigations-launch.css');
@@ -147,8 +145,8 @@ export async function preserveRealInvestigationsLaunch(siteRoot){
 export function registerRealInvestigationsReleaseFinalizer(siteRoot){
   if(releaseFinalizerRegistered) return;
   releaseFinalizerRegistered=true;
-  process.once('beforeExit',async()=>{
-    await preserveRealInvestigationsLaunch(siteRoot);
+  process.once('beforeExit',()=>{
+    preserveRealInvestigationsLaunch(siteRoot);
     finalizeSitemap(siteRoot);
   });
 }
