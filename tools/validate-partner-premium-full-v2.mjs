@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+const files=['supabase/functions/_shared/partner-ne-publikovat-content-v2.ts','supabase/functions/_shared/partner-engine-v2.ts','supabase/functions/partner-session-v2/index.ts','supabase/functions/partner-interrogate-v2/index.ts'];
+for(const f of files)if(!fs.existsSync(f))throw new Error(`missing:${f}`);
+const content=fs.readFileSync(files[0],'utf8');const engine=fs.readFileSync(files[1],'utf8');const session=fs.readFileSync(files[2],'utf8');const ai=fs.readFileSync(files[3],'utf8');
+for(const id of Array.from({length:35},(_,i)=>`E${String(i+1).padStart(2,'0')}`))if(!content.includes(`id:'${id}'`)&&!content.includes(`id: '${id}'`))throw new Error(`missing evidence ${id}`);
+for(const id of ['roman','pavel','artyom','elena','mikhail'])if(!content.includes(`${id}:{id:'${id}'`))throw new Error(`missing character ${id}`);
+for(const d of ['D_FINANCE_CONTRADICTION','D_AUDIO_FABRICATION','D_ROMAN_MURDER','D_PAVEL_FAKE','D_DUAL_DOCUMENTS','D_CANARY','D_LEAK','D_VERA_ALIVE','D_LOCATION','D_PREPARATION','D_NINA_ELENA'])if(!content.includes(d)||!engine.includes(d))throw new Error(`missing deduction ${d}`);
+for(const m of ['PAVEL_FAKE_PROVEN','CANARY_CONFIRMED','LEAK_CONFIRMED','VERA_ALIVE','LOCATION_SUBMITTED','VERA_PREPARATION_PROVEN','ELENA_NINA_CHAIN_PROVEN','RECONSTRUCTION_COMPLETE'])if(!engine.includes(m))throw new Error(`missing milestone ${m}`);
+for(const x of ['partner_location_insufficient','ATTEMPT_RECONSTRUCTION','CHOOSE_PUBLICATION','safeFullPartnerView','characterSpeakingContext'])if(!engine.includes(x))throw new Error(`missing engine contract ${x}`);
+for(const x of ['compareAndSave','partner_room_states','mapDuelRoleToFullPartner'])if(!session.includes(x))throw new Error(`missing session contract ${x}`);
+for(const x of ['СКРЫТАЯ ПРАВДА ТОЛЬКО ДЛЯ КОНСИСТЕНТНОСТИ','ТЕКУЩАЯ РАЗРЕШЁННАЯ ВЕРСИЯ','ai_detective_claim_turn','multi-character-shared-state'])if(!ai.includes(x))throw new Error(`missing AI guard ${x}`);
+if(!content.includes("FULL_PARTNER_CASE_ID = 'MLP001_NE_PUBLIKOVAT'"))throw new Error('wrong full case id');
+console.log('Premium Partner full v2 contract OK');
