@@ -178,7 +178,8 @@ jobs:
             production-web/docs \
             production-web/ops \
             production-web/old.bac \
-            production-web/admin/ai01-live-preview
+            production-web/admin/ai01-live-preview \
+            production-web/admin/partner-premium-preview
           rm -f \
             production-web/.gitignore \
             production-web/preview-all-100.cmd \
@@ -229,11 +230,14 @@ jobs:
           test -f production-web/tom-1/index.html
           test -f production-web/detektivnye-igry-dlya-odnogo/mini/index.html
           test -f production-web/detektivnye-igry-dlya-odnogo/407/index.html
+          test -f production-web/detektivnye-igry-dlya-dvoih/ne-publikovat/index.html
+          grep -q 'noindex,nofollow,noarchive' production-web/detektivnye-igry-dlya-dvoih/ne-publikovat/index.html
           test ! -d production-web/supabase
           test ! -d production-web/content
           test ! -d production-web/tools
           test ! -d production-web/tests
           test ! -e production-web/admin/ai01-live-preview
+          test ! -e production-web/admin/partner-premium-preview
           grep -q '"totalCases": 100' production-web/assets/generated/import-report.json
           grep -q '"freeCases": 15' production-web/assets/generated/import-report.json
           grep -q '"premiumCases": 85' production-web/assets/generated/import-report.json
