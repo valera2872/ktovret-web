@@ -53,10 +53,27 @@ const request = async (key, body, expectedStatuses = [200, 201]) => {
 
 const status = (key) => request(key, { action: 'status', code: roomCode }, [200]);
 
+const assertGameplayLocked = (state) => {
+  assert.equal(state.ok, true);
+  assert.equal(state.bothStarted, false);
+  assert.deepEqual(state.evidence || [], []);
+  assert.deepEqual(state.case?.chapters || [], []);
+  assert.deepEqual(state.case?.initialHypothesisOptions || [], []);
+  assert.deepEqual(state.case?.checkpointUi || {}, {});
+  assert.equal(state.case?.finalUi ?? null, null);
+  assert.equal(state.resolution ?? null, null);
+};
+
+const assertOnlyCheckpoint = (state, checkpointId = '') => {
+  const keys = Object.keys(state.case?.checkpointUi || {}).sort();
+  assert.deepEqual(keys, checkpointId ? [checkpointId] : []);
+};
+
 const assertRoleIsolation = (state, expectedRole) => {
   assert.equal(state.ok, true);
   assert.equal(state.room.caseId, CASE_ID);
   assert.equal(state.me.role, expectedRole);
+  assert.equal(state.bothStarted, true);
   const ownPrefix = expectedRole === 'creator' ? 'M' : 'G';
   const forbiddenPrefix = expectedRole === 'creator' ? 'G' : 'M';
   const ids = (state.evidence || []).map((item) => String(item.id));
@@ -123,9 +140,9 @@ const run = async () => {
 
   roomCode = created.room.code;
   assert.match(roomCode, /^[A-HJ-NP-Z2-9]{8}$/);
-  assertRoleIsolation(created, 'creator');
+  assert.equal(created.me.role, 'creator');
   assert.equal(created.state.chapter, 1);
-  assert.equal(created.resolution, null);
+  assertGameplayLocked(created);
 
   log(`room ${roomCode}: joining second independent client as Груз`);
   const preview = await request(guestKey, { action: 'preview', code: roomCode }, [200]);
@@ -137,23 +154,71 @@ const run = async () => {
     code: roomCode,
     playerName: 'Smoke Cargo',
   }, [200]);
-  assertRoleIsolation(joined, 'guest');
+  assert.equal(joined.me.role, 'guest');
   assert.equal(joined.bothJoined, true);
+  assertGameplayLocked(joined);
 
   const creatorAfterJoin = await status(creatorKey);
   assert.equal(creatorAfterJoin.bothJoined, true);
-  assertRoleIsolation(creatorAfterJoin, 'creator');
+  assert.equal(creatorAfterJoin.me.role, 'creator');
+  assertGameplayLocked(creatorAfterJoin);
 
-  log('starting both clients');
+  log('server rejects gameplay before both players are ready');
+  const earlyHypothesis = await request(creatorKey, {
+    action: 'submit_checkpoint',
+    code: roomCode,
+    checkpointId: 'initial_hypothesis',
+    value: 'during_stop',
+    clientRevision: creatorAfterJoin.state.revision,
+  }, [409]);
+  assert.equal(earlyHypothesis.error, 'game_not_started');
+
+  log('first ready player still receives no gameplay payload');
   const creatorStarted = await request(creatorKey, { action: 'start', code: roomCode }, [200]);
-  const guestStarted = await request(guestKey, { action: 'start', code: roomCode }, [200]);
   assert.equal(creatorStarted.me.started, true);
+  assert.equal(creatorStarted.opponent.started, false);
+  assertGameplayLocked(creatorStarted);
+
+  const stillEarlyHypothesis = await request(creatorKey, {
+    action: 'submit_checkpoint',
+    code: roomCode,
+    checkpointId: 'initial_hypothesis',
+    value: 'during_stop',
+    clientRevision: creatorStarted.state.revision,
+  }, [409]);
+  assert.equal(stillEarlyHypothesis.error, 'game_not_started');
+
+  log('second ready signal opens only chapter-1 gameplay');
+  const guestStarted = await request(guestKey, { action: 'start', code: roomCode }, [200]);
   assert.equal(guestStarted.me.started, true);
+  assert.equal(guestStarted.opponent.started, true);
+  assertRoleIsolation(guestStarted, 'guest');
+  assert.equal(guestStarted.case.chapters.length, 1);
+  assert.equal(guestStarted.case.chapters[0].id, 1);
+  assert.ok(guestStarted.case.initialHypothesisOptions.length > 0);
+  assertOnlyCheckpoint(guestStarted);
+
+  const creatorAfterStart = await status(creatorKey);
+  assertRoleIsolation(creatorAfterStart, 'creator');
+  assert.equal(creatorAfterStart.case.chapters.length, 1);
+  assertOnlyCheckpoint(creatorAfterStart);
+
+  log('server rejects a future chapter checkpoint even when both players are started');
+  const futureCheckpoint = await request(creatorKey, {
+    action: 'submit_checkpoint',
+    code: roomCode,
+    checkpointId: 'physical_operation',
+    value: 'two_loaded_objects',
+    clientRevision: creatorAfterStart.state.revision,
+  }, [409]);
+  assert.equal(futureCheckpoint.error, 'checkpoint_locked');
+  assert.equal(futureCheckpoint.requiredChapter, 4);
 
   log('checkpoint 1: independent initial hypotheses + persisted refresh state');
   const firstCreator = await submitCheckpoint(creatorKey, 'initial_hypothesis', 'during_stop');
   assert.equal(firstCreator.state.chapter, 1);
   assert.equal(firstCreator.me.firstHypothesis, 'during_stop');
+  assertOnlyCheckpoint(firstCreator);
 
   const creatorRefresh = await status(creatorKey);
   assert.equal(creatorRefresh.me.firstHypothesis, 'during_stop');
@@ -163,11 +228,13 @@ const run = async () => {
   assert.equal(firstGuest.state.chapter, 2);
   assert.equal(firstGuest.state.shared.initialHypothesesComplete, true);
   assertRoleIsolation(firstGuest, 'guest');
+  assertOnlyCheckpoint(firstGuest, 'photo_observation');
 
   const chapter2Creator = await status(creatorKey);
   assert.equal(chapter2Creator.state.chapter, 2);
   assert.equal(chapter2Creator.state.shared.initialHypothesesComplete, true);
   assertRoleIsolation(chapter2Creator, 'creator');
+  assertOnlyCheckpoint(chapter2Creator, 'photo_observation');
 
   log('checkpoint 2: wrong three-sign photo observation must not unlock, then both correct observations unlock chapter 3');
   const wrongPhoto = await submitCheckpoint(creatorKey, 'photo_observation', {
@@ -178,6 +245,7 @@ const run = async () => {
   assert.equal(wrongPhoto.checkpointResult.correct, false);
   assert.equal(wrongPhoto.state.chapter, 2);
   assert.equal(wrongPhoto.state.shared.photoComparisonSolved, false);
+  assertOnlyCheckpoint(wrongPhoto, 'photo_observation');
 
   const photoCreator = await submitCheckpoint(creatorKey, 'photo_observation', {
     patch: 'absent',
@@ -187,6 +255,7 @@ const run = async () => {
   assert.equal(photoCreator.checkpointResult.correct, true);
   assert.equal(photoCreator.checkpointResult.sharedUnlocked, false);
   assert.equal(photoCreator.state.chapter, 2);
+  assertOnlyCheckpoint(photoCreator, 'photo_observation');
 
   const photoGuest = await submitCheckpoint(guestKey, 'photo_observation', {
     patch: 'present',
@@ -198,36 +267,43 @@ const run = async () => {
   assert.equal(photoGuest.state.chapter, 3);
   assert.equal(photoGuest.state.shared.photoComparisonSolved, true);
   assertRoleIsolation(photoGuest, 'guest');
+  assertOnlyCheckpoint(photoGuest, 't04391_link');
 
   log('checkpoint 3: cross-role T-04391 link');
   const linkCreator = await submitCheckpoint(creatorKey, 't04391_link', 'rybakov_r4');
   assert.equal(linkCreator.checkpointResult.correct, true);
   assert.equal(linkCreator.state.chapter, 3);
+  assertOnlyCheckpoint(linkCreator, 't04391_link');
 
   const linkGuest = await submitCheckpoint(guestKey, 't04391_link', 'tk0');
   assert.equal(linkGuest.checkpointResult.sharedUnlocked, true);
   assert.equal(linkGuest.state.chapter, 4);
   assert.equal(linkGuest.state.shared.t04391Linked, true);
+  assertOnlyCheckpoint(linkGuest, 'physical_operation');
 
   log('checkpoint 4a: physical operation');
   const physicalCreator = await submitCheckpoint(creatorKey, 'physical_operation', 'two_loaded_objects');
   assert.equal(physicalCreator.checkpointResult.correct, true);
   assert.equal(physicalCreator.state.shared.physicalSwapProven, false);
+  assertOnlyCheckpoint(physicalCreator, 'physical_operation');
 
   const physicalGuest = await submitCheckpoint(guestKey, 'physical_operation', 'mass_compensated');
   assert.equal(physicalGuest.checkpointResult.sharedUnlocked, true);
   assert.equal(physicalGuest.state.shared.physicalSwapProven, true);
   assert.equal(physicalGuest.state.chapter, 4);
+  assertOnlyCheckpoint(physicalGuest, 'endpoint_link');
 
   log('checkpoint 4b: Endpoint 184 / L-14 coordination');
   const endpointCreator = await submitCheckpoint(creatorKey, 'endpoint_link', 'endpoint184_call');
   assert.equal(endpointCreator.checkpointResult.correct, true);
   assert.equal(endpointCreator.state.chapter, 4);
+  assertOnlyCheckpoint(endpointCreator, 'endpoint_link');
 
   const endpointGuest = await submitCheckpoint(guestKey, 'endpoint_link', 'l14_markova');
   assert.equal(endpointGuest.checkpointResult.sharedUnlocked, true);
   assert.equal(endpointGuest.state.chapter, 5);
   assert.equal(endpointGuest.state.shared.endpoint184Linked, true);
+  assertOnlyCheckpoint(endpointGuest);
 
   const finalCreatorState = await status(creatorKey);
   const finalGuestState = await status(guestKey);
@@ -239,6 +315,8 @@ const run = async () => {
   assert.ok(finalGuestState.evidence.some((item) => item.id === 'G13'));
   assertRoleIsolation(finalCreatorState, 'creator');
   assertRoleIsolation(finalGuestState, 'guest');
+  assertOnlyCheckpoint(finalCreatorState);
+  assertOnlyCheckpoint(finalGuestState);
 
   log('final: first force a semantic disagreement without revealing correctness');
   const creatorDraft = await submitFinal(creatorKey, correctFinal, ['M08', 'M09']);
@@ -274,7 +352,7 @@ const run = async () => {
   assert.ok(solvedCreator.resolution?.title);
   assertRoleIsolation(solvedCreator, 'creator');
 
-  log('PASS: create/join, isolation, persistence, all gates, disagreement, mandatory G13 and cross-role motive consensus final');
+  log('PASS: server-owned readiness/chapter gates, isolation, persistence, all checkpoints, disagreement and cross-role motive consensus final');
 };
 
 run().catch((error) => {
