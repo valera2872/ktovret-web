@@ -3,18 +3,21 @@
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
+import { networkInterfaces } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 
 const SUPABASE_CLI_VERSION = '2.117.0';
 const LOCAL_FUNCTION = 'http://127.0.0.1:54321/functions/v1/coop-case-v2';
-const HOST = '127.0.0.1';
 const PORT = Number(process.env.PARTNER_V2_PLAYTEST_PORT || 4173);
 const CASE_PATH = '/detektivnye-igry-dlya-dvoih/nulevoy-konteyner/';
+const API_PATH = '/__partner-v2-api';
 const ROOT = process.cwd();
 const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const docker = process.platform === 'win32' ? 'docker.exe' : 'docker';
 const args = new Set(process.argv.slice(2));
+const LAN_MODE = args.has('--lan');
+const HOST = LAN_MODE ? '0.0.0.0' : '127.0.0.1';
 
 let functionProcess = null;
 let webServer = null;
@@ -89,12 +92,20 @@ const waitForFunction = async () => {
   throw new Error('coop-case-v2 did not become ready');
 };
 
+const lanAddress = () => {
+  for (const interfaces of Object.values(networkInterfaces())) {
+    for (const entry of interfaces || []) {
+      if (entry.family !== 'IPv4' || entry.internal) continue;
+      if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(entry.address)) return entry.address;
+    }
+  }
+  return '';
+};
+
 const mime = (filePath) => ({
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.webp': 'image/webp',
@@ -105,20 +116,76 @@ const mime = (filePath) => ({
 
 const safeFile = (pathname) => {
   const decoded = decodeURIComponent(pathname);
+  const isCase = decoded === CASE_PATH || decoded === `${CASE_PATH}index.html`;
+  const isAsset = decoded.startsWith('/assets/') && !decoded.includes('..');
+  if (!isCase && !isAsset) return null;
+
   const relative = decoded.endsWith('/') ? `${decoded}index.html` : decoded;
   const resolved = path.resolve(ROOT, `.${relative}`);
-  if (resolved !== ROOT && !resolved.startsWith(`${ROOT}${path.sep}`)) return null;
+  if (!resolved.startsWith(`${ROOT}${path.sep}`)) return null;
   return resolved;
+};
+
+const readRequestBody = async (request) => {
+  const chunks = [];
+  let total = 0;
+  for await (const chunk of request) {
+    total += chunk.length;
+    if (total > 256 * 1024) throw new Error('request_too_large');
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+};
+
+const proxyApi = async (request, response) => {
+  if (request.method !== 'POST') {
+    response.writeHead(405, { allow: 'POST' }).end('Method not allowed');
+    return;
+  }
+  try {
+    const body = await readRequestBody(request);
+    const upstream = await fetch(LOCAL_FUNCTION, {
+      method: 'POST',
+      headers: {
+        'content-type': request.headers['content-type'] || 'application/json',
+        accept: 'application/json',
+      },
+      body,
+    });
+    const payload = Buffer.from(await upstream.arrayBuffer());
+    response.writeHead(upstream.status, {
+      'content-type': upstream.headers.get('content-type') || 'application/json; charset=utf-8',
+      'cache-control': 'no-store, max-age=0',
+      'x-partner-v2-playtest': 'local-proxy',
+    });
+    response.end(payload);
+  } catch (error) {
+    response.writeHead(error.message === 'request_too_large' ? 413 : 502, {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store, max-age=0',
+    });
+    response.end(JSON.stringify({ error: 'local_playtest_proxy_failed' }));
+  }
 };
 
 const startWebServer = async () => {
   webServer = createServer(async (request, response) => {
-    if (!request.url || !['GET', 'HEAD'].includes(request.method || 'GET')) {
+    if (!request.url) {
+      response.writeHead(400).end('Bad request');
+      return;
+    }
+
+    const url = new URL(request.url, `http://127.0.0.1:${PORT}`);
+    if (url.pathname === API_PATH) {
+      await proxyApi(request, response);
+      return;
+    }
+
+    if (!['GET', 'HEAD'].includes(request.method || 'GET')) {
       response.writeHead(405).end('Method not allowed');
       return;
     }
 
-    const url = new URL(request.url, `http://${HOST}:${PORT}`);
     if (url.pathname === '/') {
       response.writeHead(302, { location: CASE_PATH, 'cache-control': 'no-store' }).end();
       return;
@@ -126,7 +193,7 @@ const startWebServer = async () => {
 
     const filePath = safeFile(url.pathname);
     if (!filePath) {
-      response.writeHead(400).end('Bad path');
+      response.writeHead(404).end('Not found');
       return;
     }
 
@@ -135,9 +202,9 @@ const startWebServer = async () => {
       if (url.pathname === `${CASE_PATH}index.html` || url.pathname === CASE_PATH) {
         const html = body.toString('utf8').replace(
           /data-partner-endpoint="[^"]+"/,
-          `data-partner-endpoint="${LOCAL_FUNCTION}"`,
+          `data-partner-endpoint="${API_PATH}"`,
         );
-        if (!html.includes(`data-partner-endpoint="${LOCAL_FUNCTION}"`)) {
+        if (!html.includes(`data-partner-endpoint="${API_PATH}"`)) {
           throw new Error('local endpoint rewrite failed');
         }
         body = Buffer.from(html, 'utf8');
@@ -189,8 +256,11 @@ process.on('SIGTERM', async () => { await cleanup(); process.exit(0); });
 await assertProjectRoot();
 assertDocker();
 
+const LAN_ADDRESS = LAN_MODE ? lanAddress() : '';
+if (LAN_MODE && !LAN_ADDRESS) fail('Не найден локальный IPv4-адрес Wi-Fi/LAN. Используйте режим без --lan.');
+
 console.log(`[partner-v2-playtest] Supabase CLI ${SUPABASE_CLI_VERSION}`);
-console.log('[partner-v2-playtest] Поднимаю изолированный локальный Supabase. Production не используется.');
+console.log('[partner-v2-playtest] Поднимаю изолированный локальный Supabase. Облачный проект не используется.');
 
 try {
   run(npx, supabaseArgs(
@@ -210,21 +280,26 @@ try {
   );
 
   functionProcess.on('exit', (code) => {
-    if (!cleaned && code !== 0) {
-      console.error(`[partner-v2-playtest] Edge Function завершилась с кодом ${code}.`);
-    }
+    if (!cleaned && code !== 0) console.error(`[partner-v2-playtest] Edge Function завершилась с кодом ${code}.`);
   });
 
   await waitForFunction();
   await startWebServer();
 
-  const url = `http://${HOST}:${PORT}${CASE_PATH}`;
+  const localUrl = `http://127.0.0.1:${PORT}${CASE_PATH}`;
+  const lanUrl = LAN_MODE ? `http://${LAN_ADDRESS}:${PORT}${CASE_PATH}` : '';
   console.log('\n[partner-v2-playtest] ГОТОВО');
-  console.log(`[partner-v2-playtest] Игрок 1: ${url}`);
-  console.log('[partner-v2-playtest] Игрок 2: откройте тот же URL в режиме инкогнито или в другом браузере.');
+  console.log(`[partner-v2-playtest] Этот компьютер: ${localUrl}`);
+  if (LAN_MODE) {
+    console.log(`[partner-v2-playtest] Телефон / второй компьютер в той же Wi-Fi сети: ${lanUrl}`);
+    console.log('[partner-v2-playtest] В режиме --lan страница доступна устройствам вашей локальной сети только пока работает этот процесс.');
+  } else {
+    console.log('[partner-v2-playtest] Игрок 2 на этом компьютере: откройте тот же URL в режиме инкогнито или в другом браузере.');
+    console.log('[partner-v2-playtest] Для телефона/второго ноутбука перезапустите с --lan.');
+  }
   console.log('[partner-v2-playtest] Первый игрок создаёт комнату и передаёт код второму.');
   console.log('[partner-v2-playtest] Для завершения нажмите Ctrl+C — тестовая база будет удалена.\n');
-  openBrowser(url);
+  openBrowser(localUrl);
 } catch (error) {
   console.error(`[partner-v2-playtest] FAIL: ${error.message}`);
   await cleanup();
