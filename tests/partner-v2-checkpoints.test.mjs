@@ -39,8 +39,8 @@ test('later evidence exists for both roles', () => {
 });
 
 test('correct gate answers remain server-side', () => {
-  assert.match(config, /creator: \{ patch: 'absent', scratch: 'absent' \}/);
-  assert.match(config, /guest: \{ patch: 'present', scratch: 'present' \}/);
+  assert.match(config, /creator: \{ patch: 'absent', scratch: 'absent', door_deformation: 'present' \}/);
+  assert.match(config, /guest: \{ patch: 'present', scratch: 'present', door_deformation: 'absent' \}/);
   assert.match(config, /creator: 'rybakov_r4'/);
   assert.match(config, /guest: 'tk0'/);
   assert.match(finalConfig, /creator: 'two_loaded_objects'/);
