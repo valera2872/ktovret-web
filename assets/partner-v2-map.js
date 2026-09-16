@@ -92,12 +92,23 @@
       </figcaption>
     </figure>`;
 
+  const centerMobileMap = (map) => {
+    if (!map || !window.matchMedia('(max-width: 680px)').matches) return;
+    const scroller = map.querySelector('.partner-v2-vector-map-scroll');
+    if (!scroller) return;
+    requestAnimationFrame(() => {
+      const overflow = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+      scroller.scrollLeft = Math.round(overflow * 0.42);
+    });
+  };
+
   const render = () => {
     const card = root.querySelector('.partner-v2-evidence[data-evidence-id="M01"]');
     if (!card || card.querySelector('[data-vector12-map]')) return;
     const placeholder = card.querySelector('.partner-v2-map-mini');
     if (!placeholder) return;
     placeholder.outerHTML = mapHtml();
+    centerMobileMap(card.querySelector('[data-vector12-map]'));
   };
 
   let scheduled = false;
