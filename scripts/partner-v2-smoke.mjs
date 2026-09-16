@@ -236,6 +236,14 @@ const run = async () => {
   assertRoleIsolation(chapter2Creator, 'creator');
   assertOnlyCheckpoint(chapter2Creator, 'photo_observation');
 
+  log('late retry of an already saved first hypothesis is idempotent after chapter 2 opens');
+  const firstHypothesisReplay = await submitCheckpoint(creatorKey, 'initial_hypothesis', 'during_stop');
+  assert.equal(firstHypothesisReplay.checkpointResult.correct, true);
+  assert.equal(firstHypothesisReplay.checkpointResult.idempotent, true);
+  assert.equal(firstHypothesisReplay.state.chapter, 2);
+  assert.equal(firstHypothesisReplay.me.firstHypothesis, 'during_stop');
+  assertOnlyCheckpoint(firstHypothesisReplay, 'photo_observation');
+
   log('checkpoint 2: wrong three-sign photo observation must not unlock, then both correct observations unlock chapter 3');
   const wrongPhoto = await submitCheckpoint(creatorKey, 'photo_observation', {
     patch: 'present',
@@ -247,11 +255,12 @@ const run = async () => {
   assert.equal(wrongPhoto.state.shared.photoComparisonSolved, false);
   assertOnlyCheckpoint(wrongPhoto, 'photo_observation');
 
-  const photoCreator = await submitCheckpoint(creatorKey, 'photo_observation', {
+  const creatorPhotoValue = {
     patch: 'absent',
     scratch: 'absent',
     door_deformation: 'present',
-  });
+  };
+  const photoCreator = await submitCheckpoint(creatorKey, 'photo_observation', creatorPhotoValue);
   assert.equal(photoCreator.checkpointResult.correct, true);
   assert.equal(photoCreator.checkpointResult.sharedUnlocked, false);
   assert.equal(photoCreator.state.chapter, 2);
@@ -268,6 +277,14 @@ const run = async () => {
   assert.equal(photoGuest.state.shared.photoComparisonSolved, true);
   assertRoleIsolation(photoGuest, 'guest');
   assertOnlyCheckpoint(photoGuest, 't04391_link');
+
+  log('late retry of an already correct photo checkpoint is idempotent after chapter 3 opens');
+  const photoReplay = await submitCheckpoint(creatorKey, 'photo_observation', creatorPhotoValue);
+  assert.equal(photoReplay.checkpointResult.correct, true);
+  assert.equal(photoReplay.checkpointResult.sharedUnlocked, true);
+  assert.equal(photoReplay.checkpointResult.idempotent, true);
+  assert.equal(photoReplay.state.chapter, 3);
+  assertOnlyCheckpoint(photoReplay, 't04391_link');
 
   log('checkpoint 3: cross-role T-04391 link');
   const linkCreator = await submitCheckpoint(creatorKey, 't04391_link', 'rybakov_r4');
@@ -352,7 +369,7 @@ const run = async () => {
   assert.ok(solvedCreator.resolution?.title);
   assertRoleIsolation(solvedCreator, 'creator');
 
-  log('PASS: server-owned readiness/chapter gates, isolation, persistence, all checkpoints, disagreement and cross-role motive consensus final');
+  log('PASS: server-owned readiness/chapter gates, safe late retries, isolation, persistence, all checkpoints, disagreement and cross-role motive consensus final');
 };
 
 run().catch((error) => {
