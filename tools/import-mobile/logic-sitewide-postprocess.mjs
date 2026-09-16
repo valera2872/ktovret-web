@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {applyPremiumSurfaceV2} from './premium-surface-v2-postprocess.mjs';
 
-const VERSION='3.3.1';
+const VERSION='3.3.2';
 const SKIP_DIRS=new Set(['.git','.github','node_modules','tools','tests','artifacts','docs','ops','supabase','old.bac','admin']);
 
 function relativeAsset(fromDir,asset){return path.relative(fromDir,asset).replaceAll(path.sep,'/');}
@@ -17,12 +17,10 @@ function patchRefNav(html){
   }else{
     html=html.replace(/(<nav class="ref-nav"[^>]*>[\s\S]*?)(<\/nav>)/,`$1<a data-nav-logic href="${href}">Головоломки</a>$2`);
   }
-  const daily='<a data-nav-daily data-telegram-cta="header" href="https://t.me/mysterylogic" target="_blank" rel="noopener">Мини-дело дня ↗</a>';
-  if(html.includes('data-nav-daily')){
-    html=html.replace(/<a data-nav-daily[^>]*>[^<]*<\/a>/,daily);
-  }else{
-    html=html.replace(/(<nav class="ref-nav"[^>]*>[\s\S]*?)(<\/nav>)/,`$1${daily}$2`);
-  }
+  // Telegram is changing format. Retire the old "Мини-дело дня" menu item,
+  // including pages generated from older templates, without touching other
+  // Telegram retention placements elsewhere on the site.
+  html=html.replace(/<a data-nav-daily[^>]*>[\s\S]*?<\/a>/g,'');
   return html;
 }
 
@@ -93,7 +91,7 @@ export function applyLogicSitewide(siteRoot){
   if(!home.includes('data-logic-home-launch')||!home.includes('data-logic-sitewide-style')||!home.includes('data-logic-sitewide')) throw new Error('logic sitewide: homepage launch integration incomplete');
   if(!home.includes('data-ai01-launch-promo-style')||!home.includes('data-ai01-launch-promo-script')) throw new Error('AI-01 launch promo: homepage integration incomplete');
   if(home.includes('class="ref-nav"')&&!home.includes('>Головоломки</a>')) throw new Error('logic sitewide: homepage puzzle nav missing');
-  if(home.includes('class="ref-nav"')&&!home.includes('data-nav-daily')) throw new Error('logic sitewide: daily Telegram nav missing');
+  if(home.includes('data-nav-daily')||home.includes('Мини-дело дня')) throw new Error('logic sitewide: retired daily Telegram nav must be absent');
   const premiumSurface=applyPremiumSurfaceV2(root);
   return {version:VERSION,pages,navPatched,legacyLinksRewritten,styledPages,aiPromoPages,telegramRetention:true,ai01PromoPublic:true,premiumSurface};
 }
