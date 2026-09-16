@@ -166,7 +166,7 @@
   };
 
   const renderCreate = (message = '') => shell(`
-    ${panel('Новое расследование', 'Создать комнату', 'У игроков будут разные материалы. Первый игрок получает роль Маршрут, второй - роль Груз.', `
+    ${panel('Новое расследование', 'Создать комнату', 'У игроков будут разные материалы. Не показывайте друг другу экран — обсуждайте факты словами. Первый игрок получает роль Маршрут, второй — роль Груз.', `
       ${message ? `<div class="partner-v2-error">${escapeHtml(message)}</div>` : ''}
       <label class="partner-v2-field"><span>Ваше имя</span><input data-player-name maxlength="32" autocomplete="nickname" value="${escapeHtml(nickname())}"></label>
       <div class="partner-v2-role-grid">
@@ -199,9 +199,12 @@
       try {
         const next = await api({ action: 'status', code: previous.room.code });
         const changed = next.bothJoined !== previous.bothJoined || next.me?.started !== previous.me?.started || next.opponent?.started !== previous.opponent?.started;
+        const bothStarted = Boolean(next.me?.started && next.opponent?.started);
         roomState = next;
-        if (next.me?.started) renderGame(next);
-        else if (changed) renderLobby(next);
+        if (bothStarted) {
+          track('zero_started', { room_code: next.room.code, role: next.me.role });
+          renderGame(next);
+        } else if (changed) renderLobby(next);
         else scheduleLobbyPoll();
       } catch {
         roomState = previous;
@@ -214,8 +217,11 @@
     clearPoll();
     roomState = state;
     const other = state.opponent?.joined ? state.opponent.name : 'Ожидаем второго игрока';
+    const myReady = Boolean(state.me?.started);
+    const partnerReady = Boolean(state.opponent?.started);
+    const readyText = `${myReady ? 'вы готовы' : 'вы не готовы'} · ${partnerReady ? 'напарник готов' : 'напарник не готов'}`;
     shell(`
-      ${panel('Комната создана', state.case?.title || 'Нулевой контейнер', 'После старта каждый увидит только свой пакет материалов.', `
+      ${panel('Комната создана', state.case?.title || 'Нулевой контейнер', 'После готовности обоих каждый увидит только свой пакет материалов. Не показывайте друг другу экран: пересказывайте важные факты словами.', `
         ${message ? `<div class="partner-v2-error">${escapeHtml(message)}</div>` : ''}
         <div class="partner-v2-room-code"><small>Код комнаты</small><strong>${escapeHtml(state.room.code)}</strong></div>
         <div class="partner-v2-role-grid">
@@ -223,10 +229,11 @@
           ${roleCard(state.me.role === 'creator' ? 'ГР' : 'МР', state.me.role === 'creator' ? 'Груз' : 'Маршрут', state.me.role === 'creator' ? 'Документы, склад, персонал, заявки, доступ' : 'Движение состава, инфраструктура, техника, связь', 'is-cargo')}
         </div>
         <div class="partner-v2-status-line"><span>Напарник</span><strong>${escapeHtml(other)}</strong></div>
+        <div class="partner-v2-status-line"><span>Готовность</span><strong>${escapeHtml(readyText)}</strong></div>
         <div class="partner-v2-actions">
           <button class="partner-v2-button" type="button" data-action="copy">Скопировать приглашение</button>
           ${navigator.share ? '<button class="partner-v2-button" type="button" data-action="share">Отправить ссылку</button>' : ''}
-          <button class="partner-v2-button is-primary" type="button" data-action="start" ${state.bothJoined ? '' : 'disabled'}>Начать расследование</button>
+          <button class="partner-v2-button is-primary" type="button" data-action="start" ${(state.bothJoined && !myReady) ? '' : 'disabled'}>${myReady ? 'Вы готовы · ждём напарника' : 'Я готов'}</button>
         </div>`)}
     `);
     scheduleLobbyPoll();
@@ -372,7 +379,7 @@
       try {
         const state = await api({ action: 'status', code });
         setRoomQuery(code);
-        if (state.me?.started) renderGame(state);
+        if (state.me?.started && state.opponent?.started) renderGame(state);
         else renderLobby(state);
         return;
       } catch (error) {
@@ -413,12 +420,18 @@
   };
 
   const startGame = async () => {
-    if (!roomState?.bothJoined || busy) return;
+    if (!roomState?.bothJoined || roomState.me?.started || busy) return;
     busy = true;
     try {
       const state = await api({ action: 'start', code: roomState.room.code });
-      track('zero_started', { room_code: state.room.code, role: state.me.role });
-      renderGame(state);
+      const bothStarted = Boolean(state.me?.started && state.opponent?.started);
+      if (bothStarted) {
+        track('zero_started', { room_code: state.room.code, role: state.me.role });
+        renderGame(state);
+      } else {
+        track('zero_ready', { room_code: state.room.code, role: state.me.role });
+        renderLobby(state);
+      }
     } catch (error) {
       renderLobby(roomState, errorText(error));
     } finally {
