@@ -61,8 +61,15 @@ test('server owns readiness, evidence disclosure and checkpoint sequence', () =>
   assert.match(edge, /t04391_link: 3/);
   assert.match(edge, /physical_operation: 4/);
   assert.match(edge, /endpoint_link: 4/);
-  assert.match(edge, /Number\(currentState\.chapter\) !== requiredChapter/);
+  assert.match(edge, /currentChapter !== requiredChapter/);
   assert.match(edge, /error: 'checkpoint_locked', requiredChapter/);
+});
+
+test('past checkpoints allow only safe server-confirmed idempotent retries', () => {
+  assert.match(edge, /currentChapter > 1 && stored && submitted === stored/);
+  assert.match(edge, /storedCheckpoint\?\.correct === true/);
+  assert.match(edge, /idempotent: true/);
+  assert.match(edge, /sharedUnlocked: Boolean\(currentState\.shared_state\?\.\[rule\.sharedKey\]\)/);
 });
 
 test('future checkpoint choices are disclosed only when their gate is current', () => {
