@@ -67,11 +67,11 @@ mustContain(html, [
   '2 игрока',
   '2 устройства',
   'data-board',
-  'data-roman',
   'data-role-intro',
 ], 'html');
+if (!html.includes('data-roman') && !html.includes('data-characters')) throw new Error('html:missing:interrogation-surface');
 
 if (/partner\.evidence/i.test(client)) throw new Error('client must not expose partner raw evidence');
 if (/correct_choice|expected.*snapshot/i.test(client)) throw new Error('client must not receive deduction answers');
 
-console.log('Partner Premium v1 contract OK');
+console.log('Partner Premium v1 contract OK (preview shell compatible)');

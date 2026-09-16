@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061019">
   <title>Не публиковать — Premium Partner | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../../assets/partner-premium-v1.css?v=20260916-1">
+  <link rel="stylesheet" href="../../assets/partner-premium-v2.css?v=20260916-2">
 </head>
 <body>
   <main class="pp" data-app>
@@ -16,10 +16,8 @@
       <div class="pp-entry__card">
         <p class="pp-eyebrow">Mystery Logic · Premium Partner</p>
         <h1>НЕ ПУБЛИКОВАТЬ</h1>
-        <p class="pp-lead">Два доступа. Две версии одного расследования. И журналистка, которая исчезла до публикации.</p>
-        <div class="pp-entry__rules">
-          <span>2 игрока</span><span>2 устройства</span><span>разные материалы</span><span>свободный AI-допрос</span>
-        </div>
+        <p class="pp-lead">Два доступа. Две версии одного расследования. Журналистка исчезла перед публикацией — а старое самоубийство оказалось только первым слоем.</p>
+        <div class="pp-entry__rules"><span>2 игрока</span><span>2 устройства</span><span>разные материалы</span><span>общие персонажи</span><span>AI-допрос</span><span>финальная реконструкция</span></div>
         <div class="pp-form" data-create-form>
           <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-create-name></label>
           <button class="pp-primary" type="button" data-create>Создать комнату</button>
@@ -39,92 +37,64 @@
         <h2>Закрытая комната</h2>
         <div class="pp-code" data-room-code>────────</div>
         <p data-lobby-status>Ждём второго рецензента…</p>
-        <div class="pp-lobby__actions">
-          <button class="pp-primary" type="button" data-copy-invite>Скопировать приглашение</button>
-          <button class="pp-secondary" type="button" data-copy-code>Скопировать код</button>
-        </div>
-        <p class="pp-lobby__note">Один экран другому не показывайте. Обсуждать материалы можно и нужно.</p>
+        <div class="pp-lobby__actions"><button class="pp-primary" type="button" data-copy-invite>Скопировать приглашение</button><button class="pp-secondary" type="button" data-copy-code>Скопировать код</button></div>
+        <p class="pp-lobby__note">Не показывайте друг другу экраны. Обсуждать выводы, спорить и координировать допросы — часть игры.</p>
       </div>
     </section>
 
     <section class="pp-game" data-game hidden>
       <header class="pp-header">
-        <div>
-          <p class="pp-eyebrow">CASE 47 · <span data-role-label>—</span></p>
-          <strong>Не публиковать</strong>
-        </div>
-        <div class="pp-header__right">
-          <span class="pp-partner" data-partner-status>Партнёр: —</span>
-          <span class="pp-state" data-state-label>Расследование</span>
-        </div>
+        <div><p class="pp-eyebrow">CASE 47 · <span data-role-label>—</span></p><strong>Не публиковать</strong></div>
+        <div class="pp-header__right"><span class="pp-partner" data-partner-status>Партнёр: —</span><span class="pp-state" data-state-label>Расследование</span></div>
       </header>
 
       <section class="pp-alert" data-role-intro hidden>
-        <div>
-          <p class="pp-eyebrow">Сообщение Веры Ланской</p>
-          <div data-role-intro-copy></div>
-          <button class="pp-primary" type="button" data-role-intro-close>Открыть архив</button>
-        </div>
+        <div><p class="pp-eyebrow">Сообщение Веры Ланской</p><div data-role-intro-copy></div><button class="pp-primary" type="button" data-role-intro-close>Открыть материалы</button></div>
       </section>
 
       <div class="pp-layout">
         <aside class="pp-panel pp-evidence-panel">
-          <div class="pp-panel__head">
-            <p class="pp-eyebrow" data-evidence-eyebrow>Ваши материалы</p>
-            <h2>Материалы</h2>
-          </div>
+          <div class="pp-panel__head"><p class="pp-eyebrow" data-evidence-eyebrow>Ваши материалы</p><h2>Материалы</h2></div>
           <div class="pp-evidence-list" data-evidence-list></div>
         </aside>
 
         <section class="pp-panel pp-workspace">
-          <div class="pp-empty" data-evidence-empty>
-            <p class="pp-eyebrow">Вы ведёте расследование</p>
-            <h2>Выберите материал</h2>
-            <p>У вас и у второго игрока разные исходники. На общую доску попадают только выводы, которые вы решите зафиксировать.</p>
-          </div>
+          <div class="pp-empty" data-evidence-empty><p class="pp-eyebrow">Вы ведёте расследование</p><h2>Выберите материал</h2><p>Ваши исходники отличаются от материалов партнёра. На общую доску попадают только выводы, которые вы зафиксировали.</p></div>
           <article class="pp-document" data-evidence-detail hidden></article>
           <div class="pp-deductions" data-deductions></div>
+          <section class="pp-event-banner" data-event-banner hidden></section>
+          <section class="pp-location" data-location hidden></section>
+          <section class="pp-rescue" data-rescue hidden></section>
+          <section class="pp-reconstruction" data-reconstruction hidden></section>
+          <section class="pp-publication" data-publication hidden></section>
+          <section class="pp-case-closed" data-case-closed hidden></section>
         </section>
 
         <aside class="pp-panel pp-side">
           <section class="pp-board">
-            <div class="pp-panel__head">
-              <p class="pp-eyebrow">Общее поле</p>
-              <h2>Доска версий</h2>
-            </div>
+            <div class="pp-panel__head"><p class="pp-eyebrow">Общее поле</p><h2>Доска версий</h2></div>
             <div class="pp-board-list" data-board></div>
           </section>
 
-          <section class="pp-roman" data-roman hidden>
-            <div class="pp-panel__head pp-roman__head">
-              <div><p class="pp-eyebrow">Доступен для допроса</p><h2>Роман Веденин</h2></div>
-              <span class="pp-roman__status" data-roman-status>насторожен</span>
-            </div>
-            <p class="pp-roman__role">Саунд-продюсер Веры · раньше работал с фондом «Маяк»</p>
+          <section>
+            <div class="pp-panel__head"><p class="pp-eyebrow">Общие персонажи</p><h2>Допросы</h2></div>
+            <div class="pp-character-list" data-characters></div>
+          </section>
+
+          <section class="pp-interrogate" data-interrogate hidden>
+            <div class="pp-interrogate__title"><div class="pp-character-card__head"><div><p class="pp-eyebrow">Свободный допрос</p><h3 data-interrogate-name>—</h3><p data-interrogate-role></p></div><span class="pp-character-status" data-interrogate-status>—</span></div></div>
             <div class="pp-present" data-present-evidence></div>
+            <div class="pp-challenge-list" data-challenge-list></div>
             <div class="pp-chat" data-chat></div>
-            <form class="pp-chat-form" data-chat-form>
-              <textarea rows="2" maxlength="700" placeholder="Задайте свой вопрос Роману…" data-chat-input></textarea>
-              <button class="pp-primary" type="submit">Спросить</button>
-            </form>
-            <button class="pp-secondary pp-challenge" type="button" data-challenge hidden>Зафиксировать противоречие в его версии</button>
+            <form class="pp-chat-form" data-chat-form><textarea rows="2" maxlength="900" placeholder="Задайте свой вопрос…" data-chat-input></textarea><button class="pp-primary" type="submit">Спросить</button></form>
           </section>
         </aside>
       </div>
 
-      <section class="pp-complete" data-slice-complete hidden>
-        <p class="pp-eyebrow">Первая версия разрушена</p>
-        <h2>Роман сфабриковал ключевое доказательство. Но он, вероятно, не убивал Нину.</h2>
-        <p>Следующий вопрос расследования: <strong>зачем кому-то понадобилось инсценировать самоубийство?</strong></p>
-      </section>
-
-      <footer class="pp-footer">
-        <span data-sync-status>Состояние синхронизировано</span>
-        <span data-room-footer></span>
-      </footer>
+      <footer class="pp-footer"><span data-sync-status>Состояние синхронизировано</span><span data-room-footer></span></footer>
     </section>
   </main>
   <div class="pp-toast" data-toast hidden></div>
-  <script defer src="../../assets/partner-premium-v1.js?v=20260916-1"></script>
+  <script defer src="../../assets/partner-premium-v2.js?v=20260916-2"></script>
 </body>
 </html>
