@@ -32,6 +32,11 @@ test('photo attempt state is room-scoped and cleared after the checkpoint', () =
   assert.match(hints, /sessionStorage\.removeItem\(storageKey\(\)\)/);
 });
 
+test('chapter five board keeps WHY open until the final reconstruction', () => {
+  assert.match(hints, /clarifyFinalBoard/);
+  assert.match(hints, /Кто был исполнителем, кто организатором и зачем понадобился настоящий груз/);
+});
+
 test('hints load after checkpoint and polish layers', () => {
   assert.match(page, /partner-v2-checkpoints\.js[\s\S]*partner-v2-polish\.js[\s\S]*partner-v2-hints\.js/);
 });
