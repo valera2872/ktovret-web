@@ -40,6 +40,20 @@ test('map preserves readable scale on narrow screens with horizontal pan', () =>
   assert.match(css, /\.partner-v2-vector-map-pan-hint\{display:block/);
 });
 
+test('mobile map starts on the investigation zone instead of the empty left edge', () => {
+  assert.match(map, /centerMobileMap/);
+  assert.match(map, /matchMedia\('\(max-width: 680px\)'\)/);
+  assert.match(map, /scrollWidth - scroller\.clientWidth/);
+  assert.match(map, /scrollLeft = Math\.round\(overflow \* 0\.42\)/);
+});
+
+test('mobile technical labels remain legible without scaling the whole SVG down', () => {
+  assert.match(css, /\.pv2-label\{font-size:12px\}/);
+  assert.match(css, /\.pv2-zone-title\{font-size:10px\}/);
+  assert.match(css, /\.pv2-tiny,\.partner-v2-vector-map \.pv2-note-text\{font-size:9\.5px\}/);
+  assert.match(css, /\.pv2-gate-label\{font-size:8px\}/);
+});
+
 test('map has dedicated technical-system styling', () => {
   assert.match(css, /\.partner-v2-vector-map/);
   assert.match(css, /\.pv2-loop-track/);
