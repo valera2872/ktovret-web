@@ -43,3 +43,21 @@ jobs:
           grep -q "action === 'REVOKE'" supabase/functions/partner-review-v1/index.ts
       - name: Type-check review Edge Function
         run: deno check --node-modules-dir=auto supabase/functions/partner-review-v1/index.ts
+      - name: Verify live preview CORS path
+        env:
+          PREVIEW_ORIGIN: https://rawcdn.githack.com
+          BASE: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1
+        run: |
+          set -euo pipefail
+          for fn in partner-review-v1 partner-access-v1 duel-room partner-session-v2 partner-interrogate-v2; do
+            echo "Checking $fn"
+            headers="$(mktemp)"
+            status="$(curl -sS -o /dev/null -D "$headers" -w '%{http_code}' -X OPTIONS \
+              -H "Origin: $PREVIEW_ORIGIN" \
+              -H 'Access-Control-Request-Method: POST' \
+              -H 'Access-Control-Request-Headers: content-type,authorization' \
+              "$BASE/$fn")"
+            cat "$headers"
+            test "$status" = '204'
+            grep -qi '^access-control-allow-origin: https://rawcdn.githack.com' "$headers"
+          done
