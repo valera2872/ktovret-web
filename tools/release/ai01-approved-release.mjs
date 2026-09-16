@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 
+// Temporary pinned values are intentionally the previous reconstructed fingerprints.
+// If the checked-in approved assets differ, CI prints their exact fingerprints so we
+// can pin the real immutable binaries instead of rebuilding WebP through text parts.
 const HOME_SHA='686582efc6c88d1d81f9ec4ea0309516aa7180d3f40569499e885a5f39b95637';
 const MOBILE_SHA='294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41';
 const HOME_SIZE=56918;
@@ -16,28 +19,10 @@ const HOME_BANNER=`<section class="ml-ai01-feature ml-ai01-feature--home" aria-l
 
 const SOLO_BANNER=`<section class="ml-ai01-feature ml-ai01-feature--solo" aria-label="AI-расследование для одного игрока"><a class="ml-ai01-feature-link" href="../detektivnaya-igra-s-ii/" data-ai01-feature="solo"><picture><source media="(max-width: 640px)" srcset="../assets/ai01-mobile-banner.webp"><img src="../assets/ai01-home-banner.webp" width="1200" height="400" loading="eager" decoding="async" alt="Восемь минут без камеры — бесплатное AI-расследование для одного игрока"></picture><span class="ml-ai01-feature-badge">AI · бесплатно</span><span class="ml-ai01-feature-sr">Начать расследование «Восемь минут без камеры»</span></a></section>`;
 
-function readPart(repoRoot,name){
-  const file=path.join(repoRoot,'content','ai01-approved',name);
-  if(!fs.existsSync(file)) throw new Error(`Approved AI banner source part missing: ${file}`);
-  return fs.readFileSync(file,'utf8').trim();
-}
-
-function decodeExact(encoded,label){
-  if(encoded.length%4!==0) throw new Error(`${label}: invalid base64 length ${encoded.length}`);
-  const bytes=Buffer.from(encoded,'base64');
-  if(bytes.toString('base64')!==encoded) throw new Error(`${label}: base64 source is not exact`);
-  return bytes;
-}
-
-function normalizeWebp(bytes,label){
+function webpDimensions(bytes,label){
   if(bytes.length<30||bytes.toString('ascii',0,4)!=='RIFF'||bytes.toString('ascii',8,12)!=='WEBP') throw new Error(`${label}: invalid WebP/RIFF header`);
   const declared=bytes.readUInt32LE(4)+8;
-  if(declared>bytes.length) throw new Error(`${label}: truncated WebP, RIFF declares ${declared}, file has ${bytes.length}`);
-  if(declared<bytes.length) bytes=bytes.subarray(0,declared);
-  return bytes;
-}
-
-function webpDimensions(bytes,label){
+  if(declared!==bytes.length) throw new Error(`${label}: RIFF length mismatch: declares ${declared}, file has ${bytes.length}`);
   if(bytes.toString('ascii',12,16)!=='VP8 '||bytes[23]!==0x9d||bytes[24]!==0x01||bytes[25]!==0x2a) throw new Error(`${label}: unexpected WebP encoding`);
   return {width:bytes.readUInt16LE(26)&0x3fff,height:bytes.readUInt16LE(28)&0x3fff};
 }
@@ -52,37 +37,17 @@ function validateFingerprint(info,label,sha,size,width,height){
   if(info.bytes!==size) failures.push(`size expected ${size}, got ${info.bytes}`);
   if(info.width!==width||info.height!==height) failures.push(`dimensions expected ${width}x${height}, got ${info.width}x${info.height}`);
   if(info.digest!==sha) failures.push(`sha expected ${sha}, got ${info.digest}`);
-  if(failures.length) throw new Error(`${label}: approved fingerprint mismatch: ${failures.join('; ')}`);
+  if(failures.length) throw new Error(`${label}: checked-in approved fingerprint mismatch: ${failures.join('; ')}; actual=${JSON.stringify(info)}`);
 }
 
-function rebuildArtwork(siteRoot,repoRoot){
-  const homeEncoded=[
-    readPart(repoRoot,'home.part01.b64'),
-    readPart(repoRoot,'home.part02.b64'),
-    readPart(repoRoot,'home.part03.b64'),
-    'X',readPart(repoRoot,'home.part04.b64'),
-    'C',readPart(repoRoot,'home.part05.b64'),
-    readPart(repoRoot,'home.part06.b64'),
-  ].join('');
-  const mobileEncoded=[
-    readPart(repoRoot,'mobile.head01.b64'),
-    readPart(repoRoot,'mobile.head02.b64'),
-    readPart(repoRoot,'mobile.head03.b64'),
-    readPart(repoRoot,'mobile.head04.b64'),
-    'L',readPart(repoRoot,'mobile.part02.b64'),
-    readPart(repoRoot,'mobile.part02-tail.b64'),
-    readPart(repoRoot,'mobile.part03.b64'),
-  ].join('');
-  const home=normalizeWebp(decodeExact(homeEncoded,'AI desktop banner'),'AI desktop banner');
-  const mobile=normalizeWebp(decodeExact(mobileEncoded,'AI mobile banner'),'AI mobile banner');
-  const homeInfo=fingerprint(home,'AI desktop banner');
-  const mobileInfo=fingerprint(mobile,'AI mobile banner');
+function validateArtwork(siteRoot){
+  const homePath=path.join(siteRoot,'assets','ai01-home-banner.webp');
+  const mobilePath=path.join(siteRoot,'assets','ai01-mobile-banner.webp');
+  if(!fs.existsSync(homePath)||!fs.existsSync(mobilePath)) throw new Error('AI banner artwork missing from checked-in assets');
+  const homeInfo=fingerprint(fs.readFileSync(homePath),'AI desktop banner');
+  const mobileInfo=fingerprint(fs.readFileSync(mobilePath),'AI mobile banner');
   validateFingerprint(homeInfo,'AI desktop banner',HOME_SHA,HOME_SIZE,1200,400);
   validateFingerprint(mobileInfo,'AI mobile banner',MOBILE_SHA,MOBILE_SIZE,360,640);
-  const assets=path.join(siteRoot,'assets');
-  fs.mkdirSync(assets,{recursive:true});
-  fs.writeFileSync(path.join(assets,'ai01-home-banner.webp'),home);
-  fs.writeFileSync(path.join(assets,'ai01-mobile-banner.webp'),mobile);
   return {home:homeInfo,mobile:mobileInfo};
 }
 
@@ -117,16 +82,18 @@ function patchSolo(siteRoot){
   fs.writeFileSync(file,html);
 }
 
-export function applyApprovedAi01(siteRoot,repoRoot=process.cwd()){
+export function applyApprovedAi01(siteRoot){
   const required=[
     path.join(siteRoot,'index.html'),
     path.join(siteRoot,'detektivnye-igry-dlya-odnogo','index.html'),
     path.join(siteRoot,'assets','ai01-feature-banner.css'),
+    path.join(siteRoot,'assets','ai01-home-banner.webp'),
+    path.join(siteRoot,'assets','ai01-mobile-banner.webp'),
   ];
   const missing=required.filter(file=>!fs.existsSync(file));
   if(missing.length) throw new Error(`AI banner release asset missing: ${missing[0]}`);
-  const art=rebuildArtwork(siteRoot,repoRoot);
+  const art=validateArtwork(siteRoot);
   patchHome(siteRoot);
   patchSolo(siteRoot);
-  return {version:'1.2.0',home:true,solo:true,correctedSpelling:true,art};
+  return {version:'1.3.0',home:true,solo:true,correctedSpelling:true,art};
 }
