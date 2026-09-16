@@ -12,7 +12,7 @@ test('Vector-12 map renderer parses as browser JavaScript', () => {
 });
 
 test('M01 technical map contains all investigation-critical locations', () => {
-  assert.match(map, /data-evidence-id=\\"M01\\"/);
+  assert.match(map, /data-evidence-id="M01"/);
   assert.match(map, /ГЛАВНЫЙ ПУТЬ/);
   assert.match(map, /ПЕТЛЯ Б/);
   assert.match(map, /ПРОМЫШЛЕННАЯ ВЕТКА/);
