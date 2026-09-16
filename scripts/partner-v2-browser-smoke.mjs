@@ -12,6 +12,7 @@ const PORT = Number(process.env.PARTNER_V2_BROWSER_PORT || 4174);
 const HOST = '127.0.0.1';
 const CASE_PATH = '/detektivnye-igry-dlya-dvoih/nulevoy-konteyner/';
 const API_PATH = '/__partner-v2-browser-api';
+const LOCAL_ORIGIN = `http://${HOST}:${PORT}`;
 const LOCAL_FUNCTION = String(
   process.env.LOCAL_PARTNER_V2_ENDPOINT || 'http://127.0.0.1:54321/functions/v1/coop-case-v2'
 ).trim().replace(/\/$/, '');
@@ -92,10 +93,11 @@ const proxyApi = async (request, response) => {
 const startServer = async () => {
   const server = createServer(async (request, response) => {
     if (!request.url) return response.writeHead(400).end('Bad request');
-    const url = new URL(request.url, `http://${HOST}:${PORT}`);
+    const url = new URL(request.url, LOCAL_ORIGIN);
     if (url.pathname === API_PATH) return proxyApi(request, response);
     if (!['GET', 'HEAD'].includes(request.method || 'GET')) return response.writeHead(405).end('Method not allowed');
     if (url.pathname === '/') return response.writeHead(302, { location: CASE_PATH }).end();
+    if (url.pathname === '/favicon.ico') return response.writeHead(204, { 'cache-control': 'no-store' }).end();
 
     const filePath = safeFile(url.pathname);
     if (!filePath) return response.writeHead(404).end('Not found');
@@ -165,7 +167,7 @@ let server;
 let browser;
 try {
   server = await startServer();
-  const baseUrl = `http://${HOST}:${PORT}${CASE_PATH}`;
+  const baseUrl = `${LOCAL_ORIGIN}${CASE_PATH}`;
   log(`serving ${baseUrl}`);
 
   browser = await chromium.launch({
@@ -183,11 +185,29 @@ try {
   const creator = await creatorContext.newPage();
   const guest = await guestContext.newPage();
   const browserErrors = [];
+  const networkChecks = [];
 
   for (const [label, page] of [['creator-mobile', creator], ['guest-desktop', guest]]) {
     page.on('pageerror', (error) => browserErrors.push(`${label}: pageerror: ${error.message}`));
     page.on('console', (message) => {
-      if (message.type() === 'error') browserErrors.push(`${label}: console: ${message.text()}`);
+      if (message.type() === 'error' && !/^Failed to load resource:/i.test(message.text())) {
+        browserErrors.push(`${label}: console: ${message.text()}`);
+      }
+    });
+    page.on('response', (response) => {
+      if (response.status() < 400) return;
+      const responseUrl = response.url();
+      if (!responseUrl.startsWith(LOCAL_ORIGIN)) return;
+      networkChecks.push((async () => {
+        let body = '';
+        try { body = await response.text(); } catch {}
+        let payload = null;
+        try { payload = JSON.parse(body); } catch {}
+        const isApi = new URL(responseUrl).pathname === API_PATH;
+        const expectedConflict = isApi && response.status() === 409 && payload?.error === 'state_conflict';
+        if (expectedConflict) return;
+        browserErrors.push(`${label}: HTTP ${response.status()} ${responseUrl}${body ? ` -> ${body.slice(0, 300)}` : ''}`);
+      })());
     });
   }
 
@@ -275,6 +295,8 @@ try {
   await waitVisible(creator, '[data-partner-v2-debrief]');
   await waitVisible(guest, '[data-partner-v2-debrief]');
 
+  await creator.waitForTimeout(250);
+  await Promise.all(networkChecks);
   assert.deepEqual(browserErrors, [], `browser errors detected:\n${browserErrors.join('\n')}`);
   log(`PASS room=${roomCode}: mobile + desktop completed the real UI flow through solved reveal`);
 
