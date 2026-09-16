@@ -32,7 +32,7 @@ test('later evidence is regrouped by its real chapter instead of one generic pac
   assert.match(polish, /M04: 2, M05: 2, G04: 2/);
   assert.match(polish, /M06: 3, G05: 3, G06: 3/);
   assert.match(polish, /M07: 4, M08: 4, G07: 4, G08: 4, G09: 4/);
-  assert.match(polish, /M09: 5, M10: 5, G10: 5, G11: 5, G12: 5/);
+  assert.match(polish, /M09: 5, M10: 5, G10: 5, G11: 5, G12: 5, G13: 5/);
   assert.match(polish, /data-partner-v2-chapter-packet/);
   assert.doesNotMatch(polish, /Partner V2 core работает/);
 });
