@@ -85,6 +85,14 @@ function finalizeSitemap(siteRoot){
   }
   for(const url of REAL_ROUTES) if(!xml.includes(`<loc>${url}</loc>`)) throw new Error(`Real Investigations sitemap route missing: ${url}`);
   fs.writeFileSync(file,xml);
+
+  const reportFile=path.join(siteRoot,'assets','generated','import-report.json');
+  if(fs.existsSync(reportFile)){
+    const report=JSON.parse(fs.readFileSync(reportFile,'utf8'));
+    report.indexableUrls=(xml.match(/<url>/g)||[]).length;
+    report.realInvestigationsRoutes=REAL_ROUTES.length;
+    fs.writeFileSync(reportFile,`${JSON.stringify(report,null,2)}\n`);
+  }
 }
 
 function stripLegacyHomepageLaunch(html){
