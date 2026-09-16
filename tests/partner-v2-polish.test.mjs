@@ -5,6 +5,8 @@ import fs from 'node:fs';
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 const migration = read('supabase/migrations/20260916070000_partner_v2_photo_tolerance.sql');
+const caseConfig = read('supabase/functions/_shared/partner-cases/zero-container.ts');
+const checkpoints = read('assets/partner-v2-checkpoints.js');
 const polish = read('assets/partner-v2-polish.js');
 const polishCss = read('assets/partner-v2-polish.css');
 const page = read('detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html');
@@ -21,11 +23,15 @@ test('photo checkpoint uses three signs and accepts two server-side matches', ()
   assert.match(migration, /door_deformation' = 'absent'/);
 });
 
-test('browser requires the third physical observation before existing submit handler runs', () => {
-  assert.match(polish, /data-photo-field="door_deformation"/);
-  assert.match(polish, /Деформация правой створки двери/);
-  assert.match(polish, /partner-v2-observation-row/);
-  assert.match(polish, /Отметьте все три признака перед фиксацией/);
+test('third photo sign is native case config rendered by base checkpoint client', () => {
+  assert.match(caseConfig, /\{ id: 'door_deformation', label: 'Деформация правой створки двери' \}/);
+  assert.match(caseConfig, /creator: \{ patch: 'absent', scratch: 'absent', door_deformation: 'present' \}/);
+  assert.match(caseConfig, /guest: \{ patch: 'present', scratch: 'present', door_deformation: 'absent' \}/);
+  assert.match(checkpoints, /\(ui\.fields \|\| \[\]\)\.map/);
+  assert.match(checkpoints, /data-photo-field="\$\{escapeHtml\(field\.id\)\}"/);
+  assert.match(checkpoints, /Отметьте все признаки перед фиксацией/);
+  assert.doesNotMatch(polish, /addThirdPhotoObservation/);
+  assert.doesNotMatch(polish, /data-photo-field="door_deformation"/);
 });
 
 test('later evidence is regrouped by its real chapter instead of one generic packet', () => {
