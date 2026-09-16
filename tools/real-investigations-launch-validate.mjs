@@ -11,19 +11,29 @@ const expect = (cond, message) => {
 };
 
 const home = read('index.html');
+const solo = read('detektivnye-igry-dlya-odnogo/index.html');
 const hub = read('realnye-dela/index.html');
-const css = read('assets/real-investigations-launch.css');
-const art = read('assets/real-investigations-hero.svg');
+const post = read('tools/import-mobile/real-investigations-release-postprocess.mjs');
+const compat = read('assets/real-investigations-production-compat.css');
 const sitemap = read('sitemap.xml');
+const artPath = 'assets/real-investigations-approved-banner.jpg';
 
-expect(home.includes('href="./realnye-dela/"'), 'homepage links to Real Investigations hub');
-expect(home.includes('Реальные расследования — первое дело уже доступно'), 'homepage announces the new product');
-expect(home.includes('class="ml-product ml-product-real"'), 'homepage includes a dedicated product card');
-expect(home.includes('real-investigations-launch.css'), 'homepage loads launch styling');
-expect(home.includes('real-investigations-hero.svg'), 'homepage uses dedicated launch artwork');
-expect(home.includes('https://mysterylogic.com/'), 'homepage uses production canonical origin');
+expect(fs.existsSync(artPath) && fs.statSync(artPath).size > 10000, 'approved Real Investigations banner artwork is present');
+expect(post.includes('data-real-investigations-approved-home'), 'production finalizer installs approved homepage banner');
+expect(post.includes('data-real-investigations-approved-solo'), 'production finalizer installs compact Solo banner');
+expect(post.includes('real-investigations-approved-banner.jpg'), 'production finalizer uses approved mockup artwork');
+expect(post.includes("ensureAiPromo(html,'homepage')"), 'production finalizer refuses homepage release without AI banner');
+expect(post.includes("ensureAiPromo(html,'solo hub')"), 'production finalizer refuses Solo release without AI banner');
+expect(post.includes('Rejected slim Real Investigations promo still present'), 'rejected slim promo is explicitly removed');
+expect(compat.includes('.ri-approved-home'), 'approved homepage banner styling is present');
+expect(compat.includes('.ri-approved-solo'), 'approved Solo banner styling is present');
+expect(compat.includes('.ml-nav-new'), 'Real Investigations navigation styling is present');
 
-expect(hub.includes('<h1>Реальные<br>расследования</h1>'), 'hub has dedicated product H1');
+expect(home.includes('data-ai01-launch-promo-style') && home.includes('data-ai01-launch-promo-script'), 'source homepage preserves AI01 banner assets');
+expect(solo.includes('data-ai01-launch-promo-style') && solo.includes('data-ai01-launch-promo-script'), 'source Solo hub preserves AI01 banner assets');
+expect(home.includes('data-ml-social-proof-client'), 'source homepage preserves social proof client');
+expect(solo.includes('data-ml-social-proof-client'), 'source Solo hub preserves social proof client');
+
 expect(hub.includes('pozharnaya-lestnica-1991-premium'), 'hub exposes the first real case');
 expect(hub.includes('Игрок ведёт следствие'), 'hub explains player-led investigation');
 expect(hub.includes('ИИ не имеет права придумывать новые улики'), 'hub states source-bounded AI rule');
@@ -32,14 +42,11 @@ expect(hub.includes('CollectionPage'), 'hub includes structured data');
 expect(hub.includes('index,follow,max-image-preview:large'), 'hub is indexable');
 
 for (const spoiler of ['Rodney Daniels', 'Родни Дэниелс', 'convicted', 'осуждён', 'осужден']) {
-  expect(!home.includes(spoiler) && !hub.includes(spoiler), `launch pages do not reveal outcome: ${spoiler}`);
+  expect(!home.includes(spoiler) && !solo.includes(spoiler) && !hub.includes(spoiler) && !post.includes(spoiler), `launch surfaces do not reveal outcome: ${spoiler}`);
 }
 
-expect(css.includes('.ml-real-launch-grid'), 'launch CSS contains homepage product section');
-expect(css.includes('.ri-hero'), 'launch CSS contains product hub hero');
-expect(art.includes('<svg') && art.includes('пожарная лестница'), 'launch artwork is present and described');
 expect(sitemap.includes('https://mysterylogic.com/realnye-dela/</loc>'), 'sitemap includes product hub');
 expect(sitemap.includes('pozharnaya-lestnica-1991-premium'), 'sitemap includes first real case');
 
 if (process.exitCode) process.exit(process.exitCode);
-console.log('Real Investigations launch validation passed.');
+console.log('Real Investigations approved banner validation passed.');
