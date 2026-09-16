@@ -4,7 +4,14 @@ import {createHash} from 'node:crypto';
 
 const APPROVED_BANNER_SHA256='4c98ac9e4c98b13bb63d2a8a9cdeee0f8b5627744eca58dffa13b7913e76adca';
 const APPROVED_BANNER_SIZE=39263;
-const APPROVED_BANNER_PART_COUNT=5;
+const APPROVED_BANNER_SOURCE_FILES=[
+  'banner.part01.b64',
+  'banner.part01-tail.b64',
+  'banner.part02.b64',
+  'banner.part03.b64',
+  'banner.part04.b64',
+  'banner.part05.b64',
+];
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const expect = (cond, message) => {
@@ -35,9 +42,9 @@ function jpegDimensions(bytes){
 function restoredApprovedBanner(){
   const root=path.join('content','real-investigations-approved');
   const encoded=[];
-  for(let i=1;i<=APPROVED_BANNER_PART_COUNT;i++){
-    const file=path.join(root,`banner.part${String(i).padStart(2,'0')}.b64`);
-    expect(fs.existsSync(file),`approved banner source part ${i} exists`);
+  for(const name of APPROVED_BANNER_SOURCE_FILES){
+    const file=path.join(root,name);
+    expect(fs.existsSync(file),`approved banner source ${name} exists`);
     if(fs.existsSync(file)) encoded.push(read(file).trim());
   }
   return Buffer.from(encoded.join(''),'base64');
@@ -61,6 +68,7 @@ expect(digest===APPROVED_BANNER_SHA256, 'restored approved banner keeps exact ap
 expect(post.includes('restoreApprovedBanner'), 'production finalizer restores approved banner before patching pages');
 expect(post.includes('validateApprovedBanner'), 'production finalizer validates approved banner before patching pages');
 expect(post.includes('APPROVED_BANNER_SHA256'), 'production finalizer verifies approved banner digest');
+expect(post.includes('banner.part01-tail.b64'), 'production finalizer includes recovered banner tail');
 expect(post.includes('data-real-investigations-approved-home'), 'production finalizer installs approved homepage banner');
 expect(post.includes('data-real-investigations-approved-solo'), 'production finalizer installs compact Solo banner');
 expect(post.includes("detektivnye-igry-dlya-odnogo','index.html'"), 'production finalizer patches generated Solo hub');
