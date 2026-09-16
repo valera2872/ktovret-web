@@ -29,8 +29,15 @@ test('LAN mode is explicit and proxies phone requests back to loopback Supabase'
   assert.match(source, /192\\\.168|10\\\.|172/);
   assert.match(source, /url\.pathname === API_PATH/);
   assert.match(source, /await fetch\(LOCAL_FUNCTION/);
-  assert.match(source, /Телефон \/ второй компьютер в той же Wi-Fi сети/);
+  assert.match(source, /Общий адрес для компьютера и второго устройства/);
   assert.match(source, /В режиме --lan страница доступна устройствам вашей локальной сети/);
+});
+
+test('LAN mode opens the shared LAN origin so copied invitation links work on the second device', () => {
+  assert.match(source, /const primaryUrl = LAN_MODE \? lanUrl : localUrl/);
+  assert.match(source, /openBrowser\(primaryUrl\)/);
+  assert.match(source, /Скопировать приглашение/);
+  assert.match(source, /работающую на телефоне/);
 });
 
 test('LAN static server exposes only the case page and assets, not the repository', () => {
@@ -60,5 +67,5 @@ test('playtest cleanup is safe before the web server exists and destroys local d
 
 test('human instructions preserve separate player identities', () => {
   assert.match(source, /режиме инкогнито или в другом браузере/);
-  assert.match(source, /Первый игрок создаёт комнату и передаёт код второму/);
+  assert.match(source, /Первый игрок создаёт комнату и передаёт код или ссылку второму/);
 });
