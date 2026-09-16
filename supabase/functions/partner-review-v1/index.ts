@@ -1,0 +1,173 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import {
+  adminClient,
+  cleanOrigin,
+  corsHeaders,
+  isAllowedOrigin,
+  json,
+  sha256,
+  validAccessToken,
+} from '../_shared/last-aria-payment.ts';
+import { PARTNER_PRODUCT_ID } from '../_shared/partner-commerce.ts';
+import { FULL_PARTNER_CASE_ID } from '../_shared/partner-ne-publikovat-content-v2.ts';
+
+const REVIEW_KEY_HASH = '340d6f743084798aef68413958950dedea2ff76224e7472c61f27a9db2a9576b';
+const REVIEW_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const REVIEW_KEY_RE = /^ml_review_[A-Za-z0-9_-]{32,160}$/;
+
+const requireReviewKey = async (value: unknown) => {
+  const key = String(value || '').trim();
+  if (!REVIEW_KEY_RE.test(key)) throw new Error('review_key_required');
+  if ((await sha256(key)) !== REVIEW_KEY_HASH) throw new Error('review_key_invalid');
+  return key;
+};
+
+const loadEntitlement = async (admin: any, tokenHash: string) => {
+  const { data, error } = await admin.from('access_entitlements')
+    .select('id,token_hash,product_id,status,starts_at,expires_at,revoked_at,metadata,payment_provider')
+    .eq('token_hash', tokenHash)
+    .eq('product_id', PARTNER_PRODUCT_ID)
+    .maybeSingle();
+  if (error) throw new Error('review_access_lookup_failed');
+  return data;
+};
+
+const isReviewEntitlement = (row: any) => Boolean(
+  row
+  && row.product_id === PARTNER_PRODUCT_ID
+  && row.metadata?.mode === 'review'
+  && row.metadata?.case_id === FULL_PARTNER_CASE_ID
+);
+
+const activateReview = async (admin: any, tokenHash: string) => {
+  const existing = await loadEntitlement(admin, tokenHash);
+  if (existing && !isReviewEntitlement(existing)) throw new Error('review_token_conflict');
+
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const expiresAt = new Date(now.getTime() + REVIEW_TTL_MS).toISOString();
+  const payload = {
+    token_hash: tokenHash,
+    product_id: PARTNER_PRODUCT_ID,
+    status: 'active',
+    payment_provider: 'review',
+    payment_reference: null,
+    customer_email_hash: null,
+    starts_at: nowIso,
+    expires_at: expiresAt,
+    revoked_at: null,
+    metadata: {
+      mode: 'review',
+      source: 'pre_release_review',
+      case_id: FULL_PARTNER_CASE_ID,
+      partner_seats: 2,
+      reset_allowed: true,
+    },
+    updated_at: nowIso,
+  };
+
+  if (existing?.id) {
+    const { data, error } = await admin.from('access_entitlements')
+      .update(payload)
+      .eq('id', existing.id)
+      .select('id,expires_at')
+      .single();
+    if (error || !data?.id) throw new Error('review_access_write_failed');
+    return data;
+  }
+
+  const { data, error } = await admin.from('access_entitlements')
+    .insert(payload)
+    .select('id,expires_at')
+    .single();
+  if (error || !data?.id) throw new Error('review_access_write_failed');
+  return data;
+};
+
+const requireReviewEntitlement = async (admin: any, tokenHash: string) => {
+  const row = await loadEntitlement(admin, tokenHash);
+  const now = Date.now();
+  if (!isReviewEntitlement(row)
+    || row.status !== 'active'
+    || row.revoked_at
+    || (row.expires_at && new Date(row.expires_at).getTime() <= now)) {
+    throw new Error('review_access_required');
+  }
+  return row;
+};
+
+const resetReviewRooms = async (admin: any, entitlementId: string) => {
+  const { data: states, error } = await admin.from('partner_room_states')
+    .select('room_id')
+    .eq('entitlement_id', entitlementId)
+    .eq('case_id', FULL_PARTNER_CASE_ID);
+  if (error) throw new Error('review_room_lookup_failed');
+  const roomIds = [...new Set((states || []).map((row: any) => row.room_id).filter(Boolean))];
+  if (!roomIds.length) return 0;
+  const { error: deleteError } = await admin.from('duel_rooms').delete().in('id', roomIds);
+  if (deleteError) throw new Error('review_room_reset_failed');
+  return roomIds.length;
+};
+
+const errorStatus = (code: string) => {
+  if (['review_key_required', 'invalid_request', 'access_token_required'].includes(code)) return 400;
+  if (['review_key_invalid', 'review_access_required', 'review_token_conflict'].includes(code)) return 403;
+  if (code.endsWith('_failed')) return 503;
+  return 400;
+};
+
+Deno.serve(async (req: Request) => {
+  const origin = cleanOrigin(req.headers.get('origin') || '');
+  if (req.method === 'OPTIONS') {
+    if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+  if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
+  if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
+
+  let body: Record<string, any> = {};
+  try { body = await req.json(); } catch { return json(400, { error: 'invalid_request' }, origin); }
+
+  try {
+    await requireReviewKey(body.reviewKey);
+    const accessToken = String(body.accessToken || '').trim();
+    if (!validAccessToken(accessToken)) throw new Error('access_token_required');
+    const tokenHash = await sha256(accessToken);
+    const action = String(body.action || 'ACTIVATE').trim().toUpperCase();
+    const admin = adminClient();
+
+    if (action === 'ACTIVATE') {
+      const entitlement = await activateReview(admin, tokenHash);
+      return json(200, {
+        ok: true,
+        reviewMode: true,
+        entitlementId: entitlement.id,
+        expiresAt: entitlement.expires_at,
+      }, origin);
+    }
+
+    if (action === 'RESET') {
+      const entitlement = await requireReviewEntitlement(admin, tokenHash);
+      const deletedRooms = await resetReviewRooms(admin, entitlement.id);
+      return json(200, { ok: true, reviewMode: true, reset: true, deletedRooms }, origin);
+    }
+
+    if (action === 'REVOKE') {
+      const entitlement = await requireReviewEntitlement(admin, tokenHash);
+      await resetReviewRooms(admin, entitlement.id);
+      const now = new Date().toISOString();
+      const { error } = await admin.from('access_entitlements').update({
+        status: 'revoked', revoked_at: now, updated_at: now,
+      }).eq('id', entitlement.id);
+      if (error) throw new Error('review_access_revoke_failed');
+      return json(200, { ok: true, reviewMode: true, revoked: true }, origin);
+    }
+
+    return json(400, { error: 'invalid_request' }, origin);
+  } catch (error) {
+    const raw = error instanceof Error ? error.message : String(error);
+    const code = raw.split(':')[0] || 'review_access_failed';
+    console.error('partner_review_v1_error', code);
+    return json(errorStatus(code), { error: code }, origin);
+  }
+});
