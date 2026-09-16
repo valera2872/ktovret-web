@@ -8,6 +8,7 @@
   <title>Не публиковать — Premium Partner | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../assets/partner-premium-v2.css?v=20260916-2">
+  <link rel="stylesheet" href="../../assets/partner-premium-commerce-v1.css?v=20260916-1">
 </head>
 <body>
   <main class="pp" data-app>
@@ -18,10 +19,27 @@
         <h1>НЕ ПУБЛИКОВАТЬ</h1>
         <p class="pp-lead">Два доступа. Две версии одного расследования. Журналистка исчезла перед публикацией — а старое самоубийство оказалось только первым слоем.</p>
         <div class="pp-entry__rules"><span>2 игрока</span><span>2 устройства</span><span>разные материалы</span><span>общие персонажи</span><span>AI-допрос</span><span>финальная реконструкция</span></div>
+
         <div class="pp-form" data-create-form>
+          <p class="pp-commerce-note" data-price-note><strong>599 ₽ за всю комнату.</strong> Платит один игрок, второй подключается бесплатно по коду или ссылке.</p>
           <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-create-name></label>
-          <button class="pp-primary" type="button" data-create>Создать комнату</button>
+          <div class="pp-purchase-fields" data-purchase-fields>
+            <label>E-mail для чека<input type="email" maxlength="254" autocomplete="email" placeholder="name@example.com" data-purchase-email></label>
+            <label class="pp-check"><input type="checkbox" data-purchase-offer><span>Принимаю условия публичной оферты на цифровой доступ.</span></label>
+            <label class="pp-check"><input type="checkbox" data-purchase-privacy><span>Подтверждаю обработку данных, необходимых для оплаты и выдачи доступа.</span></label>
+          </div>
+          <button class="pp-primary" type="button" data-create>Купить полное расследование — 599 ₽</button>
         </div>
+
+        <div class="pp-entry-divider"><span>или вы второй игрок</span></div>
+        <div class="pp-guest-code" data-guest-code-form>
+          <div class="pp-guest-code__row">
+            <input type="text" maxlength="32" autocomplete="name" placeholder="Ваше имя" data-guest-name>
+            <input type="text" maxlength="8" autocomplete="off" inputmode="text" placeholder="Код комнаты" data-guest-code>
+            <button class="pp-secondary" type="button" data-guest-code-submit>Войти по коду</button>
+          </div>
+        </div>
+
         <div class="pp-form" data-join-form hidden>
           <p class="pp-room-context" data-room-context></p>
           <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-join-name></label>
@@ -96,5 +114,6 @@
   </main>
   <div class="pp-toast" data-toast hidden></div>
   <script defer src="../../assets/partner-premium-v2.js?v=20260916-2"></script>
+  <script defer src="../../assets/partner-premium-commerce-v1.js?v=20260916-1"></script>
 </body>
 </html>
