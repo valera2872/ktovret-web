@@ -24,6 +24,10 @@
 @media(max-width:1180px){
   .ref-nav .ml-nav-new{display:none!important}
 }
+@media(min-width:981px) and (max-width:1180px){
+  .ref-header{grid-template-columns:240px minmax(0,1fr) 120px}
+  .ref-nav{min-width:0;gap:12px}
+}
 @media(max-width:900px){
   .ri-approved-home{margin:4px 8px 28px}
   .ri-approved-solo{width:calc(100% - 16px);margin:24px auto 28px}
