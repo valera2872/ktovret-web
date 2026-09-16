@@ -71,11 +71,13 @@ test('arrival door deformation is geometric, not just another scratch', () => {
   assert.match(polishCss, /rotate\(-27deg\)/);
 });
 
-test('editorial polish removes answer-like fact chips before final reconstruction', () => {
+test('editorial polish removes answer-like fact chips and preserves shared-account ambiguity', () => {
   assert.match(polish, /editorialFacts/);
   assert.match(polish, /Инициатор перемещения в бокс: I\. MARKOVA/);
+  assert.match(polish, /Через 15 минут OPS\.SHARED оформляет перемещение ТК-0 в сервисный бокс 3/);
   assert.match(polish, /После предъявления телеметрии Рыбаков изменил объяснение операции/);
   assert.doesNotMatch(polish, /Маркова заранее переместила ТК-0 в сервисный бокс/);
+  assert.doesNotMatch(polish, /I\. MARKOVA оформляет перемещение ТК-0/);
   assert.doesNotMatch(polish, /Рыбаков сознательно скрывает характер операции/);
 });
 
