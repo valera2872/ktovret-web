@@ -43,8 +43,7 @@ function materializeApprovedBanner(siteRoot){
   if(!fs.existsSync(sourceDir)) throw new Error('Approved Real Investigations banner payload directory missing');
   const parts=fs.readdirSync(sourceDir).filter(name=>/^banner\.part\d+\.b64$/.test(name)).sort();
   if(parts.length!==6) throw new Error(`Approved Real Investigations banner payload incomplete: expected 6 parts, found ${parts.length}`);
-  const payload=parts.map(name=>fs.readFileSync(path.join(sourceDir,name),'utf8').trim()).join('');
-  const bytes=Buffer.from(payload,'base64');
+  const bytes=Buffer.concat(parts.map(name=>Buffer.from(fs.readFileSync(path.join(sourceDir,name),'utf8').trim(),'base64')));
   if(bytes.length<25000) throw new Error(`Approved Real Investigations banner suspiciously small: ${bytes.length} bytes`);
   if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9) throw new Error('Approved Real Investigations banner is not a complete JPEG');
   const dimensions=jpegDimensions(bytes);
