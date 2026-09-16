@@ -89,7 +89,7 @@
     const facts = card.querySelector('.partner-v2-facts');
     const note = document.createElement('p');
     note.dataset.partnerV2SealNote = '1';
-    note.innerHTML = '<strong>Контроль пломбы:</strong> при приёмке сверяется читаемый номер с карточкой груза. Отдельной проверки уникальности физической пломбы система не выполняет.';
+    note.innerHTML = '<strong>Контроль пломбы:</strong> при приёмке сверяют номер, видимую целостность и правильность установки. Подлинность серийного номера по независимому реестру выданных пломб не проверяется.';
     if (facts) card.insertBefore(note, facts);
     else card.appendChild(note);
   };
