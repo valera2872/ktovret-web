@@ -44,6 +44,6 @@ jobs:
       - name: Type-check shared Partner engine
         run: deno check supabase/functions/_shared/partner-ne-publikovat-v1.ts
       - name: Type-check Partner session function
-        run: deno check supabase/functions/partner-session-v1/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/partner-session-v1/index.ts
       - name: Type-check Partner interrogation function
-        run: deno check supabase/functions/partner-interrogate-v1/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/partner-interrogate-v1/index.ts
