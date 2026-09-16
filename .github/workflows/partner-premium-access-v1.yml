@@ -1,0 +1,55 @@
+name: Validate Premium Partner paid access v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/partner-commerce.ts'
+      - 'supabase/functions/create-checkout-partner-v1/**'
+      - 'supabase/functions/payment-status-partner-v1/**'
+      - 'supabase/functions/tbank-webhook-partner-v1/**'
+      - 'supabase/functions/partner-access-v1/**'
+      - 'supabase/functions/partner-session-v2/**'
+      - 'supabase/functions/partner-interrogate-v2/**'
+      - 'tools/validate-partner-premium-access-v1.mjs'
+      - '.github/workflows/partner-premium-access-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/partner-commerce.ts'
+      - 'supabase/functions/create-checkout-partner-v1/**'
+      - 'supabase/functions/payment-status-partner-v1/**'
+      - 'supabase/functions/tbank-webhook-partner-v1/**'
+      - 'supabase/functions/partner-access-v1/**'
+      - 'supabase/functions/partner-session-v2/**'
+      - 'supabase/functions/partner-interrogate-v2/**'
+      - 'tools/validate-partner-premium-access-v1.mjs'
+      - '.github/workflows/partner-premium-access-v1.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate paid access contract
+        run: node tools/validate-partner-premium-access-v1.mjs
+      - name: Type-check commerce
+        run: deno check --node-modules-dir=auto supabase/functions/_shared/partner-commerce.ts
+      - name: Type-check checkout
+        run: deno check --node-modules-dir=auto supabase/functions/create-checkout-partner-v1/index.ts
+      - name: Type-check payment status
+        run: deno check --node-modules-dir=auto supabase/functions/payment-status-partner-v1/index.ts
+      - name: Type-check webhook
+        run: deno check --node-modules-dir=auto supabase/functions/tbank-webhook-partner-v1/index.ts
+      - name: Type-check owner access
+        run: deno check --node-modules-dir=auto supabase/functions/partner-access-v1/index.ts
+      - name: Type-check session
+        run: deno check --node-modules-dir=auto supabase/functions/partner-session-v2/index.ts
+      - name: Type-check interrogation
+        run: deno check --node-modules-dir=auto supabase/functions/partner-interrogate-v2/index.ts
