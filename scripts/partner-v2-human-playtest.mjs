@@ -92,14 +92,31 @@ const waitForFunction = async () => {
   throw new Error('coop-case-v2 did not become ready');
 };
 
+const privateIpScore = (address) => {
+  if (/^192\.168\./.test(address)) return 300;
+  if (/^10\./.test(address)) return 200;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(address)) return 100;
+  return 0;
+};
+
 const lanAddress = () => {
-  for (const interfaces of Object.values(networkInterfaces())) {
+  const override = String(process.env.PARTNER_V2_LAN_IP || '').trim();
+  if (override && privateIpScore(override)) return override;
+
+  const candidates = [];
+  for (const [name, interfaces] of Object.entries(networkInterfaces())) {
     for (const entry of interfaces || []) {
       if (entry.family !== 'IPv4' || entry.internal) continue;
-      if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(entry.address)) return entry.address;
+      let score = privateIpScore(entry.address);
+      if (!score) continue;
+      const adapter = name.toLowerCase();
+      if (/wi-?fi|wlan|ethernet|\beth\d|\ben\d/.test(adapter)) score += 30;
+      if (/docker|wsl|vethernet|virtual|vmware|hyper-v|tailscale|zerotier|vbox/.test(adapter)) score -= 80;
+      candidates.push({ address: entry.address, score });
     }
   }
-  return '';
+  candidates.sort((a, b) => b.score - a.score || a.address.localeCompare(b.address));
+  return candidates[0]?.address || '';
 };
 
 const mime = (filePath) => ({
@@ -260,7 +277,7 @@ await assertProjectRoot();
 assertDocker();
 
 const LAN_ADDRESS = LAN_MODE ? lanAddress() : '';
-if (LAN_MODE && !LAN_ADDRESS) fail('Не найден локальный IPv4-адрес Wi-Fi/LAN. Используйте режим без --lan.');
+if (LAN_MODE && !LAN_ADDRESS) fail('Не найден локальный IPv4-адрес Wi-Fi/LAN. Используйте режим без --lan или задайте PARTNER_V2_LAN_IP.');
 
 console.log(`[partner-v2-playtest] Supabase CLI ${SUPABASE_CLI_VERSION}`);
 console.log('[partner-v2-playtest] Поднимаю изолированный локальный Supabase. Облачный проект не используется.');
