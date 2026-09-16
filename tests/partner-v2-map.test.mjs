@@ -24,9 +24,11 @@ test('M01 technical map contains all investigation-critical locations', () => {
   assert.match(map, />06</);
 });
 
-test('map makes the key route deduction visible without revealing the culprit', () => {
-  assert.match(map, /контейнер можно снять с вагона/);
-  assert.match(map, /не уводя состав на другую ветку/);
+test('map exposes geometry but does not spell out the container-swap deduction', () => {
+  assert.match(map, /контейнерная техника \/ R-4/);
+  assert.match(map, /служебная дорога/);
+  assert.doesNotMatch(map, /контейнер можно снять с вагона/);
+  assert.doesNotMatch(map, /не уводя состав на другую ветку/);
   assert.doesNotMatch(map, /Маркова|Рыбаков|винов/iu);
 });
 
