@@ -8,6 +8,7 @@ const migration = read('supabase/migrations/20260915020000_partner_v2_final_cons
 const config = read('supabase/functions/_shared/partner-cases/zero-container-final.ts');
 const edge = read('supabase/functions/coop-case-v2/index.ts');
 const client = read('assets/partner-v2-final.js');
+const polish = read('assets/partner-v2-polish.js');
 const page = read('detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html');
 
 test('final drafts are persisted atomically and consensus compares semantic answers', () => {
@@ -41,6 +42,16 @@ test('motive proof is intentionally split across both player roles', () => {
   assert.match(config, /requiredEvidenceCategories: \['identity', 'physical_execution', 'preparation', 'coordination', 'motive_egress', 'motive_market'\]/);
   assert.match(config, /Журнал общего ящика не хранит персонального идентификатора пользователя/);
   assert.match(config, /Сам по себе запрос не показывает, кто из сотрудников связал его с конкретным контейнером/);
+});
+
+test('Cargo sees target access plus an unattributed TK-0 move while Route carries Markova attribution', () => {
+  assert.match(config, /OPS\.SHARED оформляет перемещение ТК-0 в сервисный бокс 3/);
+  assert.match(config, /Персональный идентификатор автора в этой записи отсутствует/);
+  assert.doesNotMatch(config, /I\. MARKOVA оформляет перемещение ТК-0/);
+  assert.match(config, /Основание: внутренняя заявка\. Инициатор: I\. MARKOVA/);
+  assert.match(config, /Пользователь: I\. MARKOVA\. Получатель: DELTA CALIBRATION/);
+  assert.match(polish, /Через 15 минут OPS\.SHARED оформляет перемещение ТК-0 в сервисный бокс 3/);
+  assert.doesNotMatch(polish, /Маркова заранее переместила ТК-0|I\. MARKOVA оформляет перемещение ТК-0/);
 });
 
 test('egress chronology uses the same two R-4 heavy lifts already shown in telemetry', () => {
