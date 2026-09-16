@@ -43,6 +43,14 @@ test('motive proof is intentionally split across both player roles', () => {
   assert.match(config, /Сам по себе запрос не показывает, кто из сотрудников связал его с конкретным контейнером/);
 });
 
+test('egress chronology uses the same two R-4 heavy lifts already shown in telemetry', () => {
+  assert.match(config, /02:13:17 - R-4 устанавливает снятый с вагона CAXU 771204 2 на ожидающее дорожное шасси K-17/);
+  assert.match(config, /02:24:31 - шасси K-17 с CAXU 771204 2 покидает техническую площадку Б/);
+  assert.doesNotMatch(config, /02:24:31 - R-4 устанавливает/);
+  assert.match(config, /02:11', 'R-4 снимает оригинальный CAXU с шестого вагона и ставит его на ожидающее шасси K-17/);
+  assert.match(config, /02:24', 'K-17 с оригинальным CAXU уходит с технической площадки к сервисным воротам/);
+});
+
 test('final proof still uses generic evidence-category enforcement server-side', () => {
   assert.match(edge, /missingEvidenceCategory/);
   assert.match(edge, /evidence_gap/);
