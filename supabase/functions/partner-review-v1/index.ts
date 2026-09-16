@@ -2,9 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
   adminClient,
   cleanOrigin,
-  corsHeaders,
   isAllowedOrigin,
-  json,
   sha256,
   validAccessToken,
 } from '../_shared/last-aria-payment.ts';
@@ -14,6 +12,30 @@ import { FULL_PARTNER_CASE_ID } from '../_shared/partner-ne-publikovat-content-v
 const REVIEW_KEY_HASH = '340d6f743084798aef68413958950dedea2ff76224e7472c61f27a9db2a9576b';
 const REVIEW_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const REVIEW_KEY_RE = /^ml_review_[A-Za-z0-9_-]{32,160}$/;
+const REVIEW_PREVIEW_ORIGINS = new Set(['https://rawcdn.githack.com']);
+
+const reviewOriginAllowed = (origin = '') => !origin
+  || isAllowedOrigin(origin)
+  || REVIEW_PREVIEW_ORIGINS.has(cleanOrigin(origin));
+
+const reviewCorsHeaders = (origin = '') => ({
+  ...(origin && reviewOriginAllowed(origin)
+    ? { 'access-control-allow-origin': cleanOrigin(origin) }
+    : {}),
+  'access-control-allow-headers': 'authorization, content-type',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
+  'access-control-max-age': '600',
+  'vary': 'Origin',
+});
+
+const reviewJson = (status: number, body: unknown, origin = '') => new Response(JSON.stringify(body), {
+  status,
+  headers: {
+    'content-type': 'application/json; charset=utf-8',
+    'cache-control': 'private, no-store, max-age=0',
+    ...reviewCorsHeaders(origin),
+  },
+});
 
 const requireReviewKey = async (value: unknown) => {
   const key = String(value || '').trim();
@@ -119,14 +141,14 @@ const errorStatus = (code: string) => {
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
   if (req.method === 'OPTIONS') {
-    if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    if (!reviewOriginAllowed(origin)) return new Response(null, { status: 403 });
+    return new Response(null, { status: 204, headers: reviewCorsHeaders(origin) });
   }
-  if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
-  if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
+  if (req.method !== 'POST') return reviewJson(405, { error: 'method_not_allowed' }, origin);
+  if (!reviewOriginAllowed(origin)) return reviewJson(403, { error: 'origin_not_allowed' });
 
   let body: Record<string, any> = {};
-  try { body = await req.json(); } catch { return json(400, { error: 'invalid_request' }, origin); }
+  try { body = await req.json(); } catch { return reviewJson(400, { error: 'invalid_request' }, origin); }
 
   try {
     await requireReviewKey(body.reviewKey);
@@ -138,7 +160,7 @@ Deno.serve(async (req: Request) => {
 
     if (action === 'ACTIVATE') {
       const entitlement = await activateReview(admin, tokenHash);
-      return json(200, {
+      return reviewJson(200, {
         ok: true,
         reviewMode: true,
         entitlementId: entitlement.id,
@@ -149,7 +171,7 @@ Deno.serve(async (req: Request) => {
     if (action === 'RESET') {
       const entitlement = await requireReviewEntitlement(admin, tokenHash);
       const deletedRooms = await resetReviewRooms(admin, entitlement.id);
-      return json(200, { ok: true, reviewMode: true, reset: true, deletedRooms }, origin);
+      return reviewJson(200, { ok: true, reviewMode: true, reset: true, deletedRooms }, origin);
     }
 
     if (action === 'REVOKE') {
@@ -160,14 +182,14 @@ Deno.serve(async (req: Request) => {
         status: 'revoked', revoked_at: now, updated_at: now,
       }).eq('id', entitlement.id);
       if (error) throw new Error('review_access_revoke_failed');
-      return json(200, { ok: true, reviewMode: true, revoked: true }, origin);
+      return reviewJson(200, { ok: true, reviewMode: true, revoked: true }, origin);
     }
 
-    return json(400, { error: 'invalid_request' }, origin);
+    return reviewJson(400, { error: 'invalid_request' }, origin);
   } catch (error) {
     const raw = error instanceof Error ? error.message : String(error);
     const code = raw.split(':')[0] || 'review_access_failed';
     console.error('partner_review_v1_error', code);
-    return json(errorStatus(code), { error: code }, origin);
+    return reviewJson(errorStatus(code), { error: code }, origin);
   }
 });
