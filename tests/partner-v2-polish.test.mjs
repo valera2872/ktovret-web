@@ -35,10 +35,6 @@ test('later evidence is regrouped by its real chapter instead of one generic pac
   assert.doesNotMatch(polish, /Partner V2 core работает/);
 });
 
-test('polish layer loads after core checkpoint and final scripts', () => {
-  assert.match(page, /partner-v2-engine\.js[\s\S]*partner-v2-checkpoints\.js[\s\S]*partner-v2-final\.js/);
-  // This assertion becomes active as soon as the page includes the polish layer.
-  if (page.includes('partner-v2-polish.js')) {
-    assert.match(page, /partner-v2-final\.js[\s\S]*partner-v2-polish\.js/);
-  }
+test('polish layer is required after core checkpoint and final scripts', () => {
+  assert.match(page, /partner-v2-engine\.js[\s\S]*partner-v2-checkpoints\.js[\s\S]*partner-v2-final\.js[\s\S]*partner-v2-polish\.js/);
 });
