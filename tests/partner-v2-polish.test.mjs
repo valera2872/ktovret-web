@@ -79,10 +79,10 @@ test('editorial polish removes answer-like fact chips before final reconstructio
   assert.doesNotMatch(polish, /Рыбаков сознательно скрывает характер операции/);
 });
 
-test('seal-number control no longer leaves whole-container swap unexplained', () => {
+test('seal-number control requires visual integrity but lacks independent serial authentication', () => {
   assert.match(polish, /Контроль пломбы/);
-  assert.match(polish, /сверяется читаемый номер с карточкой груза/);
-  assert.match(polish, /Отдельной проверки уникальности физической пломбы система не выполняет/);
+  assert.match(polish, /сверяют номер, видимую целостность и правильность установки/);
+  assert.match(polish, /Подлинность серийного номера по независимому реестру выданных пломб не проверяется/);
 });
 
 test('investigation board separates proven facts from open questions', () => {
