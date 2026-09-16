@@ -41,6 +41,8 @@ jobs:
           node --check tools/import-mobile/storefront-reference-postprocess.mjs
           node --check tools/import-mobile/storefront-reference-v41-postprocess.mjs
           node --check tools/archive-visual-smoke.mjs
+          node --check tools/release/ai01-approved-release.mjs
+          node --check tools/release/apply-ai01-approved.mjs
           test "$(find assets/reference-parts -name 'home-hero.*.b64.txt' -type f | wc -l)" -eq 4
           test "$(find assets/reference-parts -name 'archive-hero.*.chunks.txt' -type f | wc -l)" -eq 5
           test "$(find assets/reference-parts -name 'archive-grid.*.part' -type f | wc -l)" -eq 6
@@ -56,6 +58,9 @@ jobs:
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Restore approved AI investigation banners
+        working-directory: web
+        run: node tools/release/apply-ai01-approved.mjs .
       - name: Verify exact generated WebP artwork
         working-directory: web
         run: |
@@ -63,6 +68,8 @@ jobs:
           echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
           echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
           echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
+          echo '10b470028546a3de6bf82aff6d9c70821574e06effb3f2a3e9f91a137c992f4b  assets/ai01-home-banner.webp' | sha256sum -c -
+          echo '294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41  assets/ai01-mobile-banner.webp' | sha256sum -c -
       - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
@@ -77,6 +84,12 @@ jobs:
           grep -q 'data-reference-asset="home-lower"' index.html
           grep -q 'data-reference-asset="archive-hero"' tom-1/index.html
           grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
+          grep -q 'data-ai01-feature="home"' index.html
+          grep -q 'data-ai01-feature-banner' index.html
+          grep -q 'data-ai01-feature="solo"' detektivnye-igry-dlya-odnogo/index.html
+          grep -q 'data-ai01-feature-banner' detektivnye-igry-dlya-odnogo/index.html
+          grep -q 'AI · бесплатно' index.html
+          grep -q 'AI · бесплатно' detektivnye-igry-dlya-odnogo/index.html
           grep -q 'data-volume-email' tom-1/index.html
           grep -q 'data-volume-offer-accept' tom-1/index.html
           grep -q 'data-volume-privacy-ack' tom-1/index.html
