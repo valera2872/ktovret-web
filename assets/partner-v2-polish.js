@@ -36,36 +36,6 @@
 
   let scheduled = false;
 
-  const addThirdPhotoObservation = () => {
-    const gate = root.querySelector('[data-partner-v2-gate][data-checkpoint="photo_observation"]');
-    if (!gate || gate.querySelector('[data-photo-field="door_deformation"]')) return;
-
-    const grid = gate.querySelector('.partner-v2-observation-grid');
-    if (!grid) return;
-
-    const row = document.createElement('label');
-    row.className = 'partner-v2-observation-row';
-    row.innerHTML = `
-      <span>Деформация правой створки двери</span>
-      <select data-photo-field="door_deformation">
-        <option value="">Выберите</option>
-        <option value="present">Есть</option>
-        <option value="absent">Нет</option>
-        <option value="unsure">Не уверен</option>
-      </select>`;
-    grid.appendChild(row);
-  };
-
-  const fixPhotoInstructionCopy = () => {
-    const gate = root.querySelector('[data-partner-v2-gate][data-checkpoint="photo_observation"]');
-    if (!gate) return;
-    for (const node of gate.querySelectorAll('.partner-v2-gate-notice')) {
-      if (node.textContent?.includes('Отметьте оба признака')) {
-        node.textContent = 'Отметьте все три признака перед фиксацией.';
-      }
-    }
-  };
-
   const forensicPhotoHtml = (id) => {
     const departure = id === 'G02';
     const sceneClass = departure ? 'is-departure' : 'is-arrival';
@@ -247,8 +217,6 @@
 
   const apply = () => {
     scheduled = false;
-    addThirdPhotoObservation();
-    fixPhotoInstructionCopy();
     regroupEvidence();
     renderForensicPhotos();
     neutralizeEditorialFacts();
