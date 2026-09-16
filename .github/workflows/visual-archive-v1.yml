@@ -68,8 +68,8 @@ jobs:
           echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
           echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
           echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
-          echo '686582efc6c88d1d81f9ec4ea0309516aa7180d3f40569499e885a5f39b95637  assets/ai01-home-banner.webp' | sha256sum -c -
-          echo '294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41  assets/ai01-mobile-banner.webp' | sha256sum -c -
+          echo '36beb19bbfbfc8d5c94f961ba4667ffb00726b52f88a5b0939452dcb073529c2  assets/ai01-home-banner.webp' | sha256sum -c -
+          echo '07d9e5aa0617805521945e1d84304d0816a35d84be9d57f8ce6241c141aca6fb  assets/ai01-mobile-banner.webp' | sha256sum -c -
       - name: Validate generated storefront and commercial boundaries
         working-directory: web
         run: |
