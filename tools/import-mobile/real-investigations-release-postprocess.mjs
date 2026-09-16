@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 
 const NAV_LINK='<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/">Реальные расследования <span class="ml-nav-new-badge">NEW</span></a>';
 const REAL_ROUTES=['https://mysterylogic.com/realnye-dela/','https://mysterylogic.com/realnye-dela/pozharnaya-lestnica-1991-premium/'];
+const APPROVED_BANNER_SHA256='0c7a41164efdbd79f2515bd0922e6d2514b883bb9ba62e3289504190b61bd9d3';
 let releaseFinalizerRegistered=false;
 
 const HOME_BANNER=`<section class="ri-approved-home" data-real-investigations-approved-home aria-label="Новый формат Mystery Logic — Реальные расследования">
@@ -37,23 +38,16 @@ function jpegDimensions(bytes){
   return null;
 }
 
-function materializeApprovedBanner(siteRoot){
-  const sourceDir=path.join(siteRoot,'content','real-investigations-approved');
-  if(!fs.existsSync(sourceDir)) throw new Error('Approved Real Investigations banner payload directory missing');
-  const parts=fs.readdirSync(sourceDir).filter(name=>/^banner\.part\d+\.b64$/.test(name)).sort();
-  if(parts.length!==6) throw new Error(`Approved Real Investigations banner payload incomplete: expected 6 parts, found ${parts.length}`);
-  const bytes=Buffer.concat(parts.map(name=>Buffer.from(fs.readFileSync(path.join(sourceDir,name),'utf8').trim(),'base64')));
-  if(bytes.length<25000) throw new Error(`Approved Real Investigations banner suspiciously small: ${bytes.length} bytes`);
+function validateApprovedBanner(siteRoot){
+  const target=path.join(siteRoot,'assets','real-investigations-approved-banner.jpg');
+  if(!fs.existsSync(target)) throw new Error('Approved Real Investigations banner asset missing');
+  const bytes=fs.readFileSync(target);
+  if(bytes.length!==30034) throw new Error(`Approved Real Investigations banner byte size changed: ${bytes.length}`);
   if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9) throw new Error('Approved Real Investigations banner is not a complete JPEG');
   const dimensions=jpegDimensions(bytes);
   if(!dimensions||dimensions.width!==900||dimensions.height!==322) throw new Error(`Approved Real Investigations banner dimensions changed: ${JSON.stringify(dimensions)}`);
-  const target=path.join(siteRoot,'assets','real-investigations-approved-banner.jpg');
-  if(!fs.existsSync(target)) throw new Error('Checked-in approved Real Investigations banner asset missing');
-  const approvedBytes=fs.readFileSync(target);
   const digest=createHash('sha256').update(bytes).digest('hex');
-  const approvedDigest=createHash('sha256').update(approvedBytes).digest('hex');
-  if(!bytes.equals(approvedBytes)) throw new Error(`Approved Real Investigations banner payload does not match checked-in approved artwork: payload=${digest}, asset=${approvedDigest}`);
-  fs.writeFileSync(target,bytes);
+  if(digest!==APPROVED_BANNER_SHA256) throw new Error(`Approved Real Investigations banner digest mismatch: ${digest}`);
   return {target,bytes:bytes.length,width:dimensions.width,height:dimensions.height,digest};
 }
 
@@ -132,7 +126,7 @@ function patchSolo(siteRoot){
 }
 
 export function preserveRealInvestigationsLaunch(siteRoot){
-  const art=materializeApprovedBanner(siteRoot);
+  const art=validateApprovedBanner(siteRoot);
   const hub=path.join(siteRoot,'realnye-dela','index.html');
   const casePage=path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html');
   const hubCss=path.join(siteRoot,'assets','real-investigations-launch.css');
