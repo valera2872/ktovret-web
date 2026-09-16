@@ -33,6 +33,15 @@ test('LAN mode is explicit and proxies phone requests back to loopback Supabase'
   assert.match(source, /В режиме --lan страница доступна устройствам вашей локальной сети/);
 });
 
+test('LAN address selection prefers real adapters and supports an explicit private-IP override', () => {
+  assert.match(source, /PARTNER_V2_LAN_IP/);
+  assert.match(source, /privateIpScore/);
+  assert.match(source, /192\\\.168/);
+  assert.match(source, /docker\|wsl\|vethernet\|virtual\|vmware\|hyper-v\|tailscale\|zerotier\|vbox/);
+  assert.match(source, /score -= 80/);
+  assert.match(source, /candidates\.sort/);
+});
+
 test('LAN mode opens the shared LAN origin so copied invitation links work on the second device', () => {
   assert.match(source, /const primaryUrl = LAN_MODE \? lanUrl : localUrl/);
   assert.match(source, /openBrowser\(primaryUrl\)/);
