@@ -1,0 +1,19 @@
+name: One-time Premium Partner live smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/smoke-partner-premium-live-once.mjs'
+      - '.github/workflows/partner-premium-live-smoke-once.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Exercise deployed two-player backend
+        run: node tools/smoke-partner-premium-live-once.mjs
