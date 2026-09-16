@@ -8,6 +8,7 @@ const migration = read('supabase/migrations/20260915020000_partner_v2_final_cons
 const config = read('supabase/functions/_shared/partner-cases/zero-container-final.ts');
 const edge = read('supabase/functions/coop-case-v2/index.ts');
 const client = read('assets/partner-v2-final.js');
+const engine = read('assets/partner-v2-engine.js');
 const page = read('detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html');
 
 test('final drafts are persisted atomically and consensus compares semantic answers', () => {
@@ -60,6 +61,16 @@ test('resolution stays server-side until the room is solved', () => {
   assert.match(edge, /sharedState\.finalSolved \? ZERO_CONTAINER_FINAL\.reveal : null/);
   assert.match(migration, /partner_v2_mark_solved/);
   assert.doesNotMatch(client, /GPS контролировал локомотив|Маркова изучает параметры CAXU/);
+});
+
+test('opened evidence is grouped into stable chapter packets instead of one mixed later-evidence block', () => {
+  assert.match(client, /const groupEvidencePackets = \(state, main\) =>/);
+  assert.match(client, /dataEvidenceChapter|evidenceChapter/);
+  assert.match(client, /alreadyGrouped/);
+  assert.match(client, /entry\.chapter\) === Number\(item\.id\)/);
+  assert.match(client, /Пакет главы/);
+  assert.doesNotMatch(client, /packetTitle\.textContent = currentChapter\.title/);
+  assert.match(engine, /laterEvidence\.length/);
 });
 
 test('case page wires the final reconstruction after the checkpoint layer', () => {
