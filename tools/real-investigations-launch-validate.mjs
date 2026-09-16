@@ -14,6 +14,7 @@ const home = read('index.html');
 const hub = read('realnye-dela/index.html');
 const post = read('tools/import-mobile/real-investigations-release-postprocess.mjs');
 const compat = read('assets/real-investigations-production-compat.css');
+const smoke = read('tools/archive-visual-smoke.mjs');
 const sitemap = read('sitemap.xml');
 const artPath = 'assets/real-investigations-approved-banner.jpg';
 
@@ -31,8 +32,12 @@ expect(compat.includes('.ri-approved-home'), 'approved homepage banner styling i
 expect(compat.includes('.ri-approved-solo'), 'approved Solo banner styling is present');
 expect(compat.includes('.ml-nav-new'), 'Real Investigations navigation styling is present');
 
-expect(home.includes('data-ai01-launch-promo-style') && home.includes('data-ai01-launch-promo-script'), 'source homepage preserves AI01 banner assets');
-expect(home.includes('data-ml-social-proof-client'), 'source homepage preserves social proof client');
+expect(smoke.includes("['.jpg','image/jpeg']"), 'production smoke renders JPG approved artwork with correct MIME type');
+expect(smoke.includes("name:'solo',path:'/detektivnye-igry-dlya-odnogo/'"), 'production smoke captures Solo hub');
+expect(smoke.includes("'data-real-investigations-approved-home'"), 'production smoke requires approved homepage banner');
+expect(smoke.includes("'data-real-investigations-approved-solo'"), 'production smoke requires approved Solo banner');
+expect(smoke.includes("'data-ml-social-proof-client'"), 'production smoke guards social proof in generated runtime');
+expect(smoke.includes("'data-ai01-launch-promo-style'"), 'production smoke guards AI banner in generated runtime');
 
 expect(hub.includes('pozharnaya-lestnica-1991-premium'), 'hub exposes the first real case');
 expect(hub.includes('Игрок ведёт следствие'), 'hub explains player-led investigation');
