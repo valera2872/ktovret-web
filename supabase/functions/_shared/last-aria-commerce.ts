@@ -39,7 +39,7 @@ const activateEntitlement = async (admin: any, order: any, payment: any) => {
       revoked_at: null,
       metadata: { order_id: order.id, source: 'tbank', case_id: 'special:last-aria' },
       updated_at: now,
-    }, { onConflict: 'token_hash' })
+    }, { onConflict: 'token_hash,product_id' })
     .select('id')
     .single();
   if (entitlementError || !entitlement?.id) throw entitlementError || new Error('entitlement_write_failed');
