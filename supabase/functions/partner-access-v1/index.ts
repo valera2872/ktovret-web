@@ -127,7 +127,9 @@ const restoreOwner = async (admin: any, room: any, browserHash: string, playerNa
 
   const expiresAt = new Date(Date.now() + ROOM_TTL_MS).toISOString();
   const { error: roomError } = await admin.from('duel_rooms').update({
-    status: 'active', expires_at: expiresAt,
+    status: 'active',
+    expires_at: expiresAt,
+    creator_key_hash: browserHash,
   }).eq('id', room.id);
   if (roomError) throw new Error('partner_room_restore_failed');
 
@@ -230,6 +232,7 @@ Deno.serve(async (req: Request) => {
     if (!BROWSER_KEY_RE.test(browserKey)) return json(400, { error: 'invalid_request' }, origin);
     const browserHash = await sha256(browserKey);
     const playerName = cleanName(body.playerName);
+    const restored = Boolean(room);
 
     if (room) room = await restoreOwner(admin, room, browserHash, playerName);
     else room = await createPaidRoom(admin, entitlement.id, browserHash, playerName);
@@ -237,7 +240,7 @@ Deno.serve(async (req: Request) => {
     return json(200, {
       ...(await buildRoomView(admin, room, browserHash)),
       entitlementId: entitlement.id,
-      restored: Boolean(await findBoundRoom(admin, entitlement.id)),
+      restored,
     }, origin);
   } catch (error) {
     const raw = error instanceof Error ? error.message : String(error);
