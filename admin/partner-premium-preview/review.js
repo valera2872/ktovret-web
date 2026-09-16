@@ -77,9 +77,20 @@ function applyReviewLabels(mode){
   const note=document.querySelector('[data-price-note]');
   const fields=document.querySelector('[data-purchase-fields]');
   const button=document.querySelector('[data-create]');
-  if(fields)fields.hidden=true;
-  if(note)note.innerHTML=mode==='guest'?'<strong>Закрытый Review Mode.</strong> Вы подключаетесь как второй игрок. Оплата не требуется.':'<strong>Закрытый Review Mode.</strong> Оплата отключена. Это полноценное прохождение с настоящим серверным состоянием и AI-допросами.';
-  if(button&&mode==='owner'&&!new URLSearchParams(location.search).get('room'))button.textContent='Начать / продолжить тестовое прохождение';
+  const desiredNote=mode==='guest'
+    ? '<strong>Закрытый Review Mode.</strong> Вы подключаетесь как второй игрок. Оплата не требуется.'
+    : '<strong>Закрытый Review Mode.</strong> Оплата отключена. Это полноценное прохождение с настоящим серверным состоянием и AI-допросами.';
+  const desiredButton='Начать / продолжить тестовое прохождение';
+  if(fields&&!fields.hidden)fields.hidden=true;
+  if(note&&note.innerHTML!==desiredNote)note.innerHTML=desiredNote;
+  if(button&&mode==='owner'&&!new URLSearchParams(location.search).get('room')&&button.textContent!==desiredButton)button.textContent=desiredButton;
+}
+
+function keepReviewLabels(mode){
+  applyReviewLabels(mode);
+  const observer=new MutationObserver(()=>applyReviewLabels(mode));
+  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+  setTimeout(()=>observer.disconnect(),10000);
 }
 
 function installReviewInvite(reviewKey,mode){
@@ -114,10 +125,7 @@ if(REVIEW_RE.test(stored)&&(mode==='owner'||mode==='guest')){
   installProxy(stored);
   installReviewInvite(stored,mode);
   renderToolbar(stored,mode);
-  applyReviewLabels(mode);
-  const observer=new MutationObserver(()=>applyReviewLabels(mode));
-  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
-  setTimeout(()=>observer.disconnect(),8000);
+  keepReviewLabels(mode);
   if(mode==='owner')post({action:'ACTIVATE',reviewKey:stored,accessToken:accessToken()}).catch(error=>{
     console.warn('partner_review_refresh_failed',error.code||error.message);
   });
