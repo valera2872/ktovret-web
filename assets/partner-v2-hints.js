@@ -39,6 +39,15 @@
     }
   };
 
+  const clarifyFinalBoard = () => {
+    if (chapter() < 5) return;
+    for (const node of root.querySelectorAll('.partner-v2-board-question span')) {
+      if (node.textContent?.includes('Кто был исполнителем, а кто организатором')) {
+        node.textContent = 'Кто был исполнителем, кто организатором и зачем понадобился настоящий груз?';
+      }
+    }
+  };
+
   root.addEventListener('click', (event) => {
     const button = event.target.closest?.('[data-partner-v2-action="photo-submit"]');
     if (!button) return;
@@ -56,6 +65,7 @@
     queueMicrotask(() => {
       scheduled = false;
       applyPhotoHint();
+      clarifyFinalBoard();
     });
   };
 
