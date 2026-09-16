@@ -234,6 +234,10 @@ try {
   ]);
   await Promise.all([waitVisible(creator, '.partner-v2-game-grid'), waitVisible(guest, '.partner-v2-game-grid')]);
 
+  log('checking visible chapter-1 visual evidence');
+  await waitVisible(guest, '[data-forensic-photo="G02"]');
+  assert.equal(await guest.locator('.partner-v2-photo-placeholder:visible').count(), 0, 'guest must never see the raw photo placeholder');
+
   log('checking mobile Vector-12 map containment and initial pan');
   await waitVisible(creator, '[data-vector12-map]');
   await creator.waitForTimeout(150);
@@ -251,11 +255,24 @@ try {
   await creator.locator('[data-action="hypothesis"][data-value="during_stop"]').click();
   await guest.locator('[data-action="hypothesis"][data-value="insufficient"]').click();
   await Promise.all([waitGate(creator, 'photo_observation'), waitGate(guest, 'photo_observation')]);
+  await Promise.all([
+    waitVisible(creator, '[data-partner-v2-chapter-packet="2"]'),
+    waitVisible(guest, '[data-partner-v2-chapter-packet="2"]'),
+    waitVisible(creator, '[data-forensic-photo="M05"]'),
+  ]);
+  assert.ok(await creator.locator('[data-partner-v2-chapter-packet="2"] [data-evidence-id="M05"]').count(), 'M05 must live in creator chapter-2 packet');
+  assert.ok(await guest.locator('[data-partner-v2-chapter-packet="2"] [data-evidence-id="G04"]').count(), 'G04 must live in guest chapter-2 packet');
 
   log('solving three-sign photo checkpoint through real controls');
   await fillPhoto(creator, { patch: 'absent', scratch: 'absent', door_deformation: 'present' });
   await fillPhoto(guest, { patch: 'present', scratch: 'present', door_deformation: 'absent' });
   await Promise.all([waitGate(creator, 't04391_link'), waitGate(guest, 't04391_link')]);
+  await Promise.all([
+    waitVisible(creator, '[data-partner-v2-chapter-packet="3"]'),
+    waitVisible(guest, '[data-partner-v2-chapter-packet="3"]'),
+  ]);
+  assert.ok(await creator.locator('[data-partner-v2-chapter-packet="3"] [data-evidence-id="M06"]').count(), 'M06 must live in creator chapter-3 packet');
+  assert.ok(await guest.locator('[data-partner-v2-chapter-packet="3"] [data-evidence-id="G05"]').count(), 'G05 must live in guest chapter-3 packet');
 
   log('refreshing one browser to verify persisted identity and progress');
   await guest.reload({ waitUntil: 'domcontentloaded' });
@@ -263,11 +280,18 @@ try {
   await waitGate(guest, 't04391_link');
   assert.ok(await guest.locator('[data-evidence-id="G05"]').count(), 'guest evidence must remain role-isolated after refresh');
   assert.equal(await guest.locator('[data-evidence-id^="M"]').count(), 0, 'guest must not receive route evidence after refresh');
+  await waitVisible(guest, '[data-partner-v2-chapter-packet="3"]');
 
   log('linking T-04391 across roles');
   await chooseGate(creator, 't04391_link', 'rybakov_r4');
   await chooseGate(guest, 't04391_link', 'tk0');
   await Promise.all([waitGate(creator, 'physical_operation'), waitGate(guest, 'physical_operation')]);
+  await Promise.all([
+    waitVisible(creator, '[data-partner-v2-chapter-packet="4"]'),
+    waitVisible(guest, '[data-partner-v2-chapter-packet="4"]'),
+  ]);
+  assert.ok(await creator.locator('[data-partner-v2-chapter-packet="4"] [data-evidence-id="M08"]').count(), 'M08 must live in creator chapter-4 packet');
+  assert.ok(await guest.locator('[data-partner-v2-chapter-packet="4"] [data-evidence-id="G09"]').count(), 'G09 must live in guest chapter-4 packet');
 
   log('proving physical swap');
   await chooseGate(creator, 'physical_operation', 'two_loaded_objects');
@@ -277,6 +301,14 @@ try {
   log('linking Endpoint 184 / L-14');
   await chooseGate(creator, 'endpoint_link', 'endpoint184_call');
   await chooseGate(guest, 'endpoint_link', 'l14_markova');
+  await Promise.all([
+    waitVisible(creator, '[data-partner-v2-chapter-packet="5"]', 15000),
+    waitVisible(guest, '[data-partner-v2-chapter-packet="5"]', 15000),
+  ]);
+  assert.ok(await creator.locator('[data-partner-v2-chapter-packet="5"] [data-evidence-id="M09"]').count(), 'M09 must live in creator chapter-5 packet');
+  assert.ok(await guest.locator('[data-partner-v2-chapter-packet="5"] [data-evidence-id="G13"]').count(), 'G13 must live in guest chapter-5 packet');
+  assert.equal(await creator.locator('.partner-v2-new-packet:not([data-chapter-groups]):visible').count(), 0, 'creator must not see an unpolished generic packet');
+  assert.equal(await guest.locator('.partner-v2-new-packet:not([data-chapter-groups]):visible').count(), 0, 'guest must not see an unpolished generic packet');
 
   log('building final reconstruction in both browsers');
   await fillFinal(creator, correctFinal, ['M08', 'M09']);
@@ -298,7 +330,7 @@ try {
   await creator.waitForTimeout(250);
   await Promise.all(networkChecks);
   assert.deepEqual(browserErrors, [], `browser errors detected:\n${browserErrors.join('\n')}`);
-  log(`PASS room=${roomCode}: mobile + desktop completed the real UI flow through solved reveal`);
+  log(`PASS room=${roomCode}: mobile + desktop completed the real UI flow through visible forensic evidence and solved reveal`);
 
   await creatorContext.close();
   await guestContext.close();
