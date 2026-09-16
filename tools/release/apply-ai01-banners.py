@@ -1,24 +1,70 @@
 from pathlib import Path
+import hashlib
+import struct
 import sys
-root=Path(sys.argv[1] if len(sys.argv)>1 else '.').resolve()
-css_tag_home='<link data-ai01-feature-banner rel="stylesheet" href="./assets/ai01-feature-banner.css?v=20260911r3">'
-css_tag_solo='<link data-ai01-feature-banner rel="stylesheet" href="../assets/ai01-feature-banner.css?v=20260911r3">'
-home_banner='''\n<section class="ml-ai01-feature ml-ai01-feature--home" aria-label="Новое бесплатное AI-расследование">\n  <a class="ml-ai01-feature-link" href="./detektivnaya-igra-s-ii/" data-ai01-feature="home">\n    <picture><source media="(max-width: 640px)" srcset="./assets/ai01-mobile-banner.webp"><img src="./assets/ai01-home-banner.webp" width="1200" height="400" loading="eager" decoding="async" alt="Восемь минут без камеры — бесплатное AI-расследование Mystery Logic: допрашивайте подозреваемых голосом или текстом"></picture>\n    <span class="ml-ai01-feature-badge">AI · бесплатно</span><span class="ml-ai01-feature-sr">Открыть расследование «Восемь минут без камеры»</span>\n  </a>\n</section>\n'''
-solo_banner='''<section class="ml-ai01-feature ml-ai01-feature--solo" aria-label="AI-расследование для одного игрока"><a class="ml-ai01-feature-link" href="../detektivnaya-igra-s-ii/" data-ai01-feature="solo"><picture><source media="(max-width: 640px)" srcset="../assets/ai01-mobile-banner.webp"><img src="../assets/ai01-home-banner.webp" width="1200" height="400" loading="eager" decoding="async" alt="Восемь минут без камеры — бесплатное AI-расследование для одного игрока"></picture><span class="ml-ai01-feature-badge">AI · бесплатно</span><span class="ml-ai01-feature-sr">Начать расследование «Восемь минут без камеры»</span></a></section>'''
-def add_css(p,tag):
-    s=p.read_text()
-    if 'data-ai01-feature-banner' not in s:s=s.replace('</head>',tag+'</head>',1)
-    p.write_text(s)
-home=root/'index.html';add_css(home,css_tag_home);s=home.read_text()
-if 'data-ai01-feature="home"' not in s:
-    marker='<section class="ref-home-hero">'
-    if marker not in s:raise SystemExit('home hero marker missing')
-    s=s.replace(marker,home_banner+marker,1)
-home.write_text(s)
-solo=root/'detektivnye-igry-dlya-odnogo'/'index.html';add_css(solo,css_tag_solo);s=solo.read_text()
-if 'data-ai01-feature="solo"' not in s:
-    marker='<main class="solo407-shell solo407-hub">'
-    if marker not in s:raise SystemExit('solo main marker missing')
-    s=s.replace(marker,marker+solo_banner,1)
-solo.write_text(s)
+
+root = Path(sys.argv[1] if len(sys.argv) > 1 else '.').resolve()
+
+EXPECTED_ASSETS = {
+    'ai01-home-banner.webp': ('10b470028546a3de6bf82aff6d9c70821574e06effb3f2a3e9f91a137c992f4b', 1200, 400),
+    'ai01-mobile-banner.webp': ('294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41', 360, 640),
+}
+
+
+def validate_webp(name, expected_sha, expected_width, expected_height):
+    path = root / 'assets' / name
+    data = path.read_bytes()
+    if len(data) < 30 or data[:4] != b'RIFF' or data[8:12] != b'WEBP':
+        raise SystemExit(f'{name}: invalid WebP/RIFF header')
+    declared_size = struct.unpack('<I', data[4:8])[0] + 8
+    if declared_size != len(data):
+        raise SystemExit(f'{name}: truncated WebP: RIFF declares {declared_size} bytes, file has {len(data)}')
+    if data[12:16] != b'VP8 ' or data[23:26] != b'\x9d\x01\x2a':
+        raise SystemExit(f'{name}: unexpected WebP encoding; expected VP8 key frame')
+    width = struct.unpack('<H', data[26:28])[0] & 0x3FFF
+    height = struct.unpack('<H', data[28:30])[0] & 0x3FFF
+    if (width, height) != (expected_width, expected_height):
+        raise SystemExit(f'{name}: expected {expected_width}x{expected_height}, got {width}x{height}')
+    actual_sha = hashlib.sha256(data).hexdigest()
+    if actual_sha != expected_sha:
+        raise SystemExit(f'{name}: SHA-256 mismatch: {actual_sha}')
+    print(f'{name}: OK {width}x{height} {len(data)} bytes sha256={actual_sha}')
+
+
+for asset_name, (asset_sha, asset_width, asset_height) in EXPECTED_ASSETS.items():
+    validate_webp(asset_name, asset_sha, asset_width, asset_height)
+
+css_tag_home = '<link data-ai01-feature-banner rel="stylesheet" href="./assets/ai01-feature-banner.css?v=20260911r3">'
+css_tag_solo = '<link data-ai01-feature-banner rel="stylesheet" href="../assets/ai01-feature-banner.css?v=20260911r3">'
+home_banner = '''\n<section class="ml-ai01-feature ml-ai01-feature--home" aria-label="Новое бесплатное AI-расследование">\n  <a class="ml-ai01-feature-link" href="./detektivnaya-igra-s-ii/" data-ai01-feature="home">\n    <picture><source media="(max-width: 640px)" srcset="./assets/ai01-mobile-banner.webp"><img src="./assets/ai01-home-banner.webp" width="1200" height="400" loading="eager" decoding="async" alt="Восемь минут без камеры — бесплатное AI-расследование Mystery Logic: допрашивайте подозреваемых голосом или текстом"></picture>\n    <span class="ml-ai01-feature-badge">AI · бесплатно</span><span class="ml-ai01-feature-sr">Открыть расследование «Восемь минут без камеры»</span>\n  </a>\n</section>\n'''
+solo_banner = '''<section class="ml-ai01-feature ml-ai01-feature--solo" aria-label="AI-расследование для одного игрока"><a class="ml-ai01-feature-link" href="../detektivnaya-igra-s-ii/" data-ai01-feature="solo"><picture><source media="(max-width: 640px)" srcset="../assets/ai01-mobile-banner.webp"><img src="../assets/ai01-home-banner.webp" width="1200" height="400" loading="eager" decoding="async" alt="Восемь минут без камеры — бесплатное AI-расследование для одного игрока"></picture><span class="ml-ai01-feature-badge">AI · бесплатно</span><span class="ml-ai01-feature-sr">Начать расследование «Восемь минут без камеры»</span></a></section>'''
+
+
+def add_css(path, tag):
+    source = path.read_text()
+    if 'data-ai01-feature-banner' not in source:
+        source = source.replace('</head>', tag + '</head>', 1)
+    path.write_text(source)
+
+
+home = root / 'index.html'
+add_css(home, css_tag_home)
+source = home.read_text()
+if 'data-ai01-feature="home"' not in source:
+    marker = '<section class="ref-home-hero">'
+    if marker not in source:
+        raise SystemExit('home hero marker missing')
+    source = source.replace(marker, home_banner + marker, 1)
+home.write_text(source)
+
+solo = root / 'detektivnye-igry-dlya-odnogo' / 'index.html'
+add_css(solo, css_tag_solo)
+source = solo.read_text()
+if 'data-ai01-feature="solo"' not in source:
+    marker = '<main class="solo407-shell solo407-hub">'
+    if marker not in source:
+        raise SystemExit('solo main marker missing')
+    source = source.replace(marker, marker + solo_banner, 1)
+solo.write_text(source)
+
 print('AI-01 banners applied')

@@ -56,6 +56,9 @@ jobs:
       - name: Generate public site
         working-directory: web
         run: node tools/import-mobile-cases.mjs --source ../mobile-source --site . --mode public --commit "$KTOVRET_SOURCE_COMMIT"
+      - name: Restore approved AI investigation banners
+        working-directory: web
+        run: python3 tools/release/apply-ai01-banners.py .
       - name: Verify exact generated WebP artwork
         working-directory: web
         run: |
@@ -77,6 +80,12 @@ jobs:
           grep -q 'data-reference-asset="home-lower"' index.html
           grep -q 'data-reference-asset="archive-hero"' tom-1/index.html
           grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
+          grep -q 'data-ai01-feature="home"' index.html
+          grep -q 'data-ai01-feature-banner' index.html
+          grep -q 'data-ai01-feature="solo"' detektivnye-igry-dlya-odnogo/index.html
+          grep -q 'data-ai01-feature-banner' detektivnye-igry-dlya-odnogo/index.html
+          test -s assets/ai01-home-banner.webp
+          test -s assets/ai01-mobile-banner.webp
           grep -q 'data-volume-email' tom-1/index.html
           grep -q 'data-volume-offer-accept' tom-1/index.html
           grep -q 'data-volume-privacy-ack' tom-1/index.html
