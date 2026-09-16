@@ -21,13 +21,14 @@ const expert=read('assets/logic-expert.js');
 for(const marker of ['ml:logic_complete','CustomEvent','emitCompletion']) must(expert,marker,'logic completion bridge');
 
 const css=read('assets/logic-sitewide.css');
-for(const marker of ['.ml-telegram-sticky','.ml-telegram-retention','.ml-who-lied-bridge','[data-nav-daily]']) must(css,marker,'retention styles');
+for(const marker of ['.ml-telegram-sticky','.ml-telegram-retention','.ml-who-lied-bridge']) must(css,marker,'retention styles');
 
 const post=read('tools/import-mobile/logic-sitewide-postprocess.mjs');
-for(const marker of ['Мини-дело дня ↗','data-nav-daily','data-telegram-cta="header"','data-logic-sitewide-style','telegramRetention:true',"VERSION='3.3.1'"]) must(post,marker,'sitewide generator');
+for(const marker of ['data-nav-daily','retired daily Telegram nav must be absent','data-logic-sitewide-style','telegramRetention:true',"VERSION='3.3.2'"]) must(post,marker,'sitewide generator');
+if(post.includes('Мини-дело дня ↗')) throw new Error('retired Mini-case of the day Telegram menu copy remains in generator');
 
 const who=read('tools/import-mobile/storefront-v4-who-postprocess.mjs');
 for(const marker of ['data-who-play-modes','Вслух с семьёй','199 ₽','100 коротких детективных дел','15 бесплатных расследований','85 дел']) must(who,marker,'Who Lied product framing');
 if(who.includes('199 / 299 ₽') || who.includes('110 коротких детективных дел') || who.includes('50 + 50')) throw new Error('Who Lied product framing still contains abandoned two-volume offer');
 
-console.log(JSON.stringify({telegramRetention:true,allowedFunnelEvents:['step_view','primary_action'],placements:['header','sticky','after_puzzle','after_case','after_solo_case'],whoLiedBridge:true,solo407EarlyPromptSuppressed:true,whoLiedOffer:'100/15/85/199'},null,2));
+console.log(JSON.stringify({telegramRetention:true,retiredHeaderDailyCase:true,allowedFunnelEvents:['step_view','primary_action'],placements:['sticky','after_puzzle','after_case','after_solo_case'],whoLiedBridge:true,solo407EarlyPromptSuppressed:true,whoLiedOffer:'100/15/85/199'},null,2));
