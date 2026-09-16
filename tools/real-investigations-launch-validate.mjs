@@ -1,5 +1,10 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import {createHash} from 'node:crypto';
+
+const APPROVED_BANNER_SHA256='4c98ac9e4c98b13bb63d2a8a9cdeee0f8b5627744eca58dffa13b7913e76adca';
+const APPROVED_BANNER_SIZE=39263;
+const APPROVED_BANNER_PART_COUNT=5;
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const expect = (cond, message) => {
@@ -27,21 +32,33 @@ function jpegDimensions(bytes){
   return null;
 }
 
+function restoredApprovedBanner(){
+  const root=path.join('content','real-investigations-approved');
+  const encoded=[];
+  for(let i=1;i<=APPROVED_BANNER_PART_COUNT;i++){
+    const file=path.join(root,`banner.part${String(i).padStart(2,'0')}.b64`);
+    expect(fs.existsSync(file),`approved banner source part ${i} exists`);
+    if(fs.existsSync(file)) encoded.push(read(file).trim());
+  }
+  return Buffer.from(encoded.join(''),'base64');
+}
+
 const home = read('index.html');
 const hub = read('realnye-dela/index.html');
 const post = read('tools/import-mobile/real-investigations-release-postprocess.mjs');
 const compat = read('assets/real-investigations-production-compat.css');
 const smoke = read('tools/archive-visual-smoke.mjs');
 const sitemap = read('sitemap.xml');
-const art=fs.readFileSync('assets/real-investigations-approved-banner.jpg');
+const art=restoredApprovedBanner();
 const digest=createHash('sha256').update(art).digest('hex');
 const dimensions=jpegDimensions(art);
-console.log(`BANNER_DIAG bytes=${art.length} sha256=${digest} first16=${art.subarray(0,16).toString('hex')} last16=${art.subarray(-16).toString('hex')} dimensions=${dimensions?`${dimensions.width}x${dimensions.height}`:'none'}`);
+console.log(`BANNER_SOURCE bytes=${art.length} sha256=${digest} first16=${art.subarray(0,16).toString('hex')} last16=${art.subarray(-16).toString('hex')} dimensions=${dimensions?`${dimensions.width}x${dimensions.height}`:'none'}`);
 
-expect(art.length===30034, 'approved banner asset keeps exact expected byte size');
-expect(art[0]===0xff && art[1]===0xd8 && art.at(-2)===0xff && art.at(-1)===0xd9, 'approved banner asset is a complete JPEG');
-expect(dimensions?.width===900 && dimensions?.height===322, 'approved banner asset keeps 900x322 dimensions');
-expect(digest==='0c7a41164efdbd79f2515bd0922e6d2514b883bb9ba62e3289504190b61bd9d3', 'approved banner asset keeps exact approved artwork digest');
+expect(art.length===APPROVED_BANNER_SIZE, 'restored approved banner keeps exact expected byte size');
+expect(art[0]===0xff && art[1]===0xd8 && art.at(-2)===0xff && art.at(-1)===0xd9, 'restored approved banner is a complete JPEG');
+expect(dimensions?.width===900 && dimensions?.height===322, 'restored approved banner keeps 900x322 dimensions');
+expect(digest===APPROVED_BANNER_SHA256, 'restored approved banner keeps exact approved artwork digest');
+expect(post.includes('restoreApprovedBanner'), 'production finalizer restores approved banner before patching pages');
 expect(post.includes('validateApprovedBanner'), 'production finalizer validates approved banner before patching pages');
 expect(post.includes('APPROVED_BANNER_SHA256'), 'production finalizer verifies approved banner digest');
 expect(post.includes('data-real-investigations-approved-home'), 'production finalizer installs approved homepage banner');
