@@ -27,8 +27,18 @@ test('correct final reconstruction exists only in server config', () => {
   assert.doesNotMatch(client, /whole_container_swap|organizer:\s*'markova'|executor:\s*'rybakov'/);
 });
 
-test('final proof requires independent evidence categories', () => {
-  assert.match(config, /requiredEvidenceCategories: \['identity', 'physical_execution', 'preparation', 'coordination'\]/);
+test('final organizer answer also carries a supported motive', () => {
+  assert.match(config, /Кто организовал схему — и зачем/);
+  assert.match(config, /Ирина Маркова — перепродажа модулей заранее найденному покупателю/);
+  assert.match(config, /Delta Calibration/);
+  assert.match(config, /38 000 евро за модуль/);
+  assert.match(config, /RET-184/);
+});
+
+test('final proof requires independent evidence categories including motive', () => {
+  assert.match(config, /requiredEvidenceCategories: \['identity', 'physical_execution', 'preparation', 'coordination', 'motive'\]/);
+  assert.match(config, /M09: \['preparation', 'motive', 'egress'\]/);
+  assert.match(config, /G10: \['preparation', 'motive'\]/);
   assert.match(edge, /missingEvidenceCategory/);
   assert.match(edge, /evidence_gap/);
   assert.match(edge, /minEvidencePerPlayer/);
