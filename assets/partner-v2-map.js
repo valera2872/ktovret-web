@@ -74,14 +74,6 @@
             <text x="457" y="193" class="pv2-car-label" text-anchor="middle">06</text>
             <text x="435" y="232" class="pv2-tiny" text-anchor="middle">состав №214 · остановка 02:06–02:22</text>
           </g>
-
-          <g class="pv2-map-note">
-            <line x1="451" y1="115" x2="457" y2="168"/>
-            <circle cx="451" cy="115" r="4"/>
-            <text x="305" y="55" class="pv2-note-text">Площадка Б примыкает к петле:</text>
-            <text x="305" y="70" class="pv2-note-text">контейнер можно снять с вагона,</text>
-            <text x="305" y="85" class="pv2-note-text">не уводя состав на другую ветку.</text>
-          </g>
         </svg>
       </div>
       <div class="partner-v2-vector-map-pan-hint">На узком экране двигайте схему влево и вправо</div>
