@@ -169,7 +169,7 @@ export const ZERO_CONTAINER_FINAL = {
       },
       {
         id: 'organizer', label: 'Кто организовал схему — и зачем', options: [
-          { id: 'markova_resale', label: 'Ирина Маркова — перепродажа модулей заранее найденному покупателю' },
+          { id: 'markova', label: 'Ирина Маркова — перепродажа модулей заранее найденному покупателю' },
           { id: 'markova_sabotage', label: 'Ирина Маркова — срыв поставки лаборатории Vectoris' },
           { id: 'rybakov_resale', label: 'Денис Рыбаков — самостоятельная перепродажа груза' },
           { id: 'volkova_cover', label: 'Анна Волкова — сокрытие ошибки в работе Вектора-12' },
@@ -185,7 +185,7 @@ export const ZERO_CONTAINER_FINAL = {
     window: '0206_0222',
     method: 'whole_container_swap',
     executor: 'rybakov',
-    organizer: 'markova_resale'
+    organizer: 'markova'
   },
   evidenceCategories: {
     M05: ['identity'],
