@@ -5,19 +5,19 @@ const NAV_LINK='<a class="ml-nav-new" data-nav-real-investigations href="./realn
 const REAL_ROUTES=['https://mysterylogic.com/realnye-dela/','https://mysterylogic.com/realnye-dela/pozharnaya-lestnica-1991-premium/'];
 let releaseFinalizerRegistered=false;
 
-const HOME_CARD=`<section class="ri-home-card" data-real-investigations-home-card aria-labelledby="ri-home-card-title">
-  <div class="ri-home-card__copy">
-    <p class="ri-home-card__eyebrow"><span>NEW</span> Новый формат Mystery Logic</p>
-    <h2 id="ri-home-card-title">Реальные расследования</h2>
-    <p class="ri-home-card__lead">Дела, основанные на реальных событиях. Изучайте материалы, допрашивайте свидетелей и стройте собственную версию — без прямых подсказок.</p>
-    <div class="ri-home-card__tags"><span>реальное дело</span><span>AI-допрос</span><span>игрок ведёт следствие</span></div>
-    <div class="ri-home-card__actions"><a class="ref-btn ref-btn-primary" href="./realnye-dela/">Открыть расследования →</a><a class="ri-home-card__text-link" href="./realnye-dela/pozharnaya-lestnica-1991-premium/">Первое дело</a></div>
+const HOME_PROMO=`<aside class="ri-home-promo" data-real-investigations-home-promo aria-labelledby="ri-home-promo-title">
+  <div class="ri-home-promo__main">
+    <span class="ri-home-promo__badge">NEW</span>
+    <div class="ri-home-promo__copy">
+      <h2 id="ri-home-promo-title">Реальные расследования</h2>
+      <p>Настоящие дела · свободный AI-допрос · собственная версия без прямых подсказок.</p>
+    </div>
   </div>
-  <a class="ri-home-card__case" href="./realnye-dela/pozharnaya-lestnica-1991-premium/" aria-label="Открыть первое реальное расследование — Девушка на пожарной лестнице">
-    <img src="./assets/real-investigations-hero.svg" alt="Ночная пожарная лестница" width="1200" height="900" loading="lazy" decoding="async">
-    <span class="ri-home-card__case-copy"><small>Первое реальное дело</small><strong>Девушка на пожарной лестнице</strong><span>Malden, 1991 · начать расследование →</span></span>
+  <a class="ri-home-promo__case" href="./realnye-dela/pozharnaya-lestnica-1991-premium/" aria-label="Открыть первое реальное расследование — Девушка на пожарной лестнице">
+    <span class="ri-home-promo__case-copy"><small>Первое дело · Malden, 1991</small><strong>Девушка на пожарной лестнице</strong></span>
+    <span class="ri-home-promo__arrow" aria-hidden="true">→</span>
   </a>
-</section>`;
+</aside>`;
 
 function finalizeSitemap(siteRoot){
   const file=path.join(siteRoot,'sitemap.xml');
@@ -39,6 +39,7 @@ function stripLegacyHomepageLaunch(html){
   out=out.replace(/\s*<section class="ml-real-launch"[^>]*data-real-investigations-launch[^>]*>[\s\S]*?<\/section>\s*/g,'\n');
   out=out.replace(/\s*<a class="ref-format-card ref-format-card-real"[^>]*data-real-investigations-card[^>]*>[\s\S]*?<\/a>\s*/g,'');
   out=out.replace(/\s*<section class="ri-home-card"[^>]*data-real-investigations-home-card[^>]*>[\s\S]*?<\/section>\s*/g,'\n');
+  out=out.replace(/\s*<aside class="ri-home-promo"[^>]*data-real-investigations-home-promo[^>]*>[\s\S]*?<\/aside>\s*/g,'\n');
   return out;
 }
 
@@ -52,7 +53,7 @@ export function preserveRealInvestigationsLaunch(siteRoot){
   for(const file of [home,hub,casePage,hubCss,compatCss,homeArt]) if(!fs.existsSync(file)) throw new Error(`Real investigations release asset missing: ${file}`);
 
   let html=stripLegacyHomepageLaunch(fs.readFileSync(home,'utf8'));
-  if(!html.includes('real-investigations-production-compat.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-production-compat.css?v=1.2.1">\n</head>');
+  if(!html.includes('real-investigations-production-compat.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-production-compat.css?v=1.3.0">\n</head>');
 
   if(!html.includes('data-nav-real-investigations')){
     const logic='<a data-nav-logic href="./golovolomki-onlayn/">Головоломки</a>';
@@ -63,17 +64,18 @@ export function preserveRealInvestigationsLaunch(siteRoot){
   const heroPattern=/<section class="ref-home-hero">[\s\S]*?<\/section>/;
   const heroMatch=html.match(heroPattern);
   if(!heroMatch) throw new Error('Production homepage hero marker missing');
-  html=html.replace(heroMatch[0],`${heroMatch[0]}\n${HOME_CARD}`);
+  html=html.replace(heroMatch[0],`${heroMatch[0]}\n${HOME_PROMO}`);
 
   if(!html.includes('data-nav-real-investigations')) throw new Error('Real investigations nav item was not preserved');
-  if(!html.includes('data-real-investigations-home-card')) throw new Error('Compact Real Investigations homepage card was not preserved');
+  if(!html.includes('data-real-investigations-home-promo')) throw new Error('Slim Real Investigations homepage promo was not preserved');
+  if(html.includes('data-real-investigations-home-card')) throw new Error('Legacy large Real Investigations homepage card still present');
   if(html.includes('data-real-investigations-launchbar')) throw new Error('Legacy Real Investigations launch bar still present');
   if(html.includes('data-real-investigations-launch>')) throw new Error('Legacy oversized Real Investigations launch still present');
   if(html.includes('data-real-investigations-card')) throw new Error('Legacy Real Investigations format card still present');
   if(html.includes('real-investigations-launch.css')) throw new Error('Hub-only Real Investigations stylesheet leaked into homepage');
 
   fs.writeFileSync(home,html);
-  return {version:'1.2.1',homePatched:true,nav:true,compactCard:true,legacyLaunchRemoved:true};
+  return {version:'1.3.0',homePatched:true,nav:true,slimPromo:true,legacyLaunchRemoved:true};
 }
 
 export function registerRealInvestigationsReleaseFinalizer(siteRoot){
