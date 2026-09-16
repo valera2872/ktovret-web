@@ -169,18 +169,30 @@ const run = async () => {
   assert.equal(chapter2Creator.state.shared.initialHypothesesComplete, true);
   assertRoleIsolation(chapter2Creator, 'creator');
 
-  log('checkpoint 2: wrong photo observation must not unlock, then both correct observations unlock chapter 3');
-  const wrongPhoto = await submitCheckpoint(creatorKey, 'photo_observation', { patch: 'present', scratch: 'present' });
+  log('checkpoint 2: wrong three-sign photo observation must not unlock, then both correct observations unlock chapter 3');
+  const wrongPhoto = await submitCheckpoint(creatorKey, 'photo_observation', {
+    patch: 'present',
+    scratch: 'present',
+    door_deformation: 'absent',
+  });
   assert.equal(wrongPhoto.checkpointResult.correct, false);
   assert.equal(wrongPhoto.state.chapter, 2);
   assert.equal(wrongPhoto.state.shared.photoComparisonSolved, false);
 
-  const photoCreator = await submitCheckpoint(creatorKey, 'photo_observation', { patch: 'absent', scratch: 'absent' });
+  const photoCreator = await submitCheckpoint(creatorKey, 'photo_observation', {
+    patch: 'absent',
+    scratch: 'absent',
+    door_deformation: 'present',
+  });
   assert.equal(photoCreator.checkpointResult.correct, true);
   assert.equal(photoCreator.checkpointResult.sharedUnlocked, false);
   assert.equal(photoCreator.state.chapter, 2);
 
-  const photoGuest = await submitCheckpoint(guestKey, 'photo_observation', { patch: 'present', scratch: 'present' });
+  const photoGuest = await submitCheckpoint(guestKey, 'photo_observation', {
+    patch: 'present',
+    scratch: 'present',
+    door_deformation: 'absent',
+  });
   assert.equal(photoGuest.checkpointResult.correct, true);
   assert.equal(photoGuest.checkpointResult.sharedUnlocked, true);
   assert.equal(photoGuest.state.chapter, 3);
