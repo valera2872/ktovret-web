@@ -56,6 +56,16 @@
     grid.appendChild(row);
   };
 
+  const fixPhotoInstructionCopy = () => {
+    const gate = root.querySelector('[data-partner-v2-gate][data-checkpoint="photo_observation"]');
+    if (!gate) return;
+    for (const node of gate.querySelectorAll('.partner-v2-gate-notice')) {
+      if (node.textContent?.includes('Отметьте оба признака')) {
+        node.textContent = 'Отметьте все три признака перед фиксацией.';
+      }
+    }
+  };
+
   const forensicPhotoHtml = (id) => {
     const departure = id === 'G02';
     const sceneClass = departure ? 'is-departure' : 'is-arrival';
@@ -101,6 +111,17 @@
       box.innerHTML = facts.map((fact) => `<span>${fact}</span>`).join('');
       box.dataset.editorialNeutral = '1';
     }
+  };
+
+  const enrichSealMechanic = () => {
+    const card = root.querySelector('.partner-v2-evidence[data-evidence-id="G10"]');
+    if (!card || card.querySelector('[data-partner-v2-seal-note]')) return;
+    const facts = card.querySelector('.partner-v2-facts');
+    const note = document.createElement('p');
+    note.dataset.partnerV2SealNote = '1';
+    note.innerHTML = '<strong>Контроль пломбы:</strong> при приёмке сверяется читаемый номер с карточкой груза. Отдельной проверки уникальности физической пломбы система не выполняет.';
+    if (facts) card.insertBefore(note, facts);
+    else card.appendChild(note);
   };
 
   const regroupEvidence = () => {
@@ -166,9 +187,11 @@
   const apply = () => {
     scheduled = false;
     addThirdPhotoObservation();
+    fixPhotoInstructionCopy();
     regroupEvidence();
     renderForensicPhotos();
     neutralizeEditorialFacts();
+    enrichSealMechanic();
     mountDebrief();
   };
 
