@@ -19,12 +19,16 @@
 .ri-approved-solo__image{display:block;width:100%;height:auto;aspect-ratio:900/322;object-fit:contain;background:#071019;transition:transform .32s ease,filter .32s ease}
 .ri-approved-solo__link:hover .ri-approved-solo__image{transform:scale(1.004);filter:brightness(1.025)}
 
+/* The extra product nav item fits the full desktop header, but must not push the
+   already-approved storefront navigation outside the viewport at tablet widths. */
+@media(max-width:1180px){
+  .ref-nav .ml-nav-new{display:none!important}
+}
 @media(max-width:900px){
   .ri-approved-home{margin:4px 8px 28px}
   .ri-approved-solo{width:calc(100% - 16px);margin:24px auto 28px}
 }
 @media(max-width:700px){
-  .ref-nav .ml-nav-new{display:inline-flex!important}
   .ri-approved-home{margin:14px 0 24px;border-radius:13px}
   .ri-approved-home__new{left:10px;top:9px;min-width:44px;height:21px;padding:0 8px;font-size:8px}
   .ri-approved-solo{width:100%;margin:22px 0 26px;border-radius:13px}
