@@ -1,0 +1,52 @@
+name: Validate Premium Partner full v2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/partner-ne-publikovat-content-v2.ts'
+      - 'supabase/functions/_shared/partner-engine-v2.ts'
+      - 'supabase/functions/partner-session-v2/**'
+      - 'supabase/functions/partner-interrogate-v2/**'
+      - 'admin/partner-premium-preview/**'
+      - 'assets/partner-premium-v2.js'
+      - 'assets/partner-premium-v2.css'
+      - 'tools/validate-partner-premium-full-v2.mjs'
+      - '.github/workflows/partner-premium-full-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/partner-ne-publikovat-content-v2.ts'
+      - 'supabase/functions/_shared/partner-engine-v2.ts'
+      - 'supabase/functions/partner-session-v2/**'
+      - 'supabase/functions/partner-interrogate-v2/**'
+      - 'admin/partner-premium-preview/**'
+      - 'assets/partner-premium-v2.js'
+      - 'assets/partner-premium-v2.css'
+      - 'tools/validate-partner-premium-full-v2.mjs'
+      - '.github/workflows/partner-premium-full-v2.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate full product contract
+        run: node tools/validate-partner-premium-full-v2.mjs
+      - name: Validate browser client syntax
+        run: |
+          if [ -f assets/partner-premium-v2.js ]; then node --check assets/partner-premium-v2.js; fi
+      - name: Type-check content
+        run: deno check supabase/functions/_shared/partner-ne-publikovat-content-v2.ts
+      - name: Type-check engine
+        run: deno check supabase/functions/_shared/partner-engine-v2.ts
+      - name: Type-check session
+        run: deno check --node-modules-dir=auto supabase/functions/partner-session-v2/index.ts
+      - name: Type-check interrogation
+        run: deno check --node-modules-dir=auto supabase/functions/partner-interrogate-v2/index.ts
