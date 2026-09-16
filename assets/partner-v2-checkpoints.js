@@ -141,7 +141,7 @@
     const value = {};
     for (const select of gate.querySelectorAll('[data-photo-field]')) {
       if (!select.value) {
-        gate.insertAdjacentHTML('beforeend', notice('wrong', 'Отметьте оба признака перед фиксацией.'));
+        gate.insertAdjacentHTML('beforeend', notice('wrong', 'Отметьте все признаки перед фиксацией.'));
         return;
       }
       value[select.dataset.photoField] = select.value;
