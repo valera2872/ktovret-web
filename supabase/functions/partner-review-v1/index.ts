@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
+  SUPABASE_URL,
   adminClient,
   cleanOrigin,
   isAllowedOrigin,
@@ -13,6 +14,12 @@ const REVIEW_KEY_HASH = '340d6f743084798aef68413958950dedea2ff76224e7472c61f27a9
 const REVIEW_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const REVIEW_KEY_RE = /^ml_review_[A-Za-z0-9_-]{32,160}$/;
 const REVIEW_PREVIEW_ORIGINS = new Set(['https://rawcdn.githack.com']);
+const REVIEW_PROXY_TARGETS = new Set([
+  'partner-access-v1',
+  'duel-room',
+  'partner-session-v2',
+  'partner-interrogate-v2',
+]);
 
 const reviewOriginAllowed = (origin = '') => !origin
   || isAllowedOrigin(origin)
@@ -131,8 +138,43 @@ const resetReviewRooms = async (admin: any, entitlementId: string) => {
   return roomIds.length;
 };
 
+const proxyReviewRequest = async (origin: string, body: Record<string, any>) => {
+  const target = String(body.target || '').trim();
+  if (!REVIEW_PROXY_TARGETS.has(target)) throw new Error('review_proxy_target_invalid');
+  const payload = body.payload && typeof body.payload === 'object' && !Array.isArray(body.payload)
+    ? body.payload
+    : {};
+
+  if (target === 'duel-room') {
+    const action = String(payload.action || '').trim().toLowerCase();
+    if (!['preview', 'join', 'status'].includes(action)) throw new Error('review_proxy_action_invalid');
+  }
+
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (target === 'partner-access-v1') {
+    const token = String(body.accessToken || '').trim();
+    if (!validAccessToken(token)) throw new Error('access_token_required');
+    headers.authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/${target}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+  const text = await response.text();
+  return new Response(text, {
+    status: response.status,
+    headers: {
+      'content-type': response.headers.get('content-type') || 'application/json; charset=utf-8',
+      'cache-control': 'private, no-store, max-age=0',
+      ...reviewCorsHeaders(origin),
+    },
+  });
+};
+
 const errorStatus = (code: string) => {
-  if (['review_key_required', 'invalid_request', 'access_token_required'].includes(code)) return 400;
+  if (['review_key_required', 'invalid_request', 'access_token_required', 'review_proxy_target_invalid', 'review_proxy_action_invalid'].includes(code)) return 400;
   if (['review_key_invalid', 'review_access_required', 'review_token_conflict'].includes(code)) return 403;
   if (code.endsWith('_failed')) return 503;
   return 400;
@@ -152,10 +194,13 @@ Deno.serve(async (req: Request) => {
 
   try {
     await requireReviewKey(body.reviewKey);
+    const action = String(body.action || 'ACTIVATE').trim().toUpperCase();
+
+    if (action === 'PROXY') return await proxyReviewRequest(origin, body);
+
     const accessToken = String(body.accessToken || '').trim();
     if (!validAccessToken(accessToken)) throw new Error('access_token_required');
     const tokenHash = await sha256(accessToken);
-    const action = String(body.action || 'ACTIVATE').trim().toUpperCase();
     const admin = adminClient();
 
     if (action === 'ACTIVATE') {
