@@ -8,6 +8,9 @@ const MODEL=Deno.env.get('AI_DETECTIVE_MODEL')||'gpt-5.6-luna';
 const ALLOWED_ORIGINS=new Set((Deno.env.get('ALLOWED_ORIGINS')||'https://mysterylogic.com,https://www.mysterylogic.com,https://valera2872.github.io,https://rawcdn.githack.com').split(',').map(v=>v.trim().replace(/\/$/,'')).filter(Boolean));
 const CODE_RE=/^[A-HJ-NP-Z2-9]{8}$/;
 const KEY_RE=/^[a-f0-9]{48}$/;
+const SESSION_LIMIT=180,VISITOR_DAILY_LIMIT=320,NETWORK_DAILY_LIMIT=900,DAILY_BUDGET_USD=2.4,SESSION_RPM=14,NETWORK_RPM=80,RESERVE_USD=.008;
+const INPUT_USD_PER_M=.20,CACHED_INPUT_USD_PER_M=.02,OUTPUT_USD_PER_M=1.20;
+type Usage={inputTokens:number;cachedInputTokens:number;outputTokens:number;costUsd:number};
 function clean(v:unknown,max=1600){return typeof v==='string'?v.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,max):''}
 function obj(v:unknown):Record<string,any>{return v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,any>: {}}
 function cors(o:string){return{...(o?{'access-control-allow-origin':o}:{}),'access-control-allow-headers':'content-type','access-control-allow-methods':'POST, OPTIONS','content-type':'application/json; charset=utf-8','cache-control':'private, no-store','vary':'Origin'}}
@@ -15,6 +18,14 @@ function json(o:string,s:number,b:unknown){return new Response(JSON.stringify(b)
 async function digest(v:string){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function serviceHeaders(extra:Record<string,string>={}){return{apikey:SERVICE_ROLE_KEY,authorization:`Bearer ${SERVICE_ROLE_KEY}`,'content-type':'application/json',...extra}}
 async function rest(path:string,init:RequestInit={}){const r=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...init,headers:{...serviceHeaders(),...(init.headers||{})}});const text=await r.text();let body:any=null;if(text){try{body=JSON.parse(text)}catch{body=text}}if(!r.ok)throw new Error(`store_${r.status}:${clean(typeof body==='string'?body:JSON.stringify(body),220)}`);return body}
+async function rpc(name:string,payload:Record<string,unknown>){const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:serviceHeaders(),body:JSON.stringify(payload)});const t=await r.text();if(!r.ok)throw new Error(`metering_${r.status}:${clean(t,180)}`);return t?JSON.parse(t):null}
+function clientNetwork(req:Request){const cf=clean(req.headers.get('cf-connecting-ip'),120);if(cf)return cf;const xf=clean(req.headers.get('x-forwarded-for'),240);if(xf)return xf.split(',')[0].trim();return clean(req.headers.get('x-real-ip'),120)||`fallback:${clean(req.headers.get('user-agent'),180)}`}
+async function protectedHash(kind:string,value:string){return digest(`${kind}|${SERVICE_ROLE_KEY||OPENAI_API_KEY}|${value}`)}
+async function claimTurn(req:Request,roomId:string,browserHash:string){const visitorHash=await protectedHash('visitor',browserHash);return rpc('ai_detective_claim_turn',{p_session_id:`passenger17-${roomId}-${visitorHash.slice(0,16)}`,p_visitor_hash:visitorHash,p_network_hash:await protectedHash('network',clientNetwork(req)),p_reserve_usd:RESERVE_USD,p_session_limit:SESSION_LIMIT,p_visitor_daily_limit:VISITOR_DAILY_LIMIT,p_network_daily_limit:NETWORK_DAILY_LIMIT,p_daily_budget_usd:DAILY_BUDGET_USD,p_session_rpm:SESSION_RPM,p_network_rpm:NETWORK_RPM})}
+async function releaseTurn(id:string){try{await rpc('ai_detective_release_turn',{p_claim_id:id})}catch{}}
+async function completeTurn(id:string,u:Usage){try{await rpc('ai_detective_complete_turn',{p_claim_id:id,p_actual_usd:u.costUsd,p_input_tokens:u.inputTokens,p_cached_input_tokens:u.cachedInputTokens,p_output_tokens:u.outputTokens})}catch(e){console.error('passenger17_metering_complete',String(e))}}
+function usageOf(d:any):Usage{const input=Math.max(0,Number(d?.usage?.input_tokens)||0),cached=Math.min(input,Math.max(0,Number(d?.usage?.input_tokens_details?.cached_tokens)||0)),output=Math.max(0,Number(d?.usage?.output_tokens)||0),cost=((input-cached)*INPUT_USD_PER_M+cached*CACHED_INPUT_USD_PER_M+output*OUTPUT_USD_PER_M)/1e6;return{inputTokens:input,cachedInputTokens:cached,outputTokens:output,costUsd:Number(cost.toFixed(8))}}
+function quotaMessage(code:string){return({session_limit:'Лимит ИИ этого расследования исчерпан.',visitor_daily_limit:'Дневной лимит ИИ исчерпан.',network_daily_limit:'Дневной лимит ИИ сети исчерпан.',daily_budget:'ИИ временно недоступен по дневному бюджету.',session_rate_limit:'Слишком много вопросов подряд.',network_rate_limit:'Слишком много запросов из этой сети.'} as Record<string,string>)[code]||'ИИ-допрос временно недоступен.'}
 async function load(code:string,key:string){
   const rooms=await rest(`duel_rooms?select=id,case_id,case_path,status,expires_at&code=eq.${encodeURIComponent(code)}&limit=1`),room=Array.isArray(rooms)?rooms[0]:null;
   if(!room||room.case_id!==P17_CASE_ID||room.case_path!==P17_CASE_PATH||room.status!=='active'||new Date(room.expires_at).getTime()<=Date.now())throw new Error('room_not_found');
@@ -22,7 +33,7 @@ async function load(code:string,key:string){
   if(!me||roleFromDuel(String(me.role))!=='investigator')throw new Error('role_forbidden');
   const rows=await rest(`partner_room_states?select=state,revision,case_id&room_id=eq.${encodeURIComponent(room.id)}&limit=1`),row=Array.isArray(rows)?rows[0]:null;
   if(!row||row.case_id!==P17_CASE_ID)throw new Error('state_missing');
-  return{roomId:String(room.id),state:normalizeP17State(row.state),revision:Number(row.revision)||0};
+  return{roomId:String(room.id),browserHash:hash,state:normalizeP17State(row.state),revision:Number(row.revision)||0};
 }
 async function save(roomId:string,revision:number,state:P17State){const rows=await rest(`partner_room_states?room_id=eq.${encodeURIComponent(roomId)}&revision=eq.${revision}&select=revision`,{method:'PATCH',headers:{prefer:'return=representation'},body:JSON.stringify({state,revision:revision+1,updated_at:new Date().toISOString()})});const row=Array.isArray(rows)?rows[0]:null;if(!row)throw new Error('state_conflict');return Number(row.revision)||revision+1}
 function instructions(state:P17State){const shown=state.lazarev.evidenceExposure.includes(TRAIN_LOG_ID)?'Следователь уже предъявил фактический журнал: поезд стоял на техническом посту К-17 с 00:08:47 до 00:10:19.':'Следователь пока не предъявлял документ, подтверждающий техническую остановку.';return `Ты Сергей Лазарев, 46 лет, проводник вагона №6 поезда №142. Это свободный допрос в детективном деле «Пассажир №17». Отвечай от первого лица, по-русски, обычно 1–4 предложениями, как живой человек. Не подсказывай следователю следующие действия. Используй только сведения ниже и не добавляй новых людей, мест, документов или событий. Если ответа в разрешённых сведениях нет, честно скажи, что не знаешь или не помнишь.\n\nТы лично проверял билет и паспорт Павла Орлова после посадки.\n${shown}\n\nРазрешённая на текущем этапе версия:\n${lazarevStatement(state.lazarev.disclosureLevel)}\n\nНе сообщай сведения следующих этапов расследования раньше их раскрытия.`}
@@ -34,12 +45,14 @@ Deno.serve(async(req:Request)=>{
   let body:Record<string,any>={};try{body=obj(await req.json())}catch{return json(origin,400,{error:'invalid_request'})}
   const code=clean(body.code,16).toUpperCase(),key=clean(body.browserKey,80).toLowerCase(),question=clean(body.question,900);if(!CODE_RE.test(code)||!KEY_RE.test(key)||!question)return json(origin,400,{error:'invalid_request'});
   try{
-    const ctx=await load(code,key);const state=ctx.state;
-    if(state.lazarev.disclosureLevel===0&&state.lazarev.evidenceExposure.includes(TRAIN_LOG_ID)&&isTrainStopQuestion(question)){state.lazarev.disclosureLevel=1;if(!state.lazarev.contradictions.includes('STOP_DENIAL'))state.lazarev.contradictions.push('STOP_DENIAL')}
-    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:instructions(state),input:dialogue(state,question),store:false,max_output_tokens:220,reasoning:{effort:'none'},text:{verbosity:'low'}})});
-    if(!response.ok){console.error('passenger17_openai',response.status,clean(await response.text(),300));return json(origin,502,{error:'model_unavailable'})}
-    const data=await response.json();const reply=clean(data.output_text||data.output?.flatMap((o:any)=>o.content||[]).find((c:any)=>c.type==='output_text')?.text||'',1500);if(!reply)return json(origin,502,{error:'empty_model_response'});
-    state.lazarev.history.push({question,answer:reply,at:new Date().toISOString()});state.lazarev.history=state.lazarev.history.slice(-24);const revision=await save(ctx.roomId,ctx.revision,state);
-    return json(origin,200,{ok:true,reply,disclosureLevel:state.lazarev.disclosureLevel,revision});
+    const ctx=await load(code,key);const claim=await claimTurn(req,ctx.roomId,ctx.browserHash);if(!claim?.ok)return json(origin,429,{error:clean(claim?.code,80)||'quota_denied',message:quotaMessage(clean(claim?.code,80))});const claimId=clean(claim.claim_id,80);
+    try{
+      const state=ctx.state;if(state.lazarev.disclosureLevel===0&&state.lazarev.evidenceExposure.includes(TRAIN_LOG_ID)&&isTrainStopQuestion(question)){state.lazarev.disclosureLevel=1;if(!state.lazarev.contradictions.includes('STOP_DENIAL'))state.lazarev.contradictions.push('STOP_DENIAL')}
+      const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:instructions(state),input:dialogue(state,question),store:false,max_output_tokens:220,reasoning:{effort:'none'},text:{verbosity:'low'}})});
+      if(!response.ok){console.error('passenger17_openai',response.status,clean(await response.text(),300));await releaseTurn(claimId);return json(origin,502,{error:'model_unavailable'})}
+      const data=await response.json();const reply=clean(data.output_text||data.output?.flatMap((o:any)=>o.content||[]).find((c:any)=>c.type==='output_text')?.text||'',1500);if(!reply){await releaseTurn(claimId);return json(origin,502,{error:'empty_model_response'})}
+      state.lazarev.history.push({question,answer:reply,at:new Date().toISOString()});state.lazarev.history=state.lazarev.history.slice(-24);const revision=await save(ctx.roomId,ctx.revision,state);await completeTurn(claimId,usageOf(data));
+      return json(origin,200,{ok:true,reply,disclosureLevel:state.lazarev.disclosureLevel,revision});
+    }catch(error){await releaseTurn(claimId);throw error}
   }catch(e){const code=clean((e instanceof Error?e.message:String(e)).split(':')[0],100)||'interrogation_failed';console.error('passenger17_interrogate',String(e));return json(origin,code==='state_conflict'?409:code==='room_not_found'?404:code==='role_forbidden'?403:400,{error:code})}
 });
