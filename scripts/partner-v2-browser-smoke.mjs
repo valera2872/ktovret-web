@@ -227,12 +227,16 @@ try {
   await guest.locator('[data-action="join"]').click();
   await waitVisible(guest, '[data-action="start"]');
 
-  log('starting both players');
-  await Promise.all([
-    creator.locator('[data-action="start"]').click({ timeout: 12000 }),
-    guest.locator('[data-action="start"]').click({ timeout: 12000 }),
-  ]);
-  await Promise.all([waitVisible(creator, '.partner-v2-game-grid'), waitVisible(guest, '.partner-v2-game-grid')]);
+  log('verifying first player cannot enter evidence before both players are ready');
+  await creator.locator('[data-action="start"]').click({ timeout: 12000 });
+  await waitVisible(creator, '[data-action="start"]:disabled');
+  assert.equal(await creator.locator('.partner-v2-game-grid').count(), 0, 'creator must remain in lobby until guest is ready');
+  assert.match(String(await creator.locator('[data-action="start"]').textContent()), /Вы готовы/);
+  assert.ok(await guest.locator('[data-action="start"]:not(:disabled)').count(), 'guest should still be able to become ready');
+
+  log('second ready signal opens the case for both players');
+  await guest.locator('[data-action="start"]').click({ timeout: 12000 });
+  await Promise.all([waitVisible(creator, '.partner-v2-game-grid', 15000), waitVisible(guest, '.partner-v2-game-grid', 15000)]);
 
   log('checking visible chapter-1 visual evidence');
   await waitVisible(guest, '[data-forensic-photo="G02"]');
@@ -330,7 +334,7 @@ try {
   await creator.waitForTimeout(250);
   await Promise.all(networkChecks);
   assert.deepEqual(browserErrors, [], `browser errors detected:\n${browserErrors.join('\n')}`);
-  log(`PASS room=${roomCode}: mobile + desktop completed the real UI flow through visible forensic evidence and solved reveal`);
+  log(`PASS room=${roomCode}: ready barrier + mobile/desktop completed the real UI flow through visible forensic evidence and solved reveal`);
 
   await creatorContext.close();
   await guestContext.close();
