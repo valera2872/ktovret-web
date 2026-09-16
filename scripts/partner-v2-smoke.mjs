@@ -234,13 +234,21 @@ const run = async () => {
   assert.equal(creatorDraft.resolution, null);
 
   const disagreeingGuestAnswers = { ...correctFinal, organizer: 'rybakov' };
-  const guestDisagreement = await submitFinal(guestKey, disagreeingGuestAnswers, ['G02', 'G08', 'G13']);
+  const guestDisagreement = await submitFinal(guestKey, disagreeingGuestAnswers, ['G02', 'G08']);
   assert.equal(guestDisagreement.finalResult.status, 'disagreement');
   assert.ok(guestDisagreement.finalResult.differences.some((item) => item.field === 'organizer'));
   assert.equal(guestDisagreement.resolution, null);
   assert.equal(guestDisagreement.state.shared.finalSolved, false);
 
-  log('final: guest aligns with creator; both roles must supply the two halves of motive proof');
+  log('final: matching correct answers without G13 must still fail on motive_market evidence');
+  const missingMarketProof = await submitFinal(guestKey, correctFinal, ['G02', 'G08']);
+  assert.equal(missingMarketProof.finalResult.status, 'evidence_gap');
+  assert.equal(missingMarketProof.finalResult.category, 'motive_market');
+  assert.equal(missingMarketProof.state.shared.finalConsensus, true);
+  assert.equal(missingMarketProof.state.shared.finalSolved, false);
+  assert.equal(missingMarketProof.resolution, null);
+
+  log('final: adding G13 completes the second half of motive proof and resolves the case');
   const solved = await submitFinal(guestKey, correctFinal, ['G02', 'G08', 'G13']);
   assert.equal(solved.finalResult.status, 'solved');
   assert.equal(solved.state.shared.finalConsensus, true);
@@ -254,7 +262,7 @@ const run = async () => {
   assert.ok(solvedCreator.resolution?.title);
   assertRoleIsolation(solvedCreator, 'creator');
 
-  log('PASS: create/join, isolation, persistence, all gates, disagreement and cross-role motive consensus final');
+  log('PASS: create/join, isolation, persistence, all gates, disagreement, mandatory G13 and cross-role motive consensus final');
 };
 
 run().catch((error) => {
