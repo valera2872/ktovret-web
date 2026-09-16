@@ -263,14 +263,14 @@
       return `<section class="partner-v2-checkpoint is-complete">
         <p class="partner-v2-kicker">Первая версия зафиксирована</p>
         <h3>${escapeHtml(option?.label || state.me.firstHypothesis)}</h3>
-        <p>${state.state.shared.initialHypothesesComplete ? 'Оба игрока зафиксировали версии. Открыт следующий пакет.' : 'Ожидаем первую версию напарника. Ответ можно обсуждать, но изменить его уже нельзя.'}</p>
+        <p>${state.state.shared.initialHypothesesComplete ? 'Оба игрока зафиксировали версии. Теперь сравните, почему вы пришли к своим выводам.' : 'Ожидаем первую версию напарника. Пока он не зафиксировал свою, не сообщайте ему ваш ответ.'}</p>
       </section>`;
     }
 
     return `<section class="partner-v2-checkpoint">
       <p class="partner-v2-kicker">Первая версия</p>
       <h3>Когда, по вашему мнению, исчез груз?</h3>
-      <p>Это не экзамен. Версия сохраняется, чтобы в финале сравнить ее с вашей реконструкцией.</p>
+      <p>Сначала выберите независимо, не обсуждая ответ. Это не экзамен: версия сохранится, чтобы в финале сравнить ее с вашей реконструкцией.</p>
       <div class="partner-v2-options">
         ${(state.case.initialHypothesisOptions || []).map((option) => `<button class="partner-v2-option" type="button" data-action="hypothesis" data-value="${escapeHtml(option.id)}">${escapeHtml(option.label)}</button>`).join('')}
       </div>
@@ -301,12 +301,14 @@
       try {
         const next = await api({ action: 'status', code: previous.room.code });
         const changed = next.state?.revision !== previous.state?.revision || next.state?.chapter !== previous.state?.chapter || next.me?.firstHypothesis !== previous.me?.firstHypothesis;
+        const sameChapter = next.state?.chapter === previous.state?.chapter;
         roomState = next;
         if (changed) {
           if ((next.state?.chapter || 0) > (previous.state?.chapter || 0)) {
             toast('Напарник завершил checkpoint. Открыт новый пакет материалов.');
           }
-          renderGame(next);
+          if (sameChapter) renderGamePreservingScroll(next);
+          else renderGame(next);
         } else {
           scheduleGamePoll();
         }
@@ -353,6 +355,14 @@
       </div>
     `);
     scheduleGamePoll();
+  };
+
+  const renderGamePreservingScroll = (state, message = '') => {
+    const top = window.scrollY;
+    renderGame(state, message);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.scrollTo({ top, left: 0, behavior: 'auto' });
+    }));
   };
 
   const createRoom = async () => {
@@ -464,9 +474,9 @@
     try {
       const state = await postHypothesis(value, roomState, true);
       track('zero_first_hypothesis', { room_code: state.room.code, role: state.me.role, hypothesis: value });
-      renderGame(state);
+      renderGamePreservingScroll(state);
     } catch (error) {
-      renderGame(roomState, errorText(error));
+      renderGamePreservingScroll(roomState, errorText(error));
     } finally {
       busy = false;
     }
