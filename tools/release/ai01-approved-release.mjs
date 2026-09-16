@@ -29,21 +29,30 @@ function decodeExact(encoded,label){
   return bytes;
 }
 
-function webpDimensions(bytes,label){
+function normalizeWebp(bytes,label){
   if(bytes.length<30||bytes.toString('ascii',0,4)!=='RIFF'||bytes.toString('ascii',8,12)!=='WEBP') throw new Error(`${label}: invalid WebP/RIFF header`);
   const declared=bytes.readUInt32LE(4)+8;
-  if(declared!==bytes.length) throw new Error(`${label}: truncated WebP, RIFF declares ${declared}, file has ${bytes.length}`);
+  if(declared>bytes.length) throw new Error(`${label}: truncated WebP, RIFF declares ${declared}, file has ${bytes.length}`);
+  if(declared<bytes.length) bytes=bytes.subarray(0,declared);
+  return bytes;
+}
+
+function webpDimensions(bytes,label){
   if(bytes.toString('ascii',12,16)!=='VP8 '||bytes[23]!==0x9d||bytes[24]!==0x01||bytes[25]!==0x2a) throw new Error(`${label}: unexpected WebP encoding`);
   return {width:bytes.readUInt16LE(26)&0x3fff,height:bytes.readUInt16LE(28)&0x3fff};
 }
 
-function validate(bytes,label,sha,size,width,height){
-  if(bytes.length!==size) throw new Error(`${label}: byte size changed: ${bytes.length}`);
+function fingerprint(bytes,label){
   const dimensions=webpDimensions(bytes,label);
-  if(dimensions.width!==width||dimensions.height!==height) throw new Error(`${label}: dimensions changed: ${dimensions.width}x${dimensions.height}`);
-  const digest=createHash('sha256').update(bytes).digest('hex');
-  if(digest!==sha) throw new Error(`${label}: SHA-256 mismatch: ${digest}`);
-  return {bytes:bytes.length,width,height,digest};
+  return {bytes:bytes.length,width:dimensions.width,height:dimensions.height,digest:createHash('sha256').update(bytes).digest('hex')};
+}
+
+function validateFingerprint(info,label,sha,size,width,height){
+  const failures=[];
+  if(info.bytes!==size) failures.push(`size expected ${size}, got ${info.bytes}`);
+  if(info.width!==width||info.height!==height) failures.push(`dimensions expected ${width}x${height}, got ${info.width}x${info.height}`);
+  if(info.digest!==sha) failures.push(`sha expected ${sha}, got ${info.digest}`);
+  if(failures.length) throw new Error(`${label}: approved fingerprint mismatch: ${failures.join('; ')}`);
 }
 
 function rebuildArtwork(siteRoot,repoRoot){
@@ -64,10 +73,15 @@ function rebuildArtwork(siteRoot,repoRoot){
     readPart(repoRoot,'mobile.part02-tail.b64'),
     readPart(repoRoot,'mobile.part03.b64'),
   ].join('');
-  const home=decodeExact(homeEncoded,'AI desktop banner');
-  const mobile=decodeExact(mobileEncoded,'AI mobile banner');
-  const homeInfo=validate(home,'AI desktop banner',HOME_SHA,HOME_SIZE,1200,400);
-  const mobileInfo=validate(mobile,'AI mobile banner',MOBILE_SHA,MOBILE_SIZE,360,640);
+  const home=normalizeWebp(decodeExact(homeEncoded,'AI desktop banner'),'AI desktop banner');
+  const mobile=normalizeWebp(decodeExact(mobileEncoded,'AI mobile banner'),'AI mobile banner');
+  const homeInfo=fingerprint(home,'AI desktop banner');
+  const mobileInfo=fingerprint(mobile,'AI mobile banner');
+  if(homeInfo.bytes!==HOME_SIZE||homeInfo.digest!==HOME_SHA||homeInfo.width!==1200||homeInfo.height!==400||mobileInfo.bytes!==MOBILE_SIZE||mobileInfo.digest!==MOBILE_SHA||mobileInfo.width!==360||mobileInfo.height!==640){
+    throw new Error(`Approved AI artwork fingerprints changed. home=${JSON.stringify(homeInfo)} mobile=${JSON.stringify(mobileInfo)}`);
+  }
+  validateFingerprint(homeInfo,'AI desktop banner',HOME_SHA,HOME_SIZE,1200,400);
+  validateFingerprint(mobileInfo,'AI mobile banner',MOBILE_SHA,MOBILE_SIZE,360,640);
   const assets=path.join(siteRoot,'assets');
   fs.mkdirSync(assets,{recursive:true});
   fs.writeFileSync(path.join(assets,'ai01-home-banner.webp'),home);
@@ -117,5 +131,5 @@ export function applyApprovedAi01(siteRoot,repoRoot=process.cwd()){
   const art=rebuildArtwork(siteRoot,repoRoot);
   patchHome(siteRoot);
   patchSolo(siteRoot);
-  return {version:'1.1.0',home:true,solo:true,correctedSpelling:true,art};
+  return {version:'1.2.0',home:true,solo:true,correctedSpelling:true,art};
 }
