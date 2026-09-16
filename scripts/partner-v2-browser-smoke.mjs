@@ -314,6 +314,15 @@ try {
   assert.equal(await creator.locator('.partner-v2-new-packet:not([data-chapter-groups]):visible').count(), 0, 'creator must not see an unpolished generic packet');
   assert.equal(await guest.locator('.partner-v2-new-packet:not([data-chapter-groups]):visible').count(), 0, 'guest must not see an unpolished generic packet');
 
+  log('verifying chapter-five organizer attribution remains split across roles');
+  const guestG10 = String(await guest.locator('[data-evidence-id="G10"]').textContent());
+  const creatorM09 = String(await creator.locator('[data-evidence-id="M09"]').textContent());
+  assert.match(guestG10, /OPS\.SHARED/);
+  assert.match(guestG10, /Персональный идентификатор автора в этой записи отсутствует/);
+  assert.doesNotMatch(guestG10, /I\. MARKOVA оформляет перемещение ТК-0/);
+  assert.match(creatorM09, /Инициатор: I\. MARKOVA/);
+  assert.match(creatorM09, /Получатель: DELTA CALIBRATION/);
+
   log('building final reconstruction in both browsers');
   await fillFinal(creator, correctFinal, ['M08', 'M09']);
   await fillFinal(guest, correctFinal, ['G02', 'G08', 'G13']);
@@ -334,7 +343,7 @@ try {
   await creator.waitForTimeout(250);
   await Promise.all(networkChecks);
   assert.deepEqual(browserErrors, [], `browser errors detected:\n${browserErrors.join('\n')}`);
-  log(`PASS room=${roomCode}: ready barrier + mobile/desktop completed the real UI flow through visible forensic evidence and solved reveal`);
+  log(`PASS room=${roomCode}: ready barrier + asymmetric chapter-five attribution + mobile/desktop solved reveal`);
 
   await creatorContext.close();
   await guestContext.close();
