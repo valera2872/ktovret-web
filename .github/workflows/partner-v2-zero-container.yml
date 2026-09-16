@@ -93,20 +93,29 @@ jobs:
             > /tmp/partner-v2-functions.log 2>&1 &
           echo $! > /tmp/partner-v2-functions.pid
 
-          for attempt in $(seq 1 60); do
+          stable=0
+          for attempt in $(seq 1 90); do
             code=$(curl -sS -o /tmp/partner-v2-probe.json -w "%{http_code}" \
               -X POST \
               -H 'content-type: application/json' \
               -d '{}' \
               http://127.0.0.1:54321/functions/v1/coop-case-v2 || true)
-            if [ "$code" = "400" ]; then
-              echo "coop-case-v2 is ready"
+
+            if [ "$code" = "400" ] && grep -q 'invalid_browser_key' /tmp/partner-v2-probe.json 2>/dev/null; then
+              stable=$((stable + 1))
+            else
+              stable=0
+            fi
+
+            if [ "$stable" -ge 3 ]; then
+              echo "coop-case-v2 is stable"
+              sleep 2
               exit 0
             fi
-            sleep 2
+            sleep 1
           done
 
-          echo "coop-case-v2 did not become ready"
+          echo "coop-case-v2 did not become stable"
           cat /tmp/partner-v2-functions.log || true
           cat /tmp/partner-v2-probe.json || true
           exit 1
