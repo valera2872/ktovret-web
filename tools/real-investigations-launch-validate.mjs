@@ -36,6 +36,7 @@ const sitemap = read('sitemap.xml');
 const art=fs.readFileSync('assets/real-investigations-approved-banner.jpg');
 const digest=createHash('sha256').update(art).digest('hex');
 const dimensions=jpegDimensions(art);
+console.log(`BANNER_DIAG bytes=${art.length} sha256=${digest} first16=${art.subarray(0,16).toString('hex')} last16=${art.subarray(-16).toString('hex')} dimensions=${dimensions?`${dimensions.width}x${dimensions.height}`:'none'}`);
 
 expect(art.length===30034, 'approved banner asset keeps exact expected byte size');
 expect(art[0]===0xff && art[1]===0xd8 && art.at(-2)===0xff && art.at(-1)===0xd9, 'approved banner asset is a complete JPEG');
