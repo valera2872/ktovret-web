@@ -1,0 +1,84 @@
+import {
+  adminClient,
+  cleanOrigin,
+  corsHeaders,
+  isAllowedOrigin,
+  json,
+  sha256,
+  validAccessToken,
+  validUuid,
+} from '../_shared/last-aria-payment.ts';
+import { tbankConfigReady } from '../_shared/last-aria-tbank.ts';
+import {
+  PARTNER_PRICE_RUB,
+  PARTNER_PRODUCT_ID,
+  partnerEntitlementUsable,
+  refreshPartnerTbankOrder,
+} from '../_shared/partner-commerce.ts';
+
+Deno.serve(async (req: Request) => {
+  const origin = cleanOrigin(req.headers.get('origin') || '');
+  if (req.method === 'OPTIONS') {
+    if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+  if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
+  if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
+
+  const token = (req.headers.get('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1]?.trim() || '';
+  if (!validAccessToken(token)) return json(401, { error: 'access_token_required' }, origin);
+
+  let body: any = {};
+  try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }, origin); }
+  const orderId = String(body.orderId || '').trim();
+  if (!validUuid(orderId)) return json(400, { error: 'invalid_order_id' }, origin);
+
+  const tokenHash = await sha256(token);
+  const admin = adminClient();
+  const { data: order, error: orderError } = await admin
+    .from('payment_orders')
+    .select('*')
+    .eq('id', orderId)
+    .eq('product_id', PARTNER_PRODUCT_ID)
+    .maybeSingle();
+  if (orderError) return json(503, { error: 'order_lookup_failed' }, origin);
+  if (!order) return json(404, { error: 'order_not_found' }, origin);
+  if (order.token_hash !== tokenHash) return json(403, { error: 'order_access_denied' }, origin);
+  if (!tbankConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
+
+  try {
+    let refreshed = order;
+    if (['creating', 'pending'].includes(String(order.status || ''))) {
+      refreshed = await refreshPartnerTbankOrder(admin, order);
+    }
+
+    const { data: entitlement, error: entitlementError } = await admin
+      .from('access_entitlements')
+      .select('id,product_id,status,starts_at,expires_at,revoked_at')
+      .eq('token_hash', tokenHash)
+      .eq('product_id', PARTNER_PRODUCT_ID)
+      .maybeSingle();
+    if (entitlementError) return json(503, { error: 'access_check_failed' }, origin);
+    const entitled = partnerEntitlementUsable(entitlement);
+
+    const confirmationUrl = ['creating', 'pending'].includes(String(refreshed.status || ''))
+      ? String(refreshed.confirmation_url || order.confirmation_url || '')
+      : '';
+
+    return json(200, {
+      ok: true,
+      orderId: order.id,
+      paymentId: order.provider_payment_id,
+      provider: 'tbank',
+      status: refreshed.status,
+      entitled,
+      entitlementId: entitled ? entitlement?.id : null,
+      productId: PARTNER_PRODUCT_ID,
+      amountRub: Number(order.amount_value),
+      listPriceRub: PARTNER_PRICE_RUB,
+      confirmationUrl,
+    }, origin);
+  } catch (error: any) {
+    return json(503, { error: String(error?.message || 'payment_status_failed').slice(0, 120) }, origin);
+  }
+});
