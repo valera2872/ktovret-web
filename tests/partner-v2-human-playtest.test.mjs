@@ -48,8 +48,10 @@ test('playtest runner uses the same pinned free local Supabase stack as CI', () 
   assert.match(source, /stop', '--no-backup'/);
 });
 
-test('playtest cleanup destroys local test data and contains no deploy/link command', () => {
-  assert.match(source, /cleanup/);
+test('playtest cleanup is safe before the web server exists and destroys local data', () => {
+  assert.match(source, /const cleanup = async/);
+  assert.match(source, /if \(webServer\)/);
+  assert.match(source, /webServer\.close/);
   assert.match(source, /SIGINT/);
   assert.match(source, /SIGTERM/);
   assert.match(source, /--no-backup/);
