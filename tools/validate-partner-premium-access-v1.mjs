@@ -56,6 +56,8 @@ must(access, [
   'createInitialFullPartnerState()',
   'restoreOwner',
   'creator_key_hash: browserHash',
+  "PARTNER_PUBLIC_PATH = '/detektivnye-igry-dlya-dvoih/ne-publikovat/'",
+  'roomUrl: `${PUBLIC_SITE_ORIGIN}${PARTNER_PUBLIC_PATH}?room=${room.code}`',
 ], 'access');
 
 must(session, [
