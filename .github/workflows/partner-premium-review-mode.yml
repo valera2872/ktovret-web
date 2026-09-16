@@ -49,6 +49,18 @@ jobs:
           grep -q "review_proxy_action_invalid" supabase/functions/partner-review-v1/index.ts
       - name: Type-check review Edge Function
         run: deno check --node-modules-dir=auto supabase/functions/partner-review-v1/index.ts
+      - name: Verify rawcdn review page
+        env:
+          REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          base="https://rawcdn.githack.com/${GITHUB_REPOSITORY}/${REVIEW_SHA}/admin/partner-premium-preview"
+          html="$(curl -fsSL "$base/index.html")"
+          script="$(curl -fsSL "$base/review.js")"
+          printf '%s' "$html" | grep -q 'НЕ ПУБЛИКОВАТЬ'
+          printf '%s' "$html" | grep -q './review.js?v=20260916-2'
+          printf '%s' "$script" | grep -q 'REVIEW MODE'
+          printf '%s' "$script" | grep -q 'installProxy'
       - name: Verify live review gateway CORS
         env:
           PREVIEW_ORIGIN: https://rawcdn.githack.com
