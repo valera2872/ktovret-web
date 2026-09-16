@@ -65,6 +65,26 @@ test('seal-number control no longer leaves whole-container swap unexplained', ()
   assert.match(polish, /Отдельной проверки уникальности физической пломбы система не выполняет/);
 });
 
+test('investigation board separates proven facts from open questions', () => {
+  assert.match(polish, /enhanceBoard/);
+  assert.match(polish, /Доказано/);
+  assert.match(polish, /Ещё установить/);
+  assert.match(polish, /Отправленный и прибывший контейнеры — разные физические объекты/);
+  assert.match(polish, /Кто создал временное окно для операции/);
+  assert.match(polishCss, /\.partner-v2-board-question/);
+});
+
+test('testimony board keeps lying separate from proven participation', () => {
+  assert.match(polish, /Показания/);
+  assert.match(polish, /Савельев/);
+  assert.match(polish, /Связь с кражей: не доказана/);
+  assert.match(polish, /Рыбаков/);
+  assert.match(polish, /УЧАСТИЕ ДОКАЗАНО/);
+  assert.match(polish, /Волкова/);
+  assert.match(polish, /Маркова/);
+  assert.match(polishCss, /\.partner-v2-testimony/);
+});
+
 test('solved case explicitly teaches that lying is not equivalent to guilt', () => {
   assert.match(polish, /Почему ложь не равнялась вине/);
   assert.match(polish, /Николай Савельев/);
