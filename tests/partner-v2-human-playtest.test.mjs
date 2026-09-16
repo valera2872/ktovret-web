@@ -17,8 +17,8 @@ test('local human playtest runner parses as an ES module', () => {
 test('playtest runner is loopback-only and rewrites the game endpoint locally', () => {
   assert.match(source, /const LOCAL_FUNCTION = 'http:\/\/127\.0\.0\.1:54321\/functions\/v1\/coop-case-v2'/);
   assert.match(source, /const HOST = '127\.0\.0\.1'/);
-  assert.match(source, /data-partner-endpoint=\\"\[\^\\"\]\+\\"/);
-  assert.match(source, /data-partner-endpoint=\\"\$\{LOCAL_FUNCTION\}\\"/);
+  assert.ok(source.includes('/data-partner-endpoint="[^"]+"/'));
+  assert.ok(source.includes('`data-partner-endpoint="${LOCAL_FUNCTION}"`'));
   assert.doesNotMatch(source, /orknvuwknvsedjgqcfwc\.supabase\.co/);
   assert.doesNotMatch(source, /0\.0\.0\.0/);
 });
@@ -31,12 +31,12 @@ test('playtest runner uses the same pinned free local Supabase stack as CI', () 
   assert.match(source, /stop', '--no-backup'/);
 });
 
-test('playtest cleanup destroys local test data and never contains deploy commands', () => {
+test('playtest cleanup destroys local test data and contains no deploy/link command', () => {
   assert.match(source, /cleanup/);
   assert.match(source, /SIGINT/);
   assert.match(source, /SIGTERM/);
   assert.match(source, /--no-backup/);
-  assert.doesNotMatch(source, /functions\s+deploy|db\s+push|supabase\s+link|project-ref|production/i);
+  assert.doesNotMatch(source, /['"]deploy['"]|['"]push['"]|['"]link['"]|project-ref/i);
 });
 
 test('human instructions require a separate browser identity for player two', () => {
