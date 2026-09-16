@@ -124,6 +124,67 @@
     else card.appendChild(note);
   };
 
+  const currentChapter = () => {
+    const text = root.querySelector('.partner-v2-chapter-head small')?.textContent || '';
+    const match = text.match(/\d+/);
+    return match ? Number(match[0]) : 1;
+  };
+
+  const enhanceBoard = () => {
+    const board = root.querySelector('.partner-v2-board');
+    if (!board) return;
+
+    const chapter = currentChapter();
+    const endpointGate = Boolean(root.querySelector('[data-partner-v2-gate][data-checkpoint="endpoint_link"]'));
+    const photoSolved = chapter >= 3;
+    const taskLinked = chapter >= 4;
+    const physicalProven = chapter >= 5 || endpointGate;
+    const endpointLinked = chapter >= 5;
+    const signature = [chapter, photoSolved, taskLinked, physicalProven, endpointLinked].join(':');
+    if (board.dataset.investigationBoard === signature) return;
+    board.dataset.investigationBoard = signature;
+
+    const facts = [
+      chapter >= 1 ? 'Состав №214 остановился на Векторе-12.' : '',
+      chapter >= 2 ? 'Остановка длилась 16 минут 11 секунд.' : '',
+      photoSolved ? 'Отправленный и прибывший контейнеры — разные физические объекты.' : '',
+      taskLinked ? 'Т-04391 связывает ТК-0 и R-4 / Дениса Рыбакова.' : '',
+      physicalProven ? 'R-4 переместил два тяжёлых объекта сопоставимой массы.' : '',
+      endpointLinked ? 'Endpoint 184 = L-14; в 01:47 активна сессия Ирины Марковой.' : '',
+    ].filter(Boolean);
+
+    const questions = [
+      !photoSolved ? 'Тот ли физический контейнер прибыл на Южный терминал?' : '',
+      photoSolved && !taskLinked ? 'Что использовали как замену и кто перемещал объект?' : '',
+      taskLinked && !physicalProven ? 'Что физически произошло на площадке Б?' : '',
+      physicalProven && !endpointLinked ? 'Кто создал временное окно для операции?' : '',
+      endpointLinked ? 'Кто был исполнителем, а кто организатором всей схемы?' : '',
+    ].filter(Boolean);
+
+    const testimony = [];
+    if (chapter >= 2) testimony.push({ name: 'Савельев', claim: '«Посторонних не было»', status: 'ОПРОВЕРГНУТО', link: 'Связь с кражей: не доказана' });
+    if (chapter >= 4) testimony.push({ name: 'Рыбаков', claim: chapter >= 5 ? '«ТК-0 был пуст»' : 'Работал с Т-04391 / ТК-0', status: chapter >= 5 ? 'ОПРОВЕРГНУТО' : 'УЧАСТИЕ ДОКАЗАНО', link: chapter >= 5 ? 'Непосредственное участие доказано' : 'Характер операции ещё проверяется' });
+    if (chapter >= 5) {
+      testimony.push({ name: 'Волкова', claim: '«Сработала автоматика»', status: 'ОПРОВЕРГНУТО', link: 'Ручной HOLD создал окно операции' });
+      testimony.push({ name: 'Маркова', claim: 'Связь с Endpoint 184 и ТК-0', status: 'ВЕРСИЯ ПРОВЕРЯЕТСЯ', link: 'Роль организатора требует общей реконструкции' });
+    }
+
+    board.innerHTML = `
+      <p class="partner-v2-kicker">Доска дела</p>
+      <section class="partner-v2-board-section">
+        <h3>Доказано</h3>
+        ${facts.map((fact) => `<div class="partner-v2-board-row is-proven"><i></i><span>${fact}</span></div>`).join('')}
+      </section>
+      <section class="partner-v2-board-section">
+        <h3>Ещё установить</h3>
+        ${questions.map((question) => `<div class="partner-v2-board-question"><b>?</b><span>${question}</span></div>`).join('')}
+      </section>
+      ${testimony.length ? `<section class="partner-v2-board-section is-testimony"><h3>Показания</h3>${testimony.map((item) => `
+        <div class="partner-v2-testimony">
+          <strong>${item.name}</strong><span>${item.claim}</span><em>${item.status}</em><small>${item.link}</small>
+        </div>`).join('')}</section>` : ''}`;
+  };
+
   const regroupEvidence = () => {
     const packet = root.querySelector('.partner-v2-new-packet');
     if (!packet) return;
@@ -192,6 +253,7 @@
     renderForensicPhotos();
     neutralizeEditorialFacts();
     enrichSealMechanic();
+    enhanceBoard();
     mountDebrief();
   };
 
