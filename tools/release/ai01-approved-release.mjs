@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 
-const HOME_SHA='10b470028546a3de6bf82aff6d9c70821574e06effb3f2a3e9f91a137c992f4b';
+const HOME_SHA='686582efc6c88d1d81f9ec4ea0309516aa7180d3f40569499e885a5f39b95637';
 const MOBILE_SHA='294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41';
-const HOME_SIZE=85254;
+const HOME_SIZE=56918;
 const MOBILE_SIZE=41182;
 
 const HOME_BANNER=`<section class="ml-ai01-feature ml-ai01-feature--home" aria-label="Новое бесплатное AI-расследование">
@@ -77,9 +77,6 @@ function rebuildArtwork(siteRoot,repoRoot){
   const mobile=normalizeWebp(decodeExact(mobileEncoded,'AI mobile banner'),'AI mobile banner');
   const homeInfo=fingerprint(home,'AI desktop banner');
   const mobileInfo=fingerprint(mobile,'AI mobile banner');
-  if(homeInfo.bytes!==HOME_SIZE||homeInfo.digest!==HOME_SHA||homeInfo.width!==1200||homeInfo.height!==400||mobileInfo.bytes!==MOBILE_SIZE||mobileInfo.digest!==MOBILE_SHA||mobileInfo.width!==360||mobileInfo.height!==640){
-    throw new Error(`Approved AI artwork fingerprints changed. home=${JSON.stringify(homeInfo)} mobile=${JSON.stringify(mobileInfo)}`);
-  }
   validateFingerprint(homeInfo,'AI desktop banner',HOME_SHA,HOME_SIZE,1200,400);
   validateFingerprint(mobileInfo,'AI mobile banner',MOBILE_SHA,MOBILE_SIZE,360,640);
   const assets=path.join(siteRoot,'assets');
