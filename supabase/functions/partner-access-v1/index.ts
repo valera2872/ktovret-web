@@ -21,6 +21,7 @@ import {
 } from '../_shared/partner-ne-publikovat-content-v2.ts';
 
 const PUBLIC_SITE_ORIGIN = (Deno.env.get('PUBLIC_SITE_ORIGIN') || 'https://mysterylogic.com').replace(/\/$/, '');
+const PARTNER_PUBLIC_PATH = '/detektivnye-igry-dlya-dvoih/ne-publikovat/';
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 8;
 const BROWSER_KEY_RE = /^[a-f0-9]{48}$/;
@@ -87,7 +88,7 @@ const buildRoomView = async (admin: any, room: any, browserHash: string) => {
       casePath: room.case_path,
       createdAt: room.created_at,
       expiresAt: room.expires_at,
-      roomUrl: `${PUBLIC_SITE_ORIGIN}${FULL_PARTNER_CASE_PATH}?room=${room.code}`,
+      roomUrl: `${PUBLIC_SITE_ORIGIN}${PARTNER_PUBLIC_PATH}?room=${room.code}`,
     },
     me: {
       role: 'creator',
