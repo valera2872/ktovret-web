@@ -14,7 +14,7 @@ const HOME_CARD=`<section class="ri-home-card" data-real-investigations-home-car
     <div class="ri-home-card__actions"><a class="ref-btn ref-btn-primary" href="./realnye-dela/">Открыть расследования →</a><a class="ri-home-card__text-link" href="./realnye-dela/pozharnaya-lestnica-1991-premium/">Первое дело</a></div>
   </div>
   <a class="ri-home-card__case" href="./realnye-dela/pozharnaya-lestnica-1991-premium/" aria-label="Открыть первое реальное расследование — Девушка на пожарной лестнице">
-    <img src="./assets/real-investigations-home-art.webp" alt="Ночная пожарная лестница" width="760" height="530" loading="lazy" decoding="async">
+    <img src="./assets/real-investigations-hero.svg" alt="Ночная пожарная лестница" width="1200" height="900" loading="lazy" decoding="async">
     <span class="ri-home-card__case-copy"><small>Первое реальное дело</small><strong>Девушка на пожарной лестнице</strong><span>Malden, 1991 · начать расследование →</span></span>
   </a>
 </section>`;
@@ -48,11 +48,11 @@ export function preserveRealInvestigationsLaunch(siteRoot){
   const casePage=path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html');
   const hubCss=path.join(siteRoot,'assets','real-investigations-launch.css');
   const compatCss=path.join(siteRoot,'assets','real-investigations-production-compat.css');
-  const homeArt=path.join(siteRoot,'assets','real-investigations-home-art.webp');
+  const homeArt=path.join(siteRoot,'assets','real-investigations-hero.svg');
   for(const file of [home,hub,casePage,hubCss,compatCss,homeArt]) if(!fs.existsSync(file)) throw new Error(`Real investigations release asset missing: ${file}`);
 
   let html=stripLegacyHomepageLaunch(fs.readFileSync(home,'utf8'));
-  if(!html.includes('real-investigations-production-compat.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-production-compat.css?v=1.2.0">\n</head>');
+  if(!html.includes('real-investigations-production-compat.css')) html=html.replace('</head>','  <link rel="stylesheet" href="./assets/real-investigations-production-compat.css?v=1.2.1">\n</head>');
 
   if(!html.includes('data-nav-real-investigations')){
     const logic='<a data-nav-logic href="./golovolomki-onlayn/">Головоломки</a>';
@@ -73,7 +73,7 @@ export function preserveRealInvestigationsLaunch(siteRoot){
   if(html.includes('real-investigations-launch.css')) throw new Error('Hub-only Real Investigations stylesheet leaked into homepage');
 
   fs.writeFileSync(home,html);
-  return {version:'1.2.0',homePatched:true,nav:true,compactCard:true,legacyLaunchRemoved:true};
+  return {version:'1.2.1',homePatched:true,nav:true,compactCard:true,legacyLaunchRemoved:true};
 }
 
 export function registerRealInvestigationsReleaseFinalizer(siteRoot){
