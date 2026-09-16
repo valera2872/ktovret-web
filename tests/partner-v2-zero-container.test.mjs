@@ -67,6 +67,15 @@ test('CAXU 771204 2 remains a valid ISO 6346 container number', () => {
   }
 });
 
+test('both players must be ready before either browser enters the evidence board', () => {
+  assert.match(engine, /const bothStarted = Boolean\(next\.me\?\.started && next\.opponent\?\.started\)/);
+  assert.match(engine, /if \(state\.me\?\.started && state\.opponent\?\.started\) renderGame\(state\)/);
+  assert.match(engine, /roomState\.me\?\.started/);
+  assert.match(engine, /Вы готовы · ждём напарника/);
+  assert.match(engine, /Не показывайте друг другу экран/);
+  assert.match(engine, /zero_ready/);
+});
+
 test('client contains no hardcoded detective solution or opposite role evidence ids', () => {
   assert.doesNotMatch(engine, /markova|rybakov|saveliev|volkova/i);
   assert.doesNotMatch(engine, /\bM0[1-9]\b|\bG0[1-9]\b/);
