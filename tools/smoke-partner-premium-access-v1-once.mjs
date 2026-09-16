@@ -54,7 +54,7 @@ const statusAfter=await request(ACCESS,{action:'STATUS'},{token:accessToken});
 ok(statusAfter.status===200&&statusAfter.data.room?.code===paidCode,'status returns bound room');
 
 const fake=await request(DUEL,{action:'create',browserKey:fakeOwner,caseId:CASE_ID,caseTitle:CASE_TITLE,casePath:CASE_PATH,playerName:'QA Bypass'});
-ok(fake.status===200&&fake.data.room?.code,'generic room can still be created');
+ok(fake.status===201&&fake.data.room?.code,'generic room can still be created');
 const fakeCode=fake.data.room.code;
 const bypassSession=await request(SESSION,{action:'SNAPSHOT',code:fakeCode,browserKey:fakeOwner});
 ok(bypassSession.status===403&&bypassSession.data.error==='partner_access_required','generic room blocked by session entitlement gate');
