@@ -288,6 +288,7 @@
   const scheduleGamePoll = () => {
     clearPoll();
     pollTimer = setTimeout(async () => {
+      if (root.querySelector('[data-partner-v2-final].is-solved')) return;
       if (!roomState?.room?.code) return;
       const previous = roomState;
       try {
