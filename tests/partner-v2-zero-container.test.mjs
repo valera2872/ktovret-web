@@ -76,6 +76,16 @@ test('both players must be ready before either browser enters the evidence board
   assert.match(engine, /zero_ready/);
 });
 
+test('first hypotheses stay independent and same-chapter sync preserves reading position', () => {
+  assert.match(engine, /Сначала выберите независимо, не обсуждая ответ/);
+  assert.match(engine, /Пока он не зафиксировал свою, не сообщайте ему ваш ответ/);
+  assert.match(engine, /Теперь сравните, почему вы пришли к своим выводам/);
+  assert.match(engine, /const renderGamePreservingScroll/);
+  assert.match(engine, /window\.scrollTo\(\{ top, left: 0, behavior: 'auto' \}\)/);
+  assert.match(engine, /if \(sameChapter\) renderGamePreservingScroll\(next\)/);
+  assert.match(engine, /renderGamePreservingScroll\(state\)/);
+});
+
 test('client contains no hardcoded detective solution or opposite role evidence ids', () => {
   assert.doesNotMatch(engine, /markova|rybakov|saveliev|volkova/i);
   assert.doesNotMatch(engine, /\bM0[1-9]\b|\bG0[1-9]\b/);
