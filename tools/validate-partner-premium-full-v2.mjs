@@ -9,7 +9,8 @@ for(const m of ['PAVEL_FAKE_PROVEN','CANARY_CONFIRMED','LEAK_CONFIRMED','VERA_AL
 for(const x of ['partner_location_insufficient','ATTEMPT_RECONSTRUCTION','CHOOSE_PUBLICATION','safeFullPartnerView','characterSpeakingContext'])if(!engine.includes(x))throw new Error(`missing engine contract ${x}`);
 for(const x of ['partner_elena_confrontation_required','ELENA_PAST','available:false','coreTruth:_coreTruth','motive:_motive'])if(!secure.includes(x))throw new Error(`missing secure engine guard ${x}`);
 for(const x of ['compareAndSave','partner_room_states','mapDuelRoleToFullPartner','partner-engine-v2-secure.ts'])if(!session.includes(x))throw new Error(`missing session contract ${x}`);
-for(const x of ['ТЕКУЩАЯ РАЗРЕШЁННАЯ ВЕРСИЯ','ai_detective_claim_turn','multi-character-shared-state','partner-engine-v2-secure.ts'])if(!ai.includes(x))throw new Error(`missing AI guard ${x}`);
+for(const x of ['ТЕКУЩАЯ РАЗРЕШЁННАЯ ВЕРСИЯ','ai_detective_claim_turn','multi-character-shared-state','partner-engine-v2-secure.ts','visitorHash.slice(0,16)'])if(!ai.includes(x))throw new Error(`missing AI guard ${x}`);
 if(ai.includes('СКРЫТАЯ ПРАВДА ТОЛЬКО ДЛЯ КОНСИСТЕНТНОСТИ')||ai.includes('${ctx.coreTruth}')||ai.includes('${ctx.motive}'))throw new Error('future canon must not enter AI prompt');
+if(ai.includes('p_session_id:`partner-full-${roomId}`'))throw new Error('shared room-wide AI metering session would reject second player');
 if(!content.includes("FULL_PARTNER_CASE_ID = 'MLP001_NE_PUBLIKOVAT'"))throw new Error('wrong full case id');
 console.log('Premium Partner full v2 secure contract OK');
