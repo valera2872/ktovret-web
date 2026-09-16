@@ -2,13 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 
-// Temporary pinned values are intentionally the previous reconstructed fingerprints.
-// If the checked-in approved assets differ, CI prints their exact fingerprints so we
-// can pin the real immutable binaries instead of rebuilding WebP through text parts.
-const HOME_SHA='686582efc6c88d1d81f9ec4ea0309516aa7180d3f40569499e885a5f39b95637';
-const MOBILE_SHA='294692a5f1d4e9f344a7f457938f9f1a4ee7cb531845040666fdf47f079bac41';
-const HOME_SIZE=56918;
-const MOBILE_SIZE=41182;
+const HOME_SHA='36beb19bbfbfc8d5c94f961ba4667ffb00726b52f88a5b0939452dcb073529c2';
+const MOBILE_SHA='07d9e5aa0617805521945e1d84304d0816a35d84be9d57f8ce6241c141aca6fb';
+const HOME_SIZE=66958;
+const MOBILE_SIZE=32632;
+const HOME_PARTS=['home.fixed01.b64','home.fixed02.b64','home.fixed03.b64','home.fixed04.b64','home.fixed05.b64','home.fixed06.b64'];
+const MOBILE_PARTS=['mobile.fixed01.b64','mobile.fixed02.b64','mobile.fixed03.b64'];
 
 const HOME_BANNER=`<section class="ml-ai01-feature ml-ai01-feature--home" aria-label="Новое бесплатное AI-расследование">
   <a class="ml-ai01-feature-link" href="./detektivnaya-igra-s-ii/" data-ai01-feature="home">
@@ -28,8 +27,8 @@ function webpDimensions(bytes,label){
 }
 
 function fingerprint(bytes,label){
-  const dimensions=webpDimensions(bytes,label);
-  return {bytes:bytes.length,width:dimensions.width,height:dimensions.height,digest:createHash('sha256').update(bytes).digest('hex')};
+  const {width,height}=webpDimensions(bytes,label);
+  return {bytes:bytes.length,width,height,digest:createHash('sha256').update(bytes).digest('hex')};
 }
 
 function validateFingerprint(info,label,sha,size,width,height){
@@ -37,17 +36,28 @@ function validateFingerprint(info,label,sha,size,width,height){
   if(info.bytes!==size) failures.push(`size expected ${size}, got ${info.bytes}`);
   if(info.width!==width||info.height!==height) failures.push(`dimensions expected ${width}x${height}, got ${info.width}x${info.height}`);
   if(info.digest!==sha) failures.push(`sha expected ${sha}, got ${info.digest}`);
-  if(failures.length) throw new Error(`${label}: checked-in approved fingerprint mismatch: ${failures.join('; ')}; actual=${JSON.stringify(info)}`);
+  if(failures.length) throw new Error(`${label}: approved fingerprint mismatch: ${failures.join('; ')}; actual=${JSON.stringify(info)}`);
 }
 
-function validateArtwork(siteRoot){
-  const homePath=path.join(siteRoot,'assets','ai01-home-banner.webp');
-  const mobilePath=path.join(siteRoot,'assets','ai01-mobile-banner.webp');
-  if(!fs.existsSync(homePath)||!fs.existsSync(mobilePath)) throw new Error('AI banner artwork missing from checked-in assets');
-  const homeInfo=fingerprint(fs.readFileSync(homePath),'AI desktop banner');
-  const mobileInfo=fingerprint(fs.readFileSync(mobilePath),'AI mobile banner');
+function decodeExact(repoRoot,parts,label){
+  const dir=path.join(repoRoot,'content','ai01-approved');
+  const b64=parts.map(name=>fs.readFileSync(path.join(dir,name),'utf8').trim()).join('');
+  if(!/^[A-Za-z0-9+/]+={0,2}$/.test(b64)||b64.length%4) throw new Error(`${label}: invalid base64 source`);
+  const bytes=Buffer.from(b64,'base64');
+  if(bytes.toString('base64')!==b64) throw new Error(`${label}: non-canonical base64 source`);
+  return bytes;
+}
+
+function rebuildArtwork(siteRoot,repoRoot){
+  const home=decodeExact(repoRoot,HOME_PARTS,'AI desktop banner');
+  const mobile=decodeExact(repoRoot,MOBILE_PARTS,'AI mobile banner');
+  const homeInfo=fingerprint(home,'AI desktop banner');
+  const mobileInfo=fingerprint(mobile,'AI mobile banner');
   validateFingerprint(homeInfo,'AI desktop banner',HOME_SHA,HOME_SIZE,1200,400);
   validateFingerprint(mobileInfo,'AI mobile banner',MOBILE_SHA,MOBILE_SIZE,360,640);
+  fs.mkdirSync(path.join(siteRoot,'assets'),{recursive:true});
+  fs.writeFileSync(path.join(siteRoot,'assets','ai01-home-banner.webp'),home);
+  fs.writeFileSync(path.join(siteRoot,'assets','ai01-mobile-banner.webp'),mobile);
   return {home:homeInfo,mobile:mobileInfo};
 }
 
@@ -82,18 +92,12 @@ function patchSolo(siteRoot){
   fs.writeFileSync(file,html);
 }
 
-export function applyApprovedAi01(siteRoot){
-  const required=[
-    path.join(siteRoot,'index.html'),
-    path.join(siteRoot,'detektivnye-igry-dlya-odnogo','index.html'),
-    path.join(siteRoot,'assets','ai01-feature-banner.css'),
-    path.join(siteRoot,'assets','ai01-home-banner.webp'),
-    path.join(siteRoot,'assets','ai01-mobile-banner.webp'),
-  ];
+export function applyApprovedAi01(siteRoot,repoRoot=process.cwd()){
+  const required=[path.join(siteRoot,'index.html'),path.join(siteRoot,'detektivnye-igry-dlya-odnogo','index.html'),path.join(siteRoot,'assets','ai01-feature-banner.css')];
   const missing=required.filter(file=>!fs.existsSync(file));
   if(missing.length) throw new Error(`AI banner release asset missing: ${missing[0]}`);
-  const art=validateArtwork(siteRoot);
+  const art=rebuildArtwork(siteRoot,repoRoot);
   patchHome(siteRoot);
   patchSolo(siteRoot);
-  return {version:'1.3.0',home:true,solo:true,correctedSpelling:true,art};
+  return {version:'1.4.0',home:true,solo:true,correctedSpelling:true,art};
 }
