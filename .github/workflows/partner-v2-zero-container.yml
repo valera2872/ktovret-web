@@ -34,6 +34,7 @@ jobs:
           node --check scripts/partner-v2-smoke.mjs
           node --check scripts/partner-v2-local-smoke.mjs
           node --check scripts/partner-v2-photo-tolerance-smoke.mjs
+          node --check scripts/partner-v2-browser-smoke.mjs
       - name: Run Partner V2 source contracts
         run: node --test tests/partner-v2-*.test.mjs
       - name: Protect existing product boundaries
@@ -63,7 +64,7 @@ jobs:
     name: Local Supabase two-client smoke
     needs: validate-partner-v2
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -129,6 +130,17 @@ jobs:
         env:
           LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
         run: node scripts/partner-v2-photo-tolerance-smoke.mjs
+
+      - name: Install browser smoke harness
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright-core@1.55.0
+
+      - name: Run mobile + desktop browser UI smoke
+        env:
+          LOCAL_PARTNER_V2_ENDPOINT: http://127.0.0.1:54321/functions/v1/coop-case-v2
+        run: |
+          BROWSER_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          test -n "$BROWSER_BIN"
+          BROWSER_BIN="$BROWSER_BIN" node scripts/partner-v2-browser-smoke.mjs
 
       - name: Print local diagnostics on failure
         if: failure()
