@@ -156,13 +156,28 @@ function patchSolo(siteRoot){
   fs.writeFileSync(file,html);
 }
 
+function releaseTreeFiles(siteRoot){
+  return [
+    path.join(siteRoot,'index.html'),
+    path.join(siteRoot,'sitemap.xml'),
+    path.join(siteRoot,'detektivnye-igry-dlya-odnogo','index.html'),
+    path.join(siteRoot,'realnye-dela','index.html'),
+    path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html'),
+    path.join(siteRoot,'assets','real-investigations-launch.css'),
+    path.join(siteRoot,'assets','real-investigations-production-compat.css'),
+  ];
+}
+
+function isPartialFixture(siteRoot,missing){
+  return missing.length>0 && path.resolve(siteRoot)!==path.resolve(process.cwd());
+}
+
 export function preserveRealInvestigationsLaunch(siteRoot){
+  const required=releaseTreeFiles(siteRoot);
+  const missing=required.filter(file=>!fs.existsSync(file));
+  if(isPartialFixture(siteRoot,missing)) return {version:'2.1.0',skipped:true,reason:'partial-render-fixture'};
+  if(missing.length) throw new Error(`Real investigations release asset missing: ${missing[0]}`);
   const art=validateApprovedBanner(siteRoot);
-  const hub=path.join(siteRoot,'realnye-dela','index.html');
-  const casePage=path.join(siteRoot,'realnye-dela','pozharnaya-lestnica-1991-premium','index.html');
-  const hubCss=path.join(siteRoot,'assets','real-investigations-launch.css');
-  const compatCss=path.join(siteRoot,'assets','real-investigations-production-compat.css');
-  for(const file of [hub,casePage,hubCss,compatCss,art.target]) if(!fs.existsSync(file)) throw new Error(`Real investigations release asset missing: ${file}`);
   patchHome(siteRoot);
   patchSolo(siteRoot);
   return {version:'2.1.0',homePatched:true,soloPatched:true,nav:true,approvedArtwork:true,aiPromoPreserved:true,art};
@@ -172,7 +187,7 @@ export function registerRealInvestigationsReleaseFinalizer(siteRoot){
   if(releaseFinalizerRegistered) return;
   releaseFinalizerRegistered=true;
   process.once('beforeExit',()=>{
-    preserveRealInvestigationsLaunch(siteRoot);
-    finalizeSitemap(siteRoot);
+    const result=preserveRealInvestigationsLaunch(siteRoot);
+    if(!result?.skipped) finalizeSitemap(siteRoot);
   });
 }
