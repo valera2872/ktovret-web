@@ -90,6 +90,9 @@ must(commerceUi, [
   "searchParams.set('room',code)",
   'ui.button.disabled=false',
   'ui.name.disabled=false',
+  'resetPendingOrder',
+  "['canceled','failed','refunded'].includes(status)",
+  "setStore(REQUEST_KEY,'')",
 ], 'commerce-ui');
 
 const entryMarkers = [
