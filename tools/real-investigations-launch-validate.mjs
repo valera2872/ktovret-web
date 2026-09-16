@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import {createHash} from 'node:crypto';
 
 const read = (file) => fs.readFileSync(file, 'utf8');
@@ -34,22 +33,16 @@ const post = read('tools/import-mobile/real-investigations-release-postprocess.m
 const compat = read('assets/real-investigations-production-compat.css');
 const smoke = read('tools/archive-visual-smoke.mjs');
 const sitemap = read('sitemap.xml');
-const payloadDir='content/real-investigations-approved';
-const parts=fs.existsSync(payloadDir)?fs.readdirSync(payloadDir).filter(name=>/^banner\.part\d+\.b64$/.test(name)).sort():[];
-const art=parts.length?Buffer.concat(parts.map(name=>Buffer.from(read(path.join(payloadDir,name)).trim(),'base64'))):Buffer.alloc(0);
-const approvedAsset=fs.readFileSync('assets/real-investigations-approved-banner.jpg');
-const digest=art.length?createHash('sha256').update(art).digest('hex'):'';
-const approvedDigest=createHash('sha256').update(approvedAsset).digest('hex');
-const dimensions=art.length?jpegDimensions(art):null;
+const art=fs.readFileSync('assets/real-investigations-approved-banner.jpg');
+const digest=createHash('sha256').update(art).digest('hex');
+const dimensions=jpegDimensions(art);
 
-expect(parts.length===6, 'approved banner payload has all 6 ordered parts');
-expect(art.length===approvedAsset.length, `approved banner payload byte size matches checked-in artwork (${art.length} bytes)`);
-expect(art[0]===0xff && art[1]===0xd8 && art.at(-2)===0xff && art.at(-1)===0xd9, 'approved banner payload is a complete JPEG');
-expect(dimensions?.width===900 && dimensions?.height===322, 'approved banner payload keeps 900x322 dimensions');
-expect(art.equals(approvedAsset), `approved banner payload reconstructs exact checked-in artwork (${digest})`);
-expect(digest===approvedDigest, 'approved banner payload keeps exact checked-in artwork digest');
-expect(post.includes('materializeApprovedBanner'), 'production finalizer reconstructs approved banner before patching pages');
-expect(post.includes('payload does not match checked-in approved artwork'), 'production finalizer verifies reconstructed banner against approved asset');
+expect(art.length===30034, 'approved banner asset keeps exact expected byte size');
+expect(art[0]===0xff && art[1]===0xd8 && art.at(-2)===0xff && art.at(-1)===0xd9, 'approved banner asset is a complete JPEG');
+expect(dimensions?.width===900 && dimensions?.height===322, 'approved banner asset keeps 900x322 dimensions');
+expect(digest==='0c7a41164efdbd79f2515bd0922e6d2514b883bb9ba62e3289504190b61bd9d3', 'approved banner asset keeps exact approved artwork digest');
+expect(post.includes('validateApprovedBanner'), 'production finalizer validates approved banner before patching pages');
+expect(post.includes('APPROVED_BANNER_SHA256'), 'production finalizer verifies approved banner digest');
 expect(post.includes('data-real-investigations-approved-home'), 'production finalizer installs approved homepage banner');
 expect(post.includes('data-real-investigations-approved-solo'), 'production finalizer installs compact Solo banner');
 expect(post.includes("detektivnye-igry-dlya-odnogo','index.html'"), 'production finalizer patches generated Solo hub');
