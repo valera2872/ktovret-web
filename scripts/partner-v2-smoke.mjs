@@ -223,6 +223,8 @@ const run = async () => {
   assert.ok(finalGuestState.case.finalUi);
   assert.equal(finalCreatorState.resolution, null);
   assert.equal(finalGuestState.resolution, null);
+  assert.ok(finalCreatorState.evidence.some((item) => item.id === 'M09'));
+  assert.ok(finalGuestState.evidence.some((item) => item.id === 'G13'));
   assertRoleIsolation(finalCreatorState, 'creator');
   assertRoleIsolation(finalGuestState, 'guest');
 
@@ -232,14 +234,14 @@ const run = async () => {
   assert.equal(creatorDraft.resolution, null);
 
   const disagreeingGuestAnswers = { ...correctFinal, organizer: 'rybakov' };
-  const guestDisagreement = await submitFinal(guestKey, disagreeingGuestAnswers, ['G02', 'G08']);
+  const guestDisagreement = await submitFinal(guestKey, disagreeingGuestAnswers, ['G02', 'G08', 'G13']);
   assert.equal(guestDisagreement.finalResult.status, 'disagreement');
   assert.ok(guestDisagreement.finalResult.differences.some((item) => item.field === 'organizer'));
   assert.equal(guestDisagreement.resolution, null);
   assert.equal(guestDisagreement.state.shared.finalSolved, false);
 
-  log('final: guest aligns with creator; four evidence classes should resolve the case');
-  const solved = await submitFinal(guestKey, correctFinal, ['G02', 'G08']);
+  log('final: guest aligns with creator; both roles must supply the two halves of motive proof');
+  const solved = await submitFinal(guestKey, correctFinal, ['G02', 'G08', 'G13']);
   assert.equal(solved.finalResult.status, 'solved');
   assert.equal(solved.state.shared.finalConsensus, true);
   assert.equal(solved.state.shared.finalSolved, true);
@@ -252,7 +254,7 @@ const run = async () => {
   assert.ok(solvedCreator.resolution?.title);
   assertRoleIsolation(solvedCreator, 'creator');
 
-  log('PASS: create/join, isolation, persistence, all gates, disagreement and consensus final');
+  log('PASS: create/join, isolation, persistence, all gates, disagreement and cross-role motive consensus final');
 };
 
 run().catch((error) => {
