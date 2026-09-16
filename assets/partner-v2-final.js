@@ -121,58 +121,14 @@
     </section>`;
   };
 
-  const groupEvidencePackets = (state, main) => {
-    const chapter = Number(state.state?.chapter || 1);
-    const evidence = state.evidence || [];
-    const chapters = (state.case?.chapters || [])
-      .filter((item) => Number(item.id) > 1 && Number(item.id) <= chapter)
-      .map((item) => ({ ...item, evidence: evidence.filter((entry) => Number(entry.chapter) === Number(item.id)) }))
-      .filter((item) => item.evidence.length);
-
-    const grouped = [...main.querySelectorAll('[data-evidence-chapter]')];
-    const alreadyGrouped = grouped.length === chapters.length && chapters.every((item, index) => {
-      const section = grouped[index];
-      if (Number(section.dataset.evidenceChapter) !== Number(item.id)) return false;
-      const expectedIds = item.evidence.map((entry) => entry.id).join('|');
-      const actualIds = [...section.querySelectorAll('[data-evidence-id]')].map((node) => node.dataset.evidenceId).join('|');
-      return expectedIds === actualIds;
-    });
-    if (alreadyGrouped) return;
-
-    const cards = new Map(
-      [...main.querySelectorAll('[data-evidence-id]')].map((node) => [node.dataset.evidenceId, node])
-    );
-    main.querySelectorAll('.partner-v2-new-packet').forEach((node) => node.remove());
-    if (!chapters.length) return;
-
-    let cursor = main.querySelector('.partner-v2-checkpoint') || main.querySelector(':scope > .partner-v2-evidence-grid');
-    if (!cursor) return;
-
-    for (const item of chapters) {
-      const section = document.createElement('section');
-      section.className = 'partner-v2-new-packet';
-      section.dataset.evidenceChapter = String(item.id);
-      section.innerHTML = `
-        <p class="partner-v2-kicker">Пакет главы ${Number(item.id)}</p>
-        <h2>${escapeHtml(item.title || '')}</h2>
-        ${item.objective ? `<p>${escapeHtml(item.objective)}</p>` : ''}
-        <div class="partner-v2-evidence-grid"></div>`;
-      const grid = section.querySelector('.partner-v2-evidence-grid');
-      for (const evidenceItem of item.evidence) {
-        const card = cards.get(evidenceItem.id);
-        if (card) grid.appendChild(card);
-      }
-      cursor.insertAdjacentElement('afterend', section);
-      cursor = section;
-    }
-  };
-
   const mount = (state) => {
     const main = root.querySelector('.partner-v2-game-grid main');
     if (!main) return;
     root.querySelector('[data-partner-v2-final]')?.remove();
     root.querySelector('.partner-v2-next-slice')?.remove();
-    groupEvidencePackets(state, main);
+    const packetTitle = root.querySelector('.partner-v2-new-packet > h2');
+    const currentChapter = state.case?.chapters?.find((item) => Number(item.id) === Number(state.state?.chapter));
+    if (packetTitle && currentChapter) packetTitle.textContent = currentChapter.title;
 
     if (state.state?.shared?.finalSolved) {
       main.insertAdjacentHTML('beforeend', resolutionHtml(state));
