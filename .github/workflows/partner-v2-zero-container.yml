@@ -31,6 +31,7 @@ jobs:
           node --check assets/partner-v2-checkpoints.js
           node --check assets/partner-v2-final.js
           node --check assets/partner-v2-polish.js
+          node --check assets/partner-v2-demo.js
           node --check scripts/partner-v2-smoke.mjs
           node --check scripts/partner-v2-local-smoke.mjs
           node --check scripts/partner-v2-photo-tolerance-smoke.mjs
@@ -54,6 +55,9 @@ jobs:
           grep -q "v_photo_match_count >= 2" supabase/migrations/20260916070000_partner_v2_photo_tolerance.sql
           grep -q "partner-v2-polish.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
           grep -q "noindex,follow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
+          grep -q "partner-v2-demo.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/demo.html
+          grep -q "noindex,nofollow" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/demo.html
+          ! grep -q "partner-v2-demo.js" detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html
           grep -q "verify_jwt = false" supabase/config.toml
       - name: Keep this workflow validation-only
         run: |
