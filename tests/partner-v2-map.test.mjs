@@ -33,9 +33,11 @@ test('map makes the key route deduction visible without revealing the culprit', 
 test('map preserves readable scale on narrow screens with horizontal pan', () => {
   assert.match(map, /partner-v2-vector-map-scroll/);
   assert.match(map, /На узком экране двигайте схему влево и вправо/);
-  assert.match(css, /\.partner-v2-vector-map-scroll\{overflow:hidden\}/);
-  assert.match(css, /overflow-x:auto/);
-  assert.match(css, /width:680px;min-width:680px;max-width:none/);
+  assert.match(css, /\.partner-v2-vector-map-scroll\{min-width:0;max-width:100%;width:100%;overflow:hidden\}/);
+  assert.match(css, /\.partner-v2-evidence-grid,\.partner-v2-evidence\{min-width:0\}/);
+  assert.match(css, /\.partner-v2-vector-map\{min-width:0;max-width:100%/);
+  assert.match(css, /\.partner-v2-vector-map-scroll\{width:100%;max-width:100%;min-width:0;overflow-x:auto/);
+  assert.match(css, /\.partner-v2-vector-map-scroll svg\{width:680px;min-width:680px;max-width:none/);
   assert.match(css, /\.partner-v2-vector-map-pan-hint\{display:none\}/);
   assert.match(css, /\.partner-v2-vector-map-pan-hint\{display:block/);
 });
