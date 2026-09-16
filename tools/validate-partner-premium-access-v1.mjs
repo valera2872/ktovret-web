@@ -11,9 +11,10 @@ const required = [
   'assets/partner-premium-commerce-v1.js',
   'assets/partner-premium-commerce-v1.css',
   'admin/partner-premium-preview/index.html',
+  'detektivnye-igry-dlya-dvoih/ne-publikovat/index.html',
 ];
 for (const file of required) if (!fs.existsSync(file)) throw new Error(`missing:${file}`);
-const [commerce, checkout, status, webhook, access, session, ai, commerceUi, commerceCss, html] = required.map((file) => fs.readFileSync(file, 'utf8'));
+const [commerce, checkout, status, webhook, access, session, ai, commerceUi, commerceCss, html, publicHtml] = required.map((file) => fs.readFileSync(file, 'utf8'));
 const must = (source, values, label) => { for (const value of values) if (!source.includes(value)) throw new Error(`${label}:missing:${value}`); };
 
 must(commerce, [
@@ -89,7 +90,7 @@ must(commerceUi, [
   'ui.name.disabled=false',
 ], 'commerce-ui');
 
-must(html, [
+const entryMarkers = [
   '599 ₽ за всю комнату',
   'Платит один игрок, второй подключается бесплатно',
   'Войти по коду',
@@ -102,13 +103,21 @@ must(html, [
   'data-guest-code-submit',
   'partner-premium-commerce-v1.css',
   'partner-premium-commerce-v1.js',
-], 'entry-html');
+];
+must(html, entryMarkers, 'entry-html');
+must(publicHtml, entryMarkers, 'public-entry-html');
+must(publicHtml, [
+  'name="robots" content="noindex,nofollow,noarchive"',
+  '<link rel="canonical" href="https://mysterylogic.com/detektivnye-igry-dlya-dvoih/ne-publikovat/">',
+], 'pre-release-route');
 
 if (!commerceCss.includes('.pp-purchase-fields') || !commerceCss.includes('.pp-guest-code')) throw new Error('commerce UI styles missing');
-const coreScript = html.indexOf('partner-premium-v2.js');
-const commerceScript = html.indexOf('partner-premium-commerce-v1.js');
-if (coreScript < 0 || commerceScript < 0 || commerceScript <= coreScript) throw new Error('commerce layer must load after core game client');
+for (const [label, page] of [['preview', html], ['public', publicHtml]]) {
+  const coreScript = page.indexOf('partner-premium-v2.js');
+  const commerceScript = page.indexOf('partner-premium-commerce-v1.js');
+  if (coreScript < 0 || commerceScript < 0 || commerceScript <= coreScript) throw new Error(`${label}: commerce layer must load after core game client`);
+}
 if (!checkout.includes('PARTNER_PRODUCT_ID') || !status.includes('PARTNER_PRODUCT_ID') || !webhook.includes('PARTNER_PRODUCT_ID')) throw new Error('commerce product scoping missing');
 if (checkout.includes('REVIEW_DISCOUNT')) throw new Error('Partner v1 must not inherit Last Aria discount rules');
 
-console.log('Premium Partner paid access + commerce UI v1 contract OK');
+console.log('Premium Partner paid access + hidden production route v1 contract OK');
