@@ -81,5 +81,7 @@ export function lazarevStatement(level:number){
 
 export function isTrainStopQuestion(text:string){
   const q=text.toLowerCase().replace(/ё/g,'е');
-  return /(останов|стоял|останавли|к-?17|техническ)/.test(q)&&/(поезд|состав|там|тогда|00:0|ночью|берегов|вы сказали|говорили)/.test(q);
+  const direct=/(останов|стоял|останавли|к-?17|техническ)/.test(q)&&/(поезд|состав|там|тогда|00:0|ночью|берегов|говорили|сказали)/.test(q);
+  const evidence=/(журнал|документ|материал|запис)/.test(q)&&/(объясн|говорили|сказали|останов)/.test(q);
+  return direct||evidence;
 }
