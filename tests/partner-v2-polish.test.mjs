@@ -43,6 +43,12 @@ test('later evidence is regrouped by its real chapter instead of one generic pac
   assert.doesNotMatch(polish, /Partner V2 core работает/);
 });
 
+test('raw placeholders stay hidden until deterministic polish is mounted', () => {
+  assert.match(polishCss, /\.partner-v2-photo-placeholder\{visibility:hidden\}/);
+  assert.match(polishCss, /\.partner-v2-new-packet:not\(\[data-chapter-groups\]\)\{visibility:hidden\}/);
+  assert.match(polish, /packet\.dataset\.chapterGroups = signature/);
+});
+
 test('G02 and M05 are rendered as comparable forensic camera frames', () => {
   assert.match(polish, /forensicPhotoHtml/);
   assert.match(polish, /id === 'G02'/);
