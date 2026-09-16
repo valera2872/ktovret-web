@@ -14,6 +14,12 @@ const BROWSER_KEY_RE = /^[a-f0-9]{48}$/;
 const CASE_ID = ZERO_CONTAINER_CASE.id;
 const roomSelect = 'id,code,case_id,case_title,case_path,creator_key_hash,status,created_at,expires_at';
 const playerSelect = 'id,room_id,role,player_key_hash,player_name,joined_at,started_at,completed_at';
+const CHECKPOINT_CHAPTERS: Record<string, number> = {
+  photo_observation: 2,
+  t04391_link: 3,
+  physical_operation: 4,
+  endpoint_link: 4,
+};
 
 type AdminClient = ReturnType<typeof createClient>;
 type Row = Record<string, any>;
@@ -77,27 +83,39 @@ const visibleEvidence = (role: PartnerRole, chapter: number) => Object.values(al
   .filter((item: any) => item.role === role && Number(item.chapter) <= chapter)
   .map((item: any) => ({ ...item }));
 
-const checkpointUiForRole = (role: PartnerRole) => ({
-  photo_observation: ZERO_CONTAINER_CASE.checkpointUi.photo_observation,
-  t04391_link: {
-    id: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.id,
-    title: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.title,
-    lead: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.lead,
-    options: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.roleOptions[role],
-  },
-  physical_operation: {
-    id: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.id,
-    title: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.title,
-    lead: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.lead,
-    options: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.roleOptions[role],
-  },
-  endpoint_link: {
-    id: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.id,
-    title: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.title,
-    lead: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.lead,
-    options: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.roleOptions[role],
-  },
-});
+const checkpointUiForRole = (role: PartnerRole, chapter: number, sharedState: Row) => {
+  const ui: Record<string, unknown> = {};
+
+  if (chapter === 2 && !sharedState.photoComparisonSolved) {
+    ui.photo_observation = ZERO_CONTAINER_CASE.checkpointUi.photo_observation;
+  }
+  if (chapter === 3 && !sharedState.t04391Linked) {
+    ui.t04391_link = {
+      id: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.id,
+      title: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.title,
+      lead: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.lead,
+      options: ZERO_CONTAINER_CASE.checkpointUi.t04391_link.roleOptions[role],
+    };
+  }
+  if (chapter === 4 && !sharedState.physicalSwapProven) {
+    ui.physical_operation = {
+      id: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.id,
+      title: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.title,
+      lead: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.lead,
+      options: ZERO_CONTAINER_FINAL.checkpointUi.physical_operation.roleOptions[role],
+    };
+  }
+  if (chapter === 4 && sharedState.physicalSwapProven && !sharedState.endpoint184Linked) {
+    ui.endpoint_link = {
+      id: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.id,
+      title: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.title,
+      lead: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.lead,
+      options: ZERO_CONTAINER_FINAL.checkpointUi.endpoint_link.roleOptions[role],
+    };
+  }
+
+  return ui;
+};
 
 const matchesExpected = (value: unknown, expected: unknown) => {
   if (typeof expected === 'string') return String(value || '') === expected;
@@ -152,6 +170,7 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
   const creator = players.find((player) => player.role === 'creator') || null;
   const guest = players.find((player) => player.role === 'guest') || null;
   const bothJoined = Boolean(creator && guest);
+  const bothStarted = Boolean(me.started_at && opponent?.started_at);
   const caseState = await getCaseState(admin, room.id);
   const playerState = await getPlayerState(admin, room.id, me.id);
   if (!caseState || !playerState) return { error: 'partner_state_missing' };
@@ -161,7 +180,8 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
   const chapter = Number(caseState.chapter) || 1;
   const privateState = playerState.private_state || {};
   const sharedState = caseState.shared_state || {};
-  const chapters = [...Object.values(caseConfig.chapters), ZERO_CONTAINER_FINAL.chapter5, ZERO_CONTAINER_FINAL.chapter6];
+  const allChapters = [...Object.values(caseConfig.chapters), ZERO_CONTAINER_FINAL.chapter5, ZERO_CONTAINER_FINAL.chapter6];
+  const chapters = bothStarted ? allChapters.filter((item: any) => Number(item.id) <= chapter) : [];
 
   return {
     ok: true,
@@ -175,9 +195,9 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
       access: caseConfig.access,
       brief: caseConfig.brief,
       chapters,
-      initialHypothesisOptions: caseConfig.initialHypothesisOptions,
-      checkpointUi: checkpointUiForRole(role),
-      finalUi: chapter >= 5 ? ZERO_CONTAINER_FINAL.finalUi : null,
+      initialHypothesisOptions: bothStarted && chapter === 1 ? caseConfig.initialHypothesisOptions : [],
+      checkpointUi: bothStarted ? checkpointUiForRole(role, chapter, sharedState) : {},
+      finalUi: bothStarted && chapter >= 5 ? ZERO_CONTAINER_FINAL.finalUi : null,
     },
     room: {
       code: room.code,
@@ -208,6 +228,7 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
       completed: Boolean(opponent.completed_at),
     } : { joined: false, started: false, completed: false },
     bothJoined,
+    bothStarted,
     state: {
       chapter,
       revision: Number(caseState.revision) || 1,
@@ -221,8 +242,8 @@ const buildView = async (admin: AdminClient, room: Row, browserKeyHash: string) 
         finalSolved: Boolean(sharedState.finalSolved),
       },
     },
-    evidence: visibleEvidence(role, chapter),
-    resolution: sharedState.finalSolved ? ZERO_CONTAINER_FINAL.reveal : null,
+    evidence: bothStarted ? visibleEvidence(role, chapter) : [],
+    resolution: bothStarted && sharedState.finalSolved ? ZERO_CONTAINER_FINAL.reveal : null,
   };
 };
 
@@ -362,6 +383,7 @@ Deno.serve(async (req: Request) => {
   }
 
   if (action === 'submit_checkpoint') {
+    if (!(view as any).bothStarted) return json(409, { error: 'game_not_started' }, origin);
     const checkpointId = String(body.checkpointId || '').trim();
     const clientRevision = Number(body.clientRevision);
     if (!Number.isInteger(clientRevision) || clientRevision < 1) return json(400, { error: 'invalid_revision' }, origin);
@@ -371,6 +393,7 @@ Deno.serve(async (req: Request) => {
     const role = me.role as PartnerRole;
 
     if (checkpointId === 'initial_hypothesis') {
+      if (Number((view as any).state?.chapter) !== 1) return json(409, { error: 'checkpoint_locked', requiredChapter: 1 }, origin);
       const rpc = await admin.rpc('partner_v2_submit_initial_hypothesis', {
         p_room_id: activeRoom.id, p_player_id: me.id, p_role: role,
         p_value: String(body.value || '').trim(), p_expected_revision: clientRevision,
@@ -384,8 +407,13 @@ Deno.serve(async (req: Request) => {
 
     const rule = allCheckpointRules()[checkpointId];
     if (!rule) return json(400, { error: 'unsupported_checkpoint' }, origin);
+    const requiredChapter = CHECKPOINT_CHAPTERS[checkpointId];
+    if (!requiredChapter) return json(400, { error: 'unsupported_checkpoint' }, origin);
     const currentState = await getCaseState(admin, activeRoom.id);
     if (!currentState) return json(503, { error: 'partner_state_missing' }, origin);
+    if (Number(currentState.chapter) !== requiredChapter) {
+      return json(409, { error: 'checkpoint_locked', requiredChapter }, origin);
+    }
     for (const key of rule.requiresShared || []) {
       if (!Boolean(currentState.shared_state?.[key])) return json(409, { error: 'checkpoint_locked', required: key }, origin);
     }
@@ -406,6 +434,7 @@ Deno.serve(async (req: Request) => {
   }
 
   if (action === 'submit_final') {
+    if (!(view as any).bothStarted) return json(409, { error: 'game_not_started' }, origin);
     const clientRevision = Number(body.clientRevision);
     if (!Number.isInteger(clientRevision) || clientRevision < 1) return json(400, { error: 'invalid_revision' }, origin);
     const state = await getCaseState(admin, activeRoom.id);
