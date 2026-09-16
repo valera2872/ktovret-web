@@ -51,6 +51,14 @@ test('G02 and M05 are rendered as comparable forensic camera frames', () => {
   assert.match(polishCss, /\.partner-v2-door-deformation/);
 });
 
+test('arrival door deformation is geometric, not just another scratch', () => {
+  assert.match(polishCss, /\.is-arrival \.partner-v2-container-body\{[^}]*clip-path:polygon/);
+  assert.match(polishCss, /\.partner-v2-door-deformation:before/);
+  assert.match(polishCss, /height:62%/);
+  assert.match(polishCss, /\.partner-v2-door-deformation:after/);
+  assert.match(polishCss, /rotate\(-27deg\)/);
+});
+
 test('editorial polish removes answer-like fact chips before final reconstruction', () => {
   assert.match(polish, /editorialFacts/);
   assert.match(polish, /Инициатор перемещения в бокс: I\. MARKOVA/);
