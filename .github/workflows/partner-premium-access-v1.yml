@@ -11,6 +11,9 @@ on:
       - 'supabase/functions/partner-access-v1/**'
       - 'supabase/functions/partner-session-v2/**'
       - 'supabase/functions/partner-interrogate-v2/**'
+      - 'assets/partner-premium-commerce-v1.js'
+      - 'assets/partner-premium-commerce-v1.css'
+      - 'admin/partner-premium-preview/**'
       - 'tools/validate-partner-premium-access-v1.mjs'
       - '.github/workflows/partner-premium-access-v1.yml'
   push:
@@ -23,6 +26,9 @@ on:
       - 'supabase/functions/partner-access-v1/**'
       - 'supabase/functions/partner-session-v2/**'
       - 'supabase/functions/partner-interrogate-v2/**'
+      - 'assets/partner-premium-commerce-v1.js'
+      - 'assets/partner-premium-commerce-v1.css'
+      - 'admin/partner-premium-preview/**'
       - 'tools/validate-partner-premium-access-v1.mjs'
       - '.github/workflows/partner-premium-access-v1.yml'
 
@@ -37,8 +43,10 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Validate paid access contract
+      - name: Validate paid access and commerce UI contract
         run: node tools/validate-partner-premium-access-v1.mjs
+      - name: Validate commerce browser client syntax
+        run: node --check assets/partner-premium-commerce-v1.js
       - name: Type-check commerce
         run: deno check --node-modules-dir=auto supabase/functions/_shared/partner-commerce.ts
       - name: Type-check checkout
