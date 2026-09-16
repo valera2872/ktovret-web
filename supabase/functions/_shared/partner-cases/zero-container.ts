@@ -244,7 +244,8 @@ export const ZERO_CONTAINER_CASE = {
       lead: 'Опишите напарнику повреждения корпуса и независимо отметьте, что видно на вашем изображении.',
       fields: [
         { id: 'patch', label: 'Сварная заплата справа внизу' },
-        { id: 'scratch', label: 'Длинная царапина под номером' }
+        { id: 'scratch', label: 'Длинная царапина под номером' },
+        { id: 'door_deformation', label: 'Деформация правой створки двери' }
       ],
       options: [
         { id: 'present', label: 'Есть' },
@@ -275,8 +276,8 @@ export const ZERO_CONTAINER_CASE = {
       sharedKey: 'photoComparisonSolved',
       unlockChapter: 3,
       expected: {
-        creator: { patch: 'absent', scratch: 'absent' },
-        guest: { patch: 'present', scratch: 'present' }
+        creator: { patch: 'absent', scratch: 'absent', door_deformation: 'present' },
+        guest: { patch: 'present', scratch: 'present', door_deformation: 'absent' }
       }
     },
     t04391_link: {
