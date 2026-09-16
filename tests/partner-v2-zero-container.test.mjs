@@ -10,6 +10,17 @@ const config = read('supabase/functions/_shared/partner-cases/zero-container.ts'
 const engine = read('assets/partner-v2-engine.js');
 const page = read('detektivnye-igry-dlya-dvoih/nulevoy-konteyner/index.html');
 
+const iso6346CheckDigit = (ownerAndSerial) => {
+  const letterValues = Object.fromEntries(
+    [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map((letter, index) => [letter, [10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 38][index]])
+  );
+  const sum = [...ownerAndSerial].reduce((total, char, index) => {
+    const value = /\d/.test(char) ? Number(char) : letterValues[char];
+    return total + value * (2 ** index);
+  }, 0);
+  return (sum % 11) % 10;
+};
+
 test('Partner V2 uses isolated server state with no browser table grants', () => {
   assert.match(migration, /create table if not exists public\.partner_v2_room_state/);
   assert.match(migration, /create table if not exists public\.partner_v2_player_state/);
@@ -45,6 +56,15 @@ test('Zero Container P0 has separate evidence packs for both roles', () => {
   assert.match(config, /role: 'creator'/);
   assert.match(config, /role: 'guest'/);
   assert.match(config, /id: 'partner:zero-container'/);
+});
+
+test('CAXU 771204 2 remains a valid ISO 6346 container number', () => {
+  const numbers = [...config.matchAll(/\b([A-Z]{4})\s(\d{6})\s(\d)\b/g)]
+    .filter((match) => match[1] === 'CAXU');
+  assert.ok(numbers.length > 0, 'case config must contain the CAXU container number');
+  for (const match of numbers) {
+    assert.equal(Number(match[3]), iso6346CheckDigit(`${match[1]}${match[2]}`), `invalid ISO 6346 check digit for ${match[0]}`);
+  }
 });
 
 test('client contains no hardcoded detective solution or opposite role evidence ids', () => {
