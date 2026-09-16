@@ -27,6 +27,7 @@ function ok(condition,label){if(!condition)throw new Error(`ASSERT:${label}`)}
 let r=await request(ACCESS,{action:'STATUS'},{token:accessToken});
 ok(r.status===200&&r.data.entitled===true,'entitlement status');
 ok(r.data.productId==='partner_ne_publikovat'&&r.data.priceRub===599,'commercial contract');
+ok(!r.data.room,'QA entitlement must start without a bound room');
 
 r=await request(ACCESS,{action:'CREATE_OR_RESUME',browserKey:owner1,playerName:'QA Owner'},{token:accessToken});
 ok(r.status===200&&r.data.room?.code,'paid room create');
@@ -61,7 +62,7 @@ ok(bypassSession.status===403&&bypassSession.data.error==='partner_access_requir
 const bypassAI=await request(AI,{code:fakeCode,browserKey:fakeOwner,character_id:'roman',question:'Что произошло?',recent_history:[]});
 ok(bypassAI.status===403&&bypassAI.data.error==='partner_access_required','generic room blocked before AI model call');
 
-const badCheckout=await request(CHECKOUT,{accessToken,requestId:crypto.randomUUID(),email:'bad-email',returnUrl:'https://mysterylogic.com/ru/cases/ne-publikovat/',offerAccepted:true,privacyAcknowledged:true},{token:null});
+const badCheckout=await request(CHECKOUT,{accessToken,requestId:crypto.randomUUID(),email:'bad-email',returnUrl:'https://mysterylogic.com/ru/cases/ne-publikovat/',offerAccepted:true,privacyAcknowledged:true});
 ok(badCheckout.status===400&&badCheckout.data.error==='invalid_email','checkout input gate live without bank call');
 const absentOrder=await request(PAYSTATUS,{orderId:crypto.randomUUID()},{token:accessToken});
 ok(absentOrder.status===404&&absentOrder.data.error==='order_not_found','payment status token ownership path live');
