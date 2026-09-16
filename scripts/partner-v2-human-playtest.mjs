@@ -115,7 +115,8 @@ const mime = (filePath) => ({
 }[path.extname(filePath).toLowerCase()] || 'application/octet-stream');
 
 const safeFile = (pathname) => {
-  const decoded = decodeURIComponent(pathname);
+  let decoded = '';
+  try { decoded = decodeURIComponent(pathname); } catch { return null; }
   const isCase = decoded === CASE_PATH || decoded === `${CASE_PATH}index.html`;
   const isAsset = decoded.startsWith('/assets/') && !decoded.includes('..');
   if (!isCase && !isAsset) return null;
@@ -241,7 +242,9 @@ const cleanup = async () => {
   if (cleaned) return;
   cleaned = true;
   console.log('\n[partner-v2-playtest] Останавливаю локальный playtest...');
-  try { await new Promise((resolve) => webServer?.close(() => resolve())); } catch {}
+  if (webServer) {
+    try { await new Promise((resolve) => webServer.close(() => resolve())); } catch {}
+  }
   try { functionProcess?.kill('SIGTERM'); } catch {}
   try {
     run(npx, supabaseArgs('stop', '--no-backup'), { quiet: false });
