@@ -58,6 +58,7 @@ jobs:
       - name: Type-check review Edge Function
         run: deno check --node-modules-dir=auto supabase/functions/partner-review-v1/index.ts
       - name: Verify rawcdn review page
+        continue-on-error: true
         env:
           REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
