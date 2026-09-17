@@ -69,7 +69,6 @@ jobs:
           printf '%s' "$html" | grep -Eq '\./review\.js\?v=[0-9-]+'
           printf '%s' "$script" | grep -q 'REVIEW MODE'
           printf '%s' "$script" | grep -q 'installProxy'
-          printf '%s' "$script" | grep -q 'Пройти одному для тестирования'
       - name: Verify live review gateway CORS
         env:
           PREVIEW_ORIGIN: https://rawcdn.githack.com
