@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - 'feature/premium-partner-review-mode'
+      - 'feature/partner-review-solo-switch'
     paths:
       - 'admin/partner-premium-preview/index.html'
       - 'admin/partner-premium-preview/review.js'
@@ -39,6 +40,12 @@ jobs:
           grep -q "action:'PROXY'" admin/partner-premium-preview/review.js
           grep -q "guest=1" admin/partner-premium-preview/review.js
           grep -q 'installProxy' admin/partner-premium-preview/review.js
+          grep -q 'Пройти одному для тестирования' admin/partner-premium-preview/review.js
+          grep -q "data-review-role=\"archive\"" admin/partner-premium-preview/review.js
+          grep -q "data-review-role=\"sources\"" admin/partner-premium-preview/review.js
+          grep -q "playerName:'Тестовый партнёр'" admin/partner-premium-preview/review.js
+          grep -q 'SOLO_OWNER_KEY' admin/partner-premium-preview/review.js
+          grep -q 'SOLO_GUEST_KEY' admin/partner-premium-preview/review.js
           first_script="$(grep -n '<script defer' admin/partner-premium-preview/index.html | head -1 | cut -d: -f2-)"
           printf '%s' "$first_script" | grep -Eq '^  <script defer src="\./review\.js\?v=[0-9-]+"></script>$'
           ! grep -q 'review.js' detektivnye-igry-dlya-dvoih/ne-publikovat/index.html
@@ -62,6 +69,7 @@ jobs:
           printf '%s' "$html" | grep -Eq '\./review\.js\?v=[0-9-]+'
           printf '%s' "$script" | grep -q 'REVIEW MODE'
           printf '%s' "$script" | grep -q 'installProxy'
+          printf '%s' "$script" | grep -q 'Пройти одному для тестирования'
       - name: Verify live review gateway CORS
         env:
           PREVIEW_ORIGIN: https://rawcdn.githack.com
