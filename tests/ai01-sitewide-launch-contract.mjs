@@ -8,7 +8,7 @@ assert.match(promo,/const PUBLIC_LAUNCH = true;/,'AI-01 promo must be public in 
 assert.ok(promo.includes("path.includes('/admin/')"),'admin routes must be excluded');
 assert.ok(promo.includes('/detektivnaya-igra-s-ii/'),'AI-01 target route missing');
 assert.ok(promo.includes('голосом или текстом'),'public value proposition must mention voice or text');
-assert.ok(post.includes("const VERSION='3.3.1'"),'sitewide cache-bust version not bumped');
+assert.ok(post.includes("const VERSION='3.3.2'"),'sitewide cache-bust version not bumped');
 assert.ok(post.includes('ai01PromoPublic:true'),'sitewide build report must mark AI-01 promo public');
 assert.ok(post.includes('data-ai01-launch-promo-style'),'promo stylesheet injection missing');
 assert.ok(post.includes('data-ai01-launch-promo-script'),'promo script injection missing');
