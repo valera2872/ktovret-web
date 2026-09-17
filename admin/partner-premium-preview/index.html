@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#061019">
   <title>Не публиковать — Premium Partner | Mystery Logic</title>
   <link rel="icon" href="../../assets/ml-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../../assets/partner-premium-v1.css?v=20260916-1">
+  <link rel="stylesheet" href="../../assets/partner-premium-v2.css?v=20260916-2">
   <link rel="stylesheet" href="../../assets/partner-premium-commerce-v1.css?v=20260916-1">
 </head>
 <body>
@@ -15,31 +15,35 @@
     <section class="pp-entry" data-entry>
       <div class="pp-entry__backdrop"></div>
       <div class="pp-entry__card">
-        <p class="pp-eyebrow">Mystery Logic · Premium Partner</p>
-        <h1>НЕ<br>ПУБЛИКОВАТЬ</h1>
+        <p class="pp-eyebrow">Mystery Logic · CASE 47 · аварийный доступ</p>
+        <h1>НЕ ПУБЛИКОВАТЬ</h1>
         <p class="pp-lead">В 21:00 должен был выйти новый материал журналистки Веры Ланской. Публикация не состоялась, Вера не отвечает. Её аварийный протокол открыл вам двоим разные части расследования — с одним условием: ничего не публиковать, пока вы не поймёте, что произошло и кому можно доверять.</p>
         <div class="pp-entry__rules"><span>2 игрока</span><span>2 устройства</span><span>разные материалы</span><span>общие персонажи</span><span>AI-допрос</span><span>финальная реконструкция</span></div>
+
         <div class="pp-form" data-create-form>
-          <div class="pp-price-box">
-            <div><span class="pp-price">599 ₽</span><small>599 ₽ за всю комнату</small></div>
-            <p data-price-note>Платит один игрок, второй подключается бесплатно по приглашению.</p>
-          </div>
+          <p class="pp-commerce-note" data-price-note><strong>599 ₽ за всю комнату.</strong> Платит один игрок, второй подключается бесплатно по коду или ссылке.</p>
+          <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-create-name disabled></label>
           <div class="pp-purchase-fields" data-purchase-fields>
-            <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-create-name></label>
-            <label>E-mail для чека<input type="email" maxlength="254" autocomplete="email" placeholder="you@example.com" data-purchase-email></label>
-            <label class="pp-check"><input type="checkbox" data-offer-consent><span>Принимаю условия оферты и правила покупки цифрового контента</span></label>
-            <label class="pp-check"><input type="checkbox" data-personal-consent><span>Согласен на обработку персональных данных для оплаты и выдачи доступа</span></label>
+            <label>E-mail для чека<input type="email" maxlength="254" autocomplete="email" placeholder="name@example.com" data-purchase-email></label>
+            <label class="pp-check"><input type="checkbox" data-purchase-offer><span>Принимаю условия публичной оферты на цифровой доступ.</span></label>
+            <label class="pp-check"><input type="checkbox" data-purchase-privacy><span>Подтверждаю обработку данных, необходимых для оплаты и выдачи доступа.</span></label>
           </div>
-          <button class="pp-primary" type="button" data-create disabled>Купить и создать комнату — 599 ₽</button>
+          <button class="pp-primary" type="button" data-create disabled>Купить полное расследование — 599 ₽</button>
         </div>
-        <div class="pp-join-by-code">
-          <button class="pp-join-toggle" type="button" data-join-toggle>Я второй игрок — войти по коду</button>
-          <div class="pp-form pp-form--join" data-join-form hidden>
-            <p class="pp-room-context" data-room-context></p>
-            <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-join-name></label>
-            <label>Код комнаты<input type="text" maxlength="8" autocomplete="off" placeholder="XXXXXXXX" data-join-code></label>
-            <button class="pp-primary" type="button" data-join disabled>Войти по коду</button>
+
+        <div class="pp-entry-divider"><span>или вы второй игрок</span></div>
+        <div class="pp-guest-code" data-guest-code-form>
+          <div class="pp-guest-code__row">
+            <input type="text" maxlength="32" autocomplete="name" placeholder="Ваше имя" data-guest-name>
+            <input type="text" maxlength="8" autocomplete="off" inputmode="text" placeholder="Код комнаты" data-guest-code>
+            <button class="pp-secondary" type="button" data-guest-code-submit>Войти по коду</button>
           </div>
+        </div>
+
+        <div class="pp-form" data-join-form hidden>
+          <p class="pp-room-context" data-room-context></p>
+          <label>Ваше имя<input type="text" maxlength="32" autocomplete="name" placeholder="Следователь" data-join-name></label>
+          <button class="pp-primary" type="button" data-join>Подключиться</button>
         </div>
         <p class="pp-error" data-entry-error hidden></p>
       </div>
@@ -57,19 +61,59 @@
     </section>
 
     <section class="pp-game" data-game hidden>
-      <header class="pp-header"><div><p class="pp-eyebrow">CASE 47 · <span data-role-label>—</span></p><strong>Не публиковать</strong></div><div class="pp-header__right"><span class="pp-partner" data-partner-status>Партнёр: —</span><span class="pp-state" data-state-label>Расследование</span></div></header>
-      <section class="pp-alert" data-role-intro hidden><div><p class="pp-eyebrow">Сообщение Веры Ланской</p><div data-role-intro-copy></div><button class="pp-primary" type="button" data-role-intro-close>Открыть архив</button></div></section>
-      <section class="pp-event" data-event-banner hidden></section>
+      <header class="pp-header">
+        <div><p class="pp-eyebrow">CASE 47 · <span data-role-label>—</span></p><strong>Не публиковать</strong></div>
+        <div class="pp-header__right"><span class="pp-partner" data-partner-status>Партнёр: —</span><span class="pp-state" data-state-label>Расследование</span></div>
+      </header>
+
+      <section class="pp-alert" data-role-intro hidden>
+        <div><p class="pp-eyebrow">Сообщение Веры Ланской</p><div data-role-intro-copy></div><button class="pp-primary" type="button" data-role-intro-close>Открыть материалы</button></div>
+      </section>
+
       <div class="pp-layout">
-        <aside class="pp-panel pp-evidence-panel"><div class="pp-panel__head"><p class="pp-eyebrow" data-evidence-eyebrow>Ваши материалы</p><h2>Материалы</h2></div><div class="pp-evidence-list" data-evidence-list></div></aside>
-        <section class="pp-panel pp-workspace"><div class="pp-empty" data-evidence-empty><p class="pp-eyebrow">Вы ведёте расследование</p><h2>Выберите материал</h2><p>Оригиналы разделены между двумя рецензентами. На общую доску попадают только выводы, которые вы решите зафиксировать.</p></div><article class="pp-document" data-evidence-detail hidden></article><div class="pp-deductions" data-deductions></div><section class="pp-location" data-location hidden></section><section class="pp-reconstruction" data-reconstruction hidden></section><section class="pp-publication" data-publication hidden></section><section class="pp-closed" data-case-closed hidden></section></section>
-        <aside class="pp-panel pp-side"><section class="pp-board"><div class="pp-panel__head"><p class="pp-eyebrow">Общее поле</p><h2>Доска версий</h2></div><div class="pp-board-list" data-board></div></section><section class="pp-characters"><div class="pp-panel__head"><p class="pp-eyebrow">Общие персонажи</p><h2>Допросы</h2></div><div class="pp-character-list" data-characters></div></section><section class="pp-interrogate" data-interrogate hidden><div class="pp-panel__head pp-interrogate__head"><div><p class="pp-eyebrow">Свободный AI-допрос</p><h2 data-interrogate-name>—</h2><p data-interrogate-role></p></div><span class="pp-roman__status" data-interrogate-status>—</span></div><div class="pp-present" data-present-evidence></div><div class="pp-challenges" data-challenge-list></div><div class="pp-chat" data-chat></div><form class="pp-chat-form" data-chat-form><textarea rows="2" maxlength="900" placeholder="Задайте свой вопрос…" data-chat-input></textarea><button class="pp-primary" type="submit">Спросить</button></form></section><section class="pp-rescue" data-rescue hidden></section></aside>
+        <aside class="pp-panel pp-evidence-panel">
+          <div class="pp-panel__head"><p class="pp-eyebrow" data-evidence-eyebrow>Ваши материалы</p><h2>Материалы</h2></div>
+          <div class="pp-evidence-list" data-evidence-list></div>
+        </aside>
+
+        <section class="pp-panel pp-workspace">
+          <div class="pp-empty" data-evidence-empty><p class="pp-eyebrow">Вы ведёте расследование</p><h2>Выберите материал</h2><p>Ваши исходники отличаются от материалов партнёра. На общую доску попадают только выводы, которые вы зафиксировали.</p></div>
+          <article class="pp-document" data-evidence-detail hidden></article>
+          <div class="pp-deductions" data-deductions></div>
+          <section class="pp-event-banner" data-event-banner hidden></section>
+          <section class="pp-location" data-location hidden></section>
+          <section class="pp-rescue" data-rescue hidden></section>
+          <section class="pp-reconstruction" data-reconstruction hidden></section>
+          <section class="pp-publication" data-publication hidden></section>
+          <section class="pp-case-closed" data-case-closed hidden></section>
+        </section>
+
+        <aside class="pp-panel pp-side">
+          <section class="pp-board">
+            <div class="pp-panel__head"><p class="pp-eyebrow">Общее поле</p><h2>Доска версий</h2></div>
+            <div class="pp-board-list" data-board></div>
+          </section>
+
+          <section>
+            <div class="pp-panel__head"><p class="pp-eyebrow">Общие персонажи</p><h2>Допросы</h2></div>
+            <div class="pp-character-list" data-characters></div>
+          </section>
+
+          <section class="pp-interrogate" data-interrogate hidden>
+            <div class="pp-interrogate__title"><div class="pp-character-card__head"><div><p class="pp-eyebrow">Свободный допрос</p><h3 data-interrogate-name>—</h3><p data-interrogate-role></p></div><span class="pp-character-status" data-interrogate-status>—</span></div></div>
+            <div class="pp-present" data-present-evidence></div>
+            <div class="pp-challenge-list" data-challenge-list></div>
+            <div class="pp-chat" data-chat></div>
+            <form class="pp-chat-form" data-chat-form><textarea rows="2" maxlength="900" placeholder="Задайте свой вопрос…" data-chat-input></textarea><button class="pp-primary" type="submit">Спросить</button></form>
+          </section>
+        </aside>
       </div>
+
       <footer class="pp-footer"><span data-sync-status>Состояние синхронизировано</span><span data-room-footer></span></footer>
     </section>
   </main>
   <div class="pp-toast" data-toast hidden></div>
-  <script defer src="./review.js?v=20260917-2"></script>
+  <script defer src="./review.js?v=20260917-1"></script>
   <script defer src="../../assets/partner-premium-v2.js?v=20260916-2"></script>
   <script defer src="../../assets/partner-premium-commerce-v1.js?v=20260916-1"></script>
 </body>
