@@ -1,0 +1,61 @@
+/* Mystery Logic — final public storefront polish, 2026-09-17.
+   Loaded after product-specific styles so these rules only repair release geometry. */
+
+/* The approved Real Investigations artwork is a 900px source. Never upscale it:
+   this keeps the lettering crisp and gives the next product section breathing room. */
+.ri-approved-home{
+  width:min(900px,calc(100% - 32px));
+  margin:30px auto 58px;
+  border-radius:18px;
+  box-shadow:0 22px 58px rgba(0,0,0,.34);
+}
+.ri-approved-home__image{width:100%;max-width:900px;margin:0 auto;image-rendering:auto}
+.ri-approved-solo{width:min(900px,calc(100% - 32px));margin:34px auto 38px}
+.ri-approved-solo__image{width:100%;max-width:900px;margin:0 auto}
+
+/* Solo: the AI feature is a secondary discovery block, not the page hero. */
+.ml-ai01-feature--solo{
+  width:min(100%,1050px);
+  margin:42px auto 44px;
+}
+
+/* Dedicated AI investigation: reuse the strong approved artwork as its product hero. */
+.ml-ai01-feature--case{
+  width:min(1120px,calc(100% - 32px));
+  margin:26px auto 34px;
+}
+.ml-ai01-feature--case .ml-ai01-feature-link{cursor:default}
+
+/* Real Investigations hub: remove the tall empty placeholder column.
+   The future-cases notice becomes a compact editorial strip below the live case. */
+.ri-case-grid{grid-template-columns:minmax(0,1fr)!important;gap:18px!important}
+.ri-case-side{
+  min-height:0!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(180px,auto);
+  align-items:end;
+  gap:30px;
+  padding:30px 38px!important;
+  border-radius:22px;
+  background:linear-gradient(120deg,#102638,#091824 72%)!important;
+}
+.ri-case-side h3{max-width:720px;margin-top:13px!important;font-size:clamp(1.55rem,3vw,2.45rem)!important;line-height:1.02!important}
+.ri-case-side p{max-width:760px!important;margin-top:11px!important}
+.ri-case-side strong{margin:0!important;max-width:260px;text-align:right;line-height:1.45}
+.ri-case-main{min-height:470px}
+
+@media(max-width:900px){
+  .ri-approved-home{width:calc(100% - 20px);margin:24px auto 42px}
+  .ri-approved-solo{width:calc(100% - 20px);margin:28px auto 32px}
+  .ri-case-side{grid-template-columns:1fr;align-items:start;padding:26px!important}
+  .ri-case-side strong{max-width:none;text-align:left;margin-top:4px!important}
+  .ml-ai01-feature--solo{margin:34px auto 36px}
+}
+@media(max-width:700px){
+  .ri-approved-home,.ri-approved-solo,.ml-ai01-feature--case{width:100%;margin-left:0;margin-right:0}
+  .ri-approved-home{margin-top:20px;margin-bottom:34px}
+  .ri-approved-solo{margin-top:24px;margin-bottom:28px}
+  .ml-ai01-feature--solo{margin:28px 0 32px}
+  .ml-ai01-feature--case{margin:18px 0 26px}
+  .ri-case-main{min-height:0}
+}
