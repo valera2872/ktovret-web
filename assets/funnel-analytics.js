@@ -6,8 +6,9 @@
   const SESSION_KEY = 'mysterylogic:funnel:session:v1';
   const METRIKA_ID = 111664459;
   const METRIKA_EVENTS = new Set([
-    'format_choice', 'game_open', 'game_accept', 'game_complete', 'review_submit',
-    'checkout_open', 'checkout_start', 'checkout_success', 'no_action_45s',
+    'format_choice', 'format_impression', 'game_open', 'game_accept', 'game_complete', 'review_submit',
+    'checkout_open', 'checkout_start', 'checkout_request', 'checkout_created',
+    'checkout_success', 'checkout_fail', 'no_action_45s',
   ]);
 
   if (location.pathname.startsWith('/admin/') || navigator.webdriver) return;
@@ -50,6 +51,9 @@
     if (/^\/detektivnye-igry-dlya-odnogo\/?$/.test(path)) return 'solo-hub';
     if (/^\/detektivnye-igry-dlya-dvoih\/[^/]+\/?$/.test(path)) return 'coop-case';
     if (/^\/detektivnye-igry-dlya-dvoih\/?$/.test(path)) return 'coop-hub';
+    if (/^\/detektivnaya-igra-s-ii\/?$/.test(path)) return 'ai-case';
+    if (/^\/realnye-dela\/?$/.test(path)) return 'real-hub';
+    if (/^\/realnye-dela\/[^/]+\/?$/.test(path)) return 'real-case';
     if (
       /^\/(?:detektivnye-igry-onlayn|logicheskie-detektivnye-zadachi|golovolomki-onlayn|zagadki-na-logiku-dlya-vzroslyh)\/?$/.test(path) ||
       /^\/ru\/besplatnye-detektivnye-dela\/?$/.test(path)
@@ -107,7 +111,7 @@
     if (dedupe && sent.has(dedupe)) return;
     if (dedupe) sent.add(dedupe);
 
-    if (['primary_action', 'format_choice', 'game_open', 'game_accept', 'game_answer_attempt', 'game_complete', 'checkout_open', 'checkout_start', 'checkout_success', 'diagnostic_choice'].includes(eventName)) {
+    if (['primary_action', 'format_choice', 'game_open', 'game_accept', 'game_answer_attempt', 'game_complete', 'checkout_open', 'checkout_start', 'checkout_request', 'checkout_created', 'checkout_success', 'checkout_fail', 'diagnostic_choice'].includes(eventName)) {
       meaningfulAction = true;
     }
 
@@ -163,8 +167,12 @@
 
     if (href) {
       metadata.href_group = href.group;
-      if (href.group === 'short-case' || href.group === 'solo-case' || href.group === 'coop-case') {
+      if (href.group === 'short-case' || href.group === 'solo-case' || href.group === 'coop-case' || href.group === 'real-case') {
         return ['game_open', metadata, href.path];
+      }
+      if (href.group === 'real-hub' || href.group === 'ai-case') {
+        const choice = href.group === 'real-hub' ? 'real' : 'ai';
+        return ['format_choice', { ...metadata, choice }, href.path];
       }
       if (node?.closest?.('.solo407-home-switch, .solo407-home-switch-actions')) {
         const choice = href.group === 'solo-hub' ? 'solo' : href.group === 'coop-hub' ? 'coop' : href.group;
@@ -200,6 +208,27 @@
   window.addEventListener('ml:solo_complete', (event) => {
     track('game_complete', { case_id: event.detail?.caseId || 'solo:407' }, 'solo-complete', { dedupe: 'solo-complete' });
   });
+
+  const impressionNodes = [...document.querySelectorAll('[data-funnel-impression]')];
+  if (impressionNodes.length && 'IntersectionObserver' in window) {
+    const impressionObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.5) continue;
+        const node = entry.target;
+        const step = String(node.dataset.funnelImpression || '').trim();
+        if (!step) continue;
+        const target = String(node.dataset.funnelTarget || step).trim();
+        const choice = String(node.dataset.funnelChoice || '').trim();
+        track('format_impression', {
+          flow: 'format-discovery',
+          step,
+          ...(choice ? { choice } : {}),
+        }, target, { dedupe: `format-impression:${step}` });
+        impressionObserver.unobserve(node);
+      }
+    }, { threshold: [0.5] });
+    impressionNodes.forEach((node) => impressionObserver.observe(node));
+  }
 
   const inspectRuntime = () => {
     const review = document.querySelector('[data-ktv-review-card]');
