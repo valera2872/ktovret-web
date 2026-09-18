@@ -206,7 +206,7 @@ function investigate(state:FullPartnerState,role:PartnerRole,rawQuery:string){
   else if(candidates.includes('E11')&&queryHas(query,['алиби','где был','местополож','пропуск','телефон','сотов','роман']))chosen=['E11'];
   else if(candidates.length===1)chosen=[candidates[0]];
   else if(candidates.length&&queryHas(query,['что еще','что ещё','провер','искать','найти','архив','материал']))chosen=[candidates[0]];
-  for(const id of chosen){unlock(state,id);publishEvidenceFindings(state,role,id)}
+  chosen.forEach((id,index)=>{unlock(state,id);if(index===0)publishEvidenceFindings(state,role,id)})
 }
 
 function investigationTask(state:FullPartnerState,role:PartnerRole){
