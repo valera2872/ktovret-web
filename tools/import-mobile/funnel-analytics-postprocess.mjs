@@ -15,29 +15,26 @@ function patchHomeFormatImpressions(root) {
   let html = fs.readFileSync(file, 'utf8');
   let changed = false;
 
-  const replacements = [
-    [
-      '<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/">',
-      '<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/" data-funnel-impression="home-real-nav" data-funnel-choice="real" data-funnel-target="real-nav">',
-    ],
-    [
-      '<section class="ri-approved-home" data-real-investigations-approved-home aria-label="Новый формат Mystery Logic — Реальные расследования">',
-      '<section class="ri-approved-home" data-real-investigations-approved-home data-funnel-impression="home-real-banner" data-funnel-choice="real" data-funnel-target="real-banner" aria-label="Новый формат Mystery Logic — Реальные расследования">',
-    ],
-  ];
-
-  for (const [before, after] of replacements) {
-    if (html.includes(after)) continue;
-    if (!html.includes(before)) throw new Error(`Home generated format impression anchor missing: ${before}`);
-    html = html.replace(before, after);
+  const ensureMarker = (pattern, marker, attrs) => {
+    if (html.includes(`data-funnel-impression="${marker}"`)) return;
+    const match = html.match(pattern);
+    if (!match) throw new Error(`Home generated format impression anchor missing: ${marker}`);
+    const tag = match[0];
+    const injected = tag.replace(/>$/, ` ${attrs}>`);
+    html = html.replace(tag, injected);
     changed = true;
-  }
+  };
 
-  for (const marker of ['home-real-nav', 'home-real-banner']) {
-    if (!html.includes(`data-funnel-impression="${marker}"`)) {
-      throw new Error(`Home generated format impression missing: ${marker}`);
-    }
-  }
+  ensureMarker(
+    /<a\b[^>]*data-nav-real-investigations[^>]*>/i,
+    'home-real-nav',
+    'data-funnel-impression="home-real-nav" data-funnel-choice="real" data-funnel-target="real-nav"',
+  );
+  ensureMarker(
+    /<section\b[^>]*data-real-investigations-approved-home[^>]*>/i,
+    'home-real-banner',
+    'data-funnel-impression="home-real-banner" data-funnel-choice="real" data-funnel-target="real-banner"',
+  );
 
   if (changed) fs.writeFileSync(file, html);
   return changed;
