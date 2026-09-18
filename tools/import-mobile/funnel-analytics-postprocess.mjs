@@ -9,37 +9,6 @@ const CONVERSION_STYLE_MARKER = 'data-ml-conversion-style';
 const JOURNEY_MARKER = 'data-ml-journey-analytics';
 const SOLO_CONVERSION_STYLE_MARKER = 'data-ml-solo-conversion-style';
 
-function patchHomeFormatImpressions(root) {
-  const file = path.join(root, 'index.html');
-  if (!fs.existsSync(file)) return false;
-  let html = fs.readFileSync(file, 'utf8');
-  let changed = false;
-
-  const ensureMarker = (pattern, marker, attrs) => {
-    if (html.includes(`data-funnel-impression="${marker}"`)) return;
-    const match = html.match(pattern);
-    if (!match) throw new Error(`Home generated format impression anchor missing: ${marker}`);
-    const tag = match[0];
-    const injected = tag.replace(/>$/, ` ${attrs}>`);
-    html = html.replace(tag, injected);
-    changed = true;
-  };
-
-  ensureMarker(
-    /<a\b[^>]*data-nav-real-investigations[^>]*>/i,
-    'home-real-nav',
-    'data-funnel-impression="home-real-nav" data-funnel-choice="real" data-funnel-target="real-nav"',
-  );
-  ensureMarker(
-    /<section\b[^>]*data-real-investigations-approved-home[^>]*>/i,
-    'home-real-banner',
-    'data-funnel-impression="home-real-banner" data-funnel-choice="real" data-funnel-target="real-banner"',
-  );
-
-  if (changed) fs.writeFileSync(file, html);
-  return changed;
-}
-
 function patchSoloHubConversion(root, soloStyleFile) {
   const file = path.join(root, 'detektivnye-igry-dlya-odnogo', 'index.html');
   if (!fs.existsSync(file)) return false;
@@ -84,7 +53,6 @@ export function applyFunnelAnalytics(siteRoot) {
   if (!fs.existsSync(journeyFile)) throw new Error('assets/journey-analytics.js missing');
   if (!fs.existsSync(soloConversionStyle)) throw new Error('assets/solo-conversion.css missing');
 
-  const homeImpressionsPatched = patchHomeFormatImpressions(root);
   const soloPatched = patchSoloHubConversion(root, soloConversionStyle);
   let injected = 0;
   let alreadyPresent = 0;
@@ -166,5 +134,5 @@ export function applyFunnelAnalytics(siteRoot) {
     if (!soloHtml.includes('data-solo-conversion-v3')) throw new Error('Solo conversion hero missing');
   }
 
-  return { pages: injected + alreadyPresent, injected, alreadyPresent, version: '1.3.1', socialProof: true, conversionUx: true, journeyAnalytics: true, homeFormatImpressions: homeImpressionsPatched || true, soloConversion: soloPatched || true };
+  return { pages: injected + alreadyPresent, injected, alreadyPresent, version: '1.3.1', socialProof: true, conversionUx: true, journeyAnalytics: true, soloConversion: soloPatched || true };
 }
