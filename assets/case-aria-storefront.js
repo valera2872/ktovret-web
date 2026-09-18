@@ -30,6 +30,9 @@
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event, page_type: 'last_aria_storefront', ...params }); } catch {}
     try { if (typeof window.ym === 'function') window.ym(111664459, 'reachGoal', event, { page_type: 'last_aria_storefront', ...params }); } catch {}
   };
+  const trackFunnel = (eventName, metadata = {}, target = 'last-aria-checkout') => {
+    try { window.MysteryLogicFunnel?.track?.(eventName, { product: PRODUCT_ID, ...metadata }, target); } catch {}
+  };
 
   const injectDiscountStyles = () => {
     if (document.querySelector('[data-aria-review-discount-styles]')) return;
@@ -62,12 +65,25 @@
   };
 
   const ensureToken = () => {
-    let token = localStorage.getItem(TOKEN_KEY) || '';
-    if (!/^ml_[a-z0-9]+_[A-Za-z0-9_-]{32,160}$/.test(token)) {
-      token = randomToken();
-      localStorage.setItem(TOKEN_KEY, token);
+    try {
+      let token = localStorage.getItem(TOKEN_KEY) || '';
+      if (!/^ml_[a-z0-9]+_[A-Za-z0-9_-]{32,160}$/.test(token)) {
+        token = randomToken();
+        localStorage.setItem(TOKEN_KEY, token);
+      }
+      return localStorage.getItem(TOKEN_KEY) === token ? token : '';
+    } catch {
+      return '';
     }
-    return token;
+  };
+
+  const randomRequestId = () => {
+    if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((value) => value.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
   };
 
   const loadScript = (src) => new Promise((resolve, reject) => {
@@ -187,10 +203,18 @@
       busy = true;
       sync();
       setNote('Создаём защищённый платёж…');
-      const token = ensureToken();
-      const requestId = crypto.randomUUID();
-      sessionStorage.setItem(REQUEST_KEY, requestId);
+
+      let stage = 'prepare';
+      let requestId = '';
       try {
+        const token = ensureToken();
+        if (!token) throw new Error('browser_storage_unavailable');
+
+        requestId = randomRequestId();
+        try { sessionStorage.setItem(REQUEST_KEY, requestId); } catch {}
+
+        stage = 'request';
+        trackFunnel('checkout_request', { stage, price_rub: checkoutPrice }, 'last-aria-checkout-request');
         const response = await fetch(CHECKOUT_ENDPOINT, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -207,31 +231,59 @@
           cache: 'no-store',
           credentials: 'omit',
         });
+
+        stage = 'response';
         let body = {};
         try { body = await response.json(); } catch {}
-        if (!response.ok) throw new Error(body.error || `http_${response.status}`);
+        if (!response.ok) {
+          const responseError = new Error(body.error || `http_${response.status}`);
+          responseError.httpStatus = response.status;
+          throw responseError;
+        }
         if (!body.orderId || !body.confirmationUrl) throw new Error('invalid_checkout_response');
-        localStorage.setItem(ORDER_KEY, body.orderId);
+
+        try { localStorage.setItem(ORDER_KEY, body.orderId); } catch {
+          throw new Error('browser_storage_unavailable');
+        }
         const chargedPrice = Number(body.amountRub || checkoutPrice);
         track('last_aria_checkout_created', { price: chargedPrice, discount_rub: Number(body.discountRub || 0), product_id: PRODUCT_ID, order_id: body.orderId });
+        trackFunnel('checkout_created', {
+          stage,
+          price_rub: chargedPrice,
+          discount_rub: Number(body.discountRub || 0),
+          order_id: String(body.orderId),
+        }, 'last-aria-checkout-created');
+
+        stage = 'redirect';
         setNote('Переходим на защищённую страницу T‑Bank…', 'ok');
         location.assign(body.confirmationUrl);
       } catch (error) {
+        const reason = String(error?.message || 'checkout_failed').slice(0, 120);
+        trackFunnel('checkout_fail', {
+          stage,
+          reason,
+          http_status: Number(error?.httpStatus || 0),
+          error_class: String(error?.name || 'Error').slice(0, 80),
+        }, 'last-aria-checkout-fail');
+
         const discountFailures = new Set(['review_discount_invalid', 'review_discount_used', 'review_discount_expired', 'review_discount_already_used', 'review_discount_in_use']);
-        if (discountFailures.has(error.message)) {
-          localStorage.removeItem(REVIEW_REWARD_KEY);
+        if (discountFailures.has(reason)) {
+          try { localStorage.removeItem(REVIEW_REWARD_KEY); } catch {}
           busy = false;
           renderPaywall('Скидка уже использована, истекла или сейчас привязана к другому платежу. Цена возвращена к 299 ₽.');
           return;
         }
         const messages = {
+          browser_storage_unavailable: 'Браузер блокирует локальное хранение данных. Разрешите данные сайта и повторите оплату.',
           payment_service_not_configured: 'Оплата временно недоступна.',
           payment_create_failed: 'T‑Bank не создал платёж. Попробуйте ещё раз.',
           invalid_email: 'Проверьте e-mail.',
           request_amount_conflict: 'Не удалось применить скидку к этому запросу. Попробуйте ещё раз.',
           request_discount_conflict: 'Не удалось применить скидку к этому запросу. Попробуйте ещё раз.',
+          order_create_failed: 'Не удалось создать заказ. Попробуйте ещё раз.',
+          order_lookup_failed: 'Не удалось проверить заказ. Попробуйте ещё раз.',
         };
-        setNote(messages[error.message] || 'Не удалось начать оплату. Попробуйте ещё раз.', 'error');
+        setNote(messages[reason] || 'Не удалось начать оплату. Попробуйте ещё раз.', 'error');
         busy = false;
         sync();
       }
