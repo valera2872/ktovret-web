@@ -9,7 +9,7 @@
   <meta name="description" content="Экспериментальное расследование Mystery Logic для двух игроков: свободные допросы и самостоятельный поиск улик.">
   <link rel="icon" href="../../../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../../assets/partner-premium-v2.css?v=20260916-2">
-  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260916-3">
+  <link rel="stylesheet" href="../../../assets/passenger17-v1.css?v=20260919-1">
 </head>
 <body>
 <main class="p17" data-app>
@@ -32,7 +32,7 @@
           <button type="button" class="pp-secondary" data-join>Войти</button>
         </div>
       </div>
-      <p class="pp-error" data-error hidden></p>
+      <div class="p17-demo-start">\n        <div><strong>Режим тестировщика</strong><p>Один браузер создаст обоих участников. Внутри можно переключаться между Следователем и Аналитиком.</p></div>\n        <button type="button" class="pp-secondary" data-demo-start>Тестировать одному</button>\n      </div>\n      <p class="pp-error" data-error hidden></p>
     </div>
   </section>
 
@@ -49,7 +49,7 @@
   <section class="p17-game" data-game hidden>
     <header class="p17-header">
       <div><p class="pp-eyebrow">ML-P17 · <span data-role>—</span></p><h1>Пассажир №17</h1></div>
-      <div class="p17-sync"><span data-partner>Партнёр: —</span><small data-sync>Синхронизация</small></div>
+      <div class="p17-header-right">\n        <div class="p17-demo-switch" data-demo-switch hidden><span>Тестовый взгляд:</span><button type="button" data-demo-role="investigator">Следователь</button><button type="button" data-demo-role="analyst">Аналитик</button></div>\n        <div class="p17-sync"><span data-partner>Партнёр: —</span><small data-sync>Синхронизация</small></div>\n      </div>
     </header>
 
     <section class="p17-brief">
@@ -109,6 +109,6 @@
   </section>
 </main>
 <div class="pp-toast" data-toast hidden></div>
-<script defer src="../../../assets/passenger17-v1.js?v=20260916-3"></script>
+<script defer src="../../../assets/passenger17-v1.js?v=20260919-1"></script>
 </body>
 </html>
