@@ -19,6 +19,34 @@ const session=(action='SNAPSHOT',extra={})=>post(SESSION,{action,code:roomCode,b
 function only(node){[el.entry,el.lobby,el.game].forEach(x=>x.hidden=x!==node)}
 function busyButton(btn,on,text='Подождите…'){if(!btn)return;if(on){btn.dataset.old=btn.textContent;btn.disabled=true;btn.textContent=text}else{btn.disabled=false;btn.textContent=btn.dataset.old||btn.textContent}}
 function roomUrl(){const u=new URL(location.href);u.search='';u.searchParams.set('room',roomCode);return u.toString()}
+async function createDemo(){
+  if(busy)return;
+  busy=true;showError();busyButton(el.demoStart,true,'Создаём обе роли…');
+  try{
+    const investigatorKey=randomHex(24),analystKey=randomHex(24);
+    const created=await post(DUEL,{action:'create',browserKey:investigatorKey,caseId:CASE_ID,caseTitle:CASE_TITLE,casePath:CASE_PATH,playerName:'Тест — следователь'});
+    roomCode=created.room.code;
+    await post(DUEL,{action:'join',browserKey:analystKey,code:roomCode,playerName:'Тест — аналитик'});
+    demoMode=true;demoKeys={investigator:investigatorKey,analyst:analystKey};browserKey=investigatorKey;
+    document.body.classList.add('p17-demo-mode');saveDemo();
+    history.replaceState(null,'',`?room=${encodeURIComponent(roomCode)}&demo=1`);
+    busy=false;
+    await beginGame();
+    toast('Тестовый режим: обе роли подключены');
+  }catch(e){busy=false;showError(human(e))}
+  finally{busyButton(el.demoStart,false)}
+}
+async function switchDemoRole(role){
+  if(!demoMode||!demoKeys||busy||!demoKeys[role])return;
+  busy=true;
+  try{
+    browserKey=demoKeys[role];
+    snapshot=await session('SNAPSHOT');
+    render();
+    el.sync.textContent='Переключено на '+snapshot.roleLabel;
+  }catch(e){toast(human(e))}
+  finally{busy=false}
+}
 async function createRoom(){const name=el.createName.value.trim()||'Следователь';showError();busyButton(el.create,true,'Создаём…');try{const d=await post(DUEL,{action:'create',browserKey,caseId:CASE_ID,caseTitle:CASE_TITLE,casePath:CASE_PATH,playerName:name});saveName(name);roomCode=d.room.code;history.replaceState(null,'',`?room=${encodeURIComponent(roomCode)}`);enterLobby(d)}catch(e){showError(human(e))}finally{busyButton(el.create,false)}}
 async function joinRoom(){const code=(el.code.value||roomCode).trim().toUpperCase(),name=el.joinName.value.trim()||savedName()||'Аналитик';if(!/^[A-HJ-NP-Z2-9]{8}$/.test(code)){showError('Введите восьмизначный код комнаты.');return}roomCode=code;showError();busyButton(el.join,true,'Подключаем…');try{const d=await duel('join',{playerName:name});saveName(name);history.replaceState(null,'',`?room=${encodeURIComponent(roomCode)}`);enterLobby(d)}catch(e){showError(human(e))}finally{busyButton(el.join,false)}}
 function enterLobby(d){only(el.lobby);el.roomCode.textContent=roomCode;updateLobby(d);clearInterval(pollTimer);pollTimer=setInterval(pollLobby,1600);if(d.bothJoined)beginGame()}
