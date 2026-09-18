@@ -4,7 +4,10 @@ import {evaluateP17Final,sanitizeP17FinalAnswers} from '../_shared/passenger17-f
 
 const SUPABASE_URL=Deno.env.get('SUPABASE_URL')||'';
 const SERVICE_ROLE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
-const ALLOWED_ORIGINS=new Set((Deno.env.get('ALLOWED_ORIGINS')||'https://mysterylogic.com,https://www.mysterylogic.com,https://valera2872.github.io,https://rawcdn.githack.com').split(',').map(v=>v.trim().replace(/\/$/,'')).filter(Boolean));
+const ALLOWED_ORIGINS=new Set([
+  ...(Deno.env.get('ALLOWED_ORIGINS')||'https://mysterylogic.com,https://www.mysterylogic.com,https://valera2872.github.io').split(',').map(v=>v.trim().replace(/\/$/,'')).filter(Boolean),
+  'https://rawcdn.githack.com',
+]);
 const CODE_RE=/^[A-HJ-NP-Z2-9]{8}$/;const BROWSER_KEY_RE=/^[a-f0-9]{48}$/;
 const CONDUCTOR_EVIDENCE=new Set<P17EvidenceId>([TRAIN_LOG_ID,DOOR_LOG_ID,VESTIBULE_ID,PERSONNEL_ID]);
 function clean(v:unknown,max=1200){return typeof v==='string'?v.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,max):''}

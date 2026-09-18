@@ -5,7 +5,10 @@ const SUPABASE_URL=Deno.env.get('SUPABASE_URL')||'';
 const SERVICE_ROLE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
 const OPENAI_API_KEY=Deno.env.get('OPENAI_API_KEY')||'';
 const MODEL=Deno.env.get('AI_DETECTIVE_MODEL')||'gpt-5.6-luna';
-const ALLOWED_ORIGINS=new Set((Deno.env.get('ALLOWED_ORIGINS')||'https://mysterylogic.com,https://www.mysterylogic.com,https://valera2872.github.io,https://rawcdn.githack.com').split(',').map(v=>v.trim().replace(/\/$/,'')).filter(Boolean));
+const ALLOWED_ORIGINS=new Set([
+  ...(Deno.env.get('ALLOWED_ORIGINS')||'https://mysterylogic.com,https://www.mysterylogic.com,https://valera2872.github.io').split(',').map(v=>v.trim().replace(/\/$/,'')).filter(Boolean),
+  'https://rawcdn.githack.com',
+]);
 const CODE_RE=/^[A-HJ-NP-Z2-9]{8}$/;const KEY_RE=/^[a-f0-9]{48}$/;
 const SESSION_LIMIT=180,VISITOR_DAILY_LIMIT=320,NETWORK_DAILY_LIMIT=900,DAILY_BUDGET_USD=2.4,SESSION_RPM=14,NETWORK_RPM=80,RESERVE_USD=.008;
 const INPUT_USD_PER_M=.20,CACHED_INPUT_USD_PER_M=.02,OUTPUT_USD_PER_M=1.20;
