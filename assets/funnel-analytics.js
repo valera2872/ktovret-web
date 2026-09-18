@@ -209,6 +209,26 @@
     track('game_complete', { case_id: event.detail?.caseId || 'solo:407' }, 'solo-complete', { dedupe: 'solo-complete' });
   });
 
+  if (pageGroup() === 'home') {
+    const realNav = document.querySelector(
+      '[data-nav-real-investigations], nav a[href="./realnye-dela/"], nav a[href="/realnye-dela/"]'
+    );
+    if (realNav && !realNav.dataset.funnelImpression) {
+      realNav.dataset.funnelImpression = 'home-real-nav';
+      realNav.dataset.funnelChoice = 'real';
+      realNav.dataset.funnelTarget = 'real-nav';
+    }
+
+    const realBanner = document.querySelector(
+      '[data-real-investigations-approved-home], .ri-approved-home'
+    );
+    if (realBanner && !realBanner.dataset.funnelImpression) {
+      realBanner.dataset.funnelImpression = 'home-real-banner';
+      realBanner.dataset.funnelChoice = 'real';
+      realBanner.dataset.funnelTarget = 'real-banner';
+    }
+  }
+
   const impressionNodes = [...document.querySelectorAll('[data-funnel-impression]')];
   if (impressionNodes.length && 'IntersectionObserver' in window) {
     const impressionObserver = new IntersectionObserver((entries) => {
