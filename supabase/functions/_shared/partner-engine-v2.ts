@@ -62,7 +62,7 @@ function exposed(state:FullPartnerState,id:CharacterId,evidenceId:string){return
 function initialEvidence():Record<string,EvidenceState>{
   const out:Record<string,EvidenceState>={};
   for(const item of EVIDENCE_V2)out[item.id]={unlocked:false,opened:false,findings_published:[],presented_to:[]};
-  for(const id of ['E01','E02','E03','E04','E05'])out[id].unlocked=true;
+  for(const id of ['E01','E02'])out[id].unlocked=true;
   return out;
 }
 function initialCharacter():CharacterState{return{available:false,state:0,statement_version:1,disclosure_level:0,global_stress:25,evidence_exposure:[],contradictions:[],trust:{archive:35,sources:35},cooperation_state:'guarded'}}
@@ -142,10 +142,9 @@ function recomputeCharacters(state:FullPartnerState){
 
 export function recomputeFullPartnerState(input:FullPartnerState):FullPartnerState{
   const s=input;
-  if(s.milestones.includes('ELENA_FINANCE_CONTRADICTION'))unlock(s,'E06');
-  if(s.facts.includes('F06'))unlock(s,'E07','E08','E09');
-  if(s.milestones.includes('AUDIO_FABRICATION_PROVEN')){unlock(s,'E10');s.narrative_state='STATE_05_ROMAN'}
-  if(s.milestones.includes('ROMAN_CONFESSED_EDIT'))unlock(s,'E11');
+  autoResolveDeductions(s);
+  // В первом акте новые материалы не падают списком: игрок сам запрашивает проверку через INVESTIGATE.
+  if(s.milestones.includes('AUDIO_FABRICATION_PROVEN'))s.narrative_state='STATE_05_ROMAN';
   if(s.milestones.includes('ROMAN_MURDER_THEORY_WEAKENED')){unlock(s,'E12','E13','E14');s.narrative_state='STATE_07_PAVEL'}
   if(s.milestones.includes('PAVEL_FAKE_PROVEN')){unlock(s,'E15','E16','E17','E34','E35');s.narrative_state='STATE_09_DUAL_DOCUMENTS'}
   if(s.milestones.includes('DUAL_DOCUMENTS_PROVEN'))unlock(s,'E18','E19');
@@ -163,6 +162,86 @@ export function recomputeFullPartnerState(input:FullPartnerState):FullPartnerSta
 }
 
 function ownedEvidence(state:FullPartnerState,role:PartnerRole,id:string){const def=EVIDENCE.get(id);if(!def||def.owner!==role||!state.evidence[id]?.unlocked)throw new Error('partner_evidence_access_denied');return def}
+
+function publishEvidenceFindings(state:FullPartnerState,role:PartnerRole,id:string){
+  const def=ownedEvidence(state,role,id),rt=state.evidence[id];
+  rt.opened=true;
+  for(const f of def.findings){
+    addUnique(rt.findings_published,f.id);
+    addUnique(state.facts,f.id);
+    addBoard(state,{id:f.id,type:'fact',label:f.label,source_role:role,evidence_ids:[id]});
+  }
+  return def;
+}
+
+function investigationCandidates(state:FullPartnerState,role:PartnerRole){
+  const ids:string[]=[];
+  if(!state.milestones.includes('ELENA_FINANCE_CONTRADICTION')){
+    if(role==='archive'){if(!state.evidence.E03.unlocked)ids.push('E03');if(!state.evidence.E04.unlocked)ids.push('E04')}
+    else if(!state.evidence.E05.unlocked)ids.push('E05');
+    return ids;
+  }
+  if(!state.facts.includes('F06')){if(role==='archive'&&!state.evidence.E06.unlocked)ids.push('E06');return ids}
+  if(!state.milestones.includes('AUDIO_FABRICATION_PROVEN')){
+    if(role==='sources')for(const id of ['E07','E08','E09'])if(!state.evidence[id].unlocked)ids.push(id);
+    return ids;
+  }
+  if(!state.evidence.E10.unlocked){if(role==='archive')ids.push('E10');return ids}
+  if(state.milestones.includes('ROMAN_CONFESSED_EDIT')&&!state.evidence.E11.unlocked&&role==='archive')ids.push('E11');
+  return ids;
+}
+function queryHas(q:string,parts:string[]){return parts.some((p)=>q.includes(p))}
+function investigate(state:FullPartnerState,role:PartnerRole,rawQuery:string){
+  const query=String(rawQuery||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9 ]/g,' ').replace(/\s+/g,' ').trim().slice(0,300);
+  if(query.length<2)throw new Error('partner_investigation_query_required');
+  const candidates=investigationCandidates(state,role);
+  if(!candidates.length)return;
+  let chosen:string[]=[];
+  if(candidates.includes('E03')&&queryHas(query,['судмед','эксперт','травм','синяк','кровоподт','запяст','тело','поврежд','паден','самоуб']))chosen=['E03'];
+  else if(candidates.includes('E04')&&queryHas(query,['работ','компьют','печа','принт','документ','аудит','финанс','файл','офис','последн','занимал']))chosen=['E04'];
+  else if(candidates.includes('E05')&&queryHas(query,['елен','мирск','директор','фонд','интервью','заявлен','комментар','говор','финанс','работ']))chosen=['E05'];
+  else if(candidates.includes('E06')&&queryHas(query,['аудио','запис','прощаль','файл','метадан','создан','дата','голос']))chosen=['E06'];
+  else if(candidates.some((id)=>['E07','E08','E09'].includes(id))&&queryHas(query,['исход','фраз','голос','заметк','оригинал','аудио','раньше','монтаж','кус']))chosen=candidates.filter((id)=>['E07','E08','E09'].includes(id));
+  else if(candidates.includes('E10')&&queryHas(query,['кто','делал','редактор','монтаж','подрядчик','счет','оплат','аудио','веденин','роман']))chosen=['E10'];
+  else if(candidates.includes('E11')&&queryHas(query,['алиби','где был','местополож','пропуск','телефон','сотов','роман']))chosen=['E11'];
+  else if(candidates.length===1)chosen=[candidates[0]];
+  else if(candidates.length&&queryHas(query,['что еще','что ещё','провер','искать','найти','архив','материал']))chosen=[candidates[0]];
+  chosen.forEach((id,index)=>{unlock(state,id);if(index===0)publishEvidenceFindings(state,role,id)})
+}
+
+function investigationTask(state:FullPartnerState,role:PartnerRole){
+  if(!state.milestones.includes('ELENA_FINANCE_CONTRADICTION')){
+    return role==='archive'
+      ? {title:'Проверьте официальную версию',text:'Не ищите виновного. Сначала проверьте, на чём держится старое решение: что говорит экспертиза и чем Нина занималась в последние часы.',placeholder:'Например: что показала судмедэкспертиза? что Нина делала на работе перед смертью?'}
+      : {title:'Проверьте слова людей',text:'Разговор с Павлом сам по себе ничего не доказывает. Проверьте, что публично говорили о работе Нины и её доступе к финансовым документам.',placeholder:'Например: что директор фонда говорила о работе Нины?'};
+  }
+  if(!state.facts.includes('F06'))return role==='archive'
+    ? {title:'Проверьте «прощальную запись»',text:'У вас появилось противоречие вокруг финансов. Теперь проверьте сам файл, на котором держалась версия самоубийства.',placeholder:'Например: когда был создан файл прощальной записи?'}
+    : {title:'Сверьтесь с партнёром',text:'У партнёра сейчас техническая проверка аудиофайла. Обсудите, что уже известно о финансах Нины.',placeholder:'Можно искать дальше, когда появится новый след.'};
+  if(!state.milestones.includes('AUDIO_FABRICATION_PROVEN'))return role==='sources'
+    ? {title:'Найдите исходные фразы',text:'Партнёр выяснил, что файл создан после смерти Нины. Проверьте, встречались ли фразы из него в более ранних записях.',placeholder:'Например: есть ли более ранние голосовые заметки Нины с теми же фразами?'}
+    : {title:'Сверьте аудио с партнёром',text:'У второго рецензента могут быть исходные голосовые записи. Сравните контекст фраз — дата файла сама по себе ещё не доказывает монтаж.',placeholder:'Обсудите с партнёром, что он нашёл.'};
+  if(!state.evidence.E10.unlocked)return role==='archive'
+    ? {title:'Найдите, кто работал с аудио',text:'Монтаж доказан. Теперь установите, кто получил заказ на обработку записи после смерти Нины.',placeholder:'Например: кому фонд платил за обработку аудио?'}
+    : {title:'Допросите Романа',text:'Монтаж доказан. Если Роман доступен для допроса, спрашивайте своими словами и предъявляйте ему исходные голосовые записи.',placeholder:'Допрос находится справа — задавайте свободные вопросы.'};
+  if(state.characters.roman?.available&&!state.milestones.includes('ROMAN_CONFESSED_EDIT'))return {title:'Работайте с Романом',text:'Не выбирайте готовую версию. Спросите Романа, что именно он делал с записью, и предъявляйте найденные материалы, когда его слова расходятся с фактами.',placeholder:'Сформулируйте свой вопрос Роману в блоке допроса справа.'};
+  if(state.milestones.includes('ROMAN_CONFESSED_EDIT')&&!state.evidence.E11.unlocked)return role==='archive'
+    ? {title:'Проверьте алиби Романа',text:'Признание в монтаже не делает его убийцей. Проверьте, где он находился вечером смерти Нины.',placeholder:'Например: где был Роман в момент смерти? есть данные пропуска или телефона?'}
+    : {title:'Не путайте ложь и убийство',text:'Роман признал монтаж. Теперь партнёр проверяет, мог ли он физически находиться на месте смерти Нины.',placeholder:'Обсудите с партнёром алиби Романа.'};
+  const byState:Record<string,{title:string;text:string;placeholder:string}>={
+    STATE_07_PAVEL:{title:'Проверьте новый источник',text:'После Романа появляется новая версия. Не принимайте её на веру: проверяйте происхождение письма Павла и говорите с ним напрямую.',placeholder:'Откройте новые материалы и допросите Павла.'},
+    STATE_09_DUAL_DOCUMENTS:{title:'Сравните то, что получили вы оба',text:'У вас и у партнёра разные документы. Не угадывайте ответ — сначала выясните, чем именно они различаются и кому досталась каждая версия.',placeholder:'Обсудите с партнёром адрес и происхождение своего документа.'},
+    STATE_10_CANARY_TRAP:{title:'Проследите утечку',text:'Теперь задача — восстановить путь информации от Веры к тому, кто узнал про ORION.',placeholder:'Проверяйте журналы передачи и связи; допросите тех, кто мог получить адрес.'},
+    STATE_11_LEAK:{title:'Ищите Веру',text:'Архивное дело перестало быть главным: появились признаки, что Вера могла быть жива после исчезновения.',placeholder:'Проверяйте свежие записи и местоположение.'},
+    STATE_12_VERA_ALIVE:{title:'Локализуйте место',text:'Сведите звук, объекты фонда и цифровые следы. Нужны независимые признаки одного места.',placeholder:'Что можно проверить по звукам, объектам и маршруту?'},
+    STATE_13_LOCATION_SEARCH:{title:'Подтвердите маршрут',text:'Одной похожей локации недостаточно. Найдите независимое подтверждение, что машина действительно пришла туда.',placeholder:'Проверьте маршрут и телематику.'},
+    STATE_14_PRINTING_HOUSE:{title:'Проверьте, была ли подготовка',text:'Место передано. Теперь выясните: похищение было импровизацией или к нему готовились заранее.',placeholder:'Что Елена делала до встречи на ORION?'},
+    STATE_15_FINAL_ELENA_CONTACT:{title:'Вернитесь к смерти Нины',text:'У вас достаточно, чтобы проверить старую историю напрямую через Елену. Предъявляйте факты и ловите конкретные противоречия.',placeholder:'Допросите Елену и сверяйте её слова со старым делом.'},
+    STATE_16_VERA_FOUND:{title:'Соберите реконструкцию',text:'Вера найдена. Теперь сведите доказательства в одну историю и проверьте, что каждая часть объясняется фактами.',placeholder:'Перейдите к финальной реконструкции.'},
+  };
+  return byState[state.narrative_state]||{title:'Продолжайте расследование',text:'Проверяйте версии через документы, цифровые следы и допросы. Интерфейс не требует угадывать правильную кнопку.',placeholder:'Что вы хотите проверить дальше?'};
+}
+
 function deductionAvailable(s:FullPartnerState,id:string){
   if(id==='D_FINANCE_CONTRADICTION')return hasAll(s,'F04','F05');
   if(id==='D_AUDIO_FABRICATION')return hasAll(s,'F06','F07','F08','F09');
@@ -190,6 +269,15 @@ function applyConfirmedDeduction(s:FullPartnerState,id:string){
   if(id==='D_LOCATION'){milestone(s,'LOCATION_CANDIDATE_CONFIRMED');addBoard(s,{id:'H_LOCATION',type:'hypothesis',label:'Старая типография — наиболее вероятное место удержания Веры.',source_role:'system',evidence_ids:['E21','E22','E24']})}
   if(id==='D_PREPARATION'){milestone(s,'VERA_PREPARATION_PROVEN');addBoard(s,{id:'P_PREPARATION',type:'proven',label:'До ORION Елена уже готовилась как минимум к контролю над Верой и использованию старой типографии.',source_role:'system',evidence_ids:['E23','E26','E27','E28']})}
   if(id==='D_NINA_ELENA'){milestone(s,'ELENA_NINA_CHAIN_PROVEN');addBoard(s,{id:'P_NINA_ELENA',type:'proven',label:'Елена присутствовала при конфликте и падении Нины и не вызвала экстренную помощь в доступное временное окно.',source_role:'system',evidence_ids:['E29','E30','E31','E32']})}
+}
+function autoResolveDeductions(s:FullPartnerState){
+  for(const id of Object.keys(DEDUCTIONS)){
+    const rt=s.deductions[id];
+    if(rt.result==='confirmed'||!deductionAvailable(s,id))continue;
+    if(id==='D_NINA_ELENA'&&!s.characters.elena?.contradictions?.includes('ELENA_PAST'))continue;
+    rt.result='confirmed';rt.selected=DEDUCTIONS[id].expected;
+    applyConfirmedDeduction(s,id);
+  }
 }
 
 function challengeAvailable(s:FullPartnerState,characterId:CharacterId,challengeId:string){
@@ -232,7 +320,8 @@ function attemptReconstruction(s:FullPartnerState,answers:Record<string,unknown>
 
 export function processFullPartnerAction(input:FullPartnerState,role:PartnerRole,action:FullPartnerAction):FullPartnerState{
   const s=normalizeFullPartnerState(structuredClone(input));if(s.completed)throw new Error('partner_case_completed');const type=String(action.type||'').trim().toUpperCase();if(!type||type==='START'||type==='SNAPSHOT')return s;
-  if(type==='OPEN_EVIDENCE'){const id=String(action.evidence_id||'');ownedEvidence(s,role,id);s.evidence[id].opened=true;return recomputeFullPartnerState(s)}
+  if(type==='OPEN_EVIDENCE'){const id=String(action.evidence_id||'');publishEvidenceFindings(s,role,id);return recomputeFullPartnerState(s)}
+  if(type==='INVESTIGATE'){investigate(s,role,String(action.query||''));return recomputeFullPartnerState(s)}
   if(type==='PUBLISH_FINDING'){const id=String(action.evidence_id||''),fid=String(action.finding_id||''),def=ownedEvidence(s,role,id);if(!s.evidence[id].opened)throw new Error('partner_evidence_not_opened');const f=def.findings.find((x)=>x.id===fid);if(!f)throw new Error('partner_finding_invalid');addUnique(s.evidence[id].findings_published,fid);addUnique(s.facts,fid);addBoard(s,{id:fid,type:'fact',label:f.label,source_role:role,evidence_ids:[id]});return recomputeFullPartnerState(s)}
   if(type==='ATTEMPT_DEDUCTION'){const id=String(action.deduction_id||''),selected=String(action.selected||''),def=DEDUCTIONS[id];if(!def)throw new Error('partner_deduction_invalid');const rt=s.deductions[id];if(rt.result==='confirmed')return s;rt.attempts+=1;rt.selected=selected;if(!deductionAvailable(s,id)){rt.result='insufficient';return s}if(selected!==def.expected){rt.result='contradicted';return s}rt.result='confirmed';applyConfirmedDeduction(s,id);return recomputeFullPartnerState(s)}
   if(type==='PRESENT_EVIDENCE'){const id=String(action.evidence_id||''),cid=String(action.character_id||'') as CharacterId;if(!CHARACTER_IDS.includes(cid)||!s.characters[cid].available)throw new Error('partner_character_unavailable');ownedEvidence(s,role,id);if(!s.evidence[id].opened)throw new Error('partner_evidence_not_opened');addUnique(s.evidence[id].presented_to,cid);addUnique(s.characters[cid].evidence_exposure,id);s.characters[cid].global_stress=clamp(s.characters[cid].global_stress+12,0,100);return recomputeFullPartnerState(s)}
@@ -246,9 +335,10 @@ function availableChallengeLabel(cid:CharacterId,id:string){const m=({ROMAN_AUDI
 
 export function safeFullPartnerView(stateInput:FullPartnerState,role:PartnerRole,partner:{joined:boolean;name:string|null},revision:number){
   const s=normalizeFullPartnerState(stateInput);
-  const evidence=EVIDENCE_V2.filter((e)=>e.owner===role&&s.evidence[e.id]?.unlocked).map((e)=>({id:e.id,kind:e.kind,kicker:e.kicker,title:e.title,teaser:e.teaser,body:s.evidence[e.id].opened?e.body:'',opened:s.evidence[e.id].opened,findings:e.findings.map((f)=>({...f,published:s.evidence[e.id].findings_published.includes(f.id)})),presentedTo:s.evidence[e.id].presented_to.slice()}));
+  const evidence=EVIDENCE_V2.filter((e)=>e.owner===role&&s.evidence[e.id]?.unlocked).map((e)=>({id:e.id,kind:e.kind,kicker:e.kicker,title:e.title,teaser:e.teaser,provenance:e.provenance||'Материал сохранён Верой Ланской в аварийном архиве расследования.',body:s.evidence[e.id].opened?e.body:'',opened:s.evidence[e.id].opened,findings:e.findings.map((f)=>({...f,published:s.evidence[e.id].findings_published.includes(f.id)})),presentedTo:s.evidence[e.id].presented_to.slice()}));
   const characters=CHARACTER_IDS.map((id)=>{const c=s.characters[id],canon=character(id);return{id,name:canon.name,role:canon.role,available:c.available,disclosureLevel:c.disclosure_level,statementVersion:c.statement_version,stressBand:c.global_stress>=86?'crisis':c.global_stress>=71?'high':c.global_stress>=51?'defensive':c.global_stress>=26?'cautious':'calm',cooperationState:c.cooperation_state,challenges:availableChallenges(s,id)}}).filter((c)=>c.available);
-  return{caseId:FULL_PARTNER_CASE_ID,title:FULL_PARTNER_CASE_TITLE,role,roleLabel:role==='archive'?'АРХИВ':'ИСТОЧНИКИ',partner,revision,narrativeState:s.narrative_state,milestones:s.milestones,board:s.board,evidence,deductions:Object.fromEntries(Object.entries(DEDUCTIONS).map(([id,d])=>[id,{id,prompt:d.prompt,options:d.options.map(([value,label])=>({value,label})),available:deductionAvailable(s,id),result:s.deductions[id].result,attempts:s.deductions[id].attempts}])),characters,location:s.location,rescue:s.rescue,reconstruction:{available:s.reconstruction.available,status:s.reconstruction.status,attempts:s.reconstruction.attempts,conflicts:s.reconstruction.conflicts,options:reconstructionOptions()},publication:{available:s.milestones.includes('RECONSTRUCTION_COMPLETE'),selected:s.publication_decision},completed:s.completed};
+  const task=investigationTask(s,role);
+  return{caseId:FULL_PARTNER_CASE_ID,title:FULL_PARTNER_CASE_TITLE,role,roleLabel:role==='archive'?'АРХИВ':'ИСТОЧНИКИ',partner,revision,narrativeState:s.narrative_state,milestones:s.milestones,board:s.board,evidence,investigationTask:{...task,searchEnabled:investigationCandidates(s,role).length>0},deductions:Object.fromEntries(Object.entries(DEDUCTIONS).map(([id,d])=>[id,{id,prompt:d.prompt,options:d.options.map(([value,label])=>({value,label})),available:deductionAvailable(s,id),result:s.deductions[id].result,attempts:s.deductions[id].attempts}])),characters,location:s.location,rescue:s.rescue,reconstruction:{available:s.reconstruction.available,status:s.reconstruction.status,attempts:s.reconstruction.attempts,conflicts:s.reconstruction.conflicts,options:reconstructionOptions()},publication:{available:s.milestones.includes('RECONSTRUCTION_COMPLETE'),selected:s.publication_decision},completed:s.completed};
 }
 function reconstructionOptions(){return{nina:[['elena_conflict_fall_fail_aid','Конфликт Елены и Нины → борьба за телефон → падение → помощь не вызвана'],['suicide','Самоубийство'],['roman_attack','Роман напал на Нину']],audio:[['roman_montage','Роман собрал запись из старых фрагментов'],['authentic','Запись Нины подлинная']],pavel:[['fake_letter','Павел сам создал письмо'],['authentic_letter','Письмо Нины настоящее']],canary:[['roman_orion','ORION → Роман → Елена'],['artyom_terminal','TERMINAL → Артём → Елена']],vera:[['elena_abduction_printing','Елена увезла Веру с ORION в старую типографию'],['artyom_abduction','Артём увёз Веру']],motive:[['protect_fund','Скрыть финансовую схему и сохранить фонд'],['personal_profit','Скрыть личное присвоение €186 400']]};}
 
