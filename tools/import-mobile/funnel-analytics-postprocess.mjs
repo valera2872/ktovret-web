@@ -9,6 +9,44 @@ const CONVERSION_STYLE_MARKER = 'data-ml-conversion-style';
 const JOURNEY_MARKER = 'data-ml-journey-analytics';
 const SOLO_CONVERSION_STYLE_MARKER = 'data-ml-solo-conversion-style';
 
+function patchHomeFormatImpressions(root) {
+  const file = path.join(root, 'index.html');
+  if (!fs.existsSync(file)) return false;
+  let html = fs.readFileSync(file, 'utf8');
+  let changed = false;
+
+  const replacements = [
+    [
+      '<div class="ml-launchbar" role="status">',
+      '<div class="ml-launchbar" role="status" data-funnel-impression="home-real-launchbar" data-funnel-choice="real" data-funnel-target="real-launchbar">',
+    ],
+    [
+      '<section class="ml-section ml-real-launch" id="real-investigations">',
+      '<section class="ml-section ml-real-launch" id="real-investigations" data-funnel-impression="home-real-section" data-funnel-choice="real" data-funnel-target="real-section">',
+    ],
+    [
+      '<a class="ml-product ml-product-real" href="./realnye-dela/">',
+      '<a class="ml-product ml-product-real" href="./realnye-dela/" data-funnel-impression="home-real-product-card" data-funnel-choice="real" data-funnel-target="real-product-card">',
+    ],
+  ];
+
+  for (const [before, after] of replacements) {
+    if (html.includes(after)) continue;
+    if (!html.includes(before)) throw new Error(`Home format impression anchor missing: ${before}`);
+    html = html.replace(before, after);
+    changed = true;
+  }
+
+  for (const marker of ['home-real-launchbar', 'home-real-section', 'home-real-product-card']) {
+    if (!html.includes(`data-funnel-impression="${marker}"`)) {
+      throw new Error(`Home format impression missing: ${marker}`);
+    }
+  }
+
+  if (changed) fs.writeFileSync(file, html);
+  return changed;
+}
+
 function patchSoloHubConversion(root, soloStyleFile) {
   const file = path.join(root, 'detektivnye-igry-dlya-odnogo', 'index.html');
   if (!fs.existsSync(file)) return false;
@@ -53,6 +91,7 @@ export function applyFunnelAnalytics(siteRoot) {
   if (!fs.existsSync(journeyFile)) throw new Error('assets/journey-analytics.js missing');
   if (!fs.existsSync(soloConversionStyle)) throw new Error('assets/solo-conversion.css missing');
 
+  const homeImpressionsPatched = patchHomeFormatImpressions(root);
   const soloPatched = patchSoloHubConversion(root, soloConversionStyle);
   let injected = 0;
   let alreadyPresent = 0;
@@ -134,5 +173,5 @@ export function applyFunnelAnalytics(siteRoot) {
     if (!soloHtml.includes('data-solo-conversion-v3')) throw new Error('Solo conversion hero missing');
   }
 
-  return { pages: injected + alreadyPresent, injected, alreadyPresent, version: '1.3.0', socialProof: true, conversionUx: true, journeyAnalytics: true, soloConversion: soloPatched || true };
+  return { pages: injected + alreadyPresent, injected, alreadyPresent, version: '1.3.1', socialProof: true, conversionUx: true, journeyAnalytics: true, homeFormatImpressions: homeImpressionsPatched || true, soloConversion: soloPatched || true };
 }
