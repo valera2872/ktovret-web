@@ -21,7 +21,23 @@ const EVENTS = new Set([
   'review_submit',
   'checkout_open',
   'checkout_start',
+  'checkout_request',
+  'checkout_created',
   'checkout_success',
+  'checkout_fail',
+  'format_impression',
+  'ai01_case_viewed',
+  'ai01_case_started',
+  'ai01_suspect_switched',
+  'ai01_evidence_selected',
+  'ai01_question_asked',
+  'ai01_first_question',
+  'ai01_three_questions',
+  'ai01_five_questions',
+  'ai01_theory_submitted',
+  'ai01_case_completed',
+  'ai01_more_case_interest',
+  'ai01_live_interest',
   'no_action_45s',
   'diagnostic_choice',
 ]);
@@ -59,6 +75,9 @@ const safeMeta = (value: unknown) => {
   for (const key of [
     'label', 'choice', 'case_id', 'product', 'source', 'position', 'scroll_pct',
     'elapsed_bucket', 'href_group', 'flow', 'step', 'signature', 'reason',
+    'case_slug', 'mode', 'hero_variant', 'question_number', 'questions_asked',
+    'elapsed_seconds', 'suspect', 'evidence', 'stage', 'http_status',
+    'price_rub', 'discount_rub', 'order_id', 'error_class',
   ]) {
     const item = source[key];
     if (typeof item === 'boolean') output[key] = item;
