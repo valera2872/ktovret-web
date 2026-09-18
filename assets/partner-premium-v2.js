@@ -42,8 +42,8 @@ async function investigate(event){
   event.preventDefault();if(busy)return;
   const input=event.currentTarget.querySelector('[data-investigation-input]');const q=input?.value.trim()||'';if(!q){input?.focus();return}
   const before=new Set((snapshot.evidence||[]).map(e=>e.id));const result=await act('INVESTIGATE',{query:q});if(!result)return;
-  const fresh=(result.evidence||[]).find(e=>!before.has(e.id));
-  if(fresh){selectedEvidenceId=fresh.id;input.value='';render();toast(`Найден материал: ${fresh.title}`)}
+  const fresh=(result.evidence||[]).filter(e=>!before.has(e.id));
+  if(fresh.length){selectedEvidenceId=fresh[0].id;input.value='';render();toast(fresh.length>1?`Найдено материалов: ${fresh.length}. Откройте их и сравните.`:`Найден материал: ${fresh[0].title}`)}
   else toast('По этому запросу нового материала нет. Сформулируйте проверку иначе или сверитесь с партнёром.');
 }
 function renderEvidenceList(){const list=snapshot.evidence||[];if(!selectedEvidenceId||!list.some(e=>e.id===selectedEvidenceId))selectedEvidenceId=list.find(e=>e.opened)?.id||list[0]?.id||null;el.evidenceList.innerHTML=list.map(e=>`<button class="pp-evidence ${e.opened?'is-opened':''} ${e.id===selectedEvidenceId?'is-selected':''}" data-evidence-id="${esc(e.id)}"><span class="pp-evidence__top"><i class="pp-evidence__dot"></i>${esc(e.kicker)}</span><strong>${esc(e.title)}</strong><small>${esc(e.teaser)}</small></button>`).join('');el.evidenceList.querySelectorAll('[data-evidence-id]').forEach(b=>b.onclick=async()=>{selectedEvidenceId=b.dataset.evidenceId;const item=snapshot.evidence.find(e=>e.id===selectedEvidenceId);if(item&&!item.opened)await act('OPEN_EVIDENCE',{evidence_id:selectedEvidenceId});else render()})}
