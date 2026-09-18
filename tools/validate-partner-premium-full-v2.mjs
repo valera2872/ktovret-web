@@ -6,11 +6,14 @@ for(const id of Array.from({length:35},(_,i)=>`E${String(i+1).padStart(2,'0')}`)
 for(const id of ['roman','pavel','artyom','elena','mikhail'])if(!content.includes(`${id}:{id:'${id}'`))throw new Error(`missing character ${id}`);
 for(const d of ['D_FINANCE_CONTRADICTION','D_AUDIO_FABRICATION','D_ROMAN_MURDER','D_PAVEL_FAKE','D_DUAL_DOCUMENTS','D_CANARY','D_LEAK','D_VERA_ALIVE','D_LOCATION','D_PREPARATION','D_NINA_ELENA'])if(!content.includes(d)||!engine.includes(d))throw new Error(`missing deduction ${d}`);
 for(const m of ['PAVEL_FAKE_PROVEN','CANARY_CONFIRMED','LEAK_CONFIRMED','VERA_ALIVE','LOCATION_SUBMITTED','VERA_PREPARATION_PROVEN','ELENA_NINA_CHAIN_PROVEN','RECONSTRUCTION_COMPLETE'])if(!engine.includes(m))throw new Error(`missing milestone ${m}`);
-for(const x of ['partner_location_insufficient','ATTEMPT_RECONSTRUCTION','CHOOSE_PUBLICATION','safeFullPartnerView','characterSpeakingContext'])if(!engine.includes(x))throw new Error(`missing engine contract ${x}`);
+for(const x of ['partner_location_insufficient','ATTEMPT_RECONSTRUCTION','CHOOSE_PUBLICATION','safeFullPartnerView','characterSpeakingContext','INVESTIGATE','investigationTask','autoResolveDeductions','partner_investigation_query_required'])if(!engine.includes(x))throw new Error(`missing engine contract ${x}`);
 for(const x of ['partner_elena_confrontation_required','ELENA_PAST','available:false','coreTruth:_coreTruth','motive:_motive'])if(!secure.includes(x))throw new Error(`missing secure engine guard ${x}`);
-for(const x of ['compareAndSave','partner_room_states','mapDuelRoleToFullPartner','partner-engine-v2-secure.ts'])if(!session.includes(x))throw new Error(`missing session contract ${x}`);
+for(const x of ['compareAndSave','partner_room_states','mapDuelRoleToFullPartner','partner-engine-v2-secure.ts','INVESTIGATE'])if(!session.includes(x))throw new Error(`missing session contract ${x}`);
 for(const x of ['ТЕКУЩАЯ РАЗРЕШЁННАЯ ВЕРСИЯ','ai_detective_claim_turn','multi-character-shared-state','partner-engine-v2-secure.ts','visitorHash.slice(0,16)'])if(!ai.includes(x))throw new Error(`missing AI guard ${x}`);
 if(ai.includes('СКРЫТАЯ ПРАВДА ТОЛЬКО ДЛЯ КОНСИСТЕНТНОСТИ')||ai.includes('${ctx.coreTruth}')||ai.includes('${ctx.motive}'))throw new Error('future canon must not enter AI prompt');
 if(ai.includes('p_session_id:`partner-full-${roomId}`'))throw new Error('shared room-wide AI metering session would reject second player');
 if(!content.includes("FULL_PARTNER_CASE_ID = 'MLP001_NE_PUBLIKOVAT'"))throw new Error('wrong full case id');
+for(const x of ['provenance?: string','Павел передал эту запись Вере','Внутренний финансовый аудит за 3 квартал'])if(!content.includes(x))throw new Error(`missing investigation-first content: ${x}`);
+if(!engine.includes("for(const id of ['E01','E02'])out[id].unlocked=true"))throw new Error('first act must start with one seed material per role');
+if(engine.includes("for(const id of ['E01','E02','E03','E04','E05'])"))throw new Error('first act must not dump five materials at start');
 console.log('Premium Partner full v2 secure contract OK');
