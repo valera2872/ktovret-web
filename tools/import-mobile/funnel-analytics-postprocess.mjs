@@ -17,29 +17,25 @@ function patchHomeFormatImpressions(root) {
 
   const replacements = [
     [
-      '<div class="ml-launchbar" role="status">',
-      '<div class="ml-launchbar" role="status" data-funnel-impression="home-real-launchbar" data-funnel-choice="real" data-funnel-target="real-launchbar">',
+      '<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/">',
+      '<a class="ml-nav-new" data-nav-real-investigations href="./realnye-dela/" data-funnel-impression="home-real-nav" data-funnel-choice="real" data-funnel-target="real-nav">',
     ],
     [
-      '<section class="ml-section ml-real-launch" id="real-investigations">',
-      '<section class="ml-section ml-real-launch" id="real-investigations" data-funnel-impression="home-real-section" data-funnel-choice="real" data-funnel-target="real-section">',
-    ],
-    [
-      '<a class="ml-product ml-product-real" href="./realnye-dela/">',
-      '<a class="ml-product ml-product-real" href="./realnye-dela/" data-funnel-impression="home-real-product-card" data-funnel-choice="real" data-funnel-target="real-product-card">',
+      '<section class="ri-approved-home" data-real-investigations-approved-home aria-label="Новый формат Mystery Logic — Реальные расследования">',
+      '<section class="ri-approved-home" data-real-investigations-approved-home data-funnel-impression="home-real-banner" data-funnel-choice="real" data-funnel-target="real-banner" aria-label="Новый формат Mystery Logic — Реальные расследования">',
     ],
   ];
 
   for (const [before, after] of replacements) {
     if (html.includes(after)) continue;
-    if (!html.includes(before)) throw new Error(`Home format impression anchor missing: ${before}`);
+    if (!html.includes(before)) throw new Error(`Home generated format impression anchor missing: ${before}`);
     html = html.replace(before, after);
     changed = true;
   }
 
-  for (const marker of ['home-real-launchbar', 'home-real-section', 'home-real-product-card']) {
+  for (const marker of ['home-real-nav', 'home-real-banner']) {
     if (!html.includes(`data-funnel-impression="${marker}"`)) {
-      throw new Error(`Home format impression missing: ${marker}`);
+      throw new Error(`Home generated format impression missing: ${marker}`);
     }
   }
 
