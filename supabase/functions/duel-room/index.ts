@@ -3,10 +3,13 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 const PUBLIC_SITE_ORIGIN = (Deno.env.get('PUBLIC_SITE_ORIGIN') || 'https://mysterylogic.com').replace(/\/$/, '');
-const configuredOrigins = (Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
-  .split(',')
-  .map((value) => value.trim().replace(/\/$/, ''))
-  .filter(Boolean);
+const configuredOrigins = new Set([
+  ...(Deno.env.get('ALLOWED_ORIGINS') || 'https://mysterylogic.com,https://valera2872.github.io')
+    .split(',')
+    .map((value) => value.trim().replace(/\/$/, ''))
+    .filter(Boolean),
+  'https://rawcdn.githack.com',
+]);
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 8;
@@ -148,7 +151,7 @@ const buildRoomView = async (admin: AdminClient, room: Record<string, any>, brow
 
 Deno.serve(async (req: Request) => {
   const origin = (req.headers.get('origin') || '').replace(/\/$/, '');
-  const allowedOrigin = !origin || configuredOrigins.includes(origin);
+  const allowedOrigin = !origin || configuredOrigins.has(origin);
 
   if (req.method === 'OPTIONS') {
     if (!allowedOrigin) return new Response(null, { status: 403 });
