@@ -17,7 +17,7 @@ function materialCrop(src,klass,alt,loading='lazy'){
   return `<div class="ml-mat-crop ${klass}"><img src="${src}" alt="${esc(alt)}" width="1055" height="940" loading="${loading}" decoding="async"></div>`;
 }
 function trustStrip(){
-  return `<section class="ref-trust" aria-label="Преимущества"><article><span class="ref-trust-icon">⌁</span><strong>15 дел бесплатно</strong><span>Попробуйте без риска</span></article><article><span class="ref-trust-icon">▣</span><strong>100+ дел в архиве</strong><span>Растущий каталог</span></article><article><span class="ref-trust-icon">◷</span><strong>5–10 минут</strong><span>Короткие расследования</span></article><article><span class="ref-trust-icon">✓</span><strong>Один доказуемый ответ</strong><span>Логика важнее догадок</span></article></section>`;
+  return `<section class="ref-trust ref-trust-real" aria-label="Как устроено реальное расследование" data-real-investigation-trust><article><span class="ref-trust-icon">▤</span><strong>Реальное дело</strong><span>Опубликованные материалы и факты</span></article><article><span class="ref-trust-icon">◉</span><strong>AI-допрос</strong><span>Задавайте вопросы свободным языком</span></article><article><span class="ref-trust-icon">⌕</span><strong>Экспертизы и проверки</strong><span>Вы сами ведёте следствие</span></article><article><span class="ref-trust-icon">✓</span><strong>Своя версия в финале</strong><span>Исход откроется после реконструкции</span></article></section>`;
 }
 function formats(){
   const src='./assets/reference-home-lower.webp';
