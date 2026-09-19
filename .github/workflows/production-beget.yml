@@ -156,6 +156,10 @@ jobs:
           echo '3b19ea14f7a56bd0468a36eae333642fa3509335778163e464b611e2d27cf42b  assets/reference-archive-grid.webp' | sha256sum -c -
           echo '7068a5cc516fd4f80205464831e2caf1ba6487babd0bedd896f4eba7e83c92cf  assets/reference-home-lower.webp' | sha256sum -c -
           grep -q 'Sitemap: https://mysterylogic.com/sitemap.xml' robots.txt
+          grep -Fq 'Disallow: /*?room=' robots.txt
+          grep -Fq 'Disallow: /*&room=' robots.txt
+          grep -Fq 'Disallow: /*?duel=' robots.txt
+          grep -Fq 'Disallow: /*&duel=' robots.txt
           ! grep -R -n --include='*.html' --include='*.xml' --include='*.txt' --include='*.json' 'https://valera2872.github.io/ktovret-web/' . \
             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=tools --exclude-dir=tests --exclude-dir=supabase --exclude-dir=artifacts --exclude-dir=content
 
@@ -207,6 +211,8 @@ jobs:
           <IfModule mod_headers.c>
             Header always set X-Content-Type-Options "nosniff"
             Header always set Referrer-Policy "strict-origin-when-cross-origin"
+            SetEnvIfExpr "%{QUERY_STRING} =~ m#(^|&)(room|duel)=[^&]+#" ML_PRIVATE_ROOM
+            Header always set X-Robots-Tag "noindex, nofollow, noarchive" env=ML_PRIVATE_ROOM
           </IfModule>
           HTACCESS
 
