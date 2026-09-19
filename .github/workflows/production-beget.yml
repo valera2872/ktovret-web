@@ -150,6 +150,12 @@ jobs:
           grep -q 'storefront-reference-v41.css' dela/index.html
           grep -q 'storefront-reference-v41.css' tom-1/index.html
           grep -q 'data-reference-asset="home-hero"' index.html
+          grep -q 'data-real-investigation-trust' index.html
+          grep -q 'Реальное дело' index.html
+          grep -q 'AI-допрос' index.html
+          grep -q 'Экспертизы и проверки' index.html
+          grep -q 'Своя версия в финале' index.html
+          ! grep -q '15 дел бесплатно</strong><span>Попробуйте без риска' index.html
           grep -q 'data-reference-asset="archive-grid"' tom-1/index.html
           echo '8b9dd47a1d3e5527ef42aba87dc78be62b7da392c196e62d774758b076971a02  assets/reference-home-hero.webp' | sha256sum -c -
           echo '7d247ec7a20dd66ff43f86f98575554884f4788ee59d3f26d944e68a81c7821f  assets/reference-archive-hero.webp' | sha256sum -c -
