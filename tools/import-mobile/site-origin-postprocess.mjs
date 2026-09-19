@@ -154,7 +154,7 @@ export function applySiteOrigin(siteRoot) {
 
   fs.writeFileSync(
     path.join(siteRoot, 'robots.txt'),
-    `User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: ${siteUrl('sitemap.xml')}\n`,
+    `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /*?room=\nDisallow: /*&room=\nDisallow: /*?duel=\nDisallow: /*&duel=\n\nSitemap: ${siteUrl('sitemap.xml')}\n`,
   );
 
   if (SITE_ORIGIN !== STAGING_ORIGIN) {
