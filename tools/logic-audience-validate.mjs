@@ -91,6 +91,11 @@ try{
   assert(result.mainPatched&&result.adultPatched&&result.homePatched,'hub patch failed');
 
   const main=fs.readFileSync(path.join(tmp,'golovolomki-onlayn/index.html'),'utf8');
+  assert(main.includes('<title>Головоломки онлайн бесплатно — логические игры и задачи | Mystery Logic</title>'),'main puzzle title mismatch');
+  assert(main.includes('<h1>Головоломки онлайн — логические игры и задачи</h1>'),'main puzzle H1 mismatch');
+  assert(main.includes('data-logic-quick-start')&&main.includes('id="quick-puzzles"'),'main quick-start block missing');
+  assert((main.match(/data-quick-card=/g)||[]).length===8,'main quick-start must expose exactly 8 playable puzzle cards');
+  assert(main.includes('href="#quick-puzzles">Начать решать</a>'),'hero must jump directly to playable puzzles');
   assert(main.includes('golovolomki-so-spichkami')&&main.includes('Со спичками'),'matchstick route missing from source hub');
   const matchHub=fs.readFileSync(path.join(tmp,`${collections.matches.slug}/index.html`),'utf8');
   assert(matchHub.includes('<h1>Головоломки со спичками онлайн</h1>'),'matchstick H1 missing');
