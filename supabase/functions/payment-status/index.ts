@@ -12,6 +12,7 @@ import {
   validUuid,
 } from '../_shared/payment.ts';
 import { refreshTbankOrder, tbankConfigReady } from '../_shared/tbank.ts';
+import { notifySaleTelegram } from '../_shared/telegram-sale-notify.ts';
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -56,6 +57,9 @@ Deno.serve(async (req: Request) => {
       refreshed = provider === 'tbank'
         ? await refreshTbankOrder(admin, order)
         : await refreshPaymentOrder(admin, order);
+      if (String(order.status || '') !== 'paid' && String(refreshed?.status || '') === 'paid') {
+        await notifySaleTelegram({ ...order, ...refreshed, paid_at: refreshed?.paid_at || order.paid_at || new Date().toISOString() });
+      }
     }
 
     const { data: entitlements, error: entitlementError } = await admin
