@@ -9,6 +9,7 @@ import {
   tbankConfigReady,
   verifyTbankToken,
 } from '../_shared/tbank.ts';
+import { notifySaleTelegram } from '../_shared/telegram-sale-notify.ts';
 
 const ok = () => new Response('OK', {
   status: 200,
@@ -91,7 +92,10 @@ Deno.serve(async (req: Request) => {
     }
 
     if (['CONFIRMED', 'CANCELED', 'REJECTED', 'REVERSED', 'DEADLINE_EXPIRED'].includes(providerStatus)) {
-      await refreshTbankOrder(admin, { ...order, provider_status: providerStatus });
+      const refreshed = await refreshTbankOrder(admin, { ...order, provider_status: providerStatus });
+      if (String(order.status || '') !== 'paid' && String(refreshed?.status || '') === 'paid') {
+        await notifySaleTelegram({ ...order, ...refreshed, paid_at: refreshed?.paid_at || order.paid_at || new Date().toISOString() });
+      }
     }
     return ok();
   } catch {
