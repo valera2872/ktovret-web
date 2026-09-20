@@ -13,6 +13,7 @@ import {
   LAST_ARIA_PRODUCT_ID,
   refreshLastAriaTbankOrder,
 } from '../_shared/last-aria-commerce.ts';
+import { notifySaleTelegram } from '../_shared/telegram-sale-notify.ts';
 
 Deno.serve(async (req: Request) => {
   const origin = cleanOrigin(req.headers.get('origin') || '');
@@ -50,6 +51,9 @@ Deno.serve(async (req: Request) => {
     let refreshed = order;
     if (['creating', 'pending'].includes(order.status)) {
       refreshed = await refreshLastAriaTbankOrder(admin, order);
+      if (String(order.status || '') !== 'paid' && String(refreshed?.status || '') === 'paid') {
+        await notifySaleTelegram({ ...order, ...refreshed, paid_at: refreshed?.paid_at || order.paid_at || new Date().toISOString() });
+      }
     }
 
     const { data: entitlement } = await admin
