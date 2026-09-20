@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {logicAudiencePuzzles as quick} from './logic-audience-data.mjs';
 
-const VERSION='1.0.1';
+const VERSION='1.1.0';
 
 const styleTag=href=>`<link data-premium-surface-v2 rel="stylesheet" href="${href}?v=${VERSION}">`;
 
@@ -46,7 +47,7 @@ function premiumCases(){
 
 function puzzleHome(){
   return `<section class="ref-logic-launch ref-logic-launch-v2" data-logic-family-home data-logic-home-launch>
-    <div class="ref-logic-launch-copy"><p class="ref-kicker">Mystery Logic · логические игры</p><h2>Головоломки для детей и взрослых</h2><p>20 коротких задач и отдельный Expert-каталог. Условие, проверка, подсказка и объяснение — прямо в браузере, без регистрации.</p><div class="ref-home-actions ref-home-actions-v2"><a class="ref-btn ref-btn-primary" href="./golovolomki-onlayn/">Открыть все головоломки →</a></div></div>
+    <div class="ref-logic-launch-copy"><p class="ref-kicker">Mystery Logic · логические игры</p><h2>Головоломки для детей и взрослых</h2><p>${quick.length} коротких задач и отдельный Expert-каталог. Условие, проверка, подсказка и объяснение — прямо в браузере, без регистрации.</p><div class="ref-home-actions ref-home-actions-v2"><a class="ref-btn ref-btn-primary" href="./golovolomki-onlayn/">Открыть все головоломки →</a></div></div>
     <div class="ref-logic-family-grid" aria-label="Подборки головоломок">
       <a href="./golovolomki-dlya-detei/"><span>13 задач</span><strong>Для детей</strong><small>Возрастные уровни и понятные объяснения</small></a>
       <a href="./igry-dlya-mozga/"><span>19 задач</span><strong>Для мозга</strong><small>Логика, внимание и закономерности</small></a>
@@ -80,12 +81,12 @@ function patchPuzzleHub(root){
   html=injectStyle(html,'../assets/premium-surface-v2.css');
   html=html.replace('<body class="logic-page">','<body class="logic-page logic-premium-hub">');
   html=html.replace('<section class="logic-seo-hero">','<section class="logic-seo-hero mlp-puzzle-hero">');
-  html=html.replace('Mystery Logic · Expert</p><h1>Логические игры и головоломки онлайн</h1>','Mystery Logic · коллекция логики</p><h1>Логические игры<br>и головоломки онлайн</h1>');
-  html=html.replace(/<div class="logic-seo-proof">[\s\S]*?<\/div><\/section>/,`<div class="logic-seo-proof"><div><strong>20 быстрых</strong><span>с подсказками и разбором</span></div><div><strong>20 Expert</strong><span>проверяемые решения</span></div><div><strong>Без регистрации</strong><span>открыл — сразу решаешь</span></div><div><strong>Дети и взрослые</strong><span>разные уровни сложности</span></div></div></section>`);
+  html=html.replace('Mystery Logic · Expert</p><h1>Головоломки онлайн — логические игры и задачи</h1>','Mystery Logic · коллекция логики</p><h1>Головоломки онлайн<br>— логические игры и задачи</h1>');
+  html=html.replace(/<div class="logic-seo-proof">[\s\S]*?<\/div><\/section>/,`<div class="logic-seo-proof"><div><strong>${quick.length} быстрых</strong><span>с подсказками и разбором</span></div><div><strong>20 Expert</strong><span>в отдельном каталоге</span></div><div><strong>Без регистрации</strong><span>открыл — сразу решаешь</span></div><div><strong>Дети и взрослые</strong><span>разные уровни сложности</span></div></div></section>`);
   html=html.replace('<section class="logic-hub-audience-strip"','<section class="logic-hub-audience-strip mlp-route-section"');
-  html=html.replace('<h2>От двух минут до полноценного Expert-вызова</h2>','<h2>Выберите свой формат</h2><p class="mlp-route-lead">Сначала — короткие игровые подборки. Если хочется задачи, над которой можно сидеть двадцать минут, ниже начинается Expert.</p>');
+  html=html.replace('<h2>Выберите подборку</h2>','<h2>Выберите подборку</h2><p class="mlp-route-lead">После быстрого старта можно перейти в тематическую коллекцию: для детей, для взрослых, детективную, математическую или со спичками.</p>');
   html=html.replace('<section class="logic-section" id="puzzles">','<section class="logic-section mlp-expert-section" id="puzzles">');
-  html=html.replace('<h2>Выберите механику</h2>','<h2>Expert-коллекция</h2><p class="mlp-expert-lead">Сложные задачи с единственным проверяемым решением — коды, сетки, графы, маршруты и комбинаторика.</p>');
+  html=html.replace('<h2>4 задачи для знакомства с Expert</h2>','<h2>Expert: следующий уровень</h2><p class="mlp-expert-lead">Четыре примера из отдельного каталога сложных задач с единственным проверяемым решением. Все 20 Expert-головоломок доступны в полном каталоге.</p>');
   fs.writeFileSync(file,html);
   return 1;
 }
@@ -100,6 +101,6 @@ export function applyPremiumSurfaceV2(siteRoot){
   const hubHtml=fs.readFileSync(path.join(root,'golovolomki-onlayn','index.html'),'utf8');
   if(!homeHtml.includes('data-premium-cases-v2')||!homeHtml.includes('Номер 407')||!homeHtml.includes('Последняя ария')) throw new Error('premium surface v2: premium cases not rendered');
   for(const route of ['golovolomki-dlya-detei/','igry-dlya-mozga/','detektivnye-golovolomki/','matematicheskie-golovolomki/']) if(!homeHtml.includes(route)) throw new Error(`premium surface v2: home puzzle route missing: ${route}`);
-  if(!hubHtml.includes('logic-premium-hub')||!hubHtml.includes('20 быстрых')||!hubHtml.includes('Expert-коллекция')) throw new Error('premium surface v2: puzzle hub upgrade missing');
+  if(!hubHtml.includes('logic-premium-hub')||!hubHtml.includes(`${quick.length} быстрых`)||!hubHtml.includes('data-logic-quick-start')||!hubHtml.includes('Expert: следующий уровень')) throw new Error('premium surface v2: puzzle hub upgrade missing');
   return {version:VERSION,home,puzzleHub:hub,premiumCases:2,puzzleEntrances:4};
 }

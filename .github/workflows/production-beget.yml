@@ -135,6 +135,10 @@ jobs:
           grep -q 'noindex,nofollow,noarchive' admin/puzzles/index.html
           grep -q 'data-logic-home-launch' index.html
           grep -q '>Головоломки</a>' index.html
+          grep -q '<title>Головоломки онлайн бесплатно — логические игры и задачи | Mystery Logic</title>' golovolomki-onlayn/index.html
+          grep -q 'data-logic-quick-start' golovolomki-onlayn/index.html
+          test "$(grep -o 'data-quick-card=' golovolomki-onlayn/index.html | wc -l)" -eq 8
+          test "$(grep -o 'data-expert-card=' golovolomki-onlayn/index.html | wc -l)" -eq 4
           node tools/puzzle-editorial-release-validate.mjs --site .
           node tools/logic-expert-review-v2-validate.mjs
           node tools/logic-expert-review-v2-extension-validate.mjs
