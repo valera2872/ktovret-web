@@ -11,7 +11,7 @@ const ensure=d=>fs.mkdirSync(d,{recursive:true});
 const url=route=>`${ORIGIN}${route.replace(/^\//,'')}`;
 const write=(dir,html)=>{ensure(dir);fs.writeFileSync(path.join(dir,'index.html'),html);};
 const selectedFor=kind=>quick.filter(p=>p.collections.includes(kind));
-const FEATURED_QUICK_IDS=['quick:013','quick:014','quick:016','quick:018','quick:019','quick:005','quick:007','quick:025'];
+const FEATURED_QUICK_IDS=['quick:013','quick:014','quick:016','quick:031','quick:019','quick:005','quick:007','quick:025'];
 const featuredQuick=()=>FEATURED_QUICK_IDS.map(id=>quick.find(p=>p.id===id)).filter(Boolean);
 const collectionReady=kind=>selectedFor(kind).length>=(MIN_COLLECTION_SIZE[kind]||1);
 const readyKinds=()=>PUBLIC_KINDS.filter(collectionReady);
