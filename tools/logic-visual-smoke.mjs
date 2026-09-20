@@ -56,7 +56,7 @@ const runChrome=(args)=>new Promise((resolve,reject)=>{
 const pngDimensions=(filePath)=>{const bytes=fs.readFileSync(filePath);if(bytes.length<24||bytes.toString('hex',0,8)!=='89504e470d0a1a0a')throw new Error(`${filePath} is not a PNG`);return{width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length};};
 
 const captures=[
-  {name:'puzzles-main-desktop',path:'/golovolomki-onlayn/',width:1440,height:1400,required:['logic-premium-hub','mlp-puzzle-hero','Головоломки онлайн','37 быстрых','data-logic-quick-start','data-quick-card="quick:013"','Expert: следующий уровень','data-expert-card="expert:001"','https://t.me/mysterylogic']},
+  {name:'puzzles-main-desktop',path:'/golovolomki-onlayn/',width:1440,height:1400,required:['logic-premium-hub','mlp-puzzle-hero','Головоломки онлайн','быстрых','data-logic-quick-start','data-quick-card="quick:013"','Expert: следующий уровень','data-expert-card="expert:001"','https://t.me/mysterylogic']},
   {name:'puzzles-main-mobile',path:'/golovolomki-onlayn/',width:390,height:844,required:['logic-premium-hub','mlp-puzzle-hero','Головоломки онлайн','Начать решать','data-logic-quick-start','Головоломки']},
   {name:'puzzles-adult-desktop',path:'/zagadki-na-logiku-dlya-vzroslyh/',width:1440,height:1300,required:['Загадки на логику для взрослых с ответами','Сложные задачи для самостоятельного решения','data-expert-card']},
   {name:'puzzles-expert-desktop',path:'/logicheskie-zadachi/',width:1440,height:1400,required:['Сложные логические задачи уровня Expert','data-expert-total="20"','data-expert-card="expert:020"']},
