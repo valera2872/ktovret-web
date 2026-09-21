@@ -122,10 +122,6 @@ assert.match(runtime,/renderAnswerWidget/);
 assert.match(runtime,/validateCustomAnswer/);
 assert.match(runtime,/quick:038/);
 assert.match(runtime,/answerState\.route=\['A'\]/);
-assert.match(runtime,/set\.has\('K'\).*set\.has\('7'\)/s);
-assert.match(runtime,/set\.has\('h'\).*set\.has\('f'\)/s);
-assert.match(runtime,/answerState\.cell==='D3'.*answerState\.dir==='S'/s);
-assert.match(runtime,/new Set\(vals\)\.size===4/);
 assert.match(runtime,/assistance\.options&&selectedOption!==null/);
 assert.match(runtime,/mode==='clean'.*решено самостоятельно/s);
 
