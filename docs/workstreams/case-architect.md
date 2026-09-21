@@ -686,3 +686,31 @@ No LIVE / Supabase / payment changes.
 
 Next user review focus:
 readability at normal browser zoom and whether the transition from cinematic intro to investigative workspace now feels like progression rather than repetition.
+
+
+## Process correction — user must not serve as basic QA
+
+User feedback: expected the assistant/agent to handle the work autonomously, but had to repeatedly catch basic defects in the demo (clarity, broken launch flow, repeated imagery, tiny text, primitive visual quality).
+
+Decision:
+This is a PROCESS FAIL, not a normal review cycle.
+
+Case Architect now has a mandatory AUTONOMOUS PRE-REVIEW GATE before any future user-facing preview.
+
+Future review builds must be internally checked for:
+- actual launch/CTA functionality;
+- desktop + mobile rendering;
+- readable typography;
+- no obvious image repetition;
+- first-screen clarity/hook;
+- premium visual bar;
+- no admin/debug feel;
+- clear next action;
+- partner usefulness/presence;
+- stage/content consistency;
+- at least one complete user-path rehearsal before delivery.
+
+User role going forward:
+approve/reject product direction and experience quality — not hunt basic defects.
+
+Current CASE-ARCH-001 demo remains under internal refinement until this gate passes again.
