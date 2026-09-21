@@ -138,7 +138,8 @@ assert.match(runtime,/mode==='clean'.*решено самостоятельно/
 }
 
 assert.doesNotMatch(runtime,/\$\$\$\(/);
-assert.doesNotMatch(runtime,/(?<!\$)\$\([^\n;]*\.forEach/);
+assert.doesNotMatch(runtime,/(?<!\$)\$\('\[data-(?:dir|dot|strokes|cell|facing|room|line|test-card|box-count|solve)/);
+assert.doesNotMatch(runtime,/(?<!\$)\$\('\.logic-choice'/);
 assert.match(runtime,/\$\$\('\[data-room\]'/);
 assert.match(runtime,/\$\$\('\[data-dir\]'/);
 assert.match(runtime,/\$\$\('\[data-cell\]'/);
@@ -148,3 +149,6 @@ assert.match(runtime,/\$\$\('\[data-box-count\]'/);
 assert.match(runtime,/\$\$\('\.logic-choice'/);
 assert.match(runtime,/раскрыт/);
 assert.match(runtime,/чист/);
+
+assert.match(runtime,/лист б/);
+assert.match(runtime,/лист а/);
