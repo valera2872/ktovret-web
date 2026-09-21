@@ -65,10 +65,13 @@ function symbolLines(lines,x,y,label=''){
 }
 function visualXor(){
   return `<div class="ml-visual" aria-label="Два примера исчезающих линий и новая комбинация">
-  <svg viewBox="0 0 690 310" role="img">
-    ${symbolLines(['v'],70,75,'|')}<text x="135" y="83" fill="#8f6b31" font-size="30">+</text>${symbolLines(['v','h'],205,75,'+')}<text x="270" y="83" fill="#8f6b31" font-size="30">→</text>${symbolLines(['h'],340,75,'—')}
-    ${symbolLines(['f','b'],480,75,'X')}<text x="545" y="83" fill="#8f6b31" font-size="30">+</text>${symbolLines(['f'],615,75,'/')}
-    ${symbolLines(['v','h'],170,225,'+')}<text x="240" y="233" fill="#8f6b31" font-size="30">+</text>${symbolLines(['v','f'],315,225,'|/')}<text x="385" y="233" fill="#8f6b31" font-size="30">→</text><circle cx="480" cy="225" r="48" fill="#efe4cc" stroke="#b98c45" stroke-width="2" stroke-dasharray="7 6"/><text x="480" y="237" text-anchor="middle" fill="#8f6b31" font-size="36">?</text>
+  <svg viewBox="0 0 690 410" role="img">
+    <text x="22" y="28" fill="#8f6b31" font-size="12" font-weight="700">ПРИМЕР 1</text>
+    ${symbolLines(['v'],90,85,'|')}<text x="155" y="93" fill="#8f6b31" font-size="30">+</text>${symbolLines(['v','h'],225,85,'+')}<text x="290" y="93" fill="#8f6b31" font-size="30">→</text>${symbolLines(['h'],360,85,'—')}
+    <text x="22" y="158" fill="#8f6b31" font-size="12" font-weight="700">ПРИМЕР 2</text>
+    ${symbolLines(['f','b'],90,215,'X')}<text x="155" y="223" fill="#8f6b31" font-size="30">+</text>${symbolLines(['f'],225,215,'/')}<text x="290" y="223" fill="#8f6b31" font-size="30">→</text>${symbolLines(['b'],360,215,'\\')}
+    <text x="22" y="288" fill="#8f6b31" font-size="12" font-weight="700">ВАША ЗАДАЧА</text>
+    ${symbolLines(['v','h'],90,345,'+')}<text x="155" y="353" fill="#8f6b31" font-size="30">+</text>${symbolLines(['v','f'],225,345,'|/')}<text x="290" y="353" fill="#8f6b31" font-size="30">→</text><circle cx="360" cy="345" r="48" fill="#efe4cc" stroke="#b98c45" stroke-width="2" stroke-dasharray="7 6"/><text x="360" y="357" text-anchor="middle" fill="#8f6b31" font-size="36">?</text>
   </svg></div>`;
 }
 function visualCube(){
