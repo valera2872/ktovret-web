@@ -62,3 +62,55 @@
   .mlq-visual svg{min-height:170px}
   .logic-next-row .mlq-next-link:last-child{text-align:left}
 }
+
+
+/* Self-answer layer: solve first, reveal choices only on request. */
+.mlq-answer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.mlq-answer-head h2{margin:3px 0 0}
+.mlq-mode-badge{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border:1px solid rgba(135,210,170,.3);border-radius:999px;background:rgba(67,138,91,.10);color:#a9dfc1;font-size:11px;font-weight:800;white-space:nowrap}
+.mlq-mode-badge[data-mode="hint"]{border-color:rgba(214,177,109,.34);background:rgba(214,177,109,.10);color:#efd79f}
+.mlq-mode-badge[data-mode="options"]{border-color:rgba(107,157,210,.34);background:rgba(69,113,161,.12);color:#b7d0ea}
+.mlq-mode-badge[data-mode="solution"]{border-color:rgba(203,115,111,.35);background:rgba(151,67,63,.12);color:#efb5b1}
+.mlq-answer-widget{margin:8px 0 16px;padding:15px;border:1px solid rgba(161,188,214,.15);border-radius:16px;background:rgba(5,16,28,.46)}
+.mlq-answer-group+.mlq-answer-group{margin-top:14px}
+.mlq-answer-label{display:block;margin-bottom:8px;color:#aebdcc;font-size:12px;font-weight:800;letter-spacing:.025em}
+.mlq-segmented,.mlq-room-buttons,.mlq-line-builder,.mlq-test-cards{display:flex;flex-wrap:wrap;gap:8px}
+.mlq-segmented button,.mlq-room-buttons button,.mlq-line-builder button,.mlq-test-cards button,.mlq-cell-grid button{
+  appearance:none;border:1px solid rgba(161,188,214,.22);border-radius:11px;background:#0d2438;color:#e5edf3;
+  min-height:43px;padding:8px 12px;font:inherit;font-weight:800;cursor:pointer
+}
+.mlq-segmented button:hover,.mlq-room-buttons button:hover,.mlq-line-builder button:hover,.mlq-test-cards button:hover,.mlq-cell-grid button:hover{border-color:rgba(214,177,109,.56)}
+.mlq-segmented button.is-selected,.mlq-room-buttons button.is-selected,.mlq-line-builder button.is-selected,.mlq-test-cards button.is-selected,.mlq-cell-grid button.is-selected{
+  border-color:#d6b16d;background:rgba(214,177,109,.15);color:#f5dfaa;box-shadow:inset 0 0 0 1px rgba(214,177,109,.14)
+}
+.mlq-room-buttons button:disabled{opacity:.32;cursor:default}
+.mlq-free-answer span,.mlq-number-answer span{display:block;margin-bottom:8px;color:#aebdcc;font-size:12px;font-weight:800}
+.mlq-free-answer textarea,.mlq-number-answer input,.mlq-weigh-inputs input{
+  width:100%;border:1px solid rgba(161,188,214,.24);border-radius:12px;background:#081b2c;color:#f2f6f9;
+  padding:12px 13px;font:inherit;outline:none
+}
+.mlq-free-answer textarea{resize:vertical;min-height:92px;line-height:1.5}
+.mlq-free-answer textarea:focus,.mlq-number-answer input:focus,.mlq-weigh-inputs input:focus{border-color:#d6b16d;box-shadow:0 0 0 3px rgba(214,177,109,.08)}
+.mlq-number-answer input{max-width:180px;font-size:24px;font-weight:850}
+.mlq-answer-help{margin:9px 0 0;color:#8498aa;font-size:11px;line-height:1.45}
+.mlq-cell-grid{display:grid;grid-template-columns:repeat(5,minmax(42px,1fr));gap:6px}
+.mlq-cell-grid button{padding:6px;min-height:38px;font-size:12px}
+.mlq-route-path{min-height:48px;display:flex;align-items:center;margin-bottom:10px;padding:10px 12px;border:1px dashed rgba(214,177,109,.32);border-radius:12px;background:rgba(214,177,109,.055);color:#f0dba8;font-weight:900;letter-spacing:.04em}
+.mlq-inline-reset{appearance:none;margin-top:10px;padding:0;border:0;background:none;color:#8fa4b6;font:inherit;font-size:12px;cursor:pointer}
+.mlq-inline-reset:hover{color:#e4c57d}
+.mlq-line-builder button{min-width:58px;font-size:28px;line-height:1}
+.mlq-test-cards button{min-width:62px;min-height:82px;background:linear-gradient(180deg,#f3e8cc,#dfc99e);color:#172230;border-color:#bda778;font-family:Georgia,'Times New Roman',serif;font-size:28px}
+.mlq-test-cards button.is-selected{background:linear-gradient(180deg,#ecd89f,#d2ae65);color:#172230}
+.mlq-weigh-inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mlq-weigh-inputs label{display:grid;gap:6px}
+.mlq-weigh-inputs label span{color:#e3ca91;font-weight:900;text-align:center}
+.mlq-weigh-inputs input{text-align:center;padding:10px 6px;font-size:20px;font-weight:800}
+.mlq-options-box{margin:9px 0;padding:13px;border:1px solid rgba(92,142,191,.24);border-radius:14px;background:rgba(42,82,120,.10)}
+.mlq-options-box>p{margin:0 0 10px;color:#95abc0;font-size:11px;line-height:1.45}
+.logic-choice.is-selected{border-color:#d6b16d!important;background:rgba(214,177,109,.12)!important}
+@media(max-width:620px){
+  .mlq-answer-head{display:grid}
+  .mlq-mode-badge{justify-self:start}
+  .mlq-cell-grid{grid-template-columns:repeat(5,1fr)}
+  .mlq-weigh-inputs{grid-template-columns:repeat(2,1fr)}
+}
