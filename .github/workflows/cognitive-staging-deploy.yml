@@ -23,7 +23,7 @@ jobs:
       - name: Checkout reviewed Cognitive staging snapshot
         uses: actions/checkout@v4
         with:
-          ref: 71b5094442d25f3dbe2c512efffa781c15633ff9
+          ref: f92a42a6e474f3fe4eb3bf351f8ae48f430786ea
 
       - uses: actions/setup-node@v4
         with:
