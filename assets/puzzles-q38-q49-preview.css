@@ -1,33 +1,64 @@
-/* Q38–Q49 staging additions only.
-   Base visual language comes from the exact LIVE puzzle stylesheets (release live-2026-09-20). */
+/* Q38–Q49 staging. Visual cards follow the owner-provided LIVE reference screenshot. */
 .mlq-series{scroll-margin-top:18px}
-.mlq-lead{max-width:720px;margin:8px 0 0;color:#aab8c6;line-height:1.6}
-.mlq-filter-row button{
-  appearance:none;border:1px solid rgba(162,189,215,.2);border-radius:999px;
-  background:rgba(8,18,30,.7);color:#c6d2de;padding:10px 14px;font:inherit;font-size:14px;cursor:pointer
-}
+.mlq-lead{max-width:760px;margin:8px 0 0;color:#aab8c6;line-height:1.6}
+.mlq-filter-row{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 22px}
+.mlq-filter-row button{appearance:none;border:1px solid rgba(162,189,215,.2);border-radius:999px;background:rgba(8,18,30,.72);color:#c6d2de;padding:10px 14px;font:inherit;font-size:14px;cursor:pointer}
 .mlq-filter-row button:hover,.mlq-filter-row button.is-active{color:#07111c;background:#e5c780;border-color:#e5c780}
-.logic-quick-card{cursor:pointer}
-.logic-quick-card.is-featured{border-color:rgba(213,177,101,.32);background:radial-gradient(circle at 92% 5%,rgba(213,177,101,.12),transparent 36%),rgba(8,18,30,.72)}
-.logic-quick-card.is-solved{border-color:rgba(112,188,146,.42)}
-.logic-quick-card.is-solved .logic-card-link:before{content:'✓ ';color:#87d2aa}
-.mlq-card-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.mlq-card-flags span{padding:5px 8px;border:1px solid rgba(164,189,215,.14);border-radius:999px;color:#8fa1b2;font-size:11px}
-.mlq-visual{
-  margin:0 0 22px;padding:16px;border:1px solid rgba(164,189,215,.14);border-radius:18px;
-  background:#f4efe4;color:#172230;overflow:auto
+
+/* The actual on-site card language: visual first, content second. */
+.mlq-showcase-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.mlq-showcase-card{
+  display:flex;min-height:465px;flex-direction:column;overflow:hidden;position:relative;
+  border:1px solid rgba(153,181,208,.26);border-radius:20px;
+  background:linear-gradient(180deg,rgba(15,36,56,.98),rgba(7,20,33,.99));
+  box-shadow:0 18px 42px rgba(0,0,0,.20);cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease
 }
-.mlq-visual svg{display:block;width:100%;height:auto;min-height:220px;max-height:360px}
+.mlq-showcase-card:hover{transform:translateY(-2px);border-color:rgba(214,177,109,.5);box-shadow:0 22px 52px rgba(0,0,0,.26)}
+.mlq-showcase-card.is-solved{border-color:rgba(112,188,146,.5)}
+.mlq-showcase-card.is-featured{border-color:rgba(214,177,109,.45)}
+.mlq-card-art{
+  position:relative;height:205px;overflow:hidden;border-bottom:1px solid rgba(153,181,208,.18);
+  background:
+    radial-gradient(circle at 85% 10%,rgba(214,177,109,.16),transparent 30%),
+    linear-gradient(145deg,#122c46,#081928)
+}
+.mlq-card-art:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 58%,rgba(7,20,33,.42))}
+.mlq-card-art svg{display:block;width:100%;height:100%}
+.mlq-card-body{display:flex;flex:1;flex-direction:column;padding:20px 22px 21px}
+.mlq-card-top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#9cafc0;font-size:12px}
+.mlq-card-number{color:#e7d4a2;font-weight:850;letter-spacing:.04em}
+.mlq-card-title{margin:13px 0 8px;font-family:Georgia,'Times New Roman',serif;color:#f7f2e7;font-size:28px;line-height:1.04;letter-spacing:-.02em}
+.mlq-card-copy{margin:0;color:#b4c2cf;font-size:14px;line-height:1.52}
+.mlq-card-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.mlq-tag{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;border:1px solid rgba(162,189,215,.19);font-size:11px;font-weight:750}
+.mlq-tag.skill{color:#b7c8dc;background:rgba(85,131,179,.13)}
+.mlq-tag.easy{color:#a9dfc1;background:rgba(69,157,107,.13)}
+.mlq-tag.medium{color:#f0d797;background:rgba(213,177,101,.12)}
+.mlq-tag.hard{color:#efb0ae;background:rgba(185,76,72,.12)}
+.mlq-tag.very-hard{color:#e1a7e8;background:rgba(155,79,169,.14)}
+.mlq-card-action{margin-top:auto;padding-top:17px;color:#e4c57d;font-weight:850;font-size:14px}
+.mlq-showcase-card.is-solved .mlq-card-action:before{content:'✓ ';color:#87d2aa}
+
 .mlq-crumb-button{appearance:none;border:0;padding:0;background:none;color:#a9b9c8;font:inherit;cursor:pointer}
 .mlq-crumb-button:hover{text-decoration:underline}
-.mlq-next-link{
-  width:100%;padding:18px;border:1px solid rgba(164,189,215,.14);border-radius:15px;
-  background:rgba(8,18,30,.65);color:#dce5ec;font:inherit;text-align:left;cursor:pointer
+.mlq-visual{
+  margin:0 0 22px;padding:14px;border:1px solid rgba(164,189,215,.14);border-radius:18px;
+  background:linear-gradient(145deg,#f8f3e8,#eee4d0);color:#172230;overflow:auto
 }
+.mlq-visual svg{display:block;width:100%;height:auto;min-height:220px;max-height:380px}
+.mlq-next-link{width:100%;padding:18px;border:1px solid rgba(164,189,215,.14);border-radius:15px;background:rgba(8,18,30,.65);color:#dce5ec;font:inherit;text-align:left;cursor:pointer}
 .logic-next-row .mlq-next-link:last-child{text-align:right}
 .mlq-next-link:disabled{opacity:.35;cursor:default}
+
+@media(max-width:980px){.mlq-showcase-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){
-  .mlq-visual{padding:10px}
+  .mlq-showcase-grid{grid-template-columns:1fr;gap:14px}
+  .mlq-showcase-card{min-height:430px}
+  .mlq-card-art{height:190px}
+  .mlq-card-body{padding:17px}
+  .mlq-card-title{font-size:25px}
+  .mlq-visual{padding:9px}
   .mlq-visual svg{min-height:170px}
   .logic-next-row .mlq-next-link:last-child{text-align:left}
 }
