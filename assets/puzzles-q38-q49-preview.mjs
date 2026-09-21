@@ -324,10 +324,11 @@ function validateCustomAnswer(p){
   }
   if(p.id==='quick:042'){
     const t=normalizeText(answerState.text);
-    const hasB=/(^| )b( |$)/.test(t)||t.includes('лист b');
-    const hasA=/(^| )a( |$)/.test(t)||t.includes('лист a');
+    const namesBoth=((/(^| )b( |$)/.test(t)||t.includes('лист b'))&&(/(^| )a( |$)/.test(t)||t.includes('лист a')));
+    const identifiesLower=t.includes('чист')||t.includes('лист b')||/(^| )b( |$)/.test(t)||t.includes('нижн');
+    const identifiesUpper=t.includes('записк')||t.includes('лист a')||/(^| )a( |$)/.test(t)||t.includes('верхн');
     const relation=t.includes('под')||t.includes('снизу')||t.includes('нижн');
-    return {ready:t.length>=5,correct:t.length>=5&&hasB&&hasA&&relation};
+    return {ready:t.length>=5,correct:t.length>=5&&relation&&(namesBoth||(identifiesLower&&identifiesUpper))};
   }
   if(p.id==='quick:043'){
     const route=answerState.route||[];
@@ -353,7 +354,7 @@ function validateCustomAnswer(p){
   if(p.id==='quick:047'){
     const t=normalizeText(answerState.text);
     const ready=t.length>=4;
-    const unfolded=t.includes('развернут')||t.includes('разложен')||t.includes('не был сложен')||t.includes('не сложен');
+    const unfolded=t.includes('развернут')||t.includes('разложен')||t.includes('раскрыт')||t.includes('расправлен')||t.includes('не был сложен')||t.includes('не сложен');
     return {ready,correct:ready&&unfolded};
   }
   if(p.id==='quick:048'){
@@ -389,7 +390,7 @@ function renderCatalog(){
     </div>
   </article>`).join('');
   progressText.textContent=`${solved.size} из ${puzzleBatch.length} решено`;
-  $$$('[data-solve]',grid).forEach(btn=>{
+  $$('[data-solve]',grid).forEach(btn=>{
     btn.addEventListener('click',()=>{
       const index=puzzleBatch.findIndex(p=>p.id===btn.dataset.solve);
       openPuzzle(index);
@@ -491,9 +492,9 @@ $('#solutionBtn').addEventListener('click',()=>{
 $('#crumbBackBtn').addEventListener('click',()=>closePuzzle());
 $('#prevBtn').addEventListener('click',()=>openPuzzle(currentIndex-1));
 $('#nextBtn').addEventListener('click',()=>openPuzzle(currentIndex+1));
-$$$('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
+$$('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
   activeFilter=btn.dataset.filter;
-  $$$('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===btn));
+  $$('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===btn));
   renderCatalog();
 }));
 addEventListener('popstate',()=>{
