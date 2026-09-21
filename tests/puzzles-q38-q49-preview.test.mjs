@@ -81,7 +81,7 @@ assert.match(html,/logic-expert-seo\.css\?v=3026adc03868/);
 assert.match(html,/logic-audience\.css\?v=3026adc03868/);
 assert.match(html,/class="logic-header logic-wrap"/);
 assert.match(html,/class="logic-seo-hero mlp-puzzle-hero"/);
-assert.match(html,/id="puzzleGrid" class="logic-quick-grid"/);
+assert.match(html,/id="puzzleGrid" class="mlq-showcase-grid"/);
 assert.match(html,/class="logic-quick-layout"/);
 assert.match(runtime,/mlq-showcase-card/);
 assert.match(runtime,/logic-choice/);
@@ -92,8 +92,6 @@ assert.match(runtime,/visualXor/);
 assert.match(runtime,/visualCube/);
 assert.match(runtime,/visualWeighing/);
 assert.doesNotMatch(html+runtime,/t\.me|telegram/i);
-
-console.log(JSON.stringify({ok:true,puzzles:12,visuals:visualIds.size,difficulty:dc,q43Unique:true,q48Top:1,q49States:8},null,2));
 
 assert.match(runtime,/thumbRhythms/);
 assert.match(runtime,/thumbToken/);
@@ -108,3 +106,5 @@ assert.match(runtime,/thumbCoffee/);
 assert.match(runtime,/thumbCube/);
 assert.match(runtime,/thumbWeighing/);
 assert.match(html,/id="puzzleGrid" class="mlq-showcase-grid"/);
+
+console.log(JSON.stringify({ok:true,puzzles:12,visuals:visualIds.size,difficulty:dc,q43Unique:true,q48Top:1,q49States:8,visualCards:12},null,2));
