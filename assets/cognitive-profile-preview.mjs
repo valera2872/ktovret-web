@@ -18,8 +18,26 @@ const svg=(body,w=520,h=270)=>`<div class="ml-visual"><svg viewBox="0 0 ${w} ${h
 
 function visual(id){
   if(id==='P1'){
-    let b='';[[40,30],[180,30],[40,140],[180,140]].forEach(([x,y])=>b+=cell(x,y,110,90));
-    b+=shape('circle',95,75,50)+shape('circle',235,75,50,{fill:'#17212a'})+shape('square',95,185,50)+`<text x="235" y="197" text-anchor="middle" font-size="54" font-weight="800" fill="#17212a">?</text>`;return svg(b,330,250);
+    const tile=(x,kind,fill,count)=>{
+      let out=cell(x,42,78,94);
+      out+=shape(kind,x+39,84,46,{fill});
+      const xs=count===1?[x+39]:count===2?[x+31,x+47]:[x+27,x+39,x+51];
+      xs.forEach(px=>out+=dot(px,84,4));
+      return out;
+    };
+    let b='';
+    b+=tile(18,'circle','none',1);
+    b+=`<text x="104" y="98" font-size="20" fill="#59636c">→</text>`;
+    b+=tile(120,'triangle','none',2);
+    b+=`<text x="206" y="98" font-size="20" fill="#59636c">→</text>`;
+    b+=tile(222,'circle','#17212a',3);
+    b+=`<text x="308" y="98" font-size="20" fill="#59636c">→</text>`;
+    b+=tile(324,'triangle','#17212a',1);
+    b+=`<text x="410" y="98" font-size="20" fill="#59636c">→</text>`;
+    b+=tile(426,'circle','none',2);
+    b+=`<text x="512" y="98" font-size="20" fill="#59636c">→</text>`;
+    b+=cell(528,42,78,94)+`<text x="567" y="105" text-anchor="middle" font-size="44" font-weight="800" fill="#17212a">?</text>`;
+    return svg(b,624,175);
   }
   if(id==='S1'){
     const base=`${cell(25,30,135,135)}<path d="M58 62h34v34h34v34H58z" fill="#3d607d"/><circle cx="75" cy="78" r="7" fill="#e2a74a"/><text x="190" y="105" font-size="34" fill="#17212a">→ 90° ↻</text>`;
