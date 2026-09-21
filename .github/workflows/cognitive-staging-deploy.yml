@@ -20,10 +20,10 @@ jobs:
   validate-and-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Cognitive staging branch only
+      - name: Checkout reviewed Cognitive staging snapshot
         uses: actions/checkout@v4
         with:
-          ref: staging/cognitive-profile
+          ref: bbe649d50ea47851416c5cbf272c16430ba9d184
 
       - uses: actions/setup-node@v4
         with:
