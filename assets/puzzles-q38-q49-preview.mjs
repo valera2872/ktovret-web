@@ -397,11 +397,15 @@ function renderCatalog(){
   });
 }
 function resetInteraction(){
-  selected=null;
+  selectedOption=null;
+  answerState={};
+  assistance={hint:false,options:false,solution:false};
   $('#feedback').className='logic-quick-feedback';
-  $('#feedback').textContent='Выберите вариант. Правильный ответ заранее не показывается.';
+  $('#feedback').textContent='Сначала сформулируйте или соберите собственный ответ.';
   $('#hintBox').hidden=true;
+  $('#optionsBox').hidden=true;
   $('#solutionBox').hidden=true;
+  updateModeBadge();
 }
 function openPuzzle(index,{push=true}={}){
   if(index<0||index>=puzzleBatch.length)return;
@@ -418,14 +422,8 @@ function openPuzzle(index,{push=true}={}){
   $('#puzzleVisual').innerHTML=visualFor(p);
   $('#hintText').textContent=p.hint;
   $('#solutionText').textContent=p.explanation;
-  $('#choiceList').innerHTML=p.choices.map((c,i)=>`<button class="logic-choice" data-choice="${i}" type="button"><strong>${'ABCD'[i]}.</strong> ${esc(c)}</button>`).join('');
-  $$('.logic-choice').forEach(btn=>btn.addEventListener('click',()=>{
-    selected=Number(btn.dataset.choice);
-    $$('.logic-choice').forEach(x=>x.classList.remove('is-selected','is-wrong','is-correct'));
-    btn.classList.add('is-selected');
-    $('#feedback').className='logic-quick-feedback';
-    $('#feedback').textContent='Версия выбрана. Теперь проверьте её.';
-  }));
+  renderAnswerWidget(p);
+  renderFallbackOptions(p);
   $('#prevBtn').disabled=index===0;
   $('#nextBtn').disabled=index===puzzleBatch.length-1;
   if(push)history.pushState(null,'',`#${p.number}`);
@@ -443,25 +441,51 @@ function closePuzzle({push=true}={}){
 $('#checkBtn').addEventListener('click',()=>{
   if(currentIndex<0)return;
   const p=puzzleBatch[currentIndex],feedback=$('#feedback');
-  if(selected===null){
+  let result;
+
+  if(assistance.options&&selectedOption!==null){
+    result={ready:true,correct:selectedOption===p.answer};
+  }else{
+    result=validateCustomAnswer(p);
+  }
+
+  if(!result.ready){
     feedback.className='logic-quick-feedback is-bad';
-    feedback.textContent='Сначала выберите один вариант.';
+    feedback.textContent=assistance.options?'Выберите вариант или заполните собственный ответ.':'Ответ пока не завершён.';
     return;
   }
-  $$('.logic-choice').forEach(x=>x.classList.remove('is-wrong','is-correct'));
-  if(selected===p.answer){
-    $$('.logic-choice')[selected]?.classList.add('is-correct');
+
+  if(result.correct){
+    const mode=currentMode();
     feedback.className='logic-quick-feedback is-good';
-    feedback.textContent='Верно. Решение выдерживает все условия.';
-    markSolved(p.id);
+    feedback.textContent=
+      mode==='clean'?'Верно — решено самостоятельно.':
+      mode==='hint'?'Верно — с подсказкой.':
+      mode==='options'?'Верно — с открытыми вариантами.':
+      'Ответ верный, но разбор уже был открыт.';
+    markSolved(p.id,mode);
   }else{
-    $$('.logic-choice')[selected]?.classList.add('is-wrong');
     feedback.className='logic-quick-feedback is-bad';
-    feedback.textContent='Пока нет. Проверьте условие ещё раз или откройте подсказку.';
+    feedback.textContent='Пока нет. Проверьте ход рассуждения или воспользуйтесь следующим уровнем помощи.';
   }
 });
-$('#hintBtn').addEventListener('click',()=>{$('#hintBox').hidden=!$('#hintBox').hidden});
-$('#solutionBtn').addEventListener('click',()=>{$('#solutionBox').hidden=!$('#solutionBox').hidden});
+$('#hintBtn').addEventListener('click',()=>{
+  assistance.hint=true;
+  $('#hintBox').hidden=!$('#hintBox').hidden;
+  updateModeBadge();
+});
+$('#showOptionsBtn').addEventListener('click',()=>{
+  assistance.options=true;
+  $('#optionsBox').hidden=false;
+  $('#showOptionsBtn').hidden=true;
+  updateModeBadge();
+});
+$('#solutionBtn').addEventListener('click',()=>{
+  assistance.solution=true;
+  $('#solutionBox').hidden=false;
+  $('#solutionBtn').hidden=true;
+  updateModeBadge();
+});
 $('#crumbBackBtn').addEventListener('click',()=>closePuzzle());
 $('#prevBtn').addEventListener('click',()=>openPuzzle(currentIndex-1));
 $('#nextBtn').addEventListener('click',()=>openPuzzle(currentIndex+1));
