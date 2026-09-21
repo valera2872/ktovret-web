@@ -1,4 +1,5 @@
 import {puzzleBatch} from './puzzles-q38-q49-preview-data.mjs';
+import {validateAnswer} from './puzzles-q38-q49-answer-model.mjs';
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -197,9 +198,6 @@ function thumbFor(p){
 function difficultyClass(d){return d==='Очень сложно'?'very-hard':d==='Сложно'?'hard':d==='Средне'?'medium':'easy'}
 function cardSummary(p){return p.prompt;}
 
-function normalizeText(value=''){
-  return String(value).toLowerCase().replaceAll('ё','е').replace(/[.,;:!?()[\]{}"«»]/g,' ').replace(/\s+/g,' ').trim();
-}
 function modeLabel(mode){
   return mode==='clean'?'самостоятельно':mode==='hint'?'с подсказкой':mode==='options'?'с вариантами':mode==='solution'?'решение открыто':'самостоятельно';
 }
@@ -239,15 +237,38 @@ function renderAnswerWidget(p){
     return;
   }
 
-  if(['quick:039','quick:042','quick:046','quick:047'].includes(p.id)){
-    const placeholders={
-      'quick:039':'Например: «жетон X ...»',
-      'quick:042':'Что именно следует о положении листов?',
-      'quick:046':'Что именно доказано показанием счётчика?',
-      'quick:047':'В каком состоянии был лист?'
+  if(p.id==='quick:039'){
+    answerState={excluded:''};
+    box.innerHTML=`<label class="mlq-complete-answer"><span>Завершите вывод</span><div class="mlq-complete-row"><strong>X не</strong><input id="excludedProperty" type="text" autocomplete="off" placeholder="какой?"><strong>.</strong></div></label><p class="mlq-answer-help">Назовите свойство, которое условия позволяют исключить наверняка.</p>`;
+    $('#excludedProperty').addEventListener('input',e=>{answerState.excluded=e.target.value});
+    return;
+  }
+
+  if(p.id==='quick:042'){
+    answerState={stack:[]};
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Соберите стопку в момент письма — сверху вниз</span><div id="sheetStack" class="mlq-sheet-stack"><span class="mlq-stack-empty">сверху</span><span class="mlq-stack-arrow">↓</span><span class="mlq-stack-empty">снизу</span></div><div class="mlq-sheet-buttons"><button type="button" data-sheet="A">Лист A · записка</button><button type="button" data-sheet="B">Лист B · чистый</button></div><button id="sheetReset" class="mlq-inline-reset" type="button">Сбросить стопку</button></div>`;
+    const paint=()=>{
+      const top=answerState.stack[0]||null,bottom=answerState.stack[1]||null;
+      $('#sheetStack').innerHTML=`<span class="${top?'mlq-stack-sheet':'mlq-stack-empty'}">${top?('Лист '+top):'сверху'}</span><span class="mlq-stack-arrow">↓</span><span class="${bottom?'mlq-stack-sheet':'mlq-stack-empty'}">${bottom?('Лист '+bottom):'снизу'}</span>`;
+      $('[data-sheet]',box).forEach(b=>b.disabled=answerState.stack.includes(b.dataset.sheet)||answerState.stack.length>=2);
     };
-    box.innerHTML=`<label class="mlq-free-answer"><span>Сформулируйте вывод своими словами</span><textarea id="freeAnswer" rows="3" placeholder="${esc(placeholders[p.id])}"></textarea></label><p class="mlq-answer-help">Не нужно угадывать точную формулировку — проверяется смысл ключевого вывода.</p>`;
-    $('#freeAnswer').addEventListener('input',e=>{answerState.text=e.target.value});
+    $('[data-sheet]',box).forEach(b=>b.addEventListener('click',()=>{if(answerState.stack.length<2&&!answerState.stack.includes(b.dataset.sheet)){answerState.stack.push(b.dataset.sheet);paint()}}));
+    $('#sheetReset').addEventListener('click',()=>{answerState.stack=[];paint()});
+    paint();
+    return;
+  }
+
+  if(p.id==='quick:046'){
+    answerState={cycles:''};
+    box.innerHTML=`<label class="mlq-number-answer"><span>Сколько полных рабочих циклов точно произошло с 12:00 до 13:00?</span><input id="cycleAnswer" inputmode="numeric" type="number" min="0" step="1" autocomplete="off"></label><p class="mlq-answer-help">Отвечайте только о том, что непосредственно измеряет счётчик.</p>`;
+    $('#cycleAnswer').addEventListener('input',e=>{answerState.cycles=e.target.value});
+    return;
+  }
+
+  if(p.id==='quick:047'){
+    answerState={sheetState:null};
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">В каком состоянии был лист в момент появления кофейного круга?</span><div class="mlq-fold-state"><button type="button" data-sheet-state="folded"><span class="mlq-fold-icon folded"></span><strong>Сложен</strong></button><button type="button" data-sheet-state="unfolded"><span class="mlq-fold-icon unfolded"></span><strong>Развёрнут</strong></button></div><p class="mlq-answer-help">Смотрите на то, могла ли чашка физически коснуться обеих частей круга.</p></div>`;
+    $('[data-sheet-state]',box).forEach(b=>b.addEventListener('click',()=>{answerState.sheetState=b.dataset.sheetState;$('[data-sheet-state]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
     return;
   }
 
@@ -305,71 +326,7 @@ function renderAnswerWidget(p){
   box.innerHTML='<p>Для этой задачи пока нет собственного формата ответа.</p>';
 }
 function validateCustomAnswer(p){
-  if(p.id==='quick:038'){
-    const ready=!!(answerState.dir&&answerState.dot&&answerState.strokes);
-    return {ready,correct:ready&&answerState.dir==='right'&&answerState.dot==='tr'&&answerState.strokes===3};
-  }
-  if(p.id==='quick:039'){
-    const t=normalizeText(answerState.text);
-    const ready=t.length>=3;
-    return {ready,correct:ready&&((t.includes('не')&&t.includes('латун'))||t.includes('не из латуни'))};
-  }
-  if(p.id==='quick:040'){
-    const ready=!!(answerState.cell&&answerState.dir);
-    return {ready,correct:ready&&answerState.cell==='D3'&&answerState.dir==='S'};
-  }
-  if(p.id==='quick:041'){
-    const n=Number(answerState.number),ready=String(answerState.number).trim()!=='';
-    return {ready,correct:ready&&n===92};
-  }
-  if(p.id==='quick:042'){
-    const t=normalizeText(answerState.text);
-    const hasB=/(^| )[bб]( |$)/.test(t)||t.includes('лист b')||t.includes('лист б');
-    const hasA=/(^| )[aа]( |$)/.test(t)||t.includes('лист a')||t.includes('лист а');
-    const namesBoth=hasB&&hasA;
-    const identifiesLower=t.includes('чист')||hasB||t.includes('нижн');
-    const identifiesUpper=t.includes('записк')||hasA||t.includes('верхн');
-    const relation=t.includes('под')||t.includes('снизу')||t.includes('нижн');
-    return {ready:t.length>=5,correct:t.length>=5&&relation&&(namesBoth||(identifiesLower&&identifiesUpper))};
-  }
-  if(p.id==='quick:043'){
-    const route=answerState.route||[];
-    return {ready:route.length===5,correct:route.join('')==='ACBDE'};
-  }
-  if(p.id==='quick:044'){
-    const set=answerState.lines||new Set();
-    const ready=set.size>0;
-    return {ready,correct:ready&&set.size===2&&set.has('h')&&set.has('f')};
-  }
-  if(p.id==='quick:045'){
-    const set=answerState.cards||new Set();
-    const ready=set.size>0;
-    return {ready,correct:ready&&set.size===2&&set.has('K')&&set.has('7')};
-  }
-  if(p.id==='quick:046'){
-    const t=normalizeText(answerState.text);
-    const cycle=t.includes('цикл');
-    const absent=t.includes('не было')||t.includes('ни одного')||t.includes('отсутств')||t.includes('0 ');
-    const full=t.includes('полн')||t.includes('рабоч');
-    return {ready:t.length>=5,correct:t.length>=5&&cycle&&absent&&full};
-  }
-  if(p.id==='quick:047'){
-    const t=normalizeText(answerState.text);
-    const ready=t.length>=4;
-    const unfolded=t.includes('развернут')||t.includes('разложен')||t.includes('раскрыт')||t.includes('расправлен')||t.includes('не был сложен')||t.includes('не сложен');
-    return {ready,correct:ready&&unfolded};
-  }
-  if(p.id==='quick:048'){
-    const n=Number(answerState.number),ready=String(answerState.number).trim()!=='';
-    return {ready,correct:ready&&n===1};
-  }
-  if(p.id==='quick:049'){
-    const vals=['A','B','C','D'].map(k=>Number(answerState.counts?.[k]));
-    const ready=vals.every(Number.isInteger)&&vals.every(n=>n>0);
-    const distinct=new Set(vals).size===4;
-    return {ready,correct:ready&&distinct};
-  }
-  return {ready:false,correct:false};
+  return validateAnswer(p.id,answerState);
 }
 function renderFallbackOptions(p){
   $('#choiceList').innerHTML=p.choices.map((c,i)=>`<button class="logic-choice" data-choice="${i}" type="button"><strong>${'ABCD'[i]}.</strong> ${esc(c)}</button>`).join('');
