@@ -1,0 +1,34 @@
+name: Validate Q38-Q49 puzzle staging
+
+on:
+  push:
+    branches: [staging/puzzles-q38-q49]
+    paths:
+      - 'admin/puzzles-q38-q49-preview/**'
+      - 'assets/puzzles-q38-q49-preview*'
+      - 'tests/puzzles-q38-q49-preview.test.mjs'
+      - '.github/workflows/puzzles-q38-q49-staging.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate puzzle batch and preview
+        run: |
+          set -euo pipefail
+          node --check assets/puzzles-q38-q49-preview.mjs
+          node --check assets/puzzles-q38-q49-preview-data.mjs
+          node tests/puzzles-q38-q49-preview.test.mjs
+          grep -q 'noindex,nofollow' admin/puzzles-q38-q49-preview/index.html
+          if grep -RniE 't\.me|telegram' admin/puzzles-q38-q49-preview assets/puzzles-q38-q49-preview*; then
+            echo "Telegram link/content forbidden in puzzle staging preview"
+            exit 1
+          fi
