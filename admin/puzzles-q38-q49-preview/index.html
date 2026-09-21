@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://mysterylogic.com/assets/logic-audience.css?v=3026adc03868">
   <link rel="stylesheet" href="https://mysterylogic.com/assets/logic-sitewide.css?v=3026adc03868">
   <link rel="stylesheet" href="https://mysterylogic.com/assets/premium-surface-v2.css?v=3026adc03868">
-  <link rel="stylesheet" href="../../assets/puzzles-q38-q49-preview.css?v=20260921d">
+  <link rel="stylesheet" href="../../assets/puzzles-q38-q49-preview.css?v=20260921e">
 </head>
 <body class="logic-page logic-premium-hub">
   <header class="logic-header logic-wrap">
@@ -89,16 +89,33 @@
         </article>
 
         <aside class="logic-answer-panel">
-          <h2>Ваша версия</h2>
-          <div id="choiceList" class="logic-choice-list"></div>
+          <div class="mlq-answer-head">
+            <div>
+              <p class="logic-kicker">Ответ без угадывания</p>
+              <h2>Ваша версия</h2>
+            </div>
+            <span id="answerModeBadge" class="mlq-mode-badge">самостоятельно</span>
+          </div>
+
+          <div id="answerWidget" class="mlq-answer-widget"></div>
+
           <div class="logic-quick-actions">
-            <button id="checkBtn" class="logic-btn logic-btn-primary" type="button">Проверить</button>
-            <button id="hintBtn" class="logic-btn logic-btn-ghost" type="button">Подсказка</button>
+            <button id="checkBtn" class="logic-btn logic-btn-primary" type="button">Проверить ответ</button>
+
+            <button id="hintBtn" class="logic-btn logic-btn-ghost" type="button">💡 Подсказка</button>
             <div id="hintBox" class="logic-inline-reveal" hidden><h3>Подсказка</h3><p id="hintText"></p></div>
-            <button id="solutionBtn" class="logic-btn logic-btn-ghost" type="button">Показать разбор</button>
+
+            <button id="showOptionsBtn" class="logic-btn logic-btn-ghost" type="button">Показать варианты</button>
+            <div id="optionsBox" class="mlq-options-box" hidden>
+              <p>Это упрощает задачу. Такое решение будет отмечено как «с вариантами».</p>
+              <div id="choiceList" class="logic-choice-list"></div>
+            </div>
+
+            <button id="solutionBtn" class="logic-btn logic-btn-ghost" type="button">Показать решение</button>
             <div id="solutionBox" class="logic-inline-reveal" hidden><h3>Разбор</h3><p id="solutionText"></p></div>
           </div>
-          <p id="feedback" class="logic-quick-feedback">Выберите вариант. Правильный ответ заранее не показывается.</p>
+
+          <p id="feedback" class="logic-quick-feedback">Сначала сформулируйте или соберите собственный ответ.</p>
         </aside>
       </div>
 
@@ -119,6 +136,6 @@
     </nav>
   </footer>
 
-  <script type="module" src="../../assets/puzzles-q38-q49-preview.mjs?v=20260921d"></script>
+  <script type="module" src="../../assets/puzzles-q38-q49-preview.mjs?v=20260921e"></script>
 </body>
 </html>
