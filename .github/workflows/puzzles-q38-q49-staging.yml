@@ -6,6 +6,7 @@ on:
     paths:
       - 'admin/puzzles-q38-q49-preview/**'
       - 'assets/puzzles-q38-q49-preview*'
+      - 'assets/puzzles-q38-q49-answer-model.mjs'
       - 'tests/puzzles-q38-q49-preview.test.mjs'
       - '.github/workflows/puzzles-q38-q49-staging.yml'
   workflow_dispatch:
@@ -26,6 +27,7 @@ jobs:
           set -euo pipefail
           node --check assets/puzzles-q38-q49-preview.mjs
           node --check assets/puzzles-q38-q49-preview-data.mjs
+          node --check assets/puzzles-q38-q49-answer-model.mjs
           node tests/puzzles-q38-q49-preview.test.mjs
           grep -q 'noindex,nofollow' admin/puzzles-q38-q49-preview/index.html
           if grep -RniE 't\.me|telegram' admin/puzzles-q38-q49-preview assets/puzzles-q38-q49-preview*; then
