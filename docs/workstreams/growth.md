@@ -161,3 +161,51 @@ Do not return to a strategy of publishing more standalone puzzles/cases in Teleg
 ## Next step
 
 Complete Week 1 observation, resolve the AI-session measurement discrepancy, identify the strongest verified bottleneck, and design Experiment GROWTH-001.
+
+
+## Day 1 finding — 2026-09-21
+
+### Verified
+
+Production analytics currently records checkout-stage events but does NOT record the intermediate commercial-intent events needed to diagnose the funnel.
+
+Observed event family:
+- checkout_open
+- checkout_start
+- checkout_request
+- checkout_created
+- checkout_success
+
+Not found in production event history and not found in current GitHub code search:
+- premium_offer_impression
+- premium_case_open
+- demo_start
+- key_evidence_found
+- paywall_impression
+- buy_click
+
+### Consequence
+
+Current data cannot distinguish among:
+1. Premium offer is rarely shown.
+2. Premium offer is shown but users do not click.
+3. Users have not yet received enough gameplay value before the offer.
+4. Tracking is incomplete.
+
+Therefore no product/price/checkout conclusion is justified yet.
+
+### Priority decision
+
+The first Growth 2.0 intervention should be a measurement patch, not a marketing/content experiment.
+
+Candidate measurement chain:
+
+`premium_offer_impression -> buy_click -> checkout_open -> checkout_start -> checkout_success`
+
+For premium demo flows also add:
+
+`demo_start -> meaningful_value_reached -> paywall_impression`
+
+Exact event semantics must be defined before implementation so the same event is not emitted from incompatible contexts.
+
+Status: PROPOSED, requires explicit approval before analytics/code changes.
