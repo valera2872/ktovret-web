@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`14d61007a95f8f599e6e65e60587ea23b8792007`
+`77e4731421cf6190f75e5994fae51b0769ce6327`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -122,3 +122,43 @@ NOT touched:
 3. If accepted: convert Q38–Q49 into editorial source objects/batch.
 4. Decide which new puzzles enter /golovolomki-onlayn/ featured quick-start.
 5. Only after approval: prepare production patch from exact LIVE baseline.
+
+
+## Self-answer mechanics — 2026-09-21
+Owner identified a core UX problem: visible A/B/C/D answers let users solve by option elimination instead of reasoning.
+
+Decision:
+- default flow is now self-answer first
+- hint is optional and changes result mode to `hint`
+- answer choices are hidden behind explicit `Показать варианты`
+- opening the solution changes result mode to `solution`
+- successful results persist locally as `clean / hint / options / solution`
+
+Per-puzzle answer interaction:
+- Q38: build final card from direction + dot corner + stroke count
+- Q39: free-form conclusion
+- Q40: choose final grid cell + facing direction
+- Q41: numeric input
+- Q42: free-form evidential conclusion
+- Q43: construct route by clicking rooms
+- Q44: toggle the lines that remain
+- Q45: directly select cards K/M/4/7 to turn over
+- Q46: free-form negative-evidence conclusion
+- Q47: free-form causal reconstruction
+- Q48: numeric input
+- Q49: enter counts for boxes A/B/C/D; any four distinct positive integers are accepted because they uniquely encode box + sign of deviation
+
+Staging QA:
+- branch validation run 35654196096 — SUCCESS
+- combined deploy commit: 6ad446c946766c51be07651741a83be0d0e16d09
+- combined deploy run 35654239709 — SUCCESS
+- deployed artifact digest: sha256:dc8e14c12207f45e69669f9536f1c8c57ea222ad74b221606bb69f26d151f5a2
+- public URL unchanged: https://valera2872.github.io/ktovret-web/admin/puzzles-q38-q49-preview/
+
+QA limitation:
+- exact artifact structure and JS syntax validated locally
+- automated Chromium screenshot remains unavailable in the current container due headless/DBus hang
+- public GitHub Pages URL could not be fetched from the tool environment due network restrictions
+- owner browser review is still required for final visual acceptance
+
+Production remains untouched.
