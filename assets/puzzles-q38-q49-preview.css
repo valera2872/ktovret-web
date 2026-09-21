@@ -29,7 +29,7 @@
 .mlq-card-top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#9cafc0;font-size:12px}
 .mlq-card-number{color:#e7d4a2;font-weight:850;letter-spacing:.04em}
 .mlq-card-title{margin:13px 0 8px;font-family:Georgia,'Times New Roman',serif;color:#f7f2e7;font-size:28px;line-height:1.04;letter-spacing:-.02em}
-.mlq-card-copy{margin:0;color:#b4c2cf;font-size:14px;line-height:1.52}
+.mlq-card-copy{margin:0;color:#b4c2cf;font-size:14px;line-height:1.56;white-space:normal}
 .mlq-card-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
 .mlq-tag{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;border:1px solid rgba(162,189,215,.19);font-size:11px;font-weight:750}
 .mlq-tag.skill{color:#b7c8dc;background:rgba(85,131,179,.13)}
@@ -37,7 +37,7 @@
 .mlq-tag.medium{color:#f0d797;background:rgba(213,177,101,.12)}
 .mlq-tag.hard{color:#efb0ae;background:rgba(185,76,72,.12)}
 .mlq-tag.very-hard{color:#e1a7e8;background:rgba(155,79,169,.14)}
-.mlq-card-action{margin-top:auto;padding-top:17px;color:#e4c57d;font-weight:850;font-size:14px}
+.mlq-card-action{appearance:none;display:inline-flex;align-self:flex-start;margin-top:auto;padding:17px 0 0;border:0;background:none;color:#e4c57d;font:inherit;font-weight:850;font-size:14px;cursor:pointer;text-align:left}.mlq-card-action:hover{text-decoration:underline;text-underline-offset:3px}
 .mlq-showcase-card.is-solved .mlq-card-action:before{content:'✓ ';color:#87d2aa}
 
 .mlq-crumb-button{appearance:none;border:0;padding:0;background:none;color:#a9b9c8;font:inherit;cursor:pointer}
