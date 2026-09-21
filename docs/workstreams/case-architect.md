@@ -131,3 +131,77 @@ Do not record culprit/solution/private evidence in public GitHub.
 ## Current next step
 
 Run CASE-ARCH-001 portfolio inventory and gap analysis before generating the next Premium case.
+
+
+## CASE-ARCH-001 — portfolio inventory (2026-09-21)
+
+LIVE audit, spoiler-free.
+
+### Currently monetized
+
+1. Volume I / "Кто врёт?"
+- 85 additional short cases;
+- 199 RUB one-time;
+- 5–10 minute class;
+- paid archive / volume product;
+- NOT a substitute for flagship Premium investigations.
+
+2. "Последняя ария"
+- Partner;
+- 2 players / asymmetric roles;
+- 55–75 minutes;
+- 18 materials;
+- 299 RUB;
+- current paid flagship investigation.
+
+### Current large/free product labs
+
+- "Номер 407": Solo + Partner, 50–70 min, 18 materials, currently free.
+- "Последний звонок в 23:17": Partner, 45–60 min, currently free.
+- AI investigation "Восемь минут без камеры": AI/free showcase.
+- Real Case line: currently free first case / product lab.
+
+### Portfolio diagnosis
+
+The major gap is not quantity of short cases.
+
+The major gap is a small sellable catalogue of differentiated full Premium investigations.
+
+Current paid flagship mix is too narrow to create meaningful choice.
+
+### Recommended first-wave target
+
+Before aggressive Club/conversion work, build toward a sellable flagship shelf such as:
+
+- 2 strong Premium Solo investigations;
+- 2 strong Premium Partner investigations total (including Last Aria);
+- 1 Premium AI Text investigation;
+- 1 additional differentiated format (Party or Signature depending technical readiness).
+
+Volume I remains a separate low-price archive product.
+
+This creates 5–6 flagship Premium experiences before adding more formats.
+
+### Highest-value immediate gap
+
+Premium Solo.
+
+Reason:
+- Mystery Logic already has a proven large Solo interaction model in 407;
+- there is currently no equivalent paid flagship Solo choice in the visible LIVE catalogue;
+- Solo has lower coordination friction than Partner;
+- a strong paid Solo case adds assortment without requiring a second participant;
+- Case Architect can reuse platform learnings without cloning 407's plot/mechanic.
+
+### Next private step
+
+Generate 3–4 Premium Solo concept seeds privately.
+
+Before user selection, each seed must pass:
+- competitor similarity check;
+- Mystery Logic internal similarity check;
+- product differentiation test;
+- technical feasibility test;
+- Premium experience test.
+
+Do not publish future concepts/spoilers to public GitHub.
