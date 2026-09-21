@@ -502,3 +502,29 @@ Exact next step:
 run one real two-person blind test using ONLY the v2 packets; capture literal observations/timing; repair before Content Freeze.
 
 No LIVE/code/schema/payment changes.
+
+
+## CASE-ARCH-001 review demo — 2026-09-21
+
+A self-contained review-only HTML demo was generated for the user to play as Player A with a scripted virtual Player B.
+
+Demo characteristics:
+- based on active CANON v2 / Crossed Loads;
+- user receives only Player A evidence;
+- virtual partner B is stage-bounded and exposes only current B-role information;
+- no Supabase, payment, entitlement, analytics or LIVE writes;
+- localStorage-only progress;
+- includes staged evidence, virtual-partner chat, shared notes, dual-chain mechanic and final reconstruction form;
+- working review title: «Контейнер 508»; not a frozen product title.
+
+Artifact filename:
+`CASE-ARCH-001-demo-virtual-partner.html`
+
+SHA-256:
+`6fa9d48e655d40dbc98f70b3655162b00cb253f3086520df8c44b71faaaf4d71`
+
+Important:
+this is a local review artifact, not deployed to mysterylogic.com and not a release candidate.
+
+Exact next step:
+user plays the demo and reports where the case is boring, confusing, obvious, unfair or memorable; Case Architect then updates CANON/content before human two-person blind test / Content Freeze.
