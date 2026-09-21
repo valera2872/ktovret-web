@@ -23,7 +23,7 @@ jobs:
       - name: Checkout reviewed Cognitive staging snapshot
         uses: actions/checkout@v4
         with:
-          ref: f92a42a6e474f3fe4eb3bf351f8ae48f430786ea
+          ref: 285d1b60422fd41c0c65c269df9f18a4a8a32fbe
 
       - uses: actions/setup-node@v4
         with:
@@ -49,6 +49,8 @@ jobs:
           cp assets/cognitive-profile-preview.css staging/assets/
           cp assets/cognitive-profile-preview.mjs staging/assets/
           cp assets/cognitive-profile-preview-data.mjs staging/assets/
+          cp assets/reference-archive-hero.svg staging/assets/
+          cp assets/real-investigations-hero.svg staging/assets/
           printf '%s\n' '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta http-equiv="refresh" content="0;url=./admin/cognitive-profile-preview/"><title>Mystery Logic Cognitive staging</title><a href="./admin/cognitive-profile-preview/">Open Cognitive Profile preview</a>' > staging/index.html
           printf '%s\n' 'User-agent: *' 'Disallow: /' > staging/robots.txt
           touch staging/.nojekyll
