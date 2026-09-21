@@ -1,4 +1,4 @@
-name: Deploy Cognitive Profile staging to GitHub Pages
+name: Validate Cognitive Profile staging
 
 on:
   push:
@@ -12,11 +12,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: cognitive-profile-staging-pages
+  group: cognitive-profile-staging-validation
   cancel-in-progress: true
 
 jobs:
@@ -57,20 +55,3 @@ jobs:
           name: cognitive-profile-staging
           path: staging
           retention-days: 7
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: staging
-
-  deploy:
-    needs: validate
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy isolated Cognitive staging artifact
-        id: deployment
-        uses: actions/deploy-pages@v4
