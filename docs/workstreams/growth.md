@@ -324,3 +324,21 @@ It tests the strategic transition:
 ACQUISITION (short free case) -> FIRST VALUE -> CORE PRODUCT (large investigation)
 before trying to optimize checkout.
 
+
+
+## Decision — 2026-09-21: defer GROWTH-001 until Premium assortment is stronger
+
+User decision: do not launch the post-case bridge experiment yet.
+
+Reason:
+- current paid assortment is still too small;
+- optimizing post-case conversion before the player has meaningful choice risks measuring catalogue scarcity rather than offer quality;
+- first accumulate several additional strong Premium investigations.
+
+Implication:
+- GROWTH-001 remains drafted, NOT LAUNCHED;
+- no LIVE patch for the post-case bridge yet;
+- near-term product priority shifts to Premium library depth and quality;
+- when the assortment is stronger, return to GROWTH-001 with a better commercial destination and cleaner choice architecture.
+
+Working internal target remains approximately 6–8 strong Premium investigations before aggressive Premium/Club promotion, consistent with the existing monetization strategy.
