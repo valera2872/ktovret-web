@@ -75,7 +75,16 @@ assert.deepEqual([...visualIds],['quick:038','quick:040','quick:043','quick:044'
 const html=readFileSync(new URL('../admin/puzzles-q38-q49-preview/index.html',import.meta.url),'utf8');
 const runtime=readFileSync(new URL('../assets/puzzles-q38-q49-preview.mjs',import.meta.url),'utf8');
 assert.match(html,/noindex,nofollow,noarchive/);
-assert.match(html,/Головоломки Q38–Q49/);
+assert.match(html,/Логические игры<br>и головоломки онлайн/);
+assert.match(html,/logic-hub\.css\?v=3026adc03868/);
+assert.match(html,/logic-expert-seo\.css\?v=3026adc03868/);
+assert.match(html,/logic-audience\.css\?v=3026adc03868/);
+assert.match(html,/class="logic-header logic-wrap"/);
+assert.match(html,/class="logic-seo-hero mlp-puzzle-hero"/);
+assert.match(html,/id="puzzleGrid" class="logic-quick-grid"/);
+assert.match(html,/class="logic-quick-layout"/);
+assert.match(runtime,/logic-quick-card/);
+assert.match(runtime,/logic-choice/);
 assert.match(runtime,/visualRhythms/);
 assert.match(runtime,/visualRobot/);
 assert.match(runtime,/visualRooms/);
