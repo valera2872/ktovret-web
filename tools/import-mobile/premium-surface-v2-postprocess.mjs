@@ -86,10 +86,6 @@ function patchPuzzleHub(root){
   html=html.replace('<section class="logic-hub-audience-strip"','<section class="logic-hub-audience-strip mlp-route-section"');
   html=html.replace('<h2>Выберите подборку</h2>','<h2>Выберите подборку</h2><p class="mlp-route-lead">После быстрого старта можно перейти в тематическую коллекцию: для детей, для взрослых, детективную, математическую или со спичками.</p>');
   html=html.replace('<section class="logic-section" id="puzzles">','<section class="logic-section mlp-expert-section" id="puzzles">');
-  // The floating AI investigation promo competes with the primary puzzle CTA on this hub.
-  // Remove only this page's promo assets; every other public page keeps the sitewide promo.
-  html=html.replace(/<link[^>]+data-ai01-launch-promo-style[^>]*>\s*/i,'');
-  html=html.replace(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>\s*/i,'');
   html=html.replace('<h2>4 задачи для знакомства с Expert</h2>','<h2>Expert: следующий уровень</h2><p class="mlp-expert-lead">Четыре примера из отдельного каталога сложных задач с единственным проверяемым решением. Все 20 Expert-головоломок доступны в полном каталоге.</p>');
   fs.writeFileSync(file,html);
   return 1;
@@ -106,6 +102,5 @@ export function applyPremiumSurfaceV2(siteRoot){
   if(!homeHtml.includes('data-premium-cases-v2')||!homeHtml.includes('Номер 407')||!homeHtml.includes('Последняя ария')) throw new Error('premium surface v2: premium cases not rendered');
   for(const route of ['golovolomki-dlya-detei/','igry-dlya-mozga/','detektivnye-golovolomki/','matematicheskie-golovolomki/']) if(!homeHtml.includes(route)) throw new Error(`premium surface v2: home puzzle route missing: ${route}`);
   if(!hubHtml.includes('logic-premium-hub')||!hubHtml.includes(`${quick.length} быстрых`)||!hubHtml.includes('data-logic-quick-start')||!hubHtml.includes('Expert: следующий уровень')) throw new Error('premium surface v2: puzzle hub upgrade missing');
-  if(hubHtml.includes('data-ai01-launch-promo-style')||hubHtml.includes('data-ai01-launch-promo-script')) throw new Error('premium surface v2: puzzle hub AI promo must stay disabled');
   return {version:VERSION,home,puzzleHub:hub,premiumCases:2,puzzleEntrances:4};
 }
