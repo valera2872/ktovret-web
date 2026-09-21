@@ -3,7 +3,7 @@
 Updated: 2026-09-21
 Status: ACTIVE
 Priority: #1 CONTENT / PREMIUM LIBRARY
-Agent spec: docs/agents/case-architect-v0.md
+Agent spec: docs/agents/case-architect-v1-wow.md
 Autonomy: L1 PROPOSE
 Production changes: NONE
 
@@ -27,7 +27,7 @@ On 2026-09-21 the user set Case Architect as the current priority.
 
 Growth work continues in observation mode, but GROWTH-001 remains deferred while the Premium catalogue is still small.
 
-## v0 deliverables
+## v1 deliverables
 
 1. Persistent Case Architect specification.
 2. Public process and gate definitions.
@@ -222,3 +222,35 @@ Private output:
 
 Exact next step:
 user selects/accepts a concept direction, then Case Architect creates PRIVATE CANON and runs character/evidence/contradiction architecture before any implementation.
+
+
+## Case Architect v1 upgrade — 2026-09-21
+
+The user requested maximum quality with a "wow" target.
+
+v1 adds:
+- live competitor refresh for every major Premium case;
+- 10–12 seed concept tournament instead of first-good-idea bias;
+- Signature Promise / Retell Hook before CANON;
+- hypothesis-dynamics tracking across stages;
+- minimum sufficient proof set;
+- counterfactual stress tests;
+- social/technical reality cells;
+- artifact authenticity direction;
+- emotional and pacing architecture;
+- multiple earned aha moments;
+- player-agency gate;
+- no-AI-smell editorial pass;
+- solution-agnostic jury;
+- expanded multi-persona playtest;
+- human blind-test escalation for flagship releases;
+- WOW Gate W1–W10;
+- anti-mediocrity vetoes;
+- portfolio diversity matrix;
+- post-release analytics feedback loop;
+- pattern/failure memory.
+
+Quality states are now:
+VALID -> PREMIUM -> SIGNATURE.
+
+Flagship Premium candidates must target SIGNATURE.
