@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {puzzleBatch,visualIds} from '../assets/puzzles-q38-q49-preview-data.mjs';
+import {validateAnswer,weighingDeviations} from '../assets/puzzles-q38-q49-answer-model.mjs';
 
 assert.equal(puzzleBatch.length,12);
 assert.deepEqual(puzzleBatch.map(p=>p.id),Array.from({length:12},(_,i)=>`quick:${String(38+i).padStart(3,'0')}`));
@@ -147,8 +148,48 @@ assert.match(runtime,/\$\$\('\[data-line\]'/);
 assert.match(runtime,/\$\$\('\[data-test-card\]'/);
 assert.match(runtime,/\$\$\('\[data-box-count\]'/);
 assert.match(runtime,/\$\$\('\.logic-choice'/);
-assert.match(runtime,/раскрыт/);
-assert.match(runtime,/чист/);
 
-assert.match(runtime,/лист б/);
-assert.match(runtime,/лист а/);
+
+const correctStates={
+  'quick:038':{dir:'right',dot:'tr',strokes:3},
+  'quick:039':{excluded:'латунный'},
+  'quick:040':{cell:'D3',dir:'S'},
+  'quick:041':{number:'92'},
+  'quick:042':{stack:['A','B']},
+  'quick:043':{route:['A','C','B','D','E']},
+  'quick:044':{lines:['h','f']},
+  'quick:045':{cards:['K','7']},
+  'quick:046':{cycles:'0'},
+  'quick:047':{sheetState:'unfolded'},
+  'quick:048':{number:'1'},
+  'quick:049':{counts:{A:1,B:3,C:5,D:8}}
+};
+const wrongStates={
+  'quick:038':{dir:'left',dot:'tr',strokes:3},
+  'quick:039':{excluded:'пластиковый'},
+  'quick:040':{cell:'D4',dir:'S'},
+  'quick:041':{number:'91'},
+  'quick:042':{stack:['B','A']},
+  'quick:043':{route:['A','B','C','D','E']},
+  'quick:044':{lines:['v','f']},
+  'quick:045':{cards:['K','4']},
+  'quick:046':{cycles:'1'},
+  'quick:047':{sheetState:'folded'},
+  'quick:048':{number:'6'},
+  'quick:049':{counts:{A:1,B:1,C:3,D:4}}
+};
+for(const p of puzzleBatch){
+  const ok=validateAnswer(p.id,correctStates[p.id]);
+  assert.equal(ok.ready,true,`${p.id} correct state should be ready`);
+  assert.equal(ok.correct,true,`${p.id} correct state rejected`);
+  const bad=validateAnswer(p.id,wrongStates[p.id]);
+  assert.equal(bad.ready,true,`${p.id} wrong state should still be checkable`);
+  assert.equal(bad.correct,false,`${p.id} wrong state accepted`);
+}
+assert.deepEqual(weighingDeviations({A:1,B:3,C:5,D:8}).sort((a,b)=>a-b),[-8,-5,-3,-1,1,3,5,8]);
+
+assert.match(runtime,/data-sheet=/);
+assert.match(runtime,/data-sheet-state=/);
+assert.match(runtime,/id="cycleAnswer"/);
+assert.match(runtime,/id="excludedProperty"/);
+assert.match(runtime,/validateAnswer\(p\.id,answerState\)/);
