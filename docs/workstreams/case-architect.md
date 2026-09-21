@@ -303,3 +303,48 @@ draft full player-visible evidence/artifact content and role-specific interactio
 
 No LIVE/code/schema/payment changes.
 Private canon remains outside public GitHub.
+
+
+## Portfolio correction — adjacent active game workstreams discovered
+
+The earlier portfolio inventory was incomplete because three active games were being developed in neighboring project chats/branches.
+
+Current active development lines found in GitHub history:
+
+1. «Не публиковать»
+- Premium Partner / 2 players;
+- 35 asymmetric evidence items;
+- shared board;
+- five shared AI characters;
+- rescue/location logic;
+- staged confrontations;
+- final reconstruction;
+- paid/entitlement infrastructure and private Review Mode already exist;
+- pre-release / review work remains relevant.
+
+2. «Пассажир №17»
+- Partner / 2 players;
+- Investigation Sandbox vertical;
+- free-form analytical actions;
+- private evidence transfer;
+- canon-bounded AI interrogation;
+- physical reconstruction;
+- lies not equal guilt;
+- six-part final reconstruction and synchronized debrief.
+
+3. «Тринадцатая минута»
+- Solo investigation / AI prototype;
+- player-led investigation hub rather than evidence conveyor;
+- free-form bounded AI interrogations;
+- explicit evidence confrontation;
+- hypothesis checking and final reconstruction;
+- public prototype/preview infrastructure exists.
+
+Portfolio implication:
+- CASE-ARCH-001 «Пломба цела» is NOT the first advanced Partner architecture in the wider project.
+- It must earn its place through a distinct Partner mechanic and experience.
+- Distinctive direction for «Пломба цела»: dual chain-of-custody reconstruction ("physical container" vs "cargo identity"), logistics/insurance world, non-murder incident, evidentiary crossover between roles rather than shared AI-character focus.
+- Avoid reproducing «Не публиковать»'s shared-character/rescue structure or «Пассажир №17»'s free-form sandbox pattern as the primary differentiator.
+- Final Portfolio/Originality Gate must include all three active development cases, not only LIVE catalogue.
+
+CASE-ARCH-001 remains active, but originality is now evaluated against LIVE + these active workstreams.
