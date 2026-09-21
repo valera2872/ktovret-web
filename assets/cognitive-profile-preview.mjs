@@ -70,6 +70,7 @@ function render(){
   $('#questionCard').querySelectorAll('[data-answer]').forEach(btn=>btn.addEventListener('click',()=>{state.answers[state.index]=Number(btn.dataset.answer);render();}));
   $('#prevBtn').disabled=state.index===0;
   $('#nextBtn').textContent=state.index===items.length-1?'Завершить тест':'Далее →';
+  $('#nextBtn').disabled=state.answers[state.index]===null;
 }
 
 function showTest(){
@@ -92,5 +93,14 @@ function finish(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function restart(){state.index=0;state.answers.fill(null);state.answerTimes.fill(null);state.visits.fill(0);$('#resultView').hidden=true;$('#startView').hidden=false;$('#elapsed').textContent='00:00';window.scrollTo({top:0,behavior:'smooth'});}
+
+const qaParams=new URLSearchParams(location.search);
+const qaItem=qaParams.get('item');
+if(qaParams.get('qa')==='1'&&qaItem){
+  const qaIndex=items.findIndex(x=>x.id===qaItem);
+  if(qaIndex>=0){state.index=qaIndex;showTest();}
+}else if(qaParams.get('qa')==='1'&&qaParams.get('start')==='1'){
+  showTest();
+}
 
 $('#startBtn').addEventListener('click',showTest);$('#nextBtn').addEventListener('click',next);$('#prevBtn').addEventListener('click',prev);$('#skipBtn').addEventListener('click',skip);$('#restartBtn').addEventListener('click',restart);
