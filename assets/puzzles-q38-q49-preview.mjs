@@ -324,9 +324,11 @@ function validateCustomAnswer(p){
   }
   if(p.id==='quick:042'){
     const t=normalizeText(answerState.text);
-    const namesBoth=((/(^| )b( |$)/.test(t)||t.includes('лист b'))&&(/(^| )a( |$)/.test(t)||t.includes('лист a')));
-    const identifiesLower=t.includes('чист')||t.includes('лист b')||/(^| )b( |$)/.test(t)||t.includes('нижн');
-    const identifiesUpper=t.includes('записк')||t.includes('лист a')||/(^| )a( |$)/.test(t)||t.includes('верхн');
+    const hasB=/(^| )[bб]( |$)/.test(t)||t.includes('лист b')||t.includes('лист б');
+    const hasA=/(^| )[aа]( |$)/.test(t)||t.includes('лист a')||t.includes('лист а');
+    const namesBoth=hasB&&hasA;
+    const identifiesLower=t.includes('чист')||hasB||t.includes('нижн');
+    const identifiesUpper=t.includes('записк')||hasA||t.includes('верхн');
     const relation=t.includes('под')||t.includes('снизу')||t.includes('нижн');
     return {ready:t.length>=5,correct:t.length>=5&&relation&&(namesBoth||(identifiesLower&&identifiesUpper))};
   }
