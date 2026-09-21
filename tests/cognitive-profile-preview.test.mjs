@@ -35,3 +35,6 @@ assert.match(previewHtml,/https:\/\/mysterylogic\.com\/detektivnye-igry-dlya-odn
 assert.match(previewHtml,/Выбрать бесплатное расследование/);
 assert.match(runtime,/scaleNotes=/);
 assert.match(runtime,/resultAnswered/);
+
+assert.match(previewHtml,/reference-archive-hero\.svg/);
+assert.match(previewHtml,/real-investigations-hero\.svg/);
