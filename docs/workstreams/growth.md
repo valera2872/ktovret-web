@@ -342,3 +342,12 @@ Implication:
 - when the assortment is stronger, return to GROWTH-001 with a better commercial destination and cleaner choice architecture.
 
 Working internal target remains approximately 6–8 strong Premium investigations before aggressive Premium/Club promotion, consistent with the existing monetization strategy.
+
+
+## Priority update — 2026-09-21
+
+Case Architect / Premium Library is now the user's #1 product priority.
+
+Growth Agent remains active in L0 OBSERVE mode.
+GROWTH-001 remains deferred.
+Growth should continue collecting evidence without driving LIVE experiments until Premium assortment is stronger or the user changes priority.
