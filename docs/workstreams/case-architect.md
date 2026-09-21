@@ -410,3 +410,40 @@ Exact next step:
 run one real two-person blind test using the prepared role packets, record literal observations, repair the case if necessary, then decide Content Freeze.
 
 No LIVE/code/schema/payment changes.
+
+
+## CASE-ARCH-001 destructive expert audit — HOLD before Content Freeze
+
+A new destructive expert pass was run after blind-test preparation.
+
+Decision:
+DO NOT Content Freeze yet.
+
+Spoiler-free blocker classes found:
+- physical mechanism still has an incomplete downstream custody/disposition step;
+- culprit's current digital trace is too directly self-incriminating for a competent repeated fraud;
+- one operational measurement clue needs a stronger in-world reason for why it was not caught live;
+- replacement-material/case/label causality needs full physical provenance;
+- crime timing/motive needs a clearer multi-day strategic payoff;
+- downstream alternative must be constrained with more positive evidence;
+- current blind-test wording leads players toward the core epistemic distinction;
+- staged interviews currently reference one later artifact before players discover it;
+- human/psychological layer is weaker than the physical/logical layer;
+- Player A needs a stronger late positive culprit-trace action;
+- advertised duration remains UNKNOWN until human test.
+
+Strengths preserved:
+- core premise;
+- true Partner asymmetry;
+- lie != guilt;
+- dual-chain signature mechanic;
+- reconstruction finale;
+- non-murder portfolio differentiation.
+
+Private audit:
+PRIVATE — CASE-ARCH-001 — Destructive Expert Audit v2
+
+Exact next step:
+repair the critical causal and test-validity blockers first, then regenerate the blind-test packets. Do not run the current blind test unchanged.
+
+No LIVE/code/schema/payment changes.
