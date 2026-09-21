@@ -99,13 +99,28 @@ function showTest(){
 function next(){if(state.index===items.length-1){finish();return}state.index++;render();window.scrollTo({top:0,behavior:'smooth'});}
 function prev(){if(state.index>0){state.index--;render();window.scrollTo({top:0,behavior:'smooth'});}}
 function skip(){state.answers[state.index]=null;next();}
+const scaleNotes={
+  pattern:'Распознавание правил и изменений сразу по нескольким признакам.',
+  deduction:'Необходимые выводы из ограничений без догадок и лишних допущений.',
+  numeric:'Числовые отношения, последовательности и скрытые операции.',
+  spatial:'Мысленное вращение, отражение, складывание и ориентация в пространстве.',
+  abstract:'Перенос общего отношения между фигурами и свойствами.',
+  investigative:'Граница между фактом, совместимой версией и доказанным выводом.'
+};
 function descriptor(n){return n===4?'4 из 4 · очень сильное выполнение':n===3?'3 из 4 · сильное выполнение':n===2?'2 из 4 · смешанный результат':n===1?'1 из 4 · эта группа оказалась сложной':'0 из 4 · эта группа требует повторной проверки';}
 function finish(){
   clearInterval(timer);$('#testView').hidden=true;$('#resultView').hidden=false;
-  const correct=items.map((it,i)=>state.answers[i]===it.correct);const total=correct.filter(Boolean).length;$('#scoreRaw').textContent=`${total}/24`;
+  const correct=items.map((it,i)=>state.answers[i]===it.correct);
+  const total=correct.filter(Boolean).length;
+  const answered=state.answers.filter(v=>v!==null).length;
+  const elapsedSeconds=Math.max(0,Math.floor((Date.now()-state.startedAt)/1000));
+  const elapsedText=`${String(Math.floor(elapsedSeconds/60)).padStart(2,'0')}:${String(elapsedSeconds%60).padStart(2,'0')}`;
+  $('#scoreRaw').textContent=`${total}/24`;
+  $('#resultTime').textContent=elapsedText;
+  $('#resultAnswered').textContent=`${answered}/24`;
   $('#scoreNote').textContent=`Вы правильно решили ${total} из 24 заданий. Это сырой результат текущей версии теста, без процентилей и без попытки переводить его в IQ.`;
   const scores={};Object.keys(scales).forEach(k=>scores[k]=0);items.forEach((it,i)=>{if(correct[i])scores[it.scale]++});
-  $('#scaleResults').innerHTML=Object.entries(scales).map(([key,s])=>`<article class="ml-scale-card"><header><h3>${s.label}</h3><strong>${scores[key]}/4</strong></header><div class="ml-scale-meter"><span style="width:${scores[key]*25}%"></span></div><p>${descriptor(scores[key])}</p></article>`).join('');
+  $('#scaleResults').innerHTML=Object.entries(scales).map(([key,s])=>`<article class="ml-scale-card"><header><h3>${s.label}</h3><strong>${scores[key]}/4</strong></header><div class="ml-scale-meter"><span style="width:${scores[key]*25}%"></span></div><p>${esc(scaleNotes[key])}</p><p class="ml-scale-outcome">${descriptor(scores[key])}</p></article>`).join('');
   const ev=scores.investigative;$('#evidenceNote').textContent=ev===4?'Во всех четырёх заданиях вы выбрали вывод, который не сильнее имеющихся доказательств. В этой версии теста это максимальный результат по Evidence Discipline.':ev>=2?`В заданиях на силу доказательств вы решили ${ev} из 4. В остальных случаях выбранный вывод либо выходил за пределы данных, либо пропускал допустимый вывод.`:`В заданиях на доказательства вы решили ${ev} из 4. Здесь особенно важно отделять «совместимо с версией» от «доказывает версию» и не приписывать фактам лишнего.`;
   const entries=Object.entries(scores);const max=Math.max(...entries.map(x=>x[1])),min=Math.min(...entries.map(x=>x[1]));const strongest=entries.filter(x=>x[1]===max).map(x=>scales[x[0]].label.toLowerCase()).join(', ');const hardest=entries.filter(x=>x[1]===min).map(x=>scales[x[0]].label.toLowerCase()).join(', ');
   $('#profileNote').textContent=`Лучше всего в этом прохождении сработали: ${strongest} (${max}/4). Наиболее сложными оказались: ${hardest} (${min}/4). Это описание выполнения данного набора, а не постоянная характеристика человека.`;
