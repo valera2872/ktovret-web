@@ -447,3 +447,58 @@ Exact next step:
 repair the critical causal and test-validity blockers first, then regenerate the blind-test packets. Do not run the current blind test unchanged.
 
 No LIVE/code/schema/payment changes.
+
+
+## CASE-ARCH-001 redesign — CANON v2 / Crossed Loads
+
+The destructive expert audit rejected the v1 crime mechanism for Content Freeze.
+
+v1 defects included:
+- incomplete post-gate custody of stolen cargo;
+- culprit digital trail too self-incriminating;
+- artificial weight-matched ballast;
+- insufficiently rational timing;
+- blind-test prompts teaching the core reasoning method;
+- premature RET-4412 references;
+- weaker human/psychological layer.
+
+Active replacement:
+CANON v2 / "Crossed Loads".
+
+Core spoiler-free redesign:
+- two legitimate 12-frame flows of the same standardized transport system are deliberately crossed;
+- similar count/form factor/mass makes both outbound movements operationally plausible without magic ballast;
+- the culprit deliberately aligns export + return jobs with a pre-existing scanner-maintenance/manual-mode window;
+- the genuine cargo continues through a legitimate NordServ return depot and a documented fraudulent second pickup;
+- culprit actions are individually routine and become incriminating only after cross-source synthesis;
+- Player A and Player B each hold positive proof of different parts of the route;
+- the second major aha is the reciprocal physical crossover of the two legitimate loads, not merely "the substitution happened before sealing".
+
+Validation:
+- Destructive Expert Audit v2: v1 HOLD / redesign required.
+- Adversarial Audit v3 on CANON v2: PASS with repairs applied.
+- Player Pack v2 solution-agnostic blind jury: PASS TO HUMAN TEST.
+- human blind test: NOT RUN.
+- Content Freeze: NOT RUN.
+- G0–G9: NOT RUN.
+- final Cognitive/WOW Gate: NOT RUN.
+
+Active private artifacts:
+- PRIVATE — CASE-ARCH-001 — CANON v2 — Crossed Loads
+- PRIVATE — CASE-ARCH-001 — PLAYER PACK v2
+- PRIVATE — CASE-ARCH-001 — Adversarial Audit v3
+- PRIVATE — CASE-ARCH-001 — Player Pack v2 Blind Jury
+- BLIND TEST v2 — CASE-ARCH-001 — Игрок A
+- BLIND TEST v2 — CASE-ARCH-001 — Игрок B
+- PRIVATE — CASE-ARCH-001 — Blind Test v2 Moderator
+
+Important:
+v1 blind-test packets are obsolete and must not be used.
+
+Current editorial state:
+SIGNATURE CANDIDATE — NOT READY.
+
+Exact next step:
+run one real two-person blind test using ONLY the v2 packets; capture literal observations/timing; repair before Content Freeze.
+
+No LIVE/code/schema/payment changes.
