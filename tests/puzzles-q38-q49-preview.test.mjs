@@ -113,3 +113,26 @@ assert.match(runtime,/cardSummary\(p\)\{return p\.prompt;\}/);
 assert.match(runtime,/data-solve=/);
 assert.match(runtime,/\$\$\('\[data-solve\]'/);
 assert.doesNotMatch(runtime,/\$\('\[data-open\]'/);
+
+assert.match(html,/id="answerWidget"/);
+assert.match(html,/id="showOptionsBtn"/);
+assert.match(html,/id="optionsBox"/);
+assert.match(runtime,/renderAnswerWidget/);
+assert.match(runtime,/validateCustomAnswer/);
+assert.match(runtime,/quick:038/);
+assert.match(runtime,/answerState\.route=\['A'\]/);
+assert.match(runtime,/set\.has\('K'\).*set\.has\('7'\)/s);
+assert.match(runtime,/set\.has\('h'\).*set\.has\('f'\)/s);
+assert.match(runtime,/answerState\.cell==='D3'.*answerState\.dir==='S'/s);
+assert.match(runtime,/new Set\(vals\)\.size===4/);
+assert.match(runtime,/assistance\.options&&selectedOption!==null/);
+assert.match(runtime,/mode==='clean'.*решено самостоятельно/s);
+
+{
+  const strategy=[1,3,5,8];
+  assert.ok(strategy.every(Number.isInteger));
+  assert.ok(strategy.every(n=>n>0));
+  assert.equal(new Set(strategy).size,4);
+  const states=strategy.flatMap((n,i)=>[[-n,i],[n,i]]);
+  assert.equal(new Set(states.map(([d])=>d)).size,8);
+}
