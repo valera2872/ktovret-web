@@ -220,7 +220,7 @@ function choiceGroup(title,buttons,attr){
   return `<div class="mlq-answer-group"><span class="mlq-answer-label">${esc(title)}</span><div class="mlq-segmented">${buttons.map(([value,label])=>`<button type="button" data-${attr}="${esc(value)}">${label}</button>`).join('')}</div></div>`;
 }
 function setSelected(selector,value){
-  $(selector,$('#answerWidget')).forEach(btn=>btn.classList.toggle('is-selected',btn.dataset[Object.keys(btn.dataset)[0]]===String(value)));
+  $$(selector,$('#answerWidget')).forEach(btn=>btn.classList.toggle('is-selected',btn.dataset[Object.keys(btn.dataset)[0]]===String(value)));
 }
 function renderAnswerWidget(p){
   const box=$('#answerWidget');
@@ -233,9 +233,9 @@ function renderAnswerWidget(p){
       choiceGroup('Направление',[['up','↑'],['right','→'],['down','↓'],['left','←']],'dir')+
       choiceGroup('Положение точки',[['tl','↖'],['tr','↗'],['br','↘'],['bl','↙']],'dot')+
       choiceGroup('Штрихи',[['1','I'],['2','II'],['3','III']],'strokes');
-    $('[data-dir]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.dir;$('[data-dir]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
-    $('[data-dot]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dot=b.dataset.dot;$('[data-dot]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
-    $('[data-strokes]',box).forEach(b=>b.addEventListener('click',()=>{answerState.strokes=Number(b.dataset.strokes);$('[data-strokes]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $$('[data-dir]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.dir;$$('[data-dir]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $$('[data-dot]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dot=b.dataset.dot;$$('[data-dot]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $$('[data-strokes]',box).forEach(b=>b.addEventListener('click',()=>{answerState.strokes=Number(b.dataset.strokes);$$('[data-strokes]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
     return;
   }
 
@@ -257,8 +257,8 @@ function renderAnswerWidget(p){
     for(let row=5;row>=1;row--)for(const col of ['A','B','C','D','E'])cells.push(`${col}${row}`);
     box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Конечная клетка</span><div class="mlq-cell-grid">${cells.map(c=>`<button type="button" data-cell="${c}">${c}</button>`).join('')}</div></div>`+
       choiceGroup('Куда смотрит робот?',[['N','↑ север'],['E','→ восток'],['S','↓ юг'],['W','← запад']],'facing');
-    $('[data-cell]',box).forEach(b=>b.addEventListener('click',()=>{answerState.cell=b.dataset.cell;$('[data-cell]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
-    $('[data-facing]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.facing;$('[data-facing]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $$('[data-cell]',box).forEach(b=>b.addEventListener('click',()=>{answerState.cell=b.dataset.cell;$$('[data-cell]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $$('[data-facing]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.facing;$$('[data-facing]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
     return;
   }
 
@@ -273,8 +273,8 @@ function renderAnswerWidget(p){
   if(p.id==='quick:043'){
     answerState={route:['A']};
     box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Постройте маршрут</span><div id="routePath" class="mlq-route-path">A</div><div class="mlq-room-buttons">${['B','C','D','E'].map(r=>`<button type="button" data-room="${r}">${r}</button>`).join('')}</div><button id="routeReset" class="mlq-inline-reset" type="button">Сбросить маршрут</button></div>`;
-    const paint=()=>{$('#routePath').textContent=answerState.route.join(' → ');$('[data-room]',box).forEach(b=>b.disabled=answerState.route.includes(b.dataset.room))};
-    $('[data-room]',box).forEach(b=>b.addEventListener('click',()=>{if(answerState.route.length<5&&!answerState.route.includes(b.dataset.room)){answerState.route.push(b.dataset.room);paint()}}));
+    const paint=()=>{$('#routePath').textContent=answerState.route.join(' → ');$$('[data-room]',box).forEach(b=>b.disabled=answerState.route.includes(b.dataset.room))};
+    $$('[data-room]',box).forEach(b=>b.addEventListener('click',()=>{if(answerState.route.length<5&&!answerState.route.includes(b.dataset.room)){answerState.route.push(b.dataset.room);paint()}}));
     $('#routeReset').addEventListener('click',()=>{answerState.route=['A'];paint()});
     paint();
     return;
@@ -284,21 +284,21 @@ function renderAnswerWidget(p){
     answerState={lines:new Set()};
     const lines=[['v','│'],['h','—'],['f','╱'],['b','╲']];
     box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Какие линии останутся?</span><div class="mlq-line-builder">${lines.map(([v,l])=>`<button type="button" data-line="${v}">${l}</button>`).join('')}</div><p class="mlq-answer-help">Нажмите на все линии, которые должны присутствовать в результате.</p></div>`;
-    $('[data-line]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.line;if(answerState.lines.has(v))answerState.lines.delete(v);else answerState.lines.add(v);b.classList.toggle('is-selected',answerState.lines.has(v))}));
+    $$('[data-line]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.line;if(answerState.lines.has(v))answerState.lines.delete(v);else answerState.lines.add(v);b.classList.toggle('is-selected',answerState.lines.has(v))}));
     return;
   }
 
   if(p.id==='quick:045'){
     answerState={cards:new Set()};
     box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Какие карточки перевернуть?</span><div class="mlq-test-cards">${['K','M','4','7'].map(v=>`<button type="button" data-test-card="${v}">${v}</button>`).join('')}</div><p class="mlq-answer-help">Можно выбрать несколько карточек.</p></div>`;
-    $('[data-test-card]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.testCard;if(answerState.cards.has(v))answerState.cards.delete(v);else answerState.cards.add(v);b.classList.toggle('is-selected',answerState.cards.has(v))}));
+    $$('[data-test-card]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.testCard;if(answerState.cards.has(v))answerState.cards.delete(v);else answerState.cards.add(v);b.classList.toggle('is-selected',answerState.cards.has(v))}));
     return;
   }
 
   if(p.id==='quick:049'){
     answerState={counts:{A:'',B:'',C:'',D:''}};
     box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Сколько жетонов взять из каждой коробки?</span><div class="mlq-weigh-inputs">${['A','B','C','D'].map(k=>`<label><span>${k}</span><input data-box-count="${k}" type="number" min="0" step="1" inputmode="numeric" autocomplete="off"></label>`).join('')}</div><p class="mlq-answer-help">Допускается любая стратегия, которая гарантированно различает все 8 случаев.</p></div>`;
-    $('[data-box-count]',box).forEach(inp=>inp.addEventListener('input',()=>{answerState.counts[inp.dataset.boxCount]=inp.value}));
+    $$('[data-box-count]',box).forEach(inp=>inp.addEventListener('input',()=>{answerState.counts[inp.dataset.boxCount]=inp.value}));
     return;
   }
 
@@ -370,9 +370,9 @@ function validateCustomAnswer(p){
 }
 function renderFallbackOptions(p){
   $('#choiceList').innerHTML=p.choices.map((c,i)=>`<button class="logic-choice" data-choice="${i}" type="button"><strong>${'ABCD'[i]}.</strong> ${esc(c)}</button>`).join('');
-  $('.logic-choice',$('#choiceList')).forEach(btn=>btn.addEventListener('click',()=>{
+  $$('.logic-choice',$('#choiceList')).forEach(btn=>btn.addEventListener('click',()=>{
     selectedOption=Number(btn.dataset.choice);
-    $('.logic-choice',$('#choiceList')).forEach(x=>x.classList.toggle('is-selected',x===btn));
+    $$('.logic-choice',$('#choiceList')).forEach(x=>x.classList.toggle('is-selected',x===btn));
   }));
 }
 function renderCatalog(){
@@ -389,7 +389,7 @@ function renderCatalog(){
     </div>
   </article>`).join('');
   progressText.textContent=`${solved.size} из ${puzzleBatch.length} решено`;
-  $$('[data-solve]',grid).forEach(btn=>{
+  $$$('[data-solve]',grid).forEach(btn=>{
     btn.addEventListener('click',()=>{
       const index=puzzleBatch.findIndex(p=>p.id===btn.dataset.solve);
       openPuzzle(index);
@@ -491,9 +491,9 @@ $('#solutionBtn').addEventListener('click',()=>{
 $('#crumbBackBtn').addEventListener('click',()=>closePuzzle());
 $('#prevBtn').addEventListener('click',()=>openPuzzle(currentIndex-1));
 $('#nextBtn').addEventListener('click',()=>openPuzzle(currentIndex+1));
-$$('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
+$$$('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
   activeFilter=btn.dataset.filter;
-  $$('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===btn));
+  $$$('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===btn));
   renderCatalog();
 }));
 addEventListener('popstate',()=>{
