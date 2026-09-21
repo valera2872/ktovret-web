@@ -1,0 +1,21 @@
+{
+  "product": "Mystery Logic",
+  "version": "10.6.7",
+  "status": "live",
+  "verified_by_user": true,
+  "verified_date": "2026-09-21",
+  "baseline": {
+    "file_name": "MysteryLogic-LIVE-10.6.7.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-10.6.7.zip",
+    "library_file_id": "libfile_23c34288e128819194952cd7fc97a4a4",
+    "size_bytes": 7428880,
+    "file_count": 666,
+    "sha256": "afeee57f1f0431b2762d5a8159b933c01ae88369f1d7f814b187452066ee9015"
+  },
+  "rules": {
+    "patch_base": "Always use this exact live baseline, or a newer baseline referenced by this file.",
+    "github_actions_artifacts": "Never treat a GitHub Actions artifact as the live production baseline unless CURRENT_RELEASE.json explicitly points to it.",
+    "small_changes": "Prefer a minimal patch containing only changed production files.",
+    "promotion": "Only advance CURRENT_RELEASE after the new version has actually been deployed and verified live."
+  }
+}
