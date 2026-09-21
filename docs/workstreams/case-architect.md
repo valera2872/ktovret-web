@@ -595,3 +595,27 @@ Player Pack v2 and Blind Test v2 A/B openings were also rewritten to follow the 
 
 Status:
 FIRST SCREEN requires new user review; previous FAIL is not cleared automatically by author review.
+
+
+## User review — First Screen Gate passed
+
+User reviewed the rewritten CASE-ARCH-001 demo opening and responded: «нормально».
+
+Decision:
+FIRST SCREEN CLARITY / HOOK GATE = PASS for the current review build.
+
+What changed before approval:
+- plain-language incident before terminology;
+- exact physical meaning of the stolen equipment explained;
+- player role and virtual partner role explained;
+- sender vs carrier/port contradiction made explicit;
+- first action made clear;
+- CASE/product jargon removed from story entry;
+- technical/model names deferred until after ordinary-language explanation.
+
+Important:
+This PASS applies only to first-screen clarity/hook.
+It does NOT imply the case, Partner flow, pacing, virtual partner, WOW Gate or release readiness have passed.
+
+Next review focus:
+mid-game engagement, Partner usefulness, clue clarity, false-theory quality, difficulty, signature aha and final reconstruction.
