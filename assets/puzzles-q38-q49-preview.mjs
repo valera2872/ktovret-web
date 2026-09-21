@@ -104,19 +104,36 @@ function visualFor(p){
   if(p.visual==='xor-lines')return visualXor();
   if(p.visual==='cube')return visualCube();
   if(p.visual==='weighing')return visualWeighing();
-  return '';
+  return thumbFor(p).replace('class="mlq-card-art"','class="mlq-visual mlq-detail-scene"');
 }
 
 function thumbFrame(inner,label=''){
   return `<div class="mlq-card-art"><svg viewBox="0 0 520 205" role="img" aria-label="${esc(label)}">
     <defs>
-      <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17324d"/><stop offset="1" stop-color="#091a2a"/></linearGradient>
-      <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4ead1"/><stop offset="1" stop-color="#dfc99d"/></linearGradient>
-      <radialGradient id="warm" cx=".85" cy=".15" r=".7"><stop offset="0" stop-color="#c49a50" stop-opacity=".32"/><stop offset="1" stop-color="#c49a50" stop-opacity="0"/></radialGradient>
+      <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#183752"/><stop offset=".52" stop-color="#10283d"/><stop offset="1" stop-color="#071725"/></linearGradient>
+      <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6ecd4"/><stop offset="1" stop-color="#dbc391"/></linearGradient>
+      <radialGradient id="warm" cx=".80" cy=".12" r=".72"><stop offset="0" stop-color="#d3a95e" stop-opacity=".42"/><stop offset=".45" stop-color="#b88d47" stop-opacity=".12"/><stop offset="1" stop-color="#c49a50" stop-opacity="0"/></radialGradient>
+      <radialGradient id="vignette" cx=".5" cy=".45" r=".8"><stop offset=".55" stop-color="#00101e" stop-opacity="0"/><stop offset="1" stop-color="#00101e" stop-opacity=".58"/></radialGradient>
+      <pattern id="grain" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M0 8 H26 M0 21 H26" stroke="#8ca4b7" stroke-opacity=".035"/><path d="M7 0 V26 M19 0 V26" stroke="#d5bd87" stroke-opacity=".025"/></pattern>
+      <filter id="objectShadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#000814" flood-opacity=".55"/></filter>
+      <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#d6b16d" flood-opacity=".25"/></filter>
     </defs>
     <rect width="520" height="205" fill="url(#desk)"/>
+    <rect width="520" height="205" fill="url(#grain)"/>
     <rect width="520" height="205" fill="url(#warm)"/>
-    ${inner}
+    <g opacity=".34">
+      <path d="M18 26 H132" stroke="#8fa5b7" stroke-width="1"/>
+      <path d="M18 32 H96" stroke="#8fa5b7" stroke-width="1"/>
+      <circle cx="482" cy="30" r="12" fill="none" stroke="#d6b16d" stroke-width="1.2"/>
+      <path d="M476 30 H488 M482 24 V36" stroke="#d6b16d" stroke-width="1"/>
+      <path d="M27 174 H150" stroke="#9cb0c0" stroke-width="1" stroke-dasharray="4 6"/>
+    </g>
+    <g transform="translate(17 13)">
+      <rect width="112" height="23" rx="6" fill="#081725" fill-opacity=".72" stroke="#d6b16d" stroke-opacity=".23"/>
+      <text x="10" y="15" fill="#d8c28d" font-size="8.5" font-weight="700" letter-spacing="1.3">MYSTERY LOGIC</text>
+    </g>
+    <g filter="url(#objectShadow)">${inner}</g>
+    <rect width="520" height="205" fill="url(#vignette)" pointer-events="none"/>
   </svg></div>`;
 }
 function miniCard(x,y,dir,dot,strokes){
