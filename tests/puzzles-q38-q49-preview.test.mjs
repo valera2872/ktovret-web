@@ -108,3 +108,8 @@ assert.match(runtime,/thumbWeighing/);
 assert.match(html,/id="puzzleGrid" class="mlq-showcase-grid"/);
 
 console.log(JSON.stringify({ok:true,puzzles:12,visuals:visualIds.size,difficulty:dc,q43Unique:true,q48Top:1,q49States:8,visualCards:12},null,2));
+
+assert.match(runtime,/cardSummary\(p\)\{return p\.prompt;\}/);
+assert.match(runtime,/data-solve=/);
+assert.match(runtime,/\$\$\('\[data-solve\]'/);
+assert.doesNotMatch(runtime,/\$\('\[data-open\]'/);
