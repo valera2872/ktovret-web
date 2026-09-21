@@ -7,7 +7,8 @@ let timer=null;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shape=(kind,x,y,size,{fill='none',stroke='#17212a',sw=4}={})=>{
   if(kind==='circle')return `<circle cx="${x}" cy="${y}" r="${size/2}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
-  const sides={triangle:3,square:4,pentagon:5,hexagon:6,octagon:8}[kind]||4;
+  if(kind==='square')return `<rect x="${x-size/2}" y="${y-size/2}" width="${size}" height="${size}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  const sides={triangle:3,pentagon:5,hexagon:6,octagon:8}[kind]||4;
   const pts=Array.from({length:sides},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/sides;return `${x+Math.cos(a)*size/2},${y+Math.sin(a)*size/2}`}).join(' ');
   return `<polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
 };
