@@ -348,3 +348,22 @@ Portfolio implication:
 - Final Portfolio/Originality Gate must include all three active development cases, not only LIVE catalogue.
 
 CASE-ARCH-001 remains active, but originality is now evaluated against LIVE + these active workstreams.
+
+
+## CASE-ARCH-001 audit update — Partner asymmetry strengthened
+
+Second blind/audit pass found that one role still had too much of the decisive route.
+
+Spoiler-free corrections:
+- separated digital cargo identity from physical vehicle movement;
+- Player A now owns physical exit/weight evidence;
+- Player B owns internal return-job/cargo identity evidence;
+- central proof requires cross-role synthesis;
+- signature interaction is now a dual-chain reconstruction rather than ordinary document sharing;
+- exact unlock graph has been staged to preserve multiple viable theories;
+- current case remains PREMIUM+ / SIGNATURE candidate, NOT READY.
+
+Technical reality check also confirmed the container-identification/check-digit structure, SOLAS VGM distinction and numbered high-security seal-control basis.
+
+Next:
+player-language/jargon pass -> interactive dual-chain cards -> third blind jury -> WOW/Cognitive pre-freeze gates.
