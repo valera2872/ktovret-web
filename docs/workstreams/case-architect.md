@@ -714,3 +714,65 @@ User role going forward:
 approve/reject product direction and experience quality — not hunt basic defects.
 
 Current CASE-ARCH-001 demo remains under internal refinement until this gate passes again.
+
+
+## CASE-ARCH-001 autonomous pre-review pass — v3
+
+After the process failure where the user had to catch basic defects, the next review build was NOT shown until an internal technical/visual/UX pass completed.
+
+Critical defects found internally and repaired:
+- the entry screen was not actually disappearing after Start because CSS overrode the HTML hidden attribute; this was the real source of apparent first/second-screen repetition;
+- first evidence cards all reused the same photographic thumbnail;
+- all evidence detail views reused the same hero image;
+- Stage 3 "Two Chains" was static rather than a meaningful player action;
+- stage progression allowed skipping evidence;
+- some remaining copy contained specialist/English shorthand ("tactile", "forklift", etc.);
+- mobile first screen did not expose the primary CTA soon enough;
+- the generated hero asset itself contained baked-in UI/text, causing visual duplication under live overlay text.
+
+Repairs in v3:
+- global [hidden]{display:none!important};
+- clean cropped cinematic port background with no baked-in UI/text;
+- distinct evidence-card visual treatment by evidence type;
+- first evidence detail visuals are differentiated: gate camera / route / seal protocol;
+- later photo evidence uses dedicated seal/cargo imagery only where it is actually evidence;
+- larger typography across navigation, evidence cards, partner chat, chain mechanic and reconstruction;
+- mandatory evidence opening before stage progression;
+- interactive Two Chains: player manually selects one event from each route and creates/removes links; game does not validate the link immediately;
+- mobile CTA moved into the first viewport;
+- jargon cleanup;
+- self-contained review HTML; no PowerShell/local server required.
+
+Autonomous QA run:
+- desktop viewport 1600x1000;
+- mobile viewport 390x844;
+- no horizontal overflow;
+- Start hides entry and reveals game;
+- Stage 1 exposes 3 items;
+- progression locked until current-stage evidence opened;
+- virtual partner quick interaction works;
+- stages 1 -> 5 traversed;
+- Two Chains opened and one manual cross-role link created;
+- final reconstruction opened and evaluated;
+- blocking JS exceptions: 0.
+
+Review artifacts:
+- CASE-ARCH-001-premium-demo-v3.zip
+  SHA-256: fbbd8dbfdeecef4dc7deb38d80581446f601856b65ff1012122d51f6a3ff0e56
+- CASE-ARCH-001-premium-demo-v3.html
+  SHA-256: d5e74b1e65403a51335c61f653947b597ca2e7845ba129b9b68c36729290bd18
+- Library:
+  /Mystery Logic/Workstreams/case-architect/demos/CASE-ARCH-001-premium-demo-v3.zip
+  /Mystery Logic/Workstreams/case-architect/demos/CASE-ARCH-001-premium-demo-v3.html
+- preview branch:
+  preview/case-arch-001-virtual-partner
+  commit a0edd1cf5e51131e4ff1b0160564fd09d71af11a
+
+AUTONOMOUS PRE-REVIEW GATE:
+PASS for this review build.
+
+Important:
+This gate PASS means the build is no longer known to contain basic craft/technical defects found in the previous review cycle.
+It does NOT mean the mystery/paid-product experience is approved by the user or ready for Content Freeze.
+
+No LIVE / Supabase / payment / entitlement changes.
