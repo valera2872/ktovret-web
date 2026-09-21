@@ -209,3 +209,44 @@ For premium demo flows also add:
 Exact event semantics must be defined before implementation so the same event is not emitted from incompatible contexts.
 
 Status: PROPOSED, requires explicit approval before analytics/code changes.
+
+
+## Day 1 refinement — existing journey analytics
+
+Further audit found useful commercial-intent signals already present in `site_funnel_events` through `journey-analytics.js`.
+
+Last 7 days:
+- Premium card `case_407`: 81 unique viewers, 15 unique clickers.
+- Premium card `last_aria`: 75 unique viewers, 1 unique clicker.
+- After-case Who Lied offer `volume1`: 65 unique viewers.
+- `next_free` action from that offer: 10 unique visitors.
+- `paid_199` action from that offer: 0 unique visitors.
+- Last Aria `commerce/payment-intent`: 3 unique visitors.
+
+Previous 7 days:
+- `case_407`: 77 viewers, 16 clickers.
+- `last_aria`: 71 viewers, 1 clicker.
+- Who Lied after-case offer: 28 viewers; 2 chose `next_free`; 0 chose `paid_199`.
+
+Historical caveat:
+- `checkout_open` is semantically contaminated for Last Aria because the current frontend emits it when the paywall is rendered, not only after a deliberate user action.
+- Do not use `checkout_open` alone as purchase intent.
+
+### Revised Day 1 conclusion
+
+The measurement layer is incomplete but not empty. Before adding new analytics events, use existing journey flows to diagnose commercial intent.
+
+Strong verified signal: users who finish short cases are seeing the 85-case paid continuation offer, but no tracked `paid_199` clicks have occurred since this offer tracking began (first observed 2026-09-11), while some users choose another free case.
+
+This does NOT yet prove why the paid continuation is unattractive. It does show that checkout optimization is downstream of the currently observed problem.
+
+### Agent update
+
+The daily Growth Agent must explicitly inspect:
+- `step_view flow=premium-case` card-view/card-click;
+- `step_view flow=who-lied-offer` after_case;
+- `primary_action flow=who-lied-offer` next_free/paid_199;
+- `step_view flow=commerce` payment-intent;
+- product-level comparisons.
+
+Status: L0 observation. No LIVE or analytics-code changes made.
