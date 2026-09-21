@@ -619,3 +619,39 @@ It does NOT imply the case, Partner flow, pacing, virtual partner, WOW Gate or r
 
 Next review focus:
 mid-game engagement, Partner usefulness, clue clarity, false-theory quality, difficulty, signature aha and final reconstruction.
+
+
+## CASE-ARCH-001 visual direction approved + premium review implementation
+
+User approved the new cinematic premium visual direction ("принимается").
+
+Approved visual principles:
+- investigation scene first, not admin/dashboard blocks;
+- night-port cinematic atmosphere;
+- large central evidence scene;
+- photographic evidence artifacts / polaroid treatment;
+- partner presented as a visible co-investigator, not a utility chat box;
+- stronger typographic hierarchy and premium spacing;
+- evidence should feel like physical investigative material;
+- central space must carry deduction/action, not remain empty.
+
+Implementation completed in isolated review build:
+- rebuilt CASE-ARCH-001 demo around approved visual direction;
+- retained active CANON v2 / staged evidence / virtual Player B;
+- embedded visual assets for port, seal, cargo and partner portrait;
+- responsive desktop/mobile layout;
+- existing interaction logic retained (stages, evidence, partner chat, board, dual-chain mechanic, final reconstruction);
+- browser automation smoke: start button opens game, stage 1 exposes 3 evidence items, zero JS page errors on desktop and mobile test render.
+
+Preview branch commit:
+2056b90bee469311860b700c2c58e40115fefbb2
+branch:
+preview/case-arch-001-virtual-partner
+
+Fallback review package:
+CASE-ARCH-001-premium-demo.zip
+
+No LIVE / Supabase / payment / entitlement changes.
+
+Next user review:
+judge whether the implemented playable build actually reaches the approved visual bar, not merely whether the concept mockup does.
