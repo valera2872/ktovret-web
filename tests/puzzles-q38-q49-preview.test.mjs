@@ -136,3 +136,15 @@ assert.match(runtime,/mode==='clean'.*решено самостоятельно/
   const states=strategy.flatMap((n,i)=>[[-n,i],[n,i]]);
   assert.equal(new Set(states.map(([d])=>d)).size,8);
 }
+
+assert.doesNotMatch(runtime,/\$\$\$\(/);
+assert.doesNotMatch(runtime,/(?<!\$)\$\([^\n;]*\.forEach/);
+assert.match(runtime,/\$\$\('\[data-room\]'/);
+assert.match(runtime,/\$\$\('\[data-dir\]'/);
+assert.match(runtime,/\$\$\('\[data-cell\]'/);
+assert.match(runtime,/\$\$\('\[data-line\]'/);
+assert.match(runtime,/\$\$\('\[data-test-card\]'/);
+assert.match(runtime,/\$\$\('\[data-box-count\]'/);
+assert.match(runtime,/\$\$\('\.logic-choice'/);
+assert.match(runtime,/раскрыт/);
+assert.match(runtime,/чист/);
