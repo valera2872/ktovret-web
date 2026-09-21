@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`e0621fb2069c0c26318b1c58b4414de72ad55229`
+`14d61007a95f8f599e6e65e60587ea23b8792007`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -86,9 +86,26 @@ Latest branch validation:
 - noindex staging boundary
 
 Combined GitHub Pages staging deploy:
-- main workflow commit: 39155416236201347699959f858da0a1a48a7c2e
-- run 35643410444 — SUCCESS
+- main workflow commit: ad0ab33966a54e8c74ba46ad3741c88a195b5538
+- run 35649921280 — SUCCESS
 - staging URL: https://valera2872.github.io/ktovret-web/admin/puzzles-q38-q49-preview/
+
+## Latest owner feedback / fix
+Owner approved the visual direction as much closer to the site reference, then reported:
+- card descriptions were incomplete
+- clicking “Решить онлайн” did nothing
+
+Root cause of click bug:
+- runtime used `$('[data-open]', grid).forEach(...)` instead of `$`, so JS threw after catalog render and no click handlers were installed.
+
+Fix:
+- catalog now renders the full puzzle `prompt` rather than abbreviated summaries
+- CTA is a real button with `data-solve`
+- explicit `$('[data-solve]', grid).forEach(...)` listener opens the puzzle
+- cache-bust advanced to `20260921d`
+- regression tests lock the CTA and full prompt contract
+- validation run 35649874821 — SUCCESS
+- deploy run 35649921280 — SUCCESS
 
 ## Production boundary
 NOT touched:
