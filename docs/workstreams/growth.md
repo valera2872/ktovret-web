@@ -250,3 +250,77 @@ The daily Growth Agent must explicitly inspect:
 - product-level comparisons.
 
 Status: L0 observation. No LIVE or analytics-code changes made.
+
+
+## Candidate Experiment GROWTH-001 — drafted 2026-09-21
+
+Status: PROPOSED ONLY. Not launched. Requires explicit approval before any LIVE/analytics change.
+
+### Observation
+
+Current LIVE post-case bridge after a completed short case says:
+- "Таких коротких расследований — 100."
+- 15 free, 85 more for 199 RUB.
+- CTA A: "Ещё бесплатное дело"
+- CTA B: "Открыть ещё 85 — 199 ₽"
+
+Current tracking for the last 7 days:
+- who-lied offer shown: 65 unique visitors;
+- chose next free: 10 unique visitors;
+- paid_199 action: 0.
+
+Separately, the large free investigation "Номер 407" gets materially more interaction from its homepage premium-style card than "Последняя ария":
+- case_407 card-view: 81 unique visitors; card-click: 15;
+- last_aria card-view: 75; card-click: 1.
+
+These are independent event counts and must NOT be treated as strict cohort conversion.
+
+### Hypothesis
+
+The post-case paid offer is framed mainly as "more of the same short cases", while a free alternative is presented beside it. This gives a user who just completed a short case little reason to choose paid continuation.
+
+A stronger bridge may be:
+short case -> free large investigation ("Номер 407") -> differentiated Premium experience.
+
+### Proposed intervention
+
+Do NOT remove the paid archive permanently.
+
+For the experiment, change the primary post-case recommendation from archive quantity framing to a differentiated deeper experience:
+- primary CTA: start "Номер 407" free;
+- secondary CTA: another short free case;
+- archive purchase remains available as a secondary/tertiary route.
+
+The purpose is to test transition from short-format acquisition into core product depth, not to test price.
+
+### Primary metric
+
+Post-case click-through into "Номер 407" from users who have completed a short case.
+
+### Secondary diagnostics
+
+- start of 407;
+- meaningful progress in 407;
+- completion / reveal of 407;
+- later Premium interest where measurable;
+- next-free short-case choice.
+
+### Guardrails
+
+- do not reduce access to the free short-case series;
+- do not alter payment, entitlement, auth, schema or private canon;
+- do not falsely label 407 as paid: it is currently a free large investigation;
+- preserve the archive purchase route;
+- use one isolated post-case bridge change only.
+
+### Decision
+
+After sufficient traffic:
+KEEP / ITERATE / REVERT / INCONCLUSIVE.
+
+### Why this is GROWTH-001
+
+It tests the strategic transition:
+ACQUISITION (short free case) -> FIRST VALUE -> CORE PRODUCT (large investigation)
+before trying to optimize checkout.
+
