@@ -15,6 +15,7 @@ for(const key of Object.keys(scales)){
 }
 
 assert.ok(items.filter(x=>x.visual).length>=14,'at least 14 visual/diagram items');
+assert.equal(items.find(x=>x.id==='P1').options[items.find(x=>x.id==='P1').correct],'Контурный треугольник с 3 точками');
 assert.equal(items.find(x=>x.id==='D4').options[items.find(x=>x.id==='D4').correct],'12543');
 assert.equal(items.find(x=>x.id==='N4').options[items.find(x=>x.id==='N4').correct],'27');
 
