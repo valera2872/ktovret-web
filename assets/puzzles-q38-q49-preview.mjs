@@ -184,42 +184,26 @@ function thumbFor(p){
   return thumbFrame('','Головоломка');
 }
 function difficultyClass(d){return d==='Очень сложно'?'very-hard':d==='Сложно'?'hard':d==='Средне'?'medium':'easy'}
-function cardSummary(p){
-  const map={
-    'quick:038':'Три признака меняются одновременно. Найдите шестую карточку.',
-    'quick:039':'Цепочка свойств жетона приводит к обязательному выводу.',
-    'quick:040':'Удержите и координаты, и направление после серии команд.',
-    'quick:041':'Продолжите числовую последовательность, найдя структуру приращений.',
-    'quick:042':'Определите, что действительно доказывают вдавленные следы на бумаге.',
-    'quick:043':'Пройдите все комнаты ровно один раз и закончите в E.',
-    'quick:044':'Общие линии исчезают, уникальные остаются. Найдите результат.',
-    'quick:045':'Проверьте правило так, чтобы поймать возможное опровержение.',
-    'quick:046':'Неизменившийся счётчик доказывает меньше, чем кажется.',
-    'quick:047':'Восстановите положение листа в момент появления кофейного следа.',
-    'quick:048':'Проследите ориентацию куба после четырёх перекатов.',
-    'quick:049':'Одним взвешиванием определите коробку и знак отклонения.'
-  };
-  return map[p.id]||p.prompt;
-}
-
+function cardSummary(p){return p.prompt;}
 function renderCatalog(){
   const solved=solvedSet();
   const shown=puzzleBatch.filter(p=>activeFilter==='all'||p.difficulty===activeFilter);
-  grid.innerHTML=shown.map(p=>`<article class="mlq-showcase-card ${solved.has(p.id)?'is-solved':''} ${p.featured?'is-featured':''}" data-open="${p.id}" tabindex="0" role="button" aria-label="Открыть ${esc(p.title)}">
+  grid.innerHTML=shown.map(p=>`<article class="mlq-showcase-card ${solved.has(p.id)?'is-solved':''} ${p.featured?'is-featured':''}">
     ${thumbFor(p)}
     <div class="mlq-card-body">
       <div class="mlq-card-top"><span class="mlq-card-number">${esc(p.number)}</span><span>◷ ${esc(p.time)}</span></div>
       <div class="mlq-card-tags"><span class="mlq-tag skill">${esc(p.skill)}</span><span class="mlq-tag ${difficultyClass(p.difficulty)}">${esc(p.difficulty)}</span></div>
       <h3 class="mlq-card-title">${esc(p.title)}</h3>
       <p class="mlq-card-copy">${esc(cardSummary(p))}</p>
-      <span class="mlq-card-action">${solved.has(p.id)?'Решено':'Решить онлайн →'}</span>
+      <button class="mlq-card-action" data-solve="${p.id}" type="button">${solved.has(p.id)?'Открыть снова':'Решить онлайн →'}</button>
     </div>
   </article>`).join('');
   progressText.textContent=`${solved.size} из ${puzzleBatch.length} решено`;
-  $('[data-open]',grid).forEach(el=>{
-    const open=()=>openPuzzle(puzzleBatch.findIndex(p=>p.id===el.dataset.open));
-    el.addEventListener('click',open);
-    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+  $$('[data-solve]',grid).forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const index=puzzleBatch.findIndex(p=>p.id===btn.dataset.solve);
+      openPuzzle(index);
+    });
   });
 }
 function resetInteraction(){
