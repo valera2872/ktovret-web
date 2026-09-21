@@ -254,3 +254,52 @@ Quality states are now:
 VALID -> PREMIUM -> SIGNATURE.
 
 Flagship Premium candidates must target SIGNATURE.
+
+
+## CASE-ARCH-001 — Partner flagship selection update
+
+User direction: first new paid case must be for two players; concept selection delegated to Case Architect.
+
+Selected concept:
+- working title: «Пломба цела»;
+- product role: Premium Partner;
+- target duration: 75–95 minutes;
+- target difficulty: HARD;
+- catalogue role: FLAGSHIP candidate;
+- target quality state: SIGNATURE.
+
+Why selected, spoiler-free:
+- true asymmetric two-player investigation;
+- non-murder portfolio diversity;
+- strong contemporary real-world investigation frame;
+- different from current Mystery Logic Partner titles;
+- current competitor refresh showed lower similarity risk than train/station, gallery/provenance, lighthouse, closed-dinner and classic locked-room directions;
+- supports varied evidence, multiple plausible theories, causal innocent lies and a memorable recontextualization.
+
+Completed privately:
+- 12-seed Partner concept tournament;
+- originality/portfolio filter;
+- CANON v1;
+- suspect matrix;
+- evidence graph;
+- contradiction/red-herring map;
+- Player Plot v1;
+- adversarial audit v1;
+- solution-agnostic jury;
+- 10-persona simulated playtest;
+- WOW Gate precheck.
+
+Current editorial state:
+PREMIUM+ / SIGNATURE CANDIDATE — NOT READY.
+
+Key remaining risks:
+- player-facing logistics jargon/cognitive load;
+- keep culprit non-obvious until late;
+- prevent middle section becoming document-heavy;
+- human blind test still outstanding.
+
+Next exact step:
+draft full player-visible evidence/artifact content and role-specific interactions, then rerun solution-agnostic and Cognitive/WOW audits against the actual text before implementation.
+
+No LIVE/code/schema/payment changes.
+Private canon remains outside public GitHub.
