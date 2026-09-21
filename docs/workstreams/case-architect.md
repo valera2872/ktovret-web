@@ -528,3 +528,38 @@ this is a local review artifact, not deployed to mysterylogic.com and not a rele
 
 Exact next step:
 user plays the demo and reports where the case is boring, confusing, obvious, unfair or memorable; Case Architect then updates CANON/content before human two-person blind test / Content Freeze.
+
+
+## User test feedback — FIRST SCREEN FAIL
+
+User immediately rejected the CASE-ARCH-001 demo opening.
+
+Observed failure:
+- first screen did not clearly explain the incident;
+- too many product/project/technical terms appeared before immersion;
+- "Vektor" was ambiguous: user could not know whether it meant a weapon, headset, device, etc.;
+- no strong narrative entry / no reason to care;
+- user stated they would close the game immediately.
+
+Decision:
+THIS IS A SYSTEMIC CASE ARCHITECT FAILURE, not a cosmetic demo issue.
+
+New hard rule added to Case Architect:
+FIRST SCREEN CLARITY / HOOK GATE.
+
+Mandatory comprehension before complexity:
+- who am I?
+- what exactly happened?
+- why does it matter?
+- what do I do now?
+
+Technical term policy:
+plain-language physical meaning first; model/code/name only second.
+If a noun can be misunderstood, define exactly what object it is and what it is used for.
+
+CASE-ARCH-001 demo status:
+FIRST SCREEN = FAIL.
+Previous opening is obsolete and must not be used for testing.
+
+Next:
+rewrite opening as an incident-first human scene, remove product taxonomy/jargon, explicitly explain the stolen object, player role and stakes, then regenerate demo before continuing user review.
