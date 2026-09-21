@@ -405,6 +405,8 @@ function resetInteraction(){
   $('#hintBox').hidden=true;
   $('#optionsBox').hidden=true;
   $('#solutionBox').hidden=true;
+  $('#showOptionsBtn').hidden=false;
+  $('#solutionBtn').hidden=false;
   updateModeBadge();
 }
 function openPuzzle(index,{push=true}={}){
