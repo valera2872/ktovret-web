@@ -563,3 +563,35 @@ Previous opening is obsolete and must not be used for testing.
 
 Next:
 rewrite opening as an incident-first human scene, remove product taxonomy/jargon, explicitly explain the stolen object, player role and stakes, then regenerate demo before continuing user review.
+
+
+## CASE-ARCH-001 first-screen rewrite applied
+
+Following direct user review, the review demo and active player-facing source packs were rewritten under the new hard First Screen Clarity / Hook Gate.
+
+Old demo opening is obsolete.
+
+New opening requirements now applied:
+- player identity stated in ordinary language;
+- stolen/missing object explained physically and by use before any model name;
+- concrete incident described before codes;
+- sender vs carrier/port contradiction stated clearly;
+- player's responsibility explained;
+- virtual partner's responsibility explained;
+- first action explicitly stated;
+- product taxonomy / CASE ARCH / Partner jargon removed from the story entry;
+- model name Vektor-M4 appears only after plain-language explanation of what the object is.
+
+Revised local demo artifact:
+CASE-ARCH-001-demo-virtual-partner.html
+
+SHA-256:
+8912c508101a25770c56303989c8da548d45441a1c143eacbd50aedbd49d556c
+
+Library copy:
+/Mystery Logic/Workstreams/case-architect/demos/CASE-ARCH-001-demo-virtual-partner.html
+
+Player Pack v2 and Blind Test v2 A/B openings were also rewritten to follow the same plain-language-first rule.
+
+Status:
+FIRST SCREEN requires new user review; previous FAIL is not cleared automatically by author review.
