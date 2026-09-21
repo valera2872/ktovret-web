@@ -1,4 +1,4 @@
-name: Deploy isolated Cognitive staging
+name: Deploy isolated staging previews
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: cognitive-profile-staging-pages
+  group: mysterylogic-staging-pages
   cancel-in-progress: true
 
 jobs:
@@ -24,6 +24,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: 285d1b60422fd41c0c65c269df9f18a4a8a32fbe
+          path: cognitive-src
+
+      - name: Checkout reviewed Q38-Q49 puzzle staging snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: b554236635a9b06b1a2e7e0cf151f182f75ff3d0
+          path: puzzle-src
 
       - uses: actions/setup-node@v4
         with:
@@ -32,32 +39,59 @@ jobs:
       - name: Validate Cognitive staging
         run: |
           set -euo pipefail
-          node --check assets/cognitive-profile-preview.mjs
-          node --check assets/cognitive-profile-preview-data.mjs
-          node tests/cognitive-profile-preview.test.mjs
-          grep -q 'noindex,nofollow' admin/cognitive-profile-preview/index.html
-          if grep -RniE 't\.me|telegram' admin/cognitive-profile-preview assets/cognitive-profile-preview*; then
+          node --check cognitive-src/assets/cognitive-profile-preview.mjs
+          node --check cognitive-src/assets/cognitive-profile-preview-data.mjs
+          (cd cognitive-src && node tests/cognitive-profile-preview.test.mjs)
+          grep -q 'noindex,nofollow' cognitive-src/admin/cognitive-profile-preview/index.html
+          if grep -RniE 't\.me|telegram' cognitive-src/admin/cognitive-profile-preview cognitive-src/assets/cognitive-profile-preview*; then
             echo "Telegram link/content forbidden in Cognitive staging preview"
+            exit 1
+          fi
+
+      - name: Validate Q38-Q49 puzzle staging
+        run: |
+          set -euo pipefail
+          node --check puzzle-src/assets/puzzles-q38-q49-preview.mjs
+          node --check puzzle-src/assets/puzzles-q38-q49-preview-data.mjs
+          (cd puzzle-src && node tests/puzzles-q38-q49-preview.test.mjs)
+          grep -q 'noindex,nofollow' puzzle-src/admin/puzzles-q38-q49-preview/index.html
+          if grep -RniE 't\.me|telegram' puzzle-src/admin/puzzles-q38-q49-preview puzzle-src/assets/puzzles-q38-q49-preview*; then
+            echo "Telegram link/content forbidden in puzzle staging preview"
             exit 1
           fi
 
       - name: Build isolated Pages artifact
         run: |
           set -euo pipefail
-          mkdir -p staging/admin/cognitive-profile-preview staging/assets
-          cp admin/cognitive-profile-preview/index.html staging/admin/cognitive-profile-preview/index.html
-          cp assets/cognitive-profile-preview.css staging/assets/
-          cp assets/cognitive-profile-preview.mjs staging/assets/
-          cp assets/cognitive-profile-preview-data.mjs staging/assets/
-          cp assets/reference-archive-hero.svg staging/assets/
-          cp assets/real-investigations-hero.svg staging/assets/
-          printf '%s\n' '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta http-equiv="refresh" content="0;url=./admin/cognitive-profile-preview/"><title>Mystery Logic Cognitive staging</title><a href="./admin/cognitive-profile-preview/">Open Cognitive Profile preview</a>' > staging/index.html
+          mkdir -p staging/admin/cognitive-profile-preview staging/admin/puzzles-q38-q49-preview staging/assets
+
+          cp cognitive-src/admin/cognitive-profile-preview/index.html staging/admin/cognitive-profile-preview/index.html
+          cp cognitive-src/assets/cognitive-profile-preview.css staging/assets/
+          cp cognitive-src/assets/cognitive-profile-preview.mjs staging/assets/
+          cp cognitive-src/assets/cognitive-profile-preview-data.mjs staging/assets/
+          cp cognitive-src/assets/reference-archive-hero.svg staging/assets/
+          cp cognitive-src/assets/real-investigations-hero.svg staging/assets/
+
+          cp puzzle-src/admin/puzzles-q38-q49-preview/index.html staging/admin/puzzles-q38-q49-preview/index.html
+          cp puzzle-src/assets/puzzles-q38-q49-preview.css staging/assets/
+          cp puzzle-src/assets/puzzles-q38-q49-preview.mjs staging/assets/
+          cp puzzle-src/assets/puzzles-q38-q49-preview-data.mjs staging/assets/
+
+          cat > staging/index.html <<'EOF'
+          <!doctype html>
+          <html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic staging</title></head>
+          <body style="font-family:system-ui;background:#07131f;color:#eef3f7;padding:32px;line-height:1.6">
+          <h1>Mystery Logic staging</h1>
+          <p><a style="color:#e4c57d" href="./admin/cognitive-profile-preview/">Cognitive Profile preview</a></p>
+          <p><a style="color:#e4c57d" href="./admin/puzzles-q38-q49-preview/">Puzzles Q38–Q49 preview</a></p>
+          </body></html>
+          EOF
           printf '%s\n' 'User-agent: *' 'Disallow: /' > staging/robots.txt
           touch staging/.nojekyll
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cognitive-profile-staging
+          name: mysterylogic-staging-previews
           path: staging
           retention-days: 7
 
@@ -74,6 +108,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Cognitive staging artifact
+      - name: Deploy isolated staging previews
         id: deployment
         uses: actions/deploy-pages@v4
