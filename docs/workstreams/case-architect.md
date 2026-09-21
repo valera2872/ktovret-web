@@ -367,3 +367,46 @@ Technical reality check also confirmed the container-identification/check-digit 
 
 Next:
 player-language/jargon pass -> interactive dual-chain cards -> third blind jury -> WOW/Cognitive pre-freeze gates.
+
+
+## CASE-ARCH-001 milestone — blind-test ready
+
+Current editorial state:
+PREMIUM+ / SIGNATURE CANDIDATE — NOT READY.
+
+Completed after the second Partner audit:
+- player-language/jargon pass;
+- interactive "dual chains" Partner mechanic spec;
+- hint ladder;
+- third simulated solution-agnostic jury;
+- WOW Gate pre-freeze;
+- Cognitive Gate pre-freeze;
+- artifact authenticity/content briefs;
+- distinct character voice bible;
+- final reconstruction semantic scoring contract;
+- human blind-test packets for Player A / Player B;
+- private moderator guide with staged unlocks and observation questions.
+
+Key design correction:
+- decisive evidence remains cross-role:
+  Player A owns physical container/vehicle facts;
+  Player B owns cargo-identity/internal-job facts;
+  neither role can prove the case alone.
+- service-lane red herring window was strengthened so it remains a plausible wrong theory.
+- warehouse cargo labels were cognitively simplified from twelve individual codes to one grouped range.
+
+Active adjacent cases now remain part of originality checks:
+«Не публиковать», «Пассажир №17», «Тринадцатая минута».
+
+Working title «Пломба цела» is NOT frozen because current market language contains a nearby "intact seal" mystery motif. Final title remains pending.
+
+Release blockers:
+- real two-person blind playtest not yet run;
+- W7/W10 WOW dimensions therefore retain human UNKNOWN;
+- no Content Freeze;
+- G0–G9 final gate not run.
+
+Exact next step:
+run one real two-person blind test using the prepared role packets, record literal observations, repair the case if necessary, then decide Content Freeze.
+
+No LIVE/code/schema/payment changes.
