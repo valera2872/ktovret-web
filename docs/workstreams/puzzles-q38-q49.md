@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`77e4731421cf6190f75e5994fae51b0769ce6327`
+`b5b5878944e46348396267eb9d6740b329e937cd`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -162,3 +162,24 @@ QA limitation:
 - owner browser review is still required for final visual acceptance
 
 Production remains untouched.
+
+
+## Interaction regression audit — 2026-09-21
+Owner reported Q43 route builder did not work.
+
+Root cause:
+- grouped controls in multiple answer widgets used `$()` (querySelector) followed by `.forEach`, so handlers were never attached.
+- affected Q38, Q40, Q43, Q44, Q45, Q49 and fallback options.
+- text inputs Q39/Q42/Q46/Q47 and numeric inputs Q41/Q48 were not affected by this selector bug.
+
+Fix:
+- all grouped controls now use `$$()` / querySelectorAll.
+- accidental `$$$()` introduced during repair was caught before deployment and removed.
+- Q42 free-answer validator now accepts Cyrillic А/Б as well as Latin A/B and natural Russian wording such as «чистый лист был под запиской».
+- regression tests explicitly forbid grouped `$().forEach` selector patterns and `$$$()`.
+
+QA:
+- branch validation run 35655767724 — SUCCESS
+- combined staging deploy commit: 15667cfb47e524c71194d38aa0c42389ede29a3a
+- combined staging deploy run 35655814383 — SUCCESS
+- production untouched.
