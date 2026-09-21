@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#071119">
+  <title>Пропавший груз — закрытый тест | Mystery Logic</title>
+  <style>
+:root{--bg:#071119;--bg2:#0b1720;--panel:#0d1a23;--panel2:#111f29;--line:rgba(155,180,192,.15);--text:#e8edf0;--muted:#8ca0aa;--gold:#d8b26b;--cyan:#7fb6c9;--green:#83b996;--red:#cf8077;--shadow:0 22px 70px rgba(0,0,0,.32)}*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:radial-gradient(circle at 65% -10%,rgba(65,116,137,.14),transparent 34%),linear-gradient(180deg,#071119,#08141c 58%,#061017);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.demo{min-height:100vh}.eyebrow{margin:0 0 6px;color:var(--gold);font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.entry{position:relative;min-height:100vh;display:grid;place-items:center;padding:32px 18px;overflow:hidden}.entry__art{position:absolute;inset:0;opacity:.85}.port-grid{position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,black,transparent 85%)}.container-ghost{position:absolute;width:340px;height:128px;border:1px solid rgba(129,168,184,.16);background:linear-gradient(180deg,rgba(28,61,74,.22),rgba(8,20,28,.05));box-shadow:inset 0 0 0 8px rgba(255,255,255,.01);transform:skewY(-2deg)}.container-ghost:before{content:"";position:absolute;inset:10px;background:repeating-linear-gradient(90deg,transparent 0 24px,rgba(130,171,188,.05) 25px 27px)}.container-ghost.c1{right:-70px;top:14%;transform:rotate(-7deg)}.container-ghost.c2{left:-110px;bottom:13%;transform:rotate(8deg)}.container-ghost.c3{right:16%;bottom:-55px;transform:rotate(-2deg)}.entry__card{position:relative;width:min(780px,100%);padding:36px;border:1px solid rgba(216,178,107,.26);border-radius:20px;background:linear-gradient(145deg,rgba(13,29,39,.96),rgba(6,17,24,.98));box-shadow:var(--shadow);backdrop-filter:blur(14px)}.entry h1{margin:0;color:#f0e7d8;font:500 clamp(40px,8vw,76px)/.98 Georgia,"Times New Roman",serif;letter-spacing:.02em}.lead{max-width:670px;margin:18px 0 16px;color:#bdcbd1;font-size:16px;line-height:1.65}.chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 24px}.chips span{padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:#9fb1ba;font-size:10px;font-weight:700}.incident-mini{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin:18px 0 22px;padding:14px;border:1px solid rgba(207,128,119,.22);border-radius:12px;background:rgba(207,128,119,.045)}.incident-mini__seal{display:grid;place-items:center;min-width:94px;min-height:74px;border-radius:9px;background:#d8b26b;color:#1b160d;box-shadow:inset 0 -10px 20px rgba(0,0,0,.12)}.incident-mini__seal span{font-size:9px;font-weight:900;letter-spacing:.15em}.incident-mini__seal strong{font-size:18px}.incident-mini small{display:block;color:#7f929d;font-size:10px}.incident-mini strong{display:block;margin-top:3px;color:#e6ded2;font-size:14px}.incident-mini p{margin:4px 0 0;color:#9cafb7;font-size:11px}.name-field{display:grid;gap:7px;margin-top:16px;color:#a8bac2;font-size:11px;font-weight:700}.name-field input,.chat-form textarea,.note-form input,.reconstruction textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:#07141c;color:var(--text);outline:none}.name-field input{height:44px;padding:0 12px}.name-field input:focus,.chat-form textarea:focus,.note-form input:focus,.reconstruction textarea:focus{border-color:rgba(216,178,107,.55);box-shadow:0 0 0 3px rgba(216,178,107,.06)}button{font:inherit}.primary,.ghost,.quick-prompts button,.evidence-card,.stage-tab,.note-form button{cursor:pointer}.primary{min-height:42px;padding:0 15px;border:1px solid rgba(216,178,107,.5);border-radius:9px;background:linear-gradient(180deg,#d8b26b,#bd9550);color:#171208;font-weight:900}.primary:hover{filter:brightness(1.05)}.entry .primary{width:100%;margin-top:12px}.entry__note{margin:12px 0 0;color:#6f838e;font-size:10px;line-height:1.5}.game{min-height:100vh;padding-bottom:26px}.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;gap:18px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(6,16,23,.9);backdrop-filter:blur(14px)}.topbar strong{font:500 20px/1.1 Georgia,"Times New Roman",serif;color:#efe6d7}.topbar__right{display:flex;gap:8px;align-items:center;color:#8da0a9;font-size:10px}.partner-dot{width:8px;height:8px;border-radius:50%;background:#637681}.partner-dot.is-online{background:#7fb493;box-shadow:0 0 0 5px rgba(127,180,147,.09)}.ghost{border:1px solid var(--line);border-radius:8px;background:transparent;color:#92a4ad}.ghost.small{padding:6px 9px;font-size:9px}.incident-banner{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:24px;align-items:center;margin:18px auto 10px;padding:0 18px;max-width:1580px}.incident-photo{position:relative;height:190px;border:1px solid rgba(127,182,201,.2);border-radius:15px;overflow:hidden;background:linear-gradient(180deg,rgba(61,104,122,.25),rgba(9,22,30,.96)),repeating-linear-gradient(90deg,#152d39 0 42px,#102530 43px 47px);box-shadow:inset 0 -55px 90px rgba(0,0,0,.33)}.incident-photo:before,.incident-photo:after{content:"";position:absolute;top:13px;bottom:13px;width:3px;background:#394e59}.incident-photo:before{left:49%}.incident-photo:after{right:7%}.door-line{position:absolute;left:7%;right:7%;top:50%;height:2px;background:rgba(196,218,226,.14)}.seal-tag{position:absolute;right:18%;top:42%;z-index:2;padding:4px 7px;border-radius:5px;background:#d8b26b;color:#1d170c;font-size:9px;font-weight:900}.crate-row{position:absolute;left:8%;right:8%;bottom:14px;display:flex;gap:7px}.crate-row span{height:42px;flex:1;border:1px solid rgba(205,220,226,.18);border-radius:3px;background:linear-gradient(180deg,#293942,#16262f)}.incident-copy h2{margin:0;color:#eee5d8;font:500 31px/1.08 Georgia,"Times New Roman",serif}.incident-copy p:last-child{max-width:800px;color:#9eb0b8;font-size:12px;line-height:1.6}.stage-nav{display:flex;gap:7px;overflow:auto;max-width:1580px;margin:0 auto;padding:9px 18px 14px}.stage-tab{flex:0 0 auto;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:#091722;color:#798d97;font-size:9px;font-weight:900}.stage-tab.is-current{border-color:rgba(216,178,107,.46);background:rgba(216,178,107,.08);color:#e0c68f}.stage-tab.is-done{color:#8db69a}.layout{display:grid;grid-template-columns:290px minmax(0,1fr) 350px;gap:12px;max-width:1580px;margin:0 auto;padding:0 18px}.panel{min-height:600px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,30,40,.92),rgba(8,20,28,.96));box-shadow:0 15px 38px rgba(0,0,0,.13);overflow:hidden}.panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px;border-bottom:1px solid var(--line)}.panel-head h2,.panel-head h3{margin:0;color:#e8dfd2;font:500 22px/1 Georgia,"Times New Roman",serif}.panel-head.compact h3{font-size:18px}.count{display:grid;place-items:center;min-width:28px;height:28px;border-radius:999px;background:rgba(216,178,107,.08);color:#d5b774;font-size:10px;font-weight:900}.evidence-list{display:grid;gap:7px;padding:9px;max-height:680px;overflow:auto}.evidence-card{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.018);color:#adbdc4;text-align:left}.evidence-card:hover,.evidence-card.is-active{border-color:rgba(216,178,107,.4);background:rgba(216,178,107,.045)}.evidence-card small{display:block;color:#6f838e;font-size:8px;font-weight:900;letter-spacing:.1em}.evidence-card strong{display:block;margin-top:4px;color:#d6e0e4;font-size:12px;line-height:1.3}.evidence-card span{display:block;margin-top:4px;color:#7e919b;font-size:9px}.stage-action{padding:10px;border-top:1px solid var(--line)}.stage-action .primary{width:100%;font-size:10px}.workspace{position:relative}.workspace-empty{padding:44px 36px}.workspace-empty h2{margin:0 0 10px;color:#eee5d8;font:500 34px/1.1 Georgia,"Times New Roman",serif}.workspace-empty p:last-child{max-width:620px;color:#8599a3;font-size:12px;line-height:1.6}.document{padding:26px 30px 38px}.document__meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:17px}.document__meta span{padding:5px 8px;border-radius:999px;border:1px solid var(--line);color:#81959f;font-size:8px;font-weight:900}.document h2{margin:0 0 8px;color:#efe6d8;font:500 32px/1.05 Georgia,"Times New Roman",serif}.document .summary{margin:0 0 20px;color:#91a4ad;font-size:12px;line-height:1.6}.fact-grid{display:grid;gap:8px}.fact{padding:11px 12px;border-left:2px solid rgba(127,182,201,.38);background:rgba(127,182,201,.035);color:#b6c3c9;font-size:11px;line-height:1.5}.visual-card{position:relative;margin:18px 0;padding:18px;min-height:145px;border:1px solid rgba(126,169,186,.18);border-radius:12px;background:linear-gradient(145deg,rgba(24,48,60,.88),rgba(8,22,30,.98));overflow:hidden}.visual-card:after{content:"EVIDENCE";position:absolute;right:12px;top:10px;color:rgba(214,230,236,.08);font-size:30px;font-weight:900;letter-spacing:.1em}.visual-card .mark{display:inline-flex;margin:5px 8px 5px 0;padding:5px 7px;border:1px solid rgba(216,178,107,.25);border-radius:6px;color:#dbc083;font-size:9px}.dual-chain{padding:22px}.dual-chain__head h2,.reconstruction h2{margin:0;color:#eee5d7;font:500 31px/1.06 Georgia,"Times New Roman",serif}.dual-chain__head p:last-child{color:#8fa2ac;font-size:11px}.chain-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.chain-grid>div{padding:13px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.015)}.chain-grid h3{margin:0 0 8px;color:#d7c18d;font-size:12px}.chain-item{margin:7px 0;padding:9px;border-radius:8px;background:#0a1821;border:1px solid rgba(137,164,176,.12);color:#a9bac2;font-size:10px;line-height:1.4}.partner-head{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;padding:14px;border-bottom:1px solid var(--line)}.avatar{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:linear-gradient(145deg,#244453,#152b36);color:#bcd7e2;font:800 16px/1 Georgia,serif;border:1px solid rgba(127,182,201,.23)}.partner-head h2{margin:0;color:#e4dcd0;font:500 21px/1 Georgia,serif}.partner-head span{color:#7f929c;font-size:9px}.partner-brief{padding:10px 14px;border-bottom:1px solid var(--line);color:#7f939d;font-size:9px;line-height:1.5}.quick-prompts{display:flex;gap:6px;overflow:auto;padding:9px;border-bottom:1px solid var(--line)}.quick-prompts button{flex:0 0 auto;padding:6px 8px;border:1px solid var(--line);border-radius:999px;background:transparent;color:#91a4ad;font-size:8px;font-weight:800}.quick-prompts button:hover{border-color:rgba(216,178,107,.36);color:#d8c18c}.chat{height:280px;overflow:auto;padding:12px;display:grid;align-content:start;gap:8px}.msg{max-width:88%;padding:9px 10px;border-radius:10px;font-size:10px;line-height:1.5}.msg.me{justify-self:end;background:rgba(216,178,107,.08);border:1px solid rgba(216,178,107,.16);color:#c8b783}.msg.partner{justify-self:start;background:rgba(127,182,201,.06);border:1px solid rgba(127,182,201,.13);color:#aebec6}.msg.partner strong{color:#d7e1e5}.share-chip{margin-top:7px;padding:7px;border-left:2px solid var(--cyan);background:rgba(127,182,201,.05);color:#8fabb7;font-size:9px}.chat-form{display:grid;grid-template-columns:1fr auto;gap:7px;padding:9px;border-top:1px solid var(--line)}.chat-form textarea{resize:vertical;min-height:44px;padding:9px;font-size:10px}.chat-form .primary{min-height:44px;font-size:9px}.board{border-top:1px solid var(--line)}.board-list{display:grid;gap:6px;padding:9px;max-height:170px;overflow:auto}.board-item{padding:8px 9px;border-left:2px solid rgba(216,178,107,.38);background:rgba(216,178,107,.035);color:#a5b5bd;font-size:9px;line-height:1.4}.note-form{display:grid;grid-template-columns:1fr 34px;gap:5px;padding:9px;border-top:1px solid var(--line)}.note-form input{height:34px;padding:0 9px;font-size:9px}.note-form button{border:1px solid rgba(216,178,107,.32);border-radius:8px;background:rgba(216,178,107,.08);color:#d9bd7b;font-size:16px}.reconstruction{padding:26px 30px}.reconstruction label{display:grid;gap:6px;margin-top:14px;color:#a4b4bb;font-size:9px;font-weight:800}.reconstruction textarea{padding:10px;font-size:11px;line-height:1.5}.reconstruction .primary{margin-top:15px}.final-result{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;color:#a8b9c0;font-size:10px;line-height:1.6}.final-result.good{border-color:rgba(131,185,150,.3);background:rgba(131,185,150,.045)}.final-result.warn{border-color:rgba(216,178,107,.3);background:rgba(216,178,107,.04)}.footer{display:flex;justify-content:space-between;gap:12px;max-width:1580px;margin:12px auto 0;padding:0 18px;color:#5e737e;font-size:8px}@media(max-width:1180px){.layout{grid-template-columns:250px minmax(0,1fr)}.partner-panel{grid-column:1/-1;min-height:auto;display:grid;grid-template-columns:1fr 1fr}.partner-head,.partner-brief,.quick-prompts{grid-column:1/-1}.chat{height:220px}.board{border-top:0;border-left:1px solid var(--line)}}@media(max-width:760px){.entry__card{padding:25px 18px}.incident-mini{grid-template-columns:1fr}.incident-mini__seal{min-height:55px}.incident-banner{grid-template-columns:1fr;padding:0 12px}.incident-photo{height:150px}.incident-copy h2{font-size:25px}.layout{grid-template-columns:1fr;padding:0 10px}.panel{min-height:auto}.evidence-list{max-height:none}.workspace{min-height:480px}.partner-panel{display:block}.board{border-left:0;border-top:1px solid var(--line)}.topbar{padding:10px 12px}.topbar__right span:not(.partner-dot){display:none}.stage-nav{padding-left:10px;padding-right:10px}.chain-grid{grid-template-columns:1fr}.document,.reconstruction{padding:22px 18px}.footer{padding:0 12px}.entry h1{font-size:48px}}
+
+  .opening-conflict{display:grid;gap:7px;margin:16px 0;padding:14px 16px;border-left:3px solid rgba(207,128,119,.65);background:rgba(207,128,119,.045);border-radius:0 10px 10px 0}.opening-conflict strong{color:#ddd6ca;font-size:12px;line-height:1.45}.opening-conflict p{margin:3px 0 0;color:#9dafb7;font-size:11px;line-height:1.55}.role-explain{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.role-explain>div{padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(127,182,201,.03)}.role-explain small{display:block;color:#71919f;font-size:8px;font-weight:900;letter-spacing:.11em}.role-explain strong{display:block;margin-top:4px;color:#dce4e7;font-size:12px}.role-explain p{margin:4px 0 0;color:#869aa4;font-size:10px;line-height:1.45}.first-action{margin:14px 0 4px;padding:11px 13px;border:1px solid rgba(216,178,107,.23);border-radius:9px;background:rgba(216,178,107,.04);color:#aebdc4;font-size:11px;line-height:1.5}.first-action strong{color:#ddc383}.entry .lead strong{color:#eee4d5}
+@media(max-width:700px){.role-explain{grid-template-columns:1fr}.entry__card{padding:24px 18px}.incident-mini{grid-template-columns:1fr}.incident-mini__seal{min-height:54px} .role-explain{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <main class="demo" data-app>
+    <section class="entry" data-entry>
+      <div class="entry__art" aria-hidden="true">
+        <div class="port-grid"></div>
+        <div class="container-ghost c1"></div><div class="container-ghost c2"></div><div class="container-ghost c3"></div>
+      </div>
+      <div class="entry__card">
+        <p class="eyebrow">Mystery Logic · закрытый тест нового расследования</p>
+        <h1>ПРОПАВШИЙ ГРУЗ</h1>
+        <p class="lead"><strong>Вы — независимый следователь.</strong> Вместе с напарником вам нужно выяснить, куда исчезла партия из <strong>12 высокоточных промышленных измерительных приборов стоимостью около 1,6 млн евро.</strong> Это оборудование используют на заводах для точной проверки и настройки производственных машин.</p>
+        <div class="incident-mini">
+          <div class="incident-mini__seal"><span>ПЛОМБА</span><strong>ЦЕЛА</strong></div>
+          <div><small>Понедельник · склад получателя</small><strong>Контейнер пришёл запечатанным — но дорогих приборов внутри нет</strong><p>Номер одноразовой металлической пломбы на дверях совпадает с документами. Корпус контейнера не выглядит вскрытым. Общий вес почти такой, как ожидался. Но внутри вместо дорогих приборов лежат дешёвые калибровочные устройства.</p></div>
+        </div>
+        <div class="opening-conflict">
+          <strong>Склад отправителя утверждает: «Мы погрузили правильный товар».</strong>
+          <strong>Перевозчик и порт утверждают: «Контейнер по дороге не вскрывали».</strong>
+          <p>Обе версии одновременно кажутся правдой. Ваша задача — понять, где исчез настоящий груз и кто создал эту картину.</p>
+        </div>
+        <div class="role-explain">
+          <div><small>ВАША ЧАСТЬ</small><strong>Путь контейнера</strong><p>Дорога, порт, пломба, камеры и внешние перевозки.</p></div>
+          <div><small>НАПАРНИК АЛЕКС</small><strong>Что происходило с грузом на складе</strong><p>Погрузка, сотрудники, внутренние документы и расписание.</p></div>
+        </div>
+        <p class="first-action"><strong>Первое действие:</strong> откройте материалы о прибытии контейнера и спросите Алекса, что он знает о погрузке на складе.</p>
+        <label class="name-field">Как к вам обращаться?<input data-player-name maxlength="32" value="Валерий" autocomplete="name"></label>
+        <button class="primary" type="button" data-start>Начать расследование</button>
+        <p class="entry__note">Это закрытая тестовая версия. Виртуальный напарник видит только свою часть дела и не знает будущих улик.</p>
+      </div>
+    </section>
+
+    <section class="game" data-game hidden>
+      <header class="topbar">
+        <div><p class="eyebrow">Закрытое расследование · <span data-stage-label>Этап 1</span></p><strong>Пропавший груз</strong></div>
+        <div class="topbar__right"><span class="partner-dot is-online"></span><span data-partner-label>Напарник B · онлайн</span><button class="ghost small" type="button" data-reset>Сбросить</button></div>
+      </header>
+
+      <section class="incident-banner">
+        <div class="incident-photo" data-incident-photo>
+          <div class="seal-tag">HX-481920</div>
+          <div class="door-line"></div>
+          <div class="crate-row"><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="incident-copy">
+          <p class="eyebrow">Что вы расследуете</p>
+          <h2>Куда исчезли 12 дорогих промышленных приборов?</h2>
+          <p>На завод-получатель пришёл запечатанный морской контейнер. Внутри должны были быть 12 высокоточных измерительных приборов для проверки производственного оборудования. Вместо них нашли дешёвые калибровочные устройства похожего веса. <strong>Вы проверяете путь самого контейнера:</strong> дорогу, порт, пломбу, камеры и внешние перевозки.</p>
+        </div>
+      </section>
+
+      <nav class="stage-nav" data-stage-nav></nav>
+
+      <div class="layout">
+        <aside class="panel evidence-panel">
+          <div class="panel-head"><div><p class="eyebrow">Вы проверяете путь контейнера</p><h2>Ваши материалы</h2></div><span class="count" data-evidence-count>0</span></div>
+          <div class="evidence-list" data-evidence-list></div>
+          <div class="stage-action">
+            <button class="primary" type="button" data-next-stage>Продолжить расследование</button>
+          </div>
+        </aside>
+
+        <section class="panel workspace">
+          <div class="workspace-empty" data-workspace-empty>
+            <p class="eyebrow">Рабочий стол</p>
+            <h2>Откройте материал</h2>
+            <p>Сопоставляйте факты, спорьте с напарником и фиксируйте свою версию. Игра не подсвечивает «главную улику».</p>
+          </div>
+          <article class="document" data-document hidden></article>
+          <section class="dual-chain" data-dual-chain hidden>
+            <div class="dual-chain__head"><p class="eyebrow">Совместная механика</p><h2>Две цепочки</h2><p>Разложите события контейнера и груза. Связи не оцениваются автоматически.</p></div>
+            <div class="chain-grid"><div><h3>Контейнер</h3><div data-chain-a></div></div><div><h3>Груз</h3><div data-chain-b></div></div></div>
+          </section>
+          <section class="reconstruction" data-reconstruction hidden>
+            <p class="eyebrow">Финальная реконструкция</p>
+            <h2>Соберите одну причинную версию</h2>
+            <label>Что произошло?<textarea data-final-theory rows="5" placeholder="Где, когда и как разошлись две цепочки?"></textarea></label>
+            <label>Какие доказательства решают дело?<textarea data-final-evidence rows="4" placeholder="Назовите минимум четыре независимые линии."></textarea></label>
+            <label>Кто организовал схему и зачем?<textarea data-final-who rows="3"></textarea></label>
+            <button class="primary" type="button" data-submit-final>Проверить реконструкцию</button>
+            <div class="final-result" data-final-result hidden></div>
+          </section>
+        </section>
+
+        <aside class="panel partner-panel">
+          <div class="partner-head">
+            <div class="avatar">B</div>
+            <div><p class="eyebrow">Ваш напарник</p><h2>Алекс · расследует склад и груз</h2><span data-partner-stage>видит только этап 1</span></div>
+          </div>
+          <div class="partner-brief">Алекс расследует, что происходило с товаром до отправки: погрузку, сотрудников, документы и расписание. Он не видит ваши материалы и не знает будущие улики.</div>
+          <div class="quick-prompts">
+            <button type="button" data-quick="Что у тебя есть на этом этапе?">Что у тебя есть?</button>
+            <button type="button" data-quick="Что ты сейчас думаешь?">Что думаешь?</button>
+            <button type="button" data-quick="Какая у тебя сильнейшая альтернативная версия?">Альтернатива?</button>
+            <button type="button" data-quick="Есть ли у тебя что-то по Антону?">По Антону?</button>
+          </div>
+          <div class="chat" data-chat></div>
+          <form class="chat-form" data-chat-form>
+            <textarea rows="2" maxlength="600" data-chat-input placeholder="Спросите напарника обычным текстом…"></textarea>
+            <button class="primary" type="submit">Спросить</button>
+          </form>
+          <section class="board">
+            <div class="panel-head compact"><div><p class="eyebrow">Общая доска</p><h3>Версии и находки</h3></div></div>
+            <div class="board-list" data-board></div>
+            <form class="note-form" data-note-form><input data-note-input maxlength="180" placeholder="Зафиксировать мысль…"><button type="submit">+</button></form>
+          </section>
+        </aside>
+      </div>
+      <footer class="footer"><span>Закрытый demo · не индексируется</span><span data-save-state>Прогресс сохранён локально</span></footer>
+    </section>
+  </main>
+  <script>
+(() => {
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const STORE='mysterylogic:case-arch-001-demo:v2';
+const maxStage=5;
+const stageLabels=['Этап 1 · Первые версии','Этап 2 · Нарушения','Этап 3 · Две цепочки','Этап 4 · Два груза','Этап 5 · Намерение'];
+
+const A={
+1:[
+ {id:'A1',type:'порт',title:'Въезд в порт',sub:'Пятница · 22:12',summary:'Правильный контейнер, правильная пломба, вес около 8,3 т.',facts:['QZMU 621508 4 распознан камерой въезда.','HX-481920 совпадает с документами.','Двери без заметных свежих повреждений.','На створке старая ремонтная накладка и характерная потёртость.'],visual:['22:12','8,3 т','HX-481920']},
+ {id:'A2',type:'маршрут',title:'Склад → порт',sub:'21:36–22:12',summary:'Заявленный перевозчик забрал контейнер и приехал в порт без длинных остановок.',facts:['Тягач, шасси и водитель совпадают с заявкой.','Остановок дольше двух минут нет.','Второго контейнера с тем же номером терминал не фиксирует.'],visual:['21:36','22:12','0 длинных остановок']},
+ {id:'A3',type:'пломба',title:'Контроль пломбы',sub:'Инспектор Яна',summary:'Яна признаёт сокращённую проверку, но номер пломбы был правильным.',facts:['Протокол отмечает корпус, номер, фото и фиксацию.','Обработка заняла 1 мин 42 сек.','Яна сразу признаёт, что полную tactile-проверку сделала короче нормы из-за двух линий.'],visual:['1:42','2 линии','HX-481920']}
+],
+2:[
+ {id:'A4',type:'терминал',title:'Сервисная линия',sub:'22:44–23:02',summary:'Контейнер на 18 минут уходит с обычной площадки в техническую зону.',facts:['Причина: M-1180 / дверная фурнитура.','Закрывающего акта работ нет.','На этом этапе нельзя уверенно установить, открывались ли двери.'],visual:['18 минут','M-1180','нет акта']},
+ {id:'A5',type:'опрос',title:'Борис Краль',sub:'Координатор техзоны',summary:'Сначала отрицает «заезд», затем уточняет, что имел в виду отсутствие работ.',facts:['Система показывает физический заезд.','Борис говорит: «Работ мы не делали».','Номер M-1180 предлагает поднимать отдельно.'],visual:['нет работ','есть заезд']},
+ {id:'A6',type:'камера',title:'Неполный обзор линии',sub:'Порт',summary:'Пока есть только часть камер и журнал оборудования.',facts:['18-минутный сервисный эпизод реален.','Данных ещё недостаточно, чтобы исключить открытие контейнера.'],visual:['22:44','23:02','UNKNOWN']}
+],
+3:[
+ {id:'A7',type:'фото',title:'Фото после опломбирования',sub:'Пятница · 20:09',summary:'Контейнер закрыт, HX-481920 уже установлена.',facts:['Видны старая треугольная накладка, длинная потёртость, небольшая вмятина.','Это физическая точка до выезда со склада.'],visual:['20:09','закрыт','HX-481920']},
+ {id:'A8',type:'фото',title:'Фото перед вскрытием',sub:'Понедельник',summary:'До срезания пломбы совпадают несколько особенностей корпуса.',facts:['Та же накладка.','Та же потёртость.','Та же вмятина.','HX-481920 на месте.'],visual:['Пн','до вскрытия','3 совпадения']}
+],
+4:[
+ {id:'A9',type:'фото',title:'Рама внутри контейнера',sub:'После открытия',summary:'У одной рамы есть редкая комбинация старых внешних особенностей.',facts:['Треугольная сварочная накладка.','Стёртый жёлтый угол.','Короткая царапина под боковой ручкой.'],visual:['△ weld','yellow corner','short scratch']},
+ {id:'A10',type:'маршрут',title:'NordServ',sub:'18:31–19:18',summary:'Другой грузовик забирает 12 тяжёлых стандартных рам и едет не в порт.',facts:['Груз по массе нормален для крупного возвратного рейса.','Назначение: NordServ Technical Depot West.'],visual:['12 рам','не порт','NordServ']},
+ {id:'A11',type:'фото',title:'Приёмка NordServ',sub:'20:03',summary:'На одной раме в NordServ видна другая характерная комбинация деталей.',facts:['Заменённая синяя защёлка.','Диагональная старая потёртость.','Светлый скол рядом с верхней ручкой.','Задание приёмки: RET-4412.'],visual:['blue latch','diagonal abrasion','RET-4412']}
+],
+5:[
+ {id:'A12',type:'маршрут',title:'Второй вывоз',sub:'Суббота · 08:12',summary:'12 рам покидают NordServ по заранее существующей инструкции SR-203.',facts:['Компания, чьими данными воспользовался водитель, не отправляла машину.','Использованы клонированные данные утверждённого подрядчика.','NordServ считает выдачу штатной.'],visual:['SR-203','08:12','cloned ID']},
+ {id:'A13',type:'камера',title:'Сервисная линия — полный обзор',sub:'Поздняя проверка',summary:'Поздний материал сильно ослабляет портовую версию.',facts:['Дверная сторона контейнера остаётся закрытой.','Погрузчик к контейнеру не подходит.','Тяжёлой перегрузки в сервисной зоне не видно.'],visual:['двери закрыты','нет forklift','18 мин']},
+ {id:'A14',type:'документ',title:'Исходная M-1180',sub:'Ошибка номера',summary:'Сервисный заезд возник из-за переставленных цифр в номере другого контейнера.',facts:['Исходная заявка: QZMU 621580 2.','В сменный список попало QZMU 621508 4.','Борис признаёт ручную ошибку.'],visual:['621580','621508','clerical']}
+]};
+
+const B={
+1:{facts:[
+ 'На экспорт готовили 12 новых высокоточных промышленных измерительных приборов — оборудование для точной проверки и настройки заводских машин. Модель называется Vektor-M4. Вместе с транспортными рамами партия весит около 5,9 т.',
+ 'На выходе 3 с 17:50 до 20:30 плановое обслуживание сканера; действует ручной режим с временными карточками задания.',
+ 'Антон Северин говорит, что 12/12 загрузили по отчёту смены и ручное закрытие — нормальная резервная процедура.'
+],hyp:'Пока я бы не ставил на одну версию. Ручной режим даёт окно для ошибки или манипуляции, но сам по себе ничего не доказывает.',alt:'Сильная альтернатива сейчас — проблема уже на складе до выезда контейнера. Но у меня пока нет физического маршрута настоящего груза.'},
+2:{facts:[
+ 'Лука передал резервному подрядчику номер морского контейнера и код получения, а потом соврал в отчёте.',
+ 'Мира честно говорит, что вечером её вызвали переставлять два ряда стандартных рам по временным карточкам.',
+ 'В среду назначили на понедельник серийную проверку возвратов, ручных корректировок и списаний.'
+],hyp:'Утечка Луки делает внешнюю кражу реальной версией. Но перестановка двух рядов во время ручного режима мне нравится ещё меньше.',alt:'Может быть и обычная складская ошибка: два ряда похожих рам, ручной режим, суета.'},
+3:{facts:[
+ 'В 20:16 LT-AX-44 вручную закрыта как 12/12 пользователем S-02.',
+ 'Во время ручного режима внешняя карточка задания на раме заменяема; внутренний серийный номер модуля глазами обычно не проверяют.'
+],hyp:'У меня есть неприятный разрыв: запись 12/12 появилась в 20:16, но это не автоматические сканы каждого модуля. Я бы теперь строил отдельную хронологию именно груза.',alt:'Случайная перестановка по карточкам всё ещё возможна. Кто такой S-02, я пока не знаю.'},
+4:{facts:[
+ 'RET-4412 — законный возврат: 12 стандартных рам с калибровочными/тестовыми сборками, около 5,8 т, перевозчик NordServ.',
+ 'На фото RET-4412 до выезда одна рама: треугольная сварочная накладка + стёртый жёлтый угол + короткая царапина.',
+ 'На фото экспортной LT-AX-44 до ручного режима другая рама: синяя защёлка + диагональная потёртость + светлый скол.'
+],hyp:'Теперь я хочу сравнить наши фото. Если твоя рама из контейнера совпадает с моей RET-рамой, а твоя NordServ-рама — с моей экспортной, это уже не просто ошибка в учёте.',alt:'Даже если партии физически пересеклись, ещё надо доказать намеренность. Теоретически сотрудники могли перепутать их в ручном режиме.'},
+5:{facts:[
+ 'После объявления проверки Антон переносит LT-AX-44 и RET-4412 в одно пятничное окно и собирает RET-4412 как полный рейс из 12 рам.',
+ 'SR-203 на субботний дальнейший вывоз RET-4412 создан в среду, до физической погрузки.',
+ 'S-02 = Антон Северин. Он согласовал графики, контролировал ручной режим, в 20:16 подтвердил LT-AX-44 и заранее авторизовал SR-203.',
+ 'Мира позднее вспоминает: именно Северин принёс два комплекта временных карточек и велел переставить два ряда.',
+ 'Ранее через возвратный канал уже были не подтверждённые конечными площадками изделия; процесс курировал Антон.',
+ 'В старой переписке Антон называет функциональные возвраты «мёртвым запасом» и продавливает быстрый внешний вывод.'
+],hyp:'Случайность теперь плохо объясняет картину. Он не просто присутствовал — он заранее свёл две партии в одно окно, подготовил вторую часть маршрута и контролировал ручные карточки.',alt:'Последняя защита Антона: все его действия формально входили в должность, а физическую перестановку сделали сотрудники. Но SR-203 до события и две синхронные смены графика сильно бьют по этой версии.'}
+};
+
+let state=load();
+const el={entry:$('[data-entry]'),game:$('[data-game]'),name:$('[data-player-name]'),start:$('[data-start]'),stageLabel:$('[data-stage-label]'),partnerStage:$('[data-partner-stage]'),nav:$('[data-stage-nav]'),list:$('[data-evidence-list]'),count:$('[data-evidence-count]'),doc:$('[data-document]'),empty:$('[data-workspace-empty]'),next:$('[data-next-stage]'),chain:$('[data-dual-chain]'),chainA:$('[data-chain-a]'),chainB:$('[data-chain-b]'),recon:$('[data-reconstruction]'),chat:$('[data-chat]'),chatForm:$('[data-chat-form]'),chatInput:$('[data-chat-input]'),board:$('[data-board]'),noteForm:$('[data-note-form]'),noteInput:$('[data-note-input]'),reset:$('[data-reset]'),finalTheory:$('[data-final-theory]'),finalEvidence:$('[data-final-evidence]'),finalWho:$('[data-final-who]'),submitFinal:$('[data-submit-final]'),finalResult:$('[data-final-result]')};
+
+function blank(){return{started:false,name:'Валерий',stage:1,opened:[],notes:[],chat:[],selected:null,final:{}}}
+function load(){try{return{...blank(),...JSON.parse(localStorage.getItem(STORE)||'{}')}}catch{return blank()}}
+function save(){localStorage.setItem(STORE,JSON.stringify(state)); const s=$('[data-save-state]'); if(s){s.textContent='Прогресс сохранён локально';setTimeout(()=>s.textContent='Прогресс сохранён локально',500)}}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function allAvailableA(){return Object.entries(A).flatMap(([st,arr])=>Number(st)<=state.stage?arr:[])}
+function currentB(){return B[state.stage]||B[5]}
+
+function render(){el.entry.hidden=state.started;el.game.hidden=!state.started;if(!state.started){el.name.value=state.name||'Валерий';return}el.stageLabel.textContent=stageLabels[state.stage-1];el.partnerStage.textContent=`видит только этап ${state.stage}`;renderNav();renderEvidence();renderPartner();renderBoard();renderStageSurfaces();}
+function renderNav(){el.nav.innerHTML=stageLabels.map((x,i)=>`<button class="stage-tab ${i+1===state.stage?'is-current':''} ${i+1<state.stage?'is-done':''}" type="button" disabled>${i+1}. ${esc(x.replace(/^Этап \d+ · /,''))}</button>`).join('')}
+function renderEvidence(){const items=allAvailableA();el.count.textContent=String(items.length);el.list.innerHTML=items.map(x=>`<button class="evidence-card ${state.selected===x.id?'is-active':''}" data-evidence="${x.id}" type="button"><small>${esc(x.id)} · ${esc(x.type)}</small><strong>${esc(x.title)}</strong><span>${esc(x.sub)}</span></button>`).join('');$$('[data-evidence]').forEach(b=>b.onclick=()=>openEvidence(b.dataset.evidence));el.next.textContent=state.stage<maxStage?'Продолжить расследование':'Перейти к реконструкции';}
+function openEvidence(id){const item=allAvailableA().find(x=>x.id===id);if(!item)return;state.selected=id;if(!state.opened.includes(id))state.opened.push(id);save();el.empty.hidden=true;el.chain.hidden=true;el.recon.hidden=true;el.doc.hidden=false;el.doc.innerHTML=`<div class="document__meta"><span>${esc(item.id)}</span><span>${esc(item.type)}</span><span>${esc(item.sub)}</span></div><h2>${esc(item.title)}</h2><p class="summary">${esc(item.summary)}</p><div class="visual-card">${item.visual.map(v=>`<span class="mark">${esc(v)}</span>`).join('')}</div><div class="fact-grid">${item.facts.map(f=>`<div class="fact">${esc(f)}</div>`).join('')}</div>`;renderEvidence();}
+function renderStageSurfaces(){if(state.stage===3&&!state.selected){showChain()} if(state.stage===5&&state.selected==='FINAL'){showReconstruction()}}
+function showChain(){el.empty.hidden=true;el.doc.hidden=true;el.recon.hidden=true;el.chain.hidden=false;const a=allAvailableA().filter(x=>['A1','A2','A7','A8'].includes(x.id));const b=['LT-AX-44: 12 новых модулей','17:50–20:30: ручной режим','20:16: LT-AX-44 закрыта как 12/12'];el.chainA.innerHTML=a.map(x=>`<div class="chain-item"><strong>${esc(x.id)}</strong> · ${esc(x.title)}<br>${esc(x.sub)}</div>`).join('');el.chainB.innerHTML=b.map(x=>`<div class="chain-item">${esc(x)}</div>`).join('')}
+function showReconstruction(){state.selected='FINAL';save();el.empty.hidden=true;el.doc.hidden=true;el.chain.hidden=true;el.recon.hidden=false;el.finalTheory.value=state.final.theory||'';el.finalEvidence.value=state.final.evidence||'';el.finalWho.value=state.final.who||'';}
+function nextStage(){if(state.stage<maxStage){state.stage++;state.selected=null;state.chat.push({who:'partner',text:partnerStageIntro(state.stage)});save();render();if(state.stage===3)showChain();}else showReconstruction()}
+function partnerStageIntro(stage){return({2:'У меня тоже появились новые материалы. Я бы не спешил закрывать портовую версию — но склад теперь выглядит не менее странно.',3:'Я получил ручное закрытие партии и описание временных карточек. Давай построим две хронологии отдельно.',4:'У меня открылись RET-4412 и два фото рам. Тут уже есть что сравнивать между нашими сторонами.',5:'Теперь у меня есть планирование, SR-203 и расшифровка S-02. Здесь уже можно проверять намеренность, а не только механизм.'})[stage]||''}
+
+function renderPartner(){if(!state.chat.length){state.chat=[{who:'partner',text:`Я Алекс. У меня другая половина дела — склад и идентичность груза. Я не вижу твоих документов. Спрашивай, что у меня есть, или скажи свою версию.`}];save()} el.chat.innerHTML=state.chat.map(m=>`<div class="msg ${m.who==='me'?'me':'partner'}">${m.who==='partner'?'<strong>Алекс</strong><br>':''}${esc(m.text)}${m.share?`<div class="share-chip">${esc(m.share)}</div>`:''}</div>`).join('');el.chat.scrollTop=el.chat.scrollHeight}
+function askPartner(q){q=String(q||'').trim();if(!q)return;state.chat.push({who:'me',text:q});const ans=partnerReply(q);state.chat.push(ans);save();renderPartner();renderBoard()}
+function partnerReply(q){const t=q.toLowerCase();const b=currentB();let text='',share='';
+ if(/что у тебя|материал|ули(к|ц)|документ|что есть/.test(t)){text='На моём этапе вот что у меня реально есть:\n• '+b.facts.join('\n• ')}
+ else if(/что дума|верси|гипотез/.test(t)){text=b.hyp}
+ else if(/альтернатив|другая версия|если не/.test(t)){text=b.alt}
+ else if(/антон|северин|s-02|s02/.test(t)){text=topicAnton(state.stage)}
+ else if(/лук/.test(t)){text=state.stage>=2?'Лука действительно слил резервному перевозчику номер морского контейнера и код получения, а потом соврал об этом. Это серьёзная брешь, но пока она не объясняет, что произошло со складскими рамами.':'На моём текущем этапе про Луку ничего существенного ещё нет.'}
+ else if(/мир/.test(t)){text=state.stage>=2?'Мира говорит прямо: её вызвали вечером переставлять два ряда рам во время ручного режима. Она не знала содержимого и работала по временным карточкам. Пока я не вижу, что она врёт.':'Пока у меня нет материала по Мире.'}
+ else if(/скан|ручн|карточ|портал/.test(t)){text='Во время обслуживания сканера рамы двигают по временным карточкам в внешних карманах, а серийники модулей глазами не сверяют. '+(state.stage>=3?'В 20:16 S-02 вручную закрыл LT-AX-44 как 12/12.':'Кто именно потом закрывал партию, на этом этапе я ещё не знаю.')}
+ else if(/ret|4412|возврат/.test(t)){if(state.stage<4)text='Я знаю, что возвратные операции были, но конкретный RET-4412 у меня ещё не открыт.';else{text='RET-4412 — законный возврат: 12 стандартных рам с калибровочными сборками, около 5,8 т, перевозчик NordServ.';share='Фото RET: треугольная сварочная накладка + стёртый жёлтый угол + короткая царапина.'}}
+ else if(/фото|рама|сравн|защёл|защел|царап|жёлт|желт/.test(t)){if(state.stage<4)text='У меня пока нет открытых фотографий, которые имеет смысл сравнивать.';else{text='У меня два фото до ручного режима. RET-рама: треугольная накладка, стёртый жёлтый угол, короткая царапина. Экспортная рама: синяя защёлка, диагональная потёртость, светлый скол.';share='Сравни это с тем, что видишь у себя после открытия контейнера и на NordServ.'}}
+ else if(/sr-?203|203|суббот|дальше|втор(ой|ого) вывоз/.test(t)){text=state.stage>=5?'SR-203 создан ещё в среду пользователем S-02: RET-4412 после NordServ должен уйти на субботний специализированный вывоз. То есть следующий маршрут существовал до пятничной перестановки.':'На моём текущем этапе следующего маршрута я ещё не вижу.'}
+ else if(/провер|понедель|аудит/.test(t)){text=state.stage>=2?'В среду объявили, что в понедельник будут проверять серийники, возвраты, ручные корректировки и списания. '+(state.stage>=5?'После этого Антон перенёс обе крупные операции в одно окно ручного режима.':'Пока связь с конкретным человеком не доказана.'):'На моём этапе проверки ещё нет.'}
+ else if(/мас|вес/.test(t)){text=state.stage>=4?'У экспортной партии около 5,9 т. У RET-4412 около 5,8 т. Это уже выглядит не как необходимость точно подгонять балласт, а как две физически похожие партии.':'У LT-AX-44 около 5,9 т. Данных о другой сопоставимой партии у меня пока нет.'}
+ else {text=`Из моего текущего набора я не могу уверенно ответить на это. ${b.hyp} Если хочешь, спроси меня про Антона, ручной режим, RET-4412, фото рам, Луку, Миру или проверку.`}
+ return{who:'partner',text,share}}
+function topicAnton(stage){if(stage===1)return'Антон — руководитель экспортной логистики. Он говорит, что ручное закрытие партии при неработающем сканере штатно. Пока это совместимо и с ошибкой, и с манипуляцией.';if(stage===2)return'У меня пока нет прямого доказательства против Антона. Но в понедельник назначена проверка возвратов и ручных корректировок, а он отвечает за эту зону.';if(stage===3)return'S-02 вручную подтвердил экспорт 12/12 в 20:16. Я пока не знаю, кто S-02.';if(stage===4)return'На этом этапе я всё ещё не могу честно назвать Антона организатором. Мы сначала должны доказать сам физический перекрёст партий.';return'S-02 = Антон. После объявления проверки он свёл обе партии в одно окно, собрал RET как 12 рам, заранее создал SR-203 и контролировал ручной режим. По отдельности это законно; вместе — очень тяжёлая цепочка.'}
+
+function renderBoard(){if(!state.notes.length){el.board.innerHTML='<div class="board-item">Пока пусто. Фиксируйте версии своими словами.</div>';return} el.board.innerHTML=state.notes.map((n,i)=>`<div class="board-item"><strong>${i+1}.</strong> ${esc(n)}</div>`).join('')}
+function addNote(v){v=String(v||'').trim();if(!v)return;state.notes.push(v);save();renderBoard()}
+function evaluateFinal(){state.final={theory:el.finalTheory.value.trim(),evidence:el.finalEvidence.value.trim(),who:el.finalWho.value.trim()};save();const all=(state.final.theory+' '+state.final.evidence+' '+state.final.who).toLowerCase();const checks=[[/антон|северин/,'организатор'],[/ret|возврат|калибров/,'возвратная партия'],[/nord|норд|sr-?203|втор.*вывоз/,'маршрут настоящего груза'],[/ручн|карточ|скан/,'механизм ручного режима'],[/пятниц|провер|понедель|аудит/,'мотив и timing'],[/пломб|до опломб|20:09/,'роль пломбы'],[/две.*парт|помен|перекр|рам.*мест|мест.*рам/,'физический crossover']];const missing=checks.filter(([re])=>!re.test(all)).map(([,label])=>label);el.finalResult.hidden=false;if(missing.length<=2){el.finalResult.className='final-result good';el.finalResult.innerHTML=`<strong>Версия близка к полной.</strong><br>${missing.length?'Ещё слабо объяснены: '+missing.join(', ')+'.<br>':''}<br><b>Контрольный вопрос:</b> чем вы доказываете, что это была не случайная перестановка двух рядов?`;}else{el.finalResult.className='final-result warn';el.finalResult.innerHTML=`<strong>Пока версия не объясняет всю причинную цепь.</strong><br>Не закрыты: ${missing.join(', ')}.<br><br>Попробуйте не добавлять новых догадок, а связать уже найденные физические маршруты и заранее принятые решения.`}}
+
+el.start.onclick=()=>{state.started=true;state.name=el.name.value.trim()||'Следователь';state.chat=[];save();render()};el.next.onclick=nextStage;el.reset.onclick=()=>{if(confirm('Сбросить локальный прогресс демо?')){state=blank();localStorage.removeItem(STORE);render()}};el.chatForm.onsubmit=e=>{e.preventDefault();const q=el.chatInput.value;el.chatInput.value='';askPartner(q)};$$('[data-quick]').forEach(b=>b.onclick=()=>askPartner(b.dataset.quick));el.noteForm.onsubmit=e=>{e.preventDefault();addNote(el.noteInput.value);el.noteInput.value=''};el.submitFinal.onclick=evaluateFinal;
+render();
+})();
+
+  </script>
+</body>
+</html>
