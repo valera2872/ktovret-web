@@ -1,0 +1,77 @@
+name: Deploy isolated Cognitive staging
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cognitive-staging-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: cognitive-profile-staging-pages
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Cognitive staging branch only
+        uses: actions/checkout@v4
+        with:
+          ref: staging/cognitive-profile
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate Cognitive staging
+        run: |
+          set -euo pipefail
+          node --check assets/cognitive-profile-preview.mjs
+          node --check assets/cognitive-profile-preview-data.mjs
+          node tests/cognitive-profile-preview.test.mjs
+          grep -q 'noindex,nofollow' admin/cognitive-profile-preview/index.html
+          if grep -RniE 't\.me|telegram' admin/cognitive-profile-preview assets/cognitive-profile-preview*; then
+            echo "Telegram link/content forbidden in Cognitive staging preview"
+            exit 1
+          fi
+
+      - name: Build isolated Pages artifact
+        run: |
+          set -euo pipefail
+          mkdir -p staging/admin/cognitive-profile-preview staging/assets
+          cp admin/cognitive-profile-preview/index.html staging/admin/cognitive-profile-preview/index.html
+          cp assets/cognitive-profile-preview.css staging/assets/
+          cp assets/cognitive-profile-preview.mjs staging/assets/
+          cp assets/cognitive-profile-preview-data.mjs staging/assets/
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta http-equiv="refresh" content="0;url=./admin/cognitive-profile-preview/"><title>Mystery Logic Cognitive staging</title><a href="./admin/cognitive-profile-preview/">Open Cognitive Profile preview</a>' > staging/index.html
+          printf '%s\n' 'User-agent: *' 'Disallow: /' > staging/robots.txt
+          touch staging/.nojekyll
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cognitive-profile-staging
+          path: staging
+          retention-days: 7
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: staging
+
+  deploy:
+    needs: validate-and-build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Cognitive staging artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
