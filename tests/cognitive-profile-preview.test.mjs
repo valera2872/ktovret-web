@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {items,scales} from '../assets/cognitive-profile-preview-data.mjs';
 
@@ -25,3 +26,12 @@ console.log(JSON.stringify({
   scales:Object.keys(scales).length,
   visual:items.filter(x=>x.visual).length
 },null,2));
+
+const previewHtml=readFileSync(new URL('../admin/cognitive-profile-preview/index.html',import.meta.url),'utf8');
+const runtime=readFileSync(new URL('../assets/cognitive-profile-preview.mjs',import.meta.url),'utf8');
+assert.match(previewHtml,/id="resultTime"/);
+assert.match(previewHtml,/id="resultAnswered"/);
+assert.match(previewHtml,/https:\/\/mysterylogic\.com\/detektivnye-igry-dlya-odnogo\//);
+assert.match(previewHtml,/Выбрать бесплатное расследование/);
+assert.match(runtime,/scaleNotes=/);
+assert.match(runtime,/resultAnswered/);
