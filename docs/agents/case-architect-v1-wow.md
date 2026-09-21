@@ -890,3 +890,81 @@ Case Architect must explicitly run this gate BEFORE:
 - Content Freeze.
 
 A later beautiful UI does not rescue a confusing first screen.
+
+
+## 36. AUTONOMOUS PRE-REVIEW GATE — USER IS NOT BASIC QA
+
+This rule is mandatory.
+
+The user is NOT responsible for finding obvious quality defects in drafts, previews or demos.
+
+Before showing any review build to the user, Case Architect must independently verify at minimum:
+
+### Technical sanity
+- primary CTA works in the actual delivery mode;
+- page opens in target browser context;
+- no blocking JavaScript errors;
+- all expected evidence/stages render;
+- reset/resume behavior works where relevant;
+- desktop and mobile layouts render without overlap or broken controls.
+
+### First-screen quality
+- First Screen Clarity / Hook Gate passed internally;
+- no unexplained jargon;
+- incident, role, stakes and first action are obvious;
+- opening is emotionally engaging enough to justify continuing.
+
+### Visual quality
+- no repeated hero imagery across adjacent screens unless narratively intentional;
+- typography is readable at normal browser zoom;
+- no body copy below reasonable game-reading size;
+- primary content hierarchy is obvious;
+- central screen area carries meaningful action/evidence, not empty decorative space;
+- evidence looks like game material, not admin/debug UI;
+- layout feels premium enough for the intended paid tier.
+
+### UX quality
+- user can understand what to do next without author explanation;
+- interaction labels are human-facing, not internal project vocabulary;
+- the virtual/real partner feels like part of the investigation, not a utility widget;
+- no stage leaks future terminology or solution logic;
+- no duplicated information that makes the experience feel padded.
+
+### Content sanity
+- player-facing text matches current CANON;
+- obsolete v1 content is not accidentally mixed into active v2;
+- no answer-changing fact appears only after the final accusation;
+- no accidental spoilers in labels, prompts, metadata or filenames visible to players.
+
+### Review threshold
+Do NOT show the build to the user if any of the above has a known defect.
+
+The user should be asked to judge only higher-level questions such as:
+- is this compelling?
+- does this feel premium?
+- is the mystery enjoyable?
+- does the visual direction fit the brand?
+- does the experience deserve to ship/paywall?
+
+The user should NOT have to report:
+- button does not work;
+- text is too small;
+- opening is incomprehensible;
+- same image repeats immediately;
+- layout breaks;
+- obvious jargon;
+- raw/admin-like visual quality.
+
+Any such user-found issue counts as AUTONOMOUS PRE-REVIEW GATE FAIL and must be recorded as a process failure, not merely a design tweak.
+
+### Escalation rule
+After one such process failure, the next review build must receive a stricter internal pass before user delivery:
+- desktop render review;
+- mobile render review;
+- interaction smoke test;
+- text-size/readability pass;
+- first-screen cold-read test;
+- visual repetition check;
+- user-path rehearsal from start through at least first meaningful deduction.
+
+The user approves direction and release quality; the agent owns basic craft and QA.
