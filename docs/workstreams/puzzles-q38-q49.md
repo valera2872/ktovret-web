@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`eef8ca04d1a851e6b7da0994ea188ccc3113bb3f`
+`e0621fb2069c0c26318b1c58b4414de72ad55229`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -58,23 +58,26 @@ Files:
 - .github/workflows/puzzles-q38-q49-staging.yml
 
 ## Design decision
-The first staging design was rejected by owner as too rough and not aligned with the site template.
+The first staging design was rejected by owner as too rough and not aligned with the site template. The owner then supplied a screenshot and explicitly stated that this screenshot is the current on-site visual reference; that screenshot is now the source of truth for card composition.
 
 Current redesign:
-- uses LIVE puzzle header structure
-- uses LIVE `logic-seo-hero`
-- uses LIVE `logic-quick-grid` / `logic-quick-card`
-- uses LIVE `logic-quick-layout`, `logic-question-panel`, `logic-answer-panel`, `logic-choice`
-- uses exact LIVE stylesheet version marker `3026adc03868`
-- removes visible Puzzle Lab / TEST DOMAIN product framing
-- presents Q38–Q49 as a normal new series inside the puzzle ecosystem
+- keeps the Mystery Logic site header/navigation context
+- uses the owner-supplied on-site card composition as the visual source of truth
+- three-column visual-first cards on desktop
+- every Q38–Q49 card now has a top visual/illustration, not only the six diagram-heavy puzzles
+- exact schematic visuals for Q38/Q40/Q43/Q44/Q48/Q49
+- subject illustrations for Q39/Q41/Q42/Q45/Q46/Q47
+- number/mechanic/title/short premise/time/difficulty/CTA below the visual
+- individual puzzle view remains interactive with choices, hint, validation and explanation
+- no visible Puzzle Lab / TEST DOMAIN product framing
 
 ## QA
 Latest branch validation:
-- run 35637524767 — SUCCESS
+- run 35643376436 — SUCCESS
 - 12/12 content contract
 - difficulty distribution 3/5/3/1
-- six visual puzzles
+- 12 visual-first catalog cards
+- six exact diagram-heavy visuals
 - Q40 deterministic movement checked
 - Q43 unique valid A→E route checked by enumeration
 - Q48 cube orientation checked
@@ -83,8 +86,8 @@ Latest branch validation:
 - noindex staging boundary
 
 Combined GitHub Pages staging deploy:
-- main workflow commit: 356212f0ab031faeadcff94df1b7d8d736d59900
-- run 35637567626 — SUCCESS
+- main workflow commit: 39155416236201347699959f858da0a1a48a7c2e
+- run 35643410444 — SUCCESS
 - staging URL: https://valera2872.github.io/ktovret-web/admin/puzzles-q38-q49-preview/
 
 ## Production boundary
