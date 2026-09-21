@@ -731,3 +731,162 @@ Before Content Freeze, answer:
 "If a player paid for this case and played it tonight, what exact moment would make them tell another person tomorrow that Mystery Logic was different?"
 
 If the answer is vague, the case is not yet a flagship.
+
+
+## 35. FIRST SCREEN CLARITY / HOOK GATE — HARD RULE
+
+This rule is mandatory for EVERY Mystery Logic case, not optional polish.
+
+### Core principle
+
+The player must never have to decode the product, world or terminology before they understand the incident.
+
+The first screen must make the situation emotionally and practically clear before introducing complexity.
+
+Within roughly 15–20 seconds, a new player must be able to answer in ordinary language:
+
+1. WHO AM I?
+What role am I playing in this investigation?
+
+2. WHAT HAPPENED?
+What concrete event/problem occurred?
+
+3. WHY DOES IT MATTER?
+What is at stake and why should I care?
+
+4. WHAT DO I DO NOW?
+What is my first investigative action?
+
+If any answer is unclear, FIRST SCREEN = FAIL.
+
+### No-jargon rule
+
+The first screen MUST NOT contain unexplained:
+- product codes;
+- acronyms;
+- internal case IDs;
+- model names;
+- logistics/forensic/legal/medical/technical terminology;
+- fictional company vocabulary that the player must infer;
+- abstract phrases such as "asymmetric evidence", "manual workflow", "serialized module", "identity chain" unless they are immediately translated into ordinary human language.
+
+Plain-language meaning comes FIRST.
+Technical label may appear SECOND, only when it becomes useful.
+
+BAD:
+"12 Vektor-M4 modules in standardized frames."
+
+GOOD:
+"12 expensive industrial measuring devices — equipment factories use to precisely test and calibrate machinery. Their model name is Vektor-M4."
+
+If a term can be misunderstood as a weapon, headset, software product, medical device or anything else, the text MUST explicitly state what physical thing it is and what it is used for.
+
+### Maximum semantic disclosure, minimum solution disclosure
+
+"Do not spoil the mystery" is NOT permission to hide the premise.
+
+Reveal the situation fully.
+Hide the solution, not the basic meaning.
+
+The player may be uncertain about:
+- who did it;
+- how it was done;
+- which evidence matters;
+- which witness lies.
+
+The player must NOT be uncertain about:
+- what object is missing;
+- what happened at the scene;
+- their role;
+- what the visible problem is;
+- why the investigation exists.
+
+### Hook before rules
+
+Preferred opening order:
+
+INCIDENT / HUMAN SCENE
+→ clear consequence/stakes
+→ player role
+→ first action
+→ only then rules, systems, codes and technical context.
+
+Do NOT lead with:
+- feature chips;
+- product taxonomy;
+- "Premium Partner";
+- CASE IDs;
+- instruction lists;
+- database-like fact dumps.
+
+The player should enter a story/problem before they enter an interface.
+
+### First-screen vocabulary test
+
+For every noun on the first screen ask:
+"Would a normal adult outside this profession understand exactly what physical thing this is?"
+
+If NO:
+- replace it with plain language;
+- or immediately explain it in 3–10 simple words.
+
+### One-screen comprehension test
+
+Show only the first screen to a cold reader.
+
+Ask:
+- "Что произошло?"
+- "Что пропало/сломалось/случилось?"
+- "Почему это важно?"
+- "Кто вы здесь?"
+- "Что вам надо сделать?"
+
+Any wrong, vague or hesitant answer => FAIL and rewrite.
+
+Do NOT explain the screen verbally after the test.
+If explanation is required, the screen failed.
+
+### Hook quality
+
+A technically clear screen can still be boring.
+
+The first 30–60 seconds must contain:
+- a concrete image/action/change;
+- a contradiction or unresolved problem;
+- a consequence/stake;
+- an immediate investigative promise.
+
+For flagship Premium, "read the report" is not an acceptable first action.
+
+### Progressive complexity
+
+Complexity is earned in layers:
+
+Layer 0 — human situation.
+Layer 1 — simple evidence.
+Layer 2 — named systems/processes.
+Layer 3 — specialist detail only when it enables deduction.
+
+Never start at Layer 2 or 3.
+
+### Automatic vetoes
+
+FIRST SCREEN FAIL if:
+- user asks "что это вообще?";
+- user asks what a central object/term means;
+- opening reads like a logistics/forensics/business report;
+- player sees more product/system terminology than story;
+- player understands mechanics but not why they should care;
+- first screen could make a reasonable user close the page before taking one investigative action.
+
+FIRST SCREEN FAIL blocks PREMIUM and SIGNATURE status regardless of logic/WOW scores.
+
+### Chronic-error prevention
+
+Case Architect must explicitly run this gate BEFORE:
+- visual design;
+- blind test;
+- implementation preview;
+- Content Freeze.
+
+A later beautiful UI does not rescue a confusing first screen.
