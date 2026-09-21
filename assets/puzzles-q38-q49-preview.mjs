@@ -3,18 +3,29 @@ import {puzzleBatch} from './puzzles-q38-q49-preview-data.mjs';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=(v='')=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-const KEY='ml:puzzles:q38-q49:staging:v2';
-const readProgress=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{"solved":[]}')}catch{return{solved:[]}}};
+const KEY='ml:puzzles:q38-q49:staging:v3';
+const readProgress=()=>{
+  try{
+    const raw=JSON.parse(localStorage.getItem(KEY)||'{}');
+    return {solved:Array.isArray(raw.solved)?raw.solved:[],results:raw.results&&typeof raw.results==='object'?raw.results:{}};
+  }catch{return{solved:[],results:{}}}
+};
 const writeProgress=(state)=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}};
 const solvedSet=()=>new Set(readProgress().solved||[]);
-const markSolved=(id)=>{const state=readProgress(),set=new Set(state.solved||[]);set.add(id);state.solved=[...set];writeProgress(state)};
+const markSolved=(id,mode)=>{
+  const state=readProgress(),set=new Set(state.solved||[]);
+  set.add(id);state.solved=[...set];state.results={...(state.results||{}),[id]:mode};
+  writeProgress(state);
+};
 
 const catalog=$('#catalogView');
 const puzzleView=$('#puzzleView');
 const grid=$('#puzzleGrid');
 const progressText=$('#progressText');
 let currentIndex=-1;
-let selected=null;
+let selectedOption=null;
+let answerState={};
+let assistance={hint:false,options:false,solution:false};
 let activeFilter='all';
 
 function arrowGlyph(dir){
@@ -185,6 +196,185 @@ function thumbFor(p){
 }
 function difficultyClass(d){return d==='Очень сложно'?'very-hard':d==='Сложно'?'hard':d==='Средне'?'medium':'easy'}
 function cardSummary(p){return p.prompt;}
+
+function normalizeText(value=''){
+  return String(value).toLowerCase().replaceAll('ё','е').replace(/[.,;:!?()[\]{}"«»]/g,' ').replace(/\s+/g,' ').trim();
+}
+function modeLabel(mode){
+  return mode==='clean'?'самостоятельно':mode==='hint'?'с подсказкой':mode==='options'?'с вариантами':mode==='solution'?'решение открыто':'самостоятельно';
+}
+function currentMode(){
+  if(assistance.solution)return 'solution';
+  if(assistance.options)return 'options';
+  if(assistance.hint)return 'hint';
+  return 'clean';
+}
+function updateModeBadge(){
+  const badge=$('#answerModeBadge');
+  if(!badge)return;
+  const mode=currentMode();
+  badge.textContent=modeLabel(mode);
+  badge.dataset.mode=mode;
+}
+function choiceGroup(title,buttons,attr){
+  return `<div class="mlq-answer-group"><span class="mlq-answer-label">${esc(title)}</span><div class="mlq-segmented">${buttons.map(([value,label])=>`<button type="button" data-${attr}="${esc(value)}">${label}</button>`).join('')}</div></div>`;
+}
+function setSelected(selector,value){
+  $(selector,$('#answerWidget')).forEach(btn=>btn.classList.toggle('is-selected',btn.dataset[Object.keys(btn.dataset)[0]]===String(value)));
+}
+function renderAnswerWidget(p){
+  const box=$('#answerWidget');
+  selectedOption=null;
+  answerState={};
+
+  if(p.id==='quick:038'){
+    answerState={dir:null,dot:null,strokes:null};
+    box.innerHTML=
+      choiceGroup('Направление',[['up','↑'],['right','→'],['down','↓'],['left','←']],'dir')+
+      choiceGroup('Положение точки',[['tl','↖'],['tr','↗'],['br','↘'],['bl','↙']],'dot')+
+      choiceGroup('Штрихи',[['1','I'],['2','II'],['3','III']],'strokes');
+    $('[data-dir]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.dir;$('[data-dir]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $('[data-dot]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dot=b.dataset.dot;$('[data-dot]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $('[data-strokes]',box).forEach(b=>b.addEventListener('click',()=>{answerState.strokes=Number(b.dataset.strokes);$('[data-strokes]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    return;
+  }
+
+  if(['quick:039','quick:042','quick:046','quick:047'].includes(p.id)){
+    const placeholders={
+      'quick:039':'Например: «жетон X ...»',
+      'quick:042':'Что именно следует о положении листов?',
+      'quick:046':'Что именно доказано показанием счётчика?',
+      'quick:047':'В каком состоянии был лист?'
+    };
+    box.innerHTML=`<label class="mlq-free-answer"><span>Сформулируйте вывод своими словами</span><textarea id="freeAnswer" rows="3" placeholder="${esc(placeholders[p.id])}"></textarea></label><p class="mlq-answer-help">Не нужно угадывать точную формулировку — проверяется смысл ключевого вывода.</p>`;
+    $('#freeAnswer').addEventListener('input',e=>{answerState.text=e.target.value});
+    return;
+  }
+
+  if(p.id==='quick:040'){
+    answerState={cell:null,dir:null};
+    const cells=[];
+    for(let row=5;row>=1;row--)for(const col of ['A','B','C','D','E'])cells.push(`${col}${row}`);
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Конечная клетка</span><div class="mlq-cell-grid">${cells.map(c=>`<button type="button" data-cell="${c}">${c}</button>`).join('')}</div></div>`+
+      choiceGroup('Куда смотрит робот?',[['N','↑ север'],['E','→ восток'],['S','↓ юг'],['W','← запад']],'facing');
+    $('[data-cell]',box).forEach(b=>b.addEventListener('click',()=>{answerState.cell=b.dataset.cell;$('[data-cell]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    $('[data-facing]',box).forEach(b=>b.addEventListener('click',()=>{answerState.dir=b.dataset.facing;$('[data-facing]',box).forEach(x=>x.classList.toggle('is-selected',x===b))}));
+    return;
+  }
+
+  if(['quick:041','quick:048'].includes(p.id)){
+    answerState={number:''};
+    const label=p.id==='quick:041'?'Следующее число':'Число на верхней грани';
+    box.innerHTML=`<label class="mlq-number-answer"><span>${label}</span><input id="numberAnswer" inputmode="numeric" type="number" autocomplete="off"></label>`;
+    $('#numberAnswer').addEventListener('input',e=>{answerState.number=e.target.value});
+    return;
+  }
+
+  if(p.id==='quick:043'){
+    answerState={route:['A']};
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Постройте маршрут</span><div id="routePath" class="mlq-route-path">A</div><div class="mlq-room-buttons">${['B','C','D','E'].map(r=>`<button type="button" data-room="${r}">${r}</button>`).join('')}</div><button id="routeReset" class="mlq-inline-reset" type="button">Сбросить маршрут</button></div>`;
+    const paint=()=>{$('#routePath').textContent=answerState.route.join(' → ');$('[data-room]',box).forEach(b=>b.disabled=answerState.route.includes(b.dataset.room))};
+    $('[data-room]',box).forEach(b=>b.addEventListener('click',()=>{if(answerState.route.length<5&&!answerState.route.includes(b.dataset.room)){answerState.route.push(b.dataset.room);paint()}}));
+    $('#routeReset').addEventListener('click',()=>{answerState.route=['A'];paint()});
+    paint();
+    return;
+  }
+
+  if(p.id==='quick:044'){
+    answerState={lines:new Set()};
+    const lines=[['v','│'],['h','—'],['f','╱'],['b','╲']];
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Какие линии останутся?</span><div class="mlq-line-builder">${lines.map(([v,l])=>`<button type="button" data-line="${v}">${l}</button>`).join('')}</div><p class="mlq-answer-help">Нажмите на все линии, которые должны присутствовать в результате.</p></div>`;
+    $('[data-line]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.line;if(answerState.lines.has(v))answerState.lines.delete(v);else answerState.lines.add(v);b.classList.toggle('is-selected',answerState.lines.has(v))}));
+    return;
+  }
+
+  if(p.id==='quick:045'){
+    answerState={cards:new Set()};
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Какие карточки перевернуть?</span><div class="mlq-test-cards">${['K','M','4','7'].map(v=>`<button type="button" data-test-card="${v}">${v}</button>`).join('')}</div><p class="mlq-answer-help">Можно выбрать несколько карточек.</p></div>`;
+    $('[data-test-card]',box).forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.testCard;if(answerState.cards.has(v))answerState.cards.delete(v);else answerState.cards.add(v);b.classList.toggle('is-selected',answerState.cards.has(v))}));
+    return;
+  }
+
+  if(p.id==='quick:049'){
+    answerState={counts:{A:'',B:'',C:'',D:''}};
+    box.innerHTML=`<div class="mlq-answer-group"><span class="mlq-answer-label">Сколько жетонов взять из каждой коробки?</span><div class="mlq-weigh-inputs">${['A','B','C','D'].map(k=>`<label><span>${k}</span><input data-box-count="${k}" type="number" min="0" step="1" inputmode="numeric" autocomplete="off"></label>`).join('')}</div><p class="mlq-answer-help">Допускается любая стратегия, которая гарантированно различает все 8 случаев.</p></div>`;
+    $('[data-box-count]',box).forEach(inp=>inp.addEventListener('input',()=>{answerState.counts[inp.dataset.boxCount]=inp.value}));
+    return;
+  }
+
+  box.innerHTML='<p>Для этой задачи пока нет собственного формата ответа.</p>';
+}
+function validateCustomAnswer(p){
+  if(p.id==='quick:038'){
+    const ready=!!(answerState.dir&&answerState.dot&&answerState.strokes);
+    return {ready,correct:ready&&answerState.dir==='right'&&answerState.dot==='tr'&&answerState.strokes===3};
+  }
+  if(p.id==='quick:039'){
+    const t=normalizeText(answerState.text);
+    const ready=t.length>=3;
+    return {ready,correct:ready&&((t.includes('не')&&t.includes('латун'))||t.includes('не из латуни'))};
+  }
+  if(p.id==='quick:040'){
+    const ready=!!(answerState.cell&&answerState.dir);
+    return {ready,correct:ready&&answerState.cell==='D3'&&answerState.dir==='S'};
+  }
+  if(p.id==='quick:041'){
+    const n=Number(answerState.number),ready=String(answerState.number).trim()!=='';
+    return {ready,correct:ready&&n===92};
+  }
+  if(p.id==='quick:042'){
+    const t=normalizeText(answerState.text);
+    const hasB=/(^| )b( |$)/.test(t)||t.includes('лист b');
+    const hasA=/(^| )a( |$)/.test(t)||t.includes('лист a');
+    const relation=t.includes('под')||t.includes('снизу')||t.includes('нижн');
+    return {ready:t.length>=5,correct:t.length>=5&&hasB&&hasA&&relation};
+  }
+  if(p.id==='quick:043'){
+    const route=answerState.route||[];
+    return {ready:route.length===5,correct:route.join('')==='ACBDE'};
+  }
+  if(p.id==='quick:044'){
+    const set=answerState.lines||new Set();
+    const ready=set.size>0;
+    return {ready,correct:ready&&set.size===2&&set.has('h')&&set.has('f')};
+  }
+  if(p.id==='quick:045'){
+    const set=answerState.cards||new Set();
+    const ready=set.size>0;
+    return {ready,correct:ready&&set.size===2&&set.has('K')&&set.has('7')};
+  }
+  if(p.id==='quick:046'){
+    const t=normalizeText(answerState.text);
+    const cycle=t.includes('цикл');
+    const absent=t.includes('не было')||t.includes('ни одного')||t.includes('отсутств')||t.includes('0 ');
+    const full=t.includes('полн')||t.includes('рабоч');
+    return {ready:t.length>=5,correct:t.length>=5&&cycle&&absent&&full};
+  }
+  if(p.id==='quick:047'){
+    const t=normalizeText(answerState.text);
+    const ready=t.length>=4;
+    const unfolded=t.includes('развернут')||t.includes('разложен')||t.includes('не был сложен')||t.includes('не сложен');
+    return {ready,correct:ready&&unfolded};
+  }
+  if(p.id==='quick:048'){
+    const n=Number(answerState.number),ready=String(answerState.number).trim()!=='';
+    return {ready,correct:ready&&n===1};
+  }
+  if(p.id==='quick:049'){
+    const vals=['A','B','C','D'].map(k=>Number(answerState.counts?.[k]));
+    const ready=vals.every(Number.isInteger)&&vals.every(n=>n>0);
+    const distinct=new Set(vals).size===4;
+    return {ready,correct:ready&&distinct};
+  }
+  return {ready:false,correct:false};
+}
+function renderFallbackOptions(p){
+  $('#choiceList').innerHTML=p.choices.map((c,i)=>`<button class="logic-choice" data-choice="${i}" type="button"><strong>${'ABCD'[i]}.</strong> ${esc(c)}</button>`).join('');
+  $('.logic-choice',$('#choiceList')).forEach(btn=>btn.addEventListener('click',()=>{
+    selectedOption=Number(btn.dataset.choice);
+    $('.logic-choice',$('#choiceList')).forEach(x=>x.classList.toggle('is-selected',x===btn));
+  }));
+}
 function renderCatalog(){
   const solved=solvedSet();
   const shown=puzzleBatch.filter(p=>activeFilter==='all'||p.difficulty===activeFilter);
