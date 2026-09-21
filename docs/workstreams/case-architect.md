@@ -205,3 +205,20 @@ Before user selection, each seed must pass:
 - Premium experience test.
 
 Do not publish future concepts/spoilers to public GitHub.
+
+
+## Execution update — 2026-09-21
+
+CASE-ARCH-001 first concept pass completed.
+
+Private output:
+`/Mystery Logic/Workstreams/case-architect/CASE-ARCH-001-CONCEPT-SEEDS.md`
+
+- 4 Premium Solo concept seeds generated;
+- all passed initial portfolio/originality preflight against the checked competitor set;
+- 1 concept recommended for CANON exploration;
+- no culprit/solution/CANON has been created yet;
+- concepts remain private and are not stored in public GitHub.
+
+Exact next step:
+user selects/accepts a concept direction, then Case Architect creates PRIVATE CANON and runs character/evidence/contradiction architecture before any implementation.
