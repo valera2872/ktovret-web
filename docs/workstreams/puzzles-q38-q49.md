@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`b5b5878944e46348396267eb9d6740b329e937cd`
+`d4acd7992a27b5614e4837a62b751b7a9d0716fc`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -183,3 +183,47 @@ QA:
 - combined staging deploy commit: 15667cfb47e524c71194d38aa0c42389ede29a3a
 - combined staging deploy run 35655814383 — SUCCESS
 - production untouched.
+
+
+## Structured-answer + visual polish — 2026-09-22
+Owner approved proceeding with:
+1. replacing fragile free-text mechanics for Q39/Q42/Q46/Q47;
+2. polishing all 12 visuals toward the on-site reference.
+
+Implemented:
+- new pure answer model: `assets/puzzles-q38-q49-answer-model.mjs`
+- Q39: complete `X не ____` instead of prose parser
+- Q42: build sheet stack top→bottom
+- Q46: enter exact count of complete cycles
+- Q47: choose physical folded/unfolded sheet state
+- Q38/Q40/Q43/Q44/Q45/Q49 retain their native interactive controls
+- Q41/Q48 retain numeric inputs
+- fallback A/B/C/D remains hidden behind explicit `Показать варианты`
+- all 12 detail pages now have a visual; non-diagram puzzles reuse the cinematic evidence scene
+- card art gained darker evidence-table framing, warm local light, vignette, shadow, subtle grid/grain and Mystery Logic evidence label
+- catalog proof updated from “6 visual” to “12 with visual”
+- cache-bust advanced to `20260922a`
+
+QA:
+- pure answer model tests all 12 correct states => accepted
+- control wrong states for all 12 => rejected
+- Q49 arbitrary valid strategy `1,3,5,8` verified as 8 unique signed deviations
+- branch validation run 35662544215 — SUCCESS
+- staging deploy commit: 9f9ef56308c5c4fb757d94ff6dd54e0216772c86
+- staging deploy run 35662593958 — SUCCESS
+- staging artifact digest: sha256:b7e5205e30347d7a5209ca469de46038c61779fff5a32db6b955aabc49d0ac3d
+- GitHub Pages digest: sha256:401f159f0bf9dc551ee641caabea7c38363744e815d0523df35547bd8fec4fe8
+- public URL unchanged: https://valera2872.github.io/ktovret-web/admin/puzzles-q38-q49-preview/
+
+Production boundary remains intact:
+- Beget LIVE untouched
+- CURRENT_RELEASE untouched
+- Supabase untouched
+- production analytics untouched
+- production puzzle catalog/editorial queue untouched
+
+Pending:
+1. owner visual/play review of the polished staging;
+2. if approved, convert Q38–Q49 into real editorial batch;
+3. choose 6–8 strongest tasks for /golovolomki-onlayn/ showcase;
+4. desktop/mobile visual smoke before any production patch.
