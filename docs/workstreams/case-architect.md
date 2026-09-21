@@ -655,3 +655,34 @@ No LIVE / Supabase / payment / entitlement changes.
 
 Next user review:
 judge whether the implemented playable build actually reaches the approved visual bar, not merely whether the concept mockup does.
+
+
+## CASE-ARCH-001 visual review fix — duplicate imagery + text scale
+
+User feedback on approved premium review build:
+- imagery repeats between intro and game screen;
+- typography is too small.
+
+Decision:
+Treat both as premium-quality defects, not cosmetic preferences.
+
+Applied in local review v2:
+- removed repeated port hero from the post-start workspace;
+- post-start screen now opens on a distinct investigation desk / route map, not the same cinematic scene;
+- photographs are reserved for actual evidence artifacts;
+- increased game typography throughout: case intro, navigation, stage tabs, evidence cards, document body, chat, notes and partner area;
+- increased entry-screen explanatory text as well;
+- widened desktop side columns to accommodate readable type;
+- removed stale screenshots from review ZIP to avoid showing obsolete visuals.
+
+Review artifact:
+CASE-ARCH-001-premium-demo-v2.zip
+SHA-256: f9d8d623c44d695630f6763860a6b3926c2ecd7883a921e0c9c171db1aa79523
+
+Library:
+/Mystery Logic/Workstreams/case-architect/demos/CASE-ARCH-001-premium-demo-v2.zip
+
+No LIVE / Supabase / payment changes.
+
+Next user review focus:
+readability at normal browser zoom and whether the transition from cinematic intro to investigative workspace now feels like progression rather than repetition.
