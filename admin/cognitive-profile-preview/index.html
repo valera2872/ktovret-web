@@ -54,7 +54,13 @@
       <h1>Ваш профиль в этом тесте</h1>
       <div class="ml-score-block">
         <div class="ml-score-ring"><strong id="scoreRaw">0/24</strong><span>Верных ответов</span></div>
-        <p id="scoreNote"></p>
+        <div>
+          <p id="scoreNote"></p>
+          <div class="ml-result-meta" aria-label="Сводка прохождения">
+            <div><strong id="resultTime">00:00</strong><span>время</span></div>
+            <div><strong id="resultAnswered">24/24</strong><span>дано ответов</span></div>
+          </div>
+        </div>
       </div>
       <div id="scaleResults" class="ml-scale-results"></div>
       <section class="ml-dossier-note">
@@ -65,9 +71,16 @@
         <h2>Что видно по этому прохождению</h2>
         <p id="profileNote"></p>
       </section>
+      <section class="ml-next-step">
+        <p class="ml-kicker">ПРИМЕНИТЬ ПРОФИЛЬ</p>
+        <h2>Теперь проверьте себя в расследовании</h2>
+        <p>Здесь навыки проверялись по отдельности. В деле придётся одновременно удерживать факты, проверять версии, замечать противоречия и не делать вывод сильнее доказательств.</p>
+        <div class="ml-next-proof"><span>Бесплатные дела</span><span>Без регистрации</span><span>Прямо в браузере</span></div>
+        <a class="ml-btn ml-primary ml-investigate" href="https://mysterylogic.com/detektivnye-igry-dlya-odnogo/" target="_blank" rel="noopener">Выбрать бесплатное расследование →</a>
+      </section>
       <p class="ml-disclaimer">Это экспериментальный игровой тест Mystery Logic. Он не является психодиагностикой, клиническим IQ‑тестом или стандартизированной оценкой интеллекта.</p>
       <div class="ml-result-actions">
-        <button id="restartBtn" class="ml-btn ml-primary" type="button">Пройти заново</button>
+        <button id="restartBtn" class="ml-btn ml-ghost" type="button">Пройти заново</button>
       </div>
     </section>
   </main>
