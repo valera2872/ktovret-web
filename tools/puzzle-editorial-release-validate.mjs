@@ -20,7 +20,7 @@ const sitemapHasPrefix=route=>sitemapLocs.some(loc=>{try{return new URL(loc).pat
 const home=read('index.html');
 const ready=report.logicAudienceEditorialReady===true;
 
-assert(report.logicAudienceEditorialTotal===37,'editorial total must stay 37 for release v2');
+assert(report.logicAudienceEditorialTotal===49,'editorial total must be 49 for Q38-Q49 release candidate');
 assert(Array.isArray(report.logicAudienceEditorialMismatched),'mismatched list missing');
 assert(Array.isArray(report.logicAudienceEditorialMissing),'missing list missing');
 assert(report.indexableUrls===sitemapUrlCount,'import report must match actual sitemap URL count');
@@ -79,5 +79,5 @@ if(ready){
     assert(!sitemapHasRoute(item.route),`locked sitemap leaked collection: ${item.route}`);
   }
   assert(!sitemapHasPrefix('golovolomki'),'locked sitemap leaked quick puzzles');
-  console.log(`Puzzle editorial release LOCKED: ${report.logicAudienceEditorialExactApproved||0}/37 exact approvals; no publishable approved subset.`);
+  console.log(`Puzzle editorial release LOCKED: ${report.logicAudienceEditorialExactApproved||0}/49 exact approvals; no publishable approved subset.`);
 }
