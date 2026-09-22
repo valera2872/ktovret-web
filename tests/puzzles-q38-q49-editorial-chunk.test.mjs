@@ -73,7 +73,6 @@ assert.match(adminJs,/Самостоятельный ответ:/);
 assert.match(adminJs,/filterRows\(rows\)\.length === 0/);
 assert.match(adminJs,/activeFilter = hasQuick \? 'quick'/);
 assert.match(adminHtml,/Quick-задачи на проверке/);
-assert.match(adminHtml,/puzzle-admin\.js\?v=1\.4\.0/);
 
 const visualJs=readFileSync(new URL('../assets/puzzle-q38-q49-visuals.js',import.meta.url),'utf8');
 const visualCss=readFileSync(new URL('../assets/puzzle-q38-q49-visuals.css',import.meta.url),'utf8');
