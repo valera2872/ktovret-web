@@ -818,3 +818,37 @@ Current assessment after deep pass:
 - human blind-test / paid-product approval: NOT RUN / NOT READY.
 
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 user review — jargon + leading UI FAIL
+
+User approved the opening but rejected the first investigation screen.
+
+Observed defects from real review:
+- unnecessary container/seal/system identifiers appeared before they had deductive value;
+- English/technical labels such as gate/camera/OCR-style UI made the case feel like an internal system;
+- the central visual did not clearly depict an understandable evidence source;
+- interface/virtual partner still suggested the intended method of reasoning.
+
+Decision:
+PROGRESSIVE VOCABULARY / NON-LEADING INVESTIGATION GATE = FAIL for v4.
+
+Systemic correction added to Case Architect:
+- plain meaning before codes;
+- exact technical identifiers only when they enable a real deduction;
+- every evidence visual must identify the physical source clearly;
+- normal UI must organize evidence but not explain how to solve it;
+- virtual partner must not function as the author's hint channel.
+
+CASE-ARCH-001 v5 changes:
+- removed visible container/seal/job/user IDs from normal evidence;
+- removed OCR/gate/system-style pseudo-terminal language;
+- stage navigation made neutral;
+- removed named-suspect quick prompt;
+- removed "start with route", "compare", "build two chains" coaching;
+- shared mechanic renamed to neutral evidence-link board;
+- first three evidence visuals redesigned as semantically explicit camera / route / seal materials;
+- partner replies rewritten to be stage-bounded and non-leading;
+- technical language simplified throughout visible case copy.
+
+v4 should not be used for further review.
