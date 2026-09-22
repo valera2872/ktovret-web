@@ -1,18 +1,18 @@
 {
   "product": "Mystery Logic",
-  "release_id": "live-2026-09-20",
+  "release_id": "live-2026-09-22",
   "version": null,
   "status": "live",
   "verified_by_user": true,
-  "verified_date": "2026-09-21",
+  "verified_date": "2026-09-22",
   "baseline": {
-    "file_name": "MysteryLogic-LIVE-2026-09-20.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-20.zip",
-    "library_file_id": "libfile_23c34288e128819194952cd7fc97a4a4",
-    "original_upload_name": "MysteryLogic-PRODUCTION-2026-09-20-CHECKED-FIXED(1).zip",
-    "size_bytes": 7428880,
-    "file_count": 666,
-    "sha256": "afeee57f1f0431b2762d5a8159b933c01ae88369f1d7f814b187452066ee9015"
+    "file_name": "MysteryLogic-LIVE-2026-09-22.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-22.zip",
+    "library_file_id": "libfile_0ec48a2938cc81918866d0e4a2562787",
+    "original_upload_name": "MysteryLogic-LIVE-2026-09-22.zip",
+    "size_bytes": 7568719,
+    "file_count": 675,
+    "sha256": "46f83620c451b55cd6dcc7de1d48db49021683b1b3ae152594022c8182c9b0ab"
   },
   "rules": {
     "patch_base": "Always use this exact live baseline, or a newer baseline referenced by this file.",
