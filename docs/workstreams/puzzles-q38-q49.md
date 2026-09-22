@@ -273,3 +273,35 @@ Exact next step:
 - then owner reviews all 12 as pending in /admin/puzzles/;
 - only approved exact fingerprints become eligible for later public build;
 - no production deploy, CURRENT_RELEASE update, SEO change, or LIVE catalog change at this stage.
+
+
+## Production editorial queue seeded — 2026-09-22
+Explicit owner approval received to write Q38–Q49 into production editorial content queue.
+
+Production project:
+- Supabase: mystery-logic
+- project ref: orknvuwknvsedjgqcfwc
+
+Applied:
+- guarded insert-only seed from staging file `docs/workstreams/puzzles-q38-q49-editorial-seed.sql`
+- inserted exactly Q38–Q49
+- all 12 inserted with `kind='quick'`
+- all 12 inserted with `moderation_status='pending'`
+- all 12 have `answerMode` and `answerSpec`
+- `published_before_gate=false`
+- no existing Q01–Q37 row was updated
+
+Post-write verification:
+- Quick total: 49
+- approved: 32
+- rejected: 5
+- pending: 12
+- Q38–Q49 existing: 12
+- Q38–Q49 status: pending
+
+Important continuity:
+- DO NOT run the seed again.
+- Production LIVE website, CURRENT_RELEASE, schema/RLS, Edge Functions and analytics were not changed.
+- Current production /admin/puzzles/ frontend still uses the existing matchstick-first default; owner should select “Обычные Quick” to review Q38–Q49 until the separate admin UX patch is explicitly approved/deployed.
+- Staging admin improvement exists only on `staging/puzzles-q38-q49`.
+- Source chunk 6 is still staging-only; do not expose Q38–Q49 publicly until owner moderation and later source/publish approval.
