@@ -776,3 +776,45 @@ This gate PASS means the build is no longer known to contain basic craft/technic
 It does NOT mean the mystery/paid-product experience is approved by the user or ready for Content Freeze.
 
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 deep pre-review pass — v4
+
+User asked for another close review before further play.
+
+This pass found higher-level defects that the previous smoke test did not catch:
+
+1. Top navigation looked interactive but several items had no behavior.
+2. A decorative quote was falsely attributed to Hercule Poirot.
+3. Virtual partner could dump nearly all stage-B evidence through one generic prompt, weakening true Partner asymmetry.
+4. Stage-4 partner hypothesis was too leading and effectively told the player which photo pairs to compare.
+5. The signature physical-crossover deduction was still primarily textual: frame identity was described in prose rather than materially discoverable in the evidence view.
+6. Some secondary UI text was still smaller than the premium readability target.
+
+Repairs in v4:
+- nav items are now actual buttons with functional jumps/focus to case, evidence, board, partner and notes;
+- fake Poirot attribution removed;
+- "what do you have?" now reveals one salient stage-bounded fact and asks what theory the player is testing instead of dumping the whole role packet;
+- stage-4 partner language made non-leading;
+- partner photo request now returns two visualized frame-evidence cards rather than the exact conclusion;
+- A9/A11 evidence views now contain distinct visual physical features that correspond to the partner's warehouse photos;
+- stage-4 comparison is therefore more visual and less author-explained;
+- additional text-size hardening applied to secondary controls;
+- JS syntax checked with Node after patch.
+
+Review artifacts:
+- CASE-ARCH-001-premium-demo-v4.zip
+  SHA-256: 05a1dd07645752c4ab2a89f12aaaa1f806855b1b4e9d498092cc331d18ef6715
+- CASE-ARCH-001-premium-demo-v4.html
+  SHA-256: 4564aa6e15a1fce6def112835d1676c3c2c207b5bef98fff2c136ab9eeb2e291
+- preview branch commit:
+  00ebaa8fc3894762106e7727aafacc678028dcc0
+
+Current assessment after deep pass:
+- basic technical/craft gate: PASS;
+- first-screen gate: PASS;
+- virtual-partner test validity: improved, still synthetic;
+- signature evidence interaction: improved but still review-grade, not final production art;
+- human blind-test / paid-product approval: NOT RUN / NOT READY.
+
+No LIVE / Supabase / payment / entitlement changes.
