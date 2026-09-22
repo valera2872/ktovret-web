@@ -62,3 +62,14 @@ console.log(JSON.stringify({
   ids:new Set(ids).size,
   slugs:new Set(slugs).size
 },null,2));
+
+const adminJs=readFileSync(new URL('../assets/puzzle-admin.js',import.meta.url),'utf8');
+const adminHtml=readFileSync(new URL('../admin/puzzles/index.html',import.meta.url),'utf8');
+assert.match(adminJs,/const ANSWER_MODES =/);
+assert.match(adminJs,/route_builder: 'Построить маршрут'/);
+assert.match(adminJs,/weigh_counts: 'Стратегия взвешивания'/);
+assert.match(adminJs,/Самостоятельный ответ:/);
+assert.match(adminJs,/filterRows\(rows\)\.length === 0/);
+assert.match(adminJs,/activeFilter = hasQuick \? 'quick'/);
+assert.match(adminHtml,/Quick-задачи на проверке/);
+assert.match(adminHtml,/puzzle-admin\.js\?v=1\.4\.0/);
