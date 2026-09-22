@@ -1,0 +1,108 @@
+name: Deploy approved Dossier patch
+
+on:
+  push:
+    branches: [main]
+    paths: ['ops/dossier-live-20260922/DEPLOY']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mysterylogic-beget-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BEGET_HOST: ${{ secrets.BEGET_HOST }}
+      BEGET_USER: ${{ secrets.BEGET_USER }}
+      BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+      BEGET_PATH: ${{ secrets.BEGET_PATH }}
+      BEGET_PORT: ${{ secrets.BEGET_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify approved patch
+        run: |
+          set -euo pipefail
+          cat ops/dossier-live-20260922/chunk-*.b64 | base64 -d > /tmp/patch.tgz
+          echo '86154cec53f0a814ff0397020331817df32fc51d442d4b6faafb896f57d220c2  /tmp/patch.tgz' | sha256sum -c -
+          mkdir patch && tar -xzf /tmp/patch.tgz -C patch
+          test "$(find patch -type f | wc -l)" -eq 13
+          node --check patch/assets/dossier-v2.js
+          node --check patch/assets/sitewide-menu-20260920-v2.js
+          node --check patch/assets/ai01-launch-promo.js
+          grep -Fq '/dossier/' patch/assets/sitewide-menu-20260920-v2.js
+          grep -Fq 'IQ следователя' patch/dossier/index.html
+          grep -Fq 'Хочешь закрытые дела, скидки и ранний доступ?' patch/assets/ai01-launch-promo.js
+
+      - name: Configure SSH and back up LIVE
+        id: backup
+        run: |
+          set -euo pipefail
+          : "${BEGET_HOST:?missing BEGET_HOST}" "${BEGET_USER:?missing BEGET_USER}" "${BEGET_PASSWORD:?missing BEGET_PASSWORD}"
+          BEGET_PATH="${BEGET_PATH:-mysterylogic.com/public_html}"; BEGET_PORT="${BEGET_PORT:-22}"
+          echo "BEGET_PATH=$BEGET_PATH" >> "$GITHUB_ENV"; echo "BEGET_PORT=$BEGET_PORT" >> "$GITHUB_ENV"
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass rsync
+          mkdir -p ~/.ssh; chmod 700 ~/.ssh; ssh-keyscan -T 10 -p "$BEGET_PORT" -H "$BEGET_HOST" >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"
+          backup="mysterylogic-before-dossier-$(date -u +%Y%m%dT%H%M%SZ).tgz"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$target" "set -eu; test -f '$BEGET_PATH/index.html'; test -f '$BEGET_PATH/golovolomki-onlayn/index.html'; grep -Fq '39 быстрых' '$BEGET_PATH/golovolomki-onlayn/index.html'; mkdir -p \"\$HOME/.mysterylogic-deploy-backups\"; tar -C '$BEGET_PATH' -czf \"\$HOME/.mysterylogic-deploy-backups/$backup\" ."
+          echo "backup=$backup" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy patch
+        id: deploy
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"
+          rsync -az --delay-updates -e "sshpass -e ssh -p $BEGET_PORT -o StrictHostKeyChecking=yes" patch/ "$target:$BEGET_PATH/"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$target" "BEGET_PATH='$BEGET_PATH' python3 -" <<'PY'
+          import os,re
+          root=os.environ['BEGET_PATH']; changed=0
+          rules=[
+            ('sitewide-menu-20260920-v2.js','live-2026-09-22'),('sitewide-menu-20260920-v2.css','live-2026-09-22'),
+            ('ai01-launch-promo.js','live-2026-09-22'),('ai01-launch-promo.css','live-2026-09-22')]
+          for base,dirs,files in os.walk(root):
+            dirs[:]=[d for d in dirs if d not in {'.git','node_modules','admin'}]
+            for n in files:
+              if not n.endswith('.html'): continue
+              p=os.path.join(base,n)
+              try: s=open(p,encoding='utf-8').read()
+              except Exception: continue
+              out=s
+              for asset,v in rules:
+                out=re.sub(r'('+re.escape(asset)+r')\?v=[^"\'<> ]+',r'\1?v='+v,out)
+              if out!=s:
+                open(p,'w',encoding='utf-8',newline='').write(out); changed+=1
+          print('cache-busted',changed)
+          if not 250 <= changed <= 400: raise SystemExit(2)
+          PY
+
+      - name: Smoke LIVE
+        id: smoke
+        run: |
+          set -euo pipefail
+          get(){ curl -fsSL --retry 5 --retry-delay 2 "$1"; }
+          get https://mysterylogic.com/dossier/ > /tmp/d.html
+          get https://mysterylogic.com/cognitive-test/ > /tmp/c.html
+          get https://mysterylogic.com/ > /tmp/h.html
+          get https://mysterylogic.com/golovolomki-onlayn/ > /tmp/g.html
+          get 'https://mysterylogic.com/assets/sitewide-menu-20260920-v2.js?v=live-2026-09-22' > /tmp/m.js
+          get 'https://mysterylogic.com/assets/ai01-launch-promo.js?v=live-2026-09-22' > /tmp/p.js
+          grep -Fq 'Досье следователя' /tmp/d.html
+          grep -Fq 'IQ следователя' /tmp/d.html
+          grep -Fq '/dossier/' /tmp/m.js
+          grep -Fq 'Хочешь закрытые дела, скидки и ранний доступ?' /tmp/p.js
+          grep -Fq 'sitewide-menu-20260920-v2.js?v=live-2026-09-22' /tmp/h.html
+          grep -Fq '39 быстрых' /tmp/g.html
+          echo 'LIVE smoke passed'
+
+      - name: Roll back on failure
+        if: failure() && steps.backup.outputs.backup != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"; backup='${{ steps.backup.outputs.backup }}'
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$target" "set -eu; rm -rf '$BEGET_PATH'/* '$BEGET_PATH'/.[!.]* '$BEGET_PATH'/..?* 2>/dev/null || true; tar -xzf \"\$HOME/.mysterylogic-deploy-backups/$backup\" -C '$BEGET_PATH'"
