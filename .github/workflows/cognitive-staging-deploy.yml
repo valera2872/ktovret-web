@@ -29,7 +29,7 @@ jobs:
       - name: Checkout reviewed Q38-Q49 puzzle staging snapshot
         uses: actions/checkout@v4
         with:
-          ref: d88e603476f55f90926be29bba08b28ec8c78c0b
+          ref: f6d7983a8d6f5e7cfec1ef0dd34b2705cfb11018
           path: puzzle-src
 
       - uses: actions/setup-node@v4
@@ -54,6 +54,9 @@ jobs:
           node --check puzzle-src/assets/puzzles-q38-q49-preview.mjs
           node --check puzzle-src/assets/puzzles-q38-q49-preview-data.mjs
           node --check puzzle-src/assets/puzzles-q38-q49-answer-model.mjs
+          node --check puzzle-src/assets/puzzle-admin.js
+          node --check puzzle-src/assets/puzzle-q38-q49-visuals.js
+          (cd puzzle-src && node tests/puzzles-q38-q49-editorial-chunk.test.mjs)
           (cd puzzle-src && node tests/puzzles-q38-q49-preview.test.mjs)
           grep -q 'noindex,nofollow' puzzle-src/admin/puzzles-q38-q49-preview/index.html
           if grep -RniE 't\.me|telegram' puzzle-src/admin/puzzles-q38-q49-preview puzzle-src/assets/puzzles-q38-q49-preview*; then
@@ -64,7 +67,7 @@ jobs:
       - name: Build isolated Pages artifact
         run: |
           set -euo pipefail
-          mkdir -p staging/admin/cognitive-profile-preview staging/admin/puzzles-q38-q49-preview staging/assets
+          mkdir -p staging/admin/cognitive-profile-preview staging/admin/puzzles-q38-q49-preview staging/admin/puzzles staging/assets
 
           cp cognitive-src/admin/cognitive-profile-preview/index.html staging/admin/cognitive-profile-preview/index.html
           cp cognitive-src/assets/cognitive-profile-preview.css staging/assets/
@@ -79,6 +82,17 @@ jobs:
           cp puzzle-src/assets/puzzles-q38-q49-preview-data.mjs staging/assets/
           cp puzzle-src/assets/puzzles-q38-q49-answer-model.mjs staging/assets/
 
+          cp puzzle-src/admin/puzzles/index.html staging/admin/puzzles/index.html
+          cp puzzle-src/assets/review-admin.css staging/assets/
+          cp puzzle-src/assets/puzzle-admin.css staging/assets/
+          cp puzzle-src/assets/matchstick-visual.css staging/assets/
+          cp puzzle-src/assets/puzzle-admin-review-v2.css staging/assets/
+          cp puzzle-src/assets/puzzle-q38-q49-visuals.css staging/assets/
+          cp puzzle-src/assets/ml-mark.svg staging/assets/
+          cp puzzle-src/assets/matchstick-visual.js staging/assets/
+          cp puzzle-src/assets/puzzle-q38-q49-visuals.js staging/assets/
+          cp puzzle-src/assets/puzzle-admin.js staging/assets/
+
           cat > staging/index.html <<'EOF'
           <!doctype html>
           <html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic staging</title></head>
@@ -86,6 +100,7 @@ jobs:
           <h1>Mystery Logic staging</h1>
           <p><a style="color:#e4c57d" href="./admin/cognitive-profile-preview/">Cognitive Profile preview</a></p>
           <p><a style="color:#e4c57d" href="./admin/puzzles-q38-q49-preview/">Puzzles Q38–Q49 preview</a></p>
+          <p><a style="color:#e4c57d" href="./admin/puzzles/">Editorial puzzle admin with Q38–Q49 visuals</a></p>
           </body></html>
           EOF
           printf '%s\n' 'User-agent: *' 'Disallow: /' > staging/robots.txt
