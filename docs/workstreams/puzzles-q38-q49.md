@@ -430,3 +430,63 @@ Final patch QA:
 
 Not deployed by ChatGPT in this step.
 CURRENT_RELEASE remains live-2026-09-20 until actual deploy + mysterylogic.com verification + owner confirmation.
+
+
+## LIVE deploy + canonical promotion — 2026-09-22
+
+Owner deployed the approved 13-file puzzle patch to production, then deployed the 2-file hotfix for the main puzzle count/card CTA layout.
+
+Hotfix:
+- file: `MysteryLogic-HOTFIX-puzzles-layout-count-2026-09-22.zip`
+- production paths:
+  - `assets/logic-quick-v2.css`
+  - `golovolomki-onlayn/index.html`
+- intended fixes:
+  - top proof count = `39 быстрых`
+  - Quick v2 `Решить самостоятельно →` CTA stays inside each card
+
+Canonical full production baseline was rebuilt from:
+1. exact previous LIVE `MysteryLogic-LIVE-2026-09-20.zip`
+2. approved puzzle patch `MysteryLogic-PATCH-approved-puzzles-2026-09-22.zip`
+3. deployed hotfix `MysteryLogic-HOTFIX-puzzles-layout-count-2026-09-22.zip`
+
+New canonical baseline:
+- file: `MysteryLogic-LIVE-2026-09-22.zip`
+- Library: `/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-22.zip`
+- Library id: `libfile_0ec48a2938cc81918866d0e4a2562787`
+- size: 7,568,719 bytes
+- files: 675
+- SHA-256: `46f83620c451b55cd6dcc7de1d48db49021683b1b3ae152594022c8182c9b0ab`
+
+Delta vs previous canonical LIVE:
+- added: 9 files
+  - `assets/logic-quick-v2.css`
+  - `assets/logic-quick-v2.js`
+  - 7 approved puzzle pages Q38/Q40/Q41/Q43/Q44/Q45/Q49
+- changed: 4 files
+  - `golovolomki-onlayn/index.html`
+  - `igry-dlya-mozga/index.html`
+  - `matematicheskie-golovolomki/index.html`
+  - `zagadki-na-logiku-dlya-vzroslyh/index.html`
+- removed: 0
+
+Canonical QA:
+- 39 quick proof count: PASS
+- 7-card approved new series: PASS
+- Q38/Q40/Q41/Q43/Q44/Q45/Q49 pages present: PASS
+- Q39/Q42/Q46/Q47/Q48 public pages absent: PASS
+- Brain count 38: PASS
+- Adult Quick count 14 + Expert: PASS
+- Math count 20: PASS
+- Quick v2 CTA positioning hotfix present: PASS
+- Telegram paused stylesheet still linked on main puzzle hub: PASS
+- `node --check assets/logic-quick-v2.js`: PASS
+- no wrapper folder: PASS
+
+`CURRENT_RELEASE.json` promoted to `live-2026-09-22`.
+
+Important for every neighboring workstream:
+- DO NOT continue from `MysteryLogic-LIVE-2026-09-20.zip`.
+- DO NOT use GitHub `main` or an Actions artifact as a production base.
+- Re-read `CURRENT_RELEASE.json` and use `MysteryLogic-LIVE-2026-09-22.zip` before building any next production patch.
+- In particular, the Dossier / Detective IQ production candidate must be rebased onto this new canonical baseline before deployment.
