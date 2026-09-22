@@ -5,6 +5,8 @@ on:
     branches: [staging/puzzles-q38-q49]
     paths:
       - 'admin/puzzles-q38-q49-preview/**'
+      - 'assets/puzzle-admin.js'
+      - 'admin/puzzles/**'
       - 'assets/puzzles-q38-q49-preview*'
       - 'assets/puzzles-q38-q49-answer-model.mjs'
       - 'tests/puzzles-q38-q49-preview.test.mjs'
@@ -31,6 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check assets/puzzles-q38-q49-preview.mjs
+          node --check assets/puzzle-admin.js
           node --check assets/puzzles-q38-q49-preview-data.mjs
           node --check assets/puzzles-q38-q49-answer-model.mjs
           node --check tools/import-mobile/logic-audience-chunk-6.mjs
