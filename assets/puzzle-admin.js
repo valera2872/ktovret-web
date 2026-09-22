@@ -10,6 +10,18 @@
     math: { label: 'Математические', route: '/matematicheskie-golovolomki/' },
     matches: { label: 'Со спичками', route: '/golovolomki-so-spichkami/' },
   };
+  const ANSWER_MODES = {
+    rhythm_builder: 'Собрать карточку',
+    complete_property: 'Завершить вывод',
+    grid_facing: 'Клетка + направление',
+    number: 'Ввести число',
+    sheet_stack: 'Собрать стопку листов',
+    route_builder: 'Построить маршрут',
+    line_builder: 'Собрать линии',
+    card_select: 'Выбрать карточки',
+    sheet_state: 'Состояние листа',
+    weigh_counts: 'Стратегия взвешивания',
+  };
   const login = document.querySelector('[data-admin-login]');
   const app = document.querySelector('[data-admin-app]');
   const loginForm = document.querySelector('[data-admin-login-form]');
@@ -166,11 +178,13 @@
         </div>
         <h3>${esc(row.title || p.title || row.puzzle_id)}</h3>
         <div class="puzzle-admin-id">${esc(row.puzzle_id)}${collections.length ? ` · ${esc(collections.join(' · '))}` : ''}</div>
+        ${p.answerMode ? `<div class="puzzle-admin-answer-mode"><strong>Самостоятельный ответ:</strong> ${esc(ANSWER_MODES[p.answerMode] || p.answerMode)}</div>` : ''}
         ${matchPreview(p)}
         <div class="puzzle-admin-prompt">${esc(p.prompt || 'Для этой записи доступен только маршрут ранее опубликованной задачи.')}</div>
         ${choices.length ? `<ol class="puzzle-admin-choices">${choices.map((choice, index) => `<li>${index + 1}. ${esc(choice)}</li>`).join('')}</ol>` : ''}
         <div class="puzzle-admin-details">
           ${p.answer ? `<details class="is-answer" ${isMatch ? 'open' : ''}><summary>Правильный ответ</summary><p>${esc(p.answer)}</p></details>` : ''}
+          ${p.answerMode ? `<details><summary>Механика самостоятельного ответа</summary><p><strong>${esc(ANSWER_MODES[p.answerMode] || p.answerMode)}</strong></p>${p.answerSpec ? `<pre class="puzzle-admin-answer-spec">${esc(JSON.stringify(p.answerSpec, null, 2))}</pre>` : ''}</details>` : ''}
           ${p.hint ? `<details><summary>Подсказка</summary><p>${esc(p.hint)}</p></details>` : ''}
           ${p.explanation ? `<details ${isMatch ? 'open' : ''}><summary>Разбор решения</summary><p>${esc(p.explanation)}</p></details>` : ''}
           ${p.match ? `<details><summary>Исходное равенство текстом</summary><p>${esc(p.match)}</p></details>` : ''}
@@ -242,6 +256,12 @@
       const rows = data.puzzles || [];
       updateCounts(data.counts || {}, rows, status);
       renderPublishSummary(rows, status);
+      if (status === 'pending' && filterRows(rows).length === 0) {
+        const hasQuick = rows.some((row) => !isMatchRow(row) && !isExpertRow(row));
+        const hasMatches = rows.some(isMatchRow);
+        const hasExpert = rows.some(isExpertRow);
+        activeFilter = hasQuick ? 'quick' : hasMatches ? 'matches' : hasExpert ? 'expert' : 'all';
+      }
       renderFilterBar(rows);
       const visibleRows = filterRows(rows);
       const list = document.querySelector('[data-puzzle-list]');
