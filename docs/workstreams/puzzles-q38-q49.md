@@ -47,7 +47,7 @@ The redesign was derived from the exact LIVE /golovolomki-onlayn/ markup and CSS
 `staging/puzzles-q38-q49`
 
 Current reviewed snapshot:
-`d4acd7992a27b5614e4837a62b751b7a9d0716fc`
+`38f5ea7c6c3157c2d1a4cb318fcd602e08162258`
 
 Files:
 - admin/puzzles-q38-q49-preview/index.html
@@ -227,3 +227,49 @@ Pending:
 2. if approved, convert Q38–Q49 into real editorial batch;
 3. choose 6–8 strongest tasks for /golovolomki-onlayn/ showcase;
 4. desktop/mobile visual smoke before any production patch.
+
+
+## Editorial packaging — 2026-09-22
+Staging branch: `staging/puzzles-q38-q49`
+
+Prepared and validated:
+- `tools/import-mobile/logic-audience-chunk-6.mjs` — Q38–Q49 source objects
+- `tools/import-mobile/logic-audience-data.mjs` — staging corpus Q01–Q49
+- editorial preview total raised 37 → 49 on staging
+- release validator total raised 37 → 49 on staging
+- `answerMode` + `answerSpec` stored in each new source object so self-answer mechanics are part of the fingerprinted editorial content
+- `tests/puzzles-q38-q49-editorial-chunk.test.mjs` locks preview/source parity, 49 unique IDs/slugs/fingerprints and Q49 generalized strategy semantics
+- editorial admin staging code auto-switches pending view to Quick when matchsticks are empty and displays self-answer mode/spec
+- guarded insert-only seed prepared at `docs/workstreams/puzzles-q38-q49-editorial-seed.sql`; NOT applied
+
+Production Supabase read-only verification:
+- project: mystery-logic / orknvuwknvsedjgqcfwc
+- current Quick rows: 37
+- approved Quick: 32
+- rejected Quick: 5
+- Q38–Q49 rows: 0 at time of check
+- existing Q01–Q37 decisions must remain untouched
+
+Safety contract for seed:
+- abort unless exactly 37 existing Quick rows
+- abort if any Q38–Q49 already exist
+- insert exactly 12 new rows as pending
+- no update/reset of Q01–Q37 moderation state
+
+QA:
+- 49-task source/editorial validation run 35691401614 — SUCCESS
+- editorial-admin readiness validation run 35691640525 — SUCCESS
+- public staging preview deploy run 35691469620 — SUCCESS
+- public staging URL unchanged: https://valera2872.github.io/ktovret-web/admin/puzzles-q38-q49-preview/
+
+Showcase candidate:
+Q38, Q40, Q42, Q43, Q44, Q45, Q47, Q49.
+Full-catalog only for now:
+Q39, Q41, Q46, Q48.
+
+Exact next step:
+- requires explicit owner approval because it writes production Supabase content:
+  apply the guarded Q38–Q49 editorial seed only;
+- then owner reviews all 12 as pending in /admin/puzzles/;
+- only approved exact fingerprints become eligible for later public build;
+- no production deploy, CURRENT_RELEASE update, SEO change, or LIVE catalog change at this stage.
