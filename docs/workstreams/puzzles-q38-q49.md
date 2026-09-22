@@ -328,3 +328,62 @@ QA:
 - staging admin URL: https://valera2872.github.io/ktovret-web/admin/puzzles/
 
 Production LIVE admin remains unchanged pending owner visual approval.
+
+
+## Final approved public assembly preview — 2026-09-22
+Owner requested final beautiful assembly excluding tasks not approved by owner.
+
+Authoritative current moderation snapshot used:
+Approved new: Q38, Q40, Q41, Q43, Q44, Q45, Q49.
+Rejected new: Q39, Q42, Q46, Q47, Q48.
+
+Baseline:
+- exact LIVE archive from CURRENT_RELEASE:
+  /Mystery Logic/Production/MysteryLogic-LIVE-2026-09-20.zip
+- SHA-256 verified:
+  afeee57f1f0431b2762d5a8159b933c01ae88369f1d7f814b187452066ee9015
+
+Final preview assembly created locally from that exact LIVE baseline:
+- adds 7 approved new visual/self-answer Quick pages
+- rejected new tasks are not present as pages or links
+- main /golovolomki-onlayn/ gets a 7-card approved “Новая серия”
+- brain collection becomes 38
+- math collection becomes 20
+- adult Quick becomes 14
+- public Quick total becomes 39
+- new puzzle pages use self-answer first; A/B/C/D fallback is hidden behind explicit “Показать варианты”
+- existing legacy Quick implementation remains untouched
+
+New production-candidate files:
+- assets/logic-quick-v2.css
+- assets/logic-quick-v2.js
+- golovolomki/tri-ritma/index.html
+- golovolomki/marshrut-robota/index.html
+- golovolomki/kvadraty-mezhdu-chislami/index.html
+- golovolomki/pyat-komnat/index.html
+- golovolomki/ischezayushchie-linii/index.html
+- golovolomki/kakie-kartochki-perevernut/index.html
+- golovolomki/odno-vzveshivanie/index.html
+
+Modified production-candidate files:
+- golovolomki-onlayn/index.html
+- igry-dlya-mozga/index.html
+- matematicheskie-golovolomki/index.html
+- zagadki-na-logiku-dlya-vzroslyh/index.html
+
+QA:
+- rejected new slugs/pages: zero
+- seven approved visual cards present on main/brain/adult
+- Q41+Q49 present in math
+- options hidden by default on all seven
+- legacy data-quick-puzzle handler is not attached to new pages
+- logic-quick-v2.js syntax passes
+- desktop static render visually inspected for main, Q43 and Q49
+- native headless Chromium mobile screenshot is blocked by current container/browser policy; do not claim mobile visual QA complete
+- self-contained responsive previews generated for owner review
+
+Production boundary:
+- no LIVE deploy
+- no CURRENT_RELEASE change
+- no ZIP yet (preview approval required first)
+- no Supabase mutation during final assembly step
