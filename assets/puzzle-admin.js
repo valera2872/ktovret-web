@@ -178,6 +178,7 @@
         </div>
         <h3>${esc(row.title || p.title || row.puzzle_id)}</h3>
         <div class="puzzle-admin-id">${esc(row.puzzle_id)}${collections.length ? ` · ${esc(collections.join(' · '))}` : ''}</div>
+        ${/^quick:0(?:3[8-9]|4[0-9])$/.test(String(row.puzzle_id || '')) ? `<div class="puzzle-admin-q-visual" data-puzzle-visual="${esc(row.puzzle_id)}" aria-label="Визуал задачи"></div>` : ''}
         ${p.answerMode ? `<div class="puzzle-admin-answer-mode"><strong>Самостоятельный ответ:</strong> ${esc(ANSWER_MODES[p.answerMode] || p.answerMode)}</div>` : ''}
         ${matchPreview(p)}
         <div class="puzzle-admin-prompt">${esc(p.prompt || 'Для этой записи доступен только маршрут ранее опубликованной задачи.')}</div>
@@ -271,6 +272,7 @@
       if (list) {
         list.innerHTML = visibleRows.map(puzzleCard).join('');
         window.MysteryLogicMatchsticks?.renderAll?.(list);
+        window.MysteryLogicPuzzleVisuals?.renderAll?.(list);
       }
       if (empty) {
         empty.hidden = Boolean(visibleRows.length);
