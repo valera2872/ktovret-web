@@ -8,6 +8,11 @@ on:
       - 'assets/puzzles-q38-q49-preview*'
       - 'assets/puzzles-q38-q49-answer-model.mjs'
       - 'tests/puzzles-q38-q49-preview.test.mjs'
+      - 'tests/puzzles-q38-q49-editorial-chunk.test.mjs'
+      - 'tools/puzzle-editorial-release-validate.mjs'
+      - 'tools/import-mobile-cases.mjs'
+      - 'tools/import-mobile/logic-audience-data.mjs'
+      - 'tools/import-mobile/logic-audience-chunk-6.mjs'
       - '.github/workflows/puzzles-q38-q49-staging.yml'
   workflow_dispatch:
 
@@ -28,7 +33,10 @@ jobs:
           node --check assets/puzzles-q38-q49-preview.mjs
           node --check assets/puzzles-q38-q49-preview-data.mjs
           node --check assets/puzzles-q38-q49-answer-model.mjs
+          node --check tools/import-mobile/logic-audience-chunk-6.mjs
+          node --check tools/import-mobile/logic-audience-data.mjs
           node tests/puzzles-q38-q49-preview.test.mjs
+          node tests/puzzles-q38-q49-editorial-chunk.test.mjs
           grep -q 'noindex,nofollow' admin/puzzles-q38-q49-preview/index.html
           if grep -RniE 't\.me|telegram' admin/puzzles-q38-q49-preview assets/puzzles-q38-q49-preview*; then
             echo "Telegram link/content forbidden in puzzle staging preview"
