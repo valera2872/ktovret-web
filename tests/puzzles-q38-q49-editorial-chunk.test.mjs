@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {logicAudiencePuzzles} from '../tools/import-mobile/logic-audience-data.mjs';
 import {logicAudienceChunk6} from '../tools/import-mobile/logic-audience-chunk-6.mjs';
 import {puzzleBatch as previewBatch} from '../assets/puzzles-q38-q49-preview-data.mjs';
