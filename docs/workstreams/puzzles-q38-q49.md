@@ -305,3 +305,26 @@ Important continuity:
 - Current production /admin/puzzles/ frontend still uses the existing matchstick-first default; owner should select “Обычные Quick” to review Q38–Q49 until the separate admin UX patch is explicitly approved/deployed.
 - Staging admin improvement exists only on `staging/puzzles-q38-q49`.
 - Source chunk 6 is still staging-only; do not expose Q38–Q49 publicly until owner moderation and later source/publish approval.
+
+
+## Editorial admin visuals staging — 2026-09-22
+Owner reported that Q38–Q49 appeared in production /admin/puzzles/ without images.
+
+Cause:
+- production editorial admin only had a visual renderer for matchstick puzzles;
+- Q38–Q49 visual SVGs existed only in the dedicated staging preview runtime.
+
+Implemented on staging:
+- `assets/puzzle-q38-q49-visuals.js` — visual renderer for all Q38–Q49
+- `assets/puzzle-q38-q49-visuals.css` — editorial visual styling
+- `assets/puzzle-admin.js` renders the visual block from `puzzle_id`
+- `admin/puzzles/index.html` loads the renderer and styling
+- staging admin still reads the real production editorial queue using the existing moderator key
+- no Supabase content/schema/RLS/Edge Function changes
+
+QA:
+- Q38–Q49 visual renderer branch run 35695516566 — SUCCESS
+- combined staging admin deploy run 35695562095 — SUCCESS
+- staging admin URL: https://valera2872.github.io/ktovret-web/admin/puzzles/
+
+Production LIVE admin remains unchanged pending owner visual approval.
