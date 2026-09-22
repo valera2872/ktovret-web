@@ -6,6 +6,8 @@ on:
     paths:
       - 'admin/puzzles-q38-q49-preview/**'
       - 'assets/puzzle-admin.js'
+      - 'assets/puzzle-q38-q49-visuals.css'
+      - 'assets/puzzle-q38-q49-visuals.js'
       - 'admin/puzzles/**'
       - 'assets/puzzles-q38-q49-preview*'
       - 'assets/puzzles-q38-q49-answer-model.mjs'
@@ -34,6 +36,7 @@ jobs:
           set -euo pipefail
           node --check assets/puzzles-q38-q49-preview.mjs
           node --check assets/puzzle-admin.js
+          node --check assets/puzzle-q38-q49-visuals.js
           node --check assets/puzzles-q38-q49-preview-data.mjs
           node --check assets/puzzles-q38-q49-answer-model.mjs
           node --check tools/import-mobile/logic-audience-chunk-6.mjs
