@@ -387,3 +387,46 @@ Production boundary:
 - no CURRENT_RELEASE change
 - no ZIP yet (preview approval required first)
 - no Supabase mutation during final assembly step
+
+
+## Upload-ready production patch — 2026-09-22
+Owner approved preparing the ZIP after final preview.
+
+Patch:
+- file: MysteryLogic-PATCH-approved-puzzles-2026-09-22.zip
+- SHA-256: 9c41018ca8069d0a4948044d4376c76af7b53c51ee3b9ace631f796efdf92ccb
+- entries: 13
+- paths are relative to website root; extract over current LIVE files
+
+Exact LIVE base used:
+- MysteryLogic-LIVE-2026-09-20.zip
+- SHA-256 afeee57f1f0431b2762d5a8159b933c01ae88369f1d7f814b187452066ee9015
+
+Included new approved tasks:
+Q38, Q40, Q41, Q43, Q44, Q45, Q49.
+
+Excluded rejected tasks:
+Q39, Q42, Q46, Q47, Q48.
+
+Files in patch:
+- assets/logic-quick-v2.css
+- assets/logic-quick-v2.js
+- golovolomki-onlayn/index.html
+- igry-dlya-mozga/index.html
+- matematicheskie-golovolomki/index.html
+- zagadki-na-logiku-dlya-vzroslyh/index.html
+- 7 approved golovolomki/<slug>/index.html pages
+
+Final patch QA:
+- merged over an untouched copy of exact LIVE baseline: PASS
+- 7 approved pages exist and use data-mlq-puzzle only
+- old data-quick-puzzle handler absent from new pages
+- answer options hidden by default
+- Q49 fallback correct-option consistency: PASS
+- rejected page/slugs absent from patch: PASS
+- node --check assets/logic-quick-v2.js: PASS
+- Telegram URLs in patch: zero
+- archive entries: 13
+
+Not deployed by ChatGPT in this step.
+CURRENT_RELEASE remains live-2026-09-20 until actual deploy + mysterylogic.com verification + owner confirmation.
