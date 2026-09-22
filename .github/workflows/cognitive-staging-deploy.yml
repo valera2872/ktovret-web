@@ -29,7 +29,7 @@ jobs:
       - name: Checkout reviewed Q38-Q49 puzzle staging snapshot
         uses: actions/checkout@v4
         with:
-          ref: d4acd7992a27b5614e4837a62b751b7a9d0716fc
+          ref: d88e603476f55f90926be29bba08b28ec8c78c0b
           path: puzzle-src
 
       - uses: actions/setup-node@v4
