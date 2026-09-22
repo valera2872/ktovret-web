@@ -852,3 +852,44 @@ CASE-ARCH-001 v5 changes:
 - technical language simplified throughout visible case copy.
 
 v4 should not be used for further review.
+
+
+## CASE-ARCH-001 v5 — plain-language / non-leading rebuild
+
+After direct user review of v4, the investigation screen was rebuilt around three hard requirements:
+
+1. no unnecessary internal codes/abbreviations;
+2. every evidence visual must be semantically obvious;
+3. normal UI/virtual partner must not teach the intended deduction.
+
+v5 changes:
+- removed visible container/seal/job/user IDs from normal evidence;
+- removed OCR/gate/status pseudo-terminal labels;
+- stage names made neutral;
+- first-stage copy no longer says to start with route, compare specific facts or ask about a named suspect;
+- first three evidence visuals now clearly represent:
+  camera at port gate / road from warehouse to port / physical seal inspection;
+- technical/system wording rewritten into plain Russian;
+- shared mechanic is now a neutral evidence-link board:
+  "Ваши материалы / Материалы Алекса";
+- virtual partner stage messages no longer suggest which theory or comparison is correct;
+- "Что по Антону?" quick action removed;
+- exact internal identifiers are no longer used as memory burden;
+- v4 should not be used for review.
+
+Static QA:
+- JavaScript syntax check: PASS;
+- visible-string audit for QZMU / RET / SR / LT / S-02 / M-1180 / OCR OK / GATE 04 / UNKNOWN / "Две цепочки" / "Начните не с догадки" / named-suspect quick prompt: PASS (no player-visible occurrences in active copy);
+- autonomous-browser runtime test could not be rerun in the current sandbox because local browser navigation is blocked by the environment; v5 is a patch on the previously working v4 runtime, with JS syntax verified.
+
+Review artifact:
+CASE-ARCH-001-premium-demo-v5.zip
+SHA-256: 66678fc49b6214df12b977e777638afbcb66870a52c28c67ffea9bb7c44996a5
+
+Standalone HTML SHA-256:
+b03dced8a98654939d433d18aaddd163e7454f1d3450938baf0abb1ed58c9e3d
+
+Status:
+v4 = REJECTED FOR FURTHER REVIEW.
+v5 = candidate for next user review.
+No LIVE / Supabase / payment / entitlement changes.
