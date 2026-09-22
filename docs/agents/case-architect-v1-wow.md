@@ -968,3 +968,119 @@ After one such process failure, the next review build must receive a stricter in
 - user-path rehearsal from start through at least first meaningful deduction.
 
 The user approves direction and release quality; the agent owns basic craft and QA.
+
+
+## 37. PROGRESSIVE VOCABULARY + NON-LEADING INVESTIGATION GATE — HARD RULE
+
+This rule is mandatory for all Mystery Logic cases and previews.
+
+### A. Plain meaning before codes
+
+Player-facing evidence must present the human meaning first.
+
+Do NOT lead with:
+- container IDs;
+- seal IDs;
+- WMS/service job IDs;
+- internal user IDs;
+- unexplained abbreviations;
+- English operational labels;
+- technical status strings such as OCR OK / UNKNOWN / MANUAL MODE.
+
+If an exact code is genuinely evidentiary, reveal it only when the player already understands:
+1. what object/process it belongs to;
+2. why the exact identifier matters;
+3. what comparison the player could make with it.
+
+Do not make players memorize identifiers that do not enable a deduction.
+
+### B. Technical data is second-layer evidence
+
+Use progressive disclosure:
+
+plain-language fact
+→ source/context
+→ exact technical details only if needed.
+
+BAD:
+QZMU 621508 4 / HX-481920 / OCR OK
+
+GOOD:
+Камера на въезде зафиксировала тот же контейнер. Двери закрыты, пломба на месте, её номер совпадает с документами.
+
+Exact serials may be available in a secondary detail view if later comparison truly depends on them.
+
+### C. Every visual must explain itself
+
+An evidence visual must let a cold player answer:
+- what physical thing am I looking at?
+- where/when was it recorded?
+- why does this source exist?
+
+Abstract dark rectangles, fake terminal decoration, ornamental scanlines or "tech-looking" placeholders are NOT evidence.
+
+If the user asks "что это за картинка?", VISUAL EVIDENCE = FAIL.
+
+### D. Interface must not teach the deduction
+
+Normal-play UI must NOT tell the player:
+- what two facts to compare;
+- which suspect to ask about;
+- which timeline to build;
+- that there are "two chains" before the player earns that interpretation;
+- where a contradiction is;
+- which evidence is physical vs digital;
+- which theory is strongest.
+
+Forbidden examples:
+- "Начните не с догадки, а с маршрута"
+- "Сравните эти фотографии"
+- "Что по Антону?"
+- "Постройте отдельно путь контейнера и путь груза"
+- "Где вы начинаете верить записи вместо физического факта?"
+
+These may exist only as explicit hints requested by the player, with hint strength recorded.
+
+### E. Mechanics may organize, not interpret
+
+A shared board may let players:
+- place facts;
+- link facts;
+- move cards;
+- annotate;
+- compare sources.
+
+But the board must not pre-label the intended causal distinction.
+
+Prefer:
+Ваши материалы / Материалы партнёра
+
+over:
+Физический контейнер / Настоящий груз
+
+until the player has independently discovered that distinction.
+
+### F. Virtual partner must not become the author's mouthpiece
+
+A virtual partner:
+- knows only its current role materials;
+- may have uncertain or even wrong hypotheses;
+- should not always select the decisive clue;
+- should not dump all evidence on a generic "что у тебя есть?";
+- should not name the culprit before evidence supports it;
+- should not instruct the player which materials to compare.
+
+If the partner's advice materially reveals the intended solve path without being asked for a hint:
+NON-LEADING GATE = FAIL.
+
+### G. Player-language audit
+
+Before every user preview, scan all visible strings for:
+- internal codes;
+- acronyms;
+- untranslated English;
+- author instructions disguised as UI copy;
+- suspect names in quick-action buttons;
+- "compare/check/build" prompts that reveal reasoning method.
+
+Any avoidable instance => revise before showing the user.
