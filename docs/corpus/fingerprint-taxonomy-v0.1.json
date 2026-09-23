@@ -1,0 +1,26 @@
+{
+  "version": "fingerprint_taxonomy_v0.1",
+  "purpose": "Normalize structurally related Case DNA fingerprint tags for originality diagnostics. Canonicalization is editorially conservative and never decides publication by itself.",
+  "aliases": {
+    "negative-evidence": ["negative-evidence", "absence-of-reaction", "negative-search", "witness-negative"],
+    "role-impersonation": ["role-mimicry", "authority-impersonation", "contextual-identity"],
+    "perception-role-gap": ["social-invisibility", "attention-blindness", "witness-category-error", "cross-group-assumption"],
+    "identity-linkage": ["identity-convergence", "cross-platform-identity", "identity-link", "multiple-personas-one-operator"],
+    "identity-substitution": ["identity-substitution", "identity-deception", "legal-token-wrong-person", "record-identity-collision"],
+    "digital-provenance": ["digital-provenance", "metadata", "digital-trace", "metadata-corroborated", "metadata+institutional-link+search"],
+    "demo-vs-operation": ["controlled-demonstration", "representation-vs-reality", "demo-is-not-general-capability", "demo-capability-not-production-capability"],
+    "formal-vs-real": ["substance-over-form", "formal-structure-misstates-substance", "formal-compliance"],
+    "staged-suspicion": ["staged-suspicion", "too-obvious-is-staged", "frame-up"],
+    "timeline-reinterpretation": ["timeline-reinterpretation", "alternative-timeline", "wrong-time-of-exit", "timing-constraint"],
+    "same-evidence-competing-models": ["same-clues-competing-models", "same-evidence-competing-models", "false-theory", "investigator-bias"],
+    "access-rule-exploit": ["access-control-social-engineering", "role-access", "architectural-access", "institutional-rule-exploit", "contractor-access"],
+    "provenance-gap": ["partial-provenance", "unresolved-provenance", "object-substitution", "appearance-transformation"],
+    "preauthorized-causality": ["preauthorized-process", "strong-alibi-is-not-exoneration", "alibi-is-true-but-irrelevant"],
+    "operational-weak-edge": ["operational-security-failure", "strong-anonymity-broken-by-weak-edge"],
+    "secondary-trace-proof": ["secondary-trace-test", "missing-secondary-effects", "functional-anomaly"],
+    "behavioral-attribution": ["linguistic-attribution", "behavioral-link", "behavioral-provenance"],
+    "unwitting-agent": ["unwitting-agent", "action-without-intent", "culprit-victim-reversal"],
+    "process-record-convergence": ["independent-operational-records", "records", "institutional-record", "service-record"],
+    "physical-provenance": ["component-provenance", "physical-mark", "property", "wear+service-record"]
+  }
+}
