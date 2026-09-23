@@ -52,6 +52,23 @@ if(args.job){
   for(const [name,a,b] of pairs){
     if(a!==b) errors.push(`source ${name} mismatch: case=${a} job=${b}`);
   }
+
+  if(job.source?.rights_evidence_reference){
+    if(d.source?.rights_evidence_reference!==job.source.rights_evidence_reference){
+      errors.push('Case DNA rights_evidence_reference must match ingestion job');
+    }
+    if(p.source_snapshot?.rights_evidence_reference!==job.source.rights_evidence_reference){
+      errors.push('provenance rights_evidence_reference must match ingestion job');
+    }
+  }
+  if(job.source?.rights_verified_date){
+    if(d.source?.rights_verified_date!==job.source.rights_verified_date){
+      errors.push('Case DNA rights_verified_date must match ingestion job');
+    }
+    if(p.source_snapshot?.rights_verified_date!==job.source.rights_verified_date){
+      errors.push('provenance rights_verified_date must match ingestion job');
+    }
+  }
   if(job.constraints?.retain_raw_text===false && d.source?.raw_text_retained===true){
     errors.push('job forbids raw text retention but Case DNA says raw_text_retained=true');
   }
