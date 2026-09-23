@@ -46,6 +46,8 @@ const prompt={
     title:job.source.title,
     source_family:job.source.source_family,
     rights_status:job.source.rights_status,
+    rights_evidence_reference:job.source.rights_evidence_reference,
+    rights_verified_date:job.source.rights_verified_date,
     ingestion_policy:job.source.ingestion_policy
   },
   extraction_result:result,
