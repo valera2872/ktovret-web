@@ -2175,8 +2175,8 @@
         "system-response",
         "causal-chain"
       ],
-      "notes": "Abstract investigation mechanics and evidence topology only.",
-      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/DCA09MA027.aspx",
+      "notes": "Abstract investigation mechanics and evidence topology only. Rights evidence: NTSB Website Policies; only NTSB-created material is treated as public domain, third-party copyrighted docket material remains excluded.",
+      "rights_evidence_reference": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -2200,8 +2200,8 @@
         "causal-chain",
         "organizational-process"
       ],
-      "notes": "Use NTSB factual findings/report structure; third-party docket materials remain excluded.",
-      "rights_evidence_reference": "https://www.ntsb.gov/news/press-releases/Pages/NR20240930.aspx",
+      "notes": "Use NTSB factual findings/report structure; third-party docket materials remain excluded. Rights evidence: NTSB Website Policies; only NTSB-created material is treated as public domain, third-party copyrighted docket material remains excluded.",
+      "rights_evidence_reference": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -2225,8 +2225,8 @@
         "procedure",
         "systemic-cause"
       ],
-      "notes": "Useful for false-confidence/system-record patterns.",
-      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/RRD23FR011.aspx",
+      "notes": "Useful for false-confidence/system-record patterns. Rights evidence: NTSB Website Policies; only NTSB-created material is treated as public domain, third-party copyrighted docket material remains excluded.",
+      "rights_evidence_reference": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -2250,8 +2250,8 @@
         "uncertainty",
         "hypothesis-elimination"
       ],
-      "notes": "Use factual findings and causal structure; do not retain third-party docket attachments.",
-      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/DCA96MA070.aspx",
+      "notes": "Use factual findings and causal structure; do not retain third-party docket attachments. Rights evidence: NTSB Website Policies; only NTSB-created material is treated as public domain, third-party copyrighted docket material remains excluded.",
+      "rights_evidence_reference": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -3383,8 +3383,8 @@
         "false-metrics",
         "coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
-      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17837",
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
+      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -3408,8 +3408,8 @@
         "controls",
         "institutional-coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
-      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19280",
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
+      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -3433,8 +3433,8 @@
         "economic-substance",
         "controls"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
-      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19657",
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
+      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
       "rights_verified_date": "2026-09-23"
     },
     {
@@ -3458,8 +3458,8 @@
         "institutional-evidence",
         "distributed-knowledge"
       ],
-      "notes": "Abstract fraud mechanism and evidence structure only.",
-      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17588",
+      "notes": "Abstract fraud mechanism and evidence structure only. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
+      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
       "rights_verified_date": "2026-09-23"
     }
   ]
