@@ -893,3 +893,39 @@ Status:
 v4 = REJECTED FOR FURTHER REVIEW.
 v5 = candidate for next user review.
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 visual review — primitive SVG evidence FAIL
+
+User explicitly rejected the evidence visuals in v5:
+- clicking evidence revealed primitive SVG-style illustrations;
+- user issued a hard prohibition on this visual approach;
+- requirement: premium graphics only.
+
+Decision:
+v5 VISUAL EVIDENCE GATE = FAIL.
+v5 must not be used for further review.
+
+New hard Case Architect rule:
+PREMIUM EVIDENCE GRAPHICS ONLY.
+
+For paid Mystery Logic cases:
+- no primitive SVG evidence;
+- no line-art/photo substitutes;
+- no fake CCTV/vector placeholders;
+- no simplistic route illustrations pretending to be evidence;
+- navigation icons are allowed to be simple, evidence is not.
+
+Required replacement set for CASE-ARCH-001:
+- realistic port gate CCTV frame;
+- premium route/transport artifact;
+- realistic seal close-up / inspection artifact;
+- warehouse staging photography;
+- distinctive return-frame photography;
+- NordServ depot intake photography;
+- second-pickup / depot evidence;
+- authentic document/message artifacts where photography is not appropriate.
+
+Next review build must not be shown until the currently visible evidence set is fully replaced with premium-grade artifacts.
+
+No LIVE / Supabase / payment / entitlement changes.
