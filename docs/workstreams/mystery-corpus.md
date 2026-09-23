@@ -289,7 +289,21 @@ Theory Engine deterministic foundation implemented:
 Current boundary:
 this is a deterministic graph audit over declared theories. It does NOT yet invent missing adversarial theories. The next Theory Engine layer must generate candidate alternatives in a solution-isolated context, then feed them back into Case DNA for deterministic audit.
 
-Blind Investigator is not implemented yet.
+Blind Investigator interface foundation implemented:
+- `docs/schemas/blind-player-packet-v1.schema.json` — strictly player-visible stage packet;
+- `docs/schemas/blind-run-v1.schema.json` — stage-by-stage theory/confidence/action record;
+- `docs/schemas/adversarial-theory-v1.schema.json` — intake format for independently generated alternative theories;
+- `tools/mystery-corpus/validate-blind-boundary.mjs` — rejects solution-bearing metadata such as culprit/canonical/solution/private_canon, author reliability labels and supports/weakens annotations from player packets;
+- `tests/mystery-corpus-blind-boundary.test.mjs` — good packet PASS; solution leakage FAIL; author assessment leakage FAIL.
+
+Combined local smoke for retrieval + originality + theory + blind modules on 2026-09-23:
+- JavaScript syntax: PASS;
+- 10/10 module tests PASS;
+- plus earlier corpus validator suite: 3/3 PASS;
+- private seed: 25/25 Case DNA VALID.
+
+Important limitation:
+the schemas and boundary validator are implemented, but an actual solution-isolated investigator execution/orchestration layer has not yet been run on a concrete case.
 
 ### M6 — Studio Internal
 Expose author workflow to Mystery Logic team.
