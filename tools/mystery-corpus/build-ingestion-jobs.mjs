@@ -28,6 +28,10 @@ for(const src of plan.items||[]){
     console.error('Refusing blocked source in ingestion plan: '+src.source_id);
     process.exit(1);
   }
+  if(!src.rights_evidence_reference || !src.rights_verified_date){
+    console.error('Refusing source without rights evidence in ingestion plan: '+src.source_id);
+    process.exit(1);
+  }
   const job={
     schema_version:'corpus_ingestion_job_v1',
     job_id:`${plan.batch_id||plan.queue_id}:${src.source_id}`,
@@ -39,6 +43,8 @@ for(const src of plan.items||[]){
       source_reference:src.source_reference,
       source_locator:src.source_locator||null,
       rights_status:src.rights_status,
+      rights_evidence_reference:src.rights_evidence_reference,
+      rights_verified_date:src.rights_verified_date,
       ingestion_policy:src.ingestion_policy,
       raw_text_retained:src.raw_text_retained===true,
       target_pattern_tags:src.target_pattern_tags||[]
