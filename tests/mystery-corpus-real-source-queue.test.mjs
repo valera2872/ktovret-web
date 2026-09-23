@@ -14,9 +14,9 @@ test('committed v0.2 source queue is valid',()=>{
   const r=spawnSync(process.execPath,[validator,queueFile],{encoding:'utf8'});
   assert.equal(r.status,0,r.stderr);
   const q=JSON.parse(fs.readFileSync(queueFile,'utf8'));
-  assert.equal(q.items.length,55);
+  assert.equal(q.items.length,56);
   assert.equal(q.items.filter(x=>x.ingestion_policy==='prohibited_pending_review').length,16);
-  assert.equal(q.items.filter(x=>x.status==='rights_verified').length,39);
+  assert.equal(q.items.filter(x=>x.status==='rights_verified').length,40);
 });
 
 test('committed v0.2 queue never plans blocked copyright candidates',()=>{
