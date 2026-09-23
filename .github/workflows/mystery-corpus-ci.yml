@@ -9,6 +9,10 @@ on:
       - 'tests/mystery-corpus-*.test.mjs'
       - 'docs/schemas/*blind*.json'
       - 'docs/schemas/adversarial-theory-v1.schema.json'
+      - 'docs/schemas/case-dna*.json'
+      - 'docs/schemas/corpus-*.json'
+      - 'docs/corpus/source-queue*.json'
+      - 'docs/corpus/ingestion-plan*.json'
       - '.github/workflows/mystery-corpus-ci.yml'
   pull_request:
     branches: [main]
@@ -17,6 +21,10 @@ on:
       - 'tests/mystery-corpus-*.test.mjs'
       - 'docs/schemas/*blind*.json'
       - 'docs/schemas/adversarial-theory-v1.schema.json'
+      - 'docs/schemas/case-dna*.json'
+      - 'docs/schemas/corpus-*.json'
+      - 'docs/corpus/source-queue*.json'
+      - 'docs/corpus/ingestion-plan*.json'
       - '.github/workflows/mystery-corpus-ci.yml'
 
 permissions:
