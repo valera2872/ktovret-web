@@ -86,6 +86,16 @@
             "type": "string",
             "maxLength": 120
           }
+        },
+        "rights_evidence_reference": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2000
+        },
+        "rights_verified_date": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 80
         }
       }
     },
