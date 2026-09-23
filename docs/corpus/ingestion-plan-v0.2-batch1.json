@@ -1,0 +1,377 @@
+{
+  "schema_version": "corpus_ingestion_plan_v1",
+  "queue_id": "mystery-corpus-expansion-v0.2",
+  "generated_date": "2026-09-23",
+  "batch_id": "m2-batch-01",
+  "requested_limit": 20,
+  "selected_count": 20,
+  "blocked_count": 16,
+  "items": [
+    {
+      "source_id": "sec-adelphia",
+      "title": "Adelphia Financial Reporting Fraud",
+      "source_family": "sec",
+      "source_type": "real_case",
+      "source_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17837",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P0",
+      "target_pattern_tags": [
+        "off-balance-sheet",
+        "self-dealing",
+        "false-metrics",
+        "coverup"
+      ]
+    },
+    {
+      "source_id": "ntsb-colgan3407",
+      "title": "Colgan Air Flight 3407 Investigation",
+      "source_family": "ntsb",
+      "source_type": "research_case",
+      "source_reference": "https://www.ntsb.gov/investigations/Pages/DCA09MA027.aspx",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P0",
+      "target_pattern_tags": [
+        "human-factors",
+        "timeline",
+        "system-response",
+        "causal-chain"
+      ]
+    },
+    {
+      "source_id": "fbi-abscam",
+      "title": "ABSCAM",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "ABSCAM",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "undercover",
+        "public-corruption",
+        "inducement",
+        "recorded-evidence"
+      ]
+    },
+    {
+      "source_id": "pg-secret-father-brown",
+      "title": "The Secret of Father Brown",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/70175",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "psychology",
+        "moral-motive",
+        "misdirection"
+      ]
+    },
+    {
+      "source_id": "ntsb-east-palestine",
+      "title": "East Palestine Derailment Investigation",
+      "source_family": "ntsb",
+      "source_type": "research_case",
+      "source_reference": "https://www.ntsb.gov/news/press-releases/Pages/NR20240930.aspx",
+      "source_locator": "RRD23MR006",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P0",
+      "target_pattern_tags": [
+        "mechanical-failure",
+        "sensor-data",
+        "causal-chain",
+        "organizational-process"
+      ]
+    },
+    {
+      "source_id": "sec-worldcom",
+      "title": "WorldCom Accounting Fraud",
+      "source_family": "sec",
+      "source_type": "real_case",
+      "source_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17588",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P0",
+      "target_pattern_tags": [
+        "financial-fraud",
+        "false-records",
+        "institutional-evidence",
+        "distributed-knowledge"
+      ]
+    },
+    {
+      "source_id": "fbi-alcatraz-escape",
+      "title": "Alcatraz Escape",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Alcatraz Escape",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "escape",
+        "physical-reconstruction",
+        "uncertainty",
+        "trace-evidence"
+      ]
+    },
+    {
+      "source_id": "ntsb-twa800",
+      "title": "TWA Flight 800 Investigation",
+      "source_family": "ntsb",
+      "source_type": "research_case",
+      "source_reference": "https://www.ntsb.gov/investigations/Pages/DCA96MA070.aspx",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P0",
+      "target_pattern_tags": [
+        "causal-analysis",
+        "forensics",
+        "uncertainty",
+        "hypothesis-elimination"
+      ]
+    },
+    {
+      "source_id": "fbi-aldrich-ames",
+      "title": "Aldrich Ames",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Aldrich Ames",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "espionage",
+        "financial-anomaly",
+        "counterintelligence",
+        "behavioral-pattern"
+      ]
+    },
+    {
+      "source_id": "sec-healthsouth",
+      "title": "HealthSouth Accounting Fraud",
+      "source_family": "sec",
+      "source_type": "real_case",
+      "source_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19280",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "accounting-fraud",
+        "distributed-actions",
+        "controls",
+        "institutional-coverup"
+      ]
+    },
+    {
+      "source_id": "fbi-amerithrax",
+      "title": "Amerithrax / Anthrax Investigation",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Amerithrax / Anthrax Investigation",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "forensics",
+        "mail-trace",
+        "scientific-evidence",
+        "hypothesis-elimination"
+      ]
+    },
+    {
+      "source_id": "ntsb-new-castle-detector",
+      "title": "New Castle Wayside Detector Investigation",
+      "source_family": "ntsb",
+      "source_type": "research_case",
+      "source_reference": "https://www.ntsb.gov/investigations/Pages/RRD23FR011.aspx",
+      "source_locator": "RRD23FR011",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "sensor-error",
+        "miswiring",
+        "procedure",
+        "systemic-cause"
+      ]
+    },
+    {
+      "source_id": "sec-tyco",
+      "title": "Tyco Accounting Fraud",
+      "source_family": "sec",
+      "source_type": "real_case",
+      "source_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19657",
+      "source_locator": null,
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "accounting-fraud",
+        "transactions",
+        "economic-substance",
+        "controls"
+      ]
+    },
+    {
+      "source_id": "fbi-ana-montes",
+      "title": "Ana Montes",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Ana Montes",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "espionage",
+        "communications",
+        "counterintelligence",
+        "pattern-analysis"
+      ]
+    },
+    {
+      "source_id": "fbi-rosenbergs",
+      "title": "Atom Spy Case / Rosenbergs",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Atom Spy Case / Rosenbergs",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "espionage",
+        "network",
+        "documentary-evidence",
+        "corroboration"
+      ]
+    },
+    {
+      "source_id": "fbi-black-dahlia",
+      "title": "Black Dahlia",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Black Dahlia",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "unsolved",
+        "homicide",
+        "false-leads",
+        "media-noise"
+      ]
+    },
+    {
+      "source_id": "fbi-black-tom",
+      "title": "Black Tom 1916 Bombing",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Black Tom 1916 Bombing",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "sabotage",
+        "industrial-site",
+        "forensics",
+        "historical-reconstruction"
+      ]
+    },
+    {
+      "source_id": "fbi-bonnie-clyde",
+      "title": "Bonnie and Clyde",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Bonnie and Clyde",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "manhunt",
+        "network",
+        "movement-pattern",
+        "informant"
+      ]
+    },
+    {
+      "source_id": "fbi-boston-marathon",
+      "title": "Boston Marathon Bombing",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Boston Marathon Bombing",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "video-forensics",
+        "crowd-scene",
+        "timeline",
+        "identity"
+      ]
+    },
+    {
+      "source_id": "fbi-brian-regan",
+      "title": "Brian P. Regan Espionage",
+      "source_family": "fbi_history",
+      "source_type": "real_case",
+      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "source_locator": "Brian P. Regan Espionage",
+      "rights_status": "government_public_record",
+      "ingestion_policy": "metadata_and_analysis_only",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "espionage",
+        "document-theft",
+        "coded-plans",
+        "counterintelligence"
+      ]
+    }
+  ],
+  "family_counts": {
+    "sec": 4,
+    "ntsb": 4,
+    "fbi_history": 11,
+    "project_gutenberg": 1
+  },
+  "note": "Batch 1 is deliberately source-diverse. Metadata/analysis-only records do not retain source text. Fiction with unverified individual rights is excluded."
+}
