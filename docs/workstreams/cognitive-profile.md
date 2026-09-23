@@ -116,3 +116,19 @@ After this candidate is actually uploaded and verified on `mysterylogic.com`, ow
 
 ## Exact next step
 Upload the approved frontend package/full candidate, verify LIVE desktop/mobile + scoring/save/Dossier, obtain owner confirmation, then promote canonical baseline and CURRENT_RELEASE.
+
+
+## Continuity promotion — 2026-09-23
+Owner explicitly instructed to promote the approved full build immediately as the base for subsequent chats.
+
+CURRENT_RELEASE now points to:
+- release_id: `approved-base-2026-09-23-iq`
+- status: `approved_current_base_pending_live_verification`
+- baseline: `/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-23.zip`
+- Library id: `libfile_40fc44411a9481918305239c3f6845e3`
+- size: 7,657,569 bytes
+- files: 686
+- SHA-256: `af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644`
+
+This is the base other chats must use for subsequent modifications.
+Live browser verification remains pending; before any deployment, compare against current `mysterylogic.com` for concurrent changes. After verification, clear the pending flag and record the release as normal LIVE.
