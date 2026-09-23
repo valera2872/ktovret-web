@@ -1,11 +1,11 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M1 SEED CORPUS
+Status: ACTIVE / M4 ORIGINALITY PROTOTYPE
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
 Production writes: FORBIDDEN
-Supabase production schema changes: FORBIDDEN in M1
+Supabase production schema changes: FORBIDDEN
 Private canon / source payloads: NEVER store in public GitHub
 
 ## 1. Decision
@@ -159,7 +159,7 @@ Delivered:
 - single-record validator;
 - privacy/rights boundary.
 
-### M1 — seed corpus — ACTIVE
+### M1 — seed corpus — COMPLETE
 2026-09-23 seed v0.1:
 - 25 curated Case DNA records;
 - 14 public-domain detective-fiction records;
@@ -183,7 +183,41 @@ Only after the pilot proves useful:
 - extraction consistency tests;
 - taxonomy stabilization.
 
-### M3 — A/B concept test — NEXT
+### M3 — A/B concept test — COMPLETE
+
+Pilot `CORPUS-AB-001` was run on the actual portfolio gap: next flagship-capable Premium Solo.
+
+Method:
+- A: 12 concepts from Case Architect v1 without corpus retrieval;
+- B: 12 concepts from Case Architect v2 after abstract pattern retrieval;
+- same internal editorial rubric;
+- all candidate fingerprints checked against the private seed;
+- full spoiler-bearing report stored privately:
+  `/Mystery Logic/Private/Mystery Corpus/Mystery-Corpus-AB-001.json`
+- Library file id:
+  `libfile_87d2c63bda88819190ccda7ba97ed9ff`
+- report SHA-256:
+  `c188667eac2d882aa2007decb7c6e626f1cb645b7e69ee6ffb1633c48a5e33b7`
+
+Internal pilot result (editorial estimate, NOT human-player evidence):
+- v1 overall mean: 3.90 / 5;
+- v2 overall mean: 4.44 / 5;
+- v2 improved most on player agency, causal compression, hypothesis quality, human causality and market originality;
+- v2 also exposed structurally derivative concepts before CANON;
+- this is sufficient to continue engineering, but does not replace a human blind test.
+
+Top v2 survivors for further concept development:
+- `B04 Честное алиби` — strongest abstract causal architecture; needs a concrete real-world process;
+- `B07 Учебная тревога` — strongest immediately playable concrete concept;
+- `B01 Контрольный запуск` — strong system-failure investigation;
+- `B10 Две правды` — strongest player-agency mechanic, needs a concrete incident.
+
+Competitor refresh before pilot:
+- Dramtezi currently advertises 21 browser investigations and now uses reconstruction, timelines, evidence combination, multiple outcomes and longer cases;
+- Profile Detective emphasizes dense physical/media materials, multiple investigations per case and 1.5–3 hour sessions;
+- rassledovanie.online now explicitly markets AI suspects, free-form Telegram interrogation, sites/social profiles/maps and 1–10 player online cases;
+- Kod Goroda emphasizes an explorable city, 1000+ locations, team play and monthly cases.
+Implication: a Premium Solo cannot differentiate merely through "lots of evidence", branching, maps, locked rooms, timelines or AI dialogue. Mystery Logic needs stronger causal modeling, non-leading agency, evidence confrontation and reconstruction.
 Generate concept tournaments for one real Premium portfolio gap:
 - Case Architect v1 without corpus;
 - Case Architect v2 with the private 25-record seed.
@@ -200,8 +234,31 @@ Compare:
 
 Proceed to M2 only if corpus materially improves the result.
 
-### M4 — Originality Engine
-Structured similarity + semantic retrieval + explicit rationale.
+### M4 — Originality Engine — ACTIVE
+
+Implemented v0:
+- `tools/mystery-corpus/retrieve-patterns.mjs`
+  - weighted retrieval over mechanism / proof / reversal / evidence topology;
+  - RU query synonym bridge for the pilot;
+  - source-family diversity cap;
+  - returns abstractions only, not raw source text.
+- `tools/mystery-corpus/compare-fingerprints.mjs`
+  - decomposes similarity across incident, setting, mechanism, motive, character topology, evidence topology, reversal, decisive proof and signature action;
+  - explicitly warns that aggregate similarity is diagnostic only.
+- `tests/mystery-corpus-retrieval.test.mjs`
+  - retrieval test;
+  - structural-comparison test.
+
+Local test state:
+- corpus validation: 25/25 VALID;
+- validator tests: 3/3 PASS;
+- retrieval/originality tests: 2/2 PASS.
+
+Next M4 hardening:
+- canonical tag taxonomy / aliases;
+- concept-level risk rationale;
+- near-neighbor veto based on multiple matching structural dimensions, not one scalar score;
+- then feed gate output directly into Case Architect v2 Concept Tournament.
 
 ### M5 — Theory + Blind engines
 Adversarial theories and solution-agnostic investigation.
