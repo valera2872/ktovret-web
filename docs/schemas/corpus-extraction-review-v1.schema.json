@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/corpus-extraction-review-v1.schema.json",
+  "title": "Mystery Logic Corpus Extraction Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "extraction_run_id",
+    "job_id",
+    "case_id",
+    "extractor_id",
+    "reviewer_id",
+    "reviewed_at",
+    "checks",
+    "verdict",
+    "issues"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "corpus_extraction_review_v1"
+    },
+    "extraction_run_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 240
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 220
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 180
+    },
+    "extractor_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 240
+    },
+    "reviewer_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 240
+    },
+    "reviewed_at": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 80
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rights_policy_match",
+        "critical_claims_supported",
+        "unknowns_preserved",
+        "hypotheses_grounded",
+        "no_raw_text_leakage",
+        "no_distinctive_plot_copy"
+      ],
+      "properties": {
+        "rights_policy_match": {
+          "type": "boolean"
+        },
+        "critical_claims_supported": {
+          "type": "boolean"
+        },
+        "unknowns_preserved": {
+          "type": "boolean"
+        },
+        "hypotheses_grounded": {
+          "type": "boolean"
+        },
+        "no_raw_text_leakage": {
+          "type": "boolean"
+        },
+        "no_distinctive_plot_copy": {
+          "type": "boolean"
+        }
+      }
+    },
+    "verdict": {
+      "enum": [
+        "approved",
+        "needs_rework",
+        "rejected"
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "severity",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "severity": {
+            "enum": [
+              "info",
+              "warn",
+              "fail"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "message": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2000
+          },
+          "case_dna_path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500
+          },
+          "source_locator": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4000
+    }
+  }
+}
