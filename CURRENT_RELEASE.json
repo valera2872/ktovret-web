@@ -1,24 +1,30 @@
 {
   "product": "Mystery Logic",
-  "release_id": "live-2026-09-22",
+  "release_id": "approved-base-2026-09-23-iq",
   "version": null,
-  "status": "live",
+  "status": "approved_current_base_pending_live_verification",
   "verified_by_user": true,
-  "verified_date": "2026-09-22",
+  "verified_date": "2026-09-23",
+  "live_verification_pending": true,
   "baseline": {
-    "file_name": "MysteryLogic-LIVE-2026-09-22.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-22.zip",
-    "library_file_id": "libfile_0ec48a2938cc81918866d0e4a2562787",
-    "original_upload_name": "MysteryLogic-LIVE-2026-09-22.zip",
-    "size_bytes": 7568719,
-    "file_count": 675,
-    "sha256": "46f83620c451b55cd6dcc7de1d48db49021683b1b3ae152594022c8182c9b0ab"
+    "file_name": "MysteryLogic-LIVE-2026-09-23.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-23.zip",
+    "library_file_id": "libfile_40fc44411a9481918305239c3f6845e3",
+    "original_upload_name": "MysteryLogic-FINAL-CANDIDATE-IQ-2026-09-23.zip",
+    "size_bytes": 7657569,
+    "file_count": 686,
+    "sha256": "af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644"
+  },
+  "owner_override": {
+    "authorized": true,
+    "authorized_date": "2026-09-23",
+    "note": "Owner explicitly instructed to promote this approved full build immediately as the base for all subsequent chats before final live browser verification."
   },
   "rules": {
-    "patch_base": "Always use this exact live baseline, or a newer baseline referenced by this file.",
-    "github_actions_artifacts": "Never treat a GitHub Actions artifact as the live production baseline unless CURRENT_RELEASE.json explicitly points to it.",
+    "patch_base": "For all subsequent work, use this exact approved baseline unless a newer CURRENT_RELEASE replaces it. Before deployment, still inspect current mysterylogic.com for concurrent live changes.",
+    "github_actions_artifacts": "Never treat a GitHub Actions artifact as the production baseline unless CURRENT_RELEASE.json explicitly points to it.",
     "small_changes": "Prefer a minimal patch containing only changed production files.",
-    "promotion": "Only advance CURRENT_RELEASE after the new build has actually been deployed and verified live.",
-    "versioning": "Do not invent or infer semantic version numbers. Use only identifiers explicitly supplied by the user or recorded from the deployed build."
+    "promotion": "Normal promotion requires deploy -> live verification -> owner confirmation. This record is an explicit owner-authorized exception for continuity; live_verification_pending must be cleared after browser verification.",
+    "versioning": "Do not invent semantic version numbers. Use only explicit release identifiers or dates."
   }
 }
