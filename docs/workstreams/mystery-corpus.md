@@ -1,6 +1,6 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M5 PROVIDER-READY THEORY ATTACK
+Status: ACTIVE / M2 CONTROLLED EXPANSION PILOT + M5 PROVIDER READY
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
@@ -177,11 +177,30 @@ Delivered:
 
 The seed intentionally includes one unresolved investigation pattern so the system learns to preserve UNKNOWN rather than fabricate closure.
 
-### M2 — corpus 200–300
-Only after the pilot proves useful:
-- semi-automated ingestion;
-- extraction consistency tests;
-- taxonomy stabilization.
+### M2 — controlled corpus expansion — ACTIVE
+
+Scale target remains 200–300, but ingestion is now gated rather than bulk-imported.
+
+Current controlled expansion:
+- source queue v0.2: 55 candidates;
+- 39 rights-verified / eligible for controlled analysis;
+- 16 blocked with `unknown / prohibited_pending_review` until individual rights verification;
+- source families: FBI history 30, Project Gutenberg 17, NTSB 4, SEC 4;
+- first diversity-aware ingestion batch: 20 sources;
+- batch composition: FBI 11, NTSB 4, SEC 4, Project Gutenberg 1.
+
+Implemented M2 controls:
+- source rights queue;
+- diversity-aware batch planner;
+- provenance sidecar for critical Case DNA claims;
+- controlled ingestion job envelope;
+- ingestion bundle validation;
+- extractor/reviewer separation;
+- independent review prompt;
+- review validation;
+- promotion gate.
+
+Mass ingestion to 200–300 is NOT yet authorized. New records remain candidates until independent review.
 
 ### M3 — A/B concept test — COMPLETE
 
@@ -494,4 +513,159 @@ The code boundary is ready; the external/stateless execution is not yet performe
 4. Only after that result decide whether to scale Mystery Corpus from 25 to 200–300 records.
 
 Do not merge PR #355 or touch production as part of this validation unless explicitly approved by the user.
+
+## 16. M2 controlled expansion checkpoint — 2026-09-23
+
+### Source queue
+
+Committed public/spoiler-safe control files:
+- `docs/corpus/source-queue-v0.2.json`
+- `docs/corpus/ingestion-plan-v0.2-batch1.json`
+- `docs/schemas/corpus-source-queue-v1.schema.json`
+- `tools/mystery-corpus/validate-source-queue.mjs`
+- `tools/mystery-corpus/build-ingestion-plan.mjs`
+
+Queue state:
+- total: 55;
+- rights-verified: 39;
+- blocked pending rights verification: 16;
+- first planned batch: 20;
+- no blocked/unknown-rights item may enter an ingestion job.
+
+### Controlled ingestion pipeline
+
+Implemented:
+- `docs/schemas/corpus-ingestion-job-v1.schema.json`
+- `tools/mystery-corpus/build-ingestion-jobs.mjs`
+- `tools/mystery-corpus/validate-ingestion-bundle.mjs`
+- `docs/corpus/controlled-ingestion-pipeline-v1.md`
+
+Pipeline:
+`Source Queue -> Rights Gate -> Ingestion Plan -> Job Envelope -> Extractor -> Case DNA + Provenance -> Validation -> Independent Review -> Promotion Gate -> Private Corpus`.
+
+### Extractor / Reviewer hard separation
+
+Implemented:
+- `docs/schemas/corpus-extraction-result-v1.schema.json`
+- `docs/schemas/corpus-extraction-review-v1.schema.json`
+- `tools/mystery-corpus/build-extractor-prompt.mjs`
+- `tools/mystery-corpus/validate-extractor-result.mjs`
+- `tools/mystery-corpus/build-extraction-review-prompt.mjs`
+- `tools/mystery-corpus/validate-extraction-review.mjs`
+- `tools/mystery-corpus/validate-ingestion-promotion.mjs`
+- `docs/corpus/extractor-review-separation-v1.md`
+- `docs/corpus/independent-review-promotion-gate-v1.md`
+
+Hard rules:
+- extractor cannot self-approve;
+- `reviewer_id != extractor_id`;
+- approved review requires all hard checks true;
+- critical source claims require locators;
+- analysis-only sources retain no source text;
+- UNKNOWN must not be silently filled;
+- promotion re-runs bundle validation with approved provenance;
+- validation only makes a record eligible for private-corpus promotion; it does not mutate production.
+
+### Real M2 extraction candidates
+
+All current records were extracted by:
+`chatgpt-project-context-2026-09-23`
+
+Therefore this context MUST NOT act as their independent reviewer.
+
+#### Pilot 01 — Hollow Nickel / Rudolf Abel
+Private Library:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Pilot-Hollow-Nickel-v0.2.zip`
+
+Library id:
+`libfile_f68b6ea073c481919d1b8956f80ba6a3`
+
+SHA-256:
+`3aa6e8688bad00b81195bbaf8136de6ffbb30cbef42b9aaccd2e0f3aa7b424b4`
+
+State:
+- Case DNA + provenance + job + extraction result + review request;
+- provenance review status: `needs_review`;
+- NOT approved.
+
+#### Pilot 02/03 — TWA Flight 800 + WorldCom
+Private Library:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Pilot-Pack-003-v0.2.zip`
+
+Library id:
+`libfile_3513c4690d60819196b11d7a2b3c9fd0`
+
+SHA-256:
+`78ce2a337a806440ad0bf785f0d0ed72288e6c0d00e94d2f8295aa0e435de3d8`
+
+Contains for each candidate:
+- Case DNA;
+- provenance;
+- extraction notes;
+- ingestion job;
+- `corpus_extraction_result_v1`;
+- independent review request.
+
+TWA 800 extraction state:
+- 6 evidence lines;
+- 3 competing hypotheses;
+- preserves UNKNOWN for the exact ignition source;
+- review status: `needs_review`;
+- NOT approved.
+
+WorldCom extraction state:
+- 6 evidence lines;
+- 3 competing hypotheses;
+- preserves allegation/source wording boundary;
+- review status: `needs_review`;
+- NOT approved.
+
+The three pilots intentionally exercise different evidence topology:
+- covert tradecraft + delayed attribution;
+- technical causal investigation + hypothesis elimination + preserved uncertainty;
+- systemic financial records + repeated pattern + mechanism shift.
+
+### CI
+
+Latest verified Mystery Corpus CI:
+- run: `35918475738`;
+- head: `c829ea1eb0c8131a5b9b48cd48eb0cec59178cce`;
+- tests: 49;
+- PASS: 49;
+- FAIL: 0.
+
+Coverage now includes:
+- Case DNA validation;
+- corpus validation;
+- retrieval/originality;
+- Theory Audit;
+- blind boundary/canary;
+- provider isolation;
+- adversarial theory loop;
+- end-to-end theory attack;
+- provenance gate;
+- source queue;
+- real committed queue regression;
+- controlled ingestion jobs/bundles;
+- extractor/reviewer separation;
+- independent review/promotion gate.
+
+### Current blockers before mass scale
+
+M2:
+- the first 3 real extractions require independent review by a context/provider that did not perform the extraction;
+- only independently approved records may become approved corpus entries.
+
+M5:
+- a genuine Blind Investigator still requires a separate stateless context/provider that has never seen Private CANON.
+
+### Exact next action
+
+1. Independently review the 3 real M2 pilots using their review requests.
+2. Run `validate-extraction-review.mjs` and `validate-ingestion-promotion.mjs` on every returned review.
+3. Promote only records that pass.
+4. Compare fingerprint/retrieval behavior before vs after the approved additions.
+5. If extraction/review quality is stable across these three very different source types, expand controlled ingestion to the rest of Batch 1.
+6. Do not jump directly to 200–300 approved records.
+7. Keep PR #355 draft and non-production until this validation loop is proven.
 
