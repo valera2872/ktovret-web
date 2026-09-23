@@ -450,14 +450,13 @@ This provenance gate is required before any semi-automated 200–300 record expa
 Dedicated workflow:
 `.github/workflows/mystery-corpus-ci.yml`
 
-Completed verified run:
-- run 35915003418
-- 22 tests
-- 22 PASS
+Latest verified aggregate run:
+- run 35915682364
+- 32 tests
+- 32 PASS
 - 0 FAIL
 
-New provider/e2e/provenance tests were added after that run.
-Latest aggregate CI is pending/queued at the time of this checkpoint and must be checked before merging PR #355.
+This run includes Retriever/Originality, Theory Audit, blind boundary/orchestration canaries, provider network isolation, adversarial-provider validation, end-to-end theory attack and extraction-provenance tests.
 
 ### Safety state
 Still unchanged:
