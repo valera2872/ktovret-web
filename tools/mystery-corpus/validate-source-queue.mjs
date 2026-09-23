@@ -45,9 +45,11 @@ for(const [i,x] of (q.items||[]).entries()) {
     warnings.push(`${x.source_id}: government_public_record marked full_text_allowed; verify agency-specific reuse terms`);
   }
 
-  if(['queued','ingested'].includes(x.status)) {
-    if(x.rights_status==='unknown') errors.push(`${x.source_id}: queued/ingested source cannot have unknown rights`);
-    if(x.ingestion_policy==='prohibited_pending_review') errors.push(`${x.source_id}: queued/ingested source cannot be prohibited_pending_review`);
+  if(['rights_verified','queued','ingested'].includes(x.status)) {
+    if(x.rights_status==='unknown') errors.push(`${x.source_id}: verified/queued/ingested source cannot have unknown rights`);
+    if(x.ingestion_policy==='prohibited_pending_review') errors.push(`${x.source_id}: verified/queued/ingested source cannot be prohibited_pending_review`);
+    if(!x.rights_evidence_reference) errors.push(`${x.source_id}: verified/queued/ingested source requires rights_evidence_reference`);
+    if(!x.rights_verified_date) errors.push(`${x.source_id}: verified/queued/ingested source requires rights_verified_date`);
   }
 
   if(x.raw_text_retained===true && x.ingestion_policy!=='full_text_allowed' && x.ingestion_policy!=='permitted_excerpts_only') {
