@@ -2070,21 +2070,21 @@
       "creator": "Arthur Conan Doyle",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "A Study in Scarlet",
+      "source_reference": "https://www.gutenberg.org/ebooks/244",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "deduction",
         "forensics",
         "dual-timeline"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-baron-trigault-s-vengeance",
@@ -2280,21 +2280,21 @@
       "creator": "Agatha Christie",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "Poirot Investigates",
+      "source_reference": "https://www.gutenberg.org/ebooks/61262",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "short-story-variety",
         "psychology",
         "deduction"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-bruce-partington-plans",
@@ -2536,21 +2536,21 @@
       "creator": "Arthur Conan Doyle",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Hound of the Baskervilles",
+      "source_reference": "https://www.gutenberg.org/ebooks/2852",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "supernatural-misdirection",
         "environment",
         "staged-threat"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-leavenworth-case",
@@ -2594,21 +2594,21 @@
       "creator": "Agatha Christie",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Man in the Brown Suit",
+      "source_reference": "https://www.gutenberg.org/ebooks/61168",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "adventure-mystery",
         "identity",
         "travel"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-memoirs-sherlock",
@@ -2616,21 +2616,21 @@
       "creator": "Arthur Conan Doyle",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Memoirs of Sherlock Holmes",
+      "source_reference": "https://www.gutenberg.org/ebooks/834",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "short-story-variety",
         "identity",
         "forensics"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-middle-temple",
@@ -2638,21 +2638,21 @@
       "creator": "J. S. Fletcher",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Middle Temple Murder",
+      "source_reference": "https://www.gutenberg.org/ebooks/26468",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "legal-setting",
         "identity",
         "documents"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-murder-links",
@@ -2660,21 +2660,21 @@
       "creator": "Agatha Christie",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Murder on the Links",
+      "source_reference": "https://www.gutenberg.org/ebooks/58866",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "body-identity",
         "timeline",
         "relationship-secret"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-mystery-of-31-new-inn",
@@ -2758,21 +2758,21 @@
       "creator": "A. A. Milne",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Red House Mystery",
+      "source_reference": "https://www.gutenberg.org/ebooks/1872",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "country-house",
         "timeline",
         "relationship"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-red-thumb-mark",
@@ -2820,21 +2820,21 @@
       "creator": "Agatha Christie",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Secret Adversary",
+      "source_reference": "https://www.gutenberg.org/ebooks/1155",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "conspiracy",
         "identity",
         "espionage"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-secret-father-brown",
@@ -2864,21 +2864,21 @@
       "creator": "Arthur Conan Doyle",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Sign of the Four",
+      "source_reference": "https://www.gutenberg.org/ebooks/2097",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "treasure",
         "footprints",
         "pursuit"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-sleuth-of-st-james-s-square",
@@ -2922,21 +2922,21 @@
       "creator": "Arthur Conan Doyle",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "The Valley of Fear",
+      "source_reference": "https://www.gutenberg.org/ebooks/3289",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P2",
-      "status": "candidate",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "coded-message",
         "secret-society",
         "dual-timeline"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-whose-body",
