@@ -1,6 +1,6 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M4 ORIGINALITY PROTOTYPE
+Status: ACTIVE / M5 THEORY ENGINE PROTOTYPE
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
@@ -254,14 +254,42 @@ Local test state:
 - validator tests: 3/3 PASS;
 - retrieval/originality tests: 2/2 PASS.
 
-Next M4 hardening:
-- canonical tag taxonomy / aliases;
-- concept-level risk rationale;
-- near-neighbor veto based on multiple matching structural dimensions, not one scalar score;
-- then feed gate output directly into Case Architect v2 Concept Tournament.
+M4 hardening completed in v0.2:
+- `docs/corpus/fingerprint-taxonomy-v0.1.json` canonicalizes structurally related aliases;
+- `tools/mystery-corpus/originality-gate.mjs` emits LOW / MEDIUM / HIGH / CRITICAL neighbor risk plus dimensional rationale;
+- `tests/mystery-corpus-originality-gate.test.mjs` verifies semantic alias detection without treating one abstract inspiration as copying.
 
-### M5 — Theory + Blind engines
-Adversarial theories and solution-agnostic investigation.
+Gate rerun on v2 pilot finalists:
+- B04 `Честное алиби`: PASS / LOW nearest-neighbor risk;
+- B07 `Учебная тревога`: REVIEW_NEIGHBORS / MEDIUM;
+- B01 `Контрольный запуск`: REVIEW_NEIGHBORS / MEDIUM;
+- B10 `Две правды`: REVIEW_NEIGHBORS / MEDIUM.
+
+Rejected/escalated examples:
+- B05 `Договор на воздух`: EDITORIAL_REVIEW / HIGH vs Enron-like formal-vs-real structure;
+- B08 `Сервисный вход`: EDITORIAL_REVIEW / HIGH vs classic social-invisibility/role-access structure.
+
+This is the intended behavior: corpus patterns may inspire a new concept, but the originality gate can still veto a too-close recombination.
+
+### M5 — Theory + Blind engines — ACTIVE
+
+Theory Engine deterministic foundation implemented:
+- `tools/mystery-corpus/theory-audit.mjs`
+  - builds per-stage support/contradiction matrix for all declared hypotheses;
+  - requires exactly one canonical hypothesis for Mystery Logic cases when run with `--require-canonical`;
+  - FAILS when a non-canonical theory reaches final accusation with no explicit player-visible contradiction;
+  - warns when canonical proof lacks two independent evidence types;
+  - fails Fair Play when reveal introduces an answer-changing new fact;
+  - calculates an approximate minimum discriminating evidence set via set-cover logic.
+- `tests/mystery-corpus-theory-audit.test.mjs`
+  - valid multi-hypothesis case PASS;
+  - unresolved alternative FAIL;
+  - answer-changing reveal fact FAIL.
+
+Current boundary:
+this is a deterministic graph audit over declared theories. It does NOT yet invent missing adversarial theories. The next Theory Engine layer must generate candidate alternatives in a solution-isolated context, then feed them back into Case DNA for deterministic audit.
+
+Blind Investigator is not implemented yet.
 
 ### M6 — Studio Internal
 Expose author workflow to Mystery Logic team.
