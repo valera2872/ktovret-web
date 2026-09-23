@@ -76,3 +76,25 @@ test('bundle fails if extractor escalates analysis-only source to raw-text reten
  assert.notEqual(r.status,0);
  assert.match(r.stderr,/raw text|raw_text/i);
 });
+
+
+test('bundle fails when rights evidence is missing from extracted Case DNA or provenance',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bundle-rights-missing-'));
+ const c=baseCase(); delete c.source.rights_evidence_reference;
+ const p=prov(); delete p.source_snapshot.rights_evidence_reference;
+ const cf=path.join(dir,'case.json'),pf=path.join(dir,'prov.json'),jf=path.join(dir,'job.json');
+ fs.writeFileSync(cf,JSON.stringify(c)); fs.writeFileSync(pf,JSON.stringify(p)); fs.writeFileSync(jf,JSON.stringify(job()));
+ const r=spawnSync(process.execPath,[validate,'--case',cf,'--provenance',pf,'--job',jf],{encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.match(r.stderr,/rights_evidence_reference/);
+});
+
+test('bundle fails when rights verification date drifts from ingestion job',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bundle-rights-date-'));
+ const c=baseCase(); c.source.rights_verified_date='2026-09-22';
+ const cf=path.join(dir,'case.json'),pf=path.join(dir,'prov.json'),jf=path.join(dir,'job.json');
+ fs.writeFileSync(cf,JSON.stringify(c)); fs.writeFileSync(pf,JSON.stringify(prov())); fs.writeFileSync(jf,JSON.stringify(job()));
+ const r=spawnSync(process.execPath,[validate,'--case',cf,'--provenance',pf,'--job',jf],{encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.match(r.stderr,/rights_verified_date/);
+});
