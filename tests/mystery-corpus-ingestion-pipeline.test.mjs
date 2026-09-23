@@ -12,7 +12,7 @@ const validate=path.join(repo,'tools/mystery-corpus/validate-ingestion-bundle.mj
 function baseCase(){
  return {
   schema_version:'case_dna_v1',case_id:'src-ready-derived',title:'Derived',
-  source:{source_type:'real_case',rights_status:'government_public_record',ingestion_policy:'metadata_and_analysis_only',provenance:'agency page',source_reference:'https://example.test',raw_text_retained:false},
+  source:{source_type:'real_case',rights_status:'government_public_record',rights_evidence_reference:'https://example.test/rights',rights_verified_date:'2026-09-23',ingestion_policy:'metadata_and_analysis_only',provenance:'agency page',source_reference:'https://example.test',raw_text_retained:false},
   incident:{category:'fraud',surface_problem:'A discrepancy must be explained.',setting:'office',stakes:'Find cause',crime_required:true},
   mechanism:{core_mechanism:'records conceal actual state',mechanism_tags:['false-records'],secondary_traces:[]},
   evidence:[
@@ -29,7 +29,7 @@ function baseCase(){
 function prov(){
  return {
   schema_version:'case_dna_provenance_v1',case_id:'src-ready-derived',
-  source_snapshot:{provenance:'agency page',source_reference:'https://example.test',rights_status:'government_public_record',ingestion_policy:'metadata_and_analysis_only',snapshot_hash:null,snapshot_date:'2026-09-23'},
+  source_snapshot:{provenance:'agency page',source_reference:'https://example.test',rights_status:'government_public_record',rights_evidence_reference:'https://example.test/rights',rights_verified_date:'2026-09-23',ingestion_policy:'metadata_and_analysis_only',snapshot_hash:null,snapshot_date:'2026-09-23'},
   claims:[
    {case_dna_path:'$.incident.surface_problem',status:'abstracted_from_source',materiality:'critical',source_locator:'§1',support_note:null,reviewer_note:null},
    {case_dna_path:'$.mechanism.core_mechanism',status:'abstracted_from_source',materiality:'critical',source_locator:'§2',support_note:null,reviewer_note:null},
@@ -43,7 +43,7 @@ function prov(){
 function job(){
  return {
   schema_version:'corpus_ingestion_job_v1',job_id:'batch:src-ready',
-  source:{source_id:'src-ready',title:'Ready',source_family:'fbi_history',source_type:'real_case',source_reference:'https://example.test',source_locator:null,rights_status:'government_public_record',ingestion_policy:'metadata_and_analysis_only',raw_text_retained:false,target_pattern_tags:[]},
+  source:{source_id:'src-ready',title:'Ready',source_family:'fbi_history',source_type:'real_case',source_reference:'https://example.test',source_locator:null,rights_status:'government_public_record',rights_evidence_reference:'https://example.test/rights',rights_verified_date:'2026-09-23',ingestion_policy:'metadata_and_analysis_only',raw_text_retained:false,target_pattern_tags:[]},
   constraints:{retain_raw_text:false,copy_distinctive_plot:false,fabricate_unknowns:false,critical_claims_need_locators:true,output_language:'en',notes:[]},
   required_outputs:['case_dna_v1','case_dna_provenance_v1','extraction_notes']
  };
