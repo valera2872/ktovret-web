@@ -929,3 +929,57 @@ Required replacement set for CASE-ARCH-001:
 Next review build must not be shown until the currently visible evidence set is fully replaced with premium-grade artifacts.
 
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 Premium Preview v6 — premium evidence implementation
+
+User approved the premium evidence direction and instructed to assemble it.
+
+v6 implementation:
+- replaced primitive SVG/pseudo-evidence with production-style visual artifacts;
+- real photographic evidence is used for:
+  - port gate camera;
+  - transport route/map;
+  - seal inspection;
+  - closed-container photo;
+  - pre-opening seal photo;
+  - return frames inside container;
+  - export frames before loading;
+  - NordServ depot intake;
+  - second pickup;
+- non-photographic evidence (interviews, service records, camera logs, service request) is rendered as premium diegetic document/transcript artifacts rather than vector placeholders;
+- evidence cards use real image thumbnails when photography exists;
+- Alex’s stage-4 shared warehouse photos now use actual photographic artifacts rather than CSS/vector frame drawings;
+- no primitive SVG evidence remains in the active v6 artifact;
+- progressive-vocabulary / non-leading rules remain active.
+
+Autonomous QA completed on an inline test build using Chromium DevTools:
+- desktop 1600×1000: PASS;
+- mobile 390×844: PASS;
+- horizontal overflow: none;
+- Start -> stages 1–5 -> Partner -> shared board -> final reconstruction: PASS;
+- real stage-4 partner photos load: PASS;
+- broken images: 0;
+- blocking JavaScript exceptions: 0;
+- all current-stage evidence must be opened before progression: preserved.
+
+Artifact:
+CASE-ARCH-001-premium-demo-v6.zip
+SHA-256:
+2d4a68f4786dfd0f6fb0b106ef0b0501e9b82a4ad860c53d3d251d53f40d6f2d
+
+Main HTML SHA-256:
+4b9d3ac805a75923cb2ecc839736a7db663632c3f2b529cc07248743c6039375
+
+ZIP integrity:
+PASS.
+
+Library upload attempt failed with container_session_expired; do not treat v6 as Library-persisted yet. The conversation artifact is the active review package.
+
+Current status:
+- premium evidence graphics gate: PASS for review build;
+- autonomous pre-review technical gate: PASS;
+- user product/experience approval: pending;
+- human two-person blind test: NOT RUN;
+- Content Freeze: NOT RUN;
+- LIVE: untouched.
