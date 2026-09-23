@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/blind-run-v1.schema.json",
+  "title": "Mystery Logic Blind Investigator Run v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "case_id",
+    "persona",
+    "checkpoints"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "blind_run_v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "persona": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "checkpoints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "theories",
+          "established_facts",
+          "unresolved_questions",
+          "next_action",
+          "confusion"
+        ],
+        "properties": {
+          "stage": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "theories": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "claim",
+                "confidence",
+                "supporting_evidence_ids"
+              ],
+              "properties": {
+                "claim": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1600
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "supporting_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "uniqueItems": true,
+                  "maxItems": 50
+                },
+                "contradicting_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "uniqueItems": true,
+                  "maxItems": 50
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 800
+                  },
+                  "maxItems": 30
+                }
+              }
+            }
+          },
+          "established_facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "maxItems": 100
+          },
+          "unresolved_questions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "maxItems": 100
+          },
+          "next_action": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "confusion": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "maxItems": 50
+          },
+          "reasoning_mode": {
+            "enum": [
+              "deduction",
+              "inference",
+              "intuition",
+              "guess",
+              "mixed"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 3000
+          }
+        }
+      }
+    },
+    "final": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reconstruction": {
+          "type": "string",
+          "maxLength": 6000
+        },
+        "certainty": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "reasoning_mode": {
+          "enum": [
+            "deduction",
+            "inference",
+            "intuition",
+            "guess",
+            "mixed"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "uniqueItems": true,
+          "maxItems": 100
+        },
+        "felt_fair": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "felt_led_by_ui": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "stuck_points": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "maxItems": 50
+        }
+      }
+    }
+  }
+}
