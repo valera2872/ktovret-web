@@ -15,8 +15,11 @@ test('committed v0.2 source queue is valid',()=>{
   assert.equal(r.status,0,r.stderr);
   const q=JSON.parse(fs.readFileSync(queueFile,'utf8'));
   assert.ok(q.items.length>=160);
-  const blocked=q.items.filter(x=>x.ingestion_policy==='prohibited_pending_review');\n  assert.ok(blocked.length>0);\n  assert.ok(blocked.every(x=>x.rights_status==='unknown' && x.status==='candidate'));
-  assert.ok(q.items.filter(x=>x.status==='rights_verified').length>=126);\n  assert.ok(q.items.filter(x=>x.source_family==='project_gutenberg'&&x.status==='rights_verified').length>=18);
+  const blocked=q.items.filter(x=>x.ingestion_policy==='prohibited_pending_review');
+  assert.ok(blocked.length>0);
+  assert.ok(blocked.every(x=>x.rights_status==='unknown' && x.status==='candidate'));
+  assert.ok(q.items.filter(x=>x.status==='rights_verified').length>=126);
+  assert.ok(q.items.filter(x=>x.source_family==='project_gutenberg'&&x.status==='rights_verified').length>=18);
   assert.equal(new Set(q.items.map(x=>x.source_id)).size,q.items.length,'source_id duplicates are forbidden');
 });
 
