@@ -37,6 +37,7 @@ const prompt={
     'Do not imitate source prose and do not produce a renamed copy of a distinctive plot.',
     'For metadata_and_analysis_only sources, do not return or retain source text. Paraphrase factual structure.',
     'Every critical Case DNA area must have provenance entries with usable source locators.',
+    'Copy rights_evidence_reference and rights_verified_date from the ingestion job exactly into both case_dna.source and provenance.source_snapshot when those job fields are present.',
     'Reconstructed competing hypotheses must be labeled abstracted_from_source and should not be presented as historical claims unless the source supports that wording.',
     'Return one JSON object with schema_version corpus_extraction_result_v1 and fields extraction_run_id, job_id, extractor_id, extracted_at, case_dna, provenance, extraction_notes.',
     'Set provenance.review.review_status to needs_review. The extractor is never allowed to self-approve an ingestion.'
