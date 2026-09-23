@@ -1084,3 +1084,76 @@ Before every user preview, scan all visible strings for:
 - "compare/check/build" prompts that reveal reasoning method.
 
 Any avoidable instance => revise before showing the user.
+
+
+## 38. PREMIUM EVIDENCE GRAPHICS ONLY — HARD BAN ON PRIMITIVE SVG/PLACEHOLDERS
+
+This rule is mandatory for all paid Mystery Logic cases and all user-facing review builds.
+
+### Absolute ban
+
+Do NOT use:
+- primitive SVG illustrations as evidence;
+- icon-style drawings presented as photos/documents;
+- fake CCTV made from simple vector boxes;
+- generic route diagrams with arrows standing in for a real visual source;
+- decorative "tech panels" that look like placeholders;
+- repeated stock-looking pseudo-evidence;
+- simple line-art containers, trucks, seals or documents as substitutes for real-looking artifacts.
+
+These may be acceptable only for neutral navigation icons, never for player evidence.
+
+### Premium evidence standard
+
+If an artifact represents:
+- a photo;
+- CCTV frame;
+- seal close-up;
+- warehouse image;
+- vehicle image;
+- port image;
+- document;
+- message;
+- map/route;
+- inspection form;
+- evidence board item;
+
+then it must look like a production-grade artifact appropriate to the world of the case.
+
+Preferred evidence treatments:
+- realistic photographic imagery;
+- high-quality generated or commissioned scene photography;
+- authentic-looking document design;
+- real-world style screenshots/records with restrained UI;
+- cinematic evidence crops;
+- layered annotations that preserve realism.
+
+### Evidence must feel diegetic
+
+The player should feel:
+"Это реальный материал дела."
+
+Not:
+"Это нарисованная иллюстрация для объяснения."
+
+### Visual quality gate
+
+Before user review, inspect every evidence visual.
+
+FAIL if any item:
+- looks like a placeholder;
+- looks cheaper than the approved visual direction;
+- uses simplistic vector geometry as the main evidence image;
+- breaks immersion;
+- repeats another image without narrative reason;
+- requires the player to imagine what the image is supposed to represent.
+
+### Paid-tier rule
+
+For Premium / FLAGSHIP / SIGNATURE:
+one obviously cheap evidence graphic is enough to fail the visual gate.
+
+Do not show the build to the user until all currently visible evidence visuals meet the premium bar.
+
+Navigation icons may remain simple.
+Evidence may not.
