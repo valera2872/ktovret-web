@@ -1,79 +1,118 @@
-# Workstream: Cognitive Profile
+# Mystery Logic — IQ детектива + Досье — checkpoint v13
 
-Date: 2026-09-21  
-Status: **STAGING PRODUCT QA / CONTENT ACCEPTED / NOT PRODUCTION**
+Дата: 2026-09-23
+Статус: **APPROVED NEXT BASE / FRONTEND FINAL CANDIDATE / NOT YET CANONICAL LIVE**
 
-## Goal
+## Решение пользователя
+Пользователь принял исправленный premium-визуал и затем явно распорядился зафиксировать весь согласованный IQ/Dossier пакет в финальной полной сборке, чтобы другие чаты при последующих изменениях не возвращались к старой версии.
 
-Build a Mystery Logic cognitive / detective-profile acquisition layer that leads from a short reasoning assessment to an analyst dossier and then into real investigations.
+## Канонический LIVE до promotion
+`CURRENT_RELEASE.json` всё ещё указывает:
+- release_id: `live-2026-09-22`
+- baseline: `MysteryLogic-LIVE-2026-09-22.zip`
+- SHA-256: `46f83620c451b55cd6dcc7de1d48db49021683b1b3ae152594022c8182c9b0ab`
 
-## Product decisions
+Это значение НЕ обновлять до фактического deploy нового frontend, проверки `mysterylogic.com` и подтверждения владельца.
 
-- 24 items, 6 scales × 4 items.
-- No standardized IQ claim in v1.
-- Public result stays descriptive: raw correct / 24 plus broad 0–4 subscale outcomes.
-- No percentile or normed score before empirical calibration.
-- No speed penalty.
-- Deterministic SVG/HTML for visual items.
-- Investigative items test evidence strength and over-inference.
-- Guest-first: test and result require no registration.
-- Production analytics/persistence are not implemented yet.
+## Approved next full build
+Полная сборка для следующего production шага и для дальнейших параллельных изменений:
+- `MysteryLogic-FINAL-CANDIDATE-IQ-2026-09-23.zip`
+- files: 686
+- SHA-256: `af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644`
+- root structure: PASS, wrapper folder отсутствует
+- ZIP integrity: PASS
 
-## Owner acceptance
+### Lineage
+1. canonical production release `live-2026-09-22`;
+2. production Dossier/IQ36 layer `MysteryLogic-PRODUCTION-DOSSIER-IQ36-2026-09-22.zip` (contains Dossier/IQ support assets and sitewide integration);
+3. approved final IQ patch `MysteryLogic-IQ-DETECTIVE-APPROVED-PATCH-2026-09-23.zip`, SHA-256 `fd48c84eac88b1355ff16e7162f912f91ba08776ca2c734ef1e82f0424d448a9`.
 
-- Initial staging test accepted overall.
-- Original first item was rejected as too simple.
-- Revised P1 was accepted.
-- Owner then accepted all remaining items as strong: “остальные отлично”.
+Relative to the Dossier/IQ36 production layer, final candidate changes only:
+- NEW `assets/detective-iq.js`
+- MOD `assets/detective-iq-data.mjs`
+- MOD `assets/detective-iq.mjs`
+- MOD `assets/dossier-v2.js`
+- MOD `dossier/index.html`
+- MOD `iq-detektiva/index.html`
 
-## Staging
+No files were removed.
 
-Branch: `staging/cognitive-profile`  
-Reviewed snapshot: `f92a42a6e474f3fe4eb3bf351f8ae48f430786ea`
+## IQ content freeze
+Public name: **IQ детектива**.
+Route: `/iq-detektiva/`.
+36 tasks, 6 skills × 6, 3 rounds × 12.
+Frontend version: `cognitive_v3`.
 
-Route:
-`https://valera2872.github.io/ktovret-web/admin/cognitive-profile-preview/`
+Accepted review changes are frozen in this candidate, including:
+- #6 replaced;
+- #13 strengthened without solution hints;
+- #14 Anna/Boris/Vera truth consistency;
+- #21 simplified wording/visual;
+- #23 graphical one-property-change task;
+- #24 three boxes / exactly one true inscription;
+- #25 symmetric-difference visual;
+- #26 indicator logic;
+- #27 modular arithmetic / answer 57;
+- #29 new visual analogy;
+- #31 Russian alphabet with explicit `Ё не используется`;
+- #32 9 coins / two weighings;
+- #34 3D orthographic projections;
+- #35 accepted premium 3×3 matrix visual;
+- #36 four independent systems final task.
 
-Current staging includes:
-- 24-item playable test;
-- six scale results;
-- raw score / 24;
-- completion time and answered count;
-- Evidence Discipline explanation;
-- strongest / most difficult observed scale wording;
-- scale descriptions;
-- guest-first bridge to the current LIVE solo-investigation hub;
-- noindex/nofollow/noarchive and staging robots disallow.
+## Visual freeze
+Approved by user after overflow correction.
+Requirements preserved:
+- restrained navy/gold premium assessment style;
+- actual SVG/CSS graphics, not textual pseudo-visuals;
+- figures stay inside cards;
+- responsive SVG sizing and mobile layout;
+- #34 3D cubes/projections;
+- #35 graphical matrix;
+- #36 source cards;
+- desktop/mobile preview accepted.
 
-Staging validation run: `35600521359` — SUCCESS.  
-Staging deploy run: `35600568542` — SUCCESS.  
-Staging artifact id: `10639220278`.  
-Artifact digest: `sha256:0862b2531fd9a776a05532921bb78aee4540da71a10ba81952aae4097e9489c8`.
+## Result screen
+After completion visitor sees:
+- total /36;
+- six scale scores;
+- summary of strongest/hardest groups;
+- full answer review;
+- correct / wrong / skipped status;
+- user's answer and correct answer;
+- compact desktop table and mobile-friendly cards.
+Correctness is not disclosed during the test.
 
-## QA
+## Backend source of truth
+Production Supabase project: `mystery-logic` (`orknvuwknvsedjgqcfwc`).
+`cognitive-result`: **ACTIVE v6**.
 
-- Alternate-answer / ambiguity audit: PASS for current 24-item set.
-- Deduction items with ordering/code constraints were rechecked for unique solutions.
-- Numerical, spatial, abstract and evidence-strength items were independently re-solved.
-- CI locks 24 items, 6×4 scale distribution, visual minimum, P1 key, result contract, noindex boundary and investigation CTA.
-- Owner manual pass is positive.
-- This is content/product QA, not psychometric validation.
+Compatibility:
+- `cognitive_v2` preserved with previous answer key/hash for old cached attempts;
+- `cognitive_v3` added for the approved new 36-task set;
+- v3 itemSetHash: `e3a9a092fa070f5bc52e4938bb3320f0fb752ca41d9042a47da4fb71727d6afa`.
 
-## Production boundary
+Current v3 correct indices by position:
+`0,2,2,0,0,0, 0,0,3,0,3,0, 2,1,2,0,0,0, 0,0,1,1,0,0, 0,1,1,1,2,2, 2,2,1,0,0,2`.
 
-Not changed:
-- Beget LIVE;
-- `CURRENT_RELEASE.json`;
-- canonical production baseline;
-- Supabase schema/RLS/auth/payment/entitlement;
-- production puzzle hub;
-- analytics.
+## QA completed
+- exact canonical LIVE-2026-09-22 SHA rechecked: PASS;
+- final patch SHA rechecked: PASS;
+- final full candidate ZIP integrity: PASS;
+- JS/MJS syntax: PASS for detective IQ and dossier files;
+- required IQ/Dossier support assets present: PASS;
+- `/iq-detektiva/` local refs missing: 0;
+- `/dossier/` local refs missing: 0;
+- full candidate root `index.html`: present;
+- final candidate includes 686 files.
 
-No production release is authorized from this checkpoint.
+## Continuity directive for other chats
+For any further Dossier / IQ / nearby site changes **before this release is promoted**, do NOT rebuild from an older Dossier/IQ ZIP or from `main` alone. Use `MysteryLogic-FINAL-CANDIDATE-IQ-2026-09-23.zip` as the approved next-base layer, while still checking `CURRENT_RELEASE.json` and current LIVE for unrelated/concurrent production changes before deployment.
+
+After this candidate is actually uploaded and verified on `mysterylogic.com`, owner confirmation must be obtained. Then:
+1. save the verified full site as the new canonical LIVE baseline;
+2. update `CURRENT_RELEASE.json` to that exact ZIP/hash;
+3. from that moment all chats use the new CURRENT_RELEASE as production source of truth.
 
 ## Exact next step
-
-Owner reviews the revised dossier/result screen on staging. If accepted:
-1. freeze Cognitive v1 staging content;
-2. design production integration: final public URL, navigation/SEO placement, guest persistence/account handoff, and analytics experiment;
-3. preview that integration before any production patch or deploy.
+Upload the approved frontend package/full candidate, verify LIVE desktop/mobile + scoring/save/Dossier, obtain owner confirmation, then promote canonical baseline and CURRENT_RELEASE.
