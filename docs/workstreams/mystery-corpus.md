@@ -1,6 +1,6 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M5 THEORY ENGINE PROTOTYPE
+Status: ACTIVE / M5 BLIND ORCHESTRATION PROTOTYPE
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
@@ -302,8 +302,51 @@ Combined local smoke for retrieval + originality + theory + blind modules on 202
 - plus earlier corpus validator suite: 3/3 PASS;
 - private seed: 25/25 Case DNA VALID.
 
+Blind execution/orchestration layer implemented 2026-09-23:
+- `tools/mystery-corpus/build-blind-packet.mjs`
+  - converts private Case DNA into a stage-limited `blind_player_packet_v1`;
+  - strips mechanism, reveal, canonical labels, supports/weakens and evidence reliability.
+- `tools/mystery-corpus/blind-investigator-baseline.mjs`
+  - deterministic evidence-first investigator used ONLY for engineering smoke tests;
+  - receives only the blind packet.
+- `tools/mystery-corpus/run-blind-baseline.mjs`
+  - creates per-stage packets;
+  - validates the blind boundary before investigator execution;
+  - runs the investigator in a separate child process and collects a `blind_run_v1`.
+- `tests/mystery-corpus-blind-orchestration.test.mjs`
+  - includes a private-solution canary;
+  - test fails if hidden mechanism/canonical/reveal text leaks into packet or blind run.
+- dedicated CI:
+  `.github/workflows/mystery-corpus-ci.yml`
+  - Node syntax for every corpus tool;
+  - all `mystery-corpus-*.test.mjs` suites.
+
+CI run 35914432677:
+- SUCCESS;
+- 16 tests;
+- 16 PASS;
+- 0 FAIL.
+
+B07 engineering smoke:
+- used a temporary, non-approved internal fixture derived from concept `B07 Учебная тревога`;
+- solution leak check: PASS;
+- deterministic baseline selected the equipment-coordinator role as its leading theory already at stage 0;
+- because this baseline relies partly on lexical/role overlap, this is NOT evidence that B07 itself is too easy;
+- it does demonstrate why the next blind layer must be a genuinely reasoning, stateless AI investigator rather than a keyword heuristic.
+- the fixture is engineering-only and is NOT accepted game CANON.
+
+Provider-safe AI boundary added:
+- `tools/mystery-corpus/build-blind-investigator-prompt.mjs`
+  - builds a provider prompt from the blind packet only;
+- `tools/mystery-corpus/validate-blind-run.mjs`
+  - rejects evidence IDs that were not available to the player at that stage;
+- `docs/agents/blind-investigator-provider-contract-v1.md`
+  - formalizes the stateless provider boundary and invalidates any run where the model context previously saw the answer;
+- `tests/mystery-corpus-blind-provider.test.mjs`
+  - verifies provider prompt isolation and unavailable-evidence rejection.
+
 Important limitation:
-the schemas and boundary validator are implemented, but an actual solution-isolated investigator execution/orchestration layer has not yet been run on a concrete case.
+the deterministic baseline is only an engineering smoke test. A real AI/human blind evaluation still requires a stateless investigator execution that has never seen Private CANON.
 
 ### M6 — Studio Internal
 Expose author workflow to Mystery Logic team.
