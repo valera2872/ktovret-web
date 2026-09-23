@@ -182,12 +182,12 @@ The seed intentionally includes one unresolved investigation pattern so the syst
 Scale target remains 200–300, but ingestion is now gated rather than bulk-imported.
 
 Current controlled expansion:
-- source queue v0.2: 55 candidates;
-- 39 rights-verified / eligible for controlled analysis;
-- 16 blocked with `unknown / prohibited_pending_review` until individual rights verification;
-- source families: FBI history 30, Project Gutenberg 17, NTSB 4, SEC 4;
+- source queue v0.2: 160 candidates;
+- 126 rights-verified / eligible for controlled analysis;
+- 34 blocked with `unknown / prohibited_pending_review` until individual rights verification;
+- source families: FBI history 100, Project Gutenberg 52, NTSB 4, SEC 4;
 - first diversity-aware ingestion batch: 20 sources;
-- batch composition: FBI 11, NTSB 4, SEC 4, Project Gutenberg 1.
+- batch composition: FBI 6, Project Gutenberg 6, NTSB 4, SEC 4.
 
 Implemented M2 controls:
 - source rights queue;
@@ -526,11 +526,11 @@ Committed public/spoiler-safe control files:
 - `tools/mystery-corpus/build-ingestion-plan.mjs`
 
 Queue state:
-- total: 55;
-- rights-verified: 39;
-- blocked pending rights verification: 16;
+- total: 160;
+- rights-verified: 126;
+- blocked pending rights verification: 34;
 - first planned batch: 20;
-- no blocked/unknown-rights item may enter an ingestion job.
+- no blocked/unknown-rights item may enter an ingestion job; every verified source must carry `rights_evidence_reference` + `rights_verified_date`.
 
 ### Controlled ingestion pipeline
 
@@ -668,4 +668,127 @@ M5:
 5. If extraction/review quality is stable across these three very different source types, expand controlled ingestion to the rest of Batch 1.
 6. Do not jump directly to 200–300 approved records.
 7. Keep PR #355 draft and non-production until this validation loop is proven.
+
+## 17. Discovery queue + rights provenance + review handoff — 2026-09-23
+
+### Discovery queue expanded
+
+The discovery queue now contains:
+- 160 total source records;
+- 100 FBI history investigations;
+- 52 Project Gutenberg detective-fiction records;
+- 4 NTSB investigations;
+- 4 SEC enforcement/fraud records.
+
+Rights state:
+- 126 `rights_verified`;
+- 34 `unknown / prohibited_pending_review`.
+
+Important:
+- queue expansion does NOT mean corpus approval;
+- newly discovered Gutenberg titles default to blocked;
+- an individual ebook page must explicitly support public-domain status before the queue record can become rights-verified.
+
+Verified fiction currently includes 18 Project Gutenberg records.
+Individual pages were checked and the queue now stores the exact ebook URL as rights evidence.
+
+### Rights evidence is now end-to-end
+
+New requirement:
+every `rights_verified / queued / ingested` source must carry:
+- `rights_evidence_reference`;
+- `rights_verified_date`.
+
+For source families:
+- FBI: rights evidence points to the FBI Cases and Criminals page containing the non-commercial reuse statement;
+- Project Gutenberg: rights evidence is the individual ebook page with its copyright status;
+- NTSB: rights evidence points to NTSB Website Policies; NTSB-created material may be reused, while third-party copyrighted docket content remains excluded;
+- SEC: rights evidence points to the SEC Webmaster FAQ / reuse policy.
+
+Rights evidence now propagates:
+`Source Queue -> Ingestion Plan -> Ingestion Job -> Independent Review Prompt`.
+
+### Batch 1 rebalanced
+
+The first 20-source ingestion plan is now:
+- FBI history: 6;
+- Project Gutenberg verified public-domain fiction: 6;
+- NTSB: 4;
+- SEC: 4.
+
+Reason:
+avoid a corpus dominated by one institutional source family and deliberately combine:
+- real evidence-generation systems;
+- causal/technical investigation;
+- financial/institutional evidence;
+- authored fair-play mystery design.
+
+### Private pilot packages migrated to rights-aware jobs
+
+Hollow Nickel latest:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Pilot-Hollow-Nickel-v0.3.zip`
+
+Library id:
+`libfile_3b5faf58f314819180fe62b924aa7d7b`
+
+SHA-256:
+`964eedd033e77f5385da9dadfa5b4e55c03350dafa3221d4187dbf77b6c94794`
+
+TWA 800 + WorldCom latest:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Pilot-Pack-003-v0.3.zip`
+
+Library id:
+`libfile_60e2af74a3d88191a95687a49637c3a0`
+
+SHA-256:
+`c562659eef11f1471a670c57d60730998aa2d37fc20c4c51605ede40a6ae8733`
+
+All three remain:
+`needs_review`.
+None is approved.
+
+### Independent Review Batch 001
+
+Private handoff artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Review-Batch-001-v0.2.zip`
+
+Library id:
+`libfile_f857176493fc81918a8d2294d18ba11a`
+
+SHA-256:
+`a87d76a37244778f43564b60a40c7d85827f6a6d22bf0338f9bbc74d5ec9b5bc`
+
+Contains the three real extraction candidates plus:
+- extractor identity;
+- source references;
+- rights evidence references;
+- provenance;
+- independent-review requests;
+- hard review checks.
+
+It is ready for a separate stateless reviewer context/provider.
+The current extractor context must not approve this batch.
+
+### CI state
+
+Latest verified completed aggregate after the 155-source discovery expansion and newline repair:
+- run `35919388029`;
+- head `2032858be2f0fae3a9f9065e12d8a0c72b47b190`;
+- 49 tests;
+- 49 PASS;
+- 0 FAIL.
+
+After that verified run, additional rights-provenance propagation commits were added.
+Current branch-head CI must be checked before any merge.
+
+### Exact next action
+
+1. Complete current branch-head CI.
+2. Run Independent Review Batch 001 in a genuinely separate reviewer context.
+3. Validate each returned `corpus_extraction_review_v1`.
+4. Run `validate-ingestion-promotion.mjs`.
+5. Promote only independently approved records.
+6. Run retrieval/originality regression before vs after promoted additions.
+7. If all three source types survive review, continue the balanced 20-source Batch 1.
+8. Keep the 34 blocked records blocked until individual rights evidence is collected.
 
