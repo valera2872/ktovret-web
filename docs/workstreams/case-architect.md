@@ -983,3 +983,35 @@ Current status:
 - human two-person blind test: NOT RUN;
 - Content Freeze: NOT RUN;
 - LIVE: untouched.
+
+
+## CASE-ARCH-001 v7 — self-contained image fix
+
+User opened v6 directly from the ZIP in Windows. Explorer/browser extracted only the HTML into a temporary directory, while relative evidence assets remained inside the archive. Result: all evidence images were broken.
+
+Root cause:
+review artifact still depended on relative `assets/*` files.
+
+Permanent review-artifact fix:
+- v7 is self-contained;
+- every premium evidence image is embedded into the HTML as a data URI;
+- no runtime dependency on an `assets/` directory;
+- HTML can be opened directly even when Windows extracts only that one file from the ZIP;
+- evidence images were recompressed for practical file size while preserving review quality.
+
+Validation:
+- unresolved `assets/` references: 0;
+- embedded image data URIs: 27;
+- base64 decode failures: 0;
+- inline JavaScript syntax: PASS;
+- ZIP integrity: PASS.
+
+Artifacts:
+- CASE-ARCH-001-premium-demo-v7.zip
+  SHA-256: d56963a67fd5d256eefe57144d6a1ef3848f1757ce43f2566d69947920c7d081
+- standalone `ОТКРЫТЬ_ИГРУ.html`
+  SHA-256: 6bbcf3be2b9ce8804d1680d74c41a3b91d54ac34cd61cea668826fbf94badd76
+
+v6 should not be used for further review.
+
+No LIVE / Supabase / payment / entitlement changes.
