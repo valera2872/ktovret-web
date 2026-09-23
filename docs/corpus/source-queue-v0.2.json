@@ -2553,6 +2553,24 @@
       "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
+      "source_id": "pg-innocence-father-brown",
+      "title": "The innocence of Father Brown",
+      "creator": "G. K. Chesterton",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/204",
+      "source_locator": null,
+      "jurisdiction": "US",
+      "year": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "status": "rights_verified",
+      "target_pattern_tags": [],
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+    },
+    {
       "source_id": "pg-candidate-the-leavenworth-case",
       "title": "The Leavenworth Case",
       "creator": "Anna Katharine Green",
@@ -2655,6 +2673,24 @@
       "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
+      "source_id": "pg-moonstone",
+      "title": "The Moonstone",
+      "creator": "Wilkie Collins",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/155",
+      "source_locator": null,
+      "jurisdiction": "US",
+      "year": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "status": "rights_verified",
+      "target_pattern_tags": [],
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+    },
+    {
       "source_id": "pg-murder-links",
       "title": "The Murder on the Links",
       "creator": "Agatha Christie",
@@ -2674,6 +2710,24 @@
         "timeline",
         "relationship-secret"
       ],
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+    },
+    {
+      "source_id": "pg-styles",
+      "title": "The Mysterious Affair at Styles",
+      "creator": "Agatha Christie",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/863",
+      "source_locator": null,
+      "jurisdiction": "US",
+      "year": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "status": "rights_verified",
+      "target_pattern_tags": [],
       "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
@@ -2711,6 +2765,24 @@
       "status": "candidate",
       "target_pattern_tags": [],
       "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+    },
+    {
+      "source_id": "pg-yellow-room",
+      "title": "The Mystery of the Yellow Room",
+      "creator": "Gaston Leroux",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/1685",
+      "source_locator": null,
+      "jurisdiction": "US",
+      "year": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "status": "rights_verified",
+      "target_pattern_tags": [],
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "pg-candidate-the-old-man-in-the-corner",
@@ -2939,26 +3011,44 @@
       "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
+      "source_id": "pg-wisdom-father-brown",
+      "title": "The wisdom of Father Brown",
+      "creator": "G. K. Chesterton",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/223",
+      "source_locator": null,
+      "jurisdiction": "US",
+      "year": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "status": "rights_verified",
+      "target_pattern_tags": [],
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+    },
+    {
       "source_id": "pg-whose-body",
       "title": "Whose Body?",
       "creator": "Dorothy L. Sayers",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/bookshelf/30",
-      "source_locator": "Whose Body?",
+      "source_reference": "https://www.gutenberg.org/ebooks/58820",
+      "source_locator": null,
       "jurisdiction": "US",
       "year": null,
-      "rights_status": "unknown",
-      "ingestion_policy": "prohibited_pending_review",
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
-      "priority": "P2",
-      "status": "candidate",
+      "priority": "P1",
+      "status": "rights_verified",
       "target_pattern_tags": [
         "body-identity",
         "class",
         "forensics"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
     },
     {
       "source_id": "sec-adelphia",
