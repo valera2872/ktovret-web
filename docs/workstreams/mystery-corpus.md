@@ -1,6 +1,6 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M5 BLIND ORCHESTRATION PROTOTYPE
+Status: ACTIVE / M5 PROVIDER-READY THEORY ATTACK
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
@@ -380,3 +380,119 @@ A) Case Architect v1 with no corpus retrieval;
 B) Case Architect v2 with abstract pattern retrieval from seed v0.1.
 
 Do not scale ingestion before measuring this difference.
+
+## 14. M5 provider-ready continuation — 2026-09-23
+
+Additional implementation after the first blind-orchestration checkpoint:
+
+### Provider-neutral Blind Investigator
+- `tools/mystery-corpus/run-blind-provider.mjs`
+  - sends only `blind_provider_request_v1`;
+  - payload contains the generated blind prompt contract and player packet only;
+  - optional bearer token stays in environment;
+  - every response is validated against stage-visible evidence before acceptance.
+- `tests/mystery-corpus-blind-provider-runner.test.mjs`
+  - local mock HTTP provider;
+  - private-canary environment value must never appear in network payload;
+  - unavailable evidence references are rejected.
+- `docs/agents/blind-provider-adapter-v1.md`
+
+### Solution-isolated Adversarial Theory provider
+- `tools/mystery-corpus/build-adversarial-theory-prompt.mjs`
+- `tools/mystery-corpus/validate-adversarial-theories.mjs`
+- `tools/mystery-corpus/run-adversarial-provider.mjs`
+- `tests/mystery-corpus-adversarial-provider.test.mjs`
+- `docs/agents/adversarial-theory-loop-v1.md`
+
+The provider receives only the final player-visible packet plus optional blind-run observations.
+It never receives Private CANON.
+Generated theory evidence IDs must be visible at the supplied stage.
+
+### Adversarial theory -> deterministic audit bridge
+- `tools/mystery-corpus/merge-adversarial-theories.mjs`
+  - maps independent theory support/conflict evidence into Case DNA;
+  - rejects unknown evidence IDs;
+  - rejects a competing theory that requires a new answer-changing fact.
+- `tests/mystery-corpus-adversarial-merge.test.mjs`
+
+### End-to-end theory attack
+- `tools/mystery-corpus/run-adversarial-theory-audit.mjs`
+- `tests/mystery-corpus-adversarial-e2e.test.mjs`
+- `docs/agents/m5-end-to-end-theory-attack-v1.md`
+
+End-to-end behavior:
+1. private Case DNA stays local;
+2. final player-visible packet is generated and blind-boundary validated;
+3. external/stateless provider proposes alternative explanations from visible evidence only;
+4. alternatives are validated;
+5. alternatives are merged locally into Case DNA;
+6. deterministic Theory Audit checks whether final evidence actually discriminates them;
+7. an alternative that survives all final evidence => FAIL.
+
+This turns "the author believes the case is proven" into a machine-checkable adversarial condition.
+
+### M2 scale-safety foundation
+Added before scaling beyond the 25-record seed:
+- `docs/schemas/case-dna-provenance-v1.schema.json`
+- `tools/mystery-corpus/validate-case-dna-provenance.mjs`
+- `tests/mystery-corpus-provenance.test.mjs`
+- `docs/corpus/extraction-provenance-gate-v1.md`
+
+Rule:
+critical corpus claims (incident, mechanism, evidence, hypotheses, known reveal) must be source-supported or explicitly abstracted from a cited source locator.
+Critical editorial inference is forbidden.
+UNKNOWN is preserved rather than silently filled.
+An approved ingestion cannot contain UNKNOWN critical claims.
+
+This provenance gate is required before any semi-automated 200–300 record expansion.
+
+### CI state
+Dedicated workflow:
+`.github/workflows/mystery-corpus-ci.yml`
+
+Completed verified run:
+- run 35915003418
+- 22 tests
+- 22 PASS
+- 0 FAIL
+
+New provider/e2e/provenance tests were added after that run.
+Latest aggregate CI is pending/queued at the time of this checkpoint and must be checked before merging PR #355.
+
+### Safety state
+Still unchanged:
+- no LIVE deployment;
+- no CURRENT_RELEASE modification;
+- no production Supabase schema/RLS change;
+- no payment/auth/entitlement/analytics/SEO/Game Engine change;
+- no Private CANON in public GitHub;
+- no vendor API credentials committed.
+
+### Remaining M5 blocker
+The current chat/process has seen private pilot material and therefore MUST NOT masquerade as a genuine blind investigator.
+
+A valid AI blind test requires a separate stateless provider/model context that:
+- has never seen Private CANON;
+- receives only the generated blind provider request;
+- cannot retrieve private solution data through tools/memory;
+- returns checkpoints that pass `validate-blind-run.mjs`.
+
+The code boundary is ready; the external/stateless execution is not yet performed.
+
+## 15. Exact next step after provider-ready M5
+
+1. Connect one non-production stateless model adapter to `BLIND_INVESTIGATOR_ENDPOINT` / `ADVERSARIAL_THEORY_ENDPOINT`.
+2. Run one mature Mystery Logic case through:
+   - staged Blind Investigator;
+   - final Adversarial Theory generation;
+   - local merge;
+   - Theory Audit.
+3. Record whether the independent investigator:
+   - changes theories at sensible evidence points;
+   - solves by deduction rather than UI leading;
+   - invents no unavailable evidence;
+   - discovers any alternative not present in author hypotheses.
+4. Only after that result decide whether to scale Mystery Corpus from 25 to 200–300 records.
+
+Do not merge PR #355 or touch production as part of this validation unless explicitly approved by the user.
+
