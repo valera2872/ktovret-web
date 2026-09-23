@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/corpus-extraction-result-v1.schema.json",
+  "title": "Mystery Logic Corpus Extraction Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "extraction_run_id",
+    "job_id",
+    "extractor_id",
+    "extracted_at",
+    "case_dna",
+    "provenance",
+    "extraction_notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "corpus_extraction_result_v1"
+    },
+    "extraction_run_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 240
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 220
+    },
+    "extractor_id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 240
+    },
+    "extracted_at": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 80
+    },
+    "case_dna": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "extraction_notes": {
+      "type": "object"
+    }
+  }
+}
