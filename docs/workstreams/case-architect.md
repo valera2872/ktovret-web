@@ -1015,3 +1015,22 @@ Artifacts:
 v6 should not be used for further review.
 
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 user review — v7 opening approved
+
+User feedback after opening v7:
+«пока отлично. хорошее начало.»
+
+Decision:
+- v7 opening / first investigation impression = APPROVED for continued review;
+- current premium evidence direction is retained;
+- self-contained single-file delivery solved the broken-image issue;
+- no need to revisit the opening unless later gameplay reveals a contradiction.
+
+Next review focus:
+- whether the middle of the case maintains the same premium bar;
+- whether evidence remains understandable without jargon;
+- whether Alex stays useful but non-leading;
+- whether the investigation produces real hypothesis changes and a strong earned aha;
+- whether the final reconstruction feels satisfying rather than mechanical.
