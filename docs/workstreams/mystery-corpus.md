@@ -792,3 +792,122 @@ Current branch-head CI must be checked before any merge.
 7. If all three source types survive review, continue the balanced 20-source Batch 1.
 8. Keep the 34 blocked records blocked until individual rights evidence is collected.
 
+## 18. Independent review execution hardening — 2026-09-24
+
+### Reviewer provider runner
+
+Added:
+- `tools/mystery-corpus/run-extraction-review-provider.mjs`
+- `tools/mystery-corpus/run-review-promotion-check.mjs`
+- `tests/mystery-corpus-review-provider.test.mjs`
+- `docs/corpus/independent-reviewer-provider-v1.md`
+
+Rules:
+- reviewer ID must differ from extractor ID;
+- provider response reviewer ID must equal the requested independent reviewer ID;
+- provider output is validated before promotion eligibility is checked;
+- review/promotion orchestration never moves or rewrites corpus files;
+- a review verdict can only produce `eligible_for_private_corpus` or `blocked`.
+
+### Batch reviewer
+
+Added:
+- `tools/mystery-corpus/run-review-batch-provider.mjs`
+- `tests/mystery-corpus-review-batch-provider.test.mjs`
+- `docs/corpus/review-batch-runner-v1.md`
+
+The runner:
+- processes every candidate in a private review batch;
+- continues after individual failures;
+- returns one aggregate report;
+- exits non-zero when any candidate is blocked;
+- NEVER promotes files.
+
+Latest aggregate CI:
+- run `35928201975`;
+- head `156013c32be7348af217ed2340bfbc8b135a4111`;
+- 59 tests;
+- 59 PASS;
+- 0 FAIL.
+
+### Rights contract defect found and fixed
+
+During preparation of Review Batch 001, a real metadata gap was detected:
+
+`rights_evidence_reference` and `rights_verified_date` existed in the ingestion job/review request but were not required to propagate into:
+- `case_dna.source`;
+- `provenance.source_snapshot`.
+
+That meant the previous phrase "end-to-end rights evidence" was stronger than the actual machine contract.
+
+Fix:
+- Case DNA schema accepts rights evidence fields;
+- provenance schema accepts rights evidence fields;
+- `validate-ingestion-bundle.mjs` requires exact match to the ingestion job whenever the job carries rights evidence;
+- `build-extractor-prompt.mjs` explicitly requires exact propagation;
+- regression tests fail missing/drifted rights evidence.
+
+This is enforced for new M2 jobs without breaking the original 25-record seed.
+
+### Review Batch 001 v0.3
+
+Private Library artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Review-Batch-001-v0.3.zip`
+
+Library id:
+`libfile_30b4519728fc8191bfe657f3e1639f1a`
+
+SHA-256:
+`276dc9f3cfbaf24e89e61f137e51a22c0f789feaa7c558d953f1778f110f92c3`
+
+Size:
+40,592 bytes.
+
+Contains:
+- Hollow Nickel / Rudolf Abel;
+- TWA Flight 800;
+- WorldCom;
+- job;
+- extraction result;
+- standalone Case DNA;
+- provenance;
+- extraction notes;
+- review request;
+- batch manifest/instructions.
+
+v0.3 differs from v0.2 by propagating exact job rights evidence/date into both Case DNA and provenance.
+
+All three v0.3 candidates pass current M2 structural/provenance/rights consistency checks and remain:
+`needs_review`.
+
+No candidate was promoted.
+
+### Pre-review locator check
+
+Critical locators are reviewable:
+- TWA 800 uses NTSB report sections/findings/pages;
+- WorldCom uses SEC complaint paragraph ranges;
+- Hollow Nickel uses named FBI history sections plus FBI artifact references.
+
+This is a pre-review usability check only; it does NOT establish source correctness.
+
+### Exact next action
+
+Run `m2-review-batch-001 v0.3` through one genuinely separate stateless reviewer/provider with source browsing enabled:
+
+```
+run-review-batch-provider.mjs
+  --batch-dir <unpacked v0.3>
+  --reviewer-id <independent-id>
+  --endpoint <reviewer-adapter>
+```
+
+Then:
+1. retain every reviewer issue/verdict;
+2. promote NONE automatically;
+3. for approved items, run explicit private-corpus promotion eligibility validation;
+4. repair any `needs_rework` items and send them through a NEW independent review;
+5. only after 3/3 stable outcomes run retrieval/originality regression and continue Batch 1.
+
+Current conversation/extractor context must not act as that independent reviewer.
+
