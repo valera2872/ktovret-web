@@ -112,6 +112,20 @@
         "notes": {
           "type": "string",
           "maxLength": 2000
+        },
+        "rights_evidence_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        },
+        "rights_verified_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
         }
       }
     },
