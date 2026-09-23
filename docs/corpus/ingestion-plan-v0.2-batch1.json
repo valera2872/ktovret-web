@@ -5,7 +5,7 @@
   "batch_id": "m2-batch-01",
   "requested_limit": 20,
   "selected_count": 20,
-  "blocked_count": 16,
+  "blocked_count": 34,
   "items": [
     {
       "source_id": "sec-adelphia",
@@ -62,21 +62,17 @@
       ]
     },
     {
-      "source_id": "pg-secret-father-brown",
-      "title": "The Secret of Father Brown",
+      "source_id": "pg-innocence-father-brown",
+      "title": "The innocence of Father Brown",
       "source_family": "project_gutenberg",
       "source_type": "public_domain_fiction",
-      "source_reference": "https://www.gutenberg.org/ebooks/70175",
+      "source_reference": "https://www.gutenberg.org/ebooks/204",
       "source_locator": null,
       "rights_status": "public_domain",
       "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P1",
-      "target_pattern_tags": [
-        "psychology",
-        "moral-motive",
-        "misdirection"
-      ]
+      "target_pattern_tags": []
     },
     {
       "source_id": "ntsb-east-palestine",
@@ -133,6 +129,19 @@
       ]
     },
     {
+      "source_id": "pg-moonstone",
+      "title": "The Moonstone",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/155",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": []
+    },
+    {
       "source_id": "ntsb-twa800",
       "title": "TWA Flight 800 Investigation",
       "source_family": "ntsb",
@@ -187,6 +196,19 @@
       ]
     },
     {
+      "source_id": "pg-styles",
+      "title": "The Mysterious Affair at Styles",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/863",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": []
+    },
+    {
       "source_id": "fbi-amerithrax",
       "title": "Amerithrax / Anthrax Investigation",
       "source_family": "fbi_history",
@@ -221,6 +243,19 @@
         "procedure",
         "systemic-cause"
       ]
+    },
+    {
+      "source_id": "pg-yellow-room",
+      "title": "The Mystery of the Yellow Room",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/1685",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": []
     },
     {
       "source_id": "sec-tyco",
@@ -259,6 +294,23 @@
       ]
     },
     {
+      "source_id": "pg-secret-father-brown",
+      "title": "The Secret of Father Brown",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/70175",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
+      "raw_text_retained": false,
+      "priority": "P1",
+      "target_pattern_tags": [
+        "psychology",
+        "moral-motive",
+        "misdirection"
+      ]
+    },
+    {
       "source_id": "fbi-rosenbergs",
       "title": "Atom Spy Case / Rosenbergs",
       "source_family": "fbi_history",
@@ -277,101 +329,24 @@
       ]
     },
     {
-      "source_id": "fbi-black-dahlia",
-      "title": "Black Dahlia",
-      "source_family": "fbi_history",
-      "source_type": "real_case",
-      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
-      "source_locator": "Black Dahlia",
-      "rights_status": "government_public_record",
-      "ingestion_policy": "metadata_and_analysis_only",
+      "source_id": "pg-wisdom-father-brown",
+      "title": "The wisdom of Father Brown",
+      "source_family": "project_gutenberg",
+      "source_type": "public_domain_fiction",
+      "source_reference": "https://www.gutenberg.org/ebooks/223",
+      "source_locator": null,
+      "rights_status": "public_domain",
+      "ingestion_policy": "full_text_allowed",
       "raw_text_retained": false,
       "priority": "P1",
-      "target_pattern_tags": [
-        "unsolved",
-        "homicide",
-        "false-leads",
-        "media-noise"
-      ]
-    },
-    {
-      "source_id": "fbi-black-tom",
-      "title": "Black Tom 1916 Bombing",
-      "source_family": "fbi_history",
-      "source_type": "real_case",
-      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
-      "source_locator": "Black Tom 1916 Bombing",
-      "rights_status": "government_public_record",
-      "ingestion_policy": "metadata_and_analysis_only",
-      "raw_text_retained": false,
-      "priority": "P1",
-      "target_pattern_tags": [
-        "sabotage",
-        "industrial-site",
-        "forensics",
-        "historical-reconstruction"
-      ]
-    },
-    {
-      "source_id": "fbi-bonnie-clyde",
-      "title": "Bonnie and Clyde",
-      "source_family": "fbi_history",
-      "source_type": "real_case",
-      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
-      "source_locator": "Bonnie and Clyde",
-      "rights_status": "government_public_record",
-      "ingestion_policy": "metadata_and_analysis_only",
-      "raw_text_retained": false,
-      "priority": "P1",
-      "target_pattern_tags": [
-        "manhunt",
-        "network",
-        "movement-pattern",
-        "informant"
-      ]
-    },
-    {
-      "source_id": "fbi-boston-marathon",
-      "title": "Boston Marathon Bombing",
-      "source_family": "fbi_history",
-      "source_type": "real_case",
-      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
-      "source_locator": "Boston Marathon Bombing",
-      "rights_status": "government_public_record",
-      "ingestion_policy": "metadata_and_analysis_only",
-      "raw_text_retained": false,
-      "priority": "P1",
-      "target_pattern_tags": [
-        "video-forensics",
-        "crowd-scene",
-        "timeline",
-        "identity"
-      ]
-    },
-    {
-      "source_id": "fbi-brian-regan",
-      "title": "Brian P. Regan Espionage",
-      "source_family": "fbi_history",
-      "source_type": "real_case",
-      "source_reference": "https://www.fbi.gov/history/cases-and-criminals",
-      "source_locator": "Brian P. Regan Espionage",
-      "rights_status": "government_public_record",
-      "ingestion_policy": "metadata_and_analysis_only",
-      "raw_text_retained": false,
-      "priority": "P1",
-      "target_pattern_tags": [
-        "espionage",
-        "document-theft",
-        "coded-plans",
-        "counterintelligence"
-      ]
+      "target_pattern_tags": []
     }
   ],
   "family_counts": {
     "sec": 4,
     "ntsb": 4,
-    "fbi_history": 11,
-    "project_gutenberg": 1
+    "fbi_history": 6,
+    "project_gutenberg": 6
   },
-  "note": "Batch 1 is deliberately source-diverse. Metadata/analysis-only records do not retain source text. Fiction with unverified individual rights is excluded."
+  "note": "Batch 1 is deliberately source-diverse. Metadata/analysis-only records do not retain source text. Fiction is included only when an individual Project Gutenberg page was rights-verified."
 }
