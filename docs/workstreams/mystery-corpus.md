@@ -1,11 +1,11 @@
 # Mystery Logic — Mystery Corpus / Studio Intelligence
 
-Status: ACTIVE / M0 ARCHITECTURE
+Status: ACTIVE / M1 SEED CORPUS
 Workstream: CORPUS-01
 Updated: 2026-09-23
 Autonomy: L1 PROPOSE; implementation in non-production branch only unless explicitly approved
 Production writes: FORBIDDEN
-Supabase production schema changes: FORBIDDEN in M0
+Supabase production schema changes: FORBIDDEN in M1
 Private canon / source payloads: NEVER store in public GitHub
 
 ## 1. Decision
@@ -20,29 +20,15 @@ Reason:
 - the corpus is infrastructure for Mystery Logic, not a separate customer-facing product.
 
 Technical separation is still required:
-- public `ktovret-web`: spoiler-safe specs, schemas, validators, orchestration code;
-- private data layer: source payloads, copyrighted/licensed material, embeddings, creator submissions, private CANON and solution data;
+- public `ktovret-web`: spoiler-safe specs, schemas, validators, orchestration code and source manifests;
+- private Library/data layer: detailed Case DNA, source payloads, copyrighted/licensed material, embeddings, creator submissions, private CANON and solution data;
 - production website: no corpus payloads and no private canon.
-
-A separate private repository or private storage namespace may be introduced when ingestion begins. It must not become the source of truth for LIVE website state.
 
 ## 2. Goal
 
-Build a reusable detective-intelligence layer that improves:
-- originality;
-- causal depth;
-- evidence design;
-- red herrings;
-- hypothesis dynamics;
-- fair play;
-- character lies;
-- technical realism;
-- final reconstruction;
-- portfolio diversity.
+Build a reusable detective-intelligence layer that improves originality, causal depth, evidence design, red herrings, hypothesis dynamics, fair play, character lies, technical realism, final reconstruction and portfolio diversity.
 
-The corpus must NOT be a plot-copying library.
-
-Its unit of knowledge is abstract Case DNA: mechanisms, evidence topology, hypothesis shifts, lie structures, causal patterns and editorial lessons.
+The corpus must NOT be a plot-copying library. Its unit of knowledge is abstract Case DNA: mechanisms, evidence topology, hypothesis shifts, lie structures, causal patterns and editorial lessons.
 
 ## 3. Product relationship
 
@@ -66,47 +52,27 @@ WOW / G0-G9 / Cognitive Gate
 Game Engine
 ```
 
-Case Architect is the intelligence layer.
-Studio is the authoring environment.
-Mystery Corpus is the research/pattern memory.
-Release Gate remains the shipping authority.
+Case Architect is the intelligence layer. Studio is the authoring environment. Mystery Corpus is the research/pattern memory. Release Gate remains the shipping authority.
 
-## 4. Source classes
+## 4. Rights boundary
 
-Allowed source classes include:
-- Mystery Logic owned cases;
-- public-domain fiction;
-- public/government records where reuse is permitted;
-- licensed material;
-- user-owned creator submissions;
-- factual case summaries and procedural records;
-- analysis-only references to copyrighted modern works.
-
-Every source record must have:
+Every source record carries machine-readable:
 - source type;
 - provenance;
 - rights status;
 - ingestion policy;
 - source date/jurisdiction when applicable;
-- extraction date;
 - whether raw text retention is allowed.
 
-Unknown rights status must default to restrictive handling.
-
-## 5. Rights boundary
-
-The corpus must distinguish facts/ideas/patterns from protected expression.
+Unknown rights status defaults to restrictive handling.
 
 For analysis-only copyrighted works:
-- do not retain full scripts/books in the public repository;
+- do not retain full scripts/books in public GitHub;
 - do not expose long source text to downstream generation;
 - extract abstract Case DNA and similarity fingerprints;
-- retain only metadata and permitted excerpts when justified;
-- never instruct generation to imitate a living author's style or reproduce a source plot.
+- never recreate one protected plot with renamed characters.
 
-Rights status is data, not a comment. It must be machine-readable.
-
-## 6. Case DNA v1
+## 5. Case DNA v1
 
 Canonical schema:
 `docs/schemas/case-dna-v1.schema.json`
@@ -127,27 +93,24 @@ Core layers:
 13. originality fingerprint;
 14. editorial lessons.
 
-External-source DNA and Mystery Logic private CANON may share structure, but private answer-changing data stays server-side/private.
+## 6. Retrieval principles
 
-## 7. Retrieval principles
-
-Case Architect must query the corpus for patterns, not ask it to continue a source story.
+Retrieve patterns, not stories.
 
 Good retrieval:
-- examples of non-culpability lies;
-- real mechanisms that produce misleading timestamps;
-- evidence combinations that distinguish two plausible hypotheses;
-- institutional records automatically created by a process;
+- non-culpability lies;
+- real mechanisms creating misleading timestamps;
+- evidence combinations discriminating two hypotheses;
+- institutional records created automatically by a process;
 - recurring fair-play failures.
 
 Bad retrieval:
 - "rewrite this film with different names";
-- "make a case like [single copyrighted work]";
 - copying a distinctive reveal, relationship topology and clue chain as one package.
 
-## 8. Originality Engine
+## 7. Originality Engine
 
-Every candidate case should produce a plot fingerprint across:
+Compare:
 - incident;
 - setting;
 - mechanism;
@@ -155,83 +118,75 @@ Every candidate case should produce a plot fingerprint across:
 - character topology;
 - evidence topology;
 - hypothesis curve;
-- reversal type;
+- reversal;
 - decisive proof;
-- reveal;
 - signature action.
 
-Similarity must be decomposable.
+Similarity must be decomposable. A warning must explain WHY cases are similar.
 
-A warning should say WHY two cases are similar, not only output one percentage.
+## 8. Theory Engine
 
-High similarity triggers redesign before polished writing.
-
-## 9. Theory Engine
-
-Theory Engine receives player-available facts plus structured evidence and attempts to build competing explanations.
-
-Default adversarial theories:
+Theory Engine receives player-available facts and attempts competing explanations:
 - another suspect/cause;
 - accident/no crime;
 - witness error rather than lie;
 - timestamp/process error;
-- forged or misattributed evidence;
+- forged/misattributed evidence;
 - canonical culprit innocent.
 
-Failure condition:
-an alternative explains the final available evidence as well as the canonical model.
+Failure: a non-canonical theory explains final available evidence as well as the canonical model.
 
-The engine must identify the smallest discriminating evidence set.
+## 9. Blind Investigator
 
-## 10. Blind Investigator
+Blind Investigator MUST NOT receive culprit, private CANON, intended solve path, author notes or important-clue labels.
 
-Blind Investigator MUST NOT receive:
-- culprit;
-- private CANON;
-- intended solve path;
-- author notes;
-- "important clue" labels.
-
-At each stage it records:
+At each stage record:
 - current theories;
 - confidence;
-- facts treated as established;
+- established facts;
 - unresolved questions;
 - next desired action;
-- point of theory change;
+- theory changes;
 - perceived unfairness/confusion.
 
-Its result is compared with intended hypothesis dynamics only after the blind run ends.
+## 10. Milestones
 
-## 11. Phase plan
-
-### M0 — architecture
-Deliver:
+### M0 — architecture — COMPLETE
+Delivered:
 - workstream;
 - Case Architect v2 spec;
 - Case DNA v1 schema;
-- local validator;
+- single-record validator;
 - privacy/rights boundary.
 
-No LIVE changes.
+### M1 — seed corpus — ACTIVE
+2026-09-23 seed v0.1:
+- 25 curated Case DNA records;
+- 14 public-domain detective-fiction records;
+- 11 real-investigation records from FBI/SEC public material;
+- no raw source texts retained;
+- detailed DNA stored privately at:
+  `/Mystery Logic/Private/Mystery Corpus/Mystery-Corpus-Seed-v0.1.zip`
+- Library file id:
+  `libfile_cc1d3f1e835c8191b424a805c134c916`
+- ZIP SHA-256:
+  `c48cf68d96c47b18153e668da7a1b84f04ce5b5e7bc5ae7b207656ea98e5f4b5`
+- all 25 passed reference-integrity / rights-policy / Fair Play hard-check validation;
+- public source-only manifest:
+  `docs/corpus/source-manifest-v0.1.json`
 
-### M1 — seed corpus
-Target:
-- 25–50 deliberately diverse manually reviewed Case DNA records;
-- mix of real cases, public-domain fiction, Mystery Logic cases and analysis-only modern references;
-- build taxonomy from evidence, not from assumptions.
-
-Success:
-Case Architect retrieves useful patterns without reproducing source-specific plot details.
+The seed intentionally includes one unresolved investigation pattern so the system learns to preserve UNKNOWN rather than fabricate closure.
 
 ### M2 — corpus 200–300
-Add semi-automated ingestion and human QA.
-Measure extraction consistency.
+Only after the pilot proves useful:
+- semi-automated ingestion;
+- extraction consistency tests;
+- taxonomy stabilization.
 
-### M3 — A/B concept test
-Generate concept tournaments:
+### M3 — A/B concept test — NEXT
+Generate concept tournaments for one real Premium portfolio gap:
 - Case Architect v1 without corpus;
-- Case Architect v2 with corpus.
+- Case Architect v2 with the private 25-record seed.
 
 Compare:
 - originality;
@@ -240,73 +195,46 @@ Compare:
 - evidence variety;
 - hypothesis depth;
 - fair-play robustness;
-- retell hook.
+- retell hook;
+- structural similarity risk.
 
-Proceed only if corpus materially improves output.
+Proceed to M2 only if corpus materially improves the result.
 
 ### M4 — Originality Engine
-Structured similarity + semantic retrieval + explicit similarity rationale.
+Structured similarity + semantic retrieval + explicit rationale.
 
 ### M5 — Theory + Blind engines
-Run adversarial theory construction and solution-agnostic investigation before human blind test.
+Adversarial theories and solution-agnostic investigation.
 
 ### M6 — Studio Internal
-Expose author workflow to Mystery Logic team first.
+Expose author workflow to Mystery Logic team.
 
 ### M7 — Creator Beta
-Invite a small number of creators only after internal workflow is stable.
+Small invited creator cohort. Marketplace remains later.
 
-Marketplace is NOT part of v0.
+## 11. Storage
 
-## 12. Storage architecture
+Current:
+- public GitHub branch: specs, schemas, validators, source-only manifest;
+- private Library: detailed seed Case DNA;
+- LIVE production: unchanged;
+- production Supabase: unchanged.
 
-M0:
-- GitHub branch contains only public-safe code/specs.
-- No production DB mutation.
+Future private architecture may use object storage + PostgreSQL + vector search, but only after explicit schema/RLS/security review and approval.
 
-Target private architecture:
-- object storage for permitted raw source payloads;
-- PostgreSQL for structured Case DNA;
-- vector index for semantic retrieval;
-- access-controlled private CANON;
-- immutable provenance record.
+## 12. Current branch
 
-Production Supabase `mystery-logic` may eventually host selected services, but only after explicit schema/RLS/security review and approval.
-
-## 13. Evaluation
-
-The corpus is valuable only if measurable case quality improves.
-
-Required evaluations:
-- retrieval relevance;
-- extraction fidelity;
-- similarity false positives/negatives;
-- concept novelty;
-- theory discrimination;
-- blind-solve behavior;
-- human editorial assessment;
-- eventual player analytics after release.
-
-More data is not automatically better.
-A smaller curated corpus may outperform a huge noisy one.
-
-## 14. Current state
-
-M0 started 2026-09-23.
-
-Created:
-- `docs/workstreams/mystery-corpus.md`
-- `docs/agents/case-architect-v2-corpus.md`
-- `docs/schemas/case-dna-v1.schema.json`
-- `tools/mystery-corpus/validate-case-dna.mjs`
-
-Branch:
 `feature/mystery-corpus-v0`
 
-No LIVE, payment, auth, entitlement, analytics, SEO, game engine, Supabase schema or CURRENT_RELEASE changes.
+Draft PR:
+#355 — Mystery Corpus v0: foundation for Case Architect v2
 
-## 15. Exact next step
+No LIVE, payment, auth, entitlement, analytics, SEO, Game Engine, production Supabase schema, RLS or CURRENT_RELEASE changes.
 
-Create the first 25 curated Case DNA records in a PRIVATE storage location, then run an A/B concept tournament on one real Premium portfolio gap.
+## 13. Exact next step
 
-Do not scale ingestion before that test.
+Run the first controlled A/B Concept Tournament on a real Premium portfolio gap using:
+A) Case Architect v1 with no corpus retrieval;
+B) Case Architect v2 with abstract pattern retrieval from seed v0.1.
+
+Do not scale ingestion before measuring this difference.
