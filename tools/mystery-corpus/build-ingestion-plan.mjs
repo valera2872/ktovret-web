@@ -56,6 +56,8 @@ const plan={
     source_reference:x.source_reference,
     source_locator:x.source_locator||null,
     rights_status:x.rights_status,
+    rights_evidence_reference:x.rights_evidence_reference,
+    rights_verified_date:x.rights_verified_date,
     ingestion_policy:x.ingestion_policy,
     raw_text_retained:x.raw_text_retained,
     priority:x.priority,
