@@ -20,7 +20,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-abscam",
@@ -43,7 +45,9 @@
         "inducement",
         "recorded-evidence"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-al-capone",
@@ -61,7 +65,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-alcatraz-escape",
@@ -84,7 +90,9 @@
         "uncertainty",
         "trace-evidence"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-aldrich-ames",
@@ -107,7 +115,9 @@
         "counterintelligence",
         "behavioral-pattern"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-alger-hiss",
@@ -125,7 +135,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-amerithrax",
@@ -148,7 +160,9 @@
         "scientific-evidence",
         "hypothesis-elimination"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-ana-montes",
@@ -171,7 +185,9 @@
         "counterintelligence",
         "pattern-analysis"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-rosenbergs",
@@ -194,7 +210,9 @@
         "documentary-evidence",
         "corroboration"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-baptist-street-church-bombing",
@@ -212,7 +230,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-barker-karpis-gang",
@@ -230,7 +250,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-beltway-d-c-snipers",
@@ -248,7 +270,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-bernie-madoff-case",
@@ -266,7 +290,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-betty-grable-and-the-extortion-letters",
@@ -284,7 +310,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-billie-austin-bryant",
@@ -302,7 +330,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-black-dahlia",
@@ -325,7 +355,9 @@
         "false-leads",
         "media-noise"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-black-tom",
@@ -348,7 +380,9 @@
         "forensics",
         "historical-reconstruction"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-bonnie-clyde",
@@ -371,7 +405,9 @@
         "movement-pattern",
         "informant"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-boston-marathon",
@@ -394,7 +430,9 @@
         "timeline",
         "identity"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-brady-gang",
@@ -412,7 +450,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-brian-regan",
@@ -435,7 +475,9 @@
         "coded-plans",
         "counterintelligence"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-brink-s-robbery",
@@ -453,7 +495,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-charles-ross-kidnapping",
@@ -471,7 +515,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-d-b-cooper-hijacking",
@@ -489,7 +535,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-duquesne-ring",
@@ -512,7 +560,9 @@
         "undercover",
         "communications"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-durkin-murder-of-an-fbi-agent",
@@ -530,7 +580,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-east-african-embassy-bombings",
@@ -548,7 +600,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-emmett-till",
@@ -566,7 +620,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-enron",
@@ -584,7 +640,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-eric-rudolph",
@@ -607,7 +665,9 @@
         "pattern",
         "forensics"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-espionage-in-the-defense-industry",
@@ -625,7 +685,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-exxon-valdez-oil-spill",
@@ -643,7 +705,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-fawaz-younis-operation-goldenrod",
@@ -661,7 +725,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-frank-sinatra-jr-kidnapping",
@@ -679,7 +745,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-fur-dressers-case",
@@ -697,7 +765,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-george-machine-gun-kelly",
@@ -715,7 +785,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-gerhard-arthur-puff",
@@ -733,7 +805,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-greenlease-kidnapping",
@@ -751,7 +825,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-harveys-casino-bomb",
@@ -774,7 +850,9 @@
         "engineering",
         "behavior"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-hijacking-of-twa-flight-847",
@@ -792,7 +870,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-hollow-nickel",
@@ -815,7 +895,9 @@
         "coded-message",
         "chain-of-discovery"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-hurricane-katrina-fraud",
@@ -833,7 +915,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-isabella-stewart-gardner-museum-heist",
@@ -851,7 +935,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-iva-toguri-d-aquino-and-tokyo-rose",
@@ -869,7 +955,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-jack-gilbert-graham",
@@ -892,7 +980,9 @@
         "debris-reconstruction",
         "motive"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-james-edward-testerman",
@@ -910,7 +1000,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-jfk",
@@ -933,7 +1025,9 @@
         "ballistics",
         "competing-theories"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-joe-pistone",
@@ -956,7 +1050,9 @@
         "organized-crime",
         "identity"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-john-walker",
@@ -979,7 +1075,9 @@
         "family-secrets",
         "communications"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-john-dillinger",
@@ -997,7 +1095,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-john-elgin-johnson",
@@ -1015,7 +1115,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-john-gotti",
@@ -1033,7 +1135,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-jonestown",
@@ -1051,7 +1155,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-joseph-edward-earlywine",
@@ -1069,7 +1175,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-judge-vance-murder",
@@ -1087,7 +1195,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-kansas-city-massacre-and-pretty-boy-floyd",
@@ -1105,7 +1215,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-kkk-series",
@@ -1123,7 +1235,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-krupp-diamond-theft",
@@ -1141,7 +1255,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-lester-gillis-baby-face-nelson",
@@ -1159,7 +1275,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-lindbergh-kidnapping",
@@ -1177,7 +1295,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-ludwig-spy-ring",
@@ -1195,7 +1315,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-maksim-martynov",
@@ -1213,7 +1335,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-medgar-evers",
@@ -1231,7 +1355,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-melissa-virus",
@@ -1249,7 +1375,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-millennium-plot-ahmed-ressam",
@@ -1267,7 +1395,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-mississippi-burning",
@@ -1290,7 +1420,9 @@
         "local-network",
         "civil-rights"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-morris-worm",
@@ -1313,7 +1445,9 @@
         "causal-chain",
         "technical-attribution"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-nazi-saboteurs",
@@ -1336,7 +1470,9 @@
         "identity",
         "counterintelligence"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-nd-98-case-of-the-long-island-double-agent",
@@ -1354,7 +1490,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-nussbaum-and-wilcoxson",
@@ -1372,7 +1510,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-oklahoma-city",
@@ -1395,7 +1535,9 @@
         "purchase-records",
         "timeline"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-greylord",
@@ -1413,7 +1555,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-illwind",
@@ -1431,7 +1575,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-lemon-aid-spy-case",
@@ -1449,7 +1595,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-ostrich",
@@ -1467,7 +1615,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-senior-sentinel",
@@ -1485,7 +1635,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-operation-stolen-dreams",
@@ -1503,7 +1655,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-osage-murders-case",
@@ -1521,7 +1675,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-osama-bin-laden",
@@ -1539,7 +1695,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-palmer-raids",
@@ -1557,7 +1715,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-pan-am-103",
@@ -1580,7 +1740,9 @@
         "international",
         "chain-of-custody"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-patty-hearst",
@@ -1603,7 +1765,9 @@
         "coercion",
         "behavioral-ambiguity"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-pearl-harbor-spy",
@@ -1621,7 +1785,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-pizza-connection",
@@ -1644,7 +1810,9 @@
         "network",
         "longitudinal-investigation"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-pulse-nightclub-shooting",
@@ -1662,7 +1830,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-resmurs-case-reservation-murders",
@@ -1680,7 +1850,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-richard-floyd-mccoy-jr",
@@ -1698,7 +1870,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-robert-hanssen",
@@ -1716,7 +1890,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-roger-the-terrible-touhy",
@@ -1734,7 +1910,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-rumrich-nazi-spy-case",
@@ -1752,7 +1930,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-stradivarius-violin-cases",
@@ -1770,7 +1950,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-tennessee-waltz",
@@ -1793,7 +1975,9 @@
         "recorded-evidence",
         "network"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-thomas-capano",
@@ -1816,7 +2000,9 @@
         "relationship-secrets",
         "reconstruction"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-thomas-capano-and-the-murder-of-anne-marie-fahey",
@@ -1834,7 +2020,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-thwarted-sabotage-in-zambia",
@@ -1852,7 +2040,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-unabomber",
@@ -1870,7 +2060,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-uss-cole-bombing",
@@ -1888,7 +2080,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-vasilli-zubilin",
@@ -1906,7 +2100,9 @@
       "priority": "P2",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention."
+      "notes": "Discovered from FBI Cases and Criminals index. Abstract factual/investigation analysis only; no source-text retention.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-velvalee-dickinson",
@@ -1929,7 +2125,9 @@
         "pattern",
         "cover-story"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "fbi-vonsiatsky",
@@ -1952,7 +2150,9 @@
         "communications",
         "counterintelligence"
       ],
-      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication."
+      "notes": "FBI history index states its case monographs/write-ups are available for non-commercial use; corpus use is limited to factual metadata/abstract analysis, with no source-text republication.",
+      "rights_evidence_reference": "https://www.fbi.gov/history/cases-and-criminals",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "ntsb-colgan3407",
@@ -1975,7 +2175,9 @@
         "system-response",
         "causal-chain"
       ],
-      "notes": "Abstract investigation mechanics and evidence topology only."
+      "notes": "Abstract investigation mechanics and evidence topology only.",
+      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/DCA09MA027.aspx",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "ntsb-east-palestine",
@@ -1998,7 +2200,9 @@
         "causal-chain",
         "organizational-process"
       ],
-      "notes": "Use NTSB factual findings/report structure; third-party docket materials remain excluded."
+      "notes": "Use NTSB factual findings/report structure; third-party docket materials remain excluded.",
+      "rights_evidence_reference": "https://www.ntsb.gov/news/press-releases/Pages/NR20240930.aspx",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "ntsb-new-castle-detector",
@@ -2021,7 +2225,9 @@
         "procedure",
         "systemic-cause"
       ],
-      "notes": "Useful for false-confidence/system-record patterns."
+      "notes": "Useful for false-confidence/system-record patterns.",
+      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/RRD23FR011.aspx",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "ntsb-twa800",
@@ -2044,7 +2250,9 @@
         "uncertainty",
         "hypothesis-elimination"
       ],
-      "notes": "Use factual findings and causal structure; do not retain third-party docket attachments."
+      "notes": "Use factual findings and causal structure; do not retain third-party docket attachments.",
+      "rights_evidence_reference": "https://www.ntsb.gov/investigations/Pages/DCA96MA070.aspx",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-a-strange-disappearance",
@@ -2062,7 +2270,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-study-scarlet",
@@ -2084,7 +2294,9 @@
         "forensics",
         "dual-timeline"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/244",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-baron-trigault-s-vengeance",
@@ -2102,7 +2314,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-caught-in-the-net",
@@ -2120,7 +2334,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-martin-hewitt",
@@ -2142,7 +2358,9 @@
         "observation",
         "practical-deduction"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-file-no-113",
@@ -2160,7 +2378,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-hunted-down-the-detective-stories-of-charles-dickens",
@@ -2178,7 +2398,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-john-thorndyke-s-cases",
@@ -2196,7 +2418,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-martin-hewitt-investigator",
@@ -2214,7 +2438,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-max-carrados",
@@ -2236,7 +2462,9 @@
         "short-story-variety",
         "observation"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-monsieur-lecoq-v-1",
@@ -2254,7 +2482,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-other-people-s-money",
@@ -2272,7 +2502,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-poirot-investigates",
@@ -2294,7 +2526,9 @@
         "psychology",
         "deduction"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/61262",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-bruce-partington-plans",
@@ -2312,7 +2546,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-cardboard-box",
@@ -2330,7 +2566,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-devil-s-foot",
@@ -2348,7 +2586,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-dying-detective",
@@ -2366,7 +2606,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-adventure-of-the-red-circle",
@@ -2384,7 +2626,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-adventure-of-wisteria-lodge",
@@ -2402,7 +2646,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-angel-of-terror",
@@ -2420,7 +2666,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-circular-staircase",
@@ -2438,7 +2686,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-clique-of-gold",
@@ -2456,7 +2706,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-count-s-millions",
@@ -2474,7 +2726,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-disappearance-of-lady-frances-carfax",
@@ -2492,7 +2746,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-gloved-hand",
@@ -2510,7 +2766,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-honor-of-the-name",
@@ -2528,7 +2786,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-hound-baskervilles",
@@ -2550,7 +2810,9 @@
         "environment",
         "staged-threat"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/2852",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-innocence-father-brown",
@@ -2568,7 +2830,9 @@
       "priority": "P1",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/204",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-leavenworth-case",
@@ -2586,7 +2850,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-lerouge-case",
@@ -2604,7 +2870,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-man-brown-suit",
@@ -2626,7 +2894,9 @@
         "identity",
         "travel"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/61168",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-memoirs-sherlock",
@@ -2648,7 +2918,9 @@
         "identity",
         "forensics"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/834",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-middle-temple",
@@ -2670,7 +2942,9 @@
         "identity",
         "documents"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/26468",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-moonstone",
@@ -2688,7 +2962,9 @@
       "priority": "P1",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/155",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-murder-links",
@@ -2710,7 +2986,9 @@
         "timeline",
         "relationship-secret"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/58866",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-styles",
@@ -2728,7 +3006,9 @@
       "priority": "P1",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/863",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-mystery-of-31-new-inn",
@@ -2746,7 +3026,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-mystery-of-orcival",
@@ -2764,7 +3046,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-yellow-room",
@@ -2782,7 +3066,9 @@
       "priority": "P1",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/1685",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-old-man-in-the-corner",
@@ -2800,7 +3086,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-cell-13",
@@ -2822,7 +3110,9 @@
         "escape",
         "experiment"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-red-house",
@@ -2844,7 +3134,9 @@
         "timeline",
         "relationship"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/1872",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-red-thumb-mark",
@@ -2862,7 +3154,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-return-sherlock",
@@ -2884,7 +3178,9 @@
         "deduction",
         "misdirection"
       ],
-      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion."
+      "notes": "Candidate discovered through Project Gutenberg Detective Fiction catalog. Verify the individual ebook copyright page before enabling ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-secret-adversary",
@@ -2906,7 +3202,9 @@
         "identity",
         "espionage"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/1155",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-secret-father-brown",
@@ -2928,7 +3226,9 @@
         "moral-motive",
         "misdirection"
       ],
-      "notes": "Individual Project Gutenberg page explicitly states Public domain in the USA. Raw text still not retained by default."
+      "notes": "Individual Project Gutenberg page explicitly states Public domain in the USA. Raw text still not retained by default.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/70175",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-sign-four",
@@ -2950,7 +3250,9 @@
         "footprints",
         "pursuit"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/2097",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-candidate-the-sleuth-of-st-james-s-square",
@@ -2968,7 +3270,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-candidate-the-triumphs-of-eugene-valmont",
@@ -2986,7 +3290,9 @@
       "priority": "P3",
       "status": "candidate",
       "target_pattern_tags": [],
-      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion."
+      "notes": "Discovery-only candidate from Project Gutenberg Detective Fiction shelf. Individual ebook copyright page must be verified before ingestion.",
+      "rights_evidence_reference": null,
+      "rights_verified_date": null
     },
     {
       "source_id": "pg-valley-fear",
@@ -3008,7 +3314,9 @@
         "secret-society",
         "dual-timeline"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/3289",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-wisdom-father-brown",
@@ -3026,7 +3334,9 @@
       "priority": "P1",
       "status": "rights_verified",
       "target_pattern_tags": [],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/223",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "pg-whose-body",
@@ -3048,7 +3358,9 @@
         "class",
         "forensics"
       ],
-      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA."
+      "notes": "Individual Project Gutenberg ebook page verified on 2026-09-23: Public domain in the USA. Raw text remains not retained by default; corpus stores abstract Case DNA.",
+      "rights_evidence_reference": "https://www.gutenberg.org/ebooks/58820",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "sec-adelphia",
@@ -3071,7 +3383,9 @@
         "false-metrics",
         "coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention."
+      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
+      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17837",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "sec-healthsouth",
@@ -3094,7 +3408,9 @@
         "controls",
         "institutional-coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention."
+      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
+      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19280",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "sec-tyco",
@@ -3117,7 +3433,9 @@
         "economic-substance",
         "controls"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention."
+      "notes": "Abstract mechanism/evidence graph; no source-text retention.",
+      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19657",
+      "rights_verified_date": "2026-09-23"
     },
     {
       "source_id": "sec-worldcom",
@@ -3140,7 +3458,9 @@
         "institutional-evidence",
         "distributed-knowledge"
       ],
-      "notes": "Abstract fraud mechanism and evidence structure only."
+      "notes": "Abstract fraud mechanism and evidence structure only.",
+      "rights_evidence_reference": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17588",
+      "rights_verified_date": "2026-09-23"
     }
   ]
 }
