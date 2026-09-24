@@ -3383,9 +3383,9 @@
         "false-metrics",
         "coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
-      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
-      "rights_verified_date": "2026-09-23"
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy. Rights evidence reverified 2026-09-24 against SEC Website Dissemination policy; SEC-created site information is public information and may be copied/further distributed. Corpus remains metadata/analysis-only and excludes third-party material/logos.",
+      "rights_evidence_reference": "https://www.sec.gov/about/privacy-information",
+      "rights_verified_date": "2026-09-24"
     },
     {
       "source_id": "sec-healthsouth",
@@ -3408,9 +3408,9 @@
         "controls",
         "institutional-coverup"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
-      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
-      "rights_verified_date": "2026-09-23"
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy. Rights evidence reverified 2026-09-24 against SEC Website Dissemination policy; SEC-created site information is public information and may be copied/further distributed. Corpus remains metadata/analysis-only and excludes third-party material/logos.",
+      "rights_evidence_reference": "https://www.sec.gov/about/privacy-information",
+      "rights_verified_date": "2026-09-24"
     },
     {
       "source_id": "sec-tyco",
@@ -3433,9 +3433,9 @@
         "economic-substance",
         "controls"
       ],
-      "notes": "Abstract mechanism/evidence graph; no source-text retention. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
-      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
-      "rights_verified_date": "2026-09-23"
+      "notes": "Abstract mechanism/evidence graph; no source-text retention. gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy. Rights evidence reverified 2026-09-24 against SEC Website Dissemination policy; SEC-created site information is public information and may be copied/further distributed. Corpus remains metadata/analysis-only and excludes third-party material/logos.",
+      "rights_evidence_reference": "https://www.sec.gov/about/privacy-information",
+      "rights_verified_date": "2026-09-24"
     },
     {
       "source_id": "sec-worldcom",
@@ -3458,9 +3458,9 @@
         "institutional-evidence",
         "distributed-knowledge"
       ],
-      "notes": "Abstract fraud mechanism and evidence structure only. Rights evidence: SEC Webmaster FAQ; government-created sec.gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy.",
-      "rights_evidence_reference": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
-      "rights_verified_date": "2026-09-23"
+      "notes": "Abstract fraud mechanism and evidence structure only. gov content is free to access/reuse. Corpus remains metadata/analysis-only by policy. Rights evidence reverified 2026-09-24 against SEC Website Dissemination policy; SEC-created site information is public information and may be copied/further distributed. Corpus remains metadata/analysis-only and excludes third-party material/logos.",
+      "rights_evidence_reference": "https://www.sec.gov/about/privacy-information",
+      "rights_verified_date": "2026-09-24"
     }
   ]
 }
