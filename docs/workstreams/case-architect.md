@@ -1535,3 +1535,57 @@ Current user preview:
 Rule added:
 any UI labeled video/recording/CCTV/audio must contain actual playable media. Decorative/static placeholders may not be presented to the user as recordings.
 
+### CASE-ARCH-002 COMPLETE PLAYABLE v2.0 — 2026-09-25
+
+User direction:
+- stop showing isolated screens/previews;
+- produce one complete, playable case.
+
+Private player build:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-COMPLETE-v2.0.zip`
+- Library id: `libfile_588a250129d881919f29beb4ca9307b6`
+- ZIP SHA-256: `3cb58af17e73b2e794208fc02832981ae2bbc8b2beb98c94a63aeb632ad021f3`
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-COMPLETE-v2.0.html`
+- Library id: `libfile_4fe9b90d1c2c8191ae775c89f776752c`
+- standalone HTML SHA-256: `4f0cb896cff7fd3afeb1a7ff0f3d870509f2b2a50c832420596fa3421f301fa8`
+
+Player-complete scope:
+- soft-entry opening;
+- 4 progressive investigation stages;
+- 19 player-facing materials;
+- 6 character/lies lines;
+- working theories;
+- signature provenance mechanic: four apparent confirmations collapse to one upstream board-token/session;
+- final accusation/reconstruction;
+- scored final theory;
+- complete reveal WHO / WHY / HOW / WHERE / WHEN / EVIDENCE / LIES.
+
+Important visual/media correction:
+- no pseudo-video is used;
+- public-event proof is an honest still frame artifact;
+- reader-side proof is an honest diagnostic still plus independent logs;
+- boardroom audio is represented as transcript, not a fake player;
+- the earlier animated-still MP4 is REJECTED / DO NOT USE.
+
+Case logic in this player build:
+- Marina is independently outside the office;
+- board-token identity can propagate without phone-confirm in fallback;
+- four corporate confirmations share one credential/session upstream;
+- custody moves Marina -> Daria -> Anton;
+- manual log editing is contradicted by audit;
+- Anton asks about fallback identity behavior before the meeting;
+- Anton is alone in operator room during the critical window;
+- Anton's operator session sees 3/5, then separate staff + board-token reads, then 4/5 and vote-enable;
+- final direct operator: Anton Rudnev;
+- other lies remain causal red herrings, not guilt shortcuts.
+
+Quality/status:
+- JavaScript syntax: PASS;
+- manifest parse: PASS;
+- full rendered Chromium QA: NOT CLAIMED due current container Chromium/DBus execution failure;
+- player build is COMPLETE FOR USER PLAYTEST;
+- production RELEASE READY is still blocked by independent blind/adversarial + G0–G9/Cognitive Gate;
+- no LIVE / CURRENT_RELEASE / production Supabase change.
+
+This v2.0 supersedes v1.0/v1.1/v1.2 playtest UX for further user review.
+
