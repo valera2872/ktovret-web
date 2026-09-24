@@ -1340,3 +1340,177 @@ While external review capability is unavailable, further work may:
 
 Do not scale directly to 200–300 approved records until at least the first independent review/promotion loop is proven.
 
+## 22. M2 Extraction Wave 03 + source-lineage correction — 2026-09-24
+
+### Wave 03 private package
+
+Private artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Extraction-Wave-03-v0.1.zip`
+
+Library id:
+`libfile_ff7740f8b0208191915a2b4de2bc8ea3`
+
+ZIP SHA-256:
+`d2a51176c1fbf949e192d3001fbe58c8c0a76fb5f6d37196b792ee2bdd4ab1e2`
+
+Size:
+47,357 bytes.
+
+Integrity lock:
+- 26 package files;
+- lock SHA-256:
+  `812b721668ac5b83823d5ac20d2dc1f1435dc59f1aaaf6943c0ea3f7d75aecae`;
+- lock verification errors: 0.
+
+Candidates:
+1. FBI — Alcatraz Escape
+   - route/escape mechanism reconstructed from physical evidence;
+   - ultimate fate explicitly preserved as UNKNOWN;
+   - pattern: solve HOW without fabricating WHAT HAPPENED AFTER.
+2. NTSB — East Palestine derailment
+   - overheated bearing / axle-separation causal chain;
+   - detector signal was real but operational severity was understated;
+   - detector design/procedure/spacing and emergency information flow are separated from initiating mechanical cause.
+3. SEC — HealthSouth
+   - complaint-derived wrongdoing remains explicitly attributed as SEC allegations;
+   - repeated small entries / target-driven accounting pattern;
+   - final judgment/consent does not silently convert disputed complaint allegations into admitted facts.
+4. Project Gutenberg — The Mysterious Affair at Styles
+   - public-domain fiction;
+   - appearance-based witness identification can support a frame;
+   - collateral secret != central guilt;
+   - delayed poison mechanism through prescribed medicine / chemical precipitation;
+   - planted/over-obvious evidence is distinguished from independent evidence.
+
+Internal M2 validation:
+- candidates: 4;
+- evidence lines: 23;
+- hypotheses: 26;
+- errors: 0;
+- warnings: 0;
+- all provenance statuses: `needs_review`;
+- no candidate approved or promoted.
+
+### Source-lineage issue discovered
+
+The approved 25-record legacy seed already contains:
+- `fiction-moonstone` for Project Gutenberg #155;
+- `fiction-styles` for Project Gutenberg #863.
+
+Wave 02/03 contain richer M2 extractions from those same underlying sources:
+- `m2-pg-moonstone`;
+- `m2-pg-styles`.
+
+These MUST NOT coexist as independent votes in retrieval if the M2 version is eventually approved.
+
+Shadow regression was hardened:
+- a same-source overlay replaces a legacy record only when the normalized source reference uniquely identifies exactly one base record;
+- a shared anthology/source URL with multiple base stories is treated as ambiguous and no base record is auto-removed;
+- this prevents arbitrary removal of one Sherlock/Father Brown story from a collection ebook.
+
+Files changed:
+- `tools/mystery-corpus/shadow-retrieval-regression.mjs`;
+- `tests/mystery-corpus-shadow-regression.test.mjs`.
+
+Verified CI:
+- run `35964848870`;
+- head `d0e48af26253f3777e70fecae7bdab6606f2c58a`;
+- tests: 87;
+- PASS: 87;
+- FAIL: 0.
+
+### Corrected Wave 02 diagnostics
+
+Private corrected report:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Wave-02-Diagnostics-v0.2.json`
+
+Library id:
+`libfile_dc47dcf25fb48191b549879c6119b184`
+
+SHA-256:
+`b1d79a8905e2fa0824175c3ad025c1a7c0ee06dc56cce5b961c848c15cb0ae0c`
+
+This supersedes v0.1.
+
+Corrected same-source handling:
+- `m2-pg-moonstone` temporarily replaces `fiction-moonstone` in shadow comparison;
+- no double counting.
+
+Corrected Wave 02 shadow result:
+- queries with overlay hits: 8/8;
+- source-type diversity gain: 7/8;
+- matched-dimension diversity gain: 8/8.
+
+### Wave 03 diagnostics
+
+Private report:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Wave-03-Diagnostics-v0.1.json`
+
+Library id:
+`libfile_3b620fa17e1c81919008589e051e1307`
+
+SHA-256:
+`0ed67727a1236f352302b936b6b553b4b3e5f44c454bd2b9ad91658f7ca841d5`
+
+Baseline for this test:
+- 25 approved legacy records;
+- plus 7 prior M2 candidates in temporary shadow mode;
+- Moonstone same-source replacement applied;
+- effective temporary baseline: 31 records.
+
+Wave 03 then adds/replaces four candidates:
+- Styles same-source replacement applied against `fiction-styles`;
+- effective temporary view after Wave 03: 34 distinct source records.
+
+Wave 03 result:
+- 8/8 diagnostic queries received Wave-03 hits;
+- source-type diversity gain: 1/8;
+- matched-dimension diversity gain: 4/8.
+
+The low source-type gain is expected because the prior shadow baseline already includes all source families used in Wave 03.
+
+Dominant retrieval niches:
+- Alcatraz: route reconstruction vs unresolved outcome / evidence boundary;
+- East Palestine: true sensor signal vs misleading operational meaning / layered causality;
+- HealthSouth: aggregation of many small entries into systemic pattern;
+- Styles: identity framing / collateral secret / alternative poison medium.
+
+### Wave 03 scorecard
+
+HealthSouth:
+- structural attention dimensions: 0.
+
+Styles:
+- structural attention dimensions: 0.
+
+Alcatraz:
+- `canonical_uniqueness` attention is intentional and correct because ultimate fate is unresolved;
+- one essential UNKNOWN-boundary fact has no independent Case-DNA corroboration edge; retained rather than fabricated.
+
+East Palestine:
+- one essential emergency-information-flow fact has no independent Case-DNA corroboration edge; retained rather than fabricated.
+
+The scorecard remains diagnostic only.
+
+### Corpus state
+
+Approved:
+- 25 legacy seed records.
+
+Unapproved M2:
+- Review Batch 001: 3;
+- Wave 02: 4;
+- Wave 03: 4;
+- total: 11 `needs_review`.
+
+None of the 11 is approved knowledge.
+
+### Next safety requirement
+
+Before any M2 record can become approved:
+- promotion must detect same-source collisions against existing approved records;
+- a richer reviewed record for the same underlying source must explicitly supersede the legacy record;
+- silent duplicate-source promotion is forbidden.
+
+Do not continue mass approved scaling before independent review.
+
