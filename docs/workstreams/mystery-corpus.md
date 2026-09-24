@@ -1514,3 +1514,132 @@ Before any M2 record can become approved:
 
 Do not continue mass approved scaling before independent review.
 
+## 23. Case Architect v2 safe corpus context — 2026-09-24
+
+### Direct Corpus -> Case Architect bridge
+
+Added:
+- `tools/mystery-corpus/build-case-architect-context.mjs`;
+- `tests/mystery-corpus-case-architect-context.test.mjs`;
+- `docs/agents/case-architect-corpus-context-v1.md`.
+
+Purpose:
+turn approved Corpus retrieval into a generation-safe context packet.
+
+The context packet contains only:
+- mechanism tags;
+- evidence topology;
+- reversal tags;
+- decisive-proof tags;
+- editorial lessons;
+- similarity watchlist;
+- corpus origin / approval state.
+
+It deliberately excludes:
+- source evidence facts;
+- source hypotheses/solutions;
+- reveal prose;
+- raw source text;
+- plot summaries.
+
+Default mode:
+`approved`.
+
+`shadow` mode remains explicit and diagnostic-only.
+
+Generation constraints embedded in the packet:
+- retrieved patterns are structural references, never plot templates;
+- do not copy one source's distinctive mechanism + relationship topology + clue chain + reveal bundle;
+- prefer cross-source synthesis from at least three retrieved cases when possible;
+- build a fresh CANON before PLAYER PLOT;
+- lie != guilt;
+- important conclusions preferably require >=2 evidence lines;
+- red herrings require causal reasons;
+- reveal may recontextualize known facts but not add a new answer-changing fact;
+- generated concepts still require Originality Gate, Theory Audit and solution-isolated Blind Investigator.
+
+Leakage tests intentionally place secret incident/evidence/solution/reveal text in source fixtures and assert it does NOT appear in the Case Architect context packet.
+
+### Context Pilot 001
+
+Private diagnostic artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-Case-Architect-Context-Pilot-001.json`
+
+Library id:
+`libfile_96aa4119f30c819192e9910c755dd17e`
+
+SHA-256:
+`bab38f9724a79ce65fc6260168e1bfb3ea1a5a4311c6381092c218f0e461d6f8`
+
+Pilot brief:
+Premium Solo / non-murder investigation / valuable-object disappearance during a controlled institutional process / chain of custody / physical+document+digital+witness evidence / process error vs intent / lie unrelated to guilt / final reconstruction.
+
+Approved-only context:
+- uses only the 25 approved legacy seed records;
+- no M2 needs-review record is eligible.
+
+Shadow diagnostic:
+- compares the effective 25 + 11 needs-review M2 pool;
+- same-source legacy replacements are applied for Moonstone and Styles;
+- remains diagnostic-only;
+- approved corpus is not modified.
+
+This proves the agent can consume abstract corpus memory without receiving source solutions.
+
+### Duplicate-source promotion guard
+
+`promote-reviewed-extraction.mjs` now supports:
+- `--approved-reference-dir`;
+- `--supersedes <case_id>`.
+
+If an approved record has the same normalized source reference:
+- promotion is refused unless explicit supersession is supplied;
+- the superseded ID must match an actual same-source approved case;
+- promotion receipt records `supersedes_case_id` and collision count;
+- no legacy record is deleted automatically.
+
+This prevents reviewed M2 re-extractions of Moonstone/Styles from becoming a second independent retrieval vote.
+
+### Latest verified CI
+
+Run:
+`35965288417`
+
+Head:
+`dcdf08346fbd1628b23a6cb1bf333b48825a76be`
+
+Tests:
+- 91;
+- PASS: 91;
+- FAIL: 0.
+
+This run includes:
+- source-lineage shadow replacement;
+- anthology ambiguity protection;
+- duplicate-source promotion guard;
+- Case Architect context leakage tests.
+
+### Current corpus state
+
+Approved:
+- 25 legacy records.
+
+Needs-review:
+- Review Batch 001: 3;
+- Wave 02: 4;
+- Wave 03: 4;
+- total M2 needs-review: 11.
+
+No M2 record is approved.
+
+### Exact next step
+
+Do not increase approved corpus until independent review exists.
+
+Useful non-production continuation while blocked:
+1. use approved-only Context Pack in Case Architect concept generation;
+2. run Originality Gate immediately after concept generation;
+3. compare concept quality against the earlier no-context Case Architect baseline;
+4. use shadow context only to measure future expected uplift;
+5. keep all 11 M2 records out of approved retrieval.
+
