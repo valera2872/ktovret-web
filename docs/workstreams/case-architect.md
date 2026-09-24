@@ -1034,3 +1034,52 @@ Next review focus:
 - whether Alex stays useful but non-leading;
 - whether the investigation produces real hypothesis changes and a strong earned aha;
 - whether the final reconstruction feels satisfying rather than mechanical.
+
+
+## CASE-ARCH-001 gameplay review — passive dossier FAIL / v8 active investigation redesign
+
+Direct user playthrough of v7 established:
+- opening and premium graphics are strong;
+- early/mid gameplay remains too passive;
+- player mostly opens beautiful evidence and clicks forward;
+- shared evidence-link board does not create sufficient detective agency;
+- user explicitly asked: "what am I supposed to do?" and described not engaging their reasoning.
+
+Decision:
+v7 gameplay loop = PLAYER AGENCY GATE FAIL.
+
+The visual direction and CANON v2 are retained.
+The early/mid gameplay loop is redesigned in v8.
+
+v8 active-investigation model:
+- player starts each part with investigative OPTIONS, not pre-delivered evidence;
+- evidence appears only after the player requests/checks it;
+- free-form demo interrogations available for Jana, driver, Boris and Anton;
+- discovered evidence can be selected/presented with an interview question;
+- concrete tasks can be delegated to Alex;
+- Alex remains role/stage bounded;
+- each part requires a player-written working hypothesis before progress;
+- wrong hypotheses are accepted as working theories;
+- next part is not unlocked by simply opening every evidence card;
+- the old mandatory "connect two cards" board is no longer a progression gate;
+- evidence/notes board remains a thinking aid.
+
+Autonomous v8 smoke:
+- Stage 1 begins with 0 evidence and 5 investigative actions;
+- request -> evidence unlock/open: PASS;
+- free-form Jana interrogation: PASS;
+- Alex delegation: PASS;
+- stage progression requires chosen actions + written hypothesis: PASS;
+- stages 1–5 traversed in scripted QA;
+- final reconstruction reached: PASS;
+- blocking JS errors during desktop scripted path: 0;
+- mobile active-investigation screen: no horizontal overflow; 5 actions render.
+
+Important:
+The free-form interrogation in this standalone review build is a scripted canon-bounded simulator, not the production AI backend. It is intended to validate the gameplay loop before backend integration.
+
+Artifacts:
+- CASE-ARCH-001-premium-demo-v8.zip
+- standalone HTML: /mnt/data/CASE-ARCH-001-premium-v8/ОТКРЫТЬ_ИГРУ.html
+
+No LIVE / Supabase / payment / entitlement changes.
