@@ -53,3 +53,31 @@ test('explicit promotion refuses implicit overwrite',()=>{
  const a=spawnSync(process.execPath,[promote,'--result',f.rf,'--review',f.vf,'--job',f.jf,'--dest',f.dest,'--execute'],{cwd:repo,encoding:'utf8'});assert.equal(a.status,0,a.stderr);
  const b=spawnSync(process.execPath,[promote,'--result',f.rf,'--review',f.vf,'--job',f.jf,'--dest',f.dest,'--execute'],{cwd:repo,encoding:'utf8'});assert.notEqual(b.status,0);assert.match(b.stderr,/No implicit overwrite/);
 });
+
+
+test('same-source approved record requires explicit supersedes lineage',()=>{
+ const f=fixture('approved');
+ const legacy=path.join(f.dir,'legacy');fs.mkdirSync(legacy);
+ const legacyCase=JSON.parse(fs.readFileSync(f.rf,'utf8')).case_dna;
+ legacyCase.case_id='legacy-case';
+ fs.writeFileSync(path.join(legacy,'legacy-case.json'),JSON.stringify(legacyCase));
+ const blocked=spawnSync(process.execPath,[promote,'--result',f.rf,'--review',f.vf,'--job',f.jf,'--dest',f.dest,'--approved-reference-dir',legacy],{cwd:repo,encoding:'utf8'});
+ assert.notEqual(blocked.status,0);
+ assert.match(blocked.stderr,/Explicit --supersedes/);
+ const allowed=spawnSync(process.execPath,[promote,'--result',f.rf,'--review',f.vf,'--job',f.jf,'--dest',f.dest,'--approved-reference-dir',legacy,'--supersedes','legacy-case'],{cwd:repo,encoding:'utf8'});
+ assert.equal(allowed.status,0,allowed.stderr);
+ const out=JSON.parse(allowed.stdout);
+ assert.equal(out.source_lineage.supersedes_case_id,'legacy-case');
+ assert.equal(out.receipt.same_source_collision_count,1);
+});
+
+test('supersedes cannot name an unrelated approved case',()=>{
+ const f=fixture('approved');
+ const legacy=path.join(f.dir,'legacy');fs.mkdirSync(legacy);
+ const legacyCase=JSON.parse(fs.readFileSync(f.rf,'utf8')).case_dna;
+ legacyCase.case_id='legacy-case';
+ fs.writeFileSync(path.join(legacy,'legacy-case.json'),JSON.stringify(legacyCase));
+ const r=spawnSync(process.execPath,[promote,'--result',f.rf,'--review',f.vf,'--job',f.jf,'--dest',f.dest,'--approved-reference-dir',legacy,'--supersedes','different-case'],{cwd:repo,encoding:'utf8'});
+ assert.notEqual(r.status,0);
+ assert.match(r.stderr,/does not match an approved same-source case/);
+});
