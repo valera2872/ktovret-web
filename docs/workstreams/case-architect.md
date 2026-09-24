@@ -1465,3 +1465,54 @@ Success condition:
 a cold player sees the opening and can immediately say:
 «Понятно, что случилось. Понятно, кто я. Понятно, что сделать первым. Хочу продолжить.»
 
+### CASE-ARCH-002 Soft Entry v1.1 — 2026-09-24
+
+User-directed rework after opening rejection is implemented as a separate private playtest.
+
+Private artifacts:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-SOFT-ENTRY-v1.1.zip`
+- Library id: `libfile_807890e6ea288191af01b0fcdd3d07dc`
+- ZIP SHA-256: `d1b4b83937ec1b524d7a99c36491c357b7db7804cfbf6ed73a6fece05c2b59c7`
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-SOFT-ENTRY-PLAYTEST-v1.1.html`
+- Library id: `libfile_2709dfb0549081918a8ce6705d279bbd`
+- standalone HTML SHA-256: `f714fff22ea090d3e45a73dc26a1747d7f347d08d413d4e456682cdb73bfaf2a`
+
+Opening was rebuilt from scratch while keeping the private CANON/evidence set unchanged.
+
+New player path:
+1. one human contradiction and one dominant visual;
+2. plain-language stakes;
+3. explicit player role;
+4. exactly one primary first action;
+5. short public-record scene;
+6. simple corporate counter-fact;
+7. only then investigation workspace.
+
+Workspace changes:
+- only current-stage materials are exposed;
+- later evidence is hidden instead of shown as a 20-item wall;
+- previous evidence is collapsed;
+- stage navigation no longer invites arbitrary jumping;
+- theories remain hidden at opening;
+- compare remains hidden until it becomes useful;
+- every material opens on a plain-language meaning card;
+- raw log/document/source is second-layer via `Открыть исходник`;
+- top navigation/admin-like clutter was removed from first play state;
+- final reconstruction remains unavailable until late stage.
+
+Static Soft Entry Gate:
+- opening contains incident, role, stakes and one action: PASS;
+- raw IDs / technical codes on opening: NONE;
+- full investigation app hidden at opening: PASS;
+- one primary CTA on opening: PASS;
+- JS syntax: PASS.
+
+Rendered Chromium QA:
+- NOT CLAIMED for this rework build because the available container Chromium was blocked/hung by the execution environment.
+- Do not treat prior v1.0 screenshots as v1.1 visual QA.
+
+Current lifecycle:
+`SOFT ENTRY REWORK PLAYTEST v1.1 / USER REVIEW REQUIRED / NOT RELEASE READY`
+
+This v1.1 supersedes the v1.0 opening UX for all further CASE-ARCH-002 work.
+
