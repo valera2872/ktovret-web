@@ -176,5 +176,7 @@ const server=http.createServer(async(req,res)=>{
 });
 
 server.listen(port,'127.0.0.1',()=>{
-  console.log(JSON.stringify({status:'listening',host:'127.0.0.1',port,model}));
+  const addr=server.address();
+  const actualPort=typeof addr==='object'&&addr?addr.port:port;
+  console.log(JSON.stringify({status:'listening',host:'127.0.0.1',port:actualPort,model}));
 });
