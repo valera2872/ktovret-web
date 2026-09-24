@@ -1062,3 +1062,41 @@ Exact next step:
 
 Do not place private culprit/mechanism/reveal details in public GitHub.
 
+### CASE-ARCH-002 v0.2 adversarial hardening
+
+Current private baseline:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Four-Confirmations-Private-v0.2.zip`
+
+Library id:
+`libfile_02039c9ecf988191ad41c820333e685d`
+
+SHA-256:
+`7abc03911010d97bf6f566f3383f3d34485fcc51b658df22d88fc63093524c8d`
+
+Size:
+43,658 bytes.
+
+v0.2 author-context adversarial pass found a real defense in v0.1:
+the physical holder of the second credential could argue that the credential was read as ordinary meeting preparation rather than a deliberate attempt to manipulate attendance.
+
+Private CANON was hardened with an additional independent visual line proving a separate deliberate second-credential presentation.
+
+Result after the fix:
+- reference integrity: PASS;
+- deterministic Theory Audit: PASS;
+- final declared-theory discrimination: PASS;
+- Minimum Sufficient Proof Set: PASS_FOR_AUTHOR_CONTEXT;
+- single-clue-removal tests: recoverable for all current core conclusions;
+- no answer-changing fact added at reveal.
+
+Important:
+this is still author-context adversarial testing, NOT a solution-isolated blind test.
+
+v0.1 remains historical only.
+v0.2 is current private baseline.
+
+Next:
+- draft evidence/artifact authenticity specification;
+- then solution-isolated Blind Investigator / independent adversarial theories when provider exists;
+- no interface implementation before those logic checks are stable.
+
