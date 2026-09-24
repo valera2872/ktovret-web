@@ -16,10 +16,28 @@ function argsOf(argv){
 }
 function sha(v){return crypto.createHash('sha256').update(v).digest('hex');}
 function stable(v){return JSON.stringify(v,null,2)+'\n';}
+function normalizedSourceReference(v){
+  return String(v||'').trim().toLowerCase().replace(/^http:/,'https:').replace(/\/$/,'');
+}
+function approvedSourceCollisions(dir,sourceReference){
+  if(!dir || !sourceReference) return [];
+  const root=path.resolve(dir);
+  if(!fs.existsSync(root)||!fs.statSync(root).isDirectory()) return [];
+  const ref=normalizedSourceReference(sourceReference);
+  const hits=[];
+  for(const name of fs.readdirSync(root).filter(x=>x.endsWith('.json')&&!x.endsWith('.promotion.json')).sort()){
+    try{
+      const d=JSON.parse(fs.readFileSync(path.join(root,name),'utf8'));
+      if(d.schema_version!=='case_dna_v1') continue;
+      if(normalizedSourceReference(d.source?.source_reference)===ref) hits.push(d.case_id);
+    }catch{}
+  }
+  return hits;
+}
 
 const args=argsOf(process.argv.slice(2));
 if(!args.result||!args.review||!args.job||!args.dest){
-  console.error('Usage: node promote-reviewed-extraction.mjs --result <result.json> --review <review.json> --job <job.json> --dest <approved-dir> [--execute]');
+  console.error('Usage: node promote-reviewed-extraction.mjs --result <result.json> --review <review.json> --job <job.json> --dest <approved-dir> [--approved-reference-dir <dir>] [--supersedes <case_id>] [--execute]');
   process.exit(2);
 }
 const here=path.dirname(new URL(import.meta.url).pathname);
@@ -36,6 +54,19 @@ const job=JSON.parse(fs.readFileSync(args.job,'utf8'));
 const dna=structuredClone(result.case_dna);
 const caseText=stable(dna);
 const caseHash=sha(caseText);
+const sourceReference=dna.source?.source_reference||job.source?.source_reference||null;
+const collisions=approvedSourceCollisions(args['approved-reference-dir'],sourceReference);
+const supersedes=args.supersedes?String(args.supersedes):null;
+if(collisions.length && !supersedes){
+  console.error('Promotion REFUSED: approved corpus already contains the same source_reference. Explicit --supersedes <case_id> is required.');
+  console.error(JSON.stringify({source_reference:sourceReference,matching_case_ids:collisions},null,2));
+  process.exit(1);
+}
+if(supersedes && !collisions.includes(supersedes)){
+  console.error('Promotion REFUSED: --supersedes does not match an approved same-source case.');
+  console.error(JSON.stringify({supersedes,source_reference:sourceReference,matching_case_ids:collisions},null,2));
+  process.exit(1);
+}
 const dest=path.resolve(args.dest);
 const caseFile=path.join(dest,`${dna.case_id}.json`);
 const receiptFile=path.join(dest,`${dna.case_id}.promotion.json`);
@@ -51,6 +82,8 @@ const receipt={
   review_verdict:review.verdict,
   source_id:job.source?.source_id||null,
   source_reference:job.source?.source_reference||null,
+  supersedes_case_id:supersedes,
+  same_source_collision_count:collisions.length,
   rights_status:job.source?.rights_status||null,
   rights_evidence_reference:job.source?.rights_evidence_reference||null,
   rights_verified_date:job.source?.rights_verified_date||null,
@@ -65,6 +98,11 @@ if(!args.execute){
     case_id:dna.case_id,
     case_sha256:caseHash,
     destination:caseFile,
+    source_lineage:{
+      source_reference:sourceReference,
+      same_source_matches:collisions,
+      supersedes_case_id:supersedes
+    },
     receipt,
     files_written:0
   },null,2));
