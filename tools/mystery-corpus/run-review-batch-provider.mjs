@@ -28,6 +28,19 @@ if(!/^https?:\/\//i.test(endpoint)){
 }
 
 const batchDir=path.resolve(args['batch-dir']);
+const here=path.dirname(new URL(import.meta.url).pathname);
+const preflight=path.join(here,'validate-review-batch.mjs');
+const lockVerifier=path.join(here,'validate-review-batch-lock.mjs');
+
+for(const [label,script] of [['preflight',preflight],['integrity lock',lockVerifier]]){
+  const check=run(script,['--batch-dir',batchDir]);
+  if(check.status!==0){
+    console.error(`Review batch ${label} failed`);
+    console.error((check.stderr||check.stdout||'validation failed').trim());
+    process.exit(1);
+  }
+}
+
 const manifestPath=path.join(batchDir,'batch-manifest.json');
 if(!fs.existsSync(manifestPath)){
   console.error('batch-manifest.json not found');
@@ -40,7 +53,7 @@ if(manifest.extractor_id && manifest.extractor_id===reviewerId){
   process.exit(1);
 }
 
-const orchestrator=path.join(path.dirname(new URL(import.meta.url).pathname),'run-review-promotion-check.mjs');
+const orchestrator=path.join(here,'run-review-promotion-check.mjs');
 const items=[];
 
 for(const c of manifest.candidates||[]){
