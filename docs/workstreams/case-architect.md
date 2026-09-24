@@ -1246,3 +1246,67 @@ Next:
 - run artifact field/timestamp consistency against that production plan;
 - wait for genuinely independent Blind Investigator before logic freeze/final graphics.
 
+### CASE-ARCH-002 v0.6 logic hardening + Premium Visual spec — 2026-09-24
+
+Current private baseline:
+- `CASE-ARCH-002-Four-Confirmations-Private-v0.6.zip`
+- Private Library id: `libfile_feeb43b80c4881919454614abf9a10bd`
+- SHA-256: `7dd3b514d003259a2976a74908f8a006a5553ccb8298a3eedfcf57ee24264e6a`
+- size: 125,456 bytes
+
+Current blind handoff:
+- `CASE-ARCH-002-Blind-Packet-v0.3.zip`
+- Private Library id: `libfile_4a250f696a0c81918de000d4c0c3dae2`
+- SHA-256: `7bbb56c8e2f366532f95fcc43f4648bb15a46e216b1f1b6e342e1d130f86e146`
+- leakage audit: PASS
+
+Logic hardening:
+- formal Theory Audit now contains only evidence-falsifiable mechanism hypotheses;
+- CEO/legal remain real suspicious human/red-herring lines but not impossible-to-disprove hidden-mastermind hypotheses;
+- decisive reader-side video is no longer modeled as a single magic clue;
+- final proof is explicitly multi-line: physical absence + common-source dependency + custody + prior knowledge + deliberate action + observed causal state change + no manual edit path;
+- final reconstruction distinguishes what is proved about the direct operator from unsupported speculation about unseen instructions;
+- private reference integrity: PASS;
+- author-context Theory Audit: PASS;
+- final reveal still introduces no new answer-changing fact.
+
+Premium Visual state:
+- 20 evidence artifacts remain specified;
+- Premium Visual Bible v0.1 added;
+- premium shot/production list covers all 20 artifacts;
+- 4 hero physical-media anchors:
+  - public-event video;
+  - corridor CCTV;
+  - boardroom audio;
+  - reader-side service camera;
+- evidence must remain diegetic/native to its creator; no universal Mystery Logic clue-card skin;
+- no primitive vector CCTV, neon arrows, red circles, green-on-black hacker screens or decorative fake tech evidence;
+- data UI must be rendered from exact structured HTML/CSS/data;
+- documents must use department-specific authentic layout;
+- photo/video must be photorealistic with plausible camera/compression/occlusion;
+- desktop compare and mobile full-screen evidence behavior specified;
+- player-triggered provenance-map collapse may be animated only after the player performs the grouping action;
+- Premium Visual Gate PV1–PV10 added.
+
+Visual audit status:
+- specification consistency: PASS;
+- rendered photo/video realism: NOT RUN;
+- rendered data/document exactness: NOT RUN;
+- desktop/mobile visual QA: NOT RUN;
+- accessibility/premium residue: NOT RUN.
+
+Important production rule:
+no final photo/video/audio/document render is approved before the solution-isolated Blind Investigator and independent adversarial review stabilize the evidence set. Previsualization may be disposable; it must not become release art by inertia.
+
+Current lifecycle:
+`PRIVATE LOGIC HARDENED + PREMIUM VISUAL SPEC / NOT READY`
+
+Exact next step:
+1. run solution-isolated Blind Investigator on Blind Packet v0.3 when an independent stateless context/provider exists;
+2. run independent adversarial theories;
+3. repair logic if either exposes a surviving alternative;
+4. then produce first visual preview batch B0 (A01–A04) and hero-media previs for A11/A18;
+5. desktop/mobile visual QA before any final evidence production.
+
+No LIVE / CURRENT_RELEASE / production Supabase change.
+
