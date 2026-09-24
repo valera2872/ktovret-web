@@ -8,6 +8,7 @@ import {spawn} from 'node:child_process';
 
 const repo=process.cwd();
 const runner=path.join(repo,'tools/mystery-corpus/run-review-batch-provider.mjs');
+const lockTool=path.join(repo,'tools/mystery-corpus/build-review-batch-lock.mjs');
 
 function makeCandidate(dir,caseId,runId,jobId){
   const caseDna={
@@ -39,9 +40,28 @@ function makeCandidate(dir,caseId,runId,jobId){
     required_outputs:['case_dna_v1','case_dna_provenance_v1','extraction_notes']
   };
   const result={schema_version:'corpus_extraction_result_v1',extraction_run_id:runId,job_id:jobId,extractor_id:'extractor-A',extracted_at:'2026-09-23',case_dna:caseDna,provenance:prov,extraction_notes:{}};
+  const notes={};
+  result.extraction_notes=notes;
+  const reviewRequest={
+    schema_version:'corpus_extraction_review_request_v1',
+    extraction_run_id:runId,
+    job_id:jobId,
+    case_id:caseId,
+    extractor_id:'extractor-A',
+    reviewer_must_differ_from_extractor:true,
+    source_references:['https://example.test/source'],
+    checks_required:['critical_claims_supported','rights_policy_match'],
+    review_instructions:['verify independently'],
+    rights_evidence_reference:'https://example.test/rights',
+    rights_verified_date:'2026-09-23'
+  };
   fs.mkdirSync(dir,{recursive:true});
   fs.writeFileSync(path.join(dir,'job.json'),JSON.stringify(job));
   fs.writeFileSync(path.join(dir,'extraction-result.json'),JSON.stringify(result));
+  fs.writeFileSync(path.join(dir,'case-dna.json'),JSON.stringify(caseDna));
+  fs.writeFileSync(path.join(dir,'provenance.json'),JSON.stringify(prov));
+  fs.writeFileSync(path.join(dir,'extraction-notes.json'),JSON.stringify(notes));
+  fs.writeFileSync(path.join(dir,'review-request.json'),JSON.stringify(reviewRequest));
 }
 function mkBatch(){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'review-batch-'));
@@ -51,9 +71,17 @@ function mkBatch(){
   fs.writeFileSync(path.join(root,'batch-manifest.json'),JSON.stringify({
     schema_version:'corpus_review_batch_v1',
     batch_id:'batch-test',
+    version:'0.1',
     extractor_id:'extractor-A',
-    candidates:[{folder:'01-a',case_id:'case-a'},{folder:'02-b',case_id:'case-b'}]
+    reviewer_must_differ_from_extractor:true,
+    rights_evidence_required:true,
+    candidates:[
+      {folder:'01-a',case_id:'case-a',source_family:'fbi_history',status:'needs_review'},
+      {folder:'02-b',case_id:'case-b',source_family:'fbi_history',status:'needs_review'}
+    ]
   }));
+  const lock=spawnSync(process.execPath,[lockTool,'--batch-dir',root],{cwd:repo,encoding:'utf8'});
+  assert.equal(lock.status,0,lock.stderr);
   return root;
 }
 function reviewFor(contract,approved=true){
@@ -128,4 +156,17 @@ test('batch runner rejects same reviewer and extractor identity',async()=>{
   });
   assert.notEqual(r.code,0);
   assert.match(r.stderr,/must differ from batch extractor_id/);
+});
+
+
+test('batch runner refuses tampered package before calling reviewer',async()=>{
+  const batch=mkBatch(), out=path.join(batch,'report.json');
+  fs.writeFileSync(path.join(batch,'candidates','01-a','job.json'),'{"tampered":true}');
+  let called=false;
+  await withServer(req=>{called=true;return reviewFor(req.review_contract,true)},async endpoint=>{
+    const r=await run(batch,endpoint,out);
+    assert.notEqual(r.code,0);
+    assert.match(r.stderr,/preflight failed|integrity lock failed|hash mismatch|validation failed/i);
+  });
+  assert.equal(called,false);
 });
