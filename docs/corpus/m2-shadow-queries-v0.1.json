@@ -1,0 +1,30 @@
+{
+  "schema_version": "corpus_shadow_query_set_v1",
+  "id": "m2-pilot-shadow-queries-v0.1",
+  "queries": [
+    {
+      "id": "covert-tradecraft",
+      "query": "covert container coded message comparative tradecraft human source attribution"
+    },
+    {
+      "id": "hypothesis-elimination",
+      "query": "alternative hypotheses eliminated by absence of expected traces negative evidence"
+    },
+    {
+      "id": "technical-causality",
+      "query": "technical accident causal chain uncertain ignition sensor witness interpretation"
+    },
+    {
+      "id": "financial-longitudinal",
+      "query": "financial fraud repeated records method switch unsupported entries longitudinal pattern"
+    },
+    {
+      "id": "evidence-convergence",
+      "query": "multiple independent evidence lines converge physical document witness comparison"
+    },
+    {
+      "id": "process-vs-intent",
+      "query": "distinguish process error isolated mistake from coordinated intentional repeated action"
+    }
+  ]
+}
