@@ -6,7 +6,8 @@ const args=argsOf(process.argv.slice(2));
 if(!args.left||!args.right){console.error('Usage: node build-concept-evaluation-packet.mjs --left concept.json --right concept.json [--pair-id id]');process.exit(2)}
 function clean(file,label){
   const c=JSON.parse(fs.readFileSync(file,'utf8'));
-  const {generation_audit,...publicConcept}=c;
+  const {generation_audit,concept_id,...rest}=c;
+  const publicConcept={...rest,concept_id:label};
   return {label,concept:publicConcept};
 }
 const packet={
