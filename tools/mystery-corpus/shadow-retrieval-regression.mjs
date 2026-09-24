@@ -79,11 +79,17 @@ if(!overlayRaw.length){console.error('overlay contains no case_dna_v1 JSON recor
 
 const baseCases=copyCases(baseRaw,baseOnly,'base');
 const mergedBase=copyCases(baseRaw,merged,'base');
-const mergedByIdentity=new Map(mergedBase.map(x=>[x.identity,x]));
+const mergedByIdentity=new Map();
+for(const item of mergedBase){
+  if(!mergedByIdentity.has(item.identity)) mergedByIdentity.set(item.identity,[]);
+  mergedByIdentity.get(item.identity).push(item);
+}
 const replacements=[];
+const ambiguousSourceMatches=[];
 for(const c of overlayRaw){
-  const legacy=mergedByIdentity.get(c.identity);
-  if(legacy){
+  const matches=mergedByIdentity.get(c.identity)||[];
+  if(matches.length===1){
+    const legacy=matches[0];
     try{fs.unlinkSync(legacy.file)}catch{}
     replacements.push({
       source_identity:c.identity,
@@ -91,9 +97,18 @@ for(const c of overlayRaw){
       overlay_case_id:c.data.case_id,
       source_reference:c.data?.source?.source_reference||legacy.data?.source?.source_reference||null
     });
+    mergedByIdentity.set(c.identity,[]);
+  }else if(matches.length>1){
+    ambiguousSourceMatches.push({
+      source_identity:c.identity,
+      overlay_case_id:c.data.case_id,
+      base_case_ids:matches.map(x=>x.case_id),
+      source_reference:c.data?.source?.source_reference||null
+    });
   }
   const copied=copyCases([c],merged,'overlay')[0];
-  mergedByIdentity.set(c.identity,copied);
+  if(!mergedByIdentity.has(c.identity)) mergedByIdentity.set(c.identity,[]);
+  mergedByIdentity.get(c.identity).push(copied);
 }
 const overlayCases=overlayRaw.map(c=>({case_id:c.data.case_id,identity:c.identity}));
 const overlayIds=new Set(overlayCases.map(x=>x.case_id));
@@ -134,6 +149,8 @@ const output={
   overlay_case_count:overlayCases.length,
   same_source_replacement_count:replacements.length,
   same_source_replacements:replacements,
+  ambiguous_source_match_count:ambiguousSourceMatches.length,
+  ambiguous_source_matches:ambiguousSourceMatches,
   query_count:reports.length,
   summary:{
     queries_with_overlay_hits:overlayHitQueries,
@@ -142,7 +159,7 @@ const output={
     queries_with_dimension_diversity_gain:reports.filter(x=>x.delta.matched_dimension_diversity>0).length
   },
   queries:reports,
-  note:'Shadow regression is diagnostic only. Same-source overlay records replace the legacy copy in the temporary merged view to avoid double-counting one source. Overlay cases remain unapproved.'
+  note:'Shadow regression is diagnostic only. A same-source overlay replaces a legacy copy only when the source identity matches exactly one base record. Ambiguous shared-source references are never auto-removed. Overlay cases remain unapproved.'
 };
 const text=JSON.stringify(output,null,2)+'\n';
 if(args.out) fs.writeFileSync(args.out,text); else process.stdout.write(text);
