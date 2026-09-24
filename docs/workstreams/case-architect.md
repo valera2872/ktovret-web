@@ -1516,3 +1516,22 @@ Current lifecycle:
 
 This v1.1 supersedes the v1.0 opening UX for all further CASE-ARCH-002 work.
 
+### PROCESS FAILURE — fake recording placeholder in Soft Entry v1.1 — 2026-09-24
+
+User opened the first evidence step and correctly found that «Посмотреть запись» displayed a CSS-drawn placeholder rather than a playable recording.
+
+This is an AUTONOMOUS PRE-REVIEW FAIL.
+
+Corrective action:
+- v1.1 recording placeholder is rejected;
+- Soft Entry v1.2 replaces it with an actual embedded MP4 clip with native video controls;
+- the same playable media is used for A04 in the investigation workspace;
+- player-facing wording was aligned to the visible scene;
+- playtest state key changed so stale v1.1 state does not mask the rework.
+
+Current user preview:
+`CASE-ARCH-002-SOFT-ENTRY-PLAYTEST-v1.2.html`
+
+Rule added:
+any UI labeled video/recording/CCTV/audio must contain actual playable media. Decorative/static placeholders may not be presented to the user as recordings.
+
