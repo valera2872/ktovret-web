@@ -63,3 +63,23 @@ test('shadow regression refuses empty overlay',()=>{
  assert.notEqual(r.status,0);
  assert.match(r.stderr,/overlay contains no case_dna_v1/);
 });
+
+
+test('shared anthology source reference is ambiguous and never removes an arbitrary base story',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'shadow-anthology-'));
+ const base=path.join(root,'base'),overlay=path.join(root,'overlay');
+ fs.mkdirSync(base);fs.mkdirSync(overlay);
+ const ref='https://example.test/anthology';
+ fs.writeFileSync(path.join(base,'a.json'),JSON.stringify(dna('story-a','public_domain_fiction','identity-substitution','document-forensics',ref)));
+ fs.writeFileSync(path.join(base,'b.json'),JSON.stringify(dna('story-b','public_domain_fiction','coded-message','physical-trace',ref)));
+ fs.writeFileSync(path.join(overlay,'c.json'),JSON.stringify(dna('story-c','public_domain_fiction','ledger-manipulation','institutional-records',ref)));
+ const q=path.join(root,'q.json'),out=path.join(root,'report.json');
+ fs.writeFileSync(q,JSON.stringify({queries:[{id:'mixed',query:'identity coded ledger document physical institutional'}]}));
+ const r=spawnSync(process.execPath,[tool,'--base',base,'--overlay',overlay,'--queries',q,'--out',out],{cwd:repo,encoding:'utf8'});
+ assert.equal(r.status,0,r.stderr);
+ const report=JSON.parse(fs.readFileSync(out,'utf8'));
+ assert.equal(report.same_source_replacement_count,0);
+ assert.equal(report.ambiguous_source_match_count,1);
+ assert.deepEqual(new Set(report.ambiguous_source_matches[0].base_case_ids),new Set(['story-a','story-b']));
+ assert.ok(report.queries[0].shadow_after.top_case_ids.includes('story-a')||report.queries[0].shadow_after.top_case_ids.includes('story-b'));
+});
