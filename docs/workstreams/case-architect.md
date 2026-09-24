@@ -1419,3 +1419,49 @@ Any pending mandatory gate keeps the case NOT READY.
 
 No LIVE / CURRENT_RELEASE / production Supabase / Game Engine change.
 
+### PROCESS FAILURE — CASE-ARCH-002 opening rejected — 2026-09-24
+
+User playtest verdict:
+- current Final Candidate opening is rejected;
+- player lands directly in a dense investigation workspace;
+- too much data is visible immediately;
+- purpose, incident, role, first action and emotional hook are not clear enough before the evidence wall;
+- experience feels like work/analysis rather than play/curiosity;
+- no soft introduction, dominant scene, visual hook or guided first step.
+
+This is recorded as an AUTONOMOUS PRE-REVIEW / SOFT ENTRY process failure.
+
+Current status changed from:
+`FINAL CANDIDATE / NOT RELEASE READY`
+
+to:
+`REWORK REQUIRED — OPENING / FIRST VALUE FAIL`
+
+Do NOT continue from the current first-screen layout.
+
+Required redesign:
+1. opening scene / strong visual;
+2. 2–4 sentence plain-language incident;
+3. explicit player role;
+4. one current objective;
+5. one primary CTA;
+6. first small clue/contradiction;
+7. only then progressively reveal evidence navigation and investigation tools.
+
+Hard bans for the new opening:
+- no 20-item evidence sidebar at start;
+- no raw table/log as first material without human context;
+- no versions/notes/compare competing for attention before the player has a reason to use them;
+- no three-column analyst workstation as the first playable state;
+- no expectation that the player studies the interface before understanding the case.
+
+The existing CANON/evidence work may be reused.
+The existing opening UX must not be reused as the default entry.
+
+Next implementation target:
+`CASE-ARCH-002 Soft Entry v0.1`
+
+Success condition:
+a cold player sees the opening and can immediately say:
+«Понятно, что случилось. Понятно, кто я. Понятно, что сделать первым. Хочу продолжить.»
+
