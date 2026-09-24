@@ -1391,3 +1391,31 @@ Next:
 - then run desktop/mobile rendered QA on A01–A04 + viewer;
 - then produce A11/A18 hero-media previs and PV5–PV10.
 
+### CASE-ARCH-002 Final Candidate v1.0 — 2026-09-24
+
+Status:
+- FINAL CANDIDATE / NOT RELEASE READY.
+- Private candidate ZIP built locally; SHA-256 `f888be55d06e4b4baecbf161fb52f2c969c02fde6adcfadbbc6b425e3b9efdf8`.
+- 20/20 player-facing materials render in the evidence viewer.
+- Desktop 1440×980 runtime QA: PASS.
+- Mobile 390×844 runtime QA: PASS.
+- Desktop compare: PASS.
+- Mobile sequential compare: PASS.
+- Final reconstruction form: PASS.
+- Browser console errors: 0.
+- Static non-leading audit: PASS.
+- Structured data/document visual layer: PASS.
+- Hero media remains PREVIS until mandatory independent logic gates complete.
+
+Mandatory release gates still pending:
+- solution-isolated blind run;
+- independent adversarial run;
+- human blind test;
+- final hero-media production/render QA;
+- G0–G9;
+- Cognitive Gate.
+
+Any pending mandatory gate keeps the case NOT READY.
+
+No LIVE / CURRENT_RELEASE / production Supabase / Game Engine change.
+
