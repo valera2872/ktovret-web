@@ -1069,3 +1069,166 @@ Latest verified aggregate:
 
 Do not merge PR #355 or touch LIVE as part of this review.
 
+## 20. Locked review handoff + retrieval safety — 2026-09-24
+
+### Review Batch 001 v0.5
+
+Private Library artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Review-Batch-001-v0.5.zip`
+
+Library id:
+`libfile_ba96f3818dac8191be56f5c56de9c900`
+
+ZIP SHA-256:
+`ba61c28dd554347e7cc18650232290e49fba64118f2183e7a099b2ff840a606f`
+
+Size:
+44,979 bytes.
+
+New in v0.5:
+- `review-batch.lock.json`;
+- 20 package files bound by per-file SHA-256 + byte size;
+- lock SHA-256:
+  `80a97677e850820a4f143b910a6c58d0d1a7b49a27016a04796dd5fbede2f71d`;
+- instructions require lock verification before review.
+
+Direct private verification:
+- locked files: 20;
+- actual files: 20;
+- hash/size errors: 0;
+- 3/3 candidate statuses remain `needs_review`.
+
+### Mandatory preflight + integrity before reviewer execution
+
+Added:
+- `tools/mystery-corpus/build-review-batch-lock.mjs`;
+- `tools/mystery-corpus/validate-review-batch-lock.mjs`;
+- `tests/mystery-corpus-review-batch-lock.test.mjs`;
+- `docs/corpus/review-batch-integrity-lock-v1.md`.
+
+`run-review-batch-provider.mjs` now REFUSES to call any external reviewer until BOTH pass:
+1. `validate-review-batch.mjs`;
+2. review-batch integrity lock verification.
+
+A tampered/unlocked package therefore cannot reach the reviewer.
+
+A temporary CI failure after enabling this protection was caused only by a missing `spawnSync` import in the test fixture; the security contract was not weakened.
+
+Current verified CI:
+- run `35961474580`;
+- head `267c47ab420457431bbe53618ad5d8e261f93003`;
+- tests: 85;
+- PASS: 85;
+- FAIL: 0.
+
+### Retrieval Safety Layer
+
+Added:
+- `docs/schemas/corpus-layer-manifest-v1.schema.json`;
+- `tools/mystery-corpus/retrieve-patterns-safe.mjs`;
+- `tools/mystery-corpus/case-dna-quality-scorecard.mjs`;
+- `tests/mystery-corpus-retrieval-safety-scorecard.test.mjs`;
+- `docs/corpus/retrieval-safety-scorecard-v1.md`.
+
+Default retrieval mode is `approved`.
+
+Only:
+- `approved_legacy`;
+- `approved_reviewed`
+
+may participate.
+
+`needs_review` / `candidate` layers can participate only in explicit `shadow` mode and every result is labeled with `corpus_origin`.
+
+This prevents unreviewed M2 records from silently becoming Case Architect knowledge.
+
+### Shadow retrieval result
+
+Using the 25-record approved legacy seed plus the 3 v0.4/v0.5 candidates in shadow-only overlay:
+- 6/6 diagnostic queries received relevant overlay hits;
+- 4/6 queries increased source-type diversity;
+- 6/6 queries increased matched structural-dimension coverage.
+
+Observed niches:
+- Hollow Nickel: covert tradecraft / delayed attribution / evidence convergence;
+- TWA 800: alternative-hypothesis elimination / technical causal analysis / negative evidence;
+- WorldCom: longitudinal financial pattern / repeated institutional records / process-vs-intent discrimination.
+
+This is evidence that the candidates add retrieval value.
+It is NOT review approval.
+
+### Diagnostic Case DNA scorecard
+
+Added a non-ranking scorecard for:
+- evidence modality variety;
+- hypothesis depth;
+- corroboration of essential evidence;
+- deduction structure;
+- stage structure;
+- causal misdirection;
+- canonical uniqueness;
+- provenance grounding;
+- fingerprint richness.
+
+It produces no overall PASS/rank and cannot replace:
+- independent source review;
+- Originality Gate;
+- Theory Audit;
+- Blind Investigator;
+- fair-play review;
+- human editorial judgment.
+
+### Audited private promotion
+
+Added:
+- `tools/mystery-corpus/promote-reviewed-extraction.mjs`;
+- `tools/mystery-corpus/build-approved-corpus-registry.mjs`;
+- `tests/mystery-corpus-private-promotion.test.mjs`;
+- `docs/corpus/audited-private-promotion-v1.md`.
+
+Promotion defaults to DRY RUN.
+
+Actual promotion requires explicit `--execute`.
+
+A successful promotion writes:
+- exact Case DNA;
+- immutable promotion receipt binding Case DNA SHA-256 to extraction run, job, extractor, independent reviewer, review time and rights evidence.
+
+Implicit overwrite is forbidden.
+
+### External reviewer routes checked
+
+OpenAI Developers:
+- not installed/connected in the current account runtime;
+- therefore no API key/endpoint is available to this chat.
+
+GitHub Models fallback:
+- NOT AVAILABLE;
+- GitHub Models was fully retired on 2026-07-30.
+
+GitHub connector currently exposes no Copilot coding-agent/session action that can be used as the separate reviewer.
+
+Therefore no independent review was fabricated.
+
+### Exact next action
+
+The implementation is now review-ready.
+
+To complete the first true review:
+1. provide a genuinely separate stateless model execution with browsing;
+2. use locked private Review Batch 001 v0.5;
+3. reviewer verifies the lock before review;
+4. run all 3 candidates;
+5. validate every review;
+6. dry-run promotion;
+7. explicitly promote only independently approved records;
+8. rebuild approved registry;
+9. run approved-only retrieval/originality regression;
+10. then continue the remaining Batch 1 extraction.
+
+Until step 1 exists:
+- do NOT scale approved corpus to 200–300;
+- do NOT treat shadow results as approved corpus knowledge;
+- do NOT merge PR #355 into production paths;
+- do NOT touch LIVE/CURRENT_RELEASE/production Supabase.
+
