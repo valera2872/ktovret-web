@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/corpus-source-queue-v1.schema.json",
+  "title": "Mystery Logic Corpus Source Queue v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "queue_id",
+    "created_date",
+    "items"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "corpus_source_queue_v1"
+    },
+    "queue_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160
+    },
+    "created_date": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 40
+    },
+    "purpose": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "title",
+          "source_family",
+          "source_type",
+          "source_reference",
+          "rights_status",
+          "ingestion_policy",
+          "raw_text_retained",
+          "priority",
+          "status"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 180
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "creator": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 240
+          },
+          "source_family": {
+            "enum": [
+              "project_gutenberg",
+              "fbi_history",
+              "fbi_vault",
+              "sec",
+              "ntsb",
+              "court_record",
+              "creator_owned",
+              "mysterylogic",
+              "other"
+            ]
+          },
+          "source_type": {
+            "enum": [
+              "mysterylogic_case",
+              "real_case",
+              "public_domain_fiction",
+              "modern_fiction",
+              "film",
+              "episode",
+              "game",
+              "creator_submission",
+              "research_case",
+              "synthetic"
+            ]
+          },
+          "source_reference": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 2000
+          },
+          "source_locator": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1000
+          },
+          "jurisdiction": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 3000
+          },
+          "rights_status": {
+            "enum": [
+              "owned",
+              "public_domain",
+              "government_public_record",
+              "licensed",
+              "user_owned",
+              "analysis_only",
+              "unknown"
+            ]
+          },
+          "ingestion_policy": {
+            "enum": [
+              "full_text_allowed",
+              "permitted_excerpts_only",
+              "metadata_and_analysis_only",
+              "prohibited_pending_review"
+            ]
+          },
+          "raw_text_retained": {
+            "type": "boolean"
+          },
+          "priority": {
+            "enum": [
+              "P0",
+              "P1",
+              "P2",
+              "P3"
+            ]
+          },
+          "status": {
+            "enum": [
+              "candidate",
+              "rights_verified",
+              "queued",
+              "ingested",
+              "rejected"
+            ]
+          },
+          "target_pattern_tags": {
+            "type": "array",
+            "maxItems": 40,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 3000
+          },
+          "rights_evidence_reference": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000
+          },
+          "rights_verified_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 80
+          }
+        }
+      }
+    }
+  }
+}

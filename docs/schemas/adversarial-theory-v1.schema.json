@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/adversarial-theory-v1.schema.json",
+  "title": "Mystery Logic Adversarial Theory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "theory_id",
+    "claim",
+    "explains_evidence_ids",
+    "conflicts_evidence_ids",
+    "assumptions",
+    "requires_new_answer_fact",
+    "discriminating_checks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "adversarial_theory_v1"
+    },
+    "theory_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "explains_evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "uniqueItems": true,
+      "maxItems": 100
+    },
+    "conflicts_evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "uniqueItems": true,
+      "maxItems": 100
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 50
+    },
+    "requires_new_answer_fact": {
+      "type": "boolean"
+    },
+    "discriminating_checks": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question",
+          "expected_difference"
+        ],
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 1500
+          },
+          "expected_difference": {
+            "type": "string",
+            "maxLength": 1500
+          },
+          "available_before_reveal": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "origin": {
+      "type": "string",
+      "maxLength": 240
+    }
+  }
+}

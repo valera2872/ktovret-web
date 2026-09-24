@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/blind-player-packet-v1.schema.json",
+  "title": "Mystery Logic Blind Player Packet v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "stage",
+    "role",
+    "incident",
+    "evidence",
+    "characters",
+    "available_actions",
+    "state"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "blind_player_packet_v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "stage": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "brief"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "brief": {
+          "type": "string",
+          "maxLength": 1200
+        }
+      }
+    },
+    "incident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "stakes"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "maxLength": 2500
+        },
+        "stakes": {
+          "type": "string",
+          "maxLength": 1500
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 250,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 12000
+          },
+          "media_ref": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "source_context": {
+            "type": "string",
+            "maxLength": 1200
+          },
+          "observed_at": {
+            "type": "string",
+            "maxLength": 240
+          }
+        }
+      }
+    },
+    "characters": {
+      "type": "array",
+      "maxItems": 60,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "visible_role"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "visible_role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "player_visible_context": {
+            "type": "string",
+            "maxLength": 2500
+          }
+        }
+      }
+    },
+    "available_actions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "type": {
+            "enum": [
+              "inspect",
+              "compare",
+              "interrogate",
+              "request",
+              "visit",
+              "test",
+              "hypothesis",
+              "other"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "target_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "cost_or_constraint": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opened_evidence_ids",
+        "prior_action_ids"
+      ],
+      "properties": {
+        "opened_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "uniqueItems": true,
+          "maxItems": 250
+        },
+        "prior_action_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "maxItems": 500
+        },
+        "player_notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "maxItems": 100
+        }
+      }
+    }
+  }
+}

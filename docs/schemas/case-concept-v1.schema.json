@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/case-concept-v1.schema.json",
+  "title": "Mystery Logic Case Concept v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "concept_id",
+    "working_title",
+    "hook",
+    "role",
+    "mode",
+    "incident",
+    "canon_skeleton",
+    "hypotheses",
+    "evidence_plan",
+    "lies_and_secrets",
+    "red_herrings",
+    "recontextualization",
+    "signature_action",
+    "final_reconstruction",
+    "differentiation",
+    "generation_audit"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "case_concept_v1"
+    },
+    "concept_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160
+    },
+    "working_title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "hook": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 800
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "mode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "incident": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200
+    },
+    "canon_skeleton": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "who",
+        "why",
+        "how",
+        "where",
+        "when"
+      ],
+      "properties": {
+        "who": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1600
+        },
+        "where": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "when": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "evidence_plan": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "function",
+          "player_fact"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "function": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "player_fact": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 700
+          },
+          "supports_or_discriminates": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        }
+      }
+    },
+    "lies_and_secrets": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 800
+      }
+    },
+    "red_herrings": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 800
+      }
+    },
+    "recontextualization": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200
+    },
+    "signature_action": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 800
+    },
+    "final_reconstruction": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1400
+    },
+    "differentiation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200
+    },
+    "generation_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant",
+        "context_mode",
+        "retrieved_case_ids",
+        "used_pattern_dimensions",
+        "copied_source_plot"
+      ],
+      "properties": {
+        "variant": {
+          "enum": [
+            "baseline",
+            "corpus"
+          ]
+        },
+        "context_mode": {
+          "enum": [
+            "none",
+            "approved"
+          ]
+        },
+        "retrieved_case_ids": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 160
+          }
+        },
+        "used_pattern_dimensions": {
+          "type": "array",
+          "maxItems": 30,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 160
+          }
+        },
+        "copied_source_plot": {
+          "const": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+name: Mystery Corpus CI
+
+on:
+  push:
+    branches:
+      - feature/mystery-corpus-v0
+    paths:
+      - 'tools/mystery-corpus/**'
+      - 'tests/mystery-corpus-*.test.mjs'
+      - 'docs/schemas/*blind*.json'
+      - 'docs/schemas/adversarial-theory-v1.schema.json'
+      - 'docs/schemas/case-dna*.json'
+      - 'docs/schemas/corpus-*.json'
+      - 'docs/corpus/source-queue*.json'
+      - 'docs/corpus/ingestion-plan*.json'
+      - '.github/workflows/mystery-corpus-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/mystery-corpus/**'
+      - 'tests/mystery-corpus-*.test.mjs'
+      - 'docs/schemas/*blind*.json'
+      - 'docs/schemas/adversarial-theory-v1.schema.json'
+      - 'docs/schemas/case-dna*.json'
+      - 'docs/schemas/corpus-*.json'
+      - 'docs/corpus/source-queue*.json'
+      - 'docs/corpus/ingestion-plan*.json'
+      - '.github/workflows/mystery-corpus-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          for f in tools/mystery-corpus/*.mjs; do
+            node --check "$f"
+          done
+      - name: Mystery Corpus tests
+        run: |
+          set -euo pipefail
+          node --test tests/mystery-corpus-*.test.mjs

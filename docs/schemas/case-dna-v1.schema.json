@@ -1,0 +1,722 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mysterylogic.com/schemas/case-dna-v1.schema.json",
+  "title": "Mystery Logic Case DNA v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "title",
+    "source",
+    "incident",
+    "mechanism",
+    "evidence",
+    "hypotheses",
+    "reveal",
+    "fingerprint"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "case_dna_v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "language": {
+      "type": "string",
+      "default": "ru"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "rights_status",
+        "ingestion_policy",
+        "provenance"
+      ],
+      "properties": {
+        "source_type": {
+          "enum": [
+            "mysterylogic_case",
+            "real_case",
+            "public_domain_fiction",
+            "modern_fiction",
+            "film",
+            "episode",
+            "game",
+            "creator_submission",
+            "research_case",
+            "synthetic"
+          ]
+        },
+        "rights_status": {
+          "enum": [
+            "owned",
+            "public_domain",
+            "government_public_record",
+            "licensed",
+            "user_owned",
+            "analysis_only",
+            "unknown"
+          ]
+        },
+        "ingestion_policy": {
+          "enum": [
+            "full_text_allowed",
+            "permitted_excerpts_only",
+            "metadata_and_analysis_only",
+            "prohibited_pending_review"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 1000
+        },
+        "source_reference": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "creator": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "year": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 3000
+        },
+        "jurisdiction": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 240
+        },
+        "raw_text_retained": {
+          "type": "boolean",
+          "default": false
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "rights_evidence_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        },
+        "rights_verified_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
+        }
+      }
+    },
+    "incident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "surface_problem"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "surface_problem": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "setting": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "stakes": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "crime_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "mechanism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core_mechanism",
+        "mechanism_tags"
+      ],
+      "properties": {
+        "core_mechanism": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "mechanism_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "secondary_traces": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 600
+          },
+          "maxItems": 40
+        }
+      }
+    },
+    "characters": {
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "relation_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "uniqueItems": true,
+            "maxItems": 20
+          },
+          "motive_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "uniqueItems": true,
+            "maxItems": 20
+          },
+          "knowledge": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 700
+            },
+            "maxItems": 80
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 700
+            },
+            "maxItems": 40
+          },
+          "lies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 700
+            },
+            "maxItems": 40
+          },
+          "human_goal": {
+            "type": "string",
+            "maxLength": 800
+          }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "event"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "time_label": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "event": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "actors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "maxItems": 20
+          },
+          "known_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "maxItems": 40
+          },
+          "player_available_stage": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 250,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "provenance",
+          "fact",
+          "availability_stage",
+          "reliability"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "type": {
+            "enum": [
+              "physical",
+              "digital",
+              "document",
+              "witness",
+              "behavioral",
+              "spatial",
+              "temporal",
+              "audio",
+              "image",
+              "financial",
+              "forensic",
+              "institutional",
+              "other"
+            ]
+          },
+          "provenance": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "fact": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1500
+          },
+          "availability_stage": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reliability": {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "contested",
+              "unknown"
+            ]
+          },
+          "supports": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "uniqueItems": true,
+            "maxItems": 40
+          },
+          "weakens": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "uniqueItems": true,
+            "maxItems": 40
+          },
+          "essential": {
+            "type": "boolean",
+            "default": false
+          },
+          "corroborated_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "uniqueItems": true,
+            "maxItems": 40
+          },
+          "source_reason": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "lies_and_misdirection": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "description",
+          "causal_reason"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "lie",
+              "omission",
+              "error",
+              "red_herring",
+              "false_assumption",
+              "misattribution"
+            ]
+          },
+          "actor_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1200
+          },
+          "causal_reason": {
+            "type": "string",
+            "maxLength": 1200
+          },
+          "crime_related": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claim"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "supporting_evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "uniqueItems": true,
+            "maxItems": 50
+          },
+          "contradicting_evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "uniqueItems": true,
+            "maxItems": 50
+          },
+          "viable_until_stage": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "canonical": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "deductions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "premises",
+          "conclusion"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "premises": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "minItems": 1,
+            "maxItems": 20
+          },
+          "conclusion": {
+            "type": "string",
+            "maxLength": 1500
+          },
+          "required_stage": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "strength": {
+            "enum": [
+              "suggestive",
+              "strong",
+              "decisive"
+            ]
+          }
+        }
+      }
+    },
+    "reveal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recontextualized_facts",
+        "causal_compression"
+      ],
+      "properties": {
+        "recontextualized_facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "minItems": 1,
+          "maxItems": 40
+        },
+        "causal_compression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2500
+        },
+        "signature_moment": {
+          "type": "string",
+          "maxLength": 1200
+        },
+        "retell_hook": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "new_answer_changing_fact": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fair_play": {
+          "enum": [
+            "pass",
+            "fail",
+            "unknown",
+            "not_run"
+          ]
+        },
+        "technical_reality": {
+          "enum": [
+            "pass",
+            "fail",
+            "unknown",
+            "not_run"
+          ]
+        },
+        "wow_status": {
+          "enum": [
+            "valid",
+            "premium",
+            "signature",
+            "unknown"
+          ]
+        },
+        "editorial_lessons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "maxItems": 50
+        }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism_tags",
+        "evidence_topology",
+        "reversal_tags",
+        "decisive_proof_tags"
+      ],
+      "properties": {
+        "incident_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "setting_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "mechanism_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "motive_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "character_topology": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 180
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "evidence_topology": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 180
+          },
+          "uniqueItems": true,
+          "maxItems": 60
+        },
+        "reversal_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "decisive_proof_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        },
+        "signature_action_tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "uniqueItems": true,
+          "maxItems": 40
+        }
+      }
+    }
+  }
+}
