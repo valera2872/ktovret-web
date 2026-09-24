@@ -21,6 +21,19 @@ if(!response.ok){console.error(`Case concept provider HTTP ${response.status}`);
 const payload=await response.json();
 const concept=payload.concept??payload;
 
+const {generation_audit:conceptAudit,...visibleConcept}=concept||{};
+const visibleText=JSON.stringify(visibleConcept);
+if(/\b(?:baseline|corpus|retrieval|retrieved)\b/i.test(visibleText)){
+  console.error('provider concept leaks tournament variant/retrieval marker into evaluator-visible fields');
+  process.exit(1);
+}
+for(const id of request.generation_audit_requirements?.retrieved_case_ids||[]){
+  if(id && visibleText.includes(id)){
+    console.error('provider concept leaks retrieved case identity into evaluator-visible fields: '+id);
+    process.exit(1);
+  }
+}
+
 if(concept?.generation_audit?.variant!==request.variant){
   console.error('provider concept variant does not match request variant');process.exit(1);
 }
