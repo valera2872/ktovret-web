@@ -983,3 +983,82 @@ Current status:
 - human two-person blind test: NOT RUN;
 - Content Freeze: NOT RUN;
 - LIVE: untouched.
+
+## CASE-ARCH-002 — «Четыре подтверждения» — 2026-09-24
+
+Role:
+- Premium Solo;
+- target 55–70 min;
+- Medium/Hard;
+- current lifecycle: PRIVATE CANON + PLAYER PLOT PROTOTYPE;
+- release state: NOT READY.
+
+Spoiler-free premise:
+four corporate systems indicate that a board member was physically present at a night meeting while independent material places her far away at the same time. The investigation asks what each record actually proves and whether apparent corroboration is genuinely independent.
+
+Selection notes:
+- chosen after a 12-seed Concept Tournament;
+- rejected the earlier sealed valuable-object direction after live competitor refresh because Clurio currently has Solo «Пустой зал музея» and adjacent access-log/document-impossibility cases;
+- explicit semantic watch remains for Clurio «Чужая присяга», which also uses authentic official sources whose system linkage creates apparent contradiction;
+- differentiation is the dependency/provenance investigation of evidence independence, not document mismatch or a generic system-log trick.
+
+Approved Corpus usage:
+- Case Architect context used APPROVED-ONLY 25-record seed;
+- no M2 needs-review candidate was used as approved knowledge;
+- retrieved only abstract pattern/topology metadata, not source solutions/evidence facts.
+
+Current private artifact:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Four-Confirmations-Private-v0.1.zip`
+
+Library id:
+`libfile_d58d5b04c23c8191803d9a253caaca72`
+
+SHA-256:
+`79fc8ccc8aadcc0340857dfd2333e9b4d7e346f6f5babb9f6732cca467d63750`
+
+Size:
+25,221 bytes.
+
+Private package contains:
+- 12-seed Concept Tournament;
+- approved-only Corpus context;
+- PRIVATE CANON;
+- FABULA/timeline;
+- character knowledge/errors/lies;
+- evidence graph;
+- hypotheses/deductions;
+- Player Plot v0.1;
+- hypothesis dynamics;
+- deterministic Originality diagnostic;
+- deterministic Theory Audit;
+- technical reality cell;
+- competitor refresh;
+- Grant-Adamson application note.
+
+Current diagnostics:
+- Case DNA reference integrity: PASS;
+- deterministic Theory Audit: PASS;
+- final declared-theory discrimination: PASS;
+- reveal introduces no new answer-changing fact;
+- deterministic approved-corpus fingerprint gate: PASS / LOW structural-neighbor risk;
+- technical building blocks for converged physical/logical credentials and badge-based secure print release: externally verified as plausible;
+- case-specific quorum/attendance integration remains FICTIONALIZED INTERNALLY and must be fully taught before it is required for deduction.
+
+NOT RUN / blockers:
+- solution-isolated Blind Investigator;
+- independent adversarial theory generation;
+- human blind test;
+- final technical audit of all artifact/log behavior;
+- WOW Gate;
+- G0–G9;
+- Cognitive Gate;
+- desktop/mobile implementation and evidence-artifact visual QA.
+
+Exact next step:
+1. adversarially attack the PRIVATE CANON for unintended alternative explanations;
+2. strengthen Minimum Sufficient Proof Set and counterfactual tests if needed;
+3. create artifact specification (not final graphics yet);
+4. only after logic freeze move into interface/implementation.
+
+Do not place private culprit/mechanism/reveal details in public GitHub.
+
