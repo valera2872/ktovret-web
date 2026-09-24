@@ -1100,3 +1100,71 @@ Next:
 - then solution-isolated Blind Investigator / independent adversarial theories when provider exists;
 - no interface implementation before those logic checks are stable.
 
+### CASE-ARCH-002 v0.3 Artifact Authenticity baseline
+
+Current private baseline:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Four-Confirmations-Private-v0.3.zip`
+
+Library id:
+`libfile_cc5bb2a590f88191a52fcfae7825a075`
+
+SHA-256:
+`2dbd24bb6a919b99d2aab8fbfaa421c35e5cdbcab405f1f06a0c9c82d1fb151e`
+
+Size:
+72,779 bytes.
+Files:
+22.
+
+v0.3 adds:
+- artifact-spec-v0.2;
+- artifact-data-contract-v0.1;
+- artifact-consistency-audit-v0.1;
+- private-canon-v0.3 with artifact-provenance clarifications;
+- updated Technical Reality Cell.
+
+Artifact audit result:
+`READY_FOR_BLIND_PACKET_NOT_READY_FOR_FINAL_GRAPHICS`.
+
+Repairs made before any visual implementation:
+- separated the 21:31 quorum state change from the later dashboard snapshot time;
+- established service-camera existence before fallback and the critical credential read;
+- reframed packet printing as an explicitly case-specific board-suite integration rather than a generic badge-platform feature;
+- removed overclaim that the admin audit is technically impossible to bypass;
+- added stable room/reader/printer/credential consistency rules;
+- confirmed E01–E22 coverage with no early artifact exposure.
+
+No canonical culprit/mechanism change was introduced by v0.3.
+
+### CASE-ARCH-002 solution-agnostic blind handoff v0.1
+
+Private artifact:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Blind-Packet-v0.1.zip`
+
+Library id:
+`libfile_67ded70846a88191bccd4203bcf15f1b`
+
+SHA-256:
+`78c7112355ecf885b029f9b0fec95f7f17dd0bbfc0ffb23f05c141990d809e80`
+
+Size:
+6,492 bytes.
+
+Leakage audit:
+- PASS;
+- no canonical/supports/weakens/reliability/private knowledge/motive/lie fields;
+- no internal hypothesis or private-character IDs;
+- observation wording used instead of author interpretation for the final visual action.
+
+Important:
+this packet is a textual proxy for future independent logic testing.
+The current author conversation must NOT act as the blind investigator.
+
+Player-language issue found after packet generation:
+the author-facing Stage 2 title `Один источник` is too leading for player-facing use because it states the intended mid-case deduction.
+
+Next:
+- neutralize player-facing stage/material labels;
+- run non-leading language audit;
+- regenerate blind packet before external blind execution.
+
