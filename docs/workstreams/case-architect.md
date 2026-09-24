@@ -1168,3 +1168,81 @@ Next:
 - run non-leading language audit;
 - regenerate blind packet before external blind execution.
 
+### CASE-ARCH-002 v0.4 non-leading player language hardening
+
+Current private package:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Four-Confirmations-Private-v0.4.zip`
+
+Library id:
+`libfile_e7e26b80c2e481918eb94d5806c35bbc`
+
+SHA-256:
+`7af6c7ac6ad1794cafa6c7dd19d523f103930c9020ef7b8eb2264c19c677aa07`
+
+Size:
+84,550 bytes.
+Files:
+26.
+
+Adds:
+- artifact-spec-v0.3 with separate neutral `player_label` values;
+- player-plot-v0.3 with author-facing stage names separated from player-facing stage labels;
+- player-language-audit-v0.1.
+
+Player-facing stage labels are now:
+- Исходные материалы;
+- Дополнительные сведения;
+- Сопоставление;
+- Проверка версии.
+
+The author-facing Stage 2 name `Один источник` remains private because it states the intended mid-case deduction.
+
+Technical vocabulary:
+- `fallback` appears only after a plain-language explanation of temporary maintenance mode;
+- `correlation id` appears only after it is described as a shared session/service identifier;
+- `upstream identity` is not used in player-facing copy.
+
+Player-language audit:
+- PASS;
+- leading-label hits: 0.
+
+No canonical mechanism/culprit change.
+
+### CASE-ARCH-002 blind handoff v0.2
+
+Current solution-agnostic package:
+`/Mystery Logic/Private/Cases/CASE-ARCH-002-Blind-Packet-v0.2.zip`
+
+Library id:
+`libfile_28473f2900dc8191b339c2e2c74e059c`
+
+SHA-256:
+`0bae641bf6ff98ee8842e6e199ba82a2b402386be60f57f35a9ba801e0886ecf`
+
+Size:
+6,909 bytes.
+
+Contains:
+- textual player-visible proxy by stage;
+- public roles;
+- neutral actions;
+- final reconstruction fields;
+- leakage audit;
+- player-language audit.
+
+Blind leakage audit:
+- PASS;
+- no author hypotheses;
+- no supports/weakens/reliability labels;
+- no private knowledge/motive/lie maps;
+- no internal H_/P_ ids;
+- no intended theory-shift/cognitive-reward text;
+- no leading stage/material labels.
+
+Still not a human blind test and not executed by this author context.
+
+Next:
+- create artifact-production plan (data-generated vs photo/video/audio evidence) without final rendering;
+- run artifact field/timestamp consistency against that production plan;
+- wait for genuinely independent Blind Investigator before logic freeze/final graphics.
+
