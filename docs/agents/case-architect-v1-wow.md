@@ -1366,3 +1366,25 @@ If the user reports that a preview is overloaded, incomprehensible, starts with 
 
 This rule overrides any temptation to show off the full investigation interface immediately.
 
+### Media truthfulness gate
+
+Any player-facing control or label that says:
+- video;
+- recording;
+- CCTV;
+- audio;
+- voice message;
+- playback;
+
+MUST provide an actual playable media artifact in the review build.
+
+A drawn placeholder, static silhouette, decorative waveform or fake player is NOT a recording.
+
+If final media is not ready:
+- label it explicitly as `PREVIS / NOT PLAYABLE` in internal-only builds; or
+- do not expose that interaction to the user yet.
+
+Never ask the user to click «Посмотреть запись» and then show a drawing pretending to be a recording.
+
+Violation => AUTONOMOUS PRE-REVIEW GATE FAIL.
+
