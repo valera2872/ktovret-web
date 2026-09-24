@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
-import {spawn} from 'node:child_process';
+import {spawn,spawnSync} from 'node:child_process';
 
 const repo=process.cwd();
 const runner=path.join(repo,'tools/mystery-corpus/run-review-batch-provider.mjs');
