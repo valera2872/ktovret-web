@@ -20,7 +20,7 @@ function approvedCase(){
 }
 function concept(req){
  const ids=req.generation_audit_requirements.retrieved_case_ids||[];
- return {schema_version:'case_concept_v1',concept_id:req.variant+'-concept',working_title:'Concept '+req.variant,hook:'A fresh hook',role:'investigator',mode:'solo',incident:'A newly invented incident',
+ return {schema_version:'case_concept_v1',concept_id:'generated-concept',working_title:'Fresh Concept',hook:'A fresh hook',role:'investigator',mode:'solo',incident:'A newly invented incident',
   canon_skeleton:{who:'new actor',why:'new motive',how:'new mechanism',where:'new place',when:'new timeline'},
   hypotheses:['version one','version two','version three'],
   evidence_plan:[1,2,3,4,5].map(i=>({type:['physical','document','digital','witness','institutional'][i-1],function:'function '+i,player_fact:'new fact '+i,supports_or_discriminates:['version '+i]})),
