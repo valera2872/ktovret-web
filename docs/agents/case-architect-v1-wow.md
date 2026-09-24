@@ -1388,3 +1388,96 @@ Never ask the user to click «Посмотреть запись» and then show 
 
 Violation => AUTONOMOUS PRE-REVIEW GATE FAIL.
 
+## 40. REAL VIDEO / AUDIO EVIDENCE GATE — HARD RULE
+
+This rule is mandatory for every player-facing artifact labeled as video, live stream, CCTV, service camera, interview recording or audio recording.
+
+### No pseudo-video
+
+A still image with any combination of:
+- pan;
+- zoom;
+- camera shake;
+- parallax;
+- crop movement;
+- exposure flicker;
+- noise;
+- scanlines;
+- synthetic ambient sound;
+- subtle whole-frame warp;
+
+is NOT accepted as video evidence.
+
+Do not present an animated still / Ken Burns treatment / moving photograph as a recording.
+
+### Real temporal change required
+
+A player-facing video artifact must contain genuine temporal scene change.
+
+For a human subject, at least some of the following must visibly change over time:
+- body pose;
+- head orientation;
+- gaze;
+- facial expression;
+- mouth/speech motion where appropriate;
+- hand/arm gesture;
+- walking/turning;
+- interaction with an object or another person.
+
+The background must also behave plausibly for the claimed source:
+- other people move independently;
+- screens/doors/vehicles/environment may change when narratively appropriate;
+- motion must not be explainable as one global transform of a still image.
+
+### Evidence-specific rule
+
+If the deduction depends on:
+- presence at a location;
+- use of an object;
+- two separate credential presentations;
+- handoff/custody;
+- sequence of actions;
+- timing between actions;
+
+the video itself must visibly contain those temporally distinct actions.
+
+A static frame cannot stand in for a sequence merely because the UI has a play button.
+
+### User-facing build rule
+
+If the UI says:
+- «видео»;
+- «запись»;
+- «прямой эфир»;
+- «CCTV»;
+- «камера»;
+- «аудиозапись»;
+
+then the review build must contain an actually playable media file with the promised temporal content.
+
+Placeholder player chrome + static image => PRE-REVIEW FAIL.
+
+Animated still => PRE-REVIEW FAIL.
+
+### Premium bar
+
+For Premium/Signature:
+- hero video evidence must look like footage, not generated motion wallpaper;
+- subject identity should remain stable across frames;
+- motion physics and occlusion must be plausible;
+- no obvious morphing, duplicated limbs/faces, melting objects or frame-to-frame identity drift;
+- source aesthetics must match the claimed camera: public broadcast, CCTV, service camera, phone video, etc.
+
+One obviously fake hero video is enough to fail the Premium Visual Gate.
+
+### Process rule
+
+Never use a low-quality pseudo-video merely to make the prototype appear complete.
+
+If a true video generator / source footage is unavailable:
+- mark the artifact PREVIS / NOT PRODUCED;
+- show a still storyboard honestly as a storyboard;
+- do not label it as playable evidence;
+- do not simulate completion.
+
+
