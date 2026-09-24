@@ -1310,3 +1310,55 @@ Exact next step:
 
 No LIVE / CURRENT_RELEASE / production Supabase change.
 
+### CASE-ARCH-002 B0 visual preview — 2026-09-24
+
+Private preview artifact:
+- `CASE-ARCH-002-B0-Visual-Preview-v0.1.zip`
+- Private Library id: `libfile_243e6cea268081918493d17aec3a1623`
+- SHA-256: `176e6f142d5cb513ac4d7e869bbc92cb5a9961faab4aced39ca29987363337d8`
+- size: 17,993 bytes
+
+Scope:
+- A01 Attendance dashboard — exact HTML/CSS native-system prototype;
+- A02 Board room console — exact HTML/CSS native-system prototype;
+- A03 Board pack printer audit — exact HTML/CSS native-system prototype;
+- A04 public-event archive — final player chrome/layout + disposable media composition plate;
+- internal hero-media production board for A04/A11/A18.
+
+B0 rules:
+- preview is disposable and cannot become release art by inertia;
+- no red circles/arrows/leading highlights;
+- no generic Mystery Logic clue-card skin inside evidence;
+- A01–A03 use structured exact data, not generated pseudo-text;
+- A04 photographic plate remains deliberately non-final until blind/adversarial stabilization;
+- additional non-material board-member names in B0 are explicitly presentational-only UI noise and not Case CANON.
+
+Static non-leading/data audit:
+- A01–A04: PASS;
+- no forbidden conclusion labels;
+- meeting/room identity consistency present;
+- masked board token identity present where required.
+
+Hero-media production board:
+- A04 public event: continuous medium-shot credibility;
+- A11 corridor CCTV: wide fixed custody visual, no culprit close-up / tracking box;
+- A18 reader service camera: off-axis diagnostic geometry with two distinct credential presentations;
+- board is internal storyboard, NOT player evidence.
+
+Desktop/mobile rendered visual QA:
+- NOT RUN;
+- container Chromium screenshot execution was unreliable/hung on system DBus/zygote;
+- no screenshot was accepted as QA evidence.
+
+Current visual lifecycle:
+`B0 PREVIS READY / FINAL RENDER HOLD`.
+
+Next visual step after solution-isolated blind/adversarial stabilization:
+1. render first true media plate for A04;
+2. desktop + mobile evidence viewer QA for A01–A04;
+3. hero previs A11/A18;
+4. PV5–PV10;
+5. then B1 production batch.
+
+No LIVE / CURRENT_RELEASE / production Supabase change.
+
