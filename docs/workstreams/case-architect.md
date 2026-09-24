@@ -1362,3 +1362,32 @@ Next visual step after solution-isolated blind/adversarial stabilization:
 
 No LIVE / CURRENT_RELEASE / production Supabase change.
 
+### CASE-ARCH-002 Evidence Viewer prototype — 2026-09-24
+
+Private UX artifact:
+- `CASE-ARCH-002-Evidence-Viewer-Prototype-v0.1.zip`
+- Private Library id: `libfile_f5f6bf42fbf88191b6d435d38ebeaf3e`
+- SHA-256: `9e3a473380ba37c90c6e8bcda882cab8e4ae029b68d600b45e0ce9f0497f7911`
+- size: 26,017 bytes
+
+Scope:
+- wraps B0 A01–A04 evidence pages in a neutral Premium investigation workspace;
+- desktop: full two-pane compare;
+- mobile: full-screen evidence + sequential compare; tiny split-screen intentionally forbidden;
+- evidence itself remains in native-source visual language; viewer chrome does not restyle it as Mystery Logic clue cards.
+
+Static checks:
+- browser JS syntax: PASS;
+- no leading strings such as `ключевая улика`, `виновник`, `проверьте Антона`, `найдите общий токен`;
+- desktop compare architecture: PASS_STATIC;
+- mobile full-screen architecture: PASS_STATIC;
+- rendered runtime/visual QA: NOT RUN.
+
+B0 + viewer current visual lifecycle:
+`PREVIS IMPLEMENTED / FINAL MEDIA HOLD / RENDER QA PENDING`.
+
+Next:
+- after independent blind/adversarial stabilization, produce true A04 media plate;
+- then run desktop/mobile rendered QA on A01–A04 + viewer;
+- then produce A11/A18 hero-media previs and PV5–PV10.
+
