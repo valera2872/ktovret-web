@@ -1157,3 +1157,125 @@ Do not show the build to the user until all currently visible evidence visuals m
 
 Navigation icons may remain simple.
 Evidence may not.
+
+
+## 39. PLAYER AGENCY GATE — INVESTIGATION, NOT DOSSIER READING
+
+Mandatory for Premium / FLAGSHIP / SIGNATURE cases.
+
+### Core rule
+
+The player must progress because they INVESTIGATE, not because they finish reading a predetermined packet.
+
+The default loop must be:
+
+NOTICE SOMETHING
+→ FORM A QUESTION
+→ CHOOSE HOW TO CHECK IT
+→ REQUEST / INTERROGATE / DELEGATE / PRESENT EVIDENCE
+→ RECEIVE A CANON-BOUNDED RESULT
+→ UPDATE OR DEFEND A HYPOTHESIS.
+
+A case that mainly runs:
+open card → read card → click next
+is an INTERACTIVE DOSSIER, not a Mystery Logic premium investigation.
+
+### Progression
+
+Do NOT unlock the next major stage merely because every visible evidence card was opened.
+
+Stage progression should normally require:
+- one or more player-chosen investigative actions;
+- a recorded working hypothesis / reconstruction fragment;
+- where appropriate, interaction with another person or partner.
+
+The hypothesis may be wrong.
+The game should reward testable reasoning, not guessing the author's answer.
+
+### Investigative actions
+
+Use actions such as:
+- request a camera record;
+- request route/GPS/access logs;
+- request an earlier/later photograph;
+- summon/interview a witness;
+- ask a free-form question;
+- present a discovered evidence item during an interview;
+- delegate a concrete task to the Partner;
+- trace a physical object/person/vehicle;
+- request a follow-up document because of a player suspicion.
+
+Actions must emerge from the mystery world, not look like quiz buttons.
+
+### Interrogation
+
+For cases positioned around AI investigation, at least some key conversations must support free-form player questions.
+
+Canonical response pipeline:
+free question
+→ intent/topic
+→ character knowledge/state
+→ allowed answer
+→ possible stress/trust/disclosure change.
+
+Characters may:
+- not know;
+- misunderstand;
+- evade;
+- lie within canon;
+- change what they disclose after evidence is presented.
+
+They may NOT invent canon.
+
+A pre-written transcript alone does not satisfy AI investigation differentiation.
+
+### Evidence presentation
+
+Where a witness statement can be challenged, allow the player to present an already discovered evidence item.
+
+The evidence should change the permissible response, not just decorate the chat.
+
+### Partner agency
+
+Partner is not a clue dispenser.
+
+The player should be able to delegate meaningful tasks:
+"check the warehouse loading"
+"talk to the forklift operator"
+"find who changed the schedule"
+etc.
+
+Partner returns only what their role could legitimately obtain.
+
+### Passive-reading limit
+
+As a design target, do not allow more than roughly 60–90 seconds of passive reading without offering a meaningful investigative action.
+
+Premium can contain rich documents.
+It cannot make reading them the primary verb.
+
+### Board / linking mechanics
+
+Evidence boards and connection tools are optional thinking aids.
+They must NOT be the main progression gate merely because the player clicked two cards together.
+
+The board can help the player externalize thought.
+It must not substitute for investigation.
+
+### Agency audit
+
+Before user review, ask:
+- What can the player decide to investigate first?
+- Can they ask a question the author did not pre-write as a button?
+- Can they pursue a plausible wrong theory?
+- Does their chosen action determine which evidence appears next?
+- Can they delegate a concrete task?
+- Do they ever have to state what they currently believe?
+- Can they challenge a statement with evidence?
+
+If the answer is mostly no:
+PLAYER AGENCY GATE = FAIL.
+
+### Flagship standard
+
+For a flagship Partner Premium, the first meaningful investigative choice must happen within the first few minutes, not after a long evidence intake phase.
