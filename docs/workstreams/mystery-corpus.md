@@ -911,3 +911,161 @@ Then:
 
 Current conversation/extractor context must not act as that independent reviewer.
 
+## 19. Review-ready v0.4 + source-grounding precheck — 2026-09-24
+
+### Current independent-review blocker
+
+A valid independent review still requires a genuinely separate stateless reviewer context/provider.
+
+Current environment check:
+- no `OPENAI_API_KEY`;
+- no `CORPUS_REVIEWER_ENDPOINT`;
+- OpenAI Developers integration is not currently connected.
+
+Therefore this extractor context did NOT issue any `approved` review.
+
+### OpenAI stateless reviewer adapter
+
+Added:
+- `tools/mystery-corpus/openai-reviewer-adapter.mjs`
+- `tools/mystery-corpus/run-openai-review-batch.mjs`
+- `tests/mystery-corpus-openai-reviewer-adapter.test.mjs`
+- `tests/mystery-corpus-openai-review-batch.test.mjs`
+- `docs/corpus/openai-reviewer-adapter-v1.md`
+- `docs/corpus/openai-review-batch-v1.md`
+
+Behavior:
+- one fresh Responses API request per candidate;
+- no prior response/conversation state;
+- live web search;
+- domain restriction to source / rights-evidence domains where possible;
+- strict `corpus_extraction_review_v1` Structured Output;
+- review-only permissions;
+- no corpus promotion capability;
+- one-command local wrapper starts/stops the adapter automatically.
+
+### Review batch preflight
+
+Added:
+- `tools/mystery-corpus/validate-review-batch.mjs`
+- `tests/mystery-corpus-review-batch-preflight.test.mjs`
+- `docs/corpus/review-batch-preflight-v1.md`
+
+The preflight checks package-internal consistency before external review:
+- manifest / candidate identities;
+- embedded vs standalone Case DNA/provenance/notes;
+- job/run/case uniqueness;
+- exact rights metadata propagation;
+- `needs_review` state;
+- source references and review checks;
+- existing extractor-result / ingestion-bundle validation.
+
+### SEC rights evidence strengthened
+
+SEC source queue and Batch 1 plan now use:
+`https://www.sec.gov/about/privacy-information`
+
+Verified 2026-09-24.
+
+Reason:
+SEC Website Dissemination states that information presented on sec.gov is public information that may be copied or further distributed without SEC permission, while trademarks/logos and third-party material remain separately constrained.
+
+Corpus policy remains stricter:
+`metadata_and_analysis_only`, no raw source text retention.
+
+### WorldCom source-framing repair
+
+A non-independent source-grounding precheck found that v0.3 sometimes presented SEC complaint allegations as unattributed historical facts.
+
+v0.4 repairs:
+- `incident.surface_problem`;
+- `mechanism.core_mechanism`;
+- canonical `H_SYSTEMATIC`;
+- reveal / causal-compression wording.
+
+Complaint-derived wrongdoing is now explicitly attributed to the SEC allegation.
+
+This is an extractor repair, NOT an independent review approval.
+
+### Review Batch 001 v0.4
+
+Private Library artifact:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Review-Batch-001-v0.4.zip`
+
+Library id:
+`libfile_8ae361cba0188191a5c737042ae05f0d`
+
+SHA-256:
+`550ec8d938f1ec704c0ba82e04f71f17c84a6e1d504b64a68e065eedde88c6d3`
+
+Size:
+41,295 bytes.
+
+Local/private package preflight:
+- candidates: 3;
+- errors: 0;
+- warnings: 0.
+
+Candidates remain:
+`needs_review`.
+
+No candidate promoted.
+
+### Source-Grounding Audit guard
+
+Added:
+- `docs/schemas/corpus-source-grounding-audit-v1.schema.json`
+- `tools/mystery-corpus/validate-source-grounding-audit.mjs`
+- `tests/mystery-corpus-source-grounding-audit.test.mjs`
+- `docs/corpus/source-grounding-audit-v1.md`
+
+The schema hard-codes:
+- `independent_review=false`;
+- `can_approve=false`;
+- `independent_review_still_required=true`.
+
+Purpose:
+the extractor context may reopen sources, catch obvious grounding errors and repair its own extraction, but can never approve it.
+
+### Source-grounding precheck observations
+
+Hollow Nickel:
+- official FBI history supports the core discovery / unresolved-code / Hayhanen / comparative-tradecraft / Abel-identification sequence;
+- FBI Cases and Criminals grants its monographs/write-ups for non-commercial use;
+- corpus remains metadata/analysis-only and retains no raw FBI text;
+- independent rights-policy review remains required before promotion.
+
+TWA Flight 800:
+- NTSB report supports CWT explosion, explicit alternative-hypothesis analysis, rejection of bomb/missile and pre-existing structural failure, witness-evidence interpretation, and unresolved exact ignition source;
+- NTSB-created materials are generally public-domain under its Website Policies, while third-party docket material remains excluded.
+
+WorldCom:
+- SEC First Amended Complaint supports the alleged reserve-release -> capitalization method shift, unsupported entries, repetition and alleged senior-management direction;
+- v0.4 preserves allegation framing;
+- SEC rights evidence is now the direct Website Dissemination policy.
+
+These observations establish readiness for independent review only.
+
+### CI
+
+Latest verified aggregate:
+- run `35959637833`;
+- head `164acd722ce1f2e6c39abfbf4176869e9f914372`;
+- 72 tests;
+- 72 PASS;
+- 0 FAIL.
+
+### Exact next action
+
+1. Connect a genuinely separate stateless reviewer capability (preferred current path: OpenAI Developers / API).
+2. Unpack private Review Batch 001 v0.4.
+3. Run:
+   `run-openai-review-batch.mjs`
+   or the provider-neutral `run-review-batch-provider.mjs`.
+4. Retain all three review verdicts and issues.
+5. Promote NONE automatically.
+6. Repair any `needs_rework` item and submit the repaired version to a NEW independent review.
+7. Only after stable independent outcomes run before/after Retriever + Originality regression and continue the remaining Batch 1 sources.
+
+Do not merge PR #355 or touch LIVE as part of this review.
+
