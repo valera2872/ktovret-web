@@ -1157,3 +1157,212 @@ Do not show the build to the user until all currently visible evidence visuals m
 
 Navigation icons may remain simple.
 Evidence may not.
+
+## 39. SOFT ENTRY / PLAYER COMFORT GATE — ABSOLUTE HARD RULE
+
+This rule exists because a logically strong investigation can still fail instantly if the player opens the game and sees a dense workbench full of logs, panels and unexplained data.
+
+### Product principle
+
+Mystery Logic is played for enjoyment, curiosity and the feeling of being an investigator.
+
+The player must NOT be required to:
+- study a dashboard before understanding the story;
+- decode twenty evidence items before caring about the case;
+- read raw logs as the first meaningful action;
+- understand the whole interface before starting;
+- choose among many tabs, theories, notes and compare tools on the opening screen;
+- feel that work has begun before the game has begun.
+
+Complexity is allowed later.
+Cognitive overload at entry is not.
+
+### Mandatory opening sequence
+
+Every Premium case MUST open progressively.
+
+Default sequence:
+
+0. **Atmosphere / human image**
+   - one strong visual or short scene;
+   - immediate sense of place/person/event;
+   - no dashboard wall.
+
+1. **Plain-language incident**
+   - 2–4 short sentences;
+   - what happened;
+   - why it is strange/important;
+   - no technical explanation yet.
+
+2. **Player role**
+   - one simple sentence:
+     who the player is and why they are involved.
+
+3. **Clear immediate objective**
+   - one concrete question or task;
+   - not the full final reconstruction.
+
+4. **One obvious first action**
+   - one primary CTA;
+   - examples: «Посмотреть запись», «Открыть первое досье», «Поговорить со свидетелем», «Осмотреть место».
+
+5. **First small discovery**
+   - one understandable clue or contradiction;
+   - enough to make the player curious.
+
+6. **Only then expand the investigation workspace**
+   - evidence list;
+   - characters;
+   - versions;
+   - notes;
+   - compare tools;
+   - specialist records.
+
+The investigation interface is EARNED through play.
+It is not dumped on the player at second zero.
+
+### First 2–3 minutes rule
+
+During the first 2–3 minutes the player should normally see:
+- one incident;
+- one role;
+- one current objective;
+- one primary action;
+- one or a very small number of immediately relevant materials.
+
+Do NOT expose the full case inventory merely because it exists.
+
+A 20-item evidence library may exist internally but must unlock/reveal progressively.
+
+### No dead-desk opening
+
+AUTOMATIC FAIL if the opening screen resembles:
+- an admin panel;
+- an analyst workstation;
+- a spreadsheet;
+- a three-column database browser;
+- a wall of logs;
+- a file manager;
+- a completed detective desk before the player has investigated anything.
+
+A polished dark theme does NOT rescue this failure.
+
+### No "figure out the game first"
+
+The player must not ask:
+- «Куда я попал?»
+- «Что здесь произошло?»
+- «Что мне сейчас делать?»
+- «С чего начинать?»
+- «Зачем мне все эти таблицы?»
+
+Any such reaction from a reasonable cold player is an immediate SOFT ENTRY FAIL.
+
+Do not answer these questions with a tutorial tooltip after the fact.
+Redesign the opening.
+
+### Orientation before evidence density
+
+Before showing technical material, the player must already understand:
+- the human situation;
+- the central contradiction;
+- why they should care;
+- why this material might help.
+
+BAD:
+Open directly on attendance logs, system records and twenty evidence IDs.
+
+GOOD:
+Show the person/event/problem first, explain the contradiction in ordinary language, give one action, then reveal the first record in context.
+
+### Emotion before administration
+
+Premium is not "more information".
+
+Premium entry should create:
+- curiosity;
+- atmosphere;
+- confidence;
+- desire to touch the case;
+- a feeling that investigation has begun naturally.
+
+The opening should feel closer to entering a scene than opening enterprise software.
+
+### Visual rule for opening
+
+The first meaningful screen should normally contain:
+- one dominant image/scene/person/object;
+- short readable copy;
+- one obvious action.
+
+It should NOT contain:
+- multiple competing data tables;
+- a long evidence sidebar;
+- five navigation tabs demanding attention;
+- a theory board;
+- compare mode;
+- notes panel;
+- dense metadata;
+- unexplained IDs.
+
+These tools may appear progressively after the player has context.
+
+### Progressive UI unlock
+
+Default:
+- opening: story + first action;
+- after first action: first material;
+- after first meaningful clue: evidence navigation;
+- after multiple plausible interpretations exist: versions/hypotheses;
+- when comparison becomes useful: compare tool;
+- notes may be available early but must not compete visually with the first action.
+
+Never reveal a tool before the player has a reason to want it.
+
+### Comfort gate
+
+A cold user should feel:
+«Понятно. Интересно. Хочу посмотреть, что произошло.»
+
+Not:
+«Так, сейчас надо разобраться, как тут всё устроено.»
+
+If the second reaction is plausible, the build fails.
+
+### Mandatory cold-open test
+
+Before ANY user-facing preview:
+1. show only the first 30 seconds / opening state;
+2. do not explain anything verbally;
+3. tester must correctly answer:
+   - что случилось?
+   - кто я?
+   - зачем я это расследую?
+   - что мне сделать прямо сейчас?
+4. tester must perform the first action without help;
+5. tester must not be forced to inspect raw technical data before understanding why it matters.
+
+Any hesitation or confusion => REWORK REQUIRED.
+
+### Build gate
+
+SOFT ENTRY FAIL blocks:
+- user preview;
+- PREMIUM status;
+- SIGNATURE status;
+- Content Freeze;
+- Release Candidate.
+
+A case with excellent CANON, beautiful evidence and perfect Theory Audit is still NOT READY if the first minute feels like work.
+
+### Process-failure rule
+
+If the user reports that a preview is overloaded, incomprehensible, starts with too much information or gives no clear entry point:
+- treat it as a PROCESS FAILURE;
+- do not patch only copy labels;
+- redesign the opening flow;
+- record the failure in the workstream;
+- the next preview must start from the soft-entry sequence above.
+
+This rule overrides any temptation to show off the full investigation interface immediately.
+
