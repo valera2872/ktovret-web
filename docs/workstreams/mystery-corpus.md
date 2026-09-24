@@ -1232,3 +1232,111 @@ Until step 1 exists:
 - do NOT merge PR #355 into production paths;
 - do NOT touch LIVE/CURRENT_RELEASE/production Supabase.
 
+## 21. M2 Extraction Wave 02 — 2026-09-24
+
+A second controlled extraction wave was created without changing the approved corpus.
+
+Private package:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Extraction-Wave-02-v0.1.zip`
+
+Library id:
+`libfile_9b5a6c9db3f48191a78efb1dd5e8f1db`
+
+ZIP SHA-256:
+`2595adbd02bb40622bbd37d6aa5f2b0105048b1a87ef67823c78b4ee4a88673d`
+
+Size:
+45,567 bytes.
+
+Integrity lock:
+- 26 package files;
+- lock SHA-256:
+  `aee05d1ed4cfa5ca0947581d623292cc0ba4069393a00b00522002e59bbae27e`.
+
+Candidates:
+1. FBI — ABSCAM
+   - controlled undercover environment;
+   - recorded quid-pro-quo / payment context;
+   - opportunity vs intent / entrapment distinction;
+   - network-driven investigation expansion.
+2. NTSB — Colgan Air Flight 3407
+   - immediate probable-cause sequence vs contributing factors;
+   - human factors + organizational procedures;
+   - technical causal reconstruction rather than culprit search.
+3. SEC — Adelphia
+   - off-balance-sheet / related-party liability pattern;
+   - economic substance vs formal record label;
+   - multi-domain reporting pattern;
+   - all wrongdoing statements remain explicitly attributed to SEC complaint allegations.
+4. Project Gutenberg — The Moonstone
+   - public-domain fiction;
+   - true physical trace whose meaning changes;
+   - observed action separated from inferred intent;
+   - protective concealment / lie != guilt;
+   - two-stage custody chain: room removal != later criminal appropriation.
+
+All four:
+- pass internal Case DNA/reference-integrity checks;
+- pass provenance coverage checks;
+- pass rights/job/provenance consistency checks;
+- remain `needs_review`;
+- are NOT approved;
+- are NOT available to approved-only retrieval.
+
+One extraction bug was caught before packaging:
+- Moonstone evidence E1 referenced a non-existent hypothesis id;
+- repaired before lock/archive creation.
+
+### Wave 02 diagnostics
+
+Private diagnostic report:
+`/Mystery Logic/Private/Mystery Corpus/M2 Candidates/Mystery-Corpus-M2-Wave-02-Diagnostics-v0.1.json`
+
+Library id:
+`libfile_5334d5968c1481919b6de9381ed060cb`
+
+SHA-256:
+`301c7f7a6b77df68043696edc893b484c05c0f50fe1f29349cdea2b670947eb9`
+
+Shadow retrieval against the 25-record approved legacy seed:
+- diagnostic queries: 8;
+- queries with new Wave-02 hits: 8/8;
+- source-type diversity gain: 7/8;
+- matched-dimension diversity gain: 7/8.
+
+Observed retrieval niches:
+- ABSCAM: controlled opportunity / recorded intent / network expansion;
+- Colgan 3407: immediate vs contributing cause / human-system chain;
+- Adelphia: economic substance / related-party records / repeated reporting pattern;
+- Moonstone: action vs intent / protective deception / two-stage custody / clue recontextualization.
+
+Deterministic quality scorecard:
+- no `thin` or `attention` structural dimension in the four current candidates;
+- this is diagnostics only and does NOT imply factual approval.
+
+### Approved-corpus state after Wave 02
+
+Approved corpus remains unchanged:
+- 25 approved legacy seed records.
+
+Unapproved M2 candidate pool:
+- Review Batch 001: 3 candidates;
+- Wave 02: 4 candidates;
+- total unapproved candidates: 7.
+
+Safe retrieval rule remains:
+- approved mode -> approved layers only;
+- Wave 02 may be used only in explicit shadow mode until independent review and audited promotion.
+
+### Next controlled action
+
+Do NOT promote or merge the seven M2 candidates without independent review.
+
+While external review capability is unavailable, further work may:
+- continue a small balanced extraction wave as `needs_review`;
+- improve source grounding;
+- run shadow retrieval / quality diagnostics;
+- prepare Studio/Case Architect integration around approved-vs-shadow layers.
+
+Do not scale directly to 200–300 approved records until at least the first independent review/promotion loop is proven.
+
