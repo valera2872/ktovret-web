@@ -15,7 +15,8 @@
     "size_bytes": 7558894,
     "file_count": 686,
     "sha256": "a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185",
-    "zip_integrity": "PASS"
+    "zip_integrity": "PASS",
+    "source_live_copy_library_status": "historical source copy removed after byte-identical SHA verification; canonical bytes remain in MysteryLogic-FINAL-BASE-2026-09-25.zip"
   },
   "verification": {
     "owner_confirmation": "готово, исправили.",
@@ -29,6 +30,44 @@
     "github_actions_artifacts": "Never treat a GitHub Actions artifact as the production baseline unless CURRENT_RELEASE.json explicitly points to it.",
     "small_changes": "Prefer a minimal patch containing only changed production files, built over this exact baseline.",
     "promotion": "A newer baseline becomes canonical only after deploy -> live verification -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json.",
-    "versioning": "Do not invent semantic version numbers. Use only explicit release identifiers or dates."
+    "versioning": "Do not invent semantic version numbers. Use only explicit release identifiers or dates.",
+    "pending_candidate": "A pending_final_candidate may be the frozen approved next build without being LIVE. Do not call it LIVE or replace the canonical baseline until promotion conditions are met."
+  },
+  "pending_final_candidate": {
+    "status": "prepared_not_live",
+    "owner_approved": true,
+    "approved_date": "2026-09-25",
+    "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+    "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
+    "size_bytes": 7660549,
+    "file_count": 686,
+    "sha256": "2ed4629af73ba39760ea20824e9cb6a10b755c995f61b31dfe09ca8f0ea4fa2a",
+    "based_on_release_id": "canonical-live-2026-09-25",
+    "changed_existing_site_files": 19,
+    "added_site_files": 0,
+    "removed_site_files": 0,
+    "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25-MANIFEST.md",
+    "manifest_library_file_id": "libfile_3221fcca90308191bf609f3f627b26be",
+    "production_edge_functions_already_active": {
+      "funnel-event": {
+        "version": 10,
+        "status": "ACTIVE",
+        "verify_jwt": false
+      },
+      "review-moderation": {
+        "version": 7,
+        "status": "ACTIVE",
+        "verify_jwt": false
+      },
+      "social-proof": {
+        "version": 10,
+        "status": "ACTIVE",
+        "verify_jwt": false
+      }
+    },
+    "deployment_status": "static_not_deployed",
+    "deployment_blocker": "GitHub Actions repository secrets BEGET_HOST, BEGET_USER, BEGET_PASSWORD are absent; controlled deploy stopped before backup/rsync.",
+    "continuity_rule": "All chats continuing the already-approved pending release must use this exact candidate. For claims about current LIVE, the canonical baseline above remains authoritative until promotion."
   }
 }
