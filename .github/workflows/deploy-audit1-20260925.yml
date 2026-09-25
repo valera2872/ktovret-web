@@ -1,0 +1,96 @@
+name: Deploy approved audit1 patch
+
+on:
+  push:
+    branches: [main]
+    paths: ['ops/audit1-live-20260925/DEPLOY']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mysterylogic-beget-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BEGET_HOST: ${{ secrets.BEGET_HOST }}
+      BEGET_USER: ${{ secrets.BEGET_USER }}
+      BEGET_PASSWORD: ${{ secrets.BEGET_PASSWORD }}
+      BEGET_PATH: ${{ secrets.BEGET_PATH }}
+      BEGET_PORT: ${{ secrets.BEGET_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify approved patch
+        run: |
+          set -euo pipefail
+          cat ops/audit1-live-20260925/chunk-*.b64 | base64 -d > /tmp/patch.tgz
+          echo 'e04e4a7342207b15bb39d4f9c0c2cf3000e1619be89d156dc70b76d0dbfaa07e  /tmp/patch.tgz' | sha256sum -c -
+          mkdir patch && tar -xzf /tmp/patch.tgz -C patch
+          test "$(find patch -type f | wc -l)" -eq 19
+          test ! -e patch/assets/ai01-launch-promo.js
+          test ! -e patch/assets/ai01-launch-promo.css
+          node --check patch/assets/funnel-analytics.js
+          node --check patch/assets/review-admin.js
+          node --check patch/assets/social-proof.js
+          node --check patch/assets/solo-mini.js
+          node --check patch/assets/volume-storefront.js
+          grep -Fq "choiceCard = anchor.closest('.coop-entry-choice')" patch/assets/social-proof.js
+          grep -Fq 'Открыть Том I · 10 дел за 99 ₽' patch/detektivnye-igry-dlya-odnogo/mini/index.html
+          grep -Fq '15 коротких дел «Кто врёт?»' patch/assets/solo-mini.js
+          grep -Fq 'checkout_request' patch/assets/volume-storefront.js
+          grep -Fq 'whoLied' patch/assets/review-admin.js
+
+      - name: Configure SSH and back up LIVE
+        id: backup
+        run: |
+          set -euo pipefail
+          : "${BEGET_HOST:?missing BEGET_HOST}" "${BEGET_USER:?missing BEGET_USER}" "${BEGET_PASSWORD:?missing BEGET_PASSWORD}"
+          BEGET_PATH="${BEGET_PATH:-mysterylogic.com/public_html}"; BEGET_PORT="${BEGET_PORT:-22}"
+          echo "BEGET_PATH=$BEGET_PATH" >> "$GITHUB_ENV"; echo "BEGET_PORT=$BEGET_PORT" >> "$GITHUB_ENV"
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass rsync
+          mkdir -p ~/.ssh; chmod 700 ~/.ssh
+          ssh-keyscan -T 10 -p "$BEGET_PORT" -H "$BEGET_HOST" >> ~/.ssh/known_hosts; chmod 600 ~/.ssh/known_hosts
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"
+          backup="mysterylogic-before-audit1-$(date -u +%Y%m%dT%H%M%SZ).tgz"
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$target" "set -eu; test -f '$BEGET_PATH/index.html'; test -f '$BEGET_PATH/detektivnye-igry-dlya-dvoih/index.html'; test -f '$BEGET_PATH/detektivnye-igry-dlya-odnogo/mini/index.html'; mkdir -p \"\$HOME/.mysterylogic-deploy-backups\"; tar -C '$BEGET_PATH' -czf \"\$HOME/.mysterylogic-deploy-backups/$backup\" ."
+          echo "backup=$backup" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy patch
+        id: deploy
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"
+          rsync -az --delay-updates -e "sshpass -e ssh -p $BEGET_PORT -o StrictHostKeyChecking=yes" patch/ "$target:$BEGET_PATH/"
+
+      - name: Smoke LIVE
+        id: smoke
+        run: |
+          set -euo pipefail
+          get(){ curl -fsSL --retry 5 --retry-delay 2 "$1"; }
+          get 'https://mysterylogic.com/detektivnye-igry-dlya-dvoih/?audit1=20260925' > /tmp/coop.html
+          get 'https://mysterylogic.com/assets/social-proof.js?v=20260925-audit1' > /tmp/social.js
+          get 'https://mysterylogic.com/detektivnye-igry-dlya-odnogo/mini/?audit1=20260925' > /tmp/mini.html
+          get 'https://mysterylogic.com/assets/solo-mini.js?v=20260925-audit1' > /tmp/mini.js
+          get 'https://mysterylogic.com/tom-1/?audit1=20260925' > /tmp/tom1.html
+          get 'https://mysterylogic.com/assets/volume-storefront.js?v=20260925-audit1' > /tmp/volume.js
+          get 'https://mysterylogic.com/admin/reviews/?audit1=20260925' > /tmp/admin.html
+          grep -Fq 'social-proof.js?v=20260925-audit1' /tmp/coop.html
+          grep -Fq "choiceCard = anchor.closest('.coop-entry-choice')" /tmp/social.js
+          grep -Fq 'Открыть Том I · 10 дел за 99 ₽' /tmp/mini.html
+          grep -Fq '15 коротких дел «Кто врёт?»' /tmp/mini.js
+          grep -Fq 'volume-storefront.js?v=20260925-audit1' /tmp/tom1.html
+          grep -Fq 'checkout_request' /tmp/volume.js
+          grep -Fq 'review-admin.js?v=20260925-audit1' /tmp/admin.html
+          echo 'LIVE smoke passed'
+
+      - name: Roll back on failure
+        if: failure() && steps.backup.outputs.backup != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
+        run: |
+          set -euo pipefail
+          export SSHPASS="$BEGET_PASSWORD"; target="$BEGET_USER@$BEGET_HOST"; backup='${{ steps.backup.outputs.backup }}'
+          sshpass -e ssh -p "$BEGET_PORT" -o StrictHostKeyChecking=yes "$target" "set -eu; rm -rf '$BEGET_PATH'/* '$BEGET_PATH'/.[!.]* '$BEGET_PATH'/..?* 2>/dev/null || true; tar -xzf \"\$HOME/.mysterylogic-deploy-backups/$backup\" -C '$BEGET_PATH'"
