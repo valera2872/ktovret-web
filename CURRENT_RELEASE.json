@@ -40,11 +40,11 @@
     "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
     "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
     "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
-    "size_bytes": 7660549,
+    "size_bytes": 7660577,
     "file_count": 686,
-    "sha256": "2ed4629af73ba39760ea20824e9cb6a10b755c995f61b31dfe09ca8f0ea4fa2a",
+    "sha256": "35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a",
     "based_on_release_id": "canonical-live-2026-09-25",
-    "changed_existing_site_files": 19,
+    "changed_existing_site_files": 38,
     "added_site_files": 0,
     "removed_site_files": 0,
     "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25-MANIFEST.md",
@@ -68,6 +68,14 @@
     },
     "deployment_status": "static_not_deployed",
     "deployment_blocker": "GitHub Actions repository secrets BEGET_HOST, BEGET_USER, BEGET_PASSWORD are absent; controlled deploy stopped before backup/rsync.",
-    "continuity_rule": "All chats continuing the already-approved pending release must use this exact candidate. For claims about current LIVE, the canonical baseline above remains authoritative until promotion."
+    "continuity_rule": "All chats continuing the already-approved pending release must use this exact candidate. For claims about current LIVE, the canonical baseline above remains authoritative until promotion.",
+    "header_cta_fix": {
+      "status": "included",
+      "changed_pages": 21,
+      "from": "Открыть досье",
+      "to": "Начать дело",
+      "destination_unchanged": "first free case",
+      "rationale": "avoid confusion with actual Досье navigation item /dossier/"
+    }
   }
 }
