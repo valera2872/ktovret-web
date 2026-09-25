@@ -1794,3 +1794,10 @@ Product conclusion:
 Status:
 `CASE-ARCH-002 v4.3 = REJECTED BY USER / DO NOT USE AS PLAYTEST BASELINE`.
 
+5. Stage-2 navigation/render bug discovered in user playtest:
+- after completing both prerequisite actions on stage 2, the third action ("Сравнить четыре подтверждения") does not appear automatically;
+- root cause in v4.3: action list is filtered at render time, but completing an action calls only `renderGate()` / `renderSide()`, not a full investigation rerender;
+- therefore newly unlocked actions remain invisible until the player manually re-enters "Расследование" or reloads the page;
+- this is a hard UX bug: player reaches a dead-end and does not know what to do next;
+- next build must rerender the action area immediately whenever prerequisites change, and every stage needs an explicit visible next-step affordance.
+
