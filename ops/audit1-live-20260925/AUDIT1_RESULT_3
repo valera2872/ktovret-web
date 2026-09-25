@@ -1,0 +1,12 @@
+job_status=failure
+verify=success
+secrets=failure
+tools=skipped
+hostkey=skipped
+remote=skipped
+backup_step=skipped
+deploy=skipped
+smoke=skipped
+rollback=skipped
+source_commit=b81fa512319750a310e36a7428efdd43107f6a82
+backup=
