@@ -259,3 +259,71 @@ Full candidate:
 ### Production boundary
 This replacement candidate is not canonical LIVE until:
 `deploy -> verify mysterylogic.com -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json`.
+
+
+## S1 multistep replacement promoted to LIVE — 2026-09-25
+
+### Supersedes previous S1 notes
+The earlier single-step arrow replacement and all older L-shape/marker fixes are superseded.
+
+Canonical S1 now is:
+- start direction: UP;
+- step 1: 90° clockwise;
+- step 2: 180° counter-clockwise;
+- step 3: 360° clockwise;
+- final direction: LEFT;
+- correct answer: A / index 0.
+
+Prompt:
+`Стрелку последовательно поворачивают: 90° по часовой стрелке, затем 180° против часовой стрелки, затем 360° по часовой стрелке. Куда она будет направлена?`
+
+Visible answer labels:
+- A: `Влево`
+- B: `Вправо`
+- C: `Вниз`
+- D: `Вверх`
+
+### Visual
+Final version uses the cleaner premium layout approved for deployment:
+- start arrow card;
+- three separate rotation cards;
+- four directional answer cards;
+- cache-buster `20260925-iq-s1-multistep-pretty1`.
+
+### Files
+Changed production paths:
+- `assets/detective-iq.js`
+- `assets/detective-iq.mjs`
+- `assets/detective-iq-data.mjs`
+- `iq-detektiva/index.html`
+
+Backend/scoring/`cognitive_v3`/Supabase were not changed because the correct index remains `0 / A`.
+
+### QA / artifacts
+Built from exact prior approved baseline `MysteryLogic-LIVE-2026-09-23.zip`
+SHA-256 `af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644`.
+
+Minimal patch:
+- `MysteryLogic-PATCH-IQ-S1-MULTISTEP-PRETTY-2026-09-25.zip`
+- SHA-256: `7d985b530eebff007e9eaaef589bd61fe0bc03f0774d8708531c6f81445efbe3`
+
+Full promoted baseline:
+- `MysteryLogic-LIVE-2026-09-25.zip`
+- Library: `/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-25.zip`
+- Library id: `libfile_8c8f0efe4e2481919fe78f0e60d7b966`
+- files: 686
+- size: 7,558,894 bytes
+- SHA-256: `a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185`
+
+### LIVE confirmation
+Owner confirmed production result on 2026-09-25: `готово, исправили.`
+
+Assistant-side direct fetch of mysterylogic.com was unavailable in this session, so the final live visual verification was performed by the owner in the browser. Owner confirmation is the release gate evidence for this promotion.
+
+### Source of truth
+`CURRENT_RELEASE.json` is advanced to:
+- release_id: `live-2026-09-25-iq-s1-multistep`
+- baseline: `MysteryLogic-LIVE-2026-09-25.zip`
+- live_verification_pending: `false`
+
+All subsequent Mystery Logic production work must use this baseline unless a newer CURRENT_RELEASE supersedes it.

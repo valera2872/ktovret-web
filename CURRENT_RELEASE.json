@@ -1,30 +1,30 @@
 {
   "product": "Mystery Logic",
-  "release_id": "approved-base-2026-09-23-iq",
+  "release_id": "live-2026-09-25-iq-s1-multistep",
   "version": null,
-  "status": "approved_current_base_pending_live_verification",
+  "status": "live_owner_verified",
   "verified_by_user": true,
-  "verified_date": "2026-09-23",
-  "live_verification_pending": true,
+  "verified_date": "2026-09-25",
+  "live_verification_pending": false,
   "baseline": {
-    "file_name": "MysteryLogic-LIVE-2026-09-23.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-23.zip",
-    "library_file_id": "libfile_40fc44411a9481918305239c3f6845e3",
-    "original_upload_name": "MysteryLogic-FINAL-CANDIDATE-IQ-2026-09-23.zip",
-    "size_bytes": 7657569,
+    "file_name": "MysteryLogic-LIVE-2026-09-25.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-25.zip",
+    "library_file_id": "libfile_8c8f0efe4e2481919fe78f0e60d7b966",
+    "original_upload_name": "MysteryLogic-FULL-CANDIDATE-IQ-S1-MULTISTEP-PRETTY-2026-09-25.zip",
+    "size_bytes": 7558894,
     "file_count": 686,
-    "sha256": "af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644"
+    "sha256": "a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185"
   },
-  "owner_override": {
-    "authorized": true,
-    "authorized_date": "2026-09-23",
-    "note": "Owner explicitly instructed to promote this approved full build immediately as the base for all subsequent chats before final live browser verification."
+  "verification": {
+    "owner_confirmation": "готово, исправили.",
+    "scope": "Detective IQ S1 multistep replacement visually confirmed on production by owner",
+    "independent_fetch_note": "Assistant web fetch was unavailable in this session; owner performed the live visual verification."
   },
   "rules": {
-    "patch_base": "For all subsequent work, use this exact approved baseline unless a newer CURRENT_RELEASE replaces it. Before deployment, still inspect current mysterylogic.com for concurrent live changes.",
+    "patch_base": "For all subsequent work, use this exact LIVE baseline unless a newer CURRENT_RELEASE replaces it. Before deployment, still inspect current mysterylogic.com for concurrent live changes.",
     "github_actions_artifacts": "Never treat a GitHub Actions artifact as the production baseline unless CURRENT_RELEASE.json explicitly points to it.",
     "small_changes": "Prefer a minimal patch containing only changed production files.",
-    "promotion": "Normal promotion requires deploy -> live verification -> owner confirmation. This record is an explicit owner-authorized exception for continuity; live_verification_pending must be cleared after browser verification.",
+    "promotion": "Normal promotion requires deploy -> live verification -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json.",
     "versioning": "Do not invent semantic version numbers. Use only explicit release identifiers or dates."
   }
 }
