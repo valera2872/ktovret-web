@@ -1659,3 +1659,82 @@ Current lifecycle:
 
 v3.0 supersedes v2.2 as the gameplay baseline.
 
+### CASE-ARCH-002 Premium Investigation v4.3 — 2026-09-25
+
+User direction:
+- stop iterating isolated evidence-reader builds;
+- re-check the whole case as a competitive Premium investigation;
+- next user build should aim to be enjoyable on first serious playtest.
+
+Competitive reference refresh:
+- Clurio Solo publicly emphasizes scenes, actions, presenting findings to characters, confirmed deductions and final reconstruction;
+- Онлайн Расследования publicly emphasizes self-directed evidence gathering, suspect questioning, digital traces and choosing investigation direction;
+- CASE-ARCH-002 must therefore expose Mystery Logic's evidence graph / contradiction / provenance work as actual player actions, not hidden author infrastructure.
+
+New private build:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-PREMIUM-INVESTIGATION-v4.3.html`
+- Library id: `libfile_9434a9e2336c8191a61a1d3dc5294987`
+- SHA-256: `78b5eb3b404767a98bc3605c9ad8e05a5ccbf5410e55ee7e0c5de8e899725abf`
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-PREMIUM-INVESTIGATION-v4.3.zip`
+- Library id: `libfile_0724e9f77c9c819199bdc4461ceb2f28`
+- SHA-256: `b138d0355643b84f9fc8bd774e0b66afb6ff9746040c32ef4c4f0a1d7c3b42cc`
+- QA report: `/Mystery Logic/Private/Cases/CASE-ARCH-002-v4.3-QA.md`
+- QA Library id: `libfile_a35261567d0081918ad01da08177ca31`
+
+v4.3 supersedes v3.0 as the user-playtest baseline.
+
+Major gameplay changes:
+1. opening overlay hides the workbench and gives one first CTA;
+2. the first CTA opens the first actual evidence item;
+3. future actions are hidden until prerequisites make them meaningful;
+4. archive contains discovered evidence only and cannot advance the game;
+5. Stage 1 requires an explicit deduction about physical presence vs system state;
+6. Stage 2 requires provenance comparison and a causal grouping choice;
+7. Stage 3 requires interviews, evidence confrontation and a custody reconstruction;
+8. Daria's lie is playable and explicitly separated from guilt;
+9. Stage 4 progressively reveals manual-edit test -> Anton interview -> knowledge / opportunity -> action -> motive;
+10. Service Desk, operator-room access and reader trace each require the player to interpret what the evidence proves; no automatic 'culprit' inference;
+11. Anton's contradiction must be confronted before the final gate;
+12. final reconstruction separately asks WHO / HOW / WHY / epistemic boundary / evidence set;
+13. reveal is locked below a sufficient evidence/reconstruction score.
+
+Premium visual corrections:
+- no pseudo-video;
+- no play button on still images;
+- public-event proof is a still archival frame;
+- stage scenes use forum / boardroom / security-room visual language;
+- six distinct character portraits;
+- documents/logs/messages use exact case-specific text;
+- no generic placeholder evidence cards.
+
+Technical reality correction:
+- old Varna/Sofia ~80 km inconsistency removed;
+- event moved to Borovets;
+- Sofia–Borovets road distance is approximately 72 km and incompatible with a five-minute physical transfer.
+
+Static QA performed:
+- browser JavaScript: `node --check` PASS;
+- evidence IDs unique: PASS;
+- all final-required evidence exists: PASS;
+- six characters: PASS;
+- one intro CTA: PASS;
+- no video element / fake play label: PASS;
+- progressive action filtering: PASS;
+- Daria contradiction gated by prior statement: PASS;
+- Anton contradiction gated by prior denial: PASS;
+- knowledge/opportunity/action each require player interpretation: PASS;
+- final requires motive/context check: PASS;
+- save/reload state via localStorage: PASS_STATIC;
+- mobile breakpoint: PASS_STATIC;
+- total targeted static checks: 18/18 PASS.
+
+Browser-render QA:
+- NOT CLAIMED;
+- container Chromium still hangs on the environment DBus/zygote layer;
+- do not treat static CSS checks as real desktop/mobile browser QA.
+
+Current lifecycle:
+`COMPLETE PREMIUM USER PLAYTEST v4.3 / USER REVIEW REQUIRED / NOT PRODUCTION RELEASE READY`
+
+No LIVE / CURRENT_RELEASE / production Supabase change.
+
