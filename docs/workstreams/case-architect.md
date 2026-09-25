@@ -1874,3 +1874,29 @@ Reference refresh:
 Lifecycle:
 `PRIVATE CANON v0.1 / PAPER PLAYTEST NOW / NO UI YET`.
 
+### USER DECISION — CASE-ARCH-002 IS SALVAGEABLE AS FREE CASE — 2026-09-25
+
+Previous status "archive / do not continue" is superseded.
+
+New product role:
+- keep CASE-ARCH-002 concept and completed work;
+- downgrade from Premium candidate to a shorter FREE case;
+- reuse the strongest assets: impossible-presence hook, four apparent confirmations, shared-source insight, characters, visuals, timeline, evidence work already produced;
+- do NOT reuse the current player-facing v4.3 execution as-is.
+
+Adaptation goals for FREE:
+- 15–25 minute case;
+- fully Russian geography/context/language;
+- no unexplained English or system-admin jargon;
+- technical mechanism explained in plain everyday terms;
+- fewer systems/screens and fewer documents;
+- human framing first;
+- player has room to state their own hypothesis;
+- no long provenance/debug workflow;
+- one clear aha: several confirmations came from the same source, so they were not independent;
+- preserve "lie ≠ guilt" with at least one non-guilty lie;
+- rebuild navigation so there are no hidden unlocks or dead ends.
+
+Status:
+`CASE-ARCH-002 = RETAIN / REWORK AS FREE / NOT PREMIUM`.
+
