@@ -196,3 +196,66 @@ This hotfix is **not claimed LIVE yet**. `CURRENT_RELEASE.json` is intentionally
 
 Exact next step: upload the 3-file production patch to the site root, verify S1 on desktop/mobile and confirm; only then promote the verified full build as the next canonical LIVE baseline.
 
+
+
+## S1 replaced entirely — 2026-09-25
+
+### Owner decision
+The previous S1 hotfix is superseded. After repeated visual ambiguity with the L-shaped figure and orange marker, the owner decided to stop repairing that task and replace S1 entirely.
+
+Do **not** restore the old L-shaped S1 or its marker-position fixes in future builds.
+
+### New S1
+Prompt:
+`Стрелку поворачивают на 90° по часовой стрелке. Куда она будет направлена?`
+
+Visual:
+- source arrow points UP;
+- operation: 90° clockwise;
+- A: RIGHT — correct;
+- B: DOWN;
+- C: LEFT;
+- D: UP.
+
+Visible answer labels:
+- A `Вправо`
+- B `Вниз`
+- C `Влево`
+- D `Вверх`
+
+Correct answer remains index `0 / A`, so the production scoring key does not change.
+
+### Source / scope
+Built from the exact `CURRENT_RELEASE.json` approved baseline:
+- release_id: `approved-base-2026-09-23-iq`
+- baseline: `MysteryLogic-LIVE-2026-09-23.zip`
+- SHA-256: `af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644`
+
+Changed production paths:
+- `assets/detective-iq.js`
+- `assets/detective-iq.mjs`
+- `assets/detective-iq-data.mjs`
+- `iq-detektiva/index.html`
+
+Cache-buster: `detective-iq.js?v=20260925-iq-s1-replacement1`.
+
+### QA / artifacts
+- baseline SHA rechecked: PASS
+- JS syntax: PASS
+- MJS syntax: PASS
+- full-tree diff: exactly 4 files
+- visual logic: UP + 90° clockwise = RIGHT (A)
+- patch ZIP integrity: PASS
+- full candidate ZIP integrity: PASS
+
+Minimal patch:
+- `MysteryLogic-PATCH-IQ-S1-REPLACEMENT-2026-09-25.zip`
+- SHA-256: `e2685eaa89773de3c0c432e753e0468f00eb972244fbece47acda3ead91d0790`
+
+Full candidate:
+- `MysteryLogic-FULL-CANDIDATE-IQ-S1-REPLACEMENT-2026-09-25.zip`
+- SHA-256: `70d06812dcdce8db94441cd7368075c821b9c9717cc038051fb99435690d049b`
+
+### Production boundary
+This replacement candidate is not canonical LIVE until:
+`deploy -> verify mysterylogic.com -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json`.
