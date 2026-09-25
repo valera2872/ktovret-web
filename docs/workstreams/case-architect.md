@@ -1738,3 +1738,27 @@ Current lifecycle:
 
 No LIVE / CURRENT_RELEASE / production Supabase change.
 
+### USER PLAYTEST FEEDBACK — CASE-ARCH-002 v4.3 — 2026-09-25
+
+Do not change build yet; collect feedback first.
+
+1. RU localization / geography:
+- Sofia / Borovets creates unnecessary cognitive load for the Russian target audience;
+- use immediately understandable Russian geography (example: Moscow / Astrakhan);
+- Russian player should not need to know an unfamiliar foreign location to understand impossibility.
+
+2. Player thought/agency problem:
+- current flow still too often says "press this button / choose this prepared action";
+- user asks: "where are my thoughts and ideas?";
+- investigation must provide space for the player to formulate their own version in free form or meaningful structured reasoning;
+- prepared buttons may assist navigation, but must not replace the player's own hypothesis formation;
+- the player should be able to state what they think happened, why, and what they want to verify next.
+
+3. Language:
+- remove unexplained English technical vocabulary from player-facing UI;
+- examples to eliminate/localize: board, board-suite, attendance, token, service desk and similar terms;
+- Russian audience should understand every player-facing term without English knowledge;
+- technical English may remain only in authentic source artifacts when justified, with an immediate Russian explanation.
+
+These items are mandatory for the next rework pass and must be checked before the next user-facing build.
+
