@@ -6,7 +6,7 @@ on:
     paths: ['ops/audit1-live-20260925/DEPLOY']
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: mysterylogic-beget-production
@@ -87,6 +87,16 @@ jobs:
           grep -Fq 'checkout_request' /tmp/volume.js
           grep -Fq 'review-admin.js?v=20260925-audit1' /tmp/admin.html
           echo 'LIVE smoke passed'
+
+
+      - name: Record LIVE success marker
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          marker=$(printf 'LIVE smoke passed\nsource_commit=%s\nbackup=%s\n' "$GITHUB_SHA" '${{ steps.backup.outputs.backup }}' | base64 -w0)
+          curl -fsSL -X PUT             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${{ github.repository }}/contents/ops/audit1-live-20260925/LIVE_OK"             -d "{\"message\":\"ops: record audit1 LIVE smoke success\",\"content\":\"$marker\",\"branch\":\"main\"}"
 
       - name: Roll back on failure
         if: failure() && steps.backup.outputs.backup != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
