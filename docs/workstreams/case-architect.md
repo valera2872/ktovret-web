@@ -1900,3 +1900,68 @@ Adaptation goals for FREE:
 Status:
 `CASE-ARCH-002 = RETAIN / REWORK AS FREE / NOT PREMIUM`.
 
+### CASE-ARCH-002 FREE RU REWORK — v0.9 PLAYTEST CANDIDATE — 2026-09-25
+
+User direction supersedes prior abandonment:
+- keep the work already invested in CASE-ARCH-002;
+- adapt it into an interesting, unusual FREE investigation;
+- incorporate all playtest corrections before presenting again.
+
+Product role:
+- FREE Solo RU;
+- target 20–25 minutes;
+- NOT Premium;
+- NOT production/LIVE.
+
+Private canon rebuilt:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-FREE-RU-Private-v0.7.md`
+- Library id: `libfile_83931184995881918bac74a7695fc4b6`
+- SHA-256: `1dc159cdde0843e3804f1fffdb874df533484a9e5abb825743e7403d835382b4`
+
+QA:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-FREE-RU-v0.9-QA.md`
+- Library id: `libfile_05b7226fb7608191bdd5279ee9882311`
+- QA SHA-256: `77275dffe9b35cbc195428ed0afe7cf555035b465523f30b12f60e5a984a25e9`
+
+Player build produced in conversation:
+- `CASE-ARCH-002-FOUR-CONFIRMATIONS-FREE-RU-v0.9.html`
+- HTML SHA-256: `e81e07b7434e0cb56feb02f6f8e4d9b432dca5b718262d89e7405d1dddcb9d8d`
+- `CASE-ARCH-002-FOUR-CONFIRMATIONS-FREE-RU-v0.9.zip`
+- ZIP SHA-256: `62a62db264662131558311a65b75f4da0f4866bfe662939172fb8d0476909942`
+
+Core rewrite:
+- setting changed to familiar RU geography: Moscow / Sochi;
+- all player-facing content is plain Russian;
+- removed system-admin puzzle as the difficulty source;
+- simple mechanism only: a personal meeting pass used at the door automatically creates the list/seat/documents/protocol records;
+- central AHA preserved: four apparent confirmations are consequences of one action;
+- second AHA strengthened: culprit forged presence/quorum, NOT Marina's vote;
+- human layer drives play: Marina, Daria and Lev all lie for different non-guilt reasons; Anton lies about the decisive action;
+- Anton's motive is morally ambiguous: preserve financing/jobs, no personal enrichment;
+- free-form player thought is persistent throughout the case;
+- final reconstruction is free text first, no prepared answer choices;
+- action buttons represent investigator actions only (talk/check/look/confront), not deductions;
+- archive contains only already-discovered material;
+- all unlocks rerender immediately; no hidden dead-end transition.
+
+Competitive refresh 2026-09-25:
+- Clurio solo currently emphasizes scenes/actions/evidence confrontation/deductions/final reconstruction;
+- its September solo UI explicitly separates scene exploration from evidence work to reduce overload;
+- Online Investigations emphasizes player-directed routes, interrogation and mixed evidence;
+- CASE-ARCH-002 remains differentiated by false quorum through one pass causing several honest downstream records, not by copying catalog premises.
+
+Automated checks on v0.9:
+- `node --check`: PASS;
+- full desktop runtime path through all actions and final reveal: PASS;
+- browser page errors: 0;
+- console errors: 0;
+- banned visible jargon scan: 0 hits;
+- final unlock/reveal: PASS;
+- mobile smoke at 390x844: PASS;
+- mobile horizontal overflow: 390px document width = 390px viewport.
+
+Human quality gate remains required:
+`USER PLAYTEST CANDIDATE / NOT RELEASE READY`
+
+No LIVE / CURRENT_RELEASE / production Supabase change.
+
