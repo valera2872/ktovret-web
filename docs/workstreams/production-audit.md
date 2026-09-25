@@ -12,15 +12,16 @@ Date: 2026-09-25
 - status: `prepared_not_live`
 - Library ZIP: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
 - Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
-- SHA-256: `2ed4629af73ba39760ea20824e9cb6a10b755c995f61b31dfe09ca8f0ea4fa2a`
-- size: 7,660,549 bytes
+- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
+- size: 7,660,577 bytes
 - files: 686
-- exact site diff: 19 changed existing files, 0 added, 0 removed
+- exact site diff: 38 changed existing files, 0 added, 0 removed
 - manifest: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25-MANIFEST.md`
 
 All chats continuing the approved pending release must use this exact candidate and must not reconstruct it from GitHub main, older ZIPs, or partial patches.
 
 ## Included scope
+- header CTA clarification: static `Открыть досье` CTA renamed to `Начать дело` on 21 pages; target remains the first free case, while the actual `Досье` nav item remains `/dossier/`;
 - structural social-proof placement fix on the two-player hub so the two choice cards remain aligned;
 - corrected public social-proof backend pagination;
 - Mini hub and completion monetization path: Solo Volume I 10 cases / 99 ₽, secondary Who Lied +85 / 199 ₽;
