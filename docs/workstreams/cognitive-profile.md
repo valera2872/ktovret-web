@@ -132,3 +132,67 @@ CURRENT_RELEASE now points to:
 
 This is the base other chats must use for subsequent modifications.
 Live browser verification remains pending; before any deployment, compare against current `mysterylogic.com` for concurrent changes. After verification, clear the pending flag and record the release as normal LIVE.
+
+## S1 rotation hotfix — 2026-09-25
+
+### Trigger
+Owner found a visual logic error in S1 on the current IQ page: after a 90° clockwise rotation the geometry of option A was correct, but the orange marker was drawn in the wrong square.
+
+### Source of truth used
+Before editing, `CURRENT_RELEASE.json` on `main` was re-read. Exact approved baseline:
+- release_id: `approved-base-2026-09-23-iq`
+- baseline: `MysteryLogic-LIVE-2026-09-23.zip`
+- Library id: `libfile_40fc44411a9481918305239c3f6845e3`
+- files: 686
+- SHA-256: `af1429e444b8cab0c1a4bd398b4398a7a5e43c647163fb5b6ce475fc76afe644`
+
+The Library baseline was materialized again and the SHA-256 matched exactly before the patch.
+
+### Logic correction
+S1 source cells are `(0,0),(1,0),(1,1),(1,2)`; marker is `(1,2)`.
+For a normalized 90° clockwise rotation the result is:
+- cells: `(0,1),(1,1),(2,1),(2,0)`
+- marker: `(0,1)`
+
+Therefore option A remains the correct answer, but its marker changes from `[2,0]` to `[0,1]`.
+
+No answer key, `cognitive_v3` version, itemSetHash, scoring backend or Supabase change is required.
+
+### Changed production paths
+Only:
+- `assets/detective-iq.js`
+- `assets/detective-iq.mjs`
+- `iq-detektiva/index.html`
+
+The HTML change only updates the cache-buster for `detective-iq.js` to `20260925-iq-s1-fix1`.
+
+### QA
+- exact baseline SHA check: PASS
+- S1 geometry calculation: PASS
+- correct answer still A / index 0: PASS
+- JS syntax: PASS
+- MJS syntax: PASS
+- desktop visual preview: PASS
+- mobile visual preview: PASS
+- full-tree diff against baseline: exactly 3 files changed
+- ZIP integrity: PASS
+
+### Built artifacts
+Minimal production patch:
+- `MysteryLogic-PATCH-IQ-S1-2026-09-25.zip`
+- 3 files
+- SHA-256: `478d0df17368568df70db95e30f6617dc21ec4d2140f57097252cf463a069900`
+
+Full candidate rebuilt from the exact approved baseline plus only this hotfix:
+- `MysteryLogic-FULL-CANDIDATE-IQ-S1-FIX-2026-09-25.zip`
+- 686 files
+- SHA-256: `abc8272863003ac1ce25ce4ad6dea09300509b68527d83969c544c8f51cc29a1`
+
+### Continuity / production boundary
+For any subsequent IQ/Dossier work before another approved base supersedes this one, preserve this S1 correction and do not reconstruct from an older IQ package.
+
+This hotfix is **not claimed LIVE yet**. `CURRENT_RELEASE.json` is intentionally unchanged until:
+`deploy -> verify mysterylogic.com -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json`.
+
+Exact next step: upload the 3-file production patch to the site root, verify S1 on desktop/mobile and confirm; only then promote the verified full build as the next canonical LIVE baseline.
+
