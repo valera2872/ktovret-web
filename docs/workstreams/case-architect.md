@@ -1801,3 +1801,38 @@ Status:
 - this is a hard UX bug: player reaches a dead-end and does not know what to do next;
 - next build must rerender the action area immediately whenever prerequisites change, and every stage needs an explicit visible next-step affordance.
 
+### USER VERDICT — RADICAL RESET REQUIRED — 2026-09-25
+
+CASE-ARCH-002 is rejected not only as a build but as a player-facing concept execution.
+
+Observed failure pattern:
+- the case repeatedly turns into technical/system-admin work;
+- player-facing reasoning is replaced by prepared multiple-choice deductions;
+- English/internal system vocabulary leaks into the experience;
+- the UI keeps asking the player to understand implementation details instead of people, motives, lies and contradictions;
+- progression/navigation repeatedly produces dead ends or hidden next actions;
+- repeated patching of the same concept did not fix the core experience;
+- user assessment: current quality is extremely low and the present assistant/process is not suitable without radical change.
+
+Decision:
+- STOP patching CASE-ARCH-002;
+- do not use v1-v4.3 as a future player baseline;
+- do not build another full UI before the core investigation loop passes a human-readable paper/playtest gate;
+- retain only lessons, not the current experience.
+
+New required workflow before any next Premium case implementation:
+1. Human mystery first: people, motives, lies, relationships, actions, physical evidence.
+2. Plain Russian only in player-facing material.
+3. No technical mechanism may be the main source of difficulty.
+4. Player must formulate ideas in their own words; multiple choice cannot substitute for deduction.
+5. Prototype the first 10–15 minutes as a text/paper investigation before UI coding.
+6. Human playtest must answer:
+   - I understand what happened.
+   - I know what I can do.
+   - I am curious what to check next.
+   - I am thinking, not decoding jargon.
+7. Only after that passes: build full evidence graph, characters, media, UI and release gates.
+
+Status:
+`CASE-ARCH-002 = REJECTED / ARCHIVED AS PROCESS LESSON / DO NOT CONTINUE PATCHING`.
+
