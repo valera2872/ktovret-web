@@ -1589,3 +1589,73 @@ Quality/status:
 
 This v2.0 supersedes v1.0/v1.1/v1.2 playtest UX for further user review.
 
+### CASE-ARCH-002 Active Investigation v3.0 — 2026-09-25
+
+User playtest finding:
+- v2.2 still felt like a book/evidence reader;
+- player loop was mostly `open clue -> read -> open next clue`;
+- the internal Case Architect work (hypotheses, contradiction graph, evidence graph, knowledge map) was not materially exposed as gameplay.
+
+This is now treated as ACTIVE INVESTIGATION FAIL.
+
+New private player build:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-ACTIVE-INVESTIGATION-v3.0.html`
+- Library id: `libfile_557c0c7bfdcc81918d67cb5d993f1f09`
+- SHA-256: `1bf830b99ec277e58719efc28b7f7da88f51415bfc825e1acea45111a22089e4`
+- `/Mystery Logic/Private/Cases/CASE-ARCH-002-ACTIVE-INVESTIGATION-v3.0.zip`
+- Library id: `libfile_e26e7f58e74481919bbc1fd6ad2d1e58`
+- ZIP SHA-256: `f5aa6270616e18136a5c46884d97bc10cacf13896392465df4b7fddf286f0dc3`
+
+Core loop changed from passive reading to:
+1. choose what to investigate;
+2. perform a specific action;
+3. receive one result;
+4. interpret/test it;
+5. commit a deduction;
+6. change investigation state / unlock next action.
+
+Player-active mechanics implemented:
+- fact-check actions;
+- technical checks;
+- interrogations;
+- evidence confrontation;
+- provenance comparison;
+- service-field discovery;
+- custody-chain reconstruction;
+- explicit hypothesis test against IAM/Audit;
+- working hypothesis status changes;
+- knowledge/opportunity/action evidence assembly;
+- final WHO/HOW/WHY/proof reconstruction.
+
+Specific required deductions:
+- system state != physical presence;
+- token identity vs person;
+- 4 interface events share one credential/session upstream;
+- physical custody chain Marina -> Daria -> Anton;
+- manual log-edit theory is weakened by audit;
+- final position requires knowledge + opportunity + action.
+
+Archive behavior:
+- only already-discovered evidence appears;
+- archive is memory/reference, not progression;
+- future evidence cannot be browsed into existence.
+
+People behavior:
+- Marina and Daria have selectable questions;
+- confrontation options unlock only after relevant message evidence exists;
+- exposed lies are recorded separately from guilt.
+
+New global rule added to Case Architect:
+`ACTIVE INVESTIGATION GATE — ABSOLUTE HARD RULE`
+commit:
+`7182bdb81867c7c2907923c07adac366bc9e42c0`
+
+Static implementation validation:
+- extracted browser JS: `node --check` PASS;
+- no production/LIVE changes.
+
+Current lifecycle:
+`ACTIVE INVESTIGATION PLAYTEST v3.0 / USER REVIEW REQUIRED / NOT RELEASE READY`
+
+v3.0 supersedes v2.2 as the gameplay baseline.
+
