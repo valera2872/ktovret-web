@@ -327,3 +327,26 @@ Assistant-side direct fetch of mysterylogic.com was unavailable in this session,
 - live_verification_pending: `false`
 
 All subsequent Mystery Logic production work must use this baseline unless a newer CURRENT_RELEASE supersedes it.
+
+
+## Canonical mandatory baseline freeze — 2026-09-25
+
+Owner instructed that the final production assembly must be mandatory for all future chats.
+
+Canonical baseline:
+- release_id: `canonical-live-2026-09-25`
+- Library: `/Mystery Logic/Production/MysteryLogic-FINAL-BASE-2026-09-25.zip`
+- Library id: `libfile_d20bb8cff6e881918e1522b0a254f47b`
+- size: 7,558,894 bytes
+- files: 686
+- SHA-256: `a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185`
+- ZIP integrity: PASS
+
+This ZIP is byte-identical to the owner-verified `MysteryLogic-LIVE-2026-09-25.zip`.
+
+**Mandatory continuity rule:** any future chat/agent doing production work must start by reading `CURRENT_RELEASE.json` and use the exact canonical ZIP above unless a newer `CURRENT_RELEASE.json` explicitly supersedes it. Older LIVE ZIPs, IQ candidates, S1 patches, GitHub snapshots, and Actions artifacts are not valid substitutes.
+
+The canonical S1 remains the approved multistep arrow task:
+`UP -> 90° clockwise -> 180° counter-clockwise -> 360° clockwise -> LEFT`, correct answer A / index 0.
+
+No product code changed during this canonicalization step; this step only freezes the already owner-verified production state as the mandatory baseline for all subsequent work.

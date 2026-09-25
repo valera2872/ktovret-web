@@ -1,3 +1,18 @@
+# IMPORTANT — canonical production base (2026-09-25)
+
+For **all future production work**, this older checkpoint is historical context only.
+
+Before any write/change/deploy, read `CURRENT_RELEASE.json` and use its exact mandatory baseline:
+
+- release_id: `canonical-live-2026-09-25`
+- Library: `/Mystery Logic/Production/MysteryLogic-FINAL-BASE-2026-09-25.zip`
+- SHA-256: `a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185`
+- files: 686
+
+Do not use the historical version numbers, old ZIPs, GitHub snapshots, or CI artifacts below as the production base. A newer `CURRENT_RELEASE.json` supersedes this note.
+
+---
+
 # Mystery Logic / «Кто врёт?» — контрольная точка
 
 Дата фиксации: 2026-08-08

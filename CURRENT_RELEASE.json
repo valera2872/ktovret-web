@@ -1,30 +1,34 @@
 {
   "product": "Mystery Logic",
-  "release_id": "live-2026-09-25-iq-s1-multistep",
+  "release_id": "canonical-live-2026-09-25",
   "version": null,
-  "status": "live_owner_verified",
+  "status": "canonical_live_mandatory_base",
   "verified_by_user": true,
   "verified_date": "2026-09-25",
   "live_verification_pending": false,
+  "mandatory_for_all_future_chats": true,
   "baseline": {
-    "file_name": "MysteryLogic-LIVE-2026-09-25.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-LIVE-2026-09-25.zip",
-    "library_file_id": "libfile_8c8f0efe4e2481919fe78f0e60d7b966",
-    "original_upload_name": "MysteryLogic-FULL-CANDIDATE-IQ-S1-MULTISTEP-PRETTY-2026-09-25.zip",
+    "file_name": "MysteryLogic-FINAL-BASE-2026-09-25.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-BASE-2026-09-25.zip",
+    "library_file_id": "libfile_d20bb8cff6e881918e1522b0a254f47b",
+    "source_live_file_name": "MysteryLogic-LIVE-2026-09-25.zip",
     "size_bytes": 7558894,
     "file_count": 686,
-    "sha256": "a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185"
+    "sha256": "a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185",
+    "zip_integrity": "PASS"
   },
   "verification": {
     "owner_confirmation": "готово, исправили.",
-    "scope": "Detective IQ S1 multistep replacement visually confirmed on production by owner",
-    "independent_fetch_note": "Assistant web fetch was unavailable in this session; owner performed the live visual verification."
+    "scope": "Current production including the final Detective IQ S1 multistep replacement",
+    "canonicalization_note": "MysteryLogic-FINAL-BASE-2026-09-25.zip is byte-identical to the owner-verified MysteryLogic-LIVE-2026-09-25.zip and is the mandatory base for all subsequent production changes."
   },
   "rules": {
-    "patch_base": "For all subsequent work, use this exact LIVE baseline unless a newer CURRENT_RELEASE replaces it. Before deployment, still inspect current mysterylogic.com for concurrent live changes.",
+    "mandatory_base": "Every future Mystery Logic chat/agent must read CURRENT_RELEASE.json first and use this exact baseline for production work unless CURRENT_RELEASE.json has been replaced by a newer canonical baseline.",
+    "no_old_bases": "Do not use MysteryLogic-LIVE-2026-09-23.zip, earlier IQ candidates, previous S1 patches, GitHub main snapshots, or Actions artifacts as a substitute for this baseline.",
+    "pre_change_check": "Before changing the site, inspect current mysterylogic.com for concurrent live changes and compare them against this canonical baseline.",
     "github_actions_artifacts": "Never treat a GitHub Actions artifact as the production baseline unless CURRENT_RELEASE.json explicitly points to it.",
-    "small_changes": "Prefer a minimal patch containing only changed production files.",
-    "promotion": "Normal promotion requires deploy -> live verification -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json.",
+    "small_changes": "Prefer a minimal patch containing only changed production files, built over this exact baseline.",
+    "promotion": "A newer baseline becomes canonical only after deploy -> live verification -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json.",
     "versioning": "Do not invent semantic version numbers. Use only explicit release identifiers or dates."
   }
 }
