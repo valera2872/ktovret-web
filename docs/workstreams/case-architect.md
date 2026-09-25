@@ -1769,3 +1769,28 @@ These items are mandatory for the next rework pass and must be checked before th
 - английский допустим только внутри сюжетно оправданного исходного документа и только с немедленным русским пояснением;
 - для РФ-версии язык должен быть понятен без знания английского.
 
+### USER PLAYTEST VERDICT — CASE-ARCH-002 v4.3 — REJECTED — 2026-09-25
+
+User stopped the playtest because the game became irritating rather than engaging.
+
+REJECTED problems:
+- excessive technical/system-administrator language;
+- English terms mixed into Russian player-facing text;
+- jargon examples: `fallback`, `SRV-04`, `phone-confirm`, `physical-token`, `identity mapping`, `board-suite`, `attendance`;
+- player must decode system architecture instead of investigate a human mystery;
+- several screens explain the key deduction directly instead of letting the player discover it;
+- prepared buttons still substitute for the player's own thoughts too often;
+- unfamiliar foreign geography adds unnecessary cognitive load;
+- machine/analyst phrasing ("источник помещает Марину", "служебные поля", etc.) damages immersion.
+
+Product conclusion:
+- v4.3 is NOT a viable Premium investigation and must not be patched incrementally;
+- stop user playtest of this build;
+- next iteration must simplify the premise and player language at the concept level, not merely translate labels;
+- player-facing investigation should use familiar concepts: person, пропуск, камера, звонок, переписка, свидетель, документ, время, место, мотив, ложь;
+- technical mechanism, if retained, must remain mostly backstage and be understandable in one or two plain-language sentences;
+- the central pleasure must be human deduction and competing versions, not understanding software internals.
+
+Status:
+`CASE-ARCH-002 v4.3 = REJECTED BY USER / DO NOT USE AS PLAYTEST BASELINE`.
+
