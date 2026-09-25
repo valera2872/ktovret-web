@@ -1762,3 +1762,10 @@ Do not change build yet; collect feedback first.
 
 These items are mandatory for the next rework pass and must be checked before the next user-facing build.
 
+4. Полная русификация пользовательской части:
+- весь интерфейс игрока, подписи, статусы, кнопки, названия разделов и тексты улик — на русском;
+- не смешивать русский интерфейс с английскими полями и статусами;
+- убрать/перевести примеры типа `Attendance export`, `board-suite`, `check-in`, `PRESENT`, `Service Desk`, `token`, `audit`, `operator room`;
+- английский допустим только внутри сюжетно оправданного исходного документа и только с немедленным русским пояснением;
+- для РФ-версии язык должен быть понятен без знания английского.
+
