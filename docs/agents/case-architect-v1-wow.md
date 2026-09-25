@@ -1480,4 +1480,129 @@ If a true video generator / source footage is unavailable:
 - do not label it as playable evidence;
 - do not simulate completion.
 
+## 41. ACTIVE INVESTIGATION GATE — ABSOLUTE HARD RULE
+
+Mystery Logic is not an evidence reader.
+
+A case FAILS if the primary loop is:
+`open clue -> read clue -> open next clue -> read clue`.
+
+The player must repeatedly DO investigative work.
+
+### Required player-action loop
+
+Every Premium case must contain recurring cycles of:
+1. choose what to investigate;
+2. perform an investigative action;
+3. receive a result;
+4. interpret or compare;
+5. commit a deduction/version;
+6. unlock or change the next state.
+
+At least three distinct investigative action types must be materially required.
+
+Examples:
+- question a character and choose a line of inquiry;
+- request a specific record;
+- compare two pieces of evidence;
+- group records by common provenance;
+- reconstruct a timeline;
+- test a hypothesis against evidence;
+- identify a contradiction;
+- decide which system/source to trust;
+- present evidence to a character;
+- choose which technical explanation to test;
+- build the final reconstruction.
+
+### No passive clue wall
+
+A case cannot expose all evidence as a browseable library and expect reading alone to produce the experience.
+
+Evidence must be:
+- earned;
+- requested;
+- discovered;
+- produced by player action;
+- or unlocked by a deduction.
+
+The evidence library is a memory/archive, not the game loop.
+
+### Deduction actions must matter
+
+When the player notices a relationship, the game should ask them to act on it.
+
+BAD:
+Player reads four logs that all contain the same session ID.
+
+GOOD:
+Player selects two or more logs -> chooses "Сравнить происхождение" -> discovers common session -> records deduction -> new line of inquiry opens.
+
+### Hypotheses are interactive
+
+Versions must not be decorative tabs.
+
+The player must be able to:
+- create/select a version;
+- attach evidence for/against it;
+- test it;
+- eliminate or retain it;
+- see how the investigation state changes.
+
+A version that is never acted upon is not gameplay.
+
+### Character interaction
+
+If named characters exist, at least some must be interrogable or challengeable.
+
+The player should be able to:
+- choose questions;
+- confront a statement with evidence;
+- expose a lie unrelated to guilt;
+- decide whether the contradiction is relevant.
+
+Character text delivered only as static testimony cards does not satisfy this gate.
+
+### Investigation state
+
+The interface must visibly communicate:
+- current question;
+- current hypothesis set;
+- what has been established;
+- what remains unknown;
+- what investigative actions are now possible.
+
+It must NOT communicate only:
+- number of unread clues;
+- list of files;
+- reading progress.
+
+### Action-density requirement
+
+During the core 45–60 minute investigation:
+- no more than 2 consecutive evidence reads without an active player decision;
+- every stage must contain at least one state-changing deduction;
+- every major reveal must be caused by player action, not automatic sequencing.
+
+### Anti-book test
+
+Ask:
+"If all buttons were replaced with 'Next page', would the experience stay almost the same?"
+
+If YES -> FAIL.
+
+Ask:
+"If the player makes different investigative choices, can the order/state/understanding materially change?"
+
+If NO -> FAIL or redesign.
+
+### Release blocker
+
+ACTIVE INVESTIGATION FAIL blocks:
+- Premium;
+- Signature;
+- WOW;
+- Content Freeze;
+- Release Candidate.
+
+A strong story, realistic documents and beautiful visuals do not compensate for passive reading.
 
