@@ -1836,3 +1836,41 @@ New required workflow before any next Premium case implementation:
 Status:
 `CASE-ARCH-002 = REJECTED / ARCHIVED AS PROCESS LESSON / DO NOT CONTINUE PATCHING`.
 
+### CASE-ARCH-003 — «Ночной звонок» — PAPER PROTOTYPE START — 2026-09-25
+
+CASE-ARCH-002 remains rejected and must not be patched further.
+
+New case direction:
+- Premium Solo / RU;
+- Moscow setting;
+- human mystery first: relationships, lies, last call, apartment scene, timeline;
+- no technical-system mechanism as the puzzle;
+- no player-facing English;
+- no prepared multiple-choice deduction as the primary loop;
+- first 10–15 minutes must be tested as a free-form text/paper investigation before UI implementation.
+
+Private CANON:
+- `/Mystery Logic/Private/Cases/CASE-ARCH-003-Night-Call-Private-v0.1.md`
+- Library id: `libfile_8a363dfa2418819186294d4a7bcd0d26`
+- SHA-256: `d13a432023c31ec4d1f28857cf444d52f99b97313d436bab75799919bd3b5541`
+
+Opening promise:
+- woman found dead in her Moscow apartment;
+- previous night she called her brother and said: «Он пришёл. Я перезвоню.»;
+- the obvious man from the last call really was there, but last words identify a visitor, not automatically the killer;
+- player must reconstruct the final 90 minutes and separate unrelated lies from the lie connected to the death.
+
+Paper-playtest rule:
+- player chooses freely what to inspect / whom to ask;
+- game master responds only to chosen direction;
+- no menu unless player explicitly asks what is possible;
+- first slice ends only after the player has enough to form competing human hypotheses;
+- UI build is BLOCKED until this slice passes human playtest.
+
+Reference refresh:
+- Leslie Grant-Adamson: prioritize conflict, motivation, simplicity, strong opening, avoid characters lecturing the reader, use hooks;
+- competitor refresh 2026-09-25: Clurio solo uses scenes/actions/evidence confrontation/deductions/reconstruction; Online Investigations emphasizes free interrogation and player-directed investigation. Keep product-level strengths, do not copy case premises.
+
+Lifecycle:
+`PRIVATE CANON v0.1 / PAPER PLAYTEST NOW / NO UI YET`.
+
