@@ -1,7 +1,0 @@
-job_status=failure
-verify=success
-backup_step=failure
-deploy=skipped
-smoke=skipped
-source_commit=a9e3d675d49971b289397b939ee1bd0a45a37dff
-backup=
