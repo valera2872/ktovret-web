@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           marker=$(printf 'job_status=${{ job.status }}\nverify=${{ steps.verify.outcome }}\nbackup_step=${{ steps.backup.outcome }}\ndeploy=${{ steps.deploy.outcome }}\nsmoke=${{ steps.smoke.outcome }}\nsource_commit=%s\nbackup=%s\n' "$GITHUB_SHA" '${{ steps.backup.outputs.backup }}' | base64 -w0)
-          curl -fsSL -X PUT             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${{ github.repository }}/contents/ops/audit1-live-20260925/AUDIT1_RESULT"             -d "{\"message\":\"ops: record audit1 deploy result\",\"content\":\"$marker\",\"branch\":\"main\"}"
+          curl -fsSL -X PUT             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${{ github.repository }}/contents/ops/audit1-live-20260925/AUDIT1_RESULT_2"             -d "{\"message\":\"ops: record audit1 deploy result\",\"content\":\"$marker\",\"branch\":\"main\"}"
 
       - name: Roll back on failure
         if: failure() && steps.backup.outputs.backup != '' && (steps.deploy.outcome == 'failure' || steps.smoke.outcome == 'failure')
