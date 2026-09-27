@@ -36,18 +36,18 @@
   "pending_final_candidate": {
     "status": "prepared_not_live",
     "owner_approved": true,
-    "approved_date": "2026-09-27",
-    "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
+    "approved_date": "2026-09-28",
+    "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-28.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-28.zip",
     "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
-    "size_bytes": 7662211,
+    "size_bytes": 7611072,
     "file_count": 686,
-    "sha256": "e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285",
+    "sha256": "39189cd1ac78734b6f2a8217c9c051773e4f03acb15ca3e379aad4a82bf51960",
     "based_on_release_id": "canonical-live-2026-09-25",
     "changed_existing_site_files": 50,
     "added_site_files": 0,
     "removed_site_files": 0,
-    "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27-MANIFEST.md",
+    "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-28-MANIFEST.md",
     "manifest_library_file_id": "libfile_3221fcca90308191bf609f3f627b26be",
     "production_edge_functions_already_active": {
       "funnel-event": {
@@ -78,17 +78,24 @@
       "rationale": "avoid confusion with actual Досье navigation item /dossier/"
     },
     "premium_solo_investigations_hub_fix": {
-      "status": "included",
+      "status": "included_revised_2026-09-28",
       "page": "/detektivnye-igry-dlya-odnogo/rassledovaniya/",
       "scope": [
-        "premium split hero",
-        "case archive visual stack",
-        "10 cinematic case-card images",
-        "stronger Volume I product framing",
-        "responsive desktop/mobile CSS"
+        "premium split hero retained",
+        "removed narrative photography borrowed from unrelated mini cases",
+        "replaced hero with abstract archive/evidence CSS graphics",
+        "10 case-card visuals now premise-specific abstract evidence graphics based only on each public case description",
+        "laptop-safe navigation: <=1380px uses existing hamburger/drawer",
+        "cache-bust solo-paid-investigations.css?v=20260928-premium2 on hub and all 10 case pages"
       ],
       "new_assets": 0,
-      "reused_existing_approved_artwork": true
+      "external_case_art_reused": false
+    },
+    "delta_from_previous_candidate": {
+      "previous_file": "MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
+      "changed_existing_files": 12,
+      "added_files": 0,
+      "removed_files": 0
     }
   },
   "project_continuity": {
@@ -107,12 +114,12 @@
     ],
     "current_working_build": {
       "kind": "owner_approved_pending_candidate",
-      "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
-      "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
+      "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-28.zip",
+      "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-28.zip",
       "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
-      "size_bytes": 7662211,
+      "size_bytes": 7611072,
       "file_count": 686,
-      "sha256": "e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285",
+      "sha256": "39189cd1ac78734b6f2a8217c9c051773e4f03acb15ca3e379aad4a82bf51960",
       "status": "prepared_not_live"
     }
   }
