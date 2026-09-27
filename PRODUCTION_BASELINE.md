@@ -75,9 +75,9 @@ If the candidate ZIP is not attached to the current chat, that does **not** mean
 
 Current approved working build:
 
-- `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
+- `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-28.zip`
 - Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
-- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
+- SHA-256: `39189cd1ac78734b6f2a8217c9c051773e4f03acb15ca3e379aad4a82bf51960`
 - files: `686`
 - status: `prepared_not_live`
 
