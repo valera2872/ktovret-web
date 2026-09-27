@@ -66,8 +66,8 @@
         "verify_jwt": false
       }
     },
-    "deployment_status": "static_not_deployed",
-    "deployment_blocker": "GitHub Actions repository secrets BEGET_HOST, BEGET_USER, BEGET_PASSWORD are absent; controlled deploy stopped before backup/rsync.",
+    "deployment_status": "prepared_not_live_2026-09-28",
+    "deployment_blocker": "Controlled GitHub Actions deploy previously lacked BEGET_HOST, BEGET_USER, BEGET_PASSWORD. Owner screenshot on 2026-09-28 shows at least the prior Solo premium page is already present on mysterylogic.com, so LIVE has drift beyond the canonical baseline; full-tree LIVE has not been reconciled/canonicalized.",
     "continuity_rule": "All chats continuing the already-approved pending release must use this exact candidate. For claims about current LIVE, the canonical baseline above remains authoritative until promotion.",
     "header_cta_fix": {
       "status": "included",
@@ -96,7 +96,8 @@
       "changed_existing_files": 12,
       "added_files": 0,
       "removed_files": 0
-    }
+    },
+    "live_observation_note": "Owner screenshot on 2026-09-28 confirms /detektivnye-igry-dlya-odnogo/rassledovaniya/ reflects the prior premium candidate. This does not prove the whole candidate tree is LIVE. The 2026-09-28 candidate with laptop-nav and truthful abstract visuals is not yet verified LIVE."
   },
   "project_continuity": {
     "protocol_version": 2,
