@@ -1,6 +1,6 @@
 # Mystery Logic — Production audit / final candidate
 
-Date: 2026-09-25
+Date: 2026-09-27
 
 ## Current LIVE truth
 - release_id: `canonical-live-2026-09-25`
@@ -12,10 +12,10 @@ Date: 2026-09-25
 - status: `prepared_not_live`
 - Library ZIP: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
 - Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
-- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
-- size: 7,660,577 bytes
+- SHA-256: `e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285`
+- size: 7,662,211 bytes
 - files: 686
-- exact site diff: 38 changed existing files, 0 added, 0 removed
+- exact site diff: 50 changed existing files, 0 added, 0 removed
 - manifest: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25-MANIFEST.md`
 
 All chats continuing the approved pending release must use this exact candidate and must not reconstruct it from GitHub main, older ZIPs, or partial patches.
@@ -29,13 +29,14 @@ A sibling chat must not say "ZIP is not visible" merely because it is absent fro
 
 - path: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
 - Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
-- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
-- size: `7,660,577 bytes`
+- SHA-256: `e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285`
+- size: `7,662,211 bytes`
 - files: `686`
 
 If bytes are required, materialize the exact Library item returned by search/list and verify the SHA before use. The canonical LIVE baseline remains separate until promotion.
 
 ## Included scope
+- premium Solo Investigations hub `/detektivnye-igry-dlya-odnogo/rassledovaniya/`: split premium hero, evidence-photo stack, stronger Volume I framing, and cinematic artwork on all 10 case cards using existing approved assets; responsive desktop/mobile CSS;
 - header CTA clarification: static `Открыть досье` CTA renamed to `Начать дело` on 21 pages; target remains the first free case, while the actual `Досье` nav item remains `/dossier/`;
 - structural social-proof placement fix on the two-player hub so the two choice cards remain aligned;
 - corrected public social-proof backend pagination;
