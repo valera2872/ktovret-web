@@ -36,18 +36,18 @@
   "pending_final_candidate": {
     "status": "prepared_not_live",
     "owner_approved": true,
-    "approved_date": "2026-09-25",
-    "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
-    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+    "approved_date": "2026-09-27",
+    "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
+    "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
     "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
-    "size_bytes": 7660577,
+    "size_bytes": 7662211,
     "file_count": 686,
-    "sha256": "35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a",
+    "sha256": "e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285",
     "based_on_release_id": "canonical-live-2026-09-25",
-    "changed_existing_site_files": 38,
+    "changed_existing_site_files": 50,
     "added_site_files": 0,
     "removed_site_files": 0,
-    "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25-MANIFEST.md",
+    "manifest_library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27-MANIFEST.md",
     "manifest_library_file_id": "libfile_3221fcca90308191bf609f3f627b26be",
     "production_edge_functions_already_active": {
       "funnel-event": {
@@ -76,6 +76,19 @@
       "to": "Начать дело",
       "destination_unchanged": "first free case",
       "rationale": "avoid confusion with actual Досье navigation item /dossier/"
+    },
+    "premium_solo_investigations_hub_fix": {
+      "status": "included",
+      "page": "/detektivnye-igry-dlya-odnogo/rassledovaniya/",
+      "scope": [
+        "premium split hero",
+        "case archive visual stack",
+        "10 cinematic case-card images",
+        "stronger Volume I product framing",
+        "responsive desktop/mobile CSS"
+      ],
+      "new_assets": 0,
+      "reused_existing_approved_artwork": true
     }
   },
   "project_continuity": {
@@ -94,12 +107,12 @@
     ],
     "current_working_build": {
       "kind": "owner_approved_pending_candidate",
-      "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
-      "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+      "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
+      "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-27.zip",
       "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
-      "size_bytes": 7660577,
+      "size_bytes": 7662211,
       "file_count": 686,
-      "sha256": "35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a",
+      "sha256": "e4996cd5c74e82d59c31c4d6c10eb0b390df547343a70743ad937bba1dd69285",
       "status": "prepared_not_live"
     }
   }
