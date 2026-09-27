@@ -77,5 +77,30 @@
       "destination_unchanged": "first free case",
       "rationale": "avoid confusion with actual Досье navigation item /dossier/"
     }
+  },
+  "project_continuity": {
+    "protocol_version": 2,
+    "mandatory_for_all_project_chats": true,
+    "live_truth_rule": "For claims about what is currently deployed, baseline is authoritative until promotion.",
+    "working_build_rule": "If pending_final_candidate exists with owner_approved=true and status=prepared_not_live, any chat continuing that approved unreleased work must use that exact pending candidate as the working build; do not rebuild it from baseline, GitHub main, old ZIPs, or partial patches.",
+    "library_recovery_protocol": [
+      "Read CURRENT_RELEASE.json first.",
+      "Do not conclude that the ZIP is unavailable merely because it is not attached to the current chat.",
+      "Search/list the personal Library for the exact pending_final_candidate.library_path or file_name.",
+      "Confirm the returned Library item has library_file_id equal to pending_final_candidate.library_file_id.",
+      "When file bytes are needed, materialize the exact returned file_id from Library into the working container.",
+      "Verify size_bytes and SHA-256 against pending_final_candidate before use.",
+      "Only if exact Library search/list fails after using the stored path, file name and library_file_id may the chat report that the candidate cannot be accessed."
+    ],
+    "current_working_build": {
+      "kind": "owner_approved_pending_candidate",
+      "file_name": "MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+      "library_path": "/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip",
+      "library_file_id": "libfile_7dbf75b2df4c8191b9077ed140c431c2",
+      "size_bytes": 7660577,
+      "file_count": 686,
+      "sha256": "35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a",
+      "status": "prepared_not_live"
+    }
   }
 }
