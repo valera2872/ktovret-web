@@ -20,6 +20,21 @@ Date: 2026-09-25
 
 All chats continuing the approved pending release must use this exact candidate and must not reconstruct it from GitHub main, older ZIPs, or partial patches.
 
+
+## Cross-chat recovery rule
+
+The owner-approved pending candidate is the mandatory working build for any sibling chat continuing this unreleased audit/fix package.
+
+A sibling chat must not say "ZIP is not visible" merely because it is absent from conversation attachments. It must first resolve `CURRENT_RELEASE.json`, then search/list the personal Library using:
+
+- path: `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
+- Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
+- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
+- size: `7,660,577 bytes`
+- files: `686`
+
+If bytes are required, materialize the exact Library item returned by search/list and verify the SHA before use. The canonical LIVE baseline remains separate until promotion.
+
 ## Included scope
 - header CTA clarification: static `Открыть досье` CTA renamed to `Начать дело` on 21 pages; target remains the first free case, while the actual `Досье` nav item remains `/dossier/`;
 - structural social-proof placement fix on the two-player hub so the two choice cards remain aligned;
