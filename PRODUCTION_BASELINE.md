@@ -52,6 +52,37 @@ This file is byte-identical to the owner-verified production snapshot `MysteryLo
    `deploy -> verify mysterylogic.com -> owner confirmation -> save verified full LIVE baseline -> update CURRENT_RELEASE.json`.
 8. Do not invent semantic version numbers. Use the explicit release id/date from `CURRENT_RELEASE.json`.
 
+
+## Mandatory pending-candidate recovery
+
+`CURRENT_RELEASE.json` may contain both a canonical LIVE `baseline` and an owner-approved `pending_final_candidate`.
+
+These fields have different meanings:
+
+- `baseline` = what is currently authoritative for LIVE claims;
+- `pending_final_candidate` = the frozen, owner-approved next build when its status is `prepared_not_live`.
+
+When continuing work already approved for the pending release, every project chat must use the exact pending candidate as its **working build**. It must not reconstruct that build from the LIVE baseline, GitHub `main`, an Actions artifact, an earlier ZIP, or a set of remembered patches.
+
+If the candidate ZIP is not attached to the current chat, that does **not** mean the file is unavailable. The chat must:
+
+1. read the exact `library_path`, `library_file_id`, size and SHA-256 from `CURRENT_RELEASE.json`;
+2. search/list the personal Library for that exact path or file name;
+3. confirm the returned item matches the stored `library_file_id`;
+4. materialize the exact returned Library `file_id` only when bytes are needed;
+5. verify size and SHA-256 before using the ZIP;
+6. report the candidate unavailable only after that exact Library lookup fails.
+
+Current approved working build:
+
+- `/Mystery Logic/Production/MysteryLogic-FINAL-CANDIDATE-2026-09-25.zip`
+- Library id: `libfile_7dbf75b2df4c8191b9077ed140c431c2`
+- SHA-256: `35bd3d38e47ef2f83b9f300838db60131a46b0f356036269b7e50018824f9c9a`
+- files: `686`
+- status: `prepared_not_live`
+
+This rule is mandatory for parallel/sibling chats in the Mystery Logic project.
+
 ## Current IQ S1 state
 
 The old L-shaped S1 with orange marker is retired and must not be restored.
