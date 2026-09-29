@@ -47,6 +47,9 @@
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event, page_type: 'coop_last_aria', ...params }); } catch {}
     try { if (typeof window.ym === 'function') window.ym(111664459, 'reachGoal', event, { page_type: 'coop_last_aria', ...params }); } catch {}
   };
+  const trackFunnel = (event, metadata = {}) => {
+    try { window.MysteryLogicFunnel?.track?.(event, { case_id: 'coop:last-aria', ...metadata }, 'coop-final'); } catch {}
+  };
   const api = async (body) => {
     const response = await fetch(ENDPOINT, {
       method: 'POST',
@@ -284,6 +287,15 @@
     const evidenceGroups = new Set(chosenEvidence.map((id) => data.final.evidence.find((item) => item.id === id)?.group).filter(Boolean));
     const proofComplete = data.final.requiredGroups.every((group) => evidenceGroups.has(group));
     const accepted = allAnswered && answersCorrect && proofComplete;
+    const finalResult = !allAnswered ? 'incomplete' : !answersCorrect ? 'wrong_answer' : !proofComplete ? 'insufficient_evidence' : 'accepted';
+    trackFunnel('coop_final_attempt', {
+      role: roomState.me.role,
+      attempt: progress.attempts,
+      result: finalResult,
+      answered_count: Object.values(answers).filter(Boolean).length,
+      evidence_count: chosenEvidence.length,
+      evidence_groups_count: evidenceGroups.size
+    });
     if (progress.firstAnswerCorrect === null) progress.firstAnswerCorrect = accepted;
     saveProgress(roomState.room.code, roomState.me.role, progress);
     if (!allAnswered) return renderFinal(roomState, 'Заполните все четыре вопроса.');
@@ -296,8 +308,12 @@
       const elapsedSeconds = Math.max(60, Math.round((Date.now() - Number(progress.startedAt || Date.now())) / 1000));
       const view = await api({ action: 'complete', code: roomState.room.code, elapsedSeconds, hintsUsed: Number(progress.hintsUsed || 0), attempts: progress.attempts, firstAnswerCorrect: Boolean(progress.firstAnswerCorrect) });
       track('coop_last_aria_complete', { hints: progress.hintsUsed, attempts: progress.attempts });
+      trackFunnel('coop_final_complete', { role: roomState.me.role, attempts: progress.attempts, hints_used: Number(progress.hintsUsed || 0) });
       renderSolvedWaiting(view, progress);
-    } catch (error) { progress.finalAccepted = false; saveProgress(roomState.room.code, roomState.me.role, progress); renderFinal(roomState, errorText(error)); }
+    } catch (error) {
+      trackFunnel('coop_final_complete_error', { role: roomState.me.role, attempts: progress.attempts, http_status: Number(error?.status || 0), error_code: String(error?.message || 'unknown').slice(0, 64) });
+      progress.finalAccepted = false; saveProgress(roomState.room.code, roomState.me.role, progress); renderFinal(roomState, errorText(error));
+    }
     finally { busy = false; }
   });
 
@@ -393,7 +409,10 @@
       const handoffDone = Boolean(progress.handoffs?.[progress.stage]);
       const decisionDone = progress.stage !== data.decision.stage || Boolean(progress.decision);
       if (!handoffDone || !decisionDone) return toast('Сначала завершите перекрёстную сверку и совместное решение этапа.');
-      if (progress.stage >= data.stages.length) return renderFinal(roomState);
+      if (progress.stage >= data.stages.length) {
+        trackFunnel('coop_final_open', { role: roomState.me.role, attempts: Number(progress.attempts || 0), hints_used: Number(progress.hintsUsed || 0) });
+        return renderFinal(roomState);
+      }
       progress.stage += 1; saveProgress(roomState.room.code, roomState.me.role, progress); track('coop_last_aria_stage', { stage: progress.stage }); return renderStage(roomState);
     }
     if (action === 'back-stage' && roomState) return renderStage(roomState);
