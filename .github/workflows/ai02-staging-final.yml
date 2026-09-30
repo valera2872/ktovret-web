@@ -1,0 +1,59 @@
+name: AI02 staging final
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: ai02-staging-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate
+        run: |
+          node --check assets/ai-case-player-v2.js
+          node --check assets/ai02-investigation-staging.js
+          grep -q "noindex,nofollow" staging-previews/ai02/index.html
+          grep -q "ai02-investigation-staging.js" staging-previews/ai02/index.html
+      - name: Assemble
+        run: |
+          mkdir -p out/ai02 out/assets
+          cp staging-previews/ai02/index.html out/ai02/index.html
+          cp assets/ml-mark.svg out/assets/
+          cp assets/mysterylogic.css out/assets/
+          cp assets/ai-detective-vslice.css out/assets/
+          cp assets/ai-detective-avatar-stage.css out/assets/
+          cp assets/ai-case-player-v2.css out/assets/
+          cp assets/ai02-premium.css out/assets/
+          cp assets/ai02-investigation-staging.js out/assets/
+          cp assets/legal.css out/assets/
+          cp assets/typography-polish.css out/assets/
+          cp assets/interface-polish.css out/assets/
+          cp assets/logic-sitewide.css out/assets/
+          cp assets/ai01-launch-promo.css out/assets/
+          cp assets/conversion-ux.css out/assets/
+          cp assets/ai-case-player-v2.js out/assets/
+          cp assets/ai-case-live-v2.js out/assets/
+          printf '%s\n' '<meta name="robots" content="noindex,nofollow"><a href="./ai02/?case=AI02-NK-STANDARD">AI-02</a>' > out/index.html
+          printf '%s\n' 'User-agent: *' 'Disallow: /' > out/robots.txt
+          touch out/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
