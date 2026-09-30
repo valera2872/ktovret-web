@@ -52,7 +52,7 @@ jobs:
           cp assets/logic-sitewide.css out/assets/
           cp assets/ai01-launch-promo.css out/assets/
           cp assets/conversion-ux.css out/assets/
-          cp assets/telegram-paused-20260920.css out/assets/
+
           cp assets/ai-case-player-v2.js out/assets/
           cp assets/ai-case-live-v2.js out/assets/
           printf '%s\n' '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic AI-02 staging</title></head><body style="font-family:system-ui;background:#07100f;color:#eef2ef;padding:32px"><h1>AI-02 Premium staging</h1><p><a style="color:#c7a36b" href="./ai02/?case=AI02-NK-STANDARD">Открыть «Нулевую копию»</a></p></body></html>' > out/index.html
