@@ -44,3 +44,16 @@ html,body{max-width:100%;overflow-x:hidden}
 .aid-investigation-chips{max-width:100%;overflow:hidden}
 .aid-suspect-strip{max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden}
 @media(min-width:801px){.aid-suspect-strip{overflow-x:hidden}.aid-suspect-tab{min-width:0}}
+
+/* v5: desktop width + primary mode navigation */
+@media(min-width:1201px){
+  .aid-workspace{grid-template-columns:minmax(220px,260px) minmax(0,1fr) minmax(220px,260px)!important;width:100%;max-width:100%;overflow:hidden}
+  .aid-investigation-tools,.aid-interrogation{width:100%;max-width:100%;overflow-x:hidden!important}
+}
+.aid-mode-switcher{padding:10px!important;gap:10px!important;background:linear-gradient(180deg,#0d1b19,#081210)!important;border:1px solid rgba(199,163,107,.28)!important;box-shadow:0 12px 34px rgba(0,0,0,.18)}
+.aid-mode-switcher button{position:relative;min-width:300px!important;padding:16px 24px!important;border:1px solid rgba(195,207,202,.10)!important;background:rgba(255,255,255,.015)!important;color:#93a29e!important;font-size:12px!important;letter-spacing:.08em!important;text-align:left}
+.aid-mode-switcher button:after{display:block;margin-top:6px;font:400 10px/1.35 system-ui;letter-spacing:0;text-transform:none;color:#657570}
+.aid-mode-switcher button[data-mode-switch="investigation"]:after{content:"Экспертизы · камеры · цифровые следы"}
+.aid-mode-switcher button[data-mode-switch="interrogation"]:after{content:"Разговор с подозреваемыми · предъявление улик"}
+.aid-mode-switcher button.is-active{background:linear-gradient(135deg,rgba(199,163,107,.16),rgba(199,163,107,.055))!important;color:#f0d39e!important;border-color:rgba(199,163,107,.55)!important;box-shadow:inset 3px 0 #c7a36b,0 8px 22px rgba(0,0,0,.15)!important}
+@media(max-width:800px){.aid-mode-switcher{gap:5px!important}.aid-mode-switcher button{min-width:0!important;padding:12px 10px!important;font-size:10px!important}.aid-mode-switcher button:after{font-size:8px}}
