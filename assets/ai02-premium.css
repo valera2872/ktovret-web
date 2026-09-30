@@ -36,3 +36,11 @@ body.aid-body:has([data-ai-v2-player]):before{opacity:.22;background-image:linea
 [data-investigation-mode="investigation"] .aid-evidence-panel,[data-investigation-mode="investigation"] .aid-notes-panel,[data-investigation-mode="interrogation"] .aid-evidence-panel,[data-investigation-mode="interrogation"] .aid-notes-panel{display:block}
 @media(max-width:1200px){.aid-workspace{grid-template-columns:260px minmax(0,1fr);grid-template-rows:auto minmax(700px,1fr) auto}.aid-notes-panel{grid-column:1/-1;grid-row:3}.aid-interrogation,.aid-investigation-tools{grid-column:2;grid-row:2}.aid-evidence-panel{grid-column:1;grid-row:2}}
 @media(max-width:800px){.aid-workspace{display:flex;flex-direction:column}.aid-mode-switcher{order:0;position:sticky;top:4px}.aid-mode-switcher button{min-width:0;flex:1}.aid-investigation-tools{order:1;min-height:70dvh}.aid-interrogation{order:1}.aid-evidence-panel{order:2}.aid-notes-panel{order:3}.aid-investigation-head h2{font-size:30px}.aid-investigation-form{margin-top:24px}}
+
+/* staging overflow correction */
+html,body{max-width:100%;overflow-x:hidden}
+.aid-workspace,.aid-interrogation,.aid-investigation-tools,.aid-evidence-panel,.aid-notes-panel{min-width:0;max-width:100%;box-sizing:border-box}
+.aid-investigation-form,.aid-investigation-form textarea,.aid-transcript,.aid-composer{min-width:0;max-width:100%;box-sizing:border-box}
+.aid-investigation-chips{max-width:100%;overflow:hidden}
+.aid-suspect-strip{max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden}
+@media(min-width:801px){.aid-suspect-strip{overflow-x:hidden}.aid-suspect-tab{min-width:0}}
