@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/cognitive-staging-deploy.yml'
+      - '.github/workflows/cognitive-staging-deploy.yml'\n      - 'staging-previews/ai02/**'\n      - 'assets/ai02-premium.css'
   workflow_dispatch:
 
 permissions:
@@ -31,6 +31,12 @@ jobs:
         with:
           ref: f6d7983a8d6f5e7cfec1ef0dd34b2705cfb11018
           path: puzzle-src
+
+      - name: Checkout AI-02 premium staging source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: ai02-src
 
       - uses: actions/setup-node@v4
         with:
@@ -64,10 +70,23 @@ jobs:
             exit 1
           fi
 
+      - name: Validate AI-02 premium staging
+        run: |
+          set -euo pipefail
+          node --check ai02-src/assets/ai-case-player-v2.js
+          node --check ai02-src/assets/ai-case-live-v2.js
+          grep -q 'noindex,nofollow' ai02-src/staging-previews/ai02/index.html
+          grep -q 'ai02-premium.css' ai02-src/staging-previews/ai02/index.html
+          grep -q 'ai-interrogation-v2' ai02-src/assets/ai-case-player-v2.js
+          if grep -q 'mc.yandex.ru' ai02-src/staging-previews/ai02/index.html; then
+            echo "Analytics forbidden in AI-02 staging preview"
+            exit 1
+          fi
+
       - name: Build isolated Pages artifact
         run: |
           set -euo pipefail
-          mkdir -p staging/admin/cognitive-profile-preview staging/admin/puzzles-q38-q49-preview staging/admin/puzzles staging/assets
+          mkdir -p staging/admin/cognitive-profile-preview staging/admin/puzzles-q38-q49-preview staging/admin/puzzles staging/ai02 staging/assets
 
           cp cognitive-src/admin/cognitive-profile-preview/index.html staging/admin/cognitive-profile-preview/index.html
           cp cognitive-src/assets/cognitive-profile-preview.css staging/assets/
@@ -91,14 +110,14 @@ jobs:
           cp puzzle-src/assets/ml-mark.svg staging/assets/
           cp puzzle-src/assets/matchstick-visual.js staging/assets/
           cp puzzle-src/assets/puzzle-q38-q49-visuals.js staging/assets/
-          cp puzzle-src/assets/puzzle-admin.js staging/assets/
+          cp puzzle-src/assets/puzzle-admin.js staging/assets/\n\n          cp ai02-src/staging-previews/ai02/index.html staging/ai02/index.html\n          cp ai02-src/assets/{ml-mark.svg,mysterylogic.css,ai-detective-vslice.css,ai-detective-avatar-stage.css,ai-case-player-v2.css,ai02-premium.css,legal.css,typography-polish.css,interface-polish.css,logic-sitewide.css,ai01-launch-promo.css,conversion-ux.css,telegram-paused-20260920.css,ai-case-player-v2.js,ai-case-live-v2.js} staging/assets/
 
           cat > staging/index.html <<'EOF'
           <!doctype html>
           <html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic staging</title></head>
           <body style="font-family:system-ui;background:#07131f;color:#eef3f7;padding:32px;line-height:1.6">
           <h1>Mystery Logic staging</h1>
-          <p><a style="color:#e4c57d" href="./admin/cognitive-profile-preview/">Cognitive Profile preview</a></p>
+          <p><a style="color:#e4c57d" href="./ai02/?case=AI02-NK-STANDARD">AI-02 «Нулевая копия» — Premium preview</a></p>\n          <p><a style="color:#e4c57d" href="./admin/cognitive-profile-preview/">Cognitive Profile preview</a></p>
           <p><a style="color:#e4c57d" href="./admin/puzzles-q38-q49-preview/">Puzzles Q38–Q49 preview</a></p>
           <p><a style="color:#e4c57d" href="./admin/puzzles/">Editorial puzzle admin with Q38–Q49 visuals</a></p>
           </body></html>
