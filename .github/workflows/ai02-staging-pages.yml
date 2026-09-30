@@ -6,7 +6,8 @@ on:
     paths:
       - '.github/workflows/ai02-staging-pages.yml'
       - 'staging-previews/ai02/**'
-      - 'assets/ai02-premium.css'\n      - 'assets/ai02-investigation-staging.js'
+      - 'assets/ai02-premium.css'
+      - 'assets/ai02-investigation-staging.js'
   workflow_dispatch:
 
 permissions:
@@ -45,7 +46,8 @@ jobs:
           cp assets/ai-detective-vslice.css out/assets/
           cp assets/ai-detective-avatar-stage.css out/assets/
           cp assets/ai-case-player-v2.css out/assets/
-          cp assets/ai02-premium.css out/assets/\n          cp assets/ai02-investigation-staging.js out/assets/
+          cp assets/ai02-premium.css out/assets/
+          cp assets/ai02-investigation-staging.js out/assets/
           cp assets/legal.css out/assets/
           cp assets/typography-polish.css out/assets/
           cp assets/interface-polish.css out/assets/
@@ -55,8 +57,10 @@ jobs:
 
           cp assets/ai-case-player-v2.js out/assets/
           cp assets/ai-case-live-v2.js out/assets/
-          printf '%s\n' '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic AI-02 staging</title></head><body style="font-family:system-ui;background:#07100f;color:#eef2ef;padding:32px"><h1>AI-02 Premium staging</h1><p><a style="color:#c7a36b" href="./ai02/?case=AI02-NK-STANDARD">Открыть «Нулевую копию»</a></p></body></html>' > out/index.html
-          printf '%s\n' 'User-agent: *' 'Disallow: /' > out/robots.txt
+          printf '%s
+' '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic AI-02 staging</title></head><body style="font-family:system-ui;background:#07100f;color:#eef2ef;padding:32px"><h1>AI-02 Premium staging</h1><p><a style="color:#c7a36b" href="./ai02/?case=AI02-NK-STANDARD">Открыть «Нулевую копию»</a></p></body></html>' > out/index.html
+          printf '%s
+' 'User-agent: *' 'Disallow: /' > out/robots.txt
           touch out/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
