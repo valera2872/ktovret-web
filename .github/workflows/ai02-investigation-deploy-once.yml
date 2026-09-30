@@ -1,0 +1,73 @@
+name: Deploy AI-02 investigation staging once
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: mysterylogic-ai02-investigation-staging
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate AI-02
+        run: |
+          set -euo pipefail
+          node --check assets/ai-case-player-v2.js
+          node --check assets/ai-case-live-v2.js
+          grep -q 'noindex,nofollow' staging-previews/ai02/index.html
+          grep -q 'ai02-premium.css' staging-previews/ai02/index.html
+          grep -q 'ai-interrogation-v2' assets/ai-case-player-v2.js
+          ! grep -q 'mc.yandex.ru' staging-previews/ai02/index.html
+      - name: Build isolated preview
+        run: |
+          set -euo pipefail
+          mkdir -p out/ai02 out/assets
+          cp staging-previews/ai02/index.html out/ai02/index.html
+          cp assets/ml-mark.svg out/assets/
+          cp assets/mysterylogic.css out/assets/
+          cp assets/ai-detective-vslice.css out/assets/
+          cp assets/ai-detective-avatar-stage.css out/assets/
+          cp assets/ai-case-player-v2.css out/assets/
+          cp assets/ai02-premium.css out/assets/
+          cp assets/ai02-investigation-staging.js out/assets/
+          cp assets/legal.css out/assets/
+          cp assets/typography-polish.css out/assets/
+          cp assets/interface-polish.css out/assets/
+          cp assets/logic-sitewide.css out/assets/
+          cp assets/ai01-launch-promo.css out/assets/
+          cp assets/conversion-ux.css out/assets/
+
+          cp assets/ai-case-player-v2.js out/assets/
+          cp assets/ai-case-live-v2.js out/assets/
+          printf '%s
+' '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mystery Logic AI-02 staging</title></head><body style="font-family:system-ui;background:#07100f;color:#eef2ef;padding:32px"><h1>AI-02 Premium staging</h1><p><a style="color:#c7a36b" href="./ai02/?case=AI02-NK-STANDARD">Открыть «Нулевую копию»</a></p></body></html>' > out/index.html
+          printf '%s
+' 'User-agent: *' 'Disallow: /' > out/robots.txt
+          touch out/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
