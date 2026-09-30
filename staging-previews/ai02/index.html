@@ -51,7 +51,17 @@
       </aside>
     </section>
 
-    <section class="aid-workspace" data-view="workspace" data-workspace hidden>
+    <section class="aid-workspace" data-view="workspace" data-workspace data-investigation-mode="investigation" hidden>
+      <nav class="aid-mode-switcher" aria-label="Режим работы">
+        <button type="button" class="is-active" data-mode-switch="investigation">⌕ Расследование</button>
+        <button type="button" data-mode-switch="interrogation">◉ Допрос</button>
+      </nav>
+      <section class="aid-investigation-tools" data-investigation-tools>
+        <div class="aid-investigation-head"><div><span class="aid-kicker">Следственные действия</span><h2>Что вы хотите проверить?</h2><p>Запрашивайте экспертизы, камеры, цифровые следы и осмотр места. Система выдаёт только результаты, существующие в материалах дела.</p></div><span class="aid-investigation-badge">EXPERT DESK</span></div>
+        <div class="aid-investigation-chips"><button type="button" data-q="Провести осмотр места происшествия: дверь, замок, следы борьбы, положение тела">Осмотр места</button><button type="button" data-q="Запросить судмедэкспертизу и проверить возможное орудие убийства">Судмедэкспертиза</button><button type="button" data-q="Поднять все доступные камеры и проверить покрытие видеонаблюдения">Камеры</button><button type="button" data-q="Проверить цифровые логи компьютера и аудиостанции студии №3">Цифровые логи</button><button type="button" data-q="Проверить телефоны, сотовые данные, Wi-Fi и устройства в сети Архива-7">Телефоны и сеть</button></div>
+        <form class="aid-investigation-form" data-investigation-form><textarea data-voice-target="investigation" rows="4" maxlength="600" placeholder="Например: проверьте, была ли дверь заперта изнутри и есть ли следы взлома"></textarea><div class="aid-investigation-submit"><button class="aid-voice" type="button" data-voice-for="investigation">🎙 Говорить</button><button type="submit">Отправить запрос</button></div></form>
+        <div class="aid-investigation-result" data-investigation-result hidden aria-live="polite"></div>
+      </section>
       <aside class="aid-panel aid-evidence-panel">
         <div class="aid-panel-head"><p class="aid-kicker">Материалы дела</p><h2>Что подтверждено</h2></div>
         <div class="aid-evidence-list" data-evidence-list></div>
@@ -105,5 +115,5 @@
   <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Private canon никогда не передаётся в браузер.</span></footer>
   <script src="../assets/ai-case-player-v2.js?v=0.1.0" defer></script>
   <script src="../assets/ai-case-live-v2.js?v=0.1.0" defer></script>
-<!-- staging-deploy-trigger: 2026-09-30 -->\n  <script src="../assets/ai02-investigation-staging.js?v=20260930-2"></script>\n</body>
+<!-- staging-deploy-trigger: 2026-09-30 -->\n  <script src="../assets/ai02-investigation-staging.js?v=20260930-3"></script>\n</body>
 </html>
