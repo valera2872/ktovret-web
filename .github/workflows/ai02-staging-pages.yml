@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ai02-staging-pages.yml'
       - 'staging-previews/ai02/**'
-      - 'assets/ai02-premium.css'
+      - 'assets/ai02-premium.css'\n      - 'assets/ai02-investigation-staging.js'
   workflow_dispatch:
 
 permissions:
@@ -45,7 +45,7 @@ jobs:
           cp assets/ai-detective-vslice.css out/assets/
           cp assets/ai-detective-avatar-stage.css out/assets/
           cp assets/ai-case-player-v2.css out/assets/
-          cp assets/ai02-premium.css out/assets/
+          cp assets/ai02-premium.css out/assets/\n          cp assets/ai02-investigation-staging.js out/assets/
           cp assets/legal.css out/assets/
           cp assets/typography-polish.css out/assets/
           cp assets/interface-polish.css out/assets/
