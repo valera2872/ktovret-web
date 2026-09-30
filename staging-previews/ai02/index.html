@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
   <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.1">
   <title>Закрытое AI-расследование — Mystery Logic</title>
-  <link rel="stylesheet" href="../assets/ai02-premium.css?v=20260930-staging5">\n</head>
+  <link rel="stylesheet" href="../assets/ai02-premium.css?v=20260930-staging6">\n</head>
 <body class="aid-body">
   <header class="aid-topbar">
     <a class="aid-brand" href="../" aria-label="Mystery Logic — главная">
@@ -52,9 +52,10 @@
     </section>
 
     <section class="aid-workspace" data-view="workspace" data-workspace data-investigation-mode="investigation" hidden>
-      <nav class="aid-mode-switcher" aria-label="Режим работы">
-        <button type="button" class="is-active" data-mode-switch="investigation">⌕ Расследование</button>
-        <button type="button" data-mode-switch="interrogation">◉ Допрос</button>
+      <nav class="aid-action-dock" aria-label="Основные действия">
+        <button type="button" class="is-active" data-mode-switch="investigation"><span>⌕</span><strong>Расследовать</strong><small>экспертизы и следы</small></button>
+        <button type="button" data-mode-switch="interrogation"><span>◉</span><strong>Допросить</strong><small>подозреваемые</small></button>
+        <button type="button" data-open-theory><span>◇</span><strong>Версия</strong><small>собрать вывод</small></button>
       </nav>
       <section class="aid-investigation-tools" data-investigation-tools>
         <div class="aid-investigation-head"><div><span class="aid-kicker">Следственные действия</span><h2>Что вы хотите проверить?</h2><p>Запрашивайте экспертизы, камеры, цифровые следы и осмотр места. Система выдаёт только результаты, существующие в материалах дела.</p></div><span class="aid-investigation-badge">EXPERT DESK</span></div>
