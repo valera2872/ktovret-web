@@ -23,7 +23,7 @@ jobs:
           grep -q "ai02-investigation-staging.js" staging-previews/ai02/index.html
       - name: Assemble
         run: |
-          mkdir -p out/ai02 out/assets
+          mkdir -p out/ai02 out/assets/ai02
           cp staging-previews/ai02/index.html out/ai02/index.html
           cp assets/ml-mark.svg out/assets/
           cp assets/mysterylogic.css out/assets/
@@ -31,6 +31,7 @@ jobs:
           cp assets/ai-detective-avatar-stage.css out/assets/
           cp assets/ai-case-player-v2.css out/assets/
           cp assets/ai02-premium.css out/assets/
+          cp assets/ai02/studio3-hero.jpg out/assets/ai02/
           cp assets/ai02-investigation-staging.js out/assets/
           cp assets/legal.css out/assets/
           cp assets/typography-polish.css out/assets/
