@@ -44,6 +44,33 @@ jobs:
           printf '%s\n' '<meta name="robots" content="noindex,nofollow"><a href="./ai02/?case=AI02-NK-STANDARD">AI-02</a>' > out/index.html
           printf '%s\n' 'User-agent: *' 'Disallow: /' > out/robots.txt
           touch out/.nojekyll
+      - name: Visual preview
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 --directory out >/tmp/ai02-http.log 2>&1 &
+          sleep 2
+          node - <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            const desktop = await browser.newPage({viewport:{width:1440,height:1000}, deviceScaleFactor:1});
+            await desktop.goto('http://127.0.0.1:4173/ai02/?case=AI02-NK-STANDARD',{waitUntil:'networkidle'});
+            await desktop.screenshot({path:'ai02-desktop.png',fullPage:true});
+            const mobile = await browser.newPage({viewport:{width:390,height:844}, deviceScaleFactor:1});
+            await mobile.goto('http://127.0.0.1:4173/ai02/?case=AI02-NK-STANDARD',{waitUntil:'networkidle'});
+            await mobile.screenshot({path:'ai02-mobile.png',fullPage:true});
+            await browser.close();
+          })();
+          NODE
+      - name: Upload visual preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai02-visual-preview
+          path: |
+            ai02-desktop.png
+            ai02-mobile.png
+          retention-days: 2
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
