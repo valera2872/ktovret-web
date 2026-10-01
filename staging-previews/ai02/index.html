@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.1">
   <link rel="stylesheet" href="../assets/ai-case-player-v2.css?v=0.1.1">
   <title>Закрытое AI-расследование — Mystery Logic</title>
-  <link rel="stylesheet" href="../assets/ai02-premium.css?v=20261001-2">
+  <link rel="stylesheet" href="../assets/ai02-premium.css?v=20261001-3">
 </head>
 <body class="aid-body">
   <header class="aid-topbar">
@@ -58,7 +58,7 @@
         <button type="button" data-mode-switch="interrogation"><span>◉</span><strong>Допросить</strong><small>подозреваемые</small></button>
         <button type="button" data-open-theory><span>◇</span><strong>Версия</strong><small>собрать вывод</small></button>
       </nav>
-      <section class="aid-investigation-tools" data-investigation-tools>
+      <section class="aid-investigation-tools" data-investigation-tools><div class="aid-scene-visual" aria-hidden="true"><div class="aid-scene-monitor"></div><div class="aid-scene-desk"></div><span>STUDIO 3 · SCENE</span></div>
         <div class="aid-investigation-head"><div><span class="aid-kicker">Следственные действия</span><h2>Что вы хотите проверить?</h2><p>Формулируйте любое следственное действие или запрос своими словами. Система выдаёт только результаты, существующие в материалах дела.</p></div><span class="aid-investigation-badge">EXPERT DESK</span></div>
         <form class="aid-investigation-form" data-investigation-form><textarea data-voice-target="investigation" rows="4" maxlength="600" placeholder="Что вы хотите проверить?"></textarea><div class="aid-investigation-submit"><button class="aid-voice" type="button" data-voice-for="investigation">🎙 Говорить</button><button type="submit">Отправить запрос</button></div></form>
         <div class="aid-investigation-result" data-investigation-result hidden aria-live="polite"></div>
@@ -69,7 +69,7 @@
         <p class="aid-panel-hint">Нажмите на материал, чтобы официально предъявить его в следующем вопросе.</p>
       </aside>
 
-      <section class="aid-interrogation">
+      <section class="aid-interrogation"><div class="aid-interview-visual" aria-hidden="true"><div class="aid-interview-silhouette"></div><span>INTERVIEW ROOM · ARCHIVE 7</span></div>
         <div class="aid-suspect-strip" data-suspect-strip></div>
         <div class="aid-room-head">
           <div><p class="aid-kicker">Допрос</p><h2 data-suspect-name>—</h2><p data-suspect-role>—</p></div>
