@@ -136,3 +136,11 @@ linear-gradient(90deg,#081311,#101b19 50%,#081311)}
 .aid-scene-photo figcaption{position:absolute;z-index:2;left:22px;bottom:16px;margin:0;color:#d6b678;font:700 9px/1 system-ui;letter-spacing:.2em;text-shadow:0 2px 8px #000}
 .aid-scene-visual{display:none!important}
 @media(max-width:800px){.aid-scene-photo{height:210px;margin:0 -13px 20px}.aid-scene-photo figcaption{left:13px}}
+
+/* v10 raster-first cleanup */
+.aid-scene-photo{height:clamp(300px,34vw,470px);border-radius:8px 8px 0 0}
+.aid-scene-photo img{filter:saturate(.94) contrast(1.05) brightness(.9)}
+.aid-interview-visual{display:none!important}
+.aid-interrogation{padding-top:18px}
+.aid-suspect-tab{min-height:66px}
+@media(max-width:800px){.aid-scene-photo{height:245px}.aid-interrogation{padding-top:10px}}
