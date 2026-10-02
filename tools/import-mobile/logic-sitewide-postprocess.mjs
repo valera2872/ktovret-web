@@ -67,20 +67,31 @@ export function applyLogicSitewide(siteRoot){
         html=html.replace(/<\/body>/i,`${scriptTag}\n</body>`);
       }
 
+      const relativePage=path.relative(root,file).replaceAll(path.sep,'/');
+      const suppressAiPromo=relativePage==='golovolomki-onlayn/index.html';
+      if(suppressAiPromo){
+        html=html.replace(/<link[^>]+data-ai01-launch-promo-style[^>]*>\s*/ig,'');
+        html=html.replace(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>\s*/ig,'');
+      }
+
       const aiPromoStyleHref=relativeAsset(dir,ai01PromoStyleFile);
       const aiPromoStyleTag=`<link data-ai01-launch-promo-style rel="stylesheet" href="${aiPromoStyleHref}?v=${VERSION}">`;
-      if(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i.test(html)){
-        html=html.replace(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i,aiPromoStyleTag);
-      }else{
-        html=html.replace(/<\/head>/i,`${aiPromoStyleTag}\n</head>`);
-        aiPromoPages++;
+      if(!suppressAiPromo){
+        if(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i.test(html)){
+          html=html.replace(/<link[^>]+data-ai01-launch-promo-style[^>]*>/i,aiPromoStyleTag);
+        }else{
+          html=html.replace(/<\/head>/i,`${aiPromoStyleTag}\n</head>`);
+          aiPromoPages++;
+        }
       }
       const aiPromoScriptSrc=relativeAsset(dir,ai01PromoScriptFile);
       const aiPromoScriptTag=`<script data-ai01-launch-promo-script src="${aiPromoScriptSrc}?v=${VERSION}" defer></script>`;
-      if(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i.test(html)){
-        html=html.replace(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i,aiPromoScriptTag);
-      }else{
-        html=html.replace(/<\/body>/i,`${aiPromoScriptTag}\n</body>`);
+      if(!suppressAiPromo){
+        if(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i.test(html)){
+          html=html.replace(/<script[^>]+data-ai01-launch-promo-script[^>]*><\/script>/i,aiPromoScriptTag);
+        }else{
+          html=html.replace(/<\/body>/i,`${aiPromoScriptTag}\n</body>`);
+        }
       }
 
       if(html!==before){fs.writeFileSync(file,html);pages++;}
