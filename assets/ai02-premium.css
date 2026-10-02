@@ -167,3 +167,10 @@ linear-gradient(90deg,#081311,#101b19 50%,#081311)}
   .aid-composer{padding-bottom:78px!important}
   .aid-action-dock{bottom:6px}
 }
+
+/* AI-02 mobile action dock v3: keep controls out of the composer */
+@media(max-width:800px){
+  .aid-workspace{padding-bottom:24px!important}
+  .aid-action-dock{position:sticky!important;left:auto!important;top:8px!important;bottom:auto!important;transform:none!important;width:100%!important;margin:0 0 14px!important;z-index:1000}
+  .aid-composer{padding-bottom:18px!important}
+}
