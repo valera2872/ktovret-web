@@ -50,7 +50,7 @@ await p1.click('#talkBtn');
 await p1.locator('#dialog article').first().waitFor({state:'visible',timeout:45000});
 expect((await p1.locator('#dialog article').first().innerText()).length>20,'dialog reply empty');
 
-await searchOpen(p1,'продажа страниц','Справка по частным продажам');
+await searchOpen(p1,'частные продажи посредник','Справка по частным продажам');
 await searchOpen(p1,'деньги Ратникова посредник','Поступления Михаилу Ратникову');
 await searchOpen(p2,'съёмка 22 09','Съёмка Анны');
 await searchOpen(p2,'кадр 22 09 лампа','Кадр рабочей серии 22:09');
