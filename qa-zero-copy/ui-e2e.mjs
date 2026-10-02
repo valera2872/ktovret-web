@@ -42,7 +42,7 @@ await p2.locator('#board').getByText('QA общая доска: Ратников
 
 await p1.fill('#noteInput','Моя личная заметка QA');
 await p1.click('#noteBtn');
-expect(await p1.locator('#notes').getByText('Моя личная заметка QA').isVisible(),'private note missing');
+await p1.locator('#notes').getByText('Моя личная заметка QA').waitFor({state:'visible',timeout:10000});
 expect(await p2.locator('#notes').getByText('Моя личная заметка QA').count()===0,'private note leaked');
 
 await p1.fill('#question','Когда вы в последний раз видели Анну?');
