@@ -80,9 +80,9 @@ await p3.locator('#game').waitFor({state:'visible',timeout:20000});
 expect((await p3.locator('#badge').innerText()).includes('ДЕМО'),'demo badge missing');
 const before=await p3.locator('#badge').innerText();
 await p3.click('#demoSwitch');
-await p3.waitForTimeout(1500);
+await p3.locator('#badge').filter({hasText:'Эксперт архива'}).waitFor({state:'visible',timeout:15000});
 const after=await p3.locator('#badge').innerText();
-expect(before!==after&&after.includes('Эксперт архива'),'demo role switch failed');
+expect(before!==after&&after.includes('Эксперт архива'),'demo role switch failed: '+before+' -> '+after);
 
 console.log(JSON.stringify({ok:true,room:code,checks:['exact-client-intro','hidden-css','create-lobby','join-two-browser','desktop-mobile','role-ui','search-open','shared-board','private-notes','ai-dialog','correct-final-reveal','demo-open','demo-role-switch']}));
 await browser.close();
