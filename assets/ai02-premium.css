@@ -160,3 +160,10 @@ linear-gradient(90deg,#081311,#101b19 50%,#081311)}
   .aid-action-dock{height:auto;min-height:64px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
   .aid-investigation textarea{min-height:112px}
 }
+
+/* AI-02 action dock clearance v2 */
+.aid-composer{padding-bottom:86px!important}
+@media(max-width:800px){
+  .aid-composer{padding-bottom:78px!important}
+  .aid-action-dock{bottom:6px}
+}
