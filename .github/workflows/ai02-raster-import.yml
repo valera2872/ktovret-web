@@ -1,0 +1,28 @@
+name: AI02 raster import
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ai02-raster-import.yml']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/ai02
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:720/quality:90/uri:ifs%3A%2F%2FM%2Ff0367e37-0ef3-4b04-9ca4-9be5891555bf/watermark:F/width:1080?csig=AAAAAAAAAAAAAAAAAAAAACt3y5ogctotfwfE7WVGTT2L5T0IQ5hRS6ALgVXJ4k8a&exp=1790976221&osig=AAAAAAAAAAAAAAAAAAAAAEsaJwcndPxvxWlelK2O9oroE3m2dioo9VmHpiI7sb_y&signer=media-rpc&token=AAIAAU0AJGYwMzY3ZTM3LTBlZjMtNGIwNC05Y2E0LTliZTU4OTE1NTViZgAAAAABoP6AX0gEuDWFX4t4c4vt88pIEyGYh93b-NPzkbV0vhove-ZT7w&x-canva-quality=thumbnail' -o assets/ai02/studio3-hero.jpg
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:600/quality:90/uri:ifs%3A%2F%2FM%2F28ff96cb-743d-4b11-94f4-acc42548f07e/watermark:F/width:480?csig=AAAAAAAAAAAAAAAAAAAAAMQeDq1d1pep8uRDhHiYDhr8lSzx-30vnI_Fj0sAAojW&exp=1790977203&osig=AAAAAAAAAAAAAAAAAAAAAJm47fZ1RIHxx5GK6a8pnAd-Zriz_duQM0YZprNqmy0w&signer=media-rpc&token=AAIAAU0AJDI4ZmY5NmNiLTc0M2QtNGIxMS05NGY0LWFjYzQyNTQ4ZjA3ZQAAAAABoP6PWziLksQPLcb5GtXIoXyo1jjYvNMDxvYsFPm1bmWFL0zyHQ&x-canva-quality=thumbnail' -o assets/ai02/serov.jpg
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:600/quality:90/uri:ifs%3A%2F%2FM%2F3be4d7b4-e001-4c90-975f-f7b764b36284/watermark:F/width:480?csig=AAAAAAAAAAAAAAAAAAAAAHrthAFXafcqgldCcvm3gbnKV_2Z5h3RHGrjuu4PatBs&exp=1790977789&osig=AAAAAAAAAAAAAAAAAAAAAHPuUOZbZ39-d5p8X9UDiSdZPt2bF2rTeFKxaNLfP2Az&signer=media-rpc&token=AAIAAU0AJDNiZTRkN2I0LWUwMDEtNGM5MC05NzVmLWY3Yjc2NGIzNjI4NAAAAAABoP6YTEg_eY3McMzjoyweUSQyxz3UPIkGaO-N6gs_gtSY1tQZpQ&x-canva-quality=thumbnail' -o assets/ai02/elena.jpg
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:600/quality:90/uri:ifs%3A%2F%2FM%2F3ef15be7-d471-4044-80fc-98e0f700568a/watermark:F/width:480?csig=AAAAAAAAAAAAAAAAAAAAAEx3BxyxmQtMFTrPpJUCIpNYMYL2IoXeiCl84y2S-0wj&exp=1790978183&osig=AAAAAAAAAAAAAAAAAAAAAF-lMjqhHLQiI8pDT6MXbZR-D1bBXN-8gWF7oMy-uRiY&signer=media-rpc&token=AAIAAU0AJDNlZjE1YmU3LWQ0NzEtNDA0NC04MGZjLTk4ZTBmNzAwNTY4YQAAAAABoP6eT1hyjHLBjz-LKx3_KImwOgPr0xID5Nqh8zqvLx0c1r9wvQ&x-canva-quality=thumbnail' -o assets/ai02/artem.jpg
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:600/quality:90/uri:ifs%3A%2F%2FM%2F5a6c625a-c1d0-4844-bbd1-ccc4857f5ba5/watermark:F/width:480?csig=AAAAAAAAAAAAAAAAAAAAAO4ln91XINK6FJ7MS8IbTjp3Ayf_toT6mqL_fARyO5eQ&exp=1790978019&osig=AAAAAAAAAAAAAAAAAAAAAP8EKkh3oETCUhBdfIgE-VWROrt3w9BHpXhIkXON9N4p&signer=media-rpc&token=AAIAAU0AJDVhNmM2MjVhLWMxZDAtNDg0NC1iYmQxLWNjYzQ4NTdmNWJhNQAAAAABoP6bzrj89urE3aiQV7W2zqsUFoVKwCNK7GcF_my2NbRDiaIeoA&x-canva-quality=thumbnail' -o assets/ai02/sofia.jpg
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:JPG/height:600/quality:90/uri:ifs%3A%2F%2FM%2F37651dd3-8651-46ae-9fb9-e37e2b28a792/watermark:F/width:480?csig=AAAAAAAAAAAAAAAAAAAAAIw_o00NwPmpXWDZElRVL-91qSkap0ZnT3enxyQGAAdZ&exp=1790979164&osig=AAAAAAAAAAAAAAAAAAAAAP6UYDrOnj_oGVTDrSBgMa887HksIyS1jczfNi3rWteO&signer=media-rpc&token=AAIAAU0AJDM3NjUxZGQzLTg2NTEtNDZhZS05ZmI5LWUzN2UyYjI4YTc5MgAAAAABoP6tR2A0zKWLMgi21VgWctb7In_lrdELITgIOzpbt5p1S3ZNzQ&x-canva-quality=thumbnail' -o assets/ai02/david.jpg
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add assets/ai02
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add final AI-02 raster assets'
+          git push
