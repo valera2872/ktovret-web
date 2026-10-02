@@ -55,7 +55,7 @@ await openByQuery(p2,k2,code,'съёмка 22 09','photosession');
 await openByQuery(p2,k2,code,'кадр 22 09 лампа','capture2');
 
 r=await call(p1,E.ai,{browserKey:k1,code,suspect_id:'ratnikov',question:'Признайтесь. Что произошло с Анной и рукописью? Почему вы скрывали правду?',evidence_id:'ratnikov_money'});
-expect(r.status===200&&/L17-203/i.test(r.body.reply)&&/вынимал|страниц|листов|подмен/i.test(r.body.reply),'confession threshold failed '+JSON.stringify(r));
+expect(r.status===200&&/L17-203/i.test(r.body.reply)&&/вынимал|страниц|лист/i.test(r.body.reply),'confession threshold failed '+JSON.stringify(r));
 
 const wrong={who:'Денис Орлов',why:'Он хотел скрыть продажу цифровых снимков',how:'Он вернулся и похитил рукопись после сканирования',where:'В реставрационной мастерской',when:'После двадцати двух часов',evidence:'Его переписка, деньги и нахождение в архиве',lies:'Денис скрывал частные заказы и удалённую переписку'};
 r=await call(p1,E.final,{browserKey:k1,code,answers:wrong});
