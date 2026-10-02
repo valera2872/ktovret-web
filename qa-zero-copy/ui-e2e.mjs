@@ -23,8 +23,12 @@ expect((await p1.locator('#badge').innerText()).includes('Следователь
 expect((await p2.locator('#badge').innerText()).includes('Эксперт архива'),'guest role wrong');
 
 async function searchOpen(page,q,needle){
-  await page.fill('#query',q); await page.click('#searchBtn');
-  await page.locator('#results .hit').first().waitFor({state:'visible',timeout:15000});
+  await page.fill('#query',q);
+  const responsePromise=page.waitForResponse(r=>r.url().includes('zero-copy-room-v1')&&r.request().method()==='POST'&&(r.request().postData()||'').includes('"action":"search"'),{timeout:15000});
+  await page.click('#searchBtn');
+  const sr=await responsePromise;
+  expect(sr.ok(),'search HTTP failed '+sr.status());
+  await page.locator('#searchBtn').filter({hasText:'Искать'}).waitFor({state:'visible',timeout:15000});
   const hits=page.locator('#results .hit'); const n=await hits.count(); let chosen=null;
   for(let i=0;i<n;i++){const t=await hits.nth(i).innerText(); if(t.includes(needle)){chosen=hits.nth(i);break}}
   expect(chosen,'missing search result '+needle+' for '+q);
