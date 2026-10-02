@@ -1,0 +1,23 @@
+name: Zero Copy E2E
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+  workflow_dispatch:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm init -y && npm i -D playwright@1.56.0
+      - run: npx playwright install --with-deps chromium
+      - name: Serve QA origin
+        run: |
+          python3 -m http.server 4173 --directory qa-zero-copy >/tmp/zc-http.log 2>&1 &
+          echo $! > /tmp/zc-http.pid
+          sleep 2
+      - name: Run two-browser E2E against production Supabase
+        run: node qa-zero-copy/e2e.mjs
