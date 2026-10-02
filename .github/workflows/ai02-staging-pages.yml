@@ -31,8 +31,9 @@ jobs:
           cp assets/ai-detective-avatar-stage.css out/assets/
           cp assets/ai-case-player-v2.css out/assets/
           cp assets/ai02-premium.css out/assets/
-          cp assets/ai02/studio3-hero.jpg out/assets/ai02/
+          cp -R assets/ai02/. out/assets/ai02/
           cp assets/ai02-investigation-staging.js out/assets/
+          cp assets/ai02-portraits.js out/assets/
           cp assets/legal.css out/assets/
           cp assets/typography-polish.css out/assets/
           cp assets/interface-polish.css out/assets/
@@ -56,13 +57,11 @@ jobs:
             const browser = await chromium.launch({headless:true});
             const desktop = await browser.newPage({viewport:{width:1440,height:1000}, deviceScaleFactor:1});
             await desktop.goto('http://127.0.0.1:4173/ai02/?case=AI02-NK-STANDARD',{waitUntil:'domcontentloaded'});
-            await desktop.evaluate(() => localStorage.setItem('mysterylogic:ai-investigation:access-token','MLAI02-xqIlAcbwap1bZso4jwVLsJbsiWOHdEdvrDRCvb8bNqg'));
             await desktop.reload({waitUntil:'networkidle'});
             await desktop.waitForTimeout(2500);
             await desktop.screenshot({path:'ai02-desktop.png',fullPage:true});
             const mobile = await browser.newPage({viewport:{width:390,height:844}, deviceScaleFactor:1});
             await mobile.goto('http://127.0.0.1:4173/ai02/?case=AI02-NK-STANDARD',{waitUntil:'domcontentloaded'});
-            await mobile.evaluate(() => localStorage.setItem('mysterylogic:ai-investigation:access-token','MLAI02-xqIlAcbwap1bZso4jwVLsJbsiWOHdEdvrDRCvb8bNqg'));
             await mobile.reload({waitUntil:'networkidle'});
             await mobile.waitForTimeout(2500);
             await mobile.screenshot({path:'ai02-mobile.png',fullPage:true});
