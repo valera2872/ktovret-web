@@ -152,3 +152,11 @@ linear-gradient(90deg,#081311,#101b19 50%,#081311)}
 .aid-interrogation{padding-top:18px}
 .aid-suspect-tab{min-height:66px}
 @media(max-width:800px){.aid-scene-photo{height:245px}.aid-interrogation{padding-top:10px}}
+
+/* AI-02 mobile dock clearance */
+@media(max-width:800px){
+  .aid-workspace{padding-bottom:112px!important}
+  .aid-investigation-form,.aid-room{scroll-margin-bottom:120px}
+  .aid-action-dock{height:auto;min-height:64px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .aid-investigation textarea{min-height:112px}
+}
