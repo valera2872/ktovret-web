@@ -1,0 +1,80 @@
+name: AI02 authenticated E2E QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ai02-auth-e2e.yml'
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for ephemeral QA entitlement
+        run: sleep 90
+      - name: Run authenticated AI-02 flow
+        run: |
+          export QA_TOKEN="MLAI02QA-${GITHUB_RUN_ID}"
+          node - <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1000}});
+            const url='https://valera2872.github.io/ktovret-web/ai02/?case=AI02-NK-STANDARD';
+            await page.goto(url,{waitUntil:'networkidle',timeout:60000});
+            await page.evaluate(t=>localStorage.setItem('mysterylogic:ai-investigation:access-token',t),process.env.QA_TOKEN);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('[data-view="intro"]:not([hidden])',{timeout:30000});
+            await page.click('[data-action="start"]');
+            await page.waitForSelector('[data-view="workspace"]:not([hidden])',{timeout:10000});
+            await page.fill('[data-investigation-form] textarea','Проверьте дверь студии на следы взлома и пригодные отпечатки.');
+            let p=page.waitForResponse(r=>r.url().includes('/ai-interrogation-v2')&&r.request().method()==='POST');
+            await page.click('[data-investigation-form] button[type="submit"]');
+            let resp=await p;if(resp.status()!==200)throw new Error('investigate http '+resp.status());
+            await page.waitForFunction(()=>document.querySelector('[data-investigation-result]')?.textContent?.includes('Результат проверки'));
+            const select=async id=>{await page.click('[data-mode-switch="interrogation"]');await page.click('[data-suspect="'+id+'"]');};
+            const ask=async(id,q,evidence='')=>{
+              await select(id);
+              if(evidence){const card='[data-evidence="'+evidence+'"]';await page.waitForSelector(card,{timeout:10000});await page.click(card);}
+              await page.fill('#aiv2-question',q);
+              const wait=page.waitForResponse(r=>r.url().includes('/ai-interrogation-v2')&&r.request().method()==='POST');
+              await page.click('.aid-send');
+              const rr=await wait;if(rr.status()!==200)throw new Error('interrogate '+id+' http '+rr.status());
+              await page.waitForTimeout(200);
+            };
+            await ask('serov','Когда вы ушли из Архива-7? Какое у вас алиби?');
+            await ask('elena','Что именно вы слышали в 23:17? Вы видели Вернера?');
+            await ask('elena','Что известно о файле QC и записи голоса?');
+            await ask('elena','Могло ли воспроизведение быть поставлено в очередь и запуститься автоматически?');
+            await ask('elena','Была ли сохранена копия или резерв исходника?');
+            await ask('sofia','Что было в вашем сообщении о фильме и выпуске?');
+            await ask('sofia','Что Вернер обнаружил и почему хотел остановить работу?');
+            await ask('david','Что вы знаете про кассету и оригинал?');
+            await ask('david','Куда делся оригинал, что было со шкафом после 23:29?');
+            await ask('david','Вы спрятали кассету в шкаф?','E20');
+            await ask('david','Что известно о монтаже 1998 года и связи Серова с ним?');
+            await ask('serov','Что именно было в исходнике и монтаже 1998 года?');
+            await ask('serov','Вы знали про паузу после фразы в исходнике?');
+            await ask('serov','Чем был нанесён удар, какое могло быть орудие?');
+            for(const id of ['E03','E05','E08','E10','E13','E14','E21','E23','E24'])await page.waitForSelector('[data-evidence="'+id+'"]',{timeout:10000});
+            await page.click('[data-action="theory"]');
+            await page.waitForSelector('[data-view="theory"]:not([hidden])');
+            await page.check('input[name="suspect"][value="serov"]');
+            await page.fill('[data-theory-form] textarea[name="reason"]','Голос Вернера в 23:17 был ложным временным якорем: после смерти прозвучала заранее поставленная в очередь запись QC. Серов ушёл раньше, но знал деталь исходника 1998 года, которую ему не предъявляли; физические следы и орудие связывают его с убийством, а Давид забрал оригинал уже после смерти.');
+            const waitTheory=page.waitForResponse(r=>r.url().includes('/ai-interrogation-v2')&&r.request().method()==='POST');
+            await page.click('[data-theory-form] button[type="submit"]');
+            const tr=await waitTheory;if(tr.status()!==200)throw new Error('theory http '+tr.status());
+            await page.waitForSelector('.aid-verdict.is-correct',{timeout:10000});
+            await page.screenshot({path:'ai02-authenticated-e2e.png',fullPage:true});
+            await browser.close();
+            console.log('AI02_AUTH_E2E_PASS');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai02-authenticated-e2e
+          path: ai02-authenticated-e2e.png
+          retention-days: 2
