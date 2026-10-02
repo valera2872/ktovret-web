@@ -17,7 +17,7 @@ jobs:
         run: sleep 90
       - name: Run paced authenticated flow
         run: |
-          export QA_TOKEN="MLAI02QA-${GITHUB_RUN_ID}-VERIFIED-ACCESS"
+          export QA_TOKEN="MLAI02QA-FINAL-ACCESS-20261003-E2E"
           node - <<'NODE'
           const { chromium } = require('playwright');
           (async()=>{
@@ -56,7 +56,7 @@ jobs:
             await ask('elena','Могло ли воспроизведение быть поставлено в очередь и запуститься автоматически?');
             await ask('elena','Была ли сохранена копия или резерв исходника?');
             await ask('sofia','Что было в вашем сообщении о фильме и выпуске?');
-            await ask('sofia','Что Вернер обнаружил и почему хотел остановить работу?');
+            await ask('sofia','Почему остановить выпуск? Что Вернер обнаружил?');
             await ask('david','Что вы знаете про кассету и оригинал?');
             await ask('david','Куда делся оригинал, что было со шкафом после 23:29?');
             await ask('david','Вы спрятали кассету в шкаф?','E20');
