@@ -21,3 +21,5 @@ jobs:
           sleep 2
       - name: Run two-browser E2E against production Supabase
         run: node qa-zero-copy/e2e.mjs
+      - name: Run exact client browser UI E2E
+        run: node qa-zero-copy/ui-e2e.mjs
