@@ -1,0 +1,24 @@
+name: Validate AI-02 investigator workspace
+
+on:
+  pull_request:
+    paths:
+      - 'staging-previews/ai02/**'
+      - 'assets/ai02-investigator-workspace.js'
+      - 'assets/ai02-premium.css'
+      - 'tests/ai02-investigator-workspace-contract.mjs'
+      - '.github/workflows/ai02-investigator-workspace.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: node --check assets/ai02-investigator-workspace.js
+      - name: Contract
+        run: node tests/ai02-investigator-workspace-contract.mjs
