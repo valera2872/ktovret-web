@@ -19,6 +19,8 @@ jobs:
         run: |
           node --check assets/ai-case-player-v2.js
           node --check assets/ai02-investigation-staging.js
+          node --check assets/ai02-investigator-workspace.js
+          node tests/ai02-investigator-workspace-contract.mjs
           grep -q "noindex,nofollow" staging-previews/ai02/index.html
           grep -q "ai02-investigation-staging.js" staging-previews/ai02/index.html
       - name: Assemble
@@ -33,6 +35,7 @@ jobs:
           cp assets/ai02-premium.css out/assets/
           cp -R assets/ai02/. out/assets/ai02/
           cp assets/ai02-investigation-staging.js out/assets/
+          cp assets/ai02-investigator-workspace.js out/assets/
           cp assets/ai02-portraits.js out/assets/
           cp assets/legal.css out/assets/
           cp assets/typography-polish.css out/assets/
@@ -113,10 +116,19 @@ jobs:
                   title:document.title,
                   hero:!!hero&&hero.complete&&hero.naturalWidth>0,
                   portraitCount:portraits.filter(x=>x.complete&&x.naturalWidth>0).length,
-                  workspace:!document.querySelector('[data-view="workspace"]')?.hidden
+                  workspace:!document.querySelector('[data-view="workspace"]')?.hidden,
+                  difficultyButtons:document.querySelectorAll('[data-difficulty-case]').length,
+                  investigatorTabs:document.querySelectorAll('[data-ai02-subview]').length,
+                  hotspots:document.querySelectorAll('[data-scene-query]').length,
+                  notebookTabs:document.querySelectorAll('[data-ai02-note-tab]').length
                 };
               });
-              if(!checks.hero||!checks.workspace||checks.portraitCount<5) throw new Error(cfg.name+' visual check failed '+JSON.stringify(checks));
+              if(!checks.hero||!checks.workspace||checks.portraitCount<5||checks.difficultyButtons!==3||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3) throw new Error(cfg.name+' visual check failed '+JSON.stringify(checks));
+              await page.click('[data-ai02-subview="timeline"]');
+              if(await page.locator('[data-ai02-panel="timeline"]').isHidden()) throw new Error(cfg.name+' timeline did not open');
+              await page.click('[data-ai02-subview="board"]');
+              if(await page.locator('[data-ai02-panel="board"]').isHidden()) throw new Error(cfg.name+' board did not open');
+              await page.click('[data-ai02-subview="scene"]');
               await page.click('[data-mode-switch="interrogation"]');
               await page.waitForTimeout(250);
               await page.screenshot({path:'deployed-'+cfg.name+'.png',fullPage:true});
