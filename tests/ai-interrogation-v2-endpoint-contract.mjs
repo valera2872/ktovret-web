@@ -32,3 +32,10 @@ assert.doesNotMatch(endpoint,/runtime\.canon\.theory/,'ordinary interrogation pr
 assert.match(endpoint,/store:false/,'OpenAI responses must not request provider-side conversation storage');
 
 console.log('AI interrogation v2 endpoint contract: ok');
+
+assert.match(endpoint,/const gated=investigationResult\(runtime,state,request\)/,'free investigation must pass through deterministic server-side evidence gating before the model sees any evidence');
+assert.doesNotMatch(endpoint,/Object\.values\(runtime\.canon\.evidence\|\|\{\}\)/,'free investigation must never expose the whole hidden evidence graph to the model');
+assert.match(endpoint,/evidence:gated\.evidence,noteIds:gated\.noteIds/,'model output must not choose which hidden evidence becomes authoritative');
+assert.match(endpoint,/const ai02Guarded=input\.runtime\.caseId\.startsWith\("AI02-NK-"\)/,'AI-02 must use the guarded speaking-brief path');
+assert.match(endpoint,/const knowledge=ai02Guarded\?\[\]:suspectKnowledge/,'AI-02 base_facts must not be sent to the model before server unlock');
+assert.match(endpoint,/hidden motives and actions|скрытые мотивы и поступки/,'AI-02 guarded persona must not inject private acts into the speaking brief');
