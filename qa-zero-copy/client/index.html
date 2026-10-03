@@ -1,14 +1,151 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Нулевая копия · Mystery Logic</title><link rel="stylesheet" href="style.css"></head><body>
-<section id="intro" class="hero"><div class="introbox"><div class="eyebrow">Mystery Logic · расследование для двоих</div><h1>Нулевая копия</h1><p class="lead">14 марта, 22:41. В закрытой реставрационной мастерской архива «Северный дом» находят Анну Левину без сознания. Рядом открыт защитный футляр. Рабочая тетрадь Арсения Воронцова исчезла.</p><p>Следов взлома нет. Архив закрыт для посетителей уже несколько часов. Анна умирает в больнице, не приходя в сознание. Вам предстоит выяснить, кто связан с её смертью и что на самом деле произошло с рукописью.</p><p>Вы работаете вдвоём. Первый игрок получает роль следователя, второй – эксперта архива. У каждого свои источники. Обсуждать находки можно свободно. Система не ведёт по правильному маршруту.</p><div class="entry-actions">
-  <div class="entry-card"><h3>Начать расследование</h3><input id="playerName" maxlength="32" placeholder="Ваше имя"><button id="createBtn">Создать комнату</button></div>
-  <div class="entry-card"><h3>Присоединиться</h3><div class="joinrow"><input id="roomCode" maxlength="8" placeholder="Код комнаты"><button id="joinBtn">Войти по коду</button></div></div>
-</div>
-<button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button><div style="margin-top:10px;font-size:12px;opacity:.55">staging build 2026-10-02.12</div>
-<p id="entryMsg" class="muted"></p></div></section>
-<section id="lobby" class="hero lobby" hidden><div class="introbox lobbybox"><div class="eyebrow">Комната создана</div><h2>Пригласите второго игрока</h2><p>Код комнаты останется здесь до начала расследования.</p><div id="lobbyCode" class="room-code">--------</div><div class="lobby-actions"><button id="copyCodeBtn">Копировать код</button><button id="copyInviteBtn" class="secondary">Копировать приглашение</button></div><p id="lobbyStatus" class="muted">Ждём второго игрока…</p><button id="leaveLobbyBtn" class="link-btn">Вернуться</button></div></section>
-<main id="game" class="app" hidden><header class="top"><div><div class="gold">Нулевая копия</div><b id="badge"></b></div><div><span id="partnerStatus">Проверяем напарника…</span></div></header>
-<div class="grid"><section class="panel"><h2>Что вы хотите проверить?</h2><div class="searchrow"><input id="query" placeholder="Человек, документ, помещение, дата, предмет, действие…"><button id="searchBtn">Искать</button></div><p class="muted">Поиск идёт только по источникам вашей роли. Запрос может ничего не дать. Правильной формулировки нет.</p><div id="results" class="results"></div><h3>Найдено вами</h3><div id="found" class="found"></div></section>
-<section class="panel"><h2>Поговорить</h2><select id="character"><option value="ratnikov">Михаил Ратников · замдиректора</option><option value="denis">Денис Корнеев · оператор цифрового архива</option><option value="markin">Лев Маркин · литературовед</option><option value="sofia">Софья Воронцова · наследница</option><option value="irina">Ирина Белова · директор фонда</option></select><textarea id="question" rows="4" placeholder="Задайте вопрос своими словами"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled> <span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn">Спросить</button><div id="dialog"></div></section></div>
-<div class="boardgrid"><section class="panel"><h2>Общая доска</h2><p class="muted">Здесь нет автоматических выводов. Записывайте факты, связи и свои версии.</p><textarea id="boardInput" placeholder="Факт, связь или гипотеза"></textarea><button id="boardBtn">Добавить для напарника</button><div id="board" class="board"></div></section><section class="panel"><h2>Мои заметки</h2><textarea id="noteInput" placeholder="Личная версия или вопрос"></textarea><button id="noteBtn">Сохранить</button><div id="notes"></div></section></div>
-<section class="panel"><h2>Ваша реконструкция</h2><p>Заполняйте, когда считаете, что можете объяснить всю цепочку. Это не тест с вариантами ответа.</p><div class="finalgrid"><textarea id="f_who" placeholder="Кто связан с произошедшим?"></textarea><textarea id="f_why" placeholder="Почему это произошло?"></textarea><textarea id="f_how" placeholder="Как развивались события?"></textarea><textarea id="f_where" placeholder="Где произошло ключевое событие?"></textarea><textarea id="f_when" placeholder="Когда это произошло?"></textarea><textarea id="f_evidence" placeholder="Какие независимые линии это доказывают?"></textarea><textarea id="f_lies" class="wide" placeholder="Кто лгал и почему? Отделите ложь от виновности."></textarea></div><button id="finalBtn">Проверить реконструкцию</button><p id="finalResult"></p></section><section id="reveal" class="reveal" hidden></section></main>
-<div id="viewer" class="viewer"><div class="paper"><button class="close" id="closeViewer">Закрыть</button><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><p id="viewerText"></p><button id="backViewer">Вернуться к расследованию</button></div></div><div id="toast" class="toast"></div><script src="app.js?v=20261002-12"></script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Нулевая копия · Mystery Logic</title>
+<link rel="stylesheet" href="style.css?v=20261003-15">
+</head>
+<body>
+<section id="intro" class="entry-screen">
+  <div class="entry-shade"></div>
+  <div class="entry-panel">
+    <div class="eyebrow">Mystery Logic · расследование для двоих</div>
+    <h1>Нулевая копия</h1>
+    <p class="entry-lead">14 марта, 22:41. В закрытой реставрационной мастерской архива «Северный дом» находят Анну Левину без сознания. Рядом открыт защитный футляр. Рабочая тетрадь Арсения Воронцова исчезла.</p>
+    <p>Следов взлома нет. Архив закрыт для посетителей уже несколько часов. Анна умирает в больнице, не приходя в сознание. Вам предстоит выяснить, кто связан с её смертью и что на самом деле произошло с рукописью.</p>
+    <p>Вы работаете вдвоём. Первый игрок становится следователем, второй – экспертом архива. У каждого свои источники. Обсуждать находки можно свободно. Система не ведёт по правильному маршруту.</p>
+    <div class="entry-actions">
+      <div class="entry-card">
+        <h3>Начать расследование</h3>
+        <input id="playerName" maxlength="32" placeholder="Ваше имя">
+        <button id="createBtn" class="primary">Создать комнату</button>
+      </div>
+      <div class="entry-card">
+        <h3>Присоединиться</h3>
+        <div class="joinrow"><input id="roomCode" maxlength="8" placeholder="Код комнаты"><button id="joinBtn" class="primary">Войти по коду</button></div>
+      </div>
+    </div>
+    <button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button>
+    <div class="buildmark">staging build 2026-10-03.15</div>
+    <p id="entryMsg" class="muted statusline"></p>
+  </div>
+</section>
+
+<section id="lobby" class="entry-screen" hidden>
+  <div class="entry-shade"></div>
+  <div class="entry-panel lobby-panel">
+    <div class="eyebrow">Комната создана</div>
+    <h2>Пригласите второго игрока</h2>
+    <p>Код комнаты останется здесь до начала расследования.</p>
+    <div id="lobbyCode" class="room-code">--------</div>
+    <div class="lobby-actions"><button id="copyCodeBtn" class="primary">Копировать код</button><button id="copyInviteBtn" class="secondary">Копировать приглашение</button></div>
+    <p id="lobbyStatus" class="muted">Ждём второго игрока…</p>
+    <button id="leaveLobbyBtn" class="link-btn">Вернуться</button>
+  </div>
+</section>
+
+<main id="game" class="workspace" hidden>
+  <header class="workspace-head">
+    <div class="brandblock"><div class="eyebrow">Нулевая копия</div><div class="case-subtitle">Дело об исчезнувшей рукописи</div></div>
+    <div class="head-status"><span id="badge"></span><span class="divider"></span><span id="partnerStatus">Проверяем напарника…</span></div>
+  </header>
+
+  <aside class="sidebar">
+    <button class="navitem active" data-view="overview"><span>⌂</span><b>Обзор дела</b></button>
+    <button class="navitem" data-view="materials"><span>□</span><b>Материалы</b></button>
+    <button class="navitem" data-view="people"><span>◎</span><b>Персонажи и допросы</b></button>
+    <button class="navitem" data-view="search"><span>⌕</span><b>Поиск</b></button>
+    <button class="navitem" data-view="board"><span>⌘</span><b>Общая доска</b></button>
+    <button class="navitem" data-view="notes"><span>≡</span><b>Мои заметки</b></button>
+    <button class="navitem" data-view="final"><span>◇</span><b>Реконструкция</b></button>
+    <div class="side-foot"><div class="side-label">Принцип игры</div><p>Интерфейс показывает инструменты. Выводы делает только игрок.</p></div>
+  </aside>
+
+  <section class="content">
+    <section id="view-overview" class="view active">
+      <div class="overview-hero">
+        <img src="assets/archive-lab-premium.png" alt="Реставрационная лаборатория архива">
+        <div class="hero-overlay"></div>
+        <div class="hero-copy">
+          <div class="eyebrow">Ваше рабочее место</div>
+          <h2>Перед вами дело, а не маршрут</h2>
+          <p id="roleBrief">Изучайте документы, сопоставляйте детали, задавайте вопросы персонажам и проверяйте любые версии. Система не сообщает, что считать уликой и в каком порядке идти.</p>
+        </div>
+      </div>
+      <div class="overview-grid">
+        <section class="card dossier-card">
+          <div class="section-title"><div><div class="eyebrow">Дано следствию</div><h3>Исходные материалы</h3></div><button class="ghost jump" data-view="materials">Все материалы</button></div>
+          <p class="muted">Это не подсказки, а то, что объективно доступно вашей роли в момент начала дела.</p>
+          <div id="starterMaterials" class="starter-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        </section>
+        <section class="card people-card">
+          <div class="section-title"><div><div class="eyebrow">Люди</div><h3>Кого можно расспросить</h3></div><button class="ghost jump" data-view="people">Открыть допросы</button></div>
+          <div class="people-list compact">
+            <button data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора</small></span></button>
+            <button data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>оператор цифрового архива</small></span></button>
+            <button data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед</small></span></button>
+            <button data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
+            <button data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
+          </div>
+        </section>
+      </div>
+      <div class="toolstrip">
+        <button class="toolcard jump" data-view="materials"><span class="toolicon">□</span><b>Материалы</b><small>Документы, фото и записи вашей роли</small></button>
+        <button class="toolcard jump" data-view="people"><span class="toolicon">◎</span><b>Допросы</b><small>Свободные вопросы и предъявление материалов</small></button>
+        <button class="toolcard jump" data-view="search"><span class="toolicon">⌕</span><b>Поиск</b><small>Проверяйте человека, место, дату, предмет или действие</small></button>
+        <button class="toolcard jump" data-view="board"><span class="toolicon">⌘</span><b>Общая доска</b><small>Факты, связи и ваши собственные версии</small></button>
+        <button class="toolcard jump" data-view="final"><span class="toolicon">◇</span><b>Реконструкция</b><small>Когда сможете объяснить всю цепочку событий</small></button>
+      </div>
+    </section>
+
+    <section id="view-materials" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Рабочие материалы</div><h2>Досье вашей роли</h2></div><p>Открывайте и сопоставляйте материалы. Система не оценивает, что из найденного важно.</p></div>
+      <div class="materials-layout">
+        <section class="card materials-list-card"><div class="section-title"><h3>Доступно сейчас</h3><span id="foundCount" class="pill">0</span></div><div id="starterMaterialsFull" class="materials-stack"></div><div class="section-divider">Найдено в ходе проверки</div><div id="found" class="materials-stack"></div></section>
+        <section class="card material-stage empty-stage" id="materialStage"><div class="stage-empty"><span class="bigicon">□</span><h3>Откройте материал слева</h3><p>Документ появится здесь. Можно вернуться к нему позже, сопоставить с другими данными или предъявить персонажу.</p></div></section>
+      </div>
+    </section>
+
+    <section id="view-people" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Персонажи</div><h2>Разговор без готовых реплик</h2></div><p>Задавайте вопросы своими словами. Если хотите проверить реакцию, предъявите конкретный материал.</p></div>
+      <div class="people-layout">
+        <section class="card people-sidebar"><div class="people-list">
+          <button class="suspect active" data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора</small></span></button>
+          <button class="suspect" data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>оператор цифрового архива</small></span></button>
+          <button class="suspect" data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед</small></span></button>
+          <button class="suspect" data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
+          <button class="suspect" data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
+        </div></section>
+        <section class="card interrogation"><div class="interro-head"><div><div class="eyebrow">Допрос</div><h3 id="activePersonName">Михаил Ратников</h3></div><select id="character" aria-label="Персонаж"><option value="ratnikov">Михаил Ратников</option><option value="denis">Денис Орлов</option><option value="markin">Лев Маркин</option><option value="sofia">Софья Воронцова</option><option value="irina">Ирина Белова</option></select></div><div id="dialog" class="dialog-stream"><div class="dialog-empty">Разговор ещё не начат.</div></div><textarea id="question" rows="4" placeholder="Задайте вопрос своими словами"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled><span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn" class="primary">Спросить</button></section>
+      </div>
+    </section>
+
+    <section id="view-search" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Проверка версии</div><h2>Что вы хотите проверить?</h2></div><p>Человек, документ, помещение, дата, предмет, действие, фраза или событие. Запрос может ничего не дать.</p></div>
+      <section class="card search-card"><div class="searchrow"><input id="query" placeholder="Например: доступ к тетради, звонки после 22:00, коробка L17-203…"><button id="searchBtn" class="primary">Искать</button></div><p class="muted">Поиск идёт только по источникам вашей роли. Правильной формулировки нет.</p><div id="results" class="search-results"></div></section>
+    </section>
+
+    <section id="view-board" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Совместная работа</div><h2>Общая доска</h2></div><p>Система ничего не соединяет за вас. Записывайте факты, связи, противоречия и версии, которые считаете важными.</p></div>
+      <div class="board-layout"><section class="card board-visual"><img src="assets/archive-lab.png" alt="Архивная лаборатория"><div class="board-vignette"></div><div id="board" class="board-cards"></div></section><section class="card board-compose"><h3>Добавить на доску</h3><textarea id="boardInput" rows="7" placeholder="Факт, связь, противоречие или гипотеза"></textarea><button id="boardBtn" class="primary">Добавить для напарника</button><p class="muted">Напарник увидит запись после синхронизации.</p></section></div>
+    </section>
+
+    <section id="view-notes" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Личная работа</div><h2>Мои заметки</h2></div><p>Сохраняйте собственные версии и вопросы. Напарник их не видит.</p></div>
+      <div class="notes-layout"><section class="card"><textarea id="noteInput" rows="9" placeholder="Личная версия, сомнение или вопрос"></textarea><button id="noteBtn" class="primary">Сохранить</button></section><section class="card"><h3>Сохранённые заметки</h3><div id="notes" class="notes-list"></div></section></div>
+    </section>
+
+    <section id="view-final" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Финальная реконструкция</div><h2>Объясните всю цепочку событий</h2></div><p>Не выбирайте ответ из вариантов. Сформулируйте собственную версию и укажите независимые основания.</p></div>
+      <section class="card"><div class="finalgrid"><label><span>Кто связан с произошедшим?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие независимые линии это доказывают?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто лгал и почему? Отделите ложь от виновности.</span><textarea id="f_lies"></textarea></label></div><button id="finalBtn" class="primary final-submit">Проверить реконструкцию</button><p id="finalResult" class="final-result"></p></section>
+      <section id="reveal" class="reveal" hidden></section>
+    </section>
+  </section>
+</main>
+
+<div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="no-image">Документ</div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
+<div id="toast" class="toast"></div>
+<script src="app.js?v=20261003-15"></script>
+</body></html>
