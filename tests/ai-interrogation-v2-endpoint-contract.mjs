@@ -41,7 +41,7 @@ assert.match(endpoint,/const knowledge=ai02Guarded\?\[\]:suspectKnowledge/,'AI-0
 assert.match(endpoint,/hidden motives and actions|скрытые мотивы и поступки/,'AI-02 guarded persona must not inject private acts into the speaking brief');
 
 
-/* TEMP 2026-10-03 exact deployed AI-02 Release Gate probe. Remove after PASS. */
+/* TEMP 2026-10-03 exact deployed AI-02 Release Gate probe v9. Remove after PASS. */
 const probeBase='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=c8c566ba0a4e4c94';
 async function probe(stage){
   const r=await fetch(probeBase+'&stage='+stage,{signal:AbortSignal.timeout(30000)});
