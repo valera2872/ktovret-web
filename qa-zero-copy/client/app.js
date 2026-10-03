@@ -2,7 +2,7 @@ window.addEventListener('error',e=>{const m=document.querySelector('#entryMsg');
 const BASE='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/';
 const DUEL=BASE+'zero-copy-room-v1', SESSION=BASE+'zero-copy-session-v1', AI=BASE+'zero-copy-interrogate-v1', FINAL=BASE+'zero-copy-final-v1';
 const CASE_ID='MLP002_ZERO_COPY',CASE_TITLE='Нулевая копия',CASE_PATH='/ru/cases/nulevaya-kopiya/';
-const STARTER_IDS=['scene','phone','passes','cards','camera','catalog','repair','cond19','photosession','box'];
+const STARTER_IDS=['scene','medical','fund','catalog','repair','cond19'];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const roleName=r=>r==='investigator'?'Следователь':'Эксперт архива';
 const KEY='mysterylogic:partner-premium:browser-key',NAME='mysterylogic:partner-premium:player-name';
