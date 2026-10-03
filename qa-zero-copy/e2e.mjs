@@ -113,4 +113,4 @@ assert(!s2.state.mine.evidence.includes('ratnikov_money'),'investigator private 
 log('PRIVACY',{investigatorMine:s1.state.mine.evidence.length,archivistMine:s2.state.mine.evidence.length});
 console.log(JSON.stringify({ok:true,code,passes:['spoiler-hunter','novice','holmes-watson-discovery','alternate-queries','partner-cross-clue','help-call','timeline','confession-threshold','four-wrong-theories','correct-reconstruction','role-privacy']}));
 
-// audit rerun 2
+// audit rerun 3
