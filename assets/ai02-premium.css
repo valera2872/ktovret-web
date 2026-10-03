@@ -1012,3 +1012,25 @@ body.aid-body:has([data-ai-v2-player]){
   .aid-action-dock strong{font-size:12px!important}
   .ai02-investigator-tabs button{font-size:10.5px!important}
 }
+
+
+/* 2026-10-04 mobile difficulty strip — relocate out of narrow side rail */
+.ai02-difficulty-head{display:block}
+.ai02-difficulty-head>p{margin:8px 0 0;color:#6f7f7a;font-size:11px;line-height:1.45}
+.ai02-difficulty.is-mobile-horizontal{grid-column:1/-1;display:grid;grid-template-columns:minmax(180px,.75fr) minmax(0,1.25fr);gap:12px;align-items:center;width:100%;box-sizing:border-box;margin:0;padding:12px 14px;border:1px solid rgba(205,171,105,.14);border-radius:9px;background:linear-gradient(180deg,rgba(10,23,20,.96),rgba(6,15,13,.98));box-shadow:0 12px 34px rgba(0,0,0,.16)}
+.ai02-difficulty.is-mobile-horizontal .ai02-tool-label{margin:0}
+.ai02-difficulty.is-mobile-horizontal .ai02-difficulty-head>p{margin-top:5px}
+.ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button{padding:10px 9px;text-align:center}
+.ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button strong{font-size:12px!important;white-space:normal;overflow:visible;text-overflow:clip}
+.ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button small{margin-top:3px;font-size:9px!important;white-space:normal;overflow:visible;text-overflow:clip}
+
+@media(max-width:800px){
+  .ai02-difficulty.is-mobile-horizontal{display:grid!important;grid-template-columns:1fr;gap:9px;order:0;margin:0 0 4px;padding:11px 12px}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-head>p{max-width:58%;margin:0;text-align:right;font-size:10px!important;line-height:1.35}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button{min-width:0;padding:10px 6px}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button strong{font-size:11px!important;line-height:1.15}
+  .ai02-difficulty.is-mobile-horizontal .ai02-difficulty-row button small{font-size:9px!important}
+}
