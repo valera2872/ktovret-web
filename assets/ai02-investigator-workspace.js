@@ -50,14 +50,34 @@ function caseVariantUrl(id){
   const u=new URL(location.href);u.searchParams.set('case',id);u.searchParams.delete('preview');return u.href;
 }
 
+function placeDifficulty(){
+  const box=qs('[data-ai02-difficulty]');if(!box)return;
+  const mobile=window.matchMedia('(max-width:800px)').matches;
+  const side=qs('.ai02-side-case');
+  const switcher=qs('.aid-mode-switcher');
+  if(mobile&&switcher){
+    if(box.previousElementSibling!==switcher)switcher.after(box);
+    box.classList.add('is-mobile-horizontal');
+  }else if(side){
+    if(box.parentElement!==side)side.append(box);
+    box.classList.remove('is-mobile-horizontal');
+  }
+}
 function injectDifficulty(){
-  if(qs('[data-ai02-difficulty]'))return;
-  const host=qs('.ai02-side-case');if(!host)return;
-  const current=DIFFICULTY[caseId]||DIFFICULTY['AI02-NK-STANDARD'];
-  const box=document.createElement('div');box.className='ai02-difficulty';box.dataset.ai02Difficulty='';
-  box.innerHTML='<span class="ai02-tool-label">Уровень расследования</span><div class="ai02-difficulty-row">'+Object.entries(DIFFICULTY).map(([id,d])=>'<button type="button" data-difficulty-case="'+id+'" class="'+(id===caseId?'is-active':'')+'"><strong>'+esc(d.short)+'</strong><small>'+esc(d.label)+'</small></button>').join('')+'</div><p>'+esc(current.copy)+'</p>';
-  host.append(box);
-  qsa('[data-difficulty-case]',box).forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.difficultyCase;if(id&&id!==caseId)location.href=caseVariantUrl(id)}));
+  let box=qs('[data-ai02-difficulty]');
+  if(!box){
+    const host=qs('.ai02-side-case');if(!host)return;
+    const current=DIFFICULTY[caseId]||DIFFICULTY['AI02-NK-STANDARD'];
+    box=document.createElement('div');box.className='ai02-difficulty';box.dataset.ai02Difficulty='';
+    box.innerHTML='<div class="ai02-difficulty-head"><span class="ai02-tool-label">Уровень расследования</span><p>'+esc(current.copy)+'</p></div><div class="ai02-difficulty-row">'+Object.entries(DIFFICULTY).map(([id,d])=>'<button type="button" data-difficulty-case="'+id+'" class="'+(id===caseId?'is-active':'')+'"><strong>'+esc(d.label)+'</strong><small>'+esc(d.short)+'</small></button>').join('')+'</div>';
+    host.append(box);
+    qsa('[data-difficulty-case]',box).forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.difficultyCase;if(id&&id!==caseId)location.href=caseVariantUrl(id)}));
+  }
+  placeDifficulty();
+  if(!document.documentElement.dataset.ai02DifficultyResize){
+    document.documentElement.dataset.ai02DifficultyResize='1';
+    window.addEventListener('resize',()=>{window.clearTimeout(placeDifficulty._t);placeDifficulty._t=window.setTimeout(placeDifficulty,80)},{passive:true});
+  }
 }
 
 function injectInvestigationTabs(){
