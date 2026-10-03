@@ -64,6 +64,14 @@ const alternatives=[
 ];
 for(const [k,q,id] of alternatives){const rs=await search(k,q);assert(rs.some(z=>z.id===id),'alternative query failed '+q+' -> '+id);log('ALT',{q,id,top:rs.map(z=>z.id)})}
 
+await findOpen(k2,'синий держатель карты','capture1');
+const ctext=(await call(E.room,{action:'open',browserKey:k1,code,id:'cards'})).material.text;
+const ptext=(await call(E.room,{action:'open',browserKey:k2,code,id:'capture1'})).material.text;
+assert(/тёмно-син/i.test(ctext)&&/административн/i.test(ctext),'cross-role card clue missing');
+assert(/тёмно-син/i.test(ptext)&&/номер.*нельзя/i.test(ptext),'capture clue is not correctly limited');
+log('CROSS',{cards:ctext,capture:ptext});
+const em=await search(k1,'когда вызвали скорую помощь');assert(em.some(z=>z.id==='scene'),'help-call fact not discoverable');log('HELP_CALL',{top:em.map(z=>z.id)});
+
 // Timeline sanity assertions from opened materials
 const rr=await call(E.room,{action:'open',browserKey:k2,code,id:'change_dates'});log('TIMELINE',{text:rr.material.text});
 assert(/9 января/.test(rr.material.text)&&/28 января/.test(rr.material.text)&&/19 февраля/.test(rr.material.text)&&/14 марта/.test(rr.material.text),'replacement chronology not repaired');
@@ -84,7 +92,7 @@ const wrongs=[
  {who:'Софья Воронцова',why:'Хотела уничтожить компрометирующий семейный лист',how:'Проникла обратно и спрятала тетрадь после конфликта.'},
  {who:'Ирина Белова',why:'Хотела получить страховую выплату для фонда',how:'Инсценировала кражу и напала на Анну.'}
 ];
-for(const w of wrongs){const r=await call(E.final,{browserKey:k1,code,answers:{...base,...w}});log('WRONG_FINAL',{who:w.who,passed:r.passed,message:r.message});assert(r.passed===false,'wrong theory accepted '+w.who)}
+for(const w of wrongs){const r=await call(E.final,{browserKey:k1,code,answers:{...base,...w}});log('WRONG_FINAL',{who:w.who,passed:r.passed,message:r.message});assert(r.passed===false,'wrong theory accepted '+w.who);assert(!/Ратников|Анн|коробк|отдельн.*подмен/i.test(r.message||''),'rejection text reveals case specifics')}
 
 // Correct reconstruction, paraphrased
 const right={
@@ -103,4 +111,4 @@ const s1=await status(k1),s2=await status(k2);
 assert(!s1.state.mine.evidence.includes('box_exam'),'archivist private evidence leaked to investigator mine');
 assert(!s2.state.mine.evidence.includes('ratnikov_money'),'investigator private evidence leaked to archivist mine');
 log('PRIVACY',{investigatorMine:s1.state.mine.evidence.length,archivistMine:s2.state.mine.evidence.length});
-console.log(JSON.stringify({ok:true,code,passes:['spoiler-hunter','novice','holmes-watson-discovery','alternate-queries','timeline','confession-threshold','four-wrong-theories','correct-reconstruction','role-privacy']}));
+console.log(JSON.stringify({ok:true,code,passes:['spoiler-hunter','novice','holmes-watson-discovery','alternate-queries','partner-cross-clue','help-call','timeline','confession-threshold','four-wrong-theories','correct-reconstruction','role-privacy']}));
