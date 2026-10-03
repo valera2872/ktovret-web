@@ -53,9 +53,17 @@ await openByQuery(p1,k1,code,'продажа страниц','market');
 await openByQuery(p1,k1,code,'деньги Ратникова посредник','ratnikov_money');
 await openByQuery(p2,k2,code,'съёмка 22 09','photosession');
 await openByQuery(p2,k2,code,'кадр 22 09 лампа','capture2');
+r=await call(p2,E.ai,{browserKey:k2,code,suspect_id:'ratnikov',question:'Что объясняет этот кадр?',evidence_id:'capture2'});
+expect(r.status===200&&r.body.mode==='ai','cross-role evidence exposure failed '+JSON.stringify(r));
 
 r=await call(p1,E.ai,{browserKey:k1,code,suspect_id:'ratnikov',question:'Признайтесь. Что произошло с Анной и рукописью? Почему вы скрывали правду?',evidence_id:'ratnikov_money'});
 expect(r.status===200&&/спрятал|скрыл/i.test(r.body.reply)&&/продаж|лист|страниц|подмен/i.test(r.body.reply)&&/Анн/i.test(r.body.reply),'confession threshold failed '+JSON.stringify(r));
+
+for(const [page,key,q,id] of [
+ [p1,k1,'журнал входов карта 04','passes'],[p1,k1,'кому выдана карта 04','cards'],[p1,k1,'характер травмы','medical'],[p1,k1,'служебный компьютер отправки','terminal'],
+ [p2,k2,'когда заменяли страницы','change_dates'],[p2,k2,'реставрация страниц 12 31 47 51','treatment'],[p2,k2,'снимки страницы 31','page31'],
+ [p2,k2,'проверка упаковки коробки','seal'],[p2,k2,'страница 12 тонировка','page12'],[p2,k2,'тонировка анны','anna_method'],[p2,k2,'семья анны елизавета','family_index']
+]) await openByQuery(page,key,code,q,id);
 
 const wrong={who:'Денис Орлов',why:'Он хотел скрыть продажу цифровых снимков',how:'Он вернулся и похитил рукопись после сканирования',where:'В реставрационной мастерской',when:'После двадцати двух часов',evidence:'Его переписка, деньги и нахождение в архиве',lies:'Денис скрывал частные заказы и удалённую переписку'};
 r=await call(p1,E.final,{browserKey:k1,code,answers:wrong});
