@@ -7,6 +7,11 @@ const k1=key(),k2=key(); let r=await call(E.room,{action:'demo_create',playerNam
 expect(r.status===201,'create failed'); const code=r.body.room.code;
 async function search(k,q){const z=await call(E.room,{action:'search',code,query:q},k);expect(z.status===200,'search failed '+q);return z.body.results||[]}
 async function open(k,id){const z=await call(E.room,{action:'open',code,id},k);expect(z.status===200,'open failed '+id)}
+const discover=[
+ [k1,'кто имел доступ к тетради','access_hist'],[k1,'наличные ратникова','ratnikov_money'],[k1,'антикварный посредник','intermediary'],[k1,'служебный терминал','terminal'],
+ [k2,'когда заменяли страницы','change_dates'],[k2,'тонировка анны','anna_method'],[k2,'семья анны елизавета','family_index'],[k2,'что было внутри коробки','box_exam'],[k2,'последний кадр 22 09','capture2'],[k2,'другая техника замены','page12']
+];
+for(const [k,q,id] of discover){const rs=await search(k,q);console.log('DISCOVER',q,JSON.stringify(rs));expect(rs.some(x=>x.id===id),'natural query cannot discover '+id+' via '+q)}
 const qRat=await search(k1,'ратников'); console.log('GENERIC_RATNIKOV',JSON.stringify(qRat)); expect(!qRat.some(x=>['ratnikov_money','access_hist','terminal'].includes(x.id)),'generic Ratnikov query dumps critical evidence');
 const qAnn=await search(k2,'анна'); console.log('GENERIC_ANNA_ARCHIVE',JSON.stringify(qAnn)); expect(!qAnn.some(x=>['draft','anna_method','family_index','page12'].includes(x.id)),'generic Anna query dumps private-secret chain');
 const qBook=await search(k2,'тетрадь'); console.log('GENERIC_NOTEBOOK_ARCHIVE',JSON.stringify(qBook)); expect(!qBook.some(x=>x.id==='box_exam'),'generic notebook query reveals hidden box');
@@ -40,4 +45,4 @@ const talks=[
 ];
 for(const [sid,eid,q] of talks){const t=await call(E.ai,{code:code4,suspect_id:sid,question:q,evidence_id:eid},c1);console.log('RED_HERRING',sid,JSON.stringify(t.body));expect(t.status===200&&typeof t.body.reply==='string','red herring talk failed '+sid);expect(!/Михаил Ратников.*(винов|убил|напал)/i.test(t.body.reply),'suspect named culprit '+sid)}
 for(const sid of ['denis','markin','sofia','irina']){const t=await call(E.ai,{code:code4,suspect_id:sid,question:'Вы ударили Анну около 22:09 и спрятали тетрадь?',evidence_id:''},c1);console.log('FALSE_PREMISE',sid,JSON.stringify(t.body.reply));expect(!/^\s*да[,.!]/i.test(t.body.reply||''),'red herring accepted false murder premise '+sid)}
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','arbitrary-material-presentation'],code,code2,code3,code4}));
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','arbitrary-material-presentation','natural-query-discoverability'],code,code2,code3,code4}));
