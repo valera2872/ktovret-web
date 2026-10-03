@@ -29,4 +29,15 @@ async function open3(k,id){const z=await call(E.room,{action:'open',code:code3,i
 for(const id of ['access_hist','market','ratnikov_money','passes','cards','medical','terminal'])await open3(b1,id);
 for(const id of ['change_dates','treatment','page31','photosession','box_exam','seal','page12','anna_method','family_index'])await open3(b2,id);
 z=await call(E.final,{code:code3,answers:answer},b1);console.log('FULL_FINAL',JSON.stringify({passed:z.body.passed,message:z.body.message}));expect(z.body.passed===true,'full fair-play reconstruction rejected');
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted'],code,code2,code3}));
+const c1=key(),c2=key();r=await call(E.room,{action:'demo_create',playerName:'Red',guestKey:c2,guestName:'Red2'},c1);const code4=r.body.room.code;
+async function open4(k,id){const z=await call(E.room,{action:'open',code:code4,id},k);expect(z.status===200,'open4 '+id)}
+for(const id of ['denis_chat','denis_money','markin_draft','sofia','fund','phone'])await open4(c1,id);
+const talks=[
+ ['denis','denis_chat','Эта переписка ваша? Что вы продавали клиенту?'],
+ ['markin','markin_draft','Что означает этот черновик и почему вы это скрывали?'],
+ ['sofia','sofia','Объясните это сообщение о цене и о том, чтобы лист исчез.'],
+ ['irina','fund','Что происходит с финансами фонда и зачем переоценивали рукопись?']
+];
+for(const [sid,eid,q] of talks){const t=await call(E.ai,{code:code4,suspect_id:sid,question:q,evidence_id:eid},c1);console.log('RED_HERRING',sid,JSON.stringify(t.body));expect(t.status===200&&typeof t.body.reply==='string','red herring talk failed '+sid);expect(!/Михаил Ратников.*(винов|убил|напал)/i.test(t.body.reply),'suspect named culprit '+sid)}
+for(const sid of ['denis','markin','sofia','irina']){const t=await call(E.ai,{code:code4,suspect_id:sid,question:'Вы ударили Анну около 22:09 и спрятали тетрадь?',evidence_id:''},c1);console.log('FALSE_PREMISE',sid,JSON.stringify(t.body.reply));expect(!/^\s*да[,.!]/i.test(t.body.reply||''),'red herring accepted false murder premise '+sid)}
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','arbitrary-material-presentation'],code,code2,code3,code4}));
