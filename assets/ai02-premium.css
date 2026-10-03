@@ -959,3 +959,56 @@ body.aid-body:has([data-ai-v2-player]){
   .ai02-link-builder{grid-template-columns:1fr}.ai02-link-builder input,.ai02-link-builder button{grid-column:auto}
   .ai02-reconstruction-grid,[data-ai02-theory-evidence]{grid-template-columns:1fr}
 }
+
+
+/* 2026-10-03 typography comfort pass — font sizes only, approved layout untouched */
+.aid-action-dock strong{font-size:13px!important}
+.aid-action-dock small{font-size:10px!important}
+.aid-evidence-card small{font-size:9px!important}
+.aid-evidence-card strong{font-size:16px!important}
+.aid-evidence-card p{font-size:12.5px!important;line-height:1.6!important}
+.aid-suspect-tab strong{font-size:14px!important}
+.aid-suspect-tab small{font-size:9px!important}
+.aid-message-meta{font-size:9px!important}
+.aid-message{font-size:14px!important;line-height:1.55!important}
+.aid-room-status{font-size:11px!important}
+.aid-notes,.aid-notes p,.aid-note{font-size:12.5px!important;line-height:1.55!important}
+.aid-panel-hint,.aid-theory-hint{font-size:11px!important;line-height:1.5!important}
+.ai02-scene-copy p{font-size:11.5px!important;line-height:1.5!important}
+.ai02-tool-label{font-size:11px!important}
+.ai02-difficulty-row button strong{font-size:12px!important}
+.ai02-difficulty-row button small{font-size:10px!important}
+.ai02-difficulty>p{font-size:11px!important}
+.ai02-investigator-tabs button{font-size:11px!important}
+.ai02-hotspots button{font-size:10px!important}
+.ai02-subview-head>small{font-size:11px!important}
+.ai02-timeline-track time{font-size:12px!important}
+.ai02-timeline-track span{font-size:10px!important}
+.ai02-timeline-track strong{font-size:13px!important}
+.ai02-timeline-track p{font-size:12px!important;line-height:1.55!important}
+.ai02-board-grid h3{font-size:11px!important}
+.ai02-board-node{font-size:11.5px!important;line-height:1.45!important}
+.ai02-board-node small{font-size:9px!important}
+.ai02-board-links article span,.ai02-notebook-links article span,.ai02-hypotheses article span{font-size:9px!important}
+.ai02-board-links article strong,.ai02-notebook-links article strong,.ai02-hypotheses article strong{font-size:11.5px!important}
+.ai02-board-links article p,.ai02-notebook-links article p,.ai02-hypotheses article p{font-size:11px!important;line-height:1.5!important}
+.ai02-board-links article button,.ai02-hypotheses article button{font-size:10px!important}
+.ai02-link-builder select,.ai02-link-builder input,.ai02-link-builder button{font-size:11px!important}
+.ai02-evidence-meta span{font-size:9px!important}
+.ai02-interrogation-actions button{font-size:10px!important}
+.ai02-statement-history>div strong{font-size:12px!important}
+.ai02-statement-history>div small{font-size:10px!important}
+.ai02-statement-history ol{font-size:10.5px!important;line-height:1.5!important}
+.ai02-note-tabs button{font-size:9px!important}
+.ai02-hypotheses input,.ai02-hypotheses textarea,.ai02-hypotheses form button{font-size:11px!important}
+.ai02-reconstruction label{font-size:11px!important}
+.ai02-reconstruction label>span,.ai02-reconstruction legend{font-size:10px!important}
+[data-ai02-theory-evidence] label span{font-size:10.5px!important}
+[data-ai02-theory-evidence] label small{font-size:9px!important}
+
+@media(max-width:800px){
+  .aid-evidence-card p{font-size:13px!important}
+  .aid-notes,.aid-notes p,.aid-note{font-size:13px!important}
+  .aid-action-dock strong{font-size:12px!important}
+  .ai02-investigator-tabs button{font-size:10.5px!important}
+}
