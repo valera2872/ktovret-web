@@ -351,7 +351,7 @@ body.aid-body:has([data-ai-v2-player]){
 .aid-scene-photo img{
   object-fit:cover!important;
   object-position:center 48%!important;
-  filter:saturate(.72) contrast(1.06) brightness(.56)!important;
+  filter:saturate(.96) contrast(1.03) brightness(.88)!important;
   transform:scale(1.015)!important;
 }
 .aid-scene-photo:before{
@@ -360,12 +360,12 @@ body.aid-body:has([data-ai-v2-player]){
   inset:0!important;
   z-index:1!important;
   background:
-    linear-gradient(90deg,rgba(5,12,11,.78),transparent 24%,transparent 76%,rgba(5,12,11,.72)),
-    linear-gradient(180deg,rgba(5,12,11,.10),rgba(5,12,11,.74))!important;
+    linear-gradient(90deg,rgba(5,12,11,.38),transparent 24%,transparent 76%,rgba(5,12,11,.34)),
+    linear-gradient(180deg,rgba(5,12,11,.04),rgba(5,12,11,.46))!important;
 }
 .aid-scene-photo:after{
   z-index:1!important;
-  background:linear-gradient(180deg,transparent 40%,rgba(5,12,11,.82))!important;
+  background:linear-gradient(180deg,transparent 50%,rgba(5,12,11,.58))!important;
 }
 .aid-scene-photo figcaption{
   left:26px!important;
@@ -738,7 +738,7 @@ body.aid-body:has([data-ai-v2-player]){
   border-radius:9px 9px 0 0!important;
 }
 .aid-scene-photo img{
-  filter:saturate(.84) contrast(1.04) brightness(.72)!important;
+  filter:saturate(.98) contrast(1.03) brightness(.90)!important;
 }
 .ai02-scene-copy{
   position:absolute!important;
