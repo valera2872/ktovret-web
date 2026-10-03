@@ -140,6 +140,39 @@ async function claimPaidTurn(runtime:AiCaseRuntime,sessionKey:string,req:Request
 async function completeClaim(claimId:string,usage:Usage){const result=await rpc("ai_detective_complete_turn",{p_claim_id:claimId,p_actual_usd:usage.costUsd,p_input_tokens:usage.inputTokens,p_cached_input_tokens:usage.cachedInputTokens,p_output_tokens:usage.outputTokens});if(!result?.ok)throw new Error("metering_complete_failed")}
 async function releaseClaim(claimId:string){try{await rpc("ai_detective_release_turn",{p_claim_id:claimId})}catch(error){console.error("ai_v2_release_failed",String(error))}}
 
+function investigationResult(runtime:AiCaseRuntime,state:AiCaseState,request:string){
+  if(!runtime.caseId.startsWith("AI02-NK-"))return null;
+  const q=request.toLocaleLowerCase("ru-RU");
+  const ids:string[]=[]; const notes:string[]=[];
+  const add=(...values:string[])=>{for(const id of values)if(!ids.includes(id))ids.push(id)};
+  if(/двер|замок|мест.{0,8}проис|осмотр|борьб|положен.{0,8}тел|сзади|спереди/.test(q))add("E26");
+  if(/камер|видео|cctv|наблюден|запис.{0,8}камер/.test(q))add("E27","E05","E16");
+  if(/телефон|мобиль|сотов|базов.{0,8}станц|вышк|геолокац|wi.?fi|вай.?фай|устройств|сеть/.test(q))add("E28");
+  if(/судмед|эксперт|экспертиз|оруди|предмет.{0,8}убий|чем уб|кров|травм|удар/.test(q))add("E03");
+  if(/компьют|станц|лог|журнал|файл|qc|аудио|звук|воспроиз|очеред|цифров/.test(q)){add("E06","E07","E08");notes.push("N-VOICE-PLAYBACK")}
+  if(/сообщ|переписк|телефон.{0,20}вернер|соф|удален/.test(q))add("E10","E11");
+  if(/кассет|контейнер|оригинал.{0,12}(где|пропал|исчез)|пропавш.{0,12}оригинал/.test(q))add("E19");
+  if(/шкаф|локер|d-17/.test(q))add("E20");
+  if(/1998|стар.{0,8}монтаж|автор.{0,8}монтаж|архив.{0,20}фильм/.test(q))add("E24");
+  const evidence=ids.map(id=>runtime.canon.evidence[id]).filter(Boolean);
+  if(!evidence.length)return {evidence:[],noteIds:[],message:"По такому запросу в материалах дела пока нет проверяемого результата. Уточните объект проверки: место происшествия, судмедэкспертиза, камеры, цифровые логи, телефоны/сеть, переписка или архив."};
+  return {evidence,noteIds:notes,message:evidence.map(item=>item.title+": "+item.body).join("\n\n")};
+}
+
+async function modelInvestigation(runtime:AiCaseRuntime,state:AiCaseState,request:string){
+  const entries=Object.values(runtime.canon.evidence||{}).map((e:any)=>({id:e.id||"",title:e.title||"",body:e.body||"",code:e.code||""}));
+  const instructions=`Ты — серверная экспертно-криминалистическая группа детективного дела. Отвечай на свободный запрос следователя только по PRIVATE CANON ниже. Не придумывай факты. Отделяй установленное от вывода. Если данных недостаточно, прямо скажи, что установить это по материалам нельзя. Выбери только те evidence_ids, которые непосредственно отвечают на запрос. Верни строго JSON: {"message":"2-6 предложений по-русски","evidence_ids":["E00"]}. PRIVATE CANON: ${JSON.stringify(entries)}`;
+  const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{authorization:`Bearer ${OPENAI_API_KEY}`,"content-type":"application/json"},body:JSON.stringify({model:MODEL,instructions,input:request,store:false,max_output_tokens:360,reasoning:{effort:"none"},text:{verbosity:"low"}})});
+  if(!response.ok)throw new Error("model_unavailable");
+  const data=await response.json();
+  const raw=clean(data.output_text||data.output?.flatMap((x:any)=>x.content||[]).find((x:any)=>x.type==="output_text")?.text||"",1800);
+  let parsed:any={};try{parsed=JSON.parse(raw.replace(/^\`\`\`json\s*|\`\`\`$/g,"").trim())}catch{parsed={message:raw,evidence_ids:[]}}
+  const ids=Array.isArray(parsed.evidence_ids)?parsed.evidence_ids.map((x:any)=>clean(x,40)).filter((x:string)=>runtime.canon.evidence[x]):[];
+  const inputTokens=Math.max(0,Number(data.usage?.input_tokens)||0),cachedInputTokens=Math.min(inputTokens,Math.max(0,Number(data.usage?.input_tokens_details?.cached_tokens)||0)),outputTokens=Math.max(0,Number(data.usage?.output_tokens)||0);
+  const costUsd=((inputTokens-cachedInputTokens)*INPUT_USD_PER_M+cachedInputTokens*CACHED_INPUT_USD_PER_M+outputTokens*OUTPUT_USD_PER_M)/1_000_000;
+  return {message:clean(parsed.message||raw,1200),evidence:ids.map((id:string)=>runtime.canon.evidence[id]).filter(Boolean),noteIds:[],usage:{inputTokens,cachedInputTokens,outputTokens,costUsd} as Usage};
+}
+
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin")||"";
   if(origin&&!ALLOWED_ORIGINS.has(origin))return json("https://mysterylogic.com",403,{error:"origin_not_allowed"});
@@ -159,6 +192,26 @@ Deno.serve(async(req:Request)=>{
   }catch(error){const mapped=publicRuntimeError(error);return json(responseOrigin,mapped.status,mapped)}
 
   if(action==="state")return json(responseOrigin,200,{ok:true,state:safeSessionPayload(runtime,session.state)});
+  if(action==="investigate"){
+    const request=clean(body.request,600);
+    if(request.length<2)return json(responseOrigin,400,{error:"invalid_investigation_request"});
+    let result:any;let claimId="";
+    try{
+      const claim=await claimPaidTurn(runtime,session.sessionKey,req);
+      if(!claim?.ok)return json(responseOrigin,429,{error:claim?.code||"quota_denied",message:quotaMessage(claim?.code||"")});
+      claimId=clean(claim.claim_id,64);
+      result=await modelInvestigation(runtime,session.state,request);
+      await completeClaim(claimId,result.usage);
+    }catch(error){if(claimId)await releaseClaim(claimId);console.error("ai_v2_investigation_error",String(error));result=investigationResult(runtime,session.state,request)}
+    if(!result)return json(responseOrigin,400,{error:"investigation_not_supported"});
+    if(!result.evidence.length)return json(responseOrigin,200,{ok:true,result:{message:result.message,new_evidence:[]},state:safeSessionPayload(runtime,session.state)});
+    const next:AiCaseState={...session.state,evidence_ids:[...new Set([...session.state.evidence_ids,...result.evidence.map((e:any)=>e.id)])],note_ids:[...new Set([...session.state.note_ids,...result.noteIds])]};
+    try{
+      const saved=await saveCaseSession({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,sessionKey:session.sessionKey,expectedRevision:session.revision,state:next});
+      const newly=result.evidence.filter((e:any)=>!session.state.evidence_ids.includes(e.id));
+      return json(responseOrigin,200,{ok:true,result:{message:result.message,new_evidence:newly},state:safeSessionPayload(runtime,saved.state)});
+    }catch(error){const mapped=publicRuntimeError(error);return json(responseOrigin,mapped.status,mapped)}
+  }
   if(action==="check_theory"){
     try{return json(responseOrigin,200,{ok:true,result:checkTheory(runtime,session.state,{suspectId:clean(body.suspect_id,80),reason:clean(body.reason,1200)}),state:safeSessionPayload(runtime,session.state)})}
     catch(error){const mapped=publicRuntimeError(error);return json(responseOrigin,mapped.status,mapped)}
