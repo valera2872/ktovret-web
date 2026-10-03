@@ -120,10 +120,15 @@ jobs:
                   difficultyButtons:document.querySelectorAll('[data-difficulty-case]').length,
                   investigatorTabs:document.querySelectorAll('[data-ai02-subview]').length,
                   hotspots:document.querySelectorAll('[data-scene-query]').length,
-                  notebookTabs:document.querySelectorAll('[data-ai02-note-tab]').length
+                  notebookTabs:document.querySelectorAll('[data-ai02-note-tab]').length,
+                  difficultyParentClass:document.querySelector('[data-ai02-difficulty]')?.parentElement?.className||'',
+                  difficultyHorizontal:document.querySelector('[data-ai02-difficulty]')?.classList.contains('is-mobile-horizontal')||false,
+                  difficultyLabels:[...document.querySelectorAll('[data-difficulty-case] strong')].map(x=>x.textContent.trim()),
+                  difficultyClipped:[...document.querySelectorAll('[data-difficulty-case] strong')].some(x=>x.scrollWidth>x.clientWidth+1)
                 };
               });
               if(!checks.hero||!checks.workspace||checks.portraitCount<5||checks.difficultyButtons!==3||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3) throw new Error(cfg.name+' visual check failed '+JSON.stringify(checks));
+              if(cfg.name==='mobile'&&(!checks.difficultyHorizontal||/ai02-side-case/.test(checks.difficultyParentClass)||checks.difficultyClipped||checks.difficultyLabels.join('|')!=='Наблюдатель|Следователь|Эксперт')) throw new Error('mobile difficulty layout failed '+JSON.stringify(checks));
               await page.click('[data-ai02-subview="timeline"]');
               if(await page.locator('[data-ai02-panel="timeline"]').isHidden()) throw new Error(cfg.name+' timeline did not open');
               await page.click('[data-ai02-subview="board"]');
