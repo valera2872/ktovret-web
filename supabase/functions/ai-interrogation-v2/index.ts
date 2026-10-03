@@ -90,12 +90,13 @@ async function modelReply(input:{runtime:AiCaseRuntime;before:AiCaseState;after:
   const suspect=input.runtime.publicCase.suspects.find(item=>item.id===input.suspectId);
   const privateSuspect=input.runtime.canon.suspects[input.suspectId];
   if(!suspect||!privateSuspect)throw new Error("suspect_not_found");
-  const knowledge=suspectKnowledge(input.runtime,input.after,input.suspectId);
+  const ai02Guarded=input.runtime.caseId.startsWith("AI02-NK-");
+  const knowledge=ai02Guarded?[]:suspectKnowledge(input.runtime,input.after,input.suspectId);
   const fixedNotes=suspectNoteTexts(input.runtime,input.after,input.suspectId);
   const presented=input.evidenceId?visibleEvidence(input.runtime,input.before).find(item=>item.id===input.evidenceId):null;
   const brief=[
     `Ты — ${suspect.name}, ${suspect.role}.`,
-    `Манера поведения: ${privateSuspect.persona}`,
+    ai02Guarded?`Манера поведения определяется только текущей стадией допроса; скрытые мотивы и поступки не раскрывай без server unlock.`:`Манера поведения: ${privateSuspect.persona}`,
     `Текущая стадия допроса: ${input.stage}.`,
     ...knowledge.map(item=>`РАЗРЕШЁННЫЙ ФАКТ: ${item}`),
     ...fixedNotes.map(item=>`НЕОБРАТИМО ЗАФИКСИРОВАНО: ${item}`),
@@ -160,17 +161,20 @@ function investigationResult(runtime:AiCaseRuntime,state:AiCaseState,request:str
 }
 
 async function modelInvestigation(runtime:AiCaseRuntime,state:AiCaseState,request:string){
-  const entries=Object.values(runtime.canon.evidence||{}).map((e:any)=>({id:e.id||"",title:e.title||"",body:e.body||"",code:e.code||""}));
-  const instructions=`Ты — серверная экспертно-криминалистическая группа детективного дела. Отвечай на свободный запрос следователя только по PRIVATE CANON ниже. Не придумывай факты. Отделяй установленное от вывода. Если данных недостаточно, прямо скажи, что установить это по материалам нельзя. Выбери только те evidence_ids, которые непосредственно отвечают на запрос. Верни строго JSON: {"message":"2-6 предложений по-русски","evidence_ids":["E00"]}. PRIVATE CANON: ${JSON.stringify(entries)}`;
+  const gated=investigationResult(runtime,state,request);
+  const zeroUsage={inputTokens:0,cachedInputTokens:0,outputTokens:0,costUsd:0} as Usage;
+  if(!gated)return {message:"Для этого дела свободная экспертная проверка пока не поддерживается.",evidence:[],noteIds:[],usage:zeroUsage};
+  if(!gated.evidence.length)return {message:gated.message,evidence:[],noteIds:gated.noteIds,usage:zeroUsage};
+  const entries=gated.evidence.map((e:any)=>({id:e.id||"",title:e.title||"",body:e.body||"",code:e.code||""}));
+  const instructions=`Ты — серверная экспертно-криминалистическая группа детективного дела. Тебе передан только уже разрешённый сервером набор результатов для конкретного запроса. Не придумывай факты, не упоминай скрытые материалы и не добавляй новые evidence_ids. Сформулируй 2–6 предложений по-русски строго по ALLOWED EVIDENCE. Верни JSON только вида {"message":"..."}. ALLOWED EVIDENCE: ${JSON.stringify(entries)}`;
   const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{authorization:`Bearer ${OPENAI_API_KEY}`,"content-type":"application/json"},body:JSON.stringify({model:MODEL,instructions,input:request,store:false,max_output_tokens:360,reasoning:{effort:"none"},text:{verbosity:"low"}})});
   if(!response.ok)throw new Error("model_unavailable");
   const data=await response.json();
   const raw=clean(data.output_text||data.output?.flatMap((x:any)=>x.content||[]).find((x:any)=>x.type==="output_text")?.text||"",1800);
-  let parsed:any={};try{parsed=JSON.parse(raw.replace(/^\`\`\`json\s*|\`\`\`$/g,"").trim())}catch{parsed={message:raw,evidence_ids:[]}}
-  const ids=Array.isArray(parsed.evidence_ids)?parsed.evidence_ids.map((x:any)=>clean(x,40)).filter((x:string)=>runtime.canon.evidence[x]):[];
+  let parsed:any={};try{parsed=JSON.parse(raw.replace(/^\`\`\`json\s*|\`\`\`$/g,"").trim())}catch{parsed={message:raw}}
   const inputTokens=Math.max(0,Number(data.usage?.input_tokens)||0),cachedInputTokens=Math.min(inputTokens,Math.max(0,Number(data.usage?.input_tokens_details?.cached_tokens)||0)),outputTokens=Math.max(0,Number(data.usage?.output_tokens)||0);
   const costUsd=((inputTokens-cachedInputTokens)*INPUT_USD_PER_M+cachedInputTokens*CACHED_INPUT_USD_PER_M+outputTokens*OUTPUT_USD_PER_M)/1_000_000;
-  return {message:clean(parsed.message||raw,1200),evidence:ids.map((id:string)=>runtime.canon.evidence[id]).filter(Boolean),noteIds:[],usage:{inputTokens,cachedInputTokens,outputTokens,costUsd} as Usage};
+  return {message:clean(parsed.message||raw,1200)||gated.message,evidence:gated.evidence,noteIds:gated.noteIds,usage:{inputTokens,cachedInputTokens,outputTokens,costUsd} as Usage};
 }
 
 Deno.serve(async(req:Request)=>{
