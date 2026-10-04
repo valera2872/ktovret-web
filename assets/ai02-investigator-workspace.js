@@ -52,15 +52,16 @@ function caseVariantUrl(id){
 
 function placeDifficulty(){
   const box=qs('[data-ai02-difficulty]');if(!box)return;
-  const mobile=window.matchMedia('(max-width:800px)').matches;
-  const side=qs('.ai02-side-case');
-  const workspace=qs('.aid-workspace');
-  if(mobile&&workspace){
-    if(box.parentElement!==workspace)workspace.prepend(box);
-    box.classList.add('is-mobile-horizontal');
-  }else if(side){
-    if(box.parentElement!==side)side.append(box);
-    box.classList.remove('is-mobile-horizontal');
+  const tools=qs('[data-investigation-tools]');
+  const tabs=qs('[data-ai02-investigation-tabs]');
+  if(tools){
+    if(tabs){
+      if(box.previousElementSibling!==tabs)tabs.after(box);
+    }else if(box.parentElement!==tools){
+      tools.prepend(box);
+    }
+    box.classList.add('is-horizontal');
+    box.classList.toggle('is-mobile-horizontal',window.matchMedia('(max-width:800px)').matches);
   }
 }
 function injectDifficulty(){
