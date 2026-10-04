@@ -36,10 +36,11 @@ await p.route('**/functions/v1/**',async route=>{
 });
 await p.goto(base,{waitUntil:'networkidle'});
 expect(await p.locator('#intro').isVisible(),'intro not visible');
-const hero=await p.locator('img[src*="archive-lab-premium"]').first();
-expect(await hero.isVisible(),'premium hero missing');
-const natural=await hero.evaluate(el=>({w:el.naturalWidth,h:el.naturalHeight}));
-expect(natural.w>500&&natural.h>300,'premium hero failed to load');
+const asset=await p.request.get(new URL('assets/archive-lab-premium.png',base).href);
+expect(asset.ok(),'premium hero asset HTTP load failed');
+const assetBytes=(await asset.body()).length;expect(assetBytes>500000,'premium hero asset unexpectedly small');
+const bg=await p.locator('#intro').evaluate(el=>getComputedStyle(el).backgroundImage);
+expect(bg.includes('archive-lab-premium.png'),'premium hero background not applied');
 await p.click('#demoBtn');
 await p.locator('#game').waitFor({state:'visible'});
 expect(await p.locator('#view-overview').isVisible(),'overview missing');
@@ -68,5 +69,5 @@ await m.route('**/functions/v1/**',route=>route.fulfill({status:200,contentType:
 await m.goto(base,{waitUntil:'domcontentloaded'});
 expect(await m.locator('#intro').isVisible(),'mobile intro missing');
 expect((await m.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2)),'mobile horizontal overflow');
-console.log(JSON.stringify({ok:true,checks:['exact-unpack','hero-asset','demo','overview','starter','viewer','board-handoff','private-note','ai-dialog','final-reveal','mobile-no-overflow'],hero:natural}));
+console.log(JSON.stringify({ok:true,checks:['exact-unpack','hero-asset','demo','overview','starter','viewer','board-handoff','private-note','ai-dialog','final-reveal','mobile-no-overflow'],heroBytes:assetBytes}));
 await browser.close();
