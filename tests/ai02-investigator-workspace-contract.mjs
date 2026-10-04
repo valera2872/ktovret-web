@@ -30,6 +30,11 @@ assert.ok(js.includes('Предъявить улику'),'evidence confrontation
 assert.ok(js.includes('Прижать противоречием'),'contradiction pressure action missing');
 assert.ok(js.includes('КАК СКРЫВАЛ'),'structured reconstruction missing');
 assert.ok(js.includes('Ключевые доказательства'),'final evidence selection missing');
+assert.ok(js.includes('До начала расследования'),'difficulty must be presented before the investigation starts');
+assert.ok(js.includes('Выберите уровень сложности'),'prestart difficulty heading missing');
+assert.ok(js.includes('Канон, виновный и набор фактов одинаковы'),'difficulty explanation must state what does not change');
+assert.ok(js.includes('setupAutoStart'),'selected difficulty must survive the case-variant reload into start');
+assert.ok(!js.includes("const tools=qs('[data-investigation-tools]');\n  const tabs=qs('[data-ai02-investigation-tabs]');\n  if(tools)"),'difficulty must not be placed inside investigation tools');
 assert.ok(js.includes('Показываются только уже открытые факты'),'timeline must be discovery-only');
 assert.ok(!/E\d{2}/.test(js),'public investigator layer must not hard-code private evidence IDs');
 
@@ -41,5 +46,7 @@ assert.ok(!/\.aid-app\s*\{/.test(investigatorCss),'investigator layer must not r
 assert.ok(!/\.aid-workspace\s*\{/.test(investigatorCss),'investigator layer must not redefine approved workspace grid');
 assert.ok(investigatorCss.includes('.ai02-board-grid'),'board styles missing');
 assert.ok(investigatorCss.includes('.ai02-reconstruction'),'reconstruction styles missing');
+assert.ok(css.includes('.ai02-prestart-difficulty'),'prestart difficulty styles missing');
+assert.ok(css.includes('.ai02-prestart-difficulty-grid'),'prestart difficulty cards missing');
 
 console.log('AI-02 investigator workspace contract OK');
