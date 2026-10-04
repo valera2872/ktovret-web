@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-const BASE='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/'; // rerun after search discoverability patch v36
+const BASE='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/'; // rerun after search v37 + interrogation v28 + final v16
 const E={room:BASE+'zero-copy-room-v1',ai:BASE+'zero-copy-interrogate-v1',final:BASE+'zero-copy-final-v1'};
 const key=()=>crypto.randomBytes(24).toString('hex'), expect=(v,m)=>{if(!v)throw Error(m)};
 async function call(url,body,k){const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json','origin':'https://tftanyaf.beget.tech'},body:JSON.stringify({...body,browserKey:k})});let j={};try{j=await r.json()}catch{};return{status:r.status,body:j}}
