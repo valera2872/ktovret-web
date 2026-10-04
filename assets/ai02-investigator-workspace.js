@@ -54,9 +54,9 @@ function placeDifficulty(){
   const box=qs('[data-ai02-difficulty]');if(!box)return;
   const mobile=window.matchMedia('(max-width:800px)').matches;
   const side=qs('.ai02-side-case');
-  const switcher=qs('.aid-mode-switcher');
-  if(mobile&&switcher){
-    if(box.previousElementSibling!==switcher)switcher.after(box);
+  const workspace=qs('.aid-workspace');
+  if(mobile&&workspace){
+    if(box.parentElement!==workspace)workspace.prepend(box);
     box.classList.add('is-mobile-horizontal');
   }else if(side){
     if(box.parentElement!==side)side.append(box);
