@@ -1,0 +1,22 @@
+name: TEMP AI-02 reply v10 smoke
+
+on:
+  push:
+    paths:
+      - '.github/workflows/temp-ai02-reply-v10-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run live reply smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl -fsS --retry 2 --max-time 60 'https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=reply-v10')"
+          echo "$body"
+          BODY="$body" node -e 'const j=JSON.parse(process.env.BODY); if(j.pass!==true){console.error(j); process.exit(1)}'
