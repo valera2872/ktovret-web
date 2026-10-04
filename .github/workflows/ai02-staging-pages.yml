@@ -100,37 +100,51 @@ jobs:
           node - <<'NODE'
           const { chromium } = require('playwright');
           (async()=>{
-            const url='https://valera2872.github.io/ktovret-web/ai02/?case=AI02-NK-STANDARD&preview=workspace';
+            const introUrl='https://valera2872.github.io/ktovret-web/ai02/?case=AI02-NK-STANDARD&preview=intro';
+            const workspaceUrl='https://valera2872.github.io/ktovret-web/ai02/?case=AI02-NK-STANDARD&preview=workspace';
             const browser=await chromium.launch({headless:true});
             for (const cfg of [
               {name:'desktop',width:1440,height:1000},
               {name:'mobile',width:390,height:844}
             ]) {
               const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
-              await page.goto(url,{waitUntil:'networkidle',timeout:60000});
-              await page.waitForTimeout(1500);
+
+              await page.goto(introUrl,{waitUntil:'networkidle',timeout:60000});
+              await page.waitForTimeout(1200);
+              const introChecks=await page.evaluate(()=>{
+                const intro=document.querySelector('[data-view="intro"]');
+                const workspace=document.querySelector('[data-view="workspace"]');
+                const cards=[...document.querySelectorAll('[data-difficulty-case]')];
+                return {
+                  introVisible:!!intro&&!intro.hidden,
+                  workspaceHidden:!!workspace&&workspace.hidden,
+                  difficultyCount:cards.length,
+                  labels:cards.map(x=>x.querySelector('strong')?.textContent?.trim()||''),
+                  active:document.querySelector('[data-difficulty-case].is-active strong')?.textContent?.trim()||'',
+                  start:document.querySelector('[data-action="start"]')?.textContent?.trim()||'',
+                  difficultyInsideWorkspace:!!document.querySelector('[data-view="workspace"] [data-ai02-difficulty]'),
+                  clipped:cards.some(x=>x.scrollWidth>x.clientWidth+1||[...x.querySelectorAll('strong,small')].some(y=>y.scrollWidth>y.clientWidth+1))
+                };
+              });
+              if(!introChecks.introVisible||!introChecks.workspaceHidden||introChecks.difficultyCount!==3||introChecks.labels.join('|')!=='Наблюдатель|Следователь|Эксперт'||introChecks.active!=='Следователь'||!introChecks.start.includes('Следователь')||introChecks.difficultyInsideWorkspace||introChecks.clipped) throw new Error(cfg.name+' prestart difficulty failed '+JSON.stringify(introChecks));
+              await page.screenshot({path:'deployed-'+cfg.name+'-intro.png',fullPage:true});
+
+              await page.goto(workspaceUrl,{waitUntil:'networkidle',timeout:60000});
+              await page.waitForTimeout(1200);
               const checks=await page.evaluate(()=>{
                 const hero=document.querySelector('.aid-scene-photo img');
                 const portraits=[...document.querySelectorAll('.aid02-final-thumb')];
                 return {
-                  title:document.title,
                   hero:!!hero&&hero.complete&&hero.naturalWidth>0,
                   portraitCount:portraits.filter(x=>x.complete&&x.naturalWidth>0).length,
                   workspace:!document.querySelector('[data-view="workspace"]')?.hidden,
-                  difficultyButtons:document.querySelectorAll('[data-difficulty-case]').length,
                   investigatorTabs:document.querySelectorAll('[data-ai02-subview]').length,
                   hotspots:document.querySelectorAll('[data-scene-query]').length,
                   notebookTabs:document.querySelectorAll('[data-ai02-note-tab]').length,
-                  difficultyParentClass:document.querySelector('[data-ai02-difficulty]')?.parentElement?.className||'',
-                  difficultyHorizontal:document.querySelector('[data-ai02-difficulty]')?.classList.contains('is-mobile-horizontal')||false,
-                  difficultyLabels:[...document.querySelectorAll('[data-difficulty-case] strong')].map(x=>x.textContent.trim()),
-                  difficultyClipped:[...document.querySelectorAll('[data-difficulty-case] strong')].some(x=>x.scrollWidth>x.clientWidth+1),
-                  difficultyInInvestigation:!!document.querySelector('[data-investigation-tools] [data-ai02-difficulty]'),
-                  difficultyIsHorizontal:document.querySelector('[data-ai02-difficulty]')?.classList.contains('is-horizontal')||false
+                  difficultyInsideWorkspace:!!document.querySelector('[data-view="workspace"] [data-ai02-difficulty]')
                 };
               });
-              if(!checks.hero||!checks.workspace||checks.portraitCount<5||checks.difficultyButtons!==3||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3) throw new Error(cfg.name+' visual check failed '+JSON.stringify(checks));
-              if(/ai02-side-case/.test(checks.difficultyParentClass)||checks.difficultyClipped||checks.difficultyLabels.join('|')!=='Наблюдатель|Следователь|Эксперт'||!checks.difficultyInInvestigation||!checks.difficultyIsHorizontal) throw new Error(cfg.name+' difficulty layout failed '+JSON.stringify(checks));
+              if(!checks.hero||!checks.workspace||checks.portraitCount<5||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3||checks.difficultyInsideWorkspace) throw new Error(cfg.name+' workspace visual check failed '+JSON.stringify(checks));
               await page.click('[data-ai02-subview="timeline"]');
               if(await page.locator('[data-ai02-panel="timeline"]').isHidden()) throw new Error(cfg.name+' timeline did not open');
               await page.click('[data-ai02-subview="board"]');
@@ -138,7 +152,7 @@ jobs:
               await page.click('[data-ai02-subview="scene"]');
               await page.click('[data-mode-switch="interrogation"]');
               await page.waitForTimeout(250);
-              await page.screenshot({path:'deployed-'+cfg.name+'.png',fullPage:true});
+              await page.screenshot({path:'deployed-'+cfg.name+'-workspace.png',fullPage:true});
               await page.close();
             }
             await browser.close();
@@ -149,8 +163,10 @@ jobs:
         with:
           name: ai02-deployed-visual-check
           path: |
-            deployed-desktop.png
-            deployed-mobile.png
+            deployed-desktop-intro.png
+            deployed-mobile-intro.png
+            deployed-desktop-workspace.png
+            deployed-mobile-workspace.png
           retention-days: 2
 
 # retry after syntax fix
