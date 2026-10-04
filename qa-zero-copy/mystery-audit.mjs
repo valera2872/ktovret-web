@@ -89,4 +89,16 @@ const wrongs=[
 ];
 for(const w of wrongs){const q=await call(E.final,{code:code7,answers:w},d1);console.log('DEFENSE_WRONG',w.who,JSON.stringify({passed:q.body.passed,message:q.body.message}));expect(q.body.passed===false,'wrong defense theory accepted: '+w.who)}
 
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed','defense-theories-rejected'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6,code7}));
+// PASS 9: evidence-domain confession threshold. Two same-domain confrontations must not unlock the whole confession.
+const x1=key(),x2=key();r=await call(E.room,{action:'demo_create',playerName:'Threshold',guestKey:x2,guestName:'Threshold2'},x1);const code8=r.body.room.code;
+async function open8(k,id){const z=await call(E.room,{action:'open',code:code8,id},k);expect(z.status===200,'open8 '+id)}
+await open8(x1,'access_hist'); await open8(x1,'ratnikov_money'); await open8(x2,'capture2'); await open8(x2,'box_exam');
+let same1=await call(E.ai,{code:code8,suspect_id:'ratnikov',question:'Объясните ваши доступы к тетради.',evidence_id:'access_hist'},x1);
+let same2=await call(E.ai,{code:code8,suspect_id:'ratnikov',question:'Теперь объясните всю цепочку: страницы, Анна и спрятанная рукопись.',evidence_id:'ratnikov_money'},x1);
+console.log('SAME_DOMAIN_CONFESSION',JSON.stringify({first:same1.body.mode,second:same2.body.mode,reply:same2.body.reply}));
+expect(same2.body.mode!=='canonical_confession','two same-domain clues unlocked full confession');
+let cross=await call(E.ai,{code:code8,suspect_id:'ratnikov',question:'Теперь объясните всю цепочку: страницы, Анна и спрятанная рукопись.',evidence_id:'capture2'},x2);
+console.log('CROSS_DOMAIN_CONFESSION',JSON.stringify({mode:cross.body.mode,reply:cross.body.reply}));
+expect(cross.body.mode==='canonical_confession','cross-domain confrontation failed to unlock confession');
+
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed','defense-theories-rejected','evidence-domain-confession-threshold'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6,code7,code8}));
