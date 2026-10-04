@@ -44,6 +44,7 @@ expect(bg.includes('archive-lab-premium.png'),'premium hero background not appli
 await p.click('#demoBtn');
 await p.locator('#game').waitFor({state:'visible'});
 expect(await p.locator('#view-overview').isVisible(),'overview missing');
+await p.locator('#starterMaterials .starter').first().waitFor({state:'visible',timeout:10000});
 expect((await p.locator('#starterMaterials .starter').count())>=1,'starter materials missing');
 await p.locator('#starterMaterials .starter').first().click();
 await p.locator('#viewer.open').waitFor({state:'visible'});
