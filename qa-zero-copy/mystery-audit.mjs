@@ -34,6 +34,7 @@ async function open3(k,id){const z=await call(E.room,{action:'open',code:code3,i
 for(const id of ['access_hist','market','ratnikov_money','passes','cards','medical','terminal'])await open3(b1,id);
 for(const id of ['change_dates','treatment','page31','photosession','box_exam','seal','page12','anna_method','family_index'])await open3(b2,id);
 z=await call(E.final,{code:code3,answers:answer},b1);console.log('FULL_FINAL',JSON.stringify({passed:z.body.passed,message:z.body.message}));expect(z.body.passed===true,'full fair-play reconstruction rejected');
+z=await call(E.final,{code:code3,answers:answer},b2);console.log('GUEST_FULL_FINAL',JSON.stringify({passed:z.body.passed,message:z.body.message}));expect(z.body.passed===true,'guest role correct reconstruction rejected');
 const c1=key(),c2=key();r=await call(E.room,{action:'demo_create',playerName:'Red',guestKey:c2,guestName:'Red2'},c1);const code4=r.body.room.code;
 async function open4(k,id){const z=await call(E.room,{action:'open',code:code4,id},k);expect(z.status===200,'open4 '+id)}
 for(const id of ['denis_chat','denis_money','markin_draft','sofia','fund','phone'])await open4(c1,id);
@@ -101,4 +102,4 @@ let cross=await call(E.ai,{code:code8,suspect_id:'ratnikov',question:'Тепер
 console.log('CROSS_DOMAIN_CONFESSION',JSON.stringify({mode:cross.body.mode,reply:cross.body.reply}));
 expect(cross.body.mode==='canonical_confession','cross-domain confrontation failed to unlock confession');
 
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed','defense-theories-rejected','evidence-domain-confession-threshold'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6,code7,code8}));
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','guest-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed','defense-theories-rejected','evidence-domain-confession-threshold'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6,code7,code8}));
