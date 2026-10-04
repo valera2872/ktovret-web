@@ -1,4 +1,4 @@
-name: TEMP AI-02 Premium v8 HARD E2E
+name: TEMP AI-02 Premium v9 HARD E2E
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Run HARD v8 chain
+      - name: Run HARD v9 chain
         shell: bash
         run: |
           set -euo pipefail
