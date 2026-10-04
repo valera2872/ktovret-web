@@ -10,9 +10,18 @@ const STORE={
   hypotheses:'mysterylogic:ai02:hypotheses'
 };
 const DIFFICULTY={
-  'AI02-NK-EASY':{label:'Наблюдатель',short:'Легче',copy:'Признание требует доказательств, но порог давления ниже.'},
-  'AI02-NK-STANDARD':{label:'Следователь',short:'Стандарт',copy:'Нужна существенная доказательная цепочка и прямое давление.'},
-  'AI02-NK-HARD':{label:'Эксперт',short:'Сложно',copy:'Признание требует почти полной реконструкции и сильной доказательной позиции.'}
+  'AI02-NK-EASY':{
+    label:'Наблюдатель',short:'Легче',
+    copy:'Мягче сопротивление на допросе. Для признания нужно меньше доказательного давления, но одного обвинения всё равно недостаточно.'
+  },
+  'AI02-NK-STANDARD':{
+    label:'Следователь',short:'Рекомендуемый',
+    copy:'Сбалансированный режим. Нужна существенная цепочка улик, прямое обвинение и объяснение ключевого механизма.'
+  },
+  'AI02-NK-HARD':{
+    label:'Эксперт',short:'Максимум',
+    copy:'Максимальное сопротивление. Признание требует почти полной доказательной позиции и связной реконструкции без очевидных пробелов.'
+  }
 };
 const qs=(s,r=document)=>r.querySelector(s);
 const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -50,37 +59,69 @@ function caseVariantUrl(id){
   const u=new URL(location.href);u.searchParams.set('case',id);u.searchParams.delete('preview');return u.href;
 }
 
-function placeDifficulty(){
-  const box=qs('[data-ai02-difficulty]');if(!box)return;
-  const tools=qs('[data-investigation-tools]');
-  const tabs=qs('[data-ai02-investigation-tabs]');
-  if(tools){
-    if(tabs){
-      if(box.previousElementSibling!==tabs)tabs.after(box);
-    }else if(box.parentElement!==tools){
-      tools.prepend(box);
-    }
-    box.classList.add('is-horizontal');
-    box.classList.toggle('is-mobile-horizontal',window.matchMedia('(max-width:800px)').matches);
-  }
+let selectedDifficulty=caseId;
+
+function caseVariantStartUrl(id){
+  const u=new URL(location.href);
+  u.searchParams.set('case',id);
+  u.searchParams.set('autostart','1');
+  u.searchParams.delete('preview');
+  return u.href;
+}
+function renderDifficultySelection(box){
+  const selected=DIFFICULTY[selectedDifficulty]||DIFFICULTY[caseId]||DIFFICULTY['AI02-NK-STANDARD'];
+  qsa('[data-difficulty-case]',box).forEach(btn=>btn.classList.toggle('is-active',btn.dataset.difficultyCase===selectedDifficulty));
+  const copy=qs('[data-ai02-difficulty-copy]',box);if(copy)copy.textContent=selected.copy;
+  const start=qs('[data-action="start"]');if(start)start.textContent='Начать расследование · '+selected.label;
 }
 function injectDifficulty(){
+  const intro=qs('[data-view="intro"]');
+  const host=qs('.aid-intro-copy',intro||document);
+  const start=qs('[data-action="start"]',intro||document);
+  if(!intro||!host||!start)return;
+  intro.classList.add('ai02-prestart');
   let box=qs('[data-ai02-difficulty]');
   if(!box){
-    const host=qs('.ai02-side-case');if(!host)return;
-    const current=DIFFICULTY[caseId]||DIFFICULTY['AI02-NK-STANDARD'];
-    box=document.createElement('div');box.className='ai02-difficulty';box.dataset.ai02Difficulty='';
-    box.innerHTML='<div class="ai02-difficulty-head"><span class="ai02-tool-label">Уровень расследования</span><p>'+esc(current.copy)+'</p></div><div class="ai02-difficulty-row">'+Object.entries(DIFFICULTY).map(([id,d])=>'<button type="button" data-difficulty-case="'+id+'" class="'+(id===caseId?'is-active':'')+'"><strong>'+esc(d.label)+'</strong><small>'+esc(d.short)+'</small></button>').join('')+'</div>';
-    host.append(box);
-    qsa('[data-difficulty-case]',box).forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.difficultyCase;if(id&&id!==caseId)location.href=caseVariantUrl(id)}));
+    box=document.createElement('section');
+    box.className='ai02-prestart-difficulty';
+    box.dataset.ai02Difficulty='';
+    box.innerHTML='<div class="ai02-prestart-difficulty-head"><span class="aid-kicker">До начала расследования</span><h2>Выберите уровень сложности</h2><p>Канон, виновный и набор фактов одинаковы. Меняется сопротивление подозреваемых и порог, после которого виновный готов признаться.</p></div><div class="ai02-prestart-difficulty-grid">'+Object.entries(DIFFICULTY).map(([id,d])=>'<button type="button" data-difficulty-case="'+id+'"><span>'+esc(d.short)+'</span><strong>'+esc(d.label)+'</strong><small>'+esc(d.copy)+'</small></button>').join('')+'</div><div class="ai02-prestart-difficulty-summary"><b>Выбран режим:</b> <span>'+esc((DIFFICULTY[caseId]||DIFFICULTY['AI02-NK-STANDARD']).label)+'</span><p data-ai02-difficulty-copy></p></div>';
+    start.before(box);
+    qsa('[data-difficulty-case]',box).forEach(btn=>btn.addEventListener('click',()=>{
+      const id=btn.dataset.difficultyCase;
+      if(!DIFFICULTY[id])return;
+      selectedDifficulty=id;
+      const summary=qs('.ai02-prestart-difficulty-summary span',box);if(summary)summary.textContent=DIFFICULTY[id].label;
+      renderDifficultySelection(box);
+    }));
+    start.addEventListener('click',event=>{
+      if(selectedDifficulty===caseId)return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      location.href=caseVariantStartUrl(selectedDifficulty);
+    },true);
+  }else if(box.parentElement!==host){
+    start.before(box);
   }
-  placeDifficulty();
-  if(!document.documentElement.dataset.ai02DifficultyResize){
-    document.documentElement.dataset.ai02DifficultyResize='1';
-    window.addEventListener('resize',()=>{window.clearTimeout(placeDifficulty._t);placeDifficulty._t=window.setTimeout(placeDifficulty,80)},{passive:true});
-  }
+  selectedDifficulty=DIFFICULTY[caseId]?caseId:'AI02-NK-STANDARD';
+  const summary=qs('.ai02-prestart-difficulty-summary span',box);if(summary)summary.textContent=DIFFICULTY[selectedDifficulty].label;
+  renderDifficultySelection(box);
 }
-
+function setupAutoStart(){
+  if(params.get('autostart')!=='1'||params.get('preview'))return;
+  const intro=qs('[data-view="intro"]');
+  const start=qs('[data-action="start"]');
+  if(!intro||!start)return;
+  let fired=false;
+  const run=()=>{
+    if(fired||intro.hidden)return;
+    fired=true;
+    const u=new URL(location.href);u.searchParams.delete('autostart');history.replaceState(null,'',u);
+    queueMicrotask(()=>start.click());
+  };
+  const mo=new MutationObserver(run);mo.observe(intro,{attributes:true,attributeFilter:['hidden']});
+  window.setTimeout(run,0);
+}
 function injectInvestigationTabs(){
   const tools=qs('[data-investigation-tools]');if(!tools||qs('[data-ai02-investigation-tabs]'))return;
   const tabs=document.createElement('div');tabs.className='ai02-investigator-tabs';tabs.dataset.ai02InvestigationTabs='';
@@ -248,7 +289,7 @@ function sync(){
   if(!qs('[data-ai02-panel="board"]')?.hidden)renderBoard();
 }
 function boot(){
-  sync();setupBoard();injectReconstruction();
+  sync();setupBoard();injectReconstruction();setupAutoStart();
   const root=qs('[data-ai-v2-player]')||document.body;
   const mo=new MutationObserver(()=>{window.clearTimeout(boot._t);boot._t=window.setTimeout(sync,40)});
   mo.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden']});
