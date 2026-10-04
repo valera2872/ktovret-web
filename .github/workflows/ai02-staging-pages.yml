@@ -128,7 +128,10 @@ jobs:
                 };
               });
               if(!checks.hero||!checks.workspace||checks.portraitCount<5||checks.difficultyButtons!==3||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3) throw new Error(cfg.name+' visual check failed '+JSON.stringify(checks));
-              if(cfg.name==='mobile'&&(!checks.difficultyHorizontal||/ai02-side-case/.test(checks.difficultyParentClass)||checks.difficultyClipped||checks.difficultyLabels.join('|')!=='Наблюдатель|Следователь|Эксперт')) throw new Error('mobile difficulty layout failed '+JSON.stringify(checks));
+              if(/ai02-side-case/.test(checks.difficultyParentClass)||checks.difficultyClipped||checks.difficultyLabels.join('|')!=='Наблюдатель|Следователь|Эксперт') throw new Error(cfg.name+' difficulty layout failed '+JSON.stringify(checks));
+              const difficulty=document.querySelector('[data-ai02-difficulty]');
+              const investigation=document.querySelector('[data-investigation-tools]');
+              if(!difficulty||!investigation||!investigation.contains(difficulty)||!difficulty.classList.contains('is-horizontal')) throw new Error(cfg.name+' central difficulty placement failed');
               await page.click('[data-ai02-subview="timeline"]');
               if(await page.locator('[data-ai02-panel="timeline"]').isHidden()) throw new Error(cfg.name+' timeline did not open');
               await page.click('[data-ai02-subview="board"]');
