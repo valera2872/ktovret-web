@@ -1092,3 +1092,9 @@ url("../assets/ai02/studio3-hero.jpg?v=20261003-sharp2") center/cover no-repeat}
   .ai02-prestart-difficulty-grid button>strong{font-size:16px}
   .ai02-prestart [data-action="start"]{width:100%;min-width:0}
 }
+
+
+/* 2026-10-04 top-level view visibility guard */
+[data-ai-v2-player] > [data-view][hidden]{
+  display:none!important;
+}
