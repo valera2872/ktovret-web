@@ -1,0 +1,58 @@
+name: Zero Copy Exact Build 2026-10-04.18
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - 'qa-zero-copy/client/**'
+      - 'qa-zero-copy/exact-artifact-e2e.mjs'
+      - '.github/workflows/zero-copy-exact-build18.yml'
+  workflow_dispatch:
+
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static candidate gate
+        run: |
+          set -euo pipefail
+          cd qa-zero-copy/client
+          node --check app.js
+          grep -q 'staging build 2026-10-04.18' index.html
+          grep -q '\[hidden\]' style.css
+          ! grep -RniE 'Z04|Z09|Z14|Z18|corpus\.json|investigate\.php' .
+          for f in             assets/archive-lab-premium.png             assets/archive_boxes.jpg             assets/capture-series-premium.png             assets/capture_2208.svg             assets/capture_2209.svg             assets/lab_detail.jpg             assets/manuscript_close.jpg             assets/page47_2019.svg             assets/page47_2026.svg             assets/seal.svg             assets/investigation-board.png
+          do test -s "$f"; done
+      - name: Build exact zip
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          (cd qa-zero-copy/client && zip -q -r ../../dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build18.zip .)
+          sha256sum dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build18.zip | tee dist/SHA256.txt
+      - name: Unpack exact zip into clean directory
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/zc-exact18
+          mkdir -p /tmp/zc-exact18
+          unzip -q dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build18.zip -d /tmp/zc-exact18
+          diff -qr qa-zero-copy/client /tmp/zc-exact18
+          node --check /tmp/zc-exact18/app.js
+      - name: Install browser
+        run: npm init -y && npm i -D playwright@1.56.0 && npx playwright install --with-deps chromium
+      - name: Serve exact unpacked bytes
+        run: |
+          python3 -m http.server 4174 --directory /tmp/zc-exact18 >/tmp/zc-exact18-http.log 2>&1 &
+          sleep 2
+      - name: Browser E2E exact unpacked bytes with mocked transport
+        run: EXACT_URL=http://127.0.0.1:4174/ node qa-zero-copy/exact-artifact-e2e.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MysteryLogic-Zero-Copy-STAGING-2026-10-04-build18
+          path: |
+            dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build18.zip
+            dist/SHA256.txt
+          retention-days: 14
