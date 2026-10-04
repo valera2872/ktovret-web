@@ -1,0 +1,62 @@
+name: TEMP AI-02 Premium v7 E2E
+
+on:
+  push:
+    branches:
+      - feature/ai02-premium-v7
+    paths:
+      - '.github/workflows/temp-ai02-premium-v7-e2e.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  standard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Run STANDARD v7 chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=premium-v7-gate'
+          run_stage(){
+            echo "=== $1 ==="
+            BODY="$(curl --fail --silent --show-error "$BASE&stage=$1")"
+            echo "$BODY"
+            test "$(echo "$BODY" | jq -r '.pass')" = "true"
+          }
+          run_stage standard1
+          sleep 65
+          run_stage standard2
+          sleep 65
+          run_stage standard3
+          sleep 65
+          run_stage standard4
+
+  hard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Run HARD v7 chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=premium-v7-gate'
+          run_stage(){
+            echo "=== $1 ==="
+            BODY="$(curl --fail --silent --show-error "$BASE&stage=$1")"
+            echo "$BODY"
+            test "$(echo "$BODY" | jq -r '.pass')" = "true"
+          }
+          run_stage hard1
+          sleep 65
+          run_stage hard2
+          sleep 65
+          run_stage hard3
+          sleep 65
+          run_stage hard4
+          sleep 65
+          run_stage hard5
+          sleep 65
+          run_stage hard6
