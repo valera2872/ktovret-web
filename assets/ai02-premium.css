@@ -1054,3 +1054,41 @@ body.aid-body:has([data-ai-v2-player]){
   .ai02-difficulty.is-horizontal .ai02-difficulty-row button{padding:10px 6px}
   .ai02-difficulty.is-horizontal .ai02-difficulty-row button strong{font-size:11px!important}
 }
+
+
+/* 2026-10-04 prestart difficulty choice — onboarding only */
+.ai02-prestart{width:min(1180px,calc(100% - 40px));margin:0 auto;padding:38px 0 56px;gap:34px;align-items:start}
+.ai02-prestart .aid-intro-copy{min-width:0}
+.ai02-prestart .aid-case-stamp{position:relative;overflow:hidden;min-height:360px;background:
+linear-gradient(180deg,rgba(5,13,12,.18),rgba(5,13,12,.94)),
+url("../assets/ai02/studio3-hero.jpg?v=20261003-sharp2") center/cover no-repeat}
+.ai02-prestart .aid-case-stamp>*{position:relative;z-index:1}
+.ai02-prestart .aid-case-stamp:before{content:"СТУДИЯ 3";position:absolute;left:18px;top:18px;z-index:1;padding:5px 8px;border:1px solid rgba(213,171,89,.32);border-radius:5px;background:rgba(3,11,10,.76);color:#d7b36c;font:800 9px/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}
+.ai02-prestart-difficulty{margin:24px 0 18px;padding:18px;border:1px solid rgba(205,171,105,.2);border-radius:12px;background:linear-gradient(180deg,rgba(10,23,20,.92),rgba(5,14,12,.97));box-shadow:0 18px 44px rgba(0,0,0,.18)}
+.ai02-prestart-difficulty-head h2{margin:4px 0 6px;color:#eee6d8;font:600 23px/1.15 Georgia,serif}
+.ai02-prestart-difficulty-head>p{margin:0;color:#87968f;font-size:12px;line-height:1.55;max-width:760px}
+.ai02-prestart-difficulty-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+.ai02-prestart-difficulty-grid button{position:relative;min-width:0;padding:14px 13px 15px;border:1px solid rgba(205,171,105,.14);border-radius:9px;background:rgba(255,255,255,.022);color:#aeb9b4;text-align:left;cursor:pointer;transition:border-color .16s ease,background .16s ease,transform .16s ease}
+.ai02-prestart-difficulty-grid button:hover{transform:translateY(-1px);border-color:rgba(216,177,96,.34)}
+.ai02-prestart-difficulty-grid button>span{display:block;color:#b08d4e;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.ai02-prestart-difficulty-grid button>strong{display:block;margin-top:5px;color:#e8dfcf;font:600 17px/1.15 Georgia,serif}
+.ai02-prestart-difficulty-grid button>small{display:block;margin-top:7px;color:#7e8e88;font-size:11px;line-height:1.5}
+.ai02-prestart-difficulty-grid button.is-active{border-color:rgba(222,179,91,.58);background:linear-gradient(180deg,rgba(183,137,54,.14),rgba(110,83,34,.07));box-shadow:inset 0 0 0 1px rgba(222,179,91,.09)}
+.ai02-prestart-difficulty-grid button.is-active:after{content:"ВЫБРАН";position:absolute;right:9px;top:9px;padding:3px 5px;border-radius:4px;background:rgba(204,160,77,.13);color:#d8b169;font-size:8px;font-weight:900;letter-spacing:.1em}
+.ai02-prestart-difficulty-summary{margin-top:12px;padding:10px 12px;border-left:2px solid rgba(205,171,105,.48);background:rgba(205,171,105,.045);color:#a8b2ad;font-size:11px;line-height:1.5}
+.ai02-prestart-difficulty-summary b{color:#d0aa62}.ai02-prestart-difficulty-summary>span{color:#e7dfd1;font-weight:800}.ai02-prestart-difficulty-summary p{margin:4px 0 0;color:#7f8f89}
+.ai02-prestart [data-action="start"]{min-width:300px;padding:13px 18px;font-size:12px}
+.ai02-prestart .aid-rule{margin-top:18px}
+
+@media(max-width:900px){
+  .ai02-prestart{width:min(100% - 24px,760px);grid-template-columns:1fr;padding-top:24px;gap:18px}
+  .ai02-prestart .aid-case-stamp{min-height:260px}
+}
+@media(max-width:640px){
+  .ai02-prestart{width:min(100% - 16px,760px);padding-top:16px}
+  .ai02-prestart-difficulty{padding:14px}
+  .ai02-prestart-difficulty-grid{grid-template-columns:1fr}
+  .ai02-prestart-difficulty-grid button{padding:12px}
+  .ai02-prestart-difficulty-grid button>strong{font-size:16px}
+  .ai02-prestart [data-action="start"]{width:100%;min-width:0}
+}
