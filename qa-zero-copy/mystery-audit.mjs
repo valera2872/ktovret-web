@@ -77,4 +77,16 @@ const mainOnly={...answer,lies:'Ратников скрывал встречу, 
 const sideGate=await call(E.final,{code:code6,answers:mainOnly},m1);
 console.log('MAIN_CASE_WITHOUT_ANNA_SECRET',JSON.stringify({passed:sideGate.body.passed,message:sideGate.body.message}));
 
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6}));
+// PASS 8: defense counsel. Full evidence must still reject coherent but wrong reconstructions.
+const d1=key(),d2=key();r=await call(E.room,{action:'demo_create',playerName:'Defense',guestKey:d2,guestName:'Defense2'},d1);const code7=r.body.room.code;
+async function open7(k,id){const z=await call(E.room,{action:'open',code:code7,id},k);expect(z.status===200,'open7 '+id)}
+for(const id of ['access_hist','market','ratnikov_money','passes','cards','medical','terminal','phone'])await open7(d1,id);
+for(const id of ['change_dates','treatment','page31','photosession','capture2','box_exam','seal','page12','anna_method','family_index'])await open7(d2,id);
+const wrongs=[
+ {...answer,who:'Денис Орлов',why:'Он продавал архивные материалы и боялся разоблачения.',how:'Он вернулся после сканирования, ударил Анну и спрятал тетрадь в коробке.'},
+ {...answer,who:'Михаил Ратников',why:'Он крал страницы, но к травме Анны отношения не имел.',how:'Анна упала сама до его прихода. Ратников лишь воспользовался ситуацией и спрятал тетрадь в коробке.'},
+ {...answer,who:'Ирина Белова',why:'Фонд был в долгах, поэтому ей была нужна страховая выплата.',how:'Она инсценировала исчезновение рукописи и травмировала Анну.'}
+];
+for(const w of wrongs){const q=await call(E.final,{code:code7,answers:w},d1);console.log('DEFENSE_WRONG',w.who,JSON.stringify({passed:q.body.passed,message:q.body.message}));expect(q.body.passed===false,'wrong defense theory accepted: '+w.who)}
+
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed','defense-theories-rejected'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6,code7}));
