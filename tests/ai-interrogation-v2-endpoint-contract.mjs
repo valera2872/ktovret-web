@@ -46,3 +46,6 @@ assert.match(endpoint,/function cleanAi02Reply\(/,'AI-02 must sanitize stray rep
 assert.match(endpoint,/ОБЯЗАТЕЛЬНО: естественно проговори в этой реплике каждый новый разрешённый результат/,'AI-02 must verbalize newly unlocked facts in the same reply');
 assert.match(endpoint,/СТИЛЬ AI-02: пиши только нормальной русской речью/,'AI-02 must forbid stray non-Russian reply tails');
 assert.match(endpoint,/ai02Guarded\?cleanAi02Reply\(rawReply\):clean\(rawReply,900\)/,'reply sanitizer must remain scoped to AI-02');
+
+assert.match(endpoint,/АТРИБУЦИЯ AI-02:/,'AI-02 must preserve authorship/source attribution when verbalizing documents');
+assert.match(endpoint,/не приписывай себе действия, наблюдения или выводы из документов/,'AI-02 must not turn document content into the suspect own acts');
