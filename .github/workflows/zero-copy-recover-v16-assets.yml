@@ -21,15 +21,24 @@ jobs:
       - name: Verify Beget staging is approved v16
         run: |
           set -euo pipefail
-          curl -kfsSL --max-time 20 https://tftanyaf.beget.tech/ -o /tmp/beget-index.html
+          BASE=''
+          if curl -fsSL --max-time 20 http://tftanyaf.beget.tech/ -o /tmp/beget-index.html; then
+            BASE='http://tftanyaf.beget.tech'
+          elif curl -kfsSL --max-time 20 https://tftanyaf.beget.tech/ -o /tmp/beget-index.html; then
+            BASE='https://tftanyaf.beget.tech'
+          else
+            echo 'Beget staging unreachable over HTTP and HTTPS'
+            exit 1
+          fi
           grep -q 'staging build 2026-10-03.16' /tmp/beget-index.html
+          echo "BASE=$BASE" >> "$GITHUB_ENV"
       - name: Recover exact visual assets from Beget
         run: |
           set -euo pipefail
           mkdir -p qa-zero-copy/client/assets
           for f in             archive-lab-premium.png             archive_boxes.jpg             capture-series-premium.png             capture_2208.svg             capture_2209.svg             lab_detail.jpg             manuscript_close.jpg             page47_2019.svg             page47_2026.svg             seal.svg             investigation-board.png
           do
-            curl -kfsSL --max-time 30 "https://tftanyaf.beget.tech/assets/$f" -o "qa-zero-copy/client/assets/$f"
+            curl -kfsSL --max-time 30 "$BASE/assets/$f" -o "qa-zero-copy/client/assets/$f"
             test -s "qa-zero-copy/client/assets/$f"
           done
           find qa-zero-copy/client/assets -type f -maxdepth 1 -printf '%f %s bytes\n' | sort
