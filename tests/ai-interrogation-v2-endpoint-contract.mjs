@@ -39,3 +39,5 @@ assert.match(endpoint,/evidence:gated\.evidence,noteIds:gated\.noteIds/,'model o
 assert.match(endpoint,/const ai02Guarded=input\.runtime\.caseId\.startsWith\("AI02-NK-"\)/,'AI-02 must use the guarded speaking-brief path');
 assert.match(endpoint,/const knowledge=ai02Guarded\?\[\]:suspectKnowledge/,'AI-02 base_facts must not be sent to the model before server unlock');
 assert.match(endpoint,/hidden motives and actions|скрытые мотивы и поступки/,'AI-02 guarded persona must not inject private acts into the speaking brief');
+
+assert.match(endpoint,/state\.evidence_ids\.includes\("E08"\)/,'AI-02 queue attribution must remain locked until delayed playback has been discovered');
