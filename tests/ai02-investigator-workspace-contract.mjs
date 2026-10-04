@@ -50,3 +50,7 @@ assert.ok(css.includes('.ai02-prestart-difficulty'),'prestart difficulty styles 
 assert.ok(css.includes('.ai02-prestart-difficulty-grid'),'prestart difficulty cards missing');
 
 console.log('AI-02 investigator workspace contract OK');
+
+
+assert.ok(!js.includes('кто авторизовал постановку QC-файла'),'scene hotspots must not formulate the decisive attribution question for the player');
+assert.ok(js.includes('какие события зарегистрированы на ней в критический период'),'console hotspot should ask a neutral investigative question');
