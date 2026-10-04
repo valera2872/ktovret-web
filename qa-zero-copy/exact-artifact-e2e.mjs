@@ -26,7 +26,7 @@ await p.route('**/functions/v1/**',async route=>{
  else if(u.includes('zero-copy-session-v1')){
    if(body.action==='patch'){
      if(body.patch?.board_note)state.shared.board.push({by:role,text:body.patch.board_note});
-     if(body.patch?.private_note)state.mine.notes.push(body.patch.private_note);
+     if(body.patch?.private_note)state.mine.notes.push({text:body.patch.private_note});
    }
    out={role,bothJoined:true,state,revision:2};
  }
