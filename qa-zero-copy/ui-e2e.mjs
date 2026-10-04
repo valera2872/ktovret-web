@@ -22,8 +22,17 @@ expect(await p1.locator('#view-materials').isVisible(),'materials view not visib
 await p1.locator('#starterMaterialsFull .material-row').first().click();
 await p1.locator('#viewer.open').waitFor({state:'visible',timeout:15000});
 expect((await p1.locator('#viewerTitle').innerText()).length>3,'viewer title missing');
+expect(await p1.locator('#shareViewerBoard').isVisible(),'share-to-board action missing in viewer');
 await p1.click('#backViewer');
 expect(await p1.locator('#materialStage .stage-doc').isVisible(),'material stage missing after open');
+expect(await p1.locator('#stageBoard').isVisible(),'share-to-board action missing on material stage');
+const sharedTitle=(await p1.locator('#materialStage h2').innerText()).trim();
+await p1.click('#stageBoard');
+expect(await p1.locator('#view-board').isVisible(),'share-to-board did not open board');
+expect((await p1.locator('#boardInput').inputValue()).includes(sharedTitle),'share-to-board did not carry material title');
+await p1.fill('#boardInput',(await p1.locator('#boardInput').inputValue())+' QA наблюдение');
+await p1.click('#boardBtn');
+await p1.locator('#board').getByText('QA наблюдение',{exact:false}).waitFor({state:'visible',timeout:10000});
 
 await p1.locator('.navitem[data-view="search"]').click();
 await p1.fill('#query','доступ Ратникова');
@@ -70,5 +79,5 @@ await p2.locator('#game').waitFor({state:'visible',timeout:20000});
 expect(await p2.locator('.sidebar').isVisible(),'mobile navigation hidden');
 expect(await p2.locator('#view-overview').isVisible(),'mobile overview hidden');
 
-console.log(JSON.stringify({ok:true,checks:['v15-intro','demo-start','overview','starter-package','materials-view','viewer','material-stage','search','shared-board','private-note','ai-dialog','role-switch','archivist-search','mobile']})); 
+console.log(JSON.stringify({ok:true,checks:['v15-intro','demo-start','overview','starter-package','materials-view','viewer','material-stage','evidence-board-handoff','search','shared-board','private-note','ai-dialog','role-switch','archivist-search','mobile']})); 
 await browser.close();
