@@ -1,0 +1,47 @@
+name: Zero Copy Recover V16 Assets
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - '.github/workflows/zero-copy-recover-v16-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/zero-copy-runtime-final
+          fetch-depth: 0
+      - name: Verify Beget staging is approved v16
+        run: |
+          set -euo pipefail
+          curl -kfsSL --max-time 20 https://tftanyaf.beget.tech/ -o /tmp/beget-index.html
+          grep -q 'staging build 2026-10-03.16' /tmp/beget-index.html
+      - name: Recover exact visual assets from Beget
+        run: |
+          set -euo pipefail
+          mkdir -p qa-zero-copy/client/assets
+          for f in             archive-lab-premium.png             archive_boxes.jpg             capture-series-premium.png             capture_2208.svg             capture_2209.svg             lab_detail.jpg             manuscript_close.jpg             page47_2019.svg             page47_2026.svg             seal.svg             investigation-board.png
+          do
+            curl -kfsSL --max-time 30 "https://tftanyaf.beget.tech/assets/$f" -o "qa-zero-copy/client/assets/$f"
+            test -s "qa-zero-copy/client/assets/$f"
+          done
+          find qa-zero-copy/client/assets -type f -maxdepth 1 -printf '%f %s bytes\n' | sort
+      - name: Commit recovered assets to isolated branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qa-zero-copy/client/assets
+          if git diff --cached --quiet; then
+            echo "No asset changes"
+            exit 0
+          fi
+          git commit -m "chore(zero-copy): recover approved v16 visual assets"
+          git push origin HEAD:feature/zero-copy-runtime-final
