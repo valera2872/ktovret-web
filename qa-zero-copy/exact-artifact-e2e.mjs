@@ -17,7 +17,7 @@ await p.route('**/functions/v1/**',async route=>{
  const req=route.request();let body={};try{body=JSON.parse(req.postData()||'{}')}catch{}
  const u=req.url();let out={ok:true};
  if(u.includes('zero-copy-room-v1')){
-   if(body.action==='demo_create'){role='investigator';out={room:{code:'EXACT18'},me:{role},bothJoined:true,state,revision:1};}
+   if(body.action==='demo_create'){role='investigator';out={room:{code:'EXACT19'},me:{role},bothJoined:true,state,revision:1};}
    else if(body.action==='status'||body.action==='start'){out={me:{role},role,bothJoined:true,state,revision:1};}
    else if(body.action==='meta'){out={results:list().map(({id,title,kind})=>({id,title,kind}))};}
    else if(body.action==='search'){out={results:list().map(({id,title,kind})=>({id,title,kind}))};}
@@ -50,6 +50,13 @@ await p.locator('#viewer.open').waitFor({state:'visible'});
 expect(await p.locator('#shareViewerBoard').isVisible(),'viewer board handoff missing');
 await p.click('#shareViewerBoard');
 expect(await p.locator('#view-board').isVisible(),'board did not open');
+const boardAsset=await p.request.get(new URL('assets/investigation-board.png',base).href);
+expect(boardAsset.ok(),'investigation board asset HTTP load failed');
+const boardBytes=(await boardAsset.body()).length;expect(boardBytes>500000,'investigation board asset unexpectedly small');
+const boardImg=p.locator('#view-board .board-visual > img');
+expect(await boardImg.isVisible(),'approved investigation board visual missing');
+const boardNatural=await boardImg.evaluate(el=>({w:el.naturalWidth,h:el.naturalHeight}));
+expect(boardNatural.w>500&&boardNatural.h>300,'investigation board visual failed to decode');
 let v=await p.locator('#boardInput').inputValue();expect(v.length>3,'material title not carried');
 await p.fill('#boardInput',v+' — проверено игроком');
 await p.click('#boardBtn');
@@ -62,12 +69,12 @@ await p.click('[data-view="interrogate"]');
 await p.fill('#q','Что вы знаете об Анне?');await p.click('#ask');
 await p.locator('#dialog').getByText('подтвердить',{exact:false}).waitFor({state:'visible'});
 await p.click('[data-view="final"]');
-for(const id of ['who','why','how','where','when','evidence','lies'])await p.fill('#'+id,'Полная тестовая реконструкция '+id);
+for(const id of ['who','why','how','where','when','evidence','lies'])await p.fill('#f_'+id,'Полная тестовая реконструкция '+id);
 await p.click('#finalBtn');await p.locator('#reveal').waitFor({state:'visible'});
 const mobile=await browser.newContext({viewport:{width:390,height:844}});const m=await mobile.newPage();
 await m.route('**/functions/v1/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true})}));
 await m.goto(base,{waitUntil:'domcontentloaded'});
 expect(await m.locator('#intro').isVisible(),'mobile intro missing');
 expect((await m.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2)),'mobile horizontal overflow');
-console.log(JSON.stringify({ok:true,checks:['exact-unpack','hero-asset','demo','overview','starter','viewer','board-handoff','private-note','ai-dialog','final-reveal','mobile-no-overflow'],heroBytes:assetBytes}));
+console.log(JSON.stringify({ok:true,checks:['exact-unpack','hero-asset','demo','overview','starter','viewer','board-handoff','private-note','ai-dialog','final-reveal','mobile-no-overflow'],heroBytes:assetBytes,boardBytes,boardNatural}));
 await browser.close();
