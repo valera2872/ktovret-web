@@ -1,0 +1,34 @@
+name: Zero Copy Build19 Visual QA
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - 'qa-zero-copy/build19-visual.mjs'
+      - '.github/workflows/zero-copy-build19-visual.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/zero-copy-runtime-final
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm init -y && npm i -D playwright@1.56.0
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 4175 --directory qa-zero-copy/client >/tmp/zc-visual.log 2>&1 &
+          sleep 2
+      - run: node qa-zero-copy/build19-visual.mjs
+      - name: Commit visual QA screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qa-zero-copy/screenshots/build19
+          git commit -m "test(zero-copy): capture build19 visual QA" || exit 0
+          git push origin HEAD:feature/zero-copy-runtime-final
