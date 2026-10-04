@@ -41,3 +41,8 @@ assert.match(endpoint,/const knowledge=ai02Guarded\?\[\]:suspectKnowledge/,'AI-0
 assert.match(endpoint,/hidden motives and actions|скрытые мотивы и поступки/,'AI-02 guarded persona must not inject private acts into the speaking brief');
 
 assert.match(endpoint,/state\.evidence_ids\.includes\("E08"\)/,'AI-02 queue attribution must remain locked until delayed playback has been discovered');
+
+assert.match(endpoint,/function cleanAi02Reply\(/,'AI-02 must sanitize stray reply tails');
+assert.match(endpoint,/ОБЯЗАТЕЛЬНО: естественно проговори в этой реплике каждый новый разрешённый результат/,'AI-02 must verbalize newly unlocked facts in the same reply');
+assert.match(endpoint,/СТИЛЬ AI-02: пиши только нормальной русской речью/,'AI-02 must forbid stray non-Russian reply tails');
+assert.match(endpoint,/ai02Guarded\?cleanAi02Reply\(rawReply\):clean\(rawReply,900\)/,'reply sanitizer must remain scoped to AI-02');
