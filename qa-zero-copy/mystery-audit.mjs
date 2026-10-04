@@ -45,4 +45,36 @@ const talks=[
 ];
 for(const [sid,eid,q] of talks){const t=await call(E.ai,{code:code4,suspect_id:sid,question:q,evidence_id:eid},c1);console.log('RED_HERRING',sid,JSON.stringify(t.body));expect(t.status===200&&typeof t.body.reply==='string','red herring talk failed '+sid);expect(!/Михаил Ратников.*(винов|убил|напал)/i.test(t.body.reply),'suspect named culprit '+sid)}
 for(const sid of ['denis','markin','sofia','irina']){const t=await call(E.ai,{code:code4,suspect_id:sid,question:'Вы ударили Анну около 22:09 и спрятали тетрадь?',evidence_id:''},c1);console.log('FALSE_PREMISE',sid,JSON.stringify(t.body.reply));expect(!/^\s*да[,.!]/i.test(t.body.reply||''),'red herring accepted false murder premise '+sid)}
-console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','arbitrary-material-presentation','natural-query-discoverability'],code,code2,code3,code4}));
+// PASS 5: Holmes speed-run. The culprit may become suspicious early, but the game must not become provable from one role alone.
+const h1=key(),h2=key();r=await call(E.room,{action:'demo_create',playerName:'Holmes',guestKey:h2,guestName:'Watson'},h1);const code5=r.body.room.code;
+async function open5(k,id){const z=await call(E.room,{action:'open',code:code5,id},k);expect(z.status===200,'open5 '+id)}
+for(const id of ['phone','passes','cards','terminal','access_hist','market','ratnikov_money'])await open5(h1,id);
+const htalk=await call(E.ai,{code:code5,suspect_id:'ratnikov',question:'У меня есть ваше сообщение, карта, терминал, рынок и деньги. Расскажите всю правду о смерти Анны и рукописи.',evidence_id:'ratnikov_money'},h1);
+console.log('HOLMES_ONE_ROLE',JSON.stringify({mode:htalk.body.mode,reply:htalk.body.reply}));
+expect(htalk.body.mode!=='canonical_confession','one-role speedrun unlocked confession');
+const hfinal=await call(E.final,{code:code5,answers:answer},h1);
+console.log('HOLMES_ONE_ROLE_FINAL',JSON.stringify({passed:hfinal.body.passed,message:hfinal.body.message}));
+expect(hfinal.body.passed===false,'one role alone can finish Partner case');
+
+// PASS 6: Watson plain-language path. No expert terminology or magic clue names.
+for(const [q,id] of [
+ ['могли ли страницы менять в разные дни','change_dates'],
+ ['были ли официальные работы с изменившимися страницами','treatment'],
+ ['есть ли старая и новая фотография страницы 47','p47b'],
+ ['куда собирались отправить коробку утром','outgoing'],
+ ['не вскрывали ли упаковку после закрытия','seal'],
+ ['нашли ли потом саму тетрадь','box_exam'],
+ ['что видно на фото прямо перед происшествием','capture1'],
+ ['что случилось на последнем снимке','capture2']
+]){const rs=await search(k2,q);console.log('WATSON_QUERY',q,JSON.stringify(rs));expect(rs.some(x=>x.id===id),'plain-language query cannot discover '+id+' via '+q)}
+
+// PASS 7: complete main crime without Anna's private side-secret. Record whether the final hard-gates the side twist.
+const m1=key(),m2=key();r=await call(E.room,{action:'demo_create',playerName:'MainCase',guestKey:m2,guestName:'MainCase2'},m1);const code6=r.body.room.code;
+async function open6(k,id){const z=await call(E.room,{action:'open',code:code6,id},k);expect(z.status===200,'open6 '+id)}
+for(const id of ['access_hist','market','ratnikov_money','passes','cards','medical','terminal'])await open6(m1,id);
+for(const id of ['change_dates','treatment','page31','photosession','box_exam','seal'])await open6(m2,id);
+const mainOnly={...answer,lies:'Ратников скрывал встречу, продажи и сокрытие рукописи. Остальные подозреваемые также скрывали личные секреты, но это не доказывает их причастность к смерти Анны.'};
+const sideGate=await call(E.final,{code:code6,answers:mainOnly},m1);
+console.log('MAIN_CASE_WITHOUT_ANNA_SECRET',JSON.stringify({passed:sideGate.body.passed,message:sideGate.body.message}));
+
+console.log(JSON.stringify({ok:true,checks:['generic-search-hardening','no-early-confession','cross-role-threshold','thin-final-rejected','full-final-accepted','red-herring-interrogations','false-premise-resistance','natural-query-discoverability','one-role-cannot-finish','watson-plain-language','side-secret-gate-observed'],observations:{mainCaseWithoutAnnaSecretPassed:!!sideGate.body.passed},code,code2,code3,code4,code5,code6}));
