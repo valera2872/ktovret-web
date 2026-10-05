@@ -30,6 +30,8 @@ assert.ok(js.includes('Предъявить улику'),'evidence confrontation
 assert.ok(js.includes('Прижать противоречием'),'contradiction pressure action missing');
 assert.ok(js.includes('КАК СКРЫВАЛ'),'structured reconstruction missing');
 assert.ok(js.includes('Ключевые доказательства'),'final evidence selection missing');
+assert.ok(!js.includes('кто авторизовал постановку QC-файла'),'scene hotspot must not hand the player the decisive attribution query');
+assert.ok(js.includes('Проверь рабочую станцию и очередь воспроизведения QC-файлов.'),'console hotspot should reveal the playback layer without attribution');
 assert.ok(js.includes('До начала расследования'),'difficulty must be presented before the investigation starts');
 assert.ok(js.includes('Выберите уровень сложности'),'prestart difficulty heading missing');
 assert.ok(js.includes('Канон, виновный и набор фактов одинаковы'),'difficulty explanation must state what does not change');
