@@ -23,8 +23,10 @@ async function setup(viewport,name){
  await p.screenshot({path:`qa-zero-copy/screenshots/build19/${name}-intro.png`,fullPage:true});
  await p.click('#demoBtn');await p.locator('#game').waitFor({state:'visible'});
  await p.locator('#starterMaterials .starter').first().waitFor({state:'visible',timeout:10000});
+ await p.evaluate(()=>window.scrollTo(0,0));
  await p.screenshot({path:`qa-zero-copy/screenshots/build19/${name}-overview.png`,fullPage:true});
- await p.click('[data-view="board"]');await p.screenshot({path:`qa-zero-copy/screenshots/build19/${name}-board.png`,fullPage:true});
+ await p.screenshot({path:`qa-zero-copy/screenshots/build19/${name}-overview-fold.png`,fullPage:false});
+ await p.click('[data-view="board"]');await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:`qa-zero-copy/screenshots/build19/${name}-board.png`,fullPage:true});
  await c.close();
 }
 await setup({width:1440,height:1000},'desktop');
