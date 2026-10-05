@@ -80,7 +80,7 @@ assert(/9 января/.test(rr.material.text)&&/28 января/.test(rr.materi
 let one=await talk(k1,'ratnikov','Вы всё-таки заходили к Анне после её сообщения?','access_hist');log('ONE_CLUE',{reply:one.reply});
 assert(!/вынимал|продавал страницы|спрятал.*L17|не вызвал помощь/i.test(one.reply),'one clue caused full confession');
 let two=await talk(k1,'ratnikov','Что объясняют ваши наличные и контакты?','ratnikov_money');log('TWO_CLUE',{reply:two.reply});
-let conf=await talk(k1,'ratnikov','Теперь признайтесь: что произошло с Анной и рукописью и что вы сделали после этого?','capture2');log('CONFESSION',{mode:conf.mode,reply:conf.reply});
+let conf=await talk(k2,'ratnikov','Теперь признайтесь: что произошло с Анной и рукописью и что вы сделали после этого?','capture2');log('CONFESSION',{mode:conf.mode,reply:conf.reply});
 assert(conf.mode==='canonical_confession','confession threshold not reached');
 assert(/L17-203/.test(conf.reply)&&/не вызвал помощь/.test(conf.reply),'canonical confession incomplete');
 
