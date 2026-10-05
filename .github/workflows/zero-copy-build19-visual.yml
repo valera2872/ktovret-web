@@ -25,6 +25,11 @@ jobs:
           python3 -m http.server 4175 --directory qa-zero-copy/client >/tmp/zc-visual.log 2>&1 &
           sleep 2
       - run: node qa-zero-copy/build19-visual.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zero-copy-build19-screenshots
+          path: qa-zero-copy/screenshots/build19
+          retention-days: 7
       - name: Commit visual QA screenshots
         run: |
           git config user.name "github-actions[bot]"
