@@ -1,0 +1,40 @@
+name: Zero Copy Beget Readonly Inspect
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - '.github/workflows/zero-copy-beget-readonly.yml'
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect Beget staging without writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/beget
+          for base in https://tftanyaf.beget.tech http://tftanyaf.beget.tech; do
+            echo "=== $base ==="
+            curl -L --max-time 20 -sS -D /tmp/beget/headers.txt -o /tmp/beget/index.html "$base/" || true
+            sed -n '1,20p' /tmp/beget/headers.txt || true
+            if [ -s /tmp/beget/index.html ]; then
+              echo "bytes=$(wc -c </tmp/beget/index.html)"
+              grep -Eo 'staging build [0-9.-]+' /tmp/beget/index.html | head -5 || true
+              grep -Eo '<title>[^<]+' /tmp/beget/index.html | head -3 || true
+              sha256sum /tmp/beget/index.html
+            else
+              echo "NO_BODY"
+            fi
+          done
+      - name: Probe expected build19 resources
+        shell: bash
+        run: |
+          set -euo pipefail
+          for p in index.html app.js style.css assets/archive-lab-premium.png assets/investigation-board.png; do
+            code=$(curl -L --max-time 20 -sS -o /tmp/beget/probe.bin -w '%{http_code}' "https://tftanyaf.beget.tech/$p" || true)
+            size=$(wc -c </tmp/beget/probe.bin 2>/dev/null || echo 0)
+            echo "$p status=$code bytes=$size"
+          done
