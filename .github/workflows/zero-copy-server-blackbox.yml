@@ -1,0 +1,19 @@
+name: Zero Copy Server Black Box
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - 'qa-zero-copy/e2e.mjs'
+      - '.github/workflows/zero-copy-server-blackbox.yml'
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run real two-player server black-box against production Supabase
+        run: node qa-zero-copy/e2e.mjs
