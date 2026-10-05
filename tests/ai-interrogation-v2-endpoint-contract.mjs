@@ -40,7 +40,7 @@ assert.match(endpoint,/const ai02Guarded=input\.runtime\.caseId\.startsWith\("AI
 assert.match(endpoint,/const knowledge=ai02Guarded\?\[\]:suspectKnowledge/,'AI-02 base_facts must not be sent to the model before server unlock');
 assert.match(endpoint,/hidden motives and actions|скрытые мотивы и поступки/,'AI-02 guarded persona must not inject private acts into the speaking brief');
 
-assert.match(endpoint,/state\.evidence_ids\.includes\("E08"\)/,'AI-02 queue attribution must remain locked until delayed playback has been discovered');
+assert.match(endpoint,/has\("E08"\)/,'AI-02 queue attribution must remain locked until delayed playback has been discovered');
 
 assert.match(endpoint,/function cleanAi02Reply\(/,'AI-02 must sanitize stray reply tails');
 assert.match(endpoint,/ОБЯЗАТЕЛЬНО: естественно проговори в этой реплике каждый новый разрешённый результат/,'AI-02 must verbalize newly unlocked facts in the same reply');
@@ -49,3 +49,11 @@ assert.match(endpoint,/ai02Guarded\?cleanAi02Reply\(rawReply\):clean\(rawReply,9
 
 assert.match(endpoint,/АТРИБУЦИЯ AI-02:/,'AI-02 must preserve authorship/source attribution when verbalizing documents');
 assert.match(endpoint,/не приписывай себе действия, наблюдения или выводы из документов/,'AI-02 must not turn document content into the suspect own acts');
+
+
+/* Premium v7 digital investigation must be multi-step, not a one-query spoiler. */
+assert.doesNotMatch(endpoint,/add\("E06","E07","E08"\)/,'broad digital investigation must not grant QC file, provenance and queue together');
+assert.match(endpoint,/const has=\(id:string\)=>state\.evidence_ids\.includes\(id\)\|\|ids\.includes\(id\)/,'investigation gate must consider already discovered evidence');
+assert.match(endpoint,/if\(asksOrigin\)[\s\S]*if\(has\("E06"\)\)add\("E07"\)/,'QC provenance must follow discovery of the audio file');
+assert.match(endpoint,/if\(asksAuth&&has\("E08"\)\)add\("E23"\)/,'queue attribution must require delayed-playback evidence first');
+assert.match(endpoint,/has\("E06"\)&&has\("E07"\)&&has\("E08"\)/,'voice-playback deduction must require all three technical steps');
