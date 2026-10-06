@@ -79,6 +79,6 @@
   $('[data-composer]')?.addEventListener('submit',interrogate);
   $('[data-theory-form]')?.addEventListener('submit',checkTheory);
 
-  const saved=localStorage.getItem(STORAGE_KEY)||'';const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
+  const saved=storedToken();const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
   if(!ui.caseId)setAccessStatus('Добавьте к адресу ?case=ID_ДЕЛА.','error');else if(saved)unlock({silent:true});
 })();
