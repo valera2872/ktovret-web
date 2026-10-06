@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const client=fs.readFileSync('assets/ai-detective-vslice.js','utf8');
 const edge=fs.readFileSync('supabase/functions/ai-interrogation-v1/index.ts','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260828135000_ai_detective_server_quotas.sql','utf8');
@@ -138,6 +138,6 @@ assert.doesNotMatch(edge,/21:29.*Марин|Марин.*21:29/i,'Lev cannot obse
 assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must remain before his exit');
 assert.match(edge,/Игрок не предъявил документ/,'truly new unverified player claims must not become evidence');
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
-assert.doesNotMatch(sitemap,/detektivnaya-igra-s-ii/,'experimental route must not enter sitemap before approval');
+assert.match(sitemap,/https:\/\/mysterylogic\.com\/detektivnaya-igra-s-ii\//,'AI investigation catalog must be discoverable after approval');\nassert.doesNotMatch(sitemap,/vosem-minut-bez-kamery/,'noindex AI-01 game route must not enter sitemap');
 
 console.log('AI detective vertical slice contract: ok');
