@@ -1,6 +1,7 @@
 import {
   entitlementProductsForOrder,
   formatAmount,
+  productFor,
 } from './payment.ts';
 import { RUSSIAN_TRUSTED_CA_CERTS } from './russian-ca.ts';
 
@@ -116,6 +117,9 @@ const activateTbankEntitlement = async (admin: any, order: any, payment: any) =>
       order_id: order.id,
       source: 'tbank',
       purchase_product_id: order.product_id,
+      ...(productFor(order.product_id)?.allowedCaseIds?.length
+        ? { allowed_case_ids: [...productFor(order.product_id)!.allowedCaseIds], experience_tier: 'text' }
+        : {}),
       ...(productId === 'legacy_volume_all' ? { grandfathered_from_product_id: 'volume1' } : {}),
     },
     updated_at: now,
