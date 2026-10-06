@@ -3,7 +3,7 @@ const expect=(v,m)=>{if(!v)throw new Error(m)};
 const browser=await chromium.launch({headless:true});
 const c1=await browser.newContext({viewport:{width:1440,height:1000}});
 const p1=await c1.newPage();
-const BASE='http://127.0.0.1:4173/client/index.html';
+const BASE=process.env.ZC_BASE_URL||'http://127.0.0.1:4173/client/index.html';
 await p1.goto(BASE);
 expect(await p1.locator('#intro').isVisible(),'intro not visible');
 expect(await p1.locator('#game').isHidden(),'game should start hidden');
