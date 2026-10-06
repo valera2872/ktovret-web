@@ -1,0 +1,42 @@
+name: Zero Copy Beget Origin Gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - 'qa-zero-copy/ui-e2e.mjs'
+      - '.github/workflows/zero-copy-beget-origin-gate.yml'
+jobs:
+  beget-origin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify published Beget bytes equal frozen build19 client
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='http://tftanyaf.beget.tech'
+          rm -rf /tmp/beget19 && mkdir -p /tmp/beget19
+          while IFS= read -r rel; do
+            mkdir -p "/tmp/beget19/$(dirname "$rel")"
+            curl --fail --location --silent --show-error --max-time 30 "$base/$rel" -o "/tmp/beget19/$rel"
+            cmp -s "qa-zero-copy/client/$rel" "/tmp/beget19/$rel" || {
+              echo "MISMATCH $rel"
+              echo "local:  $(sha256sum "qa-zero-copy/client/$rel")"
+              echo "remote: $(sha256sum "/tmp/beget19/$rel")"
+              exit 1
+            }
+            echo "MATCH $rel $(sha256sum "/tmp/beget19/$rel" | cut -d' ' -f1)"
+          done < <(cd qa-zero-copy/client && find . -type f -printf '%P\n' | sort)
+          grep -q 'staging build 2026-10-04.19' /tmp/beget19/index.html
+          echo "PUBLISHED_BYTES_MATCH_BUILD19"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm init -y && npm i -D playwright@1.56.0
+      - run: npx playwright install --with-deps chromium
+      - name: Browser E2E from real Beget origin to production Supabase
+        env:
+          ZC_BASE_URL: http://tftanyaf.beget.tech/
+        run: node qa-zero-copy/ui-e2e.mjs
