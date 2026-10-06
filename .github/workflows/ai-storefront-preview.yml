@@ -1,0 +1,66 @@
+name: AI investigations storefront preview
+on:
+  pull_request:
+    paths:
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai-investigations-storefront.css'
+      - 'assets/ai02-storefront.js'
+      - 'assets/ai02/**'
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate storefront
+        run: |
+          node --check assets/ai02-storefront.js
+          grep -q 'Нулевая копия' detektivnaya-igra-s-ii/index.html
+          grep -q '299 ₽' detektivnaya-igra-s-ii/nulevaya-kopiya/index.html
+          grep -q 'ai02_zero_copy' assets/ai02-storefront.js
+          grep -q 'AI02-NK-STANDARD' assets/ai02-storefront.js
+          grep -q 'noindex,nofollow,noarchive' detektivnaya-igra-s-ii/nulevaya-kopiya/igra/index.html
+      - name: Render desktop and mobile
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 >/tmp/storefront-http.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const pages=[
+              ['catalog','http://127.0.0.1:4173/detektivnaya-igra-s-ii/'],
+              ['case','http://127.0.0.1:4173/detektivnaya-igra-s-ii/nulevaya-kopiya/']
+            ];
+            for(const [name,url] of pages){
+              for(const cfg of [{n:'desktop',w:1440,h:1000},{n:'mobile',w:390,h:844}]){
+                const page=await browser.newPage({viewport:{width:cfg.w,height:cfg.h},deviceScaleFactor:1});
+                await page.goto(url,{waitUntil:'domcontentloaded'});
+                await page.waitForTimeout(700);
+                const checks=await page.evaluate(()=>({
+                  h1:document.querySelector('h1')?.textContent?.trim()||'',
+                  overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2
+                }));
+                if(!checks.h1||checks.overflow)throw new Error(name+' '+cfg.n+' '+JSON.stringify(checks));
+                await page.screenshot({path:name+'-'+cfg.n+'.png',fullPage:true});
+                await page.close();
+              }
+            }
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-storefront-preview
+          path: |
+            catalog-desktop.png
+            catalog-mobile.png
+            case-desktop.png
+            case-mobile.png
+          retention-days: 3
