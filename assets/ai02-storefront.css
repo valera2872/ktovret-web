@@ -1,0 +1,21 @@
+.ai02-storefront{width:min(1180px,calc(100% - 32px));margin:28px auto 56px;color:#dfe7e3}
+.ai02-storefront-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:24px;align-items:stretch}
+.ai02-storefront-copy,.ai02-storefront-buy{border:1px solid rgba(199,163,107,.2);border-radius:10px;background:linear-gradient(150deg,rgba(14,29,27,.98),rgba(6,15,14,.99));box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.ai02-storefront-copy{position:relative;overflow:hidden;padding:42px}.ai02-storefront-copy:after{content:"AI-02";position:absolute;right:22px;bottom:5px;color:rgba(199,163,107,.045);font:700 88px/1 Georgia,serif}
+.ai02-storefront-kicker{margin:0 0 12px;color:#c7a36b;font:800 10px/1.2 system-ui;letter-spacing:.18em;text-transform:uppercase}
+.ai02-storefront h1{margin:0;font:500 clamp(50px,7vw,86px)/.92 Georgia,serif;letter-spacing:-.045em;color:#f3efe7}
+.ai02-storefront-lead{max-width:700px;margin:22px 0 0;color:#aebbb7;font-size:16px;line-height:1.65}
+.ai02-storefront-hook{margin:26px 0 0;padding:16px 18px;border-left:2px solid #c7a36b;background:rgba(199,163,107,.045);color:#d8dedb;line-height:1.55}
+.ai02-storefront-meta{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}.ai02-storefront-meta span{padding:7px 10px;border:1px solid rgba(195,207,202,.1);border-radius:999px;color:#9eaaa6;font-size:12px}
+.ai02-storefront-art{height:255px;margin:-42px -42px 28px;overflow:hidden;border-bottom:1px solid rgba(199,163,107,.18)}.ai02-storefront-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.08) brightness(.66)}
+.ai02-storefront-buy{padding:28px}.ai02-storefront-buy h2{margin:0 0 10px;font:500 30px/1.05 Georgia,serif}.ai02-storefront-buy>p{color:#8f9d98;line-height:1.55}
+.ai02-price{display:flex;align-items:baseline;gap:10px;margin:24px 0 8px}.ai02-price strong{font:600 44px/1 Georgia,serif;color:#f0d39e}.ai02-price s{color:#65736f}.ai02-discount{display:inline-flex;margin-bottom:8px;padding:6px 9px;border:1px solid rgba(126,172,143,.28);border-radius:999px;color:#b8d9c2;background:rgba(126,172,143,.07);font-size:11px;font-weight:800}
+.ai02-checkout{display:grid;gap:11px;margin-top:20px}.ai02-checkout input[type=email]{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid rgba(195,207,202,.15);border-radius:5px;background:#081311;color:#eef2ef;font:inherit}.ai02-checkout label>span{display:block;margin-bottom:6px;color:#9eaaa6;font-size:11px}
+.ai02-check{display:flex;gap:9px;align-items:flex-start;color:#899691;font-size:11px;line-height:1.45}.ai02-check a{color:#cdb181}.ai02-check input{margin-top:2px}
+.ai02-buy{min-height:50px;border:1px solid rgba(199,163,107,.5);border-radius:5px;background:linear-gradient(135deg,#c7a36b,#9f7845);color:#111817;font-weight:900;cursor:pointer}.ai02-buy:disabled{opacity:.5}
+.ai02-payment-note{min-height:34px;margin:0;color:#788783;font-size:11px;line-height:1.45}.ai02-payment-note[data-kind=error]{color:#e29b90}.ai02-payment-note[data-kind=ok]{color:#a8d0b4}
+.ai02-storefront-features{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.ai02-storefront-features article{padding:16px;border:1px solid rgba(195,207,202,.1);border-radius:7px;background:rgba(255,255,255,.015)}.ai02-storefront-features strong{display:block;color:#e2d5bc;font-size:13px}.ai02-storefront-features span{display:block;margin-top:5px;color:#75827e;font-size:11px;line-height:1.4}
+.ai02-returning{margin-top:20px;padding-top:16px;border-top:1px solid rgba(195,207,202,.08);color:#7f8d88;font-size:11px}
+body.ai02-has-access .ai02-storefront{display:none!important}
+@media(max-width:900px){.ai02-storefront-hero{grid-template-columns:1fr}.ai02-storefront-features{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.ai02-storefront{width:calc(100% - 16px);margin-top:10px}.ai02-storefront-copy{padding:24px 18px}.ai02-storefront-art{height:190px;margin:-24px -18px 22px}.ai02-storefront h1{font-size:50px}.ai02-storefront-buy{padding:20px 16px}.ai02-storefront-features{grid-template-columns:1fr}.ai02-storefront-copy:after{font-size:54px}}
