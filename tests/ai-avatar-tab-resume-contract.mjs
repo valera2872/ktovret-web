@@ -5,7 +5,7 @@ const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const waitResume=fs.readFileSync('assets/ai-avatar-wait-resume.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const tts=fs.readFileSync('supabase/functions/ai-avatar-tts/index.ts','utf8');
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 
 assert.match(adapter,/ml:avatar-connection-lost/,'SDK disconnects must reach the bridge');
 assert.match(adapter,/visibilitychange/,'returning to a browser tab must trigger Live recovery');
