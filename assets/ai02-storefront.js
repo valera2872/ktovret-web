@@ -21,7 +21,7 @@ const applyPrice=()=>{
  const price=dossierEligible?DISCOUNT_PRICE:PRICE;
  root.querySelectorAll('[data-ai02-price]').forEach(n=>n.textContent=String(price));
  const old=root.querySelector('[data-ai02-old-price]');if(old){old.textContent=dossierEligible?PRICE+' ₽':'';old.hidden=!dossierEligible}
- const badge=root.querySelector('[data-ai02-dossier-discount]');if(badge){badge.hidden=!dossierEligible;badge.textContent=dossierEligible?'Первое досье 15/15: −'+DISCOUNT+' ₽':''}
+ const badge=root.querySelector('[data-ai02-dossier-discount]');if(badge){badge.hidden=!dossierEligible;badge.textContent=dossierEligible?'Досье: ранг «Следователь» или выше · −'+DISCOUNT+' ₽':''}
  const progress=root.querySelector('[data-ai02-dossier-progress]');if(progress)progress.textContent=dossierXp?('Досье: '+(dossierRank||dossierXp+' XP')):'';
 };
 const loadDossier=async()=>{
