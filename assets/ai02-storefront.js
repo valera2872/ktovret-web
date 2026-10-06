@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const PRODUCT_ID='ai02-zero-copy';
+  const PRODUCT_ID='ai02_zero_copy';
   const CASE_ID='AI02-NK-STANDARD';
   const PRICE_RUB=299;
   const DISCOUNT_RUB=50;
@@ -62,7 +62,7 @@
       const r=await fetch(CHECKOUT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
         productId:PRODUCT_ID,caseId:CASE_ID,accessToken:token(),requestId,
         returnUrl:location.origin+location.pathname,email,language:'ru',
-        offerAccepted:true,privacyAcknowledged:true,browserKey:browserKey()
+        offerAccepted:true,privacyAcknowledged:true,browserKey:browserKey(),dossierDiscountRequested:discountEligible
       }),cache:'no-store'});
       let b={};try{b=await r.json()}catch{}if(!r.ok)throw new Error(b.error||`http_${r.status}`);
       if(!b.orderId||!b.confirmationUrl)throw new Error('invalid_checkout_response');
