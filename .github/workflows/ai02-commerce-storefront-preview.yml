@@ -14,6 +14,10 @@ on:
       - 'supabase/functions/_shared/payment.ts'
       - 'supabase/functions/_shared/tbank.ts'
       - 'supabase/functions/create-checkout/index.ts'
+      - 'supabase/functions/payment-status/index.ts'
+      - 'supabase/functions/tbank-webhook/index.ts'
+      - 'supabase/migrations/20261006130000_ai02_zero_copy_product_alignment.sql'
+      - 'tests/ai02-commerce-contract.mjs'
       - 'tests/ai02-commerce-storefront-contract.mjs'
       - '.github/workflows/ai02-commerce-storefront-preview.yml'
 
@@ -34,6 +38,7 @@ jobs:
           node --check assets/ai02-storefront.js
           node --check assets/ai-case-player-v2.js
           node --check assets/ai-avatar-auth-bootstrap.js
+          node tests/ai02-commerce-contract.mjs
           node tests/ai02-commerce-storefront-contract.mjs
       - name: Visual browser QA
         run: |
