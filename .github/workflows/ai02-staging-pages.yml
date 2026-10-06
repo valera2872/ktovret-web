@@ -159,11 +159,21 @@ jobs:
               await page.click('[data-mode-switch="interrogation"]');
               await page.waitForTimeout(250);
               if(cfg.name==='mobile'){
+                await page.evaluate(()=>{
+                  const list=document.querySelector('[data-evidence-list]');
+                  if(list&&!list.querySelector('[data-evidence="QA-VISIBLE"]')){
+                    const card=document.createElement('button');
+                    card.type='button';card.className='aid-evidence-card';card.dataset.evidence='QA-VISIBLE';
+                    card.innerHTML='<small>QA</small><strong>Проверочный материал</strong><p>Видимый материал для проверки мобильного выбора.</p>';
+                    list.append(card);
+                  }
+                });
                 await page.click('[data-ai02-mobile-evidence-trigger]');
                 const drawer=page.locator('[data-ai02-mobile-evidence]');
                 if(await drawer.isHidden()) throw new Error('mobile evidence drawer did not open');
                 const count=await page.locator('[data-ai02-mobile-evidence-list] > button').count();
-                if(count<1) throw new Error('mobile evidence drawer has no visible evidence');
+                if(count<1) throw new Error('mobile evidence drawer did not render visible evidence');
+                if(!(await page.locator('[data-ai02-mobile-evidence-list] > button').first().textContent()).includes('Проверочный материал')) throw new Error('mobile evidence drawer did not mirror visible evidence');
                 await page.click('[data-ai02-mobile-evidence-close]');
                 if(!(await drawer.isHidden())) throw new Error('mobile evidence drawer did not close');
               }
