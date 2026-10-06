@@ -16,16 +16,6 @@ export const PRODUCT_CATALOG = {
     receiptName: 'Mystery Logic — «Кто врёт?», полный архив (85 дел)',
     description: 'Mystery Logic — «Кто врёт?»: 85 платных расследований',
     entitlementProductIds: ['volume1'],
-    allowedCaseIds: [] as readonly string[],
-  },
-  'ai02-zero-copy': {
-    id: 'ai02-zero-copy',
-    label: 'AI-расследование «Нулевая копия»',
-    priceRub: 299,
-    receiptName: 'Mystery Logic — AI-расследование «Нулевая копия»',
-    description: 'Mystery Logic — «Нулевая копия»: премиальное AI-расследование',
-    entitlementProductIds: ['ai02-zero-copy'],
-    allowedCaseIds: ['AI02-NK-EASY','AI02-NK-STANDARD','AI02-NK-HARD'] as readonly string[],
   },
 } as const;
 
@@ -146,9 +136,6 @@ const grantEntitlements = async (admin: any, order: any, paymentProvider: string
       order_id: order.id,
       source: paymentProvider,
       purchase_product_id: order.product_id,
-      ...(productFor(order.product_id)?.allowedCaseIds?.length
-        ? { allowed_case_ids: [...productFor(order.product_id)!.allowedCaseIds], experience_tier: 'text' }
-        : {}),
       ...(productId === LEGACY_VOLUME_ALL_PRODUCT_ID ? { grandfathered_from_product_id: 'volume1' } : {}),
     },
     updated_at: now,
