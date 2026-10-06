@@ -4,7 +4,7 @@ const PRODUCT_ID='ai02-nk',CASE_ID='AI02-NK-STANDARD',PRICE=299,DISCOUNT=50,DISC
 const CHECKOUT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout-ai02';
 const STATUS='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status-ai02';
 const DOSSIER='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/player-dossier';
-const TOKEN_KEY='mysterylogic:ai-investigation:access-token:'+CASE_ID;
+const TOKEN_KEY='mysterylogic:ai-investigation:access-token:AI02-NK';
 const ORDER_KEY='mysterylogic:ai02-nk:last-order-id';
 const CLIENT_KEY='mysterylogic:challenge:client-key';
 const root=document.querySelector('[data-ai02-storefront]');
