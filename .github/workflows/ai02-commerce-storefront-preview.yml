@@ -79,6 +79,8 @@ jobs:
               }
               if(name.startsWith('catalog')){
                 if(await page.locator('.aihub-card').count()!==2)throw new Error(name+' expected two AI cards');
+                const cardImages=await page.locator('.aihub-card-visual img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight})));
+                if(cardImages.length!==2||cardImages.some(img=>img.naturalWidth<1||img.naturalHeight<1))throw new Error(name+' card artwork failed to load: '+JSON.stringify(cardImages));
               }
               if(name.startsWith('free')){
                 if(!(await page.locator('[data-ai-detective]').isVisible()))throw new Error(name+' free AI game missing');
