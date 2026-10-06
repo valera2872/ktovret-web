@@ -48,10 +48,8 @@ Deno.serve(async (req: Request) => {
   const language = String(body.language || '').toLowerCase() === 'en' ? 'en' : 'ru';
   const offerAccepted = body.offerAccepted === true;
   const privacyAcknowledged = body.privacyAcknowledged === true;
-  const browserKey = String(body.browserKey || '').trim();
 
   if (!validAccessToken(accessToken)) return json(400, { error: 'invalid_access_token' }, origin);
-  if (browserKey && !/^[a-f0-9]{48}$/.test(browserKey)) return json(400, { error: 'invalid_browser_key' }, origin);
   if (!validUuid(requestId)) return json(400, { error: 'invalid_request_id' }, origin);
   if (!email) return json(400, { error: 'email_required_for_receipt' }, origin);
   if (!validEmail(email)) return json(400, { error: 'invalid_email' }, origin);
@@ -68,21 +66,8 @@ Deno.serve(async (req: Request) => {
   returnUrl.hash = '';
   returnUrl.search = '';
 
-  let dossierDiscountRub = 0;
-  if (product.id === 'ai02-zero-copy' && browserKey) {
-    const visitorHash = await sha256(browserKey);
-    const adminForDossier = adminClient();
-    const { data: profile, error: profileError } = await adminForDossier
-      .from('player_profiles')
-      .select('xp')
-      .eq('visitor_key_hash', visitorHash)
-      .maybeSingle();
-    if (profileError) return json(503, { error: 'dossier_discount_lookup_failed' }, origin);
-    if (Number(profile?.xp || 0) >= 240) dossierDiscountRub = 50;
-  }
-  const chargedPriceRub = product.priceRub - dossierDiscountRub;
-  const amountValue = formatAmount(chargedPriceRub);
-  const amount = amountToKopecks(chargedPriceRub);
+  const amountValue = formatAmount(product.priceRub);
+  const amount = amountToKopecks(product.priceRub);
   if (!amountValue || amount <= 0) return json(503, { error: 'payment_service_not_configured' }, origin);
 
   const receipt = {
@@ -105,7 +90,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: existing, error: existingError } = await admin
     .from('payment_orders')
-    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,return_url,amount_value,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at,metadata')
+    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,return_url,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at')
     .eq('client_request_id', requestId)
     .maybeSingle();
   if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
@@ -114,9 +99,6 @@ Deno.serve(async (req: Request) => {
     if (existing.product_id !== product.id) return json(409, { error: 'request_product_conflict' }, origin);
     if (existing.payment_provider && existing.payment_provider !== 'tbank') {
       return json(409, { error: 'request_provider_conflict' }, origin);
-    }
-    if (Number(existing.amount_value) !== Number(amountValue)) {
-      return json(409, { error: 'request_amount_conflict' }, origin);
     }
     if (existing.confirmation_url) {
       return json(200, {
@@ -127,8 +109,6 @@ Deno.serve(async (req: Request) => {
         status: existing.status,
         paymentId: existing.provider_payment_id,
         confirmationUrl: existing.confirmation_url,
-        amountRub: Number(existing.amount_value),
-        discountRub: Math.max(0, Number(product.priceRub) - Number(existing.amount_value)),
       }, origin);
     }
   }
@@ -173,10 +153,6 @@ Deno.serve(async (req: Request) => {
         offer_accepted_at: acceptedAt,
         privacy_version: PRIVACY_VERSION,
         privacy_acknowledged_at: acceptedAt,
-        list_price_rub: product.priceRub,
-        charged_price_rub: chargedPriceRub,
-        discount_rub: dossierDiscountRub,
-        discount_reason: dossierDiscountRub ? 'dossier_rank_investigator' : null,
       },
     });
     if (insertError) return json(503, { error: 'order_create_failed' }, origin);
@@ -215,8 +191,6 @@ Deno.serve(async (req: Request) => {
       paymentId,
       status: 'pending',
       confirmationUrl,
-      amountRub: chargedPriceRub,
-      discountRub: dossierDiscountRub,
     }, origin);
   } catch (error: any) {
     await admin.from('payment_orders').update({
