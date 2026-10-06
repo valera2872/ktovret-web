@@ -1,0 +1,92 @@
+name: Validate AI-02 public storefront
+
+on:
+  pull_request:
+    paths:
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai02-storefront.*'
+      - 'assets/ai-investigations-catalog.css'
+      - 'assets/ai-case-player-v2.js'
+      - '.github/workflows/ai02-storefront-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/detektivnaya-igra-s-ii/nulevaya-kopiya out/detektivnaya-igra-s-ii/vosem-minut-bez-kamery out/assets/ai02
+          cp detektivnaya-igra-s-ii/index.html out/detektivnaya-igra-s-ii/index.html
+          cp detektivnaya-igra-s-ii/nulevaya-kopiya/index.html out/detektivnaya-igra-s-ii/nulevaya-kopiya/index.html
+          if [ -f detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html ]; then cp detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html out/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html; fi
+          cp assets/ml-mark.svg assets/mysterylogic.css assets/ai-investigations-catalog.css assets/ai02-storefront.css assets/ai02-storefront.js out/assets/
+          cp assets/ai-detective-vslice.css assets/ai-detective-avatar-stage.css assets/ai-case-player-v2.css assets/ai02-premium.css out/assets/
+          cp assets/ai-case-player-v2.js assets/ai-case-live-v2.js assets/ai02-investigation-staging.js assets/ai02-investigator-workspace.js assets/ai02-portraits.js out/assets/
+          cp assets/funnel-analytics.js out/assets/
+          [ -f assets/sitewide-menu-20260920-v2.css ] && cp assets/sitewide-menu-20260920-v2.css out/assets/ || true
+          [ -f assets/sitewide-menu-20260920-v2.js ] && cp assets/sitewide-menu-20260920-v2.js out/assets/ || true
+          cp assets/ai01-suspects-strip.jpg out/assets/
+          cp -R assets/ai02/. out/assets/ai02/
+      - name: Visual contract
+        shell: bash
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 --directory out >/tmp/ai02-storefront-http.log 2>&1 &
+          sleep 2
+          node - <<'NODE'
+          const { chromium }=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            for(const cfg of [{name:'desktop',w:1440,h:1000},{name:'mobile',w:390,h:844}]){
+              const page=await browser.newPage({viewport:{width:cfg.w,height:cfg.h},deviceScaleFactor:1});
+              await page.goto('http://127.0.0.1:4173/detektivnaya-igra-s-ii/',{waitUntil:'networkidle'});
+              const hub=await page.evaluate(()=>({
+                title:document.title,
+                cards:document.querySelectorAll('.ml-ai-case-card').length,
+                premiumHref:document.querySelector('.ml-ai-case-card:nth-child(2) a')?.getAttribute('href')||'',
+                freeHref:document.querySelector('.ml-ai-case-card:nth-child(1) a')?.getAttribute('href')||'',
+                images:[...document.querySelectorAll('.ml-ai-case-visual img')].map(x=>x.complete&&x.naturalWidth>0),
+                overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,
+              }));
+              if(hub.cards!==2||!hub.premiumHref.includes('nulevaya-kopiya')||!hub.freeHref.includes('vosem-minut-bez-kamery')||hub.images.length!==2||hub.images.some(x=>!x)||hub.overflow) throw new Error(cfg.name+' hub failed '+JSON.stringify(hub));
+              await page.screenshot({path:'hub-'+cfg.name+'.png',fullPage:true});
+
+              await page.goto('http://127.0.0.1:4173/detektivnaya-igra-s-ii/nulevaya-kopiya/',{waitUntil:'domcontentloaded'});
+              await page.waitForTimeout(900);
+              const premium=await page.evaluate(()=>({
+                h1:document.querySelector('.ai02-storefront h1')?.textContent?.replace(/\s+/g,' ').trim()||'',
+                price:[...document.querySelectorAll('[data-ai02-price]')].map(x=>x.textContent.trim()),
+                form:!!document.querySelector('[data-ai02-checkout-form]'),
+                gameAccess:!!document.querySelector('[data-ai-v2-player] [data-view="access"]'),
+                accessVisible:(()=>{const x=document.querySelector('[data-ai-v2-player] [data-view="access"]');return !!x&&!x.hidden&&getComputedStyle(x).display!=='none'})(),
+                workspaceHidden:(()=>{const x=document.querySelector('[data-ai-v2-player] [data-view="workspace"]');return !!x&&x.hidden&&getComputedStyle(x).display==='none'})(),
+                caseId:document.querySelector('[data-ai-v2-player]')?.dataset.caseId||'',
+                permanent:(document.querySelector('.ai02-storefront-buy')?.textContent||'').includes('Доступ не сгорает'),
+                dossier:(document.querySelector('.ai02-returning')?.textContent||'').includes('15/15'),
+                overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,
+              }));
+              if(!premium.h1.includes('Нулевая')||!premium.price.every(x=>x==='299')||!premium.form||!premium.gameAccess||!premium.accessVisible||!premium.workspaceHidden||premium.caseId!=='AI02-NK-STANDARD'||!premium.permanent||!premium.dossier||premium.overflow) throw new Error(cfg.name+' premium failed '+JSON.stringify(premium));
+              await page.screenshot({path:'premium-'+cfg.name+'.png',fullPage:true});
+              await page.close();
+            }
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai02-public-storefront-preview
+          path: |
+            hub-desktop.png
+            hub-mobile.png
+            premium-desktop.png
+            premium-mobile.png
+          retention-days: 3

@@ -8,15 +8,21 @@
   const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
   const CASE_ACCESS=`${SUPABASE}/functions/v1/case-access`;
   const AI_V2=`${SUPABASE}/functions/v1/ai-interrogation-v2`;
-  const STORAGE_KEY='mysterylogic:ai-investigation:access-token';
+  const LEGACY_STORAGE_KEY='mysterylogic:ai-investigation:access-token';
+  const STORAGE_KEY_PREFIX='mysterylogic:ai-investigation:access-token:';
   const CASE_RE=/^[A-Za-z0-9_:-]{3,160}$/;
   const STAGE_LABEL={composed:'держится спокойно',defensive:'защищается',cornered:'зажат фактами',breaking:'теряет контроль',confessed:'признание получено'};
 
   const params=new URL(location.href).searchParams;
-  const requestedCase=(params.get('case')||params.get('case_id')||'').trim();
+  const requestedCase=(params.get('case')||params.get('case_id')||root.dataset.caseId||'').trim();
   const $=(sel)=>root.querySelector(sel);
   const views={access:$('[data-view="access"]'),intro:$('[data-view="intro"]'),workspace:$('[data-view="workspace"]'),theory:$('[data-view="theory"]')};
   const ui={caseId:CASE_RE.test(requestedCase)?requestedCase:'',token:'',access:null,state:null,suspectId:'',attachedEvidenceId:'',busy:false};
+
+  const storageScope=()=>ui.caseId.replace(/-(?:EASY|STANDARD|HARD)$/,'');
+  const storageKey=()=>storageScope()?STORAGE_KEY_PREFIX+storageScope():LEGACY_STORAGE_KEY;
+  const storedToken=()=>{try{return localStorage.getItem(storageKey())||localStorage.getItem(LEGACY_STORAGE_KEY)||''}catch{return''}};
+  const persistToken=(token)=>{try{localStorage.setItem(storageKey(),token);if(localStorage.getItem(LEGACY_STORAGE_KEY)===token)localStorage.removeItem(LEGACY_STORAGE_KEY);return true}catch{return false}};
 
   const escapeHtml=(value)=>String(value??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clean=(value,max=1600)=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,max):'';
@@ -37,11 +43,11 @@
 
   async function unlock({silent=false}={}){
     if(!ui.caseId){setAccessStatus('В адресе не указан корректный case_id.','error');return false}
-    const input=$('[data-access-token]');const token=clean(input?.value||localStorage.getItem(STORAGE_KEY)||'',512);
+    const input=$('[data-access-token]');const token=clean(input?.value||storedToken(),512);
     if(token.length<32){if(!silent)setAccessStatus('Введите ключ покупки.','error');return false}
     const button=$('[data-action="unlock"]');if(button)button.disabled=true;if(!silent)setAccessStatus('Проверяем доступ…');
     try{
-      const access=await caseAccess(token);validateAccess(access);ui.token=token;ui.access=access;localStorage.setItem(STORAGE_KEY,token);const stateResult=await ai('state');ui.state=stateResult.state;ui.suspectId=suspects()[0]?.id||'';fillIntro();renderAll();setAccessStatus('Доступ подтверждён.','ok');showView('intro');return true;
+      const access=await caseAccess(token);validateAccess(access);ui.token=token;ui.access=access;if(!persistToken(token))throw new Error('browser_storage_unavailable');const stateResult=await ai('state');ui.state=stateResult.state;ui.suspectId=suspects()[0]?.id||'';fillIntro();renderAll();setAccessStatus('Доступ подтверждён.','ok');showView('intro');try{window.dispatchEvent(new CustomEvent('ml:ai-case-access',{detail:{caseId:ui.caseId,productId:access.productId||'',state:ui.state}}))}catch{}return true;
     }catch(error){console.error('ai_v2_unlock_failed',error);if(!silent)setAccessStatus(accessError(error.message),'error');return false}
     finally{if(button&&document.contains(button))button.disabled=false}
   }
@@ -74,6 +80,6 @@
   $('[data-composer]')?.addEventListener('submit',interrogate);
   $('[data-theory-form]')?.addEventListener('submit',checkTheory);
 
-  const saved=localStorage.getItem(STORAGE_KEY)||'';const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
+  const saved=storedToken();const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
   if(!ui.caseId)setAccessStatus('Добавьте к адресу ?case=ID_ДЕЛА.','error');else if(saved)unlock({silent:true});
 })();

@@ -1,7 +1,8 @@
 (()=>{'use strict';
 const API='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai-interrogation-v2',ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4',ACCESS_KEY='mysterylogic:ai-investigation:access-token';
 
-const PORTRAITS={serov:'../assets/ai02/serov.jpg',elena:'../assets/ai02/elena.jpg',artem:'../assets/ai02/artem.jpg',sofia:'../assets/ai02/sofia.jpg',david:'../assets/ai02/david.jpg'};
+const ASSET_BASE=new URL('./',document.currentScript?.src||location.href);const portrait=(name)=>new URL('ai02/'+name,ASSET_BASE).href;
+const PORTRAITS={serov:portrait('serov.jpg'),elena:portrait('elena.jpg'),artem:portrait('artem.jpg'),sofia:portrait('sofia.jpg'),david:portrait('david.jpg')};
 function decoratePortraits(){
  const strip=document.querySelector('[data-suspect-strip]'); if(!strip)return;
  strip.querySelectorAll('[data-suspect]').forEach(btn=>{const id=btn.dataset.suspect;if(!PORTRAITS[id]||btn.querySelector('.aid02-portrait-thumb'))return;const pic=document.createElement('img');pic.className='aid02-portrait-thumb';pic.src=PORTRAITS[id];pic.alt='';btn.prepend(pic)});
@@ -9,9 +10,10 @@ function decoratePortraits(){
  let hero=document.querySelector('[data-ai02-portrait]'); if(!hero){const head=document.querySelector('.aid-room-head'); if(head){hero=document.createElement('img');hero.className='aid02-portrait';hero.dataset.ai02Portrait='';hero.alt='Портрет фигуранта';head.prepend(hero)}}
  if(hero&&PORTRAITS[id]) hero.src=PORTRAITS[id];
 }
-const params=new URLSearchParams(location.search);const caseId=params.get('case')||'AI02-NK-STANDARD';const PREVIEW_MODE=params.get('preview')||'';const LOCAL=location.hostname==='127.0.0.1'||location.hostname==='localhost';const PREVIEW_WORKSPACE=PREVIEW_MODE==='workspace'||(LOCAL&&PREVIEW_MODE!=='intro');const PREVIEW_INTRO=PREVIEW_MODE==='intro';const PREVIEW=PREVIEW_WORKSPACE||PREVIEW_INTRO;
+const params=new URLSearchParams(location.search);const caseId=params.get('case')||document.querySelector('[data-ai-v2-player]')?.dataset.caseId||'AI02-NK-STANDARD';const PREVIEW_MODE=params.get('preview')||'';const PREVIEW_WORKSPACE=PREVIEW_MODE==='workspace';const PREVIEW_INTRO=PREVIEW_MODE==='intro';const PREVIEW=PREVIEW_WORKSPACE||PREVIEW_INTRO;
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function investigate(request){const token=localStorage.getItem(ACCESS_KEY)||'';if(!token)throw new Error('Сначала откройте дело ключом доступа.');const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json','apikey':ANON,'authorization':'Bearer '+ANON},body:JSON.stringify({action:'investigate',case_id:caseId,access_token:token,request})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.message||data.error||'Запрос не выполнен');return data}
+const ACCESS_FAMILY=caseId.replace(/-(?:EASY|STANDARD|HARD)$/,'');const FAMILY_ACCESS_KEY='mysterylogic:ai-investigation:access-token:'+ACCESS_FAMILY;
+async function investigate(request){const token=localStorage.getItem(FAMILY_ACCESS_KEY)||localStorage.getItem(ACCESS_KEY)||'';if(!token)throw new Error('Сначала откройте дело ключом доступа.');const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json','apikey':ANON,'authorization':'Bearer '+ANON},body:JSON.stringify({action:'investigate',case_id:caseId,access_token:token,request})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.message||data.error||'Запрос не выполнен');return data}
 function setMode(mode){const ws=document.querySelector('[data-workspace]');if(!ws)return;ws.dataset.investigationMode=mode;document.querySelectorAll('[data-mode-switch]').forEach(b=>b.classList.toggle('is-active',b.dataset.modeSwitch===mode))}
 function setupVoice(root=document){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;

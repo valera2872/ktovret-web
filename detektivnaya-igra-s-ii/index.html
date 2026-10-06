@@ -4,236 +4,73 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#061019">
-  <meta name="robots" content="noindex,follow">
-  <meta name="description" content="Mystery Logic: бесплатное AI-расследование со свободным допросом подозреваемых, проверкой алиби и предъявлением доказательств.">
+  <meta name="robots" content="index,follow">
+  <meta name="description" content="AI-расследования Mystery Logic: свободные допросы, проверка улик, следственные запросы и финальная реконструкция. Бесплатные и Premium дела.">
   <link rel="icon" href="../assets/ml-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/mysterylogic.css">
   <link rel="stylesheet" href="../assets/ai-detective-vslice.css?v=0.1.2">
-  <link rel="stylesheet" href="../assets/ai-detective-avatar-stage.css?v=0.0.4-avatar1">
-  <link rel="stylesheet" href="../assets/ai01-static-portraits.css?v=0.1.0">
-  <link rel="stylesheet" href="../assets/ai01-onboarding.css?v=0.1.0">
-  <link rel="stylesheet" href="../assets/ai01-public-release.css?v=0.1.0">
-  <link rel="stylesheet" href="../assets/ai01-voice-input.css?v=0.1.0">
-  <link rel="stylesheet" href="../assets/ai01-feedback.css?v=0.1.0">
-  <title>Восемь минут без камеры — бесплатное AI-расследование Mystery Logic</title>
+  <link rel="stylesheet" href="../assets/ai-investigations-catalog.css?v=20261006">
+  <link rel="stylesheet" href="../assets/sitewide-menu-20260920-v2.css?v=20260922-dossier-iq36">
+  <script defer src="../assets/sitewide-menu-20260920-v2.js?v=20260922-dossier-iq36"></script>
+  <title>AI-расследования — детективные игры с ИИ | Mystery Logic</title>
 </head>
 <body class="aid-body">
   <header class="aid-topbar">
-    <a class="aid-brand" href="../" aria-label="Mystery Logic — главная">
-      <span class="aid-brand-mark">ML</span>
-      <span><strong>Mystery Logic</strong><small>свободный допрос</small></span>
-    </a>
-    <div class="aid-topmeta"><span class="aid-dot"></span> AI-расследование · бесплатно</div>
+    <a class="aid-brand" href="../" aria-label="Mystery Logic — главная"><span class="aid-brand-mark">ML</span><span><strong>Mystery Logic</strong><small>AI investigations</small></span></a>
+    <div class="aid-topmeta"><span class="aid-dot"></span> Свободное расследование</div>
   </header>
 
-  <main class="aid-app" data-ai-detective>
-    <section class="aid-intro" data-view="intro">
-      <div class="aid-intro-copy">
-        <p class="aid-kicker">Похищение в закрытом архиве</p>
-        <h1>Восемь минут<br>без камеры.</h1>
-        <p class="aid-lead">Из закрытого фонда пропал оригинал письма 1912 года — редкий документ со страховой оценкой 26 000 €. В 21:24 он ещё находился в папке C-12, а в 21:36 папка оказалась пустой. С 21:27 до 21:35 камеры наблюдения служебного коридора были недоступны из-за планового перезапуска. Запись в этот период не велась. В 21:31 дверь фонда открыли действующей картой и персональным PIN.</p>
-
-        <div class="aid-mission">
-          <strong>Вы — следователь. Установите, кто забрал письмо, и докажите это.</strong>
-          <span>На объекте были только трое: архивист Марина Лебедева, инженер безопасности Антон Руденко и исследователь Лев Орлов. Виновный среди них.</span>
-        </div>
-
-        <div class="aid-howto" aria-label="Как вести расследование">
-          <div class="aid-howto-step"><b>1</b><span><strong>Допрашивайте</strong><small>Задавайте любые вопросы своими словами — голосом или текстом. Готовых реплик нет.</small></span></div>
-          <div class="aid-howto-step"><b>2</b><span><strong>Проверяйте</strong><small>Изучайте материалы и предъявляйте их подозреваемым.</small></span></div>
-          <div class="aid-howto-step"><b>3</b><span><strong>Соберите версию</strong><small>Сравните показания, исключите невиновных и объясните цепочку доказательств.</small></span></div>
-        </div>
-
-        <p class="aid-start-note"><strong>Свободное расследование:</strong> выбирайте фигурантов, изучайте материалы и задавайте любые вопросы своими словами. Готовой линии допроса нет — ход расследования определяете вы.</p>
-        <button class="aid-primary aid-start-button" type="button" data-action="start">Принять дело</button>
+  <main class="ml-ai-hub">
+    <section class="ml-ai-hub-hero">
+      <div>
+        <p class="ml-ai-hub-kicker">Mystery Logic · AI investigations</p>
+        <h1>Вы ведёте<br>расследование.</h1>
+        <p class="ml-ai-hub-lead">Здесь нет списка готовых реплик и единственного правильного маршрута. Вы сами выбираете, кого допрашивать, что проверять, когда предъявлять улику и какую версию считать доказанной.</p>
       </div>
-      <aside class="aid-case-stamp" aria-label="Карточка дела">
-        <p class="aid-kicker">Исходные данные</p>
-        <div class="aid-stamp-line"><span>ПРЕСТУПЛЕНИЕ</span><strong>Похищение ценного документа</strong></div>
-        <div class="aid-stamp-line"><span>ОБЪЕКТ</span><strong>Оригинал письма №12/1912</strong></div>
-        <div class="aid-stamp-line"><span>СТРАХОВАЯ ОЦЕНКА</span><strong>26 000 €</strong></div>
-        <div class="aid-stamp-line"><span>ПЕРИОД ИСЧЕЗНОВЕНИЯ</span><strong>21:24:36–21:36:08</strong></div>
-        <div class="aid-stamp-line"><span>КАМЕРЫ НАБЛЮДЕНИЯ</span><strong>недоступны из-за планового перезапуска · 21:27–21:35</strong></div>
-        <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong>3 человека · виновный среди них</strong></div>
-        <div class="aid-stamp-seal"><strong>Запись системы контроля</strong><br>В 21:31:14 фонд открыли учётной записью E-14. Карта и персональный PIN были приняты с первой попытки. Других открытий фонда в этот период не зафиксировано.</div>
-      </aside>
+      <div class="ml-ai-hub-method" aria-label="Как устроено AI-расследование">
+        <article><b>1</b><strong>Допрашивайте</strong><span>Задавайте вопросы своими словами. Персонажи помнят уже сказанное и реагируют на предъявленные материалы.</span></article>
+        <article><b>2</b><strong>Проверяйте</strong><span>Запрашивайте камеры, логи, экспертизы, документы и другие следственные действия.</span></article>
+        <article><b>3</b><strong>Реконструируйте</strong><span>Отделите ложь от вины и соберите цепочку WHO / WHY / HOW / WHEN из найденных фактов.</span></article>
+      </div>
     </section>
 
-    <section class="aid-workspace" data-view="workspace" hidden>
-      <aside class="aid-panel aid-evidence-panel">
-        <div class="aid-panel-head">
-          <p class="aid-kicker">Материалы дела</p>
-          <h2>Что подтверждено</h2>
+    <div class="ml-ai-catalog-head">
+      <div><p class="ml-ai-hub-kicker">Дела</p><h2>Выберите расследование</h2></div>
+      <p>Начните с бесплатного дела, чтобы попробовать свободный AI-допрос. Premium-дела сложнее: больше фигурантов, несколько правдоподобных версий и полноценная реконструкция.</p>
+    </div>
+
+    <section class="ml-ai-card-grid" aria-label="Каталог AI-расследований">
+      <article class="ml-ai-case-card">
+        <div class="ml-ai-case-visual">
+          <img src="../assets/ai01-suspects-strip.jpg" alt="Восемь минут без камеры — бесплатное AI-расследование" width="1200" height="400" loading="eager" decoding="async">
+          <span class="ml-ai-case-badge">AI · бесплатно</span>
         </div>
-        <div class="aid-evidence-list" data-evidence-list></div>
-        <p class="aid-panel-hint"><strong>Как предъявить улику:</strong> нажмите на материал, затем задайте вопрос. Выбранный материал будет приложен к реплике. Часть материалов откроется только после проверки показаний.</p>
-      </aside>
-
-      <section class="aid-interrogation">
-        <div class="aid-suspect-strip" data-suspect-strip></div>
-        <div class="aid-room-head">
-          <div>
-            <p class="aid-kicker">Допрос</p>
-            <h2 data-suspect-name>—</h2>
-            <p data-suspect-role>—</p>
-            <p class="aid-room-guide"><strong>Свободный допрос:</strong> спрашивайте о том, что считаете важным — голосом или текстом. Вы сами решаете, что проверять, кому предъявлять улики и когда переключаться между фигурантами.</p>
-          </div>
-          <div class="aid-room-status" data-room-status>Допрос идёт</div>
+        <div class="ml-ai-case-body">
+          <div class="ml-ai-case-top"><span>AI-01</span><span>Первое дело</span></div>
+          <h3>Восемь минут без камеры</h3>
+          <p>Из закрытого фонда исчезло письмо 1912 года. Камеры восемь минут не записывали коридор, а дверь открыли действующей картой и PIN. Установите, кто воспользовался окном — и докажите это.</p>
+          <div class="ml-ai-case-meta"><span>3 фигуранта</span><span>до 30 вопросов</span><span>свободный допрос</span></div>
+          <div class="ml-ai-case-action"><a href="./vosem-minut-bez-kamery/">Играть бесплатно</a><span class="ml-ai-case-price">0 ₽</span></div>
         </div>
+      </article>
 
-        <div class="aid-avatar-stage" data-avatar-stage data-suspect="marina" data-stage="composed" hidden aria-hidden="true">
-          <div class="aid-avatar-video-shell">
-            <div class="aid-static-portrait" data-ai01-static-portrait aria-hidden="true"></div>
-            <video data-avatar-video playsinline muted disablepictureinpicture disableremoteplayback controlslist="nopictureinpicture noremoteplayback"></video>
-            <div class="aid-avatar-fallback" data-avatar-fallback>
-              <span class="aid-avatar-initials" data-avatar-initials>МЛ</span>
-              <span class="aid-avatar-pulse" aria-hidden="true"></span>
-            </div>
-            <div class="aid-avatar-scan" aria-hidden="true"></div>
-          </div>
-          <div class="aid-avatar-meta">
-            <div><strong data-avatar-name>Марина Лебедева</strong><span data-avatar-role>архивист фонда</span></div>
-            <small data-avatar-state>держится спокойно</small>
-          </div>
+      <article class="ml-ai-case-card">
+        <div class="ml-ai-case-visual">
+          <img src="../assets/ai02/studio3-hero.jpg?v=20261003-sharp2" alt="Нулевая копия — Premium AI-расследование" width="900" height="600" loading="eager" decoding="async">
+          <span class="ml-ai-case-badge">Premium · новое</span>
         </div>
-
-        <div class="aid-transcript" data-transcript aria-live="polite"></div>
-
-        <div class="aid-case-progress" data-case-progress hidden>
-          <div>
-            <p class="aid-kicker">Признание зафиксировано</p>
-            <strong>Марина призналась. Но расследование ещё не окончено.</strong>
-            <span>Признание — это часть доказательств. Сформулируйте собственную версию: кто, как и зачем совершил похищение, и покажите, как факты складываются в единую цепочку.</span>
-          </div>
-          <button class="aid-primary" type="button" data-action="theory">Собрать финальную версию</button>
-          <button class="aid-primary" type="button" hidden data-action="bonus-inline">Открыть пакет C</button>
+        <div class="ml-ai-case-body">
+          <div class="ml-ai-case-top"><span>AI-02</span><span>Стандарт · 55 вопросов</span></div>
+          <h3>Нулевая копия</h3>
+          <p>Вернер найден мёртвым в монтажной студии. Но позже коллега слышит его голос. Угроза, украденная кассета, незаконная копия и цифровой след ведут в разные стороны — пока вы не восстановите настоящую временную линию.</p>
+          <div class="ml-ai-case-meta"><span>5 фигурантов</span><span>≈ 60–90 минут</span><span>улики + экспертизы</span><span>прогресс сохраняется</span></div>
+          <div class="ml-ai-case-action"><a href="./nulevaya-kopiya/">Открыть дело — 299 ₽</a><span class="ml-ai-case-price">299 ₽<small>249 ₽ с рангом «Следователь»</small></span></div>
         </div>
-
-        <form class="aid-composer" data-composer>
-          <div class="aid-attachment" data-attachment hidden>
-            <span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button>
-          </div>
-          <label class="aid-sr-only" for="aid-question">Ваш вопрос</label>
-          <textarea id="aid-question" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
-          <div class="aid-voice-status" data-ai01-voice-status aria-live="polite" hidden></div>
-          <div class="aid-composer-actions">
-            <span data-turn-counter hidden>0 / 30 вопросов</span>
-            <div class="aid-composer-buttons">
-              <button class="aid-voice-button" type="button" data-ai01-voice aria-pressed="false" title="Задать вопрос голосом">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.08A7 7 0 0 1 5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0Z"/></svg>
-                <span data-ai01-voice-label>Сказать</span>
-              </button>
-              <button class="aid-send" type="submit">Задать вопрос</button>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <aside class="aid-panel aid-notes-panel">
-        <div class="aid-panel-head">
-          <p class="aid-kicker">Следственный протокол</p>
-          <h2>Полученные сведения</h2>
-        </div>
-        <div class="aid-notes" data-notes>
-          <p class="aid-empty-note">Здесь сохраняются полученные на допросах сведения без готовых выводов. Что из этого важно — решаете вы.</p>
-        </div>
-        <div class="aid-theory-box" data-theory-box>
-          <p class="aid-kicker" data-theory-kicker>Когда будете готовы</p>
-          <p class="aid-theory-hint" data-theory-hint>Когда доказательств достаточно, сформулируйте собственную версию дела.</p>
-          <button class="aid-secondary" type="button" data-action="theory">Собрать версию</button>
-        </div>
-      </aside>
-    </section>
-
-    <section class="aid-theory" data-view="theory" hidden>
-      <button class="aid-back" type="button" data-action="back">← Вернуться к допросам</button>
-      <div class="aid-theory-grid">
-        <div>
-          <p class="aid-kicker">Ваша версия</p>
-          <h2>Кто похитил письмо — и зачем?</h2>
-          <p>Назовите человека, объясните мотив и восстановите цепочку фактов. Даже признание не закрывает дело само по себе: версия должна объяснять не только кто и как совершил похищение, но и почему.</p>
-        </div>
-        <form class="aid-theory-form" data-theory-form>
-          <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
-          <label>Почему?<textarea name="reason" rows="5" maxlength="800" placeholder="Свяжите мотив, доступ, местонахождение, время и алиби остальных." required></textarea></label>
-          <button class="aid-primary" type="submit">Проверить версию</button>
-        </form>
-      </div>
-      <div class="aid-verdict" data-verdict hidden></div>
-    </section>
-
-    <section class="aid-resolution" data-view="resolution" hidden>
-      <button class="aid-back" type="button" data-action="resolution-back">← Материалы дела</button>
-      <div class="aid-resolution-hero">
-        <p class="aid-kicker">Секретный пакет C · доступ открыт</p>
-        <h2>Дело раскрыто.</h2>
-        <p>Ваша версия подтверждена доказательствами. Теперь можно сверить восстановленную цепочку событий и забрать фрагмент шифра Закрытого архива.</p>
-      </div>
-      <div class="aid-resolution-grid aid-resolution-grid-final">
-        <div><small>21:31</small><strong>Персональный доступ</strong><span>E-14 и PIN открыли фонд.</span></div>
-        <div><small>21:34</small><strong>Ложное алиби</strong><span>Журнал служебной Wi-Fi сети оставляет телефон Марины внутри здания.</span></div>
-        <div><small>КАМЕРЫ</small><strong>Время недоступности было известно</strong><span>Марина выяснила его заранее.</span></div>
-        <div><small>МОТИВ</small><strong>Финансовое давление</strong><span>Просроченный долг и высокая стоимость письма дали ей причину рискнуть.</span></div>
-        <div><small>АЛИБИ</small><strong>Остальные исключены</strong><span>Антон и Лев подтверждены независимыми следами.</span></div>
-      </div>
-      <div class="aid-cipher-reward" data-cipher-reward></div>
-      <div class="aid-resolution-actions">
-        <button class="aid-secondary" type="button" data-action="restart-case">Пройти дело заново</button>
-        <a class="aid-primary" href="../">Взять другое дело</a>
-      </div>
-
-      <form class="aid-feedback" data-ai01-feedback-form>
-        <h3>Как вам расследование?</h3>
-        <p>Три коротких вопроса. Ответы нужны нам, чтобы понять, каким делать следующее AI-дело.</p>
-        <div class="aid-feedback-grid">
-          <fieldset class="aid-feedback-field">
-            <legend>Что вам понравилось?</legend>
-            <div class="aid-feedback-options">
-              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="free_interrogation"><span>Свобода задавать любые вопросы</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="characters"><span>Подозреваемые и их ответы</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="evidence"><span>Улики и сопоставление фактов</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="atmosphere"><span>Атмосфера расследования</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="liked" value="voice"><span>Голосовой ввод</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="aid-feedback-field">
-            <legend>Что стоит улучшить?</legend>
-            <div class="aid-feedback-options">
-              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="ai_answers"><span>Качество ответов AI</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="difficulty"><span>Сложность дела</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="more_evidence"><span>Нужно больше улик и материалов</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="more_suspects"><span>Нужно больше подозреваемых</span></label>
-              <label class="aid-feedback-option"><input type="checkbox" name="improve" value="interface"><span>Интерфейс и понятность</span></label>
-            </div>
-          </fieldset>
-
-          <fieldset class="aid-feedback-field aid-feedback-comment">
-            <legend>Хотите ещё такие AI-расследования?</legend>
-            <div class="aid-feedback-options">
-              <label class="aid-feedback-option"><input type="radio" name="more" value="more"><span>Хочу ещё AI-дело</span></label>
-              <label class="aid-feedback-option"><input type="radio" name="more" value="live"><span>Хочу попробовать Live</span></label>
-              <label class="aid-feedback-option"><input type="radio" name="more" value="both"><span>И то и другое</span></label>
-              <label class="aid-feedback-option"><input type="radio" name="more" value="not_yet"><span>Пока не уверен</span></label>
-            </div>
-          </fieldset>
-        </div>
-        <div class="aid-feedback-actions">
-          <button class="aid-secondary" type="submit">Отправить ответ</button>
-          <p class="aid-feedback-status" data-ai01-feedback-status hidden></p>
-        </div>
-      </form>
+      </article>
     </section>
   </main>
 
-  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты дела фиксированы. Подозреваемые отвечают только в пределах того, что знают, и могут скрывать правду.</span></footer>
-  <script src="../assets/ai01-public-analytics.js?v=0.1.0" defer></script>
-  <script src="../assets/ai-avatar-auth-bootstrap.js?v=0.0.3&rev=dialogue-latency-wait1" defer></script>
-  <script src="../assets/ai-avatar-provider.js?v=0.0.5-streamready1" defer></script>
-  <script src="../assets/ai-avatar-wait-resume.js?v=0.0.1" defer></script>
-  <script src="../assets/ai-detective-vslice.js?v=0.3.7&rev=wifi-alibi1" defer></script>
-  <script src="../assets/ai01-voice-input.js?v=0.1.0" defer></script>
-  <script src="../assets/ai01-static-portraits.js?v=0.1.0" defer></script>
-  <script src="../assets/ai01-feedback.js?v=0.1.1&rev=motive1" defer></script>
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Факты каждого дела фиксированы до начала расследования. AI не меняет канон и не создаёт новые улики.</span></footer>
+  <script src="../assets/funnel-analytics.js?v=20261006-ai-hub" defer></script>
 </body>
 </html>
