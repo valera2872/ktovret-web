@@ -138,6 +138,7 @@ assert.doesNotMatch(edge,/21:29.*Марин|Марин.*21:29/i,'Lev cannot obse
 assert.match(edge,/примерно в 21:21.*Марин/i,'Lev observation must remain before his exit');
 assert.match(edge,/Игрок не предъявил документ/,'truly new unverified player claims must not become evidence');
 assert.match(edge,/origin_not_allowed/,'unknown browser origins must be rejected');
-assert.match(sitemap,/https:\/\/mysterylogic\.com\/detektivnaya-igra-s-ii\//,'AI investigation catalog must be discoverable after approval');\nassert.doesNotMatch(sitemap,/vosem-minut-bez-kamery/,'noindex AI-01 game route must not enter sitemap');
+assert.match(sitemap,/https:\/\/mysterylogic\.com\/detektivnaya-igra-s-ii\//,'AI investigation catalog must be discoverable after approval');
+assert.doesNotMatch(sitemap,/vosem-minut-bez-kamery/,'noindex AI-01 game route must not enter sitemap');
 
 console.log('AI detective vertical slice contract: ok');
