@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 
 assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-streamready1/,'AI-01 must bust the provider/factory cache for the stream-readiness fix');
