@@ -7,6 +7,16 @@ on:
       - 'assets/ai02-investigator-workspace.js'
       - 'assets/ai02-premium.css'
       - 'tests/ai02-investigator-workspace-contract.mjs'
+      - 'tests/ai02-production-commerce-contract.mjs'
+      - 'assets/ai-case-player-v2.js'
+      - 'assets/ai02-storefront.js'
+      - 'assets/ai02-storefront.css'
+      - 'assets/ai-investigations-catalog.css'
+      - 'detektivnaya-igra-s-ii/nulevaya-kopiya/**'
+      - 'supabase/functions/_shared/ai02-commerce.ts'
+      - 'supabase/functions/create-checkout-ai02/**'
+      - 'supabase/functions/payment-status-ai02/**'
+      - 'supabase/functions/tbank-webhook-ai02/**'
       - '.github/workflows/ai02-investigator-workspace.yml'
 
 permissions:
@@ -19,6 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Syntax
-        run: node --check assets/ai02-investigator-workspace.js
+        run: |
+          node --check assets/ai02-investigator-workspace.js
+          node --check assets/ai-case-player-v2.js
+          node --check assets/ai02-storefront.js
       - name: Contract
-        run: node tests/ai02-investigator-workspace-contract.mjs
+        run: |
+          node tests/ai02-investigator-workspace-contract.mjs
+          node tests/ai02-production-commerce-contract.mjs
