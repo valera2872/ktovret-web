@@ -1,0 +1,24 @@
+name: TEMP AI02 fetch current LIVE
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/temp-ai02-fetch-current-live.yml'
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch current LIVE files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p live
+          curl -fsSL --retry 3 https://mysterylogic.com/ -o live/index.html
+          curl -fsSL --retry 3 https://mysterylogic.com/detektivnaya-igra-s-ii/ -o live/ai01.html
+          sha256sum live/index.html live/ai01.html | tee live/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai02-current-live-html
+          path: live/
+          retention-days: 1
