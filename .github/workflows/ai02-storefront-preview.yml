@@ -54,9 +54,10 @@ jobs:
                 cards:document.querySelectorAll('.ml-ai-case-card').length,
                 premiumHref:document.querySelector('.ml-ai-case-card:nth-child(2) a')?.getAttribute('href')||'',
                 freeHref:document.querySelector('.ml-ai-case-card:nth-child(1) a')?.getAttribute('href')||'',
+                images:[...document.querySelectorAll('.ml-ai-case-visual img')].map(x=>x.complete&&x.naturalWidth>0),
                 overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,
               }));
-              if(hub.cards!==2||!hub.premiumHref.includes('nulevaya-kopiya')||!hub.freeHref.includes('vosem-minut-bez-kamery')||hub.overflow) throw new Error(cfg.name+' hub failed '+JSON.stringify(hub));
+              if(hub.cards!==2||!hub.premiumHref.includes('nulevaya-kopiya')||!hub.freeHref.includes('vosem-minut-bez-kamery')||hub.images.length!==2||hub.images.some(x=>!x)||hub.overflow) throw new Error(cfg.name+' hub failed '+JSON.stringify(hub));
               await page.screenshot({path:'hub-'+cfg.name+'.png',fullPage:true});
 
               await page.goto('http://127.0.0.1:4173/detektivnaya-igra-s-ii/nulevaya-kopiya/',{waitUntil:'domcontentloaded'});
@@ -66,12 +67,14 @@ jobs:
                 price:[...document.querySelectorAll('[data-ai02-price]')].map(x=>x.textContent.trim()),
                 form:!!document.querySelector('[data-ai02-checkout-form]'),
                 gameAccess:!!document.querySelector('[data-ai-v2-player] [data-view="access"]'),
+                accessVisible:(()=>{const x=document.querySelector('[data-ai-v2-player] [data-view="access"]');return !!x&&!x.hidden&&getComputedStyle(x).display!=='none'})(),
+                workspaceHidden:(()=>{const x=document.querySelector('[data-ai-v2-player] [data-view="workspace"]');return !!x&&x.hidden&&getComputedStyle(x).display==='none'})(),
                 caseId:document.querySelector('[data-ai-v2-player]')?.dataset.caseId||'',
                 permanent:(document.querySelector('.ai02-storefront-buy')?.textContent||'').includes('Доступ не сгорает'),
                 dossier:(document.querySelector('.ai02-returning')?.textContent||'').includes('15/15'),
                 overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,
               }));
-              if(!premium.h1.includes('Нулевая')||!premium.price.every(x=>x==='299')||!premium.form||!premium.gameAccess||premium.caseId!=='AI02-NK-STANDARD'||!premium.permanent||!premium.dossier||premium.overflow) throw new Error(cfg.name+' premium failed '+JSON.stringify(premium));
+              if(!premium.h1.includes('Нулевая')||!premium.price.every(x=>x==='299')||!premium.form||!premium.gameAccess||!premium.accessVisible||!premium.workspaceHidden||premium.caseId!=='AI02-NK-STANDARD'||!premium.permanent||!premium.dossier||premium.overflow) throw new Error(cfg.name+' premium failed '+JSON.stringify(premium));
               await page.screenshot({path:'premium-'+cfg.name+'.png',fullPage:true});
               await page.close();
             }
