@@ -29,8 +29,10 @@ jobs:
           cp assets/ml-mark.svg assets/mysterylogic.css assets/ai-investigations-catalog.css assets/ai02-storefront.css assets/ai02-storefront.js out/assets/
           cp assets/ai-detective-vslice.css assets/ai-detective-avatar-stage.css assets/ai-case-player-v2.css assets/ai02-premium.css out/assets/
           cp assets/ai-case-player-v2.js assets/ai-case-live-v2.js assets/ai02-investigation-staging.js assets/ai02-investigator-workspace.js assets/ai02-portraits.js out/assets/
-          cp assets/sitewide-menu-20260920-v2.css assets/sitewide-menu-20260920-v2.js assets/funnel-analytics.js out/assets/ || true
-          cp assets/ai01-home-banner-real-suspects-20260920.webp out/assets/
+          cp assets/funnel-analytics.js out/assets/
+          [ -f assets/sitewide-menu-20260920-v2.css ] && cp assets/sitewide-menu-20260920-v2.css out/assets/ || true
+          [ -f assets/sitewide-menu-20260920-v2.js ] && cp assets/sitewide-menu-20260920-v2.js out/assets/ || true
+          cp assets/ai01-home-banner.webp out/assets/
           cp -R assets/ai02/. out/assets/ai02/
       - name: Visual contract
         shell: bash
