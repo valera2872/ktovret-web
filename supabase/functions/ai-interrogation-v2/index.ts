@@ -156,18 +156,62 @@ function investigationResult(runtime:AiCaseRuntime,state:AiCaseState,request:str
   const q=request.toLocaleLowerCase("ru-RU");
   const ids:string[]=[]; const notes:string[]=[];
   const add=(...values:string[])=>{for(const id of values)if(!ids.includes(id))ids.push(id)};
+  const has=(id:string)=>state.evidence_ids.includes(id)||ids.includes(id);
+
   if(/двер|замок|мест.{0,8}проис|осмотр|борьб|положен.{0,8}тел|сзади|спереди/.test(q))add("E26");
-  if(/камер|видео|cctv|наблюден|запис.{0,8}камер/.test(q))add("E27","E05","E16");
+
+  const cameraGeneric=/камер|видео|cctv|наблюден|запис.{0,8}камер/.test(q);
+  if(cameraGeneric)add("E27");
+  if(cameraGeneric&&/серов|выход|уш[её]л|23:12/.test(q))add("E05");
+  if(cameraGeneric&&/арт[её]м|тайн.{0,8}вход|служебн.{0,8}зон/.test(q))add("E16");
+
   if(/телефон|мобиль|сотов|базов.{0,8}станц|вышк|геолокац|wi.?fi|вай.?фай|устройств|сеть/.test(q))add("E28");
   if(/судмед|эксперт|экспертиз|оруди|предмет.{0,8}убий|чем уб|кров|травм|удар/.test(q))add("E03");
-  if(/компьют|станц|лог|журнал|файл|qc|аудио|звук|воспроиз|очеред|цифров/.test(q)){add("E06","E07","E08");notes.push("N-VOICE-PLAYBACK")}
-  if((/кто.{0,30}(постав|создал|запуст|qc)|авториз|автор.{0,24}(очеред|запуск)|аутентиф|пропуск|уч[её]т|аккаунт|подтверд.{0,24}(пропуск|очеред)/.test(q))&&state.evidence_ids.includes("E08"))add("E23");
-  if(/сообщ|переписк|телефон.{0,20}вернер|соф|удален/.test(q))add("E10","E11");
+
+  const asksAudio=/qc|аудио|звук|голос|файл.{0,16}(голос|qc)|запис.{0,12}голос/.test(q);
+  const asksOrigin=/хэш|hash|sha|метадан|происхожд|когда создан|когда загруж|при[её]м.{0,12}сервер|ingest/.test(q);
+  const asksQueue=/очеред|воспроиз|отлож|автомат.{0,12}запуск|запуск.{0,12}23:17|консол|рабоч.{0,8}станц/.test(q);
+  const asksAuth=/кто.{0,30}(постав|создал|запуст|qc)|авториз|аутентиф|гостев.{0,8}сесс|чья.{0,8}сесс|аккаунт|уч[её]т/.test(q);
+  const asksBroadDigital=/цифров.{0,12}(лог|след)|компьют|журнал.{0,12}станц|системн.{0,8}лог/.test(q);
+
+  if(asksAudio&&!asksOrigin)add("E06");
+  if(asksOrigin){
+    if(has("E06"))add("E07");
+    else add("E06");
+  }
+  const standardPremiumPacing=runtime.caseId==="AI02-NK-STANDARD";
+  const davidVersionBroken=state.evidence_ids.includes("E30")||state.note_ids.includes("N-DAVID-ALIBI");
+  if(asksQueue){
+    if(!standardPremiumPacing||davidVersionBroken)add("E08");
+    else if(has("E06")&&!has("E07"))add("E07");
+    else if(!has("E06"))add("E06");
+  }
+  if(asksBroadDigital&&!asksAudio&&!asksOrigin&&!asksQueue&&!asksAuth){
+    if(!standardPremiumPacing||davidVersionBroken)add("E08");
+    else if(has("E06")&&!has("E07"))add("E07");
+    else if(!has("E06"))add("E06");
+  }
+  if(asksAuth&&state.evidence_ids.includes("E08"))add("E23");
+
+  if(has("E06")&&has("E07")&&has("E08")&&!state.note_ids.includes("N-VOICE-PLAYBACK"))notes.push("N-VOICE-PLAYBACK");
+
+  const asksMessage=/сообщ|переписк|телефон.{0,20}вернер|соф|выпуск.{0,12}фильм/.test(q);
+  if(asksMessage)add("E10");
+  if(/удал|синхрон|стерл|истори.{0,8}сообщ/.test(q)&&has("E10"))add("E11");
+
   if(/кассет|контейнер|оригинал.{0,12}(где|пропал|исчез)|пропавш.{0,12}оригинал/.test(q))add("E19");
   if(/шкаф|локер|d-17/.test(q))add("E20");
-  if(/1998|стар.{0,8}монтаж|автор.{0,8}монтаж|архив.{0,20}фильм/.test(q))add("E24");
+  if(/1998|стар.{0,8}монтаж|автор.{0,8}монтаж|архив.{0,20}фильм/.test(q)){
+    if(!standardPremiumPacing||davidVersionBroken)add("E24");
+  }
+
   const evidence=ids.map(id=>runtime.canon.evidence[id]).filter(Boolean);
-  if(!evidence.length)return {evidence:[],noteIds:[],message:"По такому запросу в материалах дела пока нет проверяемого результата. Уточните объект проверки: место происшествия, судмедэкспертиза, камеры, цифровые логи, телефоны/сеть, переписка или архив."};
+  if(!evidence.length){
+    const message=asksAuth&&!has("E08")
+      ?"Сначала установите, было ли на станции отложенное воспроизведение и какое именно событие нужно атрибутировать пользователю."
+      :"По такому запросу в материалах дела пока нет проверяемого результата. Уточните объект проверки: место происшествия, судмедэкспертиза, камеры, конкретный цифровой след, телефоны/сеть, переписка или архив.";
+    return {evidence:[],noteIds:[],message};
+  }
   return {evidence,noteIds:notes,message:evidence.map(item=>item.title+": "+item.body).join("\n\n")};
 }
 
