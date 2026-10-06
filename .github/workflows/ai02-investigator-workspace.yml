@@ -7,6 +7,7 @@ on:
       - 'assets/ai02-investigator-workspace.js'
       - 'assets/ai02-premium.css'
       - 'tests/ai02-investigator-workspace-contract.mjs'
+      - 'tests/ai02-commerce-contract.mjs'
       - '.github/workflows/ai02-investigator-workspace.yml'
 
 permissions:
@@ -22,3 +23,4 @@ jobs:
         run: node --check assets/ai02-investigator-workspace.js
       - name: Contract
         run: node tests/ai02-investigator-workspace-contract.mjs
+          node tests/ai02-commerce-contract.mjs

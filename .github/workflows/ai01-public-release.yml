@@ -3,7 +3,7 @@ name: AI-01 public Text release
 on:
   pull_request:
     paths:
-      - 'detektivnaya-igra-s-ii/index.html'
+      - 'detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html'
       - 'assets/ai-detective-vslice.js'
       - 'assets/ai01-public-release.css'
       - 'assets/ai01-public-analytics.js'
@@ -31,7 +31,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'detektivnaya-igra-s-ii/index.html'
+      - 'detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html'
       - 'assets/ai-detective-vslice.js'
       - 'assets/ai01-public-release.css'
       - 'assets/ai01-public-analytics.js'

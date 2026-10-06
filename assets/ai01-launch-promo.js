@@ -36,7 +36,7 @@
   const enabled = PUBLIC_LAUNCH || preview;
   if (!enabled || dismissed) return;
   const path = String(location.pathname || '/');
-  if (path.includes('/admin/') || /\/detektivnaya-igra-s-ii\/?$/.test(path)) return;
+  if (path.includes('/admin/') || /\/detektivnaya-igra-s-ii\/?$/.test(path) || path.includes('/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/')) return;
   if (document.querySelector('[data-ai01-launch-promo]')) return;
 
   const aside = document.createElement('aside');
@@ -49,7 +49,7 @@
       <strong>Допрашивайте подозреваемых голосом или текстом.</strong>
       <p>«Восемь минут без камеры»: три фигуранта, улики, свободные вопросы и ваша собственная версия дела.</p>
     </div>
-    <a class="ml-ai01-launch-cta" href="${siteHref('/detektivnaya-igra-s-ii/')}${preview && !PUBLIC_LAUNCH ? '?ai01_preview=1' : ''}" data-ai01-launch-cta>Принять дело →</a>`;
+    <a class="ml-ai01-launch-cta" href="${siteHref('/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/')}${preview && !PUBLIC_LAUNCH ? '?ai01_preview=1' : ''}" data-ai01-launch-cta>Принять дело →</a>`;
 
   aside.querySelector('.ml-ai01-launch-close')?.addEventListener('click', () => {
     try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch {}
@@ -57,11 +57,11 @@
     sendFunnel('ai01_promo_dismissed', { placement: 'sitewide', preview }, '');
   });
   aside.querySelector('[data-ai01-launch-cta]')?.addEventListener('click', () => {
-    sendFunnel('ai01_promo_clicked', { placement: 'sitewide', preview }, '/detektivnaya-igra-s-ii/');
+    sendFunnel('ai01_promo_clicked', { placement: 'sitewide', preview }, '/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/');
     sendMetrika('ml_ai01_promo_click', { placement: 'sitewide', preview: preview ? 1 : 0 });
   });
 
   document.body.appendChild(aside);
-  sendFunnel('ai01_promo_viewed', { placement: 'sitewide', preview }, '/detektivnaya-igra-s-ii/');
+  sendFunnel('ai01_promo_viewed', { placement: 'sitewide', preview }, '/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/');
   sendMetrika('ml_ai01_promo_view', { placement: 'sitewide', preview: preview ? 1 : 0 });
 })();
