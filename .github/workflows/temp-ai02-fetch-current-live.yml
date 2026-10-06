@@ -1,24 +1,72 @@
-name: TEMP AI02 fetch current LIVE
+name: TEMP AI02 reconcile current LIVE
 on:
   pull_request:
     paths:
       - '.github/workflows/temp-ai02-fetch-current-live.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
-  fetch:
+  reconcile:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch current LIVE files
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ai02-zero-copy-commerce-storefront-20261006
+          fetch-depth: 0
+      - name: Reconcile current LIVE home and free AI case
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p live
-          curl -fsSL --retry 3 https://mysterylogic.com/ -o live/index.html
-          curl -fsSL --retry 3 https://mysterylogic.com/detektivnaya-igra-s-ii/ -o live/ai01.html
-          sha256sum live/index.html live/ai01.html | tee live/SHA256SUMS.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ai02-current-live-html
-          path: live/
-          retention-days: 1
+          curl -fsSL --retry 3 https://mysterylogic.com/ -o /tmp/live-home.html
+          curl -fsSL --retry 3 https://mysterylogic.com/detektivnaya-igra-s-ii/ -o /tmp/live-ai01.html
+          python3 - <<'PY'
+          from pathlib import Path
+          home=Path('/tmp/live-home.html').read_text()
+          ai=Path('/tmp/live-ai01.html').read_text()
+          style='<link rel="stylesheet" href="./assets/ai02-home-promo.css?v=20261006-live1">'
+          if 'ai02-home-promo.css' not in home:
+              home=home.replace('</head>',style+'\n</head>',1)
+          start=home.find('<section class="ml-ai01-feature ml-ai01-feature--home"')
+          if start<0: raise SystemExit('LIVE AI01 home banner not found')
+          end=home.find('</section>',start)
+          if end<0: raise SystemExit('LIVE AI01 home banner end not found')
+          end+=len('</section>')
+          block='''<section class="ml-ai02-launch ml-ai02-launch--home" id="ai-investigations" aria-label="Новое Premium AI-расследование — Нулевая копия" data-funnel-impression="home-ai02-release" data-funnel-choice="ai-premium" data-funnel-target="ai02-home-release">
+            <div class="ml-ai02-launch-grid">
+              <div class="ml-ai02-launch-copy">
+                <p class="ref-kicker">Новое Premium AI-расследование</p>
+                <h2>Нулевая копия</h2>
+                <p>Вернера находят мёртвым в Студии 3. Но позже свидетели слышат его голос. Допрашивайте пятерых фигурантов своими словами, проверяйте цифровые следы и соберите собственную реконструкцию событий.</p>
+                <div class="ml-ai02-launch-tags"><span>5 фигурантов</span><span>55 вопросов</span><span>свободный AI-допрос</span><span>прогресс сохраняется</span></div>
+                <div class="ml-ai02-launch-actions">
+                  <a class="ml-ai02-launch-primary" href="./detektivnaya-igra-s-ii/nulevaya-kopiya/">Открыть «Нулевую копию» — 299 ₽</a>
+                  <a class="ml-ai02-launch-secondary" href="./detektivnaya-igra-s-ii/">Все AI-расследования</a>
+                </div>
+                <p class="ml-ai02-launch-price">Для ранга «Следователь» в Досье — 249 ₽ · доступ бессрочный</p>
+              </div>
+              <div class="ml-ai02-launch-visual">
+                <img src="./assets/ai02/studio3-hero.jpg?v=20261003-sharp2" alt="Студия 3 — место действия расследования Нулевая копия" width="900" height="600" loading="eager" decoding="async">
+                <div class="ml-ai02-launch-badge"><strong>Ложь не равна вине</strong><span>Несколько людей скрывают правду. Определите, какая ложь связана с убийством, а какая — нет.</span></div>
+              </div>
+            </div>
+          </section>'''
+          home=home[:start]+block+home[end:]
+          if 'Номер 407' not in home or 'Последняя ария' not in home:
+              raise SystemExit('LIVE premium blocks were not preserved')
+          Path('index.html').write_text(home)
+          child=ai.replace('../','../../')
+          target=Path('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html')
+          target.parent.mkdir(parents=True,exist_ok=True)
+          target.write_text(child)
+          PY
+          git diff --check
+      - name: Commit reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Reconcile AI-02 storefront with current LIVE shell"
+          git push origin HEAD:feature/ai02-zero-copy-commerce-storefront-20261006
