@@ -19,7 +19,7 @@ assert.match(commerce,/allowed_case_ids:\[\.\.\.AI02_ALLOWED_CASE_IDS\]/,'entitl
 assert.match(commerce,/experience_tier:'text'/);
 
 assert.match(checkout,/ai02DossierDiscount\(admin,browserKey\)/,'checkout must revalidate dossier server-side');
-assert.match(checkout,/amount!===\(dossier\.eligible\?24900:29900\)/);
+assert.match(checkout,/amount!==\(dossier\.eligible\?24900:29900\)/);
 assert.match(checkout,/tbank-webhook-ai02/);
 assert.match(status,/accessPermanent:Boolean\(entitled&&!entitlement\?\.expires_at\)/);
 assert.match(webhook,/verifyTbankToken/);
