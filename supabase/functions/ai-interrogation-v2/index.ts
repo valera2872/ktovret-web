@@ -191,7 +191,7 @@ function investigationResult(runtime:AiCaseRuntime,state:AiCaseState,request:str
     else if(has("E06")&&!has("E07"))add("E07");
     else if(!has("E06"))add("E06");
   }
-  if(asksAuth&&has("E08"))add("E23");
+  if(asksAuth&&state.evidence_ids.includes("E08"))add("E23");
 
   if(has("E06")&&has("E07")&&has("E08")&&!state.note_ids.includes("N-VOICE-PLAYBACK"))notes.push("N-VOICE-PLAYBACK");
 
