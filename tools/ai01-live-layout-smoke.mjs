@@ -28,7 +28,8 @@ try{
   const encoded=dom.match(/data-ai01-layout-smoke="([^"]+)"/)?.[1];
   if(!encoded)throw new Error('AI-01 Live layout probe did not run');
   const report=JSON.parse(Buffer.from(encoded,'base64').toString('utf8'));
-  console.log(JSON.stringify({layoutProbe:report},null,2));\n  const exists=(name,rect)=>{if(!rect||rect.height<=0)throw new Error(`${name} missing or collapsed: ${JSON.stringify(rect)}`)};
+  console.log(JSON.stringify({layoutProbe:report},null,2));
+  const exists=(name,rect)=>{if(!rect||rect.height<=0)throw new Error(`${name} missing or collapsed: ${JSON.stringify(rect)}`)};
   const inside=(name,rect)=>{exists(name,rect);if(rect.top<0||rect.bottom>report.viewport.height)throw new Error(`${name} outside viewport: ${JSON.stringify(rect)} in ${report.viewport.width}x${report.viewport.height}px; report=${JSON.stringify(report)}`)};
   if(report.viewport.width>=1121){
     inside('composer',report.composer);inside('textarea',report.textarea);inside('send',report.send);inside('avatar',report.avatar);inside('video shell',report.videoShell);
