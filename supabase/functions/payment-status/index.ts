@@ -1,93 +1,46 @@
-import {
-  adminClient,
-  cleanOrigin,
-  corsHeaders,
-  entitlementProductsForOrder,
-  isAllowedOrigin,
-  json,
-  paymentConfigReady,
-  refreshPaymentOrder,
-  sha256,
-  validAccessToken,
-  validUuid,
-} from '../_shared/payment.ts';
-import { refreshTbankOrder, tbankConfigReady } from '../_shared/tbank.ts';
-import { notifySaleTelegram } from '../_shared/telegram-sale-notify.ts';
+import { adminClient, cleanOrigin, corsHeaders, isAllowedOrigin, json, sha256, validAccessToken, validUuid } from 'https://raw.githubusercontent.com/valera2872/ktovret-web/3216728a009086db452885a62df180cd044faac6/supabase/functions/_shared/payment.ts';
+import { tbankConfigReady, tbankPaymentMatchesOrder, tbankRequest } from 'https://raw.githubusercontent.com/valera2872/ktovret-web/3216728a009086db452885a62df180cd044faac6/supabase/functions/_shared/tbank.ts';
+import { notifySaleTelegram } from './telegram-sale-notify.ts';
+const PRODUCT_ID='volume1';
 
-Deno.serve(async (req: Request) => {
-  const origin = cleanOrigin(req.headers.get('origin') || '');
-  if (req.method === 'OPTIONS') {
-    if (!isAllowedOrigin(origin)) return new Response(null, { status: 403 });
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
-  }
-  if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' }, origin);
-  if (!isAllowedOrigin(origin)) return json(403, { error: 'origin_not_allowed' });
-
-  const auth = req.headers.get('authorization') || '';
-  const match = auth.match(/^Bearer\s+(.+)$/i);
-  const token = match?.[1]?.trim() || '';
-  if (!validAccessToken(token)) return json(401, { error: 'access_token_required' }, origin);
-
-  let body: any = {};
-  try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }, origin); }
-  const orderId = String(body.orderId || '').trim();
-  if (!validUuid(orderId)) return json(400, { error: 'invalid_order_id' }, origin);
-
-  const tokenHash = await sha256(token);
-  const admin = adminClient();
-  const { data: order, error: orderError } = await admin
-    .from('payment_orders')
-    .select('*')
-    .eq('id', orderId)
-    .maybeSingle();
-  if (orderError) return json(503, { error: 'order_lookup_failed' }, origin);
-  if (!order) return json(404, { error: 'order_not_found' }, origin);
-  if (order.token_hash !== tokenHash) return json(403, { error: 'order_access_denied' }, origin);
-
-  const grantIds = entitlementProductsForOrder(order);
-  if (!grantIds.length) return json(400, { error: 'invalid_product' }, origin);
-
-  const provider = String(order.payment_provider || (order.yookassa_payment_id ? 'yookassa' : 'tbank'));
-  if (provider === 'tbank' && !tbankConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
-  if (provider === 'yookassa' && !paymentConfigReady()) return json(503, { error: 'payment_service_not_configured' }, origin);
-
-  try {
-    let refreshed = order;
-    if (['creating', 'pending'].includes(order.status)) {
-      refreshed = provider === 'tbank'
-        ? await refreshTbankOrder(admin, order)
-        : await refreshPaymentOrder(admin, order);
-      if (String(order.status || '') !== 'paid' && String(refreshed?.status || '') === 'paid') {
-        await notifySaleTelegram({ ...order, ...refreshed, paid_at: refreshed?.paid_at || order.paid_at || new Date().toISOString() });
-      }
+const AI02_ORDER_PRODUCT_ID='ai02_zero_copy';
+const AI02_ENTITLEMENT_PRODUCT_ID='ai02-zero-copy';
+const AI02_CASE_IDS=['AI02-NK-EASY','AI02-NK-STANDARD','AI02-NK-HARD'];
+const usableAi02=(e:any)=>Boolean(e&&e.status==='active'&&!e.revoked_at&&(!e.starts_at||new Date(e.starts_at)<=new Date())&&(!e.expires_at||new Date(e.expires_at)>new Date()));
+async function grantAi02(admin:any,order:any,payment:any){
+  if(!tbankPaymentMatchesOrder(payment,order))throw new Error('payment_order_mismatch');
+  if(String(payment.Status||'')!=='CONFIRMED')throw new Error('payment_not_confirmed');
+  const now=new Date().toISOString();
+  const {data:ent,error:e}=await admin.from('access_entitlements').upsert({
+    token_hash:order.token_hash,product_id:AI02_ENTITLEMENT_PRODUCT_ID,status:'active',payment_provider:'tbank',payment_reference:String(payment.PaymentId||''),customer_email_hash:order.customer_email_hash||null,starts_at:now,expires_at:null,revoked_at:null,
+    metadata:{order_id:order.id,source:'tbank',purchase_product_id:AI02_ORDER_PRODUCT_ID,case_id:String(order.case_id||'AI02-NK-STANDARD'),allowed_case_ids:AI02_CASE_IDS,experience_tier:'text',price_tier:String(order.metadata?.price_tier||'standard'),dossier_discount:Boolean(order.metadata?.dossier_discount),dossier_xp:order.metadata?.dossier_xp??null},
+    updated_at:now
+  },{onConflict:'token_hash,product_id'}).select('id').single();
+  if(e||!ent?.id)throw e||new Error('entitlement_write_failed');
+  const {error:oe}=await admin.from('payment_orders').update({status:'paid',provider_status:'CONFIRMED',paid_at:order.paid_at||now,entitlement_id:ent.id,failure_code:null,metadata:{...(order.metadata||{}),entitlement_product_ids:[AI02_ENTITLEMENT_PRODUCT_ID]},updated_at:now}).eq('id',order.id);
+  if(oe)throw oe;return ent.id;
+}
+async function handleAi02Status(admin:any,order:any,tokenHash:string,origin:string){
+  if(order.token_hash!==tokenHash)return json(403,{error:'order_access_denied'},origin);
+  if(!tbankConfigReady())return json(503,{error:'payment_service_not_configured'},origin);
+  try{
+    let status=String(order.status||'');
+    if(['creating','pending'].includes(status)&&order.provider_payment_id){
+      const payment=await tbankRequest('GetState',{PaymentId:String(order.provider_payment_id)});
+      if(!tbankPaymentMatchesOrder(payment,order))throw new Error('payment_order_mismatch');
+      const ps=String(payment.Status||'');
+      if(ps==='CONFIRMED'){await grantAi02(admin,order,payment);status='paid';if(String(order.status||'')!=='paid')await notifySaleTelegram({...order,status:'paid',provider_status:'CONFIRMED',paid_at:order.paid_at||new Date().toISOString()});}
+      else if(ps==='REFUNDED'){const now=new Date().toISOString();await admin.from('access_entitlements').update({status:'refunded',revoked_at:now,updated_at:now}).eq('token_hash',tokenHash).eq('product_id',AI02_ENTITLEMENT_PRODUCT_ID);await admin.from('payment_orders').update({status:'refunded',provider_status:ps,refunded_at:now,updated_at:now}).eq('id',order.id);status='refunded';}
+      else if(['CANCELED','REJECTED','REVERSED','DEADLINE_EXPIRED'].includes(ps)){const now=new Date().toISOString();await admin.from('payment_orders').update({status:'canceled',provider_status:ps,canceled_at:now,updated_at:now}).eq('id',order.id).neq('status','paid');status='canceled';}
+      else{await admin.from('payment_orders').update({status:'pending',provider_status:ps||null,updated_at:new Date().toISOString()}).eq('id',order.id).neq('status','paid');status='pending';}
     }
+    const {data:ent,error:ee}=await admin.from('access_entitlements').select('status,starts_at,expires_at,revoked_at').eq('token_hash',tokenHash).eq('product_id',AI02_ENTITLEMENT_PRODUCT_ID).maybeSingle();
+    if(ee)return json(503,{error:'access_check_failed'},origin);
+    return json(200,{ok:true,productId:AI02_ORDER_PRODUCT_ID,orderId:order.id,paymentId:order.provider_payment_id,provider:'tbank',status,entitled:usableAi02(ent),entitlementProductIds:usableAi02(ent)?[AI02_ENTITLEMENT_PRODUCT_ID]:[],expiresAt:ent?.expires_at||null,priceRub:Number(order.amount_value||0),dossierDiscountApplied:Boolean(order.metadata?.dossier_discount)},origin);
+  }catch(err:any){return json(503,{error:String(err?.message||'payment_status_failed').slice(0,120)},origin)}
+}
 
-    const { data: entitlements, error: entitlementError } = await admin
-      .from('access_entitlements')
-      .select('product_id,status,expires_at,revoked_at')
-      .eq('token_hash', tokenHash)
-      .in('product_id', grantIds);
-    if (entitlementError) return json(503, { error: 'access_check_failed' }, origin);
-
-    const now = new Date();
-    const active = new Set((entitlements || [])
-      .filter((item: any) => item.status === 'active'
-        && !item.revoked_at
-        && (!item.expires_at || new Date(item.expires_at) > now))
-      .map((item: any) => String(item.product_id)));
-    const entitled = grantIds.every((productId) => active.has(productId));
-
-    return json(200, {
-      ok: true,
-      orderId: order.id,
-      productId: order.product_id,
-      entitlementProductIds: grantIds,
-      paymentId: provider === 'tbank' ? order.provider_payment_id : order.yookassa_payment_id,
-      provider,
-      status: refreshed.status,
-      entitled,
-    }, origin);
-  } catch (error: any) {
-    return json(503, { error: String(error?.message || 'payment_status_failed').slice(0, 120) }, origin);
-  }
-});
+const usable=(e:any)=>Boolean(e&&e.status==='active'&&!e.revoked_at&&(!e.expires_at||new Date(e.expires_at)>new Date()));
+async function grant(admin:any,order:any,payment:any){if(!tbankPaymentMatchesOrder(payment,order))throw new Error('payment_order_mismatch');if(String(payment.Status||'')!=='CONFIRMED')throw new Error('payment_not_confirmed');const now=new Date().toISOString();const {data:ent,error:e}=await admin.from('access_entitlements').upsert({token_hash:order.token_hash,product_id:PRODUCT_ID,status:'active',payment_provider:'tbank',payment_reference:String(payment.PaymentId||''),customer_email_hash:order.customer_email_hash||null,starts_at:now,expires_at:null,revoked_at:null,metadata:{order_id:order.id,source:'tbank',purchase_product_id:PRODUCT_ID},updated_at:now},{onConflict:'token_hash,product_id'}).select('id').single();if(e||!ent?.id)throw e||new Error('entitlement_write_failed');const {error:oe}=await admin.from('payment_orders').update({status:'paid',provider_status:'CONFIRMED',paid_at:order.paid_at||now,entitlement_id:ent.id,failure_code:null,updated_at:now}).eq('id',order.id);if(oe)throw oe;return ent.id;}
+Deno.serve(async(req:Request)=>{const origin=cleanOrigin(req.headers.get('origin')||'');if(req.method==='OPTIONS'){if(!isAllowedOrigin(origin))return new Response(null,{status:403});return new Response(null,{status:204,headers:corsHeaders(origin)});}if(req.method!=='POST')return json(405,{error:'method_not_allowed'},origin);if(!isAllowedOrigin(origin))return json(403,{error:'origin_not_allowed'});const token=(req.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1]?.trim()||'';if(!validAccessToken(token))return json(401,{error:'access_token_required'},origin);let body:any={};try{body=await req.json()}catch{return json(400,{error:'invalid_json'},origin)}const orderId=String(body.orderId||'').trim();if(!validUuid(orderId))return json(400,{error:'invalid_order_id'},origin);const tokenHash=await sha256(token);const admin=adminClient();const {data:ai02Order,error:ai02LookupError}=await admin.from('payment_orders').select('*').eq('id',orderId).eq('product_id',AI02_ORDER_PRODUCT_ID).maybeSingle();if(ai02LookupError)return json(503,{error:'order_lookup_failed'},origin);if(ai02Order)return handleAi02Status(admin,ai02Order,tokenHash,origin);const {data:order,error}=await admin.from('payment_orders').select('*').eq('id',orderId).eq('product_id',PRODUCT_ID).maybeSingle();if(error)return json(503,{error:'order_lookup_failed'},origin);if(!order)return json(404,{error:'order_not_found'},origin);if(order.token_hash!==tokenHash)return json(403,{error:'order_access_denied'},origin);if(!tbankConfigReady())return json(503,{error:'payment_service_not_configured'},origin);try{let status=String(order.status||'');if(['creating','pending'].includes(status)&&order.provider_payment_id){const payment=await tbankRequest('GetState',{PaymentId:String(order.provider_payment_id)});if(!tbankPaymentMatchesOrder(payment,order))throw new Error('payment_order_mismatch');const ps=String(payment.Status||'');if(ps==='CONFIRMED'){await grant(admin,order,payment);status='paid';if(String(order.status||'')!=='paid')await notifySaleTelegram({...order,status:'paid',provider_status:'CONFIRMED',paid_at:order.paid_at||new Date().toISOString()});}else if(ps==='REFUNDED'){const now=new Date().toISOString();await admin.from('access_entitlements').update({status:'refunded',revoked_at:now,updated_at:now}).eq('token_hash',tokenHash).eq('product_id',PRODUCT_ID);await admin.from('payment_orders').update({status:'refunded',provider_status:ps,refunded_at:now,updated_at:now}).eq('id',order.id);status='refunded';}else if(['CANCELED','REJECTED','REVERSED','DEADLINE_EXPIRED'].includes(ps)){const now=new Date().toISOString();await admin.from('payment_orders').update({status:'canceled',provider_status:ps,canceled_at:now,updated_at:now}).eq('id',order.id).neq('status','paid');status='canceled';}else{await admin.from('payment_orders').update({status:'pending',provider_status:ps||null,updated_at:new Date().toISOString()}).eq('id',order.id).neq('status','paid');status='pending';}}
+const {data:ent}=await admin.from('access_entitlements').select('status,expires_at,revoked_at').eq('token_hash',tokenHash).eq('product_id',PRODUCT_ID).maybeSingle();return json(200,{ok:true,productId:PRODUCT_ID,orderId:order.id,paymentId:order.provider_payment_id,provider:'tbank',status,entitled:usable(ent),entitlementProductIds:usable(ent)?[PRODUCT_ID]:[]},origin);}catch(err:any){return json(503,{error:String(err?.message||'payment_status_failed').slice(0,120)},origin)}});

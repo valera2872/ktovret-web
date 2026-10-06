@@ -1,0 +1,80 @@
+name: Preview AI-02 release surfaces
+
+on:
+  pull_request:
+    paths:
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai-investigations-hub.css'
+      - 'assets/ai02-storefront.js'
+      - 'assets/ai-case-player-v2.js'
+      - 'staging-previews/ai02-release/**'
+      - '.github/workflows/ai02-release-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Static contracts
+        run: |
+          node --check assets/ai02-storefront.js
+          node --check assets/ai-case-player-v2.js
+          grep -q 'AI-расследования' detektivnaya-igra-s-ii/index.html
+          grep -q '299 ₽' detektivnaya-igra-s-ii/nulevaya-kopiya/index.html
+          grep -q 'data-case-id="AI02-NK-STANDARD"' detektivnaya-igra-s-ii/nulevaya-kopiya/igra/index.html
+          grep -q 'Восемь минут' detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html
+      - name: Browser preview
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 >/tmp/ai02-release-http.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const surfaces=[
+              ['hub','/detektivnaya-igra-s-ii/'],
+              ['store','/detektivnaya-igra-s-ii/nulevaya-kopiya/'],
+              ['banner','/staging-previews/ai02-release/home-banner.html'],
+              ['game-intro','/detektivnaya-igra-s-ii/nulevaya-kopiya/igra/?preview=intro']
+            ];
+            for(const [name,path] of surfaces){
+              for(const cfg of [{n:'desktop',w:1440,h:1000},{n:'mobile',w:390,h:844}]){
+                const page=await browser.newPage({viewport:{width:cfg.w,height:cfg.h},deviceScaleFactor:1});
+                await page.goto('http://127.0.0.1:4173'+path,{waitUntil:'domcontentloaded',timeout:60000});
+                await page.waitForTimeout(name==='store'?1600:900);
+                if(name==='hub'){
+                  const cards=await page.locator('.aih-case').count();
+                  if(cards!==2)throw new Error('hub card count '+cards);
+                }
+                if(name==='store'){
+                  const price=(await page.locator('[data-ai02-price]').textContent()||'').trim();
+                  if(!['299 ₽','249 ₽'].includes(price))throw new Error('bad storefront price '+price);
+                  if(!(await page.locator('[data-ai02-checkout]').isVisible()))throw new Error('checkout hidden');
+                }
+                if(name==='banner'&&!await page.locator('.ml-ai02-release').isVisible())throw new Error('banner hidden');
+                if(name==='game-intro'){
+                  const intro=page.locator('[data-view="intro"]');
+                  if(await intro.isHidden())throw new Error('production game intro hidden');
+                  const title=(await page.locator('[data-case-title]').textContent()||'').trim();
+                  if(!title.toLowerCase().includes('нулевая'))throw new Error('wrong case title '+title);
+                }
+                await page.screenshot({path:`ai02-release-${name}-${cfg.n}.png`,fullPage:true});
+                await page.close();
+              }
+            }
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai02-release-preview
+          path: ai02-release-*.png
+          retention-days: 3

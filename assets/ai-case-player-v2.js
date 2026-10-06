@@ -13,7 +13,7 @@
   const STAGE_LABEL={composed:'держится спокойно',defensive:'защищается',cornered:'зажат фактами',breaking:'теряет контроль',confessed:'признание получено'};
 
   const params=new URL(location.href).searchParams;
-  const requestedCase=(params.get('case')||params.get('case_id')||'').trim();
+  const requestedCase=(params.get('case')||params.get('case_id')||root.dataset.caseId||'').trim();
   const $=(sel)=>root.querySelector(sel);
   const views={access:$('[data-view="access"]'),intro:$('[data-view="intro"]'),workspace:$('[data-view="workspace"]'),theory:$('[data-view="theory"]')};
   const ui={caseId:CASE_RE.test(requestedCase)?requestedCase:'',token:'',access:null,state:null,suspectId:'',attachedEvidenceId:'',busy:false};

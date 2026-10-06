@@ -1,0 +1,49 @@
+name: Validate AI-02 commerce release
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/payment-status/**'
+      - 'supabase/functions/tbank-webhook/**'
+      - 'tests/ai02-commerce-release-contract.mjs'
+      - '.github/workflows/ai02-commerce-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/payment-status/**'
+      - 'supabase/functions/tbank-webhook/**'
+      - 'tests/ai02-commerce-release-contract.mjs'
+      - '.github/workflows/ai02-commerce-release.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Contract
+        run: node tests/ai02-commerce-release-contract.mjs
+      - name: Production route guard
+        shell: bash
+        run: |
+          node <<'NODE'
+          const endpoint='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout';
+          const origin='https://mysterylogic.com';
+          async function post(body){
+            const r=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json',origin},body:JSON.stringify(body)});
+            const d=await r.json().catch(()=>({}));
+            return {status:r.status,data:d};
+          }
+          const legacy=await post({productId:'volume1'});
+          if(legacy.status!==400||legacy.data.error!=='invalid_access_token')throw new Error('legacy route changed');
+          const ai02=await post({productId:'ai02_zero_copy'});
+          if(ai02.status!==400||ai02.data.error!=='invalid_access_token')throw new Error('AI02 route missing');
+          console.log('AI02 production routing guard: ok');
+          NODE
