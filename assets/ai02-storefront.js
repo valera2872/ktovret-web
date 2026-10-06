@@ -65,9 +65,10 @@
         offerAccepted:true,privacyAcknowledged:true,browserKey:browserKey(),dossierDiscountRequested:discountEligible
       }),cache:'no-store'});
       let b={};try{b=await r.json()}catch{}if(!r.ok)throw new Error(b.error||`http_${r.status}`);
+      if(b.alreadyEntitled===true){openGame();busy=false;return}
       if(!b.orderId||!b.confirmationUrl)throw new Error('invalid_checkout_response');
       localStorage.setItem(ORDER_KEY,b.orderId);location.assign(b.confirmationUrl);
-    }catch(e){note(e.message==='dossier_discount_lookup_failed'?'Не удалось проверить скидку Досье. Попробуйте ещё раз.':'Не удалось начать оплату. Попробуйте ещё раз.','error');busy=false}
+    }catch(e){note(e.message==='dossier_lookup_failed'?'Не удалось проверить скидку Досье. Попробуйте ещё раз.':'Не удалось начать оплату. Попробуйте ещё раз.','error');busy=false}
   });
 
   (async()=>{game.hidden=true;await dossier();if(await reconcile())return;if(await restore())return;})();
