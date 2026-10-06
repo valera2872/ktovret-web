@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#061019">
+  <meta name="robots" content="noindex,follow"><link rel="canonical" href="https://mysterylogic.com/detektivnaya-igra-s-ii/nulevaya-kopiya/igra/">
+  <meta name="description" content="Закрытое платное AI-расследование Mystery Logic.">
+  <link rel="icon" href="../../../assets/ml-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../../assets/mysterylogic.css">
+  <link rel="stylesheet" href="../../../assets/ai-detective-vslice.css?v=0.1.2">
+  <link rel="stylesheet" href="../../../assets/ai-detective-avatar-stage.css?v=0.0.1">
+  <link rel="stylesheet" href="../../../assets/ai-case-player-v2.css?v=0.1.1">
+  <title>Нулевая копия — расследование Mystery Logic</title>
+  <link rel="stylesheet" href="../../../assets/ai02-premium.css?v=20261004-prestart2">
+</head>
+<body class="aid-body">
+  <header class="aid-topbar">
+    <a class="aid-brand" href="../../../" aria-label="Mystery Logic — главная">
+      <span class="aid-brand-mark">ML</span>
+      <span><strong>Mystery Logic</strong><small>AI investigation</small></span>
+    </a>
+    <div class="aid-topmeta"><span class="aid-dot"></span><span data-tier-label>Закрытое расследование</span></div>
+  </header>
+
+  <main class="aid-app" data-ai-v2-player data-case-id="AI02-NK-STANDARD">
+    <section class="aiv2-access" data-view="access">
+      <div class="aiv2-access-card">
+        <p class="aid-kicker">Закрытое расследование</p>
+        <h1>Проверяем доступ к делу</h1>
+        <p data-access-copy>Введите ключ покупки. Если он уже сохранён в этом браузере, дело откроется автоматически.</p>
+        <label class="aiv2-key-label">Ключ доступа<input type="password" autocomplete="off" spellcheck="false" data-access-token placeholder="ML…"></label>
+        <button class="aid-primary" type="button" data-action="unlock">Открыть расследование</button>
+        <p class="aiv2-status" data-access-status aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="aid-intro" data-view="intro" hidden>
+      <div class="aid-intro-copy">
+        <p class="aid-kicker"><span data-case-number>Дело</span> · AI investigation</p>
+        <h1 data-case-title>Закрытое расследование</h1>
+        <p class="aid-lead" data-case-incident></p>
+        <div class="aid-rule"><strong data-case-subtitle></strong><span data-player-brief></span></div>
+        <button class="aid-primary" type="button" data-action="start">Принять дело</button>
+      </div>
+      <aside class="aid-case-stamp" aria-label="Карточка дела">
+        <div class="aid-stamp-line"><span>ФОРМАТ</span><strong>Свободный AI-допрос</strong></div>
+        <div class="aid-stamp-line"><span>ФИГУРАНТЫ</span><strong data-suspect-count>—</strong></div>
+        <div class="aid-stamp-line"><span>ЛИМИТ</span><strong data-case-limit>—</strong></div>
+        <div class="aid-stamp-line"><span>РЕЖИМ</span><strong data-case-tier>—</strong></div>
+        <div class="aid-stamp-seal">Факты дела фиксированы на сервере. Свободная беседа не может изменить канон или открыть скрытую улику раньше положенного.</div>
+      </aside>
+    </section>
+
+    <section class="aid-workspace" data-view="workspace" data-workspace data-investigation-mode="investigation" hidden>
+      <nav class="aid-action-dock" aria-label="Основные действия">
+        <button type="button" class="is-active" data-mode-switch="investigation"><span>⌕</span><strong>Расследовать</strong><small>экспертизы и следы</small></button>
+        <button type="button" data-mode-switch="interrogation"><span>◉</span><strong>Допросить</strong><small>подозреваемые</small></button>
+        <button type="button" data-open-theory><span>◇</span><strong>Версия</strong><small>собрать вывод</small></button>
+      </nav>
+      <section class="aid-investigation-tools" data-investigation-tools><figure class="aid-scene-photo"><img src="../../../assets/ai02/studio3-hero.jpg?v=20261003-sharp2" alt="Монтажная студия №3, место обнаружения Вернера"><div class="ai02-scene-copy"><span>СТУДИЯ 3</span><h1>Первичный осмотр</h1><p>Вернер найден в монтажной студии. Один тяжёлый удар в область головы. Следов продолжительной борьбы нет.</p></div><figcaption>STUDIO 3 · ПЕРВИЧНЫЙ ОСМОТР</figcaption></figure>
+        <div class="aid-investigation-head"><div><span class="aid-kicker">Следственные действия</span><h2>Что вы хотите проверить?</h2><p>Формулируйте любое следственное действие или запрос своими словами. Система выдаёт только результаты, существующие в материалах дела.</p></div><span class="aid-investigation-badge">EXPERT DESK</span></div>
+        <form class="aid-investigation-form" data-investigation-form><textarea data-voice-target="investigation" rows="4" maxlength="600" placeholder="Что вы хотите проверить?"></textarea><div class="aid-investigation-submit"><button class="aid-voice" type="button" data-voice-for="investigation">🎙 Говорить</button><button type="submit">Отправить запрос</button></div></form>
+        <div class="aid-investigation-result" data-investigation-result hidden aria-live="polite"></div>
+      </section>
+      <aside class="aid-panel aid-evidence-panel">
+        <div class="ai02-side-case">
+          <div class="ai02-side-case-title"><span>←</span><div><strong>Нулевая копия</strong><small>Дело AI-02 · Студия 3</small></div></div>
+          <div class="ai02-progress-head"><span>Ход дела</span><strong><b data-ai02-progress>0</b> материалов</strong></div>
+          <ol class="ai02-case-steps">
+            <li class="is-active"><span>1</span><div><strong>Студия 3</strong><small>текущее место</small></div></li>
+            <li><span>2</span><div><strong>Первичный осмотр</strong></div></li>
+            <li><span>3</span><div><strong>Показания</strong></div></li>
+            <li><span>4</span><div><strong>Цифровые следы</strong></div></li>
+            <li><span>5</span><div><strong>Реконструкция</strong></div></li>
+          </ol>
+        </div>
+        <div class="aid-panel-head ai02-findings-head"><p class="aid-kicker">Последние находки</p><h2>Материалы дела</h2></div>
+        <div class="aid-evidence-list" data-evidence-list></div>
+        <p class="aid-panel-hint">Нажмите на материал, чтобы официально предъявить его в следующем вопросе.</p>
+      </aside>
+
+      <section class="aid-interrogation">
+        <div class="aid-suspect-strip" data-suspect-strip></div>
+        <div class="aid-room-head">
+          <div><p class="aid-kicker">Допрос</p><h2 data-suspect-name>—</h2><p data-suspect-role>—</p></div>
+          <div class="aid-room-status" data-room-status>Допрос идёт</div>
+        </div>
+        <div class="aid-avatar-stage" data-avatar-stage data-stage="composed" data-tier="text" hidden aria-hidden="true">
+          <div class="aid-avatar-video-shell">
+            <video data-avatar-video playsinline muted></video>
+            <div class="aid-avatar-fallback" data-avatar-fallback><span class="aid-avatar-initials" data-avatar-initials>ML</span><span class="aid-avatar-pulse" aria-hidden="true"></span></div>
+            <div class="aid-avatar-scan" aria-hidden="true"></div>
+          </div>
+          <div class="aid-avatar-meta"><div><strong data-avatar-name>—</strong><span data-avatar-role>—</span></div><small data-avatar-state>держится спокойно</small></div>
+        </div>
+        <div class="aid-transcript" data-transcript aria-live="polite"></div>
+        <form class="aid-composer" data-composer>
+          <div class="aid-attachment" data-attachment hidden><span>Предъявляется:</span><strong data-attachment-title></strong><button type="button" data-action="clear-evidence" aria-label="Убрать материал">×</button></div>
+          <label class="aid-sr-only" for="aiv2-question">Ваш вопрос</label>
+          <textarea id="aiv2-question" data-voice-target="interrogation" maxlength="420" rows="2" placeholder="Задайте свой вопрос…" required></textarea>
+          <div class="aid-composer-actions"><button class="aid-voice" type="button" data-voice-for="interrogation" aria-label="Голосовой ввод">🎙 Говорить</button><span data-turn-counter>0 вопросов</span><button class="aid-send" type="submit">Задать вопрос</button></div>
+        </form>
+      </section>
+
+      <aside class="aid-panel aid-notes-panel">
+        <div class="aid-panel-head ai02-notebook-head"><p class="aid-kicker">Мой блокнот</p><h2>Заметки по делу</h2><div class="ai02-note-tabs"><span class="is-active">Заметки</span><span>Версия</span></div></div>
+        <div class="aid-notes" data-notes></div>
+        <div class="aid-theory-box"><p class="aid-kicker">Когда будете готовы</p><p class="aid-theory-hint">Назовите человека и сформулируйте проверяемую цепочку фактов. Признание не обязательно: если доказательств достаточно, собирайте версию сами.</p><button class="aid-secondary" type="button" data-action="theory">Собрать версию</button></div>
+      </aside>
+    </section>
+
+    <section class="aid-theory" data-view="theory" hidden>
+      <button class="aid-back" type="button" data-action="back">← Вернуться к допросам</button>
+      <div class="aid-theory-grid">
+        <div><p class="aid-kicker">Ваша версия</p><h2>Кто отвечает за произошедшее?</h2><p>Сервер проверит не только выбранного человека, но и то, получили ли вы необходимые доказательства и сформулировали ли ключевой механизм.</p></div>
+        <form class="aid-theory-form" data-theory-form>
+          <fieldset><legend>Кого вы считаете ответственным?</legend><div data-theory-suspects></div></fieldset>
+          <label>Почему?<textarea name="reason" rows="6" maxlength="1200" placeholder="Опишите цепочку: что произошло, когда, каким способом и какие независимые факты это подтверждают." required></textarea></label>
+          <button class="aid-primary" type="submit">Проверить версию</button>
+        </form>
+      </div>
+      <div class="aid-verdict" data-verdict hidden></div>
+    </section>
+  </main>
+
+  <footer class="aid-footer"><span>© 2026 Mystery Logic</span><span>Private canon никогда не передаётся в браузер.</span></footer>
+  <script src="../../../assets/ai-case-player-v2.js?v=0.1.0" defer></script>
+  <script src="../../../assets/ai-case-live-v2.js?v=0.1.0" defer></script>
+
+  <script src="../../../assets/ai02-investigation-staging.js?v=20261004-polish1"></script>
+  <script src="../../../assets/ai02-investigator-workspace.js?v=20261004-prestart1"></script>
+  <script src="../../../assets/ai02-portraits.js?v=20261002-1"></script>
+</body>
+</html>
