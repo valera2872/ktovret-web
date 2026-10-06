@@ -209,6 +209,38 @@ function setupBoard(){
   });
 }
 
+function injectMobileEvidenceDrawer(){
+  const interrogation=qs('.aid-interrogation'),composer=qs('[data-composer]');
+  if(!interrogation||!composer||qs('[data-ai02-mobile-evidence]',interrogation))return;
+  const trigger=document.createElement('button');
+  trigger.type='button';trigger.className='ai02-mobile-evidence-trigger';trigger.dataset.ai02MobileEvidenceTrigger='';
+  trigger.innerHTML='<span>Материалы</span><strong data-ai02-mobile-evidence-count>0</strong>';
+  const drawer=document.createElement('section');
+  drawer.className='ai02-mobile-evidence-drawer';drawer.dataset.ai02MobileEvidence='';drawer.hidden=true;
+  drawer.innerHTML='<div class="ai02-mobile-evidence-head"><div><span class="aid-kicker">Материалы дела</span><strong>Что предъявить?</strong></div><button type="button" data-ai02-mobile-evidence-close aria-label="Закрыть">×</button></div><div data-ai02-mobile-evidence-list></div>';
+  composer.before(trigger,drawer);
+  const close=()=>{drawer.hidden=true;trigger.setAttribute('aria-expanded','false')};
+  const open=()=>{renderMobileEvidenceDrawer();drawer.hidden=false;trigger.setAttribute('aria-expanded','true')};
+  trigger.setAttribute('aria-expanded','false');
+  trigger.addEventListener('click',()=>drawer.hidden?open():close());
+  qs('[data-ai02-mobile-evidence-close]',drawer)?.addEventListener('click',close);
+  drawer.addEventListener('click',e=>{
+    const btn=e.target.closest?.('[data-ai02-mobile-evidence-id]');if(!btn)return;
+    const id=btn.dataset.ai02MobileEvidenceId||'';
+    const original=id?qs('[data-evidence="'+CSS.escape(id)+'"]'):null;
+    if(original)original.click();
+    close();
+    const ta=qs('#aiv2-question');if(ta){ta.focus();ta.scrollIntoView({block:'nearest',behavior:'smooth'})}
+  });
+}
+function renderMobileEvidenceDrawer(){
+  const drawer=qs('[data-ai02-mobile-evidence]'),host=qs('[data-ai02-mobile-evidence-list]'),count=qs('[data-ai02-mobile-evidence-count]');
+  const items=visibleEvidence();
+  if(count)count.textContent=String(items.length);
+  if(!drawer||!host)return;
+  host.innerHTML=items.length?items.map(item=>'<button type="button" data-ai02-mobile-evidence-id="'+esc(item.id)+'"><small>'+esc(item.code)+'</small><strong>'+esc(item.title)+'</strong><span>'+esc(item.body.slice(0,140))+(item.body.length>140?'…':'')+'</span></button>').join(''):'<p class="aid-empty-note">Материалы ещё не собраны.</p>';
+}
+
 function injectInterrogationActions(){
   const composer=qs('[data-composer]');if(!composer||qs('[data-ai02-interrogation-actions]',composer))return;
   const bar=document.createElement('div');bar.className='ai02-interrogation-actions';bar.dataset.ai02InterrogationActions='';
@@ -284,7 +316,7 @@ function renderTheoryEvidence(){
 }
 
 function sync(){
-  injectDifficulty();injectInvestigationTabs();injectSceneHotspots();injectInterrogationActions();injectNotebook();decorateEvidence();renderStatementHistory();
+  injectDifficulty();injectInvestigationTabs();injectSceneHotspots();injectInterrogationActions();injectMobileEvidenceDrawer();injectNotebook();decorateEvidence();renderStatementHistory();renderMobileEvidenceDrawer();
   if(!qs('[data-ai02-panel="timeline"]')?.hidden)renderTimeline();
   if(!qs('[data-ai02-panel="board"]')?.hidden)renderBoard();
 }
