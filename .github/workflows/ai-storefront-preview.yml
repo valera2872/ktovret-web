@@ -6,6 +6,7 @@ on:
       - 'assets/ai-investigations-storefront.css'
       - 'assets/ai02-storefront.js'
       - 'assets/ai02/**'
+      - 'staging-previews/ai-storefront-home/**'
 permissions:
   contents: read
 jobs:
@@ -36,7 +37,8 @@ jobs:
             const browser=await chromium.launch({headless:true});
             const pages=[
               ['catalog','http://127.0.0.1:4173/detektivnaya-igra-s-ii/'],
-              ['case','http://127.0.0.1:4173/detektivnaya-igra-s-ii/nulevaya-kopiya/']
+              ['case','http://127.0.0.1:4173/detektivnaya-igra-s-ii/nulevaya-kopiya/'],
+              ['home','http://127.0.0.1:4173/staging-previews/ai-storefront-home/']
             ];
             for(const [name,url] of pages){
               for(const cfg of [{n:'desktop',w:1440,h:1000},{n:'mobile',w:390,h:844}]){
@@ -63,4 +65,6 @@ jobs:
             catalog-mobile.png
             case-desktop.png
             case-mobile.png
+            home-desktop.png
+            home-mobile.png
           retention-days: 3
