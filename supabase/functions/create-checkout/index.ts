@@ -105,7 +105,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: existing, error: existingError } = await admin
     .from('payment_orders')
-    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,return_url,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at')
+    .select('id,token_hash,product_id,status,payment_provider,provider_payment_id,confirmation_url,return_url,amount_value,offer_version,offer_accepted_at,privacy_version,privacy_acknowledged_at,metadata')
     .eq('client_request_id', requestId)
     .maybeSingle();
   if (existingError) return json(503, { error: 'order_lookup_failed' }, origin);
@@ -114,6 +114,9 @@ Deno.serve(async (req: Request) => {
     if (existing.product_id !== product.id) return json(409, { error: 'request_product_conflict' }, origin);
     if (existing.payment_provider && existing.payment_provider !== 'tbank') {
       return json(409, { error: 'request_provider_conflict' }, origin);
+    }
+    if (Number(existing.amount_value) !== Number(amountValue)) {
+      return json(409, { error: 'request_amount_conflict' }, origin);
     }
     if (existing.confirmation_url) {
       return json(200, {
