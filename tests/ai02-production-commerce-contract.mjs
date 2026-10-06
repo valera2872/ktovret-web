@@ -26,11 +26,13 @@ assert.match(webhook,/verifyTbankToken/);
 assert.match(webhook,/AI02_PRODUCT_ID/);
 
 assert.match(player,/STORAGE_KEY_PREFIX='mysterylogic:ai-investigation:access-token:'/);
+assert.match(player,/storageScope=\(\)=>ui\.caseId\.replace\(/,'AI player must scope token to case family, not difficulty');
 assert.match(player,/root\.dataset\.caseId/);
 assert.match(player,/storedToken\(\)/);
 assert.doesNotMatch(player,/localStorage\.getItem\(STORAGE_KEY\)/,'legacy global AI token must not remain primary storage');
 assert.match(player,/ml:ai-case-access/);
 
+assert.match(storefront,/TOKEN_KEY='mysterylogic:ai-investigation:access-token:AI02-NK'/,'AI-02 checkout must use the same family token as the player');
 assert.match(storefront,/create-checkout-ai02/);
 assert.match(storefront,/payment-status-ai02/);
 assert.match(storefront,/player-dossier/);
