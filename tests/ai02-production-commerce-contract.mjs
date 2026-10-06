@@ -1,29 +1,11 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const commerce=fs.readFileSync('supabase/functions/_shared/ai02-commerce.ts','utf8');
-const checkout=fs.readFileSync('supabase/functions/create-checkout-ai02/index.ts','utf8');
-const status=fs.readFileSync('supabase/functions/payment-status-ai02/index.ts','utf8');
-const webhook=fs.readFileSync('supabase/functions/tbank-webhook-ai02/index.ts','utf8');
 const player=fs.readFileSync('assets/ai-case-player-v2.js','utf8');
+const helper=fs.readFileSync('assets/ai02-investigation-staging.js','utf8');
 const storefront=fs.readFileSync('assets/ai02-storefront.js','utf8');
 const page=fs.readFileSync('detektivnaya-igra-s-ii/nulevaya-kopiya/index.html','utf8');
-
-assert.match(commerce,/AI02_PRODUCT_ID = 'ai02-nk'/);
-assert.match(commerce,/AI02_PRICE_RUB = 299/);
-assert.match(commerce,/AI02_DOSSIER_DISCOUNT_RUB = 50/);
-assert.match(commerce,/AI02_DOSSIER_PRICE_RUB = 249/);
-assert.match(commerce,/completedCases>=15/,'dossier discount must require complete 15-case dossier');
-assert.match(commerce,/expires_at:null/,'paid AI-02 access must not expire');
-assert.match(commerce,/allowed_case_ids:\[\.\.\.AI02_ALLOWED_CASE_IDS\]/,'entitlement must be scoped to AI-02 difficulty variants');
-assert.match(commerce,/experience_tier:'text'/);
-
-assert.match(checkout,/ai02DossierDiscount\(admin,browserKey\)/,'checkout must revalidate dossier server-side');
-assert.match(checkout,/amount!==\(dossier\.eligible\?24900:29900\)/);
-assert.match(checkout,/tbank-webhook-ai02/);
-assert.match(status,/accessPermanent:Boolean\(entitled&&!entitlement\?\.expires_at\)/);
-assert.match(webhook,/verifyTbankToken/);
-assert.match(webhook,/AI02_PRODUCT_ID/);
+const hub=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
 
 assert.match(player,/STORAGE_KEY_PREFIX='mysterylogic:ai-investigation:access-token:'/);
 assert.match(player,/storageScope=\(\)=>ui\.caseId\.replace\(/,'AI player must scope token to case family, not difficulty');
@@ -32,13 +14,21 @@ assert.match(player,/storedToken\(\)/);
 assert.doesNotMatch(player,/localStorage\.getItem\(STORAGE_KEY\)/,'legacy global AI token must not remain primary storage');
 assert.match(player,/ml:ai-case-access/);
 
-assert.match(storefront,/TOKEN_KEY='mysterylogic:ai-investigation:access-token:AI02-NK'/,'AI-02 checkout must use the same family token as the player');
-assert.match(storefront,/create-checkout-ai02/);
-assert.match(storefront,/payment-status-ai02/);
-assert.match(storefront,/player-dossier/);
-assert.match(storefront,/completedCases>=15/);
+assert.match(helper,/PREVIEW_WORKSPACE=PREVIEW_MODE==='workspace'/,'localhost must not reveal workspace by default');
+assert.match(helper,/FAMILY_ACCESS_KEY='mysterylogic:ai-investigation:access-token:'\+ACCESS_FAMILY/);
+
+assert.match(storefront,/PRODUCT_ID='ai02_zero_copy'/,'storefront must use the deployed AI-02 order product id');
+assert.match(storefront,/create-checkout'/);
+assert.match(storefront,/payment-status'/);
+assert.doesNotMatch(storefront,/create-checkout-ai02|payment-status-ai02/,'parallel unused commerce endpoints must not be referenced');
+assert.match(storefront,/DOSSIER_MIN_XP=240/,'storefront must mirror deployed dossier discount threshold');
+assert.match(storefront,/dossierDiscountRequested:dossierEligible/,'server must revalidate requested dossier discount');
+assert.match(storefront,/TOKEN_KEY='mysterylogic:ai-investigation:access-token:AI02-NK'/,'checkout must use AI-02 family token');
 assert.match(page,/data-case-id="AI02-NK-STANDARD"/);
 assert.match(page,/Доступ не сгорает/);
-assert.match(page,/Бонус Досье следователя/);
+assert.match(page,/ранг «Следователь»/);
+assert.match(hub,/vosem-minut-bez-kamery/);
+assert.match(hub,/nulevaya-kopiya/);
+assert.match(hub,/249 ₽ с рангом «Следователь»/);
 
-console.log('AI-02 production commerce/storefront contract: ok');
+console.log('AI-02 production storefront contract: ok');
