@@ -1,0 +1,26 @@
+name: TEMP capture current LIVE AI01 route files
+on:
+  push:
+    branches:
+      - chore/capture-live-ai01-route-20261006
+    paths:
+      - '.github/workflows/temp-capture-live-ai01-route.yml'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Capture exact LIVE route files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p live/assets live/admin/ai01-live-preview
+          curl -fsSL --retry 3 https://mysterylogic.com/assets/ai-avatar-auth-bootstrap.js -o live/assets/ai-avatar-auth-bootstrap.js
+          curl -fsSL --retry 3 https://mysterylogic.com/admin/ai01-live-preview/ -o live/admin/ai01-live-preview/index.html
+          sha256sum live/assets/ai-avatar-auth-bootstrap.js live/admin/ai01-live-preview/index.html | tee live/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: current-live-ai01-route-files
+          path: live/
+          retention-days: 2
