@@ -48,8 +48,10 @@ Deno.serve(async (req: Request) => {
   const language = String(body.language || '').toLowerCase() === 'en' ? 'en' : 'ru';
   const offerAccepted = body.offerAccepted === true;
   const privacyAcknowledged = body.privacyAcknowledged === true;
+  const browserKey = String(body.browserKey || '').trim();
 
   if (!validAccessToken(accessToken)) return json(400, { error: 'invalid_access_token' }, origin);
+  if (browserKey && !/^[a-f0-9]{48}$/.test(browserKey)) return json(400, { error: 'invalid_browser_key' }, origin);
   if (!validUuid(requestId)) return json(400, { error: 'invalid_request_id' }, origin);
   if (!email) return json(400, { error: 'email_required_for_receipt' }, origin);
   if (!validEmail(email)) return json(400, { error: 'invalid_email' }, origin);
@@ -66,8 +68,21 @@ Deno.serve(async (req: Request) => {
   returnUrl.hash = '';
   returnUrl.search = '';
 
-  const amountValue = formatAmount(product.priceRub);
-  const amount = amountToKopecks(product.priceRub);
+  let dossierDiscountRub = 0;
+  if (product.id === 'ai02-zero-copy' && browserKey) {
+    const visitorHash = await sha256(browserKey);
+    const adminForDossier = adminClient();
+    const { data: profile, error: profileError } = await adminForDossier
+      .from('player_profiles')
+      .select('xp')
+      .eq('visitor_key_hash', visitorHash)
+      .maybeSingle();
+    if (profileError) return json(503, { error: 'dossier_discount_lookup_failed' }, origin);
+    if (Number(profile?.xp || 0) >= 240) dossierDiscountRub = 50;
+  }
+  const chargedPriceRub = product.priceRub - dossierDiscountRub;
+  const amountValue = formatAmount(chargedPriceRub);
+  const amount = amountToKopecks(chargedPriceRub);
   if (!amountValue || amount <= 0) return json(503, { error: 'payment_service_not_configured' }, origin);
 
   const receipt = {
@@ -109,6 +124,8 @@ Deno.serve(async (req: Request) => {
         status: existing.status,
         paymentId: existing.provider_payment_id,
         confirmationUrl: existing.confirmation_url,
+        amountRub: Number(existing.amount_value),
+        discountRub: Math.max(0, Number(product.priceRub) - Number(existing.amount_value)),
       }, origin);
     }
   }
@@ -153,6 +170,10 @@ Deno.serve(async (req: Request) => {
         offer_accepted_at: acceptedAt,
         privacy_version: PRIVACY_VERSION,
         privacy_acknowledged_at: acceptedAt,
+        list_price_rub: product.priceRub,
+        charged_price_rub: chargedPriceRub,
+        discount_rub: dossierDiscountRub,
+        discount_reason: dossierDiscountRub ? 'dossier_rank_investigator' : null,
       },
     });
     if (insertError) return json(503, { error: 'order_create_failed' }, origin);
@@ -191,6 +212,8 @@ Deno.serve(async (req: Request) => {
       paymentId,
       status: 'pending',
       confirmationUrl,
+      amountRub: chargedPriceRub,
+      discountRub: dossierDiscountRub,
     }, origin);
   } catch (error: any) {
     await admin.from('payment_orders').update({
