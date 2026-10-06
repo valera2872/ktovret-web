@@ -29,9 +29,12 @@ assert.ok(js.includes('Протокол показаний'),'statement history 
 assert.ok(js.includes('Предъявить улику'),'evidence confrontation action missing');
 assert.ok(js.includes('Прижать противоречием'),'contradiction pressure action missing');
 assert.ok(js.includes('КАК СКРЫВАЛ'),'structured reconstruction missing');
-assert.ok(js.includes('Ключевые доказательства'),'final evidence selection missing');
+assert.ok(js.includes('Опорные материалы'),'final evidence selection missing');
 assert.ok(!js.includes('кто авторизовал постановку QC-файла'),'scene hotspot must not hand the player the decisive attribution query');
-assert.ok(js.includes('Проверь рабочую станцию и очередь воспроизведения QC-файлов.'),'console hotspot should reveal the playback layer without attribution');
+assert.ok(js.includes('Проверь рабочую станцию Studio 3: какие действия и системные события зарегистрированы в критический период?'),'console hotspot must stay generic before the playback twist');
+assert.ok(!js.includes("['console','Консоль','Проверь рабочую станцию и очередь воспроизведения QC-файлов.']"),'console hotspot must not name the playback queue');
+assert.ok(!js.includes("['audio','Аудио','Проверь QC_031"),'audio hotspot must not name undiscovered QC_031');
+assert.ok(!js.includes('Надёжность: '+"'"+'+esc(meta.reliability)'), 'UI must not score evidence reliability for the player');
 assert.ok(js.includes('До начала расследования'),'difficulty must be presented before the investigation starts');
 assert.ok(js.includes('Выберите уровень сложности'),'prestart difficulty heading missing');
 assert.ok(js.includes('Канон, виновный и набор фактов одинаковы'),'difficulty explanation must state what does not change');

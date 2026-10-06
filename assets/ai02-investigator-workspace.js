@@ -150,11 +150,11 @@ function injectSceneHotspots(){
   const fig=qs('.aid-scene-photo');if(!fig||qs('[data-ai02-hotspots]',fig))return;
   const layer=document.createElement('div');layer.className='ai02-hotspots';layer.dataset.ai02Hotspots='';
   const hot=[
-    ['door','Доступ','Проверь дверь, коридорные камеры и журнал доступа в Студию 3.'],
-    ['console','Консоль','Проверь рабочую станцию и очередь воспроизведения QC-файлов.'],
-    ['audio','Аудио','Проверь QC_031, серверный журнал приёма аудиофайла и его цифровой след.'],
-    ['desk','Стол','Осмотри рабочий стол, предметы и возможное орудие удара.'],
-    ['camera','Камеры','Проверь камеры и выходы из зоны Студии 3 в нужный период.']
+    ['door','Доступ','Проверь входы и выходы, камеры и журнал доступа в Студию 3 в критический период.'],
+    ['console','Консоль','Проверь рабочую станцию Studio 3: какие действия и системные события зарегистрированы в критический период?'],
+    ['audio','Аудио','Проверь аудиоматериалы, связанные со Студией 3: какие записи существовали и когда появились?'],
+    ['desk','Стол','Осмотри рабочий стол и предметы на нём: есть ли следы, связанные с нападением?'],
+    ['camera','Камеры','Проверь камеры и выходы из зоны Студии 3 в критический период.']
   ];
   layer.innerHTML=hot.map(([key,label,q])=>'<button type="button" class="is-'+key+'" data-scene-query="'+esc(q)+'"><span></span><strong>'+label+'</strong></button>').join('');
   fig.append(layer);
@@ -169,7 +169,7 @@ function decorateEvidence(){
     const card=qs('[data-evidence="'+CSS.escape(item.id)+'"]');if(!card||qs('.ai02-evidence-meta',card))return;
     const meta=classifyEvidence(item),time=timeFrom(item.body+' '+item.code);
     const row=document.createElement('div');row.className='ai02-evidence-meta';
-    row.innerHTML='<span>'+esc(meta.type)+'</span><span>'+esc(meta.source)+'</span>'+(time?'<span>'+esc(time)+'</span>':'')+'<span>Надёжность: '+esc(meta.reliability)+'</span>';
+    row.innerHTML='<span>'+esc(meta.type)+'</span><span>'+esc(meta.source)+'</span>'+(time?'<span>'+esc(time)+'</span>':'');
     card.append(row);
   });
 }
@@ -267,7 +267,7 @@ function injectReconstruction(){
   const reasonLabel=qsa('label',form).find(x=>x.querySelector('textarea[name="reason"]'));if(!reasonLabel)return;
   reasonLabel.classList.add('ai02-original-reason');reasonLabel.hidden=true;
   const box=document.createElement('section');box.className='ai02-reconstruction';box.dataset.ai02Reconstruction='';
-  box.innerHTML='<div class="ai02-reconstruction-grid"><label><span>ПОЧЕМУ</span><textarea data-rec="why" rows="2" maxlength="260" placeholder="Мотив и причина конфликта"></textarea></label><label><span>КАК</span><textarea data-rec="how" rows="2" maxlength="260" placeholder="Механизм преступления"></textarea></label><label><span>КОГДА</span><textarea data-rec="when" rows="2" maxlength="220" placeholder="Временная последовательность"></textarea></label><label><span>КАК СКРЫВАЛ</span><textarea data-rec="cover" rows="2" maxlength="260" placeholder="Ложный след, инсценировка, ложь"></textarea></label></div><fieldset><legend>Ключевые доказательства — выберите 3–5</legend><div data-ai02-theory-evidence></div></fieldset><label><span>ЦЕПОЧКА</span><textarea data-rec="chain" rows="3" maxlength="420" placeholder="Как выбранные факты замыкаются в одну версию"></textarea></label>';
+  box.innerHTML='<div class="ai02-reconstruction-grid"><label><span>ПОЧЕМУ</span><textarea data-rec="why" rows="2" maxlength="260" placeholder="Мотив и причина конфликта"></textarea></label><label><span>КАК</span><textarea data-rec="how" rows="2" maxlength="260" placeholder="Механизм преступления"></textarea></label><label><span>КОГДА</span><textarea data-rec="when" rows="2" maxlength="220" placeholder="Временная последовательность"></textarea></label><label><span>КАК СКРЫВАЛ</span><textarea data-rec="cover" rows="2" maxlength="260" placeholder="Ложный след, инсценировка, ложь"></textarea></label></div><fieldset><legend>Опорные материалы — выберите 3–5 для своей реконструкции</legend><p class="ai02-reconstruction-help">Выбор помогает сформулировать версию. Сервер отдельно проверяет, какие материалы вы действительно открыли в расследовании.</p><div data-ai02-theory-evidence></div></fieldset><label><span>ЦЕПОЧКА</span><textarea data-rec="chain" rows="3" maxlength="420" placeholder="Как выбранные факты замыкаются в одну версию"></textarea></label>';
   reasonLabel.before(box);
   form.addEventListener('submit',()=>{
     const parts={};qsa('[data-rec]',box).forEach(x=>parts[x.dataset.rec]=x.value.trim());
