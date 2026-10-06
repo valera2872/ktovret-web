@@ -142,10 +142,15 @@ jobs:
                   investigatorTabs:document.querySelectorAll('[data-ai02-subview]').length,
                   hotspots:document.querySelectorAll('[data-scene-query]').length,
                   notebookTabs:document.querySelectorAll('[data-ai02-note-tab]').length,
-                  difficultyInsideWorkspace:!!document.querySelector('[data-view="workspace"] [data-ai02-difficulty]')
+                  difficultyInsideWorkspace:!!document.querySelector('[data-view="workspace"] [data-ai02-difficulty]'),
+                  mobileEvidenceTriggerVisible:(()=>{
+                    const el=document.querySelector('[data-ai02-mobile-evidence-trigger]');
+                    return !!el&&getComputedStyle(el).display!=='none';
+                  })()
                 };
               });
-              if(!checks.hero||!checks.workspace||!checks.introHidden||checks.portraitCount<5||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3||checks.difficultyInsideWorkspace) throw new Error(cfg.name+' workspace visual check failed '+JSON.stringify(checks));
+              const expectedMobileEvidence=cfg.name==='mobile';
+              if(!checks.hero||!checks.workspace||!checks.introHidden||checks.portraitCount<5||checks.investigatorTabs!==3||checks.hotspots<5||checks.notebookTabs<3||checks.difficultyInsideWorkspace||checks.mobileEvidenceTriggerVisible!==expectedMobileEvidence) throw new Error(cfg.name+' workspace visual check failed '+JSON.stringify(checks));
               await page.click('[data-ai02-subview="timeline"]');
               if(await page.locator('[data-ai02-panel="timeline"]').isHidden()) throw new Error(cfg.name+' timeline did not open');
               await page.click('[data-ai02-subview="board"]');
@@ -153,6 +158,15 @@ jobs:
               await page.click('[data-ai02-subview="scene"]');
               await page.click('[data-mode-switch="interrogation"]');
               await page.waitForTimeout(250);
+              if(cfg.name==='mobile'){
+                await page.click('[data-ai02-mobile-evidence-trigger]');
+                const drawer=page.locator('[data-ai02-mobile-evidence]');
+                if(await drawer.isHidden()) throw new Error('mobile evidence drawer did not open');
+                const count=await page.locator('[data-ai02-mobile-evidence-list] > button').count();
+                if(count<1) throw new Error('mobile evidence drawer has no visible evidence');
+                await page.click('[data-ai02-mobile-evidence-close]');
+                if(!(await drawer.isHidden())) throw new Error('mobile evidence drawer did not close');
+              }
               await page.screenshot({path:'deployed-'+cfg.name+'-workspace.png',fullPage:true});
               await page.close();
             }
