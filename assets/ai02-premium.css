@@ -1098,3 +1098,5 @@ url("../assets/ai02/studio3-hero.jpg?v=20261003-sharp2") center/cover no-repeat}
 [data-ai-v2-player] > [data-view][hidden]{
   display:none!important;
 }
+
+.ai02-reconstruction-help{margin:6px 0 10px;color:var(--aid-muted,#8292a3);font-size:12px;line-height:1.45}
