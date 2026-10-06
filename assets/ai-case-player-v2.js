@@ -46,7 +46,7 @@
     if(token.length<32){if(!silent)setAccessStatus('Введите ключ покупки.','error');return false}
     const button=$('[data-action="unlock"]');if(button)button.disabled=true;if(!silent)setAccessStatus('Проверяем доступ…');
     try{
-      const access=await caseAccess(token);validateAccess(access);ui.token=token;ui.access=access;if(!persistToken(token))throw new Error('browser_storage_unavailable');const stateResult=await ai('state');ui.state=stateResult.state;ui.suspectId=suspects()[0]?.id||'';fillIntro();renderAll();setAccessStatus('Доступ подтверждён.','ok');showView('intro');return true;
+      const access=await caseAccess(token);validateAccess(access);ui.token=token;ui.access=access;if(!persistToken(token))throw new Error('browser_storage_unavailable');const stateResult=await ai('state');ui.state=stateResult.state;ui.suspectId=suspects()[0]?.id||'';fillIntro();renderAll();setAccessStatus('Доступ подтверждён.','ok');showView('intro');try{window.dispatchEvent(new CustomEvent('ml:ai-case-access',{detail:{caseId:ui.caseId,productId:access.productId||'',state:ui.state}}))}catch{}return true;
     }catch(error){console.error('ai_v2_unlock_failed',error);if(!silent)setAccessStatus(accessError(error.message),'error');return false}
     finally{if(button&&document.contains(button))button.disabled=false}
   }
