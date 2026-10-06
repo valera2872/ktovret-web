@@ -3,17 +3,17 @@ name: Validate AI-02 commerce release
 on:
   pull_request:
     paths:
-      - 'supabase/functions/create-checkout-ai02/**'
-      - 'supabase/functions/payment-status-ai02/**'
-      - 'supabase/functions/tbank-webhook-ai02/**'
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/payment-status/**'
+      - 'supabase/functions/tbank-webhook/**'
       - 'tests/ai02-commerce-release-contract.mjs'
       - '.github/workflows/ai02-commerce-release.yml'
   push:
     branches: [main]
     paths:
-      - 'supabase/functions/create-checkout-ai02/**'
-      - 'supabase/functions/payment-status-ai02/**'
-      - 'supabase/functions/tbank-webhook-ai02/**'
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/payment-status/**'
+      - 'supabase/functions/tbank-webhook/**'
       - 'tests/ai02-commerce-release-contract.mjs'
       - '.github/workflows/ai02-commerce-release.yml'
 
