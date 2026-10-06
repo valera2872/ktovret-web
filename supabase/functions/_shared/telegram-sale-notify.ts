@@ -4,6 +4,7 @@ const CHAT_ID = (Deno.env.get('TELEGRAM_SALES_CHAT_ID') || '').trim();
 const LABELS: Record<string,string> = {
   volume1: '«Кто врёт?» — полный архив',
   last_aria: '«Последняя ария»',
+  'ai02-nk': 'AI-расследование «Нулевая копия»',
   solo_investigations_v1: 'Solo Investigations — Том I',
   partner_ne_publikovat: 'Premium Partner «Не публиковать»',
   kto_vret_bundle_v1: 'Mystery Logic — комплект',
