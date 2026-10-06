@@ -16,11 +16,11 @@ assert.ok(html.includes('<meta name="robots" content="noindex,follow">'),'AI-01 
 assert.ok(html.includes('AI-расследование · бесплатно'),'public Text positioning missing');
 assert.ok(html.includes('Задавайте любые вопросы своими словами — голосом или текстом'),'voice/text promise missing');
 assert.ok(html.includes('data-ai01-static-portrait'),'static suspect portrait slot missing');
-assert.ok(html.includes('../../assets/ai01-static-portraits.css?v=0.1.0'),'static portrait stylesheet missing');
-assert.ok(html.includes('../../assets/ai01-static-portraits.js?v=0.1.0'),'static portrait runtime missing');
+assert.match(html,/\.\.\/\.\.\/assets\/ai01-static-portraits\.css\?v=[^\"']+/,'static portrait stylesheet missing');
+assert.match(html,/\.\.\/\.\.\/assets\/ai01-static-portraits\.js\?v=[^\"']+/,'static portrait runtime missing');
 assert.ok(html.includes('Хочу ещё AI-дело'),'more-AI interest CTA missing');
 assert.ok(html.includes('Хочу попробовать Live'),'Live interest CTA missing');
-assert.ok(html.includes('../../assets/ai01-public-analytics.js?v=0.1.0'),'AI-01 analytics asset missing');
+assert.match(html,/\.\.\/\.\.\/assets\/ai01-public-analytics\.js\?v=[^\"']+/,'AI-01 analytics asset missing');
 assert.ok(!html.includes('href="../admin/ai01-live-preview/"'),'public Text page must not link to owner Live preview');
 
 assert.match(promo,/const PUBLIC_LAUNCH = true;/,'sitewide AI-01 Text promo must be ON in release branch');
