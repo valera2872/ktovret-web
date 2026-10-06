@@ -19,7 +19,8 @@
   const views={access:$('[data-view="access"]'),intro:$('[data-view="intro"]'),workspace:$('[data-view="workspace"]'),theory:$('[data-view="theory"]')};
   const ui={caseId:CASE_RE.test(requestedCase)?requestedCase:'',token:'',access:null,state:null,suspectId:'',attachedEvidenceId:'',busy:false};
 
-  const storageKey=()=>ui.caseId?STORAGE_KEY_PREFIX+ui.caseId:LEGACY_STORAGE_KEY;
+  const storageScope=()=>ui.caseId.replace(/-(?:EASY|STANDARD|HARD)$/,'');
+  const storageKey=()=>storageScope()?STORAGE_KEY_PREFIX+storageScope():LEGACY_STORAGE_KEY;
   const storedToken=()=>{try{return localStorage.getItem(storageKey())||localStorage.getItem(LEGACY_STORAGE_KEY)||''}catch{return''}};
   const persistToken=(token)=>{try{localStorage.setItem(storageKey(),token);if(localStorage.getItem(LEGACY_STORAGE_KEY)===token)localStorage.removeItem(LEGACY_STORAGE_KEY);return true}catch{return false}};
 
