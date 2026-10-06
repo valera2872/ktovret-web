@@ -13,10 +13,6 @@ on:
       - 'assets/ai02-storefront.css'
       - 'assets/ai-investigations-catalog.css'
       - 'detektivnaya-igra-s-ii/nulevaya-kopiya/**'
-      - 'supabase/functions/_shared/ai02-commerce.ts'
-      - 'supabase/functions/create-checkout-ai02/**'
-      - 'supabase/functions/payment-status-ai02/**'
-      - 'supabase/functions/tbank-webhook-ai02/**'
       - '.github/workflows/ai02-investigator-workspace.yml'
 
 permissions:
