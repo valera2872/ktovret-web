@@ -1,4 +1,4 @@
-name: TEMP AI-02 STANDARD v11 cognitive QA
+name: TEMP AI-02 STANDARD v12 early-twist QA
 
 on:
   push:
@@ -17,8 +17,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=cognitive-v11&stage='
-          for stage in 1 2 3 4 5 6; do
+          base='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/ai02-full-chain-qa-probe?run=cognitive-v12&stage='
+          for stage in 1; do
             echo "===== STAGE $stage ====="
             body="$(curl -fsS --retry 1 --max-time 100 "${base}${stage}")"
             echo "$body"
