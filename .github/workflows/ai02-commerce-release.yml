@@ -30,3 +30,53 @@ jobs:
           node-version: 22
       - name: Contract
         run: node tests/ai02-commerce-release-contract.mjs
+      - name: Live production routing smoke
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          node <<'NODE'
+          const create='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout';
+          const status='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status';
+          const origin='https://mysterylogic.com';
+          const eligibleToken='ml_ai02_'+'a'.repeat(48);
+          const ineligibleToken='ml_ai02_'+'b'.repeat(48);
+          const eligibleKey='c'.repeat(48);
+          const ineligibleKey='d'.repeat(48);
+          const expect=(v,m)=>{if(!v)throw new Error(m)};
+          async function post(url,body,headers={}){
+            const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json',origin,...headers},body:JSON.stringify(body)});
+            const data=await r.json().catch(()=>({}));
+            return {r,data};
+          }
+
+          let x=await post(create,{productId:'volume1'});
+          expect(x.r.status===400&&x.data.error==='invalid_access_token','volume1 legacy route changed: '+JSON.stringify(x.data));
+
+          x=await post(create,{productId:'ai02_zero_copy'});
+          expect(x.r.status===400&&x.data.error==='invalid_access_token','AI02 route not active: '+JSON.stringify(x.data));
+
+          x=await post(create,{
+            productId:'ai02_zero_copy',accessToken:ineligibleToken,
+            requestId:'aaaaaaaa-bbbb-4ccc-8ddd-ffffffffffff',
+            caseId:'AI02-NK-STANDARD',email:'qa-ai02@example.com',
+            returnUrl:'https://mysterylogic.com/detektivnaya-igra-s-ii/nulevaya-kopiya/',
+            offerAccepted:true,privacyAcknowledged:true,
+            dossierDiscountRequested:true,browserKey:ineligibleKey
+          });
+          expect(x.r.status===403&&x.data.error==='dossier_discount_not_eligible'&&x.data.currentXp===239,'239 XP discount gate failed: '+JSON.stringify(x.data));
+
+          x=await post(create,{
+            productId:'ai02_zero_copy',accessToken:eligibleToken,
+            requestId:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+            caseId:'AI02-NK-STANDARD',email:'qa-ai02@example.com',
+            returnUrl:'https://mysterylogic.com/detektivnaya-igra-s-ii/nulevaya-kopiya/',
+            offerAccepted:true,privacyAcknowledged:true,
+            dossierDiscountRequested:true,browserKey:eligibleKey
+          });
+          expect(x.r.status===200&&x.data.alreadyEntitled===true&&x.data.productId==='ai02_zero_copy','240 XP existing-access checkout failed: '+JSON.stringify(x.data));
+
+          x=await post(status,{orderId:'11111111-2222-4333-8444-555555555555'},{authorization:'Bearer '+eligibleToken});
+          expect(x.r.status===200&&x.data.productId==='ai02_zero_copy'&&x.data.entitled===true&&x.data.expiresAt===null,'AI02 persistent entitlement status failed: '+JSON.stringify(x.data));
+
+          console.log(JSON.stringify({verdict:'AI02_COMMERCE_LIVE_SMOKE_PASS',legacyVolume1:true,discount239Blocked:true,discount240Accepted:true,nonExpiringAccess:true},null,2));
+          NODE
