@@ -15,6 +15,8 @@ const features=[
   'renderTimeline',
   'renderBoard',
   'injectInterrogationActions',
+  'injectMobileEvidenceDrawer',
+  'renderMobileEvidenceDrawer',
   'renderStatementHistory',
   'injectNotebook',
   'injectReconstruction'
@@ -55,3 +57,8 @@ assert.ok(css.includes('.ai02-prestart-difficulty'),'prestart difficulty styles 
 assert.ok(css.includes('.ai02-prestart-difficulty-grid'),'prestart difficulty cards missing');
 
 console.log('AI-02 investigator workspace contract OK');
+
+assert.ok(js.includes('ai02-mobile-evidence-trigger')&&js.includes('dataset.ai02MobileEvidenceTrigger'),'mobile evidence trigger missing');
+assert.ok(js.includes('data-ai02-mobile-evidence-id'),'mobile evidence selection missing');
+assert.ok(css.includes('.ai02-mobile-evidence-drawer'),'mobile evidence drawer styles missing');
+assert.ok(css.includes('@media(max-width:800px)'),'mobile evidence drawer must be mobile-scoped');
