@@ -1,0 +1,32 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+
+const payment=fs.readFileSync('supabase/functions/_shared/payment.ts','utf8');
+const tbank=fs.readFileSync('supabase/functions/_shared/tbank.ts','utf8');
+const checkout=fs.readFileSync('supabase/functions/create-checkout/index.ts','utf8');
+const store=fs.readFileSync('assets/ai02-storefront.js','utf8');
+const player=fs.readFileSync('assets/ai-case-player-v2.js','utf8');
+const catalog=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const premium=fs.readFileSync('detektivnaya-igra-s-ii/nulevaya-kopiya/index.html','utf8');
+const free=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
+const home=fs.readFileSync('index.html','utf8');
+
+assert.match(payment,/'ai02-zero-copy':\s*\{[\s\S]*priceRub: 299/);
+for(const id of ['AI02-NK-EASY','AI02-NK-STANDARD','AI02-NK-HARD']) assert.ok(payment.includes(id),`missing allowed case ${id}`);
+assert.match(payment,/expires_at: null/,'paid access must remain non-expiring');
+assert.match(tbank,/expires_at: null/,'T-Bank entitlement must remain non-expiring');
+assert.match(checkout,/profile\?\.xp \|\| 0\) >= 240/,'dossier rank threshold missing');
+assert.match(checkout,/dossierDiscountRub = 50/,'dossier discount must be 50 RUB');
+assert.match(checkout,/discount_reason: dossierDiscountRub \? 'dossier_rank_investigator'/);
+assert.ok(store.includes("PRODUCT_ID='ai02-zero-copy'"));
+assert.ok(store.includes("CASE_ID='AI02-NK-STANDARD'"));
+assert.ok(store.includes('PRICE_RUB=299')&&store.includes('DISCOUNT_RUB=50'));
+assert.ok(store.includes("mysterylogic:challenge:client-key"),'storefront must reuse dossier browser identity');
+assert.ok(player.includes('root.dataset.caseId'),'player must support fixed production case route');
+assert.ok(player.includes('mysterylogic:ai-investigation:${requestedCase}:access-token'),'AI tokens must be scoped per case');
+assert.ok(catalog.includes('./vosem-minut-bez-kamery/')&&catalog.includes('./nulevaya-kopiya/'));
+assert.ok(premium.includes('data-case-id="AI02-NK-STANDARD"')&&premium.includes('data-ai02-storefront'));
+assert.ok(!premium.includes('ai02-nk-preview'),'public page must not expose preview product id');
+assert.ok(free.includes('../../assets/ai-detective-vslice.js'),'moved free case asset paths invalid');
+assert.ok(home.includes('./detektivnaya-igra-s-ii/nulevaya-kopiya/'));
+console.log('AI-02 commerce/storefront contract: ok');
