@@ -1,0 +1,23 @@
+name: TEMP capture current LIVE storefront
+on:
+  push:
+    branches:
+      - chore/capture-live-ai-storefront-20261006
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Capture current LIVE HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p live
+          curl -fsSL --retry 3 https://mysterylogic.com/ -o live/index.html
+          curl -fsSL --retry 3 https://mysterylogic.com/detektivnaya-igra-s-ii/ -o live/ai-index.html
+          sha256sum live/index.html live/ai-index.html | tee live/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: current-live-storefront
+          path: live/
