@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const client=fs.readFileSync('assets/ai-detective-vslice.js','utf8');
 const edge=fs.readFileSync('supabase/functions/ai-interrogation-v1/index.ts','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260828135000_ai_detective_server_quotas.sql','utf8');
