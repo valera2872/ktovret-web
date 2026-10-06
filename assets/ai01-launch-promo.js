@@ -36,7 +36,7 @@
   const enabled = PUBLIC_LAUNCH || preview;
   if (!enabled || dismissed) return;
   const path = String(location.pathname || '/');
-  if (path.includes('/admin/') || /\/detektivnaya-igra-s-ii\/?$/.test(path)) return;
+  if (path.includes('/admin/') || /\/detektivnaya-igra-s-ii\/?$/.test(path) || path.includes('/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/')) return;
   if (document.querySelector('[data-ai01-launch-promo]')) return;
 
   const aside = document.createElement('aside');
