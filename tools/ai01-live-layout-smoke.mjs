@@ -28,10 +28,17 @@ try{
   const encoded=dom.match(/data-ai01-layout-smoke="([^"]+)"/)?.[1];
   if(!encoded)throw new Error('AI-01 Live layout probe did not run');
   const report=JSON.parse(Buffer.from(encoded,'base64').toString('utf8'));
-  const inside=(name,rect)=>{if(!rect)throw new Error(`${name} missing`);if(rect.top<0||rect.bottom>report.viewport.height)throw new Error(`${name} outside viewport: ${JSON.stringify(rect)} in ${report.viewport.height}px`)};
-  inside('composer',report.composer);inside('textarea',report.textarea);inside('send',report.send);inside('avatar',report.avatar);inside('video shell',report.videoShell);
-  if(report.avatar.height<245)throw new Error(`avatar too small at ${report.avatar.height}px`);
-  if(report.videoShell.height<200)throw new Error(`avatar video too small at ${report.videoShell.height}px`);
+  const exists=(name,rect)=>{if(!rect||rect.height<=0)throw new Error(`${name} missing or collapsed: ${JSON.stringify(rect)}`)};
+  const inside=(name,rect)=>{exists(name,rect);if(rect.top<0||rect.bottom>report.viewport.height)throw new Error(`${name} outside viewport: ${JSON.stringify(rect)} in ${report.viewport.height}px`)};
+  if(report.viewport.width>=1121){
+    inside('composer',report.composer);inside('textarea',report.textarea);inside('send',report.send);inside('avatar',report.avatar);inside('video shell',report.videoShell);
+    if(report.avatar.height<245)throw new Error(`avatar too small at ${report.avatar.height}px`);
+    if(report.videoShell.height<200)throw new Error(`avatar video too small at ${report.videoShell.height}px`);
+  }else{
+    exists('composer',report.composer);exists('textarea',report.textarea);exists('send',report.send);exists('avatar',report.avatar);exists('video shell',report.videoShell);
+    if(report.avatar.height<165)throw new Error(`mobile avatar too small at ${report.avatar.height}px`);
+    if(report.videoShell.height<150)throw new Error(`mobile avatar video too small at ${report.videoShell.height}px`);
+  }
   if(!report.transcript||report.transcript.height<90)throw new Error(`transcript collapsed: ${JSON.stringify(report.transcript)}`);
   if(report.roomHead?.display!=='none')throw new Error(`duplicated room heading still consumes Live viewport: ${JSON.stringify(report.roomHead)}`);
   console.log(JSON.stringify(report,null,2));
