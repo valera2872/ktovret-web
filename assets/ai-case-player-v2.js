@@ -8,12 +8,13 @@
   const PUBLIC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ya252dXdrbnZzZWRqZ3FjZndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxOTY2MzcsImV4cCI6MjEwMTc3MjYzN30.68loNx8A71dodfOXXKs_-I235XVCmEioXGrg8kCZQr4';
   const CASE_ACCESS=`${SUPABASE}/functions/v1/case-access`;
   const AI_V2=`${SUPABASE}/functions/v1/ai-interrogation-v2`;
-  const STORAGE_KEY='mysterylogic:ai-investigation:access-token';
+  const LEGACY_STORAGE_KEY='mysterylogic:ai-investigation:access-token';
   const CASE_RE=/^[A-Za-z0-9_:-]{3,160}$/;
   const STAGE_LABEL={composed:'держится спокойно',defensive:'защищается',cornered:'зажат фактами',breaking:'теряет контроль',confessed:'признание получено'};
 
   const params=new URL(location.href).searchParams;
-  const requestedCase=(params.get('case')||params.get('case_id')||'').trim();
+  const requestedCase=(params.get('case')||params.get('case_id')||root.dataset.caseId||'').trim();
+  const STORAGE_KEY=CASE_RE.test(requestedCase)?`mysterylogic:ai-investigation:${requestedCase}:access-token`:LEGACY_STORAGE_KEY;
   const $=(sel)=>root.querySelector(sel);
   const views={access:$('[data-view="access"]'),intro:$('[data-view="intro"]'),workspace:$('[data-view="workspace"]'),theory:$('[data-view="theory"]')};
   const ui={caseId:CASE_RE.test(requestedCase)?requestedCase:'',token:'',access:null,state:null,suspectId:'',attachedEvidenceId:'',busy:false};
@@ -37,7 +38,7 @@
 
   async function unlock({silent=false}={}){
     if(!ui.caseId){setAccessStatus('В адресе не указан корректный case_id.','error');return false}
-    const input=$('[data-access-token]');const token=clean(input?.value||localStorage.getItem(STORAGE_KEY)||'',512);
+    const input=$('[data-access-token]');const token=clean(input?.value||localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY)||'',512);
     if(token.length<32){if(!silent)setAccessStatus('Введите ключ покупки.','error');return false}
     const button=$('[data-action="unlock"]');if(button)button.disabled=true;if(!silent)setAccessStatus('Проверяем доступ…');
     try{
@@ -74,6 +75,6 @@
   $('[data-composer]')?.addEventListener('submit',interrogate);
   $('[data-theory-form]')?.addEventListener('submit',checkTheory);
 
-  const saved=localStorage.getItem(STORAGE_KEY)||'';const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
+  const saved=localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY)||'';const tokenInput=$('[data-access-token]');if(tokenInput)tokenInput.value=saved;
   if(!ui.caseId)setAccessStatus('Добавьте к адресу ?case=ID_ДЕЛА.','error');else if(saved)unlock({silent:true});
 })();

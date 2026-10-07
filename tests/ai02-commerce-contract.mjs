@@ -1,0 +1,15 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const checkout=fs.readFileSync('supabase/functions/create-checkout/index.ts','utf8');
+const status=fs.readFileSync('supabase/functions/payment-status/index.ts','utf8');
+const hook=fs.readFileSync('supabase/functions/tbank-webhook/index.ts','utf8');
+for(const source of [checkout,status,hook]) assert.match(source,/AI02_ENTITLEMENT_PRODUCT_ID='ai02-zero-copy'/);
+assert.match(checkout,/AI02_ORDER_PRODUCT_ID='ai02_zero_copy'/);
+assert.match(checkout,/AI02_STANDARD_PRICE_RUB=299/);
+assert.match(checkout,/AI02_DOSSIER_PRICE_RUB=249/);
+assert.match(checkout,/AI02_DOSSIER_MIN_XP=240/);
+assert.match(checkout,/player_profiles/);
+assert.match(status,/expires_at:null/);
+assert.match(hook,/expires_at:null/);
+assert.match(status,/allowed_case_ids:AI02_CASE_IDS/);
+assert.match(hook,/allowed_case_ids:AI02_CASE_IDS/);
+console.log('AI-02 commerce contract: ok');

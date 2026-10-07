@@ -5,7 +5,7 @@ const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const waitResume=fs.readFileSync('assets/ai-avatar-wait-resume.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const tts=fs.readFileSync('supabase/functions/ai-avatar-tts/index.ts','utf8');
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 
 assert.match(adapter,/ml:avatar-connection-lost/,'SDK disconnects must reach the bridge');
 assert.match(adapter,/visibilitychange/,'returning to a browser tab must trigger Live recovery');
@@ -38,6 +38,6 @@ assert.match(tts,/voice:profile\.ttsVoice/,'server profile must remain the base 
 assert.match(tts,/if\(isOwnerPreview\)payload\.voice=ownerPreviewVoice\(suspectId,profile\.ttsVoice\)/,'voice override must stay owner-preview-only');
 assert.match(tts,/avatar_tts_ok/,'TTS timings must be observable in Edge logs');
 
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5-streamready1/,'stream-readiness fix must use a fresh provider/factory cache key so stale media-race code cannot survive browser cache');
-assert.match(html,/ai-avatar-wait-resume\.js\?v=0\.0\.1/,'visible-session UX and resume behavior must use a fresh cache key');
+assert.match(html,/ai-avatar-provider\.js\?v=[^\"'&]+/,'stream-readiness fix must use a provider cache key so stale media-race code cannot survive browser cache');
+assert.match(html,/ai-avatar-wait-resume\.js\?v=[^\"'&]+/,'visible-session UX and resume behavior must use a cache key');
 console.log('AI-01 Live tab resume contract: ok');

@@ -1,0 +1,106 @@
+name: AI-02 commerce storefront preview
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'detektivnaya-igra-s-ii/**'
+      - 'assets/ai02-storefront.*'
+      - 'assets/ai-investigations-catalog.css'
+      - 'assets/ai02-home-promo.css'
+      - 'assets/ai-case-player-v2.js'
+      - 'assets/ai-avatar-auth-bootstrap.js'
+      - 'admin/ai01-live-preview/index.html'
+      - 'supabase/functions/_shared/payment.ts'
+      - 'supabase/functions/_shared/tbank.ts'
+      - 'supabase/functions/create-checkout/index.ts'
+      - 'supabase/functions/payment-status/index.ts'
+      - 'supabase/functions/tbank-webhook/index.ts'
+      - 'supabase/migrations/20261006130000_ai02_zero_copy_product_alignment.sql'
+      - 'tests/ai02-commerce-contract.mjs'
+      - 'tests/ai02-commerce-storefront-contract.mjs'
+      - '.github/workflows/ai02-commerce-storefront-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Contracts
+        run: |
+          node --check assets/ai02-storefront.js
+          node --check assets/ai-case-player-v2.js
+          node --check assets/ai-avatar-auth-bootstrap.js
+          node tests/ai02-commerce-contract.mjs
+          node tests/ai02-commerce-storefront-contract.mjs
+      - name: Visual browser QA
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 >/tmp/ml-http.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const targets=[
+              ['home','/',1440,1000],
+              ['catalog','/detektivnaya-igra-s-ii/',1440,1000],
+              ['premium','/detektivnaya-igra-s-ii/nulevaya-kopiya/',1440,1000],
+              ['free','/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/',1440,1000],
+              ['home-mobile','/',390,844],
+              ['catalog-mobile','/detektivnaya-igra-s-ii/',390,844],
+              ['premium-mobile','/detektivnaya-igra-s-ii/nulevaya-kopiya/',390,844],
+              ['free-mobile','/detektivnaya-igra-s-ii/vosem-minut-bez-kamery/',390,844],
+            ];
+            for(const [name,path,width,height] of targets){
+              const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+              await page.route('**/functions/v1/player-dossier',async route=>route.fulfill({
+                status:200,contentType:'application/json',
+                body:JSON.stringify({ok:true,profile:{xp:250,rank:'Следователь'}})
+              }));
+              await page.goto('http://127.0.0.1:4173'+path,{waitUntil:'networkidle'});
+              await page.waitForTimeout(500);
+              const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+2);
+              if(overflow)throw new Error(name+' horizontal overflow');
+              if(name.startsWith('premium')){
+                const visible=await page.locator('[data-ai02-storefront]').isVisible();
+                if(!visible)throw new Error(name+' storefront hidden');
+                const price=await page.locator('[data-ai02-price]').innerText();
+                if(!price.includes('249'))throw new Error(name+' dossier discount not rendered: '+price);
+                if(!(await page.locator('[data-ai-v2-player]').isHidden()))throw new Error(name+' game should stay gated before purchase');
+              }
+              if(name.startsWith('catalog')){
+                if(await page.locator('.aihub-card').count()!==2)throw new Error(name+' expected two AI cards');
+                const cardImages=await page.locator('.aihub-card-visual img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight})));
+                if(cardImages.length!==2||cardImages.some(img=>img.naturalWidth<1||img.naturalHeight<1))throw new Error(name+' card artwork failed to load: '+JSON.stringify(cardImages));
+              }
+              if(name.startsWith('free')){
+                if(!(await page.locator('[data-ai-detective]').isVisible()))throw new Error(name+' free AI game missing');
+              }
+              await page.screenshot({path:name+'.png',fullPage:true});
+              await page.close();
+            }
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai02-commerce-storefront-preview
+          path: |
+            home.png
+            catalog.png
+            premium.png
+            free.png
+            home-mobile.png
+            catalog-mobile.png
+            premium-mobile.png
+            free-mobile.png
+          retention-days: 3

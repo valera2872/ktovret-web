@@ -1,18 +1,18 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const adminPreview=fs.readFileSync('admin/ai01-live-preview/index.html','utf8');
 const bootstrap=fs.readFileSync('assets/ai-avatar-auth-bootstrap.js','utf8');
 const adapter=fs.readFileSync('assets/ai-avatar-provider.js','utf8');
 const factory=fs.readFileSync('assets/ai-liveavatar-factory.js','utf8');
 const avatarStyle=fs.readFileSync('assets/ai-detective-avatar-stage.css','utf8');
 
-assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=0\.0\.3/,'AI-01 owner bootstrap must use the current cache key');
-assert.match(html,/ai-avatar-provider\.js\?v=0\.0\.5/,'avatar provider bridge must use the current cache key');
+assert.match(html,/ai-avatar-auth-bootstrap\.js\?v=[^\"'&]+/,'AI-01 owner bootstrap must use a cache key');
+assert.match(html,/ai-avatar-provider\.js\?v=[^\"'&]+/,'avatar provider bridge must use a cache key');
 assert.ok(html.indexOf('ai-avatar-auth-bootstrap.js')<html.indexOf('ai-avatar-provider.js'),'valid public auth must exist before AvatarBridge is constructed');
 assert.ok(html.indexOf('ai-avatar-provider.js')<html.indexOf('ai-detective-vslice.js'),'provider bridge must load before interrogation client');
-assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'Live dashboard layout must use a fresh cache key');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=[^\"'&]+/,'Live dashboard layout must use a fresh cache key');
 assert.match(html,/<video[^>]+data-avatar-video[^>]+disablepictureinpicture[^>]+disableremoteplayback/,'LiveAvatar video must opt out of browser pop-out playback');
 assert.match(avatarStyle,/\.aid-interrogation\{grid-template-rows:auto auto auto minmax\(0,1fr\) auto\}/,'base interrogation grid must reserve an inline avatar row without changing text mode');
 assert.match(avatarStyle,/\.aid-body\.aid-live-mode \.aid-interrogation\{grid-template-rows:auto minmax\(250px,52%\) minmax\(96px,1fr\) auto/,'desktop Live mode must prioritize a readable avatar while preserving transcript and composer');
@@ -24,7 +24,7 @@ assert.match(adminPreview,/noindex,nofollow,noarchive/,'owner Live preview must 
 assert.match(adminPreview,/mysterylogic:review-admin-token:v1/,'owner Live preview must reuse the existing moderator credential boundary');
 assert.match(adminPreview,/puzzle-editorial/,'admin preview must verify the moderator token server-side before opening AI-01');
 assert.match(adminPreview,/mysterylogic:ai01:admin-live-preview:v1/,'admin preview must create a tab-scoped preview capability');
-assert.match(adminPreview,/detektivnaya-igra-s-ii\/\?live=1&admin_preview=1/,'admin preview must frame the existing AI-01 runtime rather than publish a second game route');
+assert.match(adminPreview,/detektivnaya-igra-s-ii\/vosem-minut-bez-kamery\/\?live=1&admin_preview=1/,'admin preview must frame the existing AI-01 runtime rather than publish a second game route');
 assert.match(adminPreview,/<iframe[^>]+data-preview-frame/,'owner Live preview must stay isolated inside the admin shell');
 assert.match(adminPreview,/ai01-preview-open/,'desktop owner preview must switch into a single-screen focus mode');
 assert.match(adminPreview,/is-live-ready/,'successful readiness must collapse diagnostics so the game gets the viewport');

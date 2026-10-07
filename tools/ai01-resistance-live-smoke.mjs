@@ -31,7 +31,8 @@ function replyConfesses(data){
   const confession=/я\s+(взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я/i;
   if(!confession.test(text))return false;
   const explicitNegation=/(?:не\s+(?:могу|буду|стану|готова|собираюсь)[^.!?]{0,100}|не\s+признаю[^.!?]{0,100})(?:я\s+(?:взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я)/i;
-  return !explicitNegation.test(text);
+  const postposedNegation=/(?:я\s+(?:взяла|украла|похитила)\s+письмо|письмо\s+взяла\s+я)[^.!?]{0,80}(?:не\s+(?:могу|буду|стану|готова|собираюсь)|не\s+признаю)/i;
+  return !explicitNegation.test(text)&&!postposedNegation.test(text);
 }
 
 const status=await call({action:'status',session_id:'status',resistance_level:'medium'});

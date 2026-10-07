@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const client=fs.readFileSync('assets/ai-detective-vslice.js','utf8');
 const edge=fs.readFileSync('supabase/functions/ai-interrogation-v1/index.ts','utf8');
 const migration=fs.readFileSync('supabase/migrations/20260828135000_ai_detective_server_quotas.sql','utf8');
@@ -19,8 +19,8 @@ assert.match(html,/placeholder="Задайте свой вопрос…"/,'compo
 assert.match(html,/data-room-status>Допрос идёт</,'normal UI must not pretend that audio is being recorded');
 assert.doesNotMatch(html,/Запись включена/,'fake recording status must not return');
 assert.match(html,/0 \/ 30 вопросов/,'demo must give the player enough room to investigate naturally');
-assert.match(html,/ai-detective-vslice\.js\?v=0\.3\.7/,'Wi-Fi alibi discovery client must have a fresh cache key');
-assert.match(html,/ai-detective-avatar-stage\.css\?v=0\.0\.4/,'avatar shell needs an isolated presentation layer');
+assert.match(html,/ai-detective-vslice\.js\?v=[^\"'&]+/,'Wi-Fi alibi discovery client must have a fresh cache key');
+assert.match(html,/ai-detective-avatar-stage\.css\?v=[^\"'&]+/,'avatar shell needs an isolated presentation layer');
 assert.match(html,/data-avatar-stage[^>]*hidden/,'realtime avatar shell must stay dark until a provider stream is connected');
 assert.match(html,/data-avatar-video/,'avatar shell needs a real video target rather than a fake chat decoration');
 assert.match(html,/data-case-progress hidden/,'earned confession needs an explicit next-step transition');

@@ -12,7 +12,7 @@
     ['Я закончил работу около девяти двадцати и вышел. С архивом спорил, это правда, но после выхода не возвращался.','Я закончил примерно в девять двадцать и вышел. Да, с сотрудниками архива у меня был спор из-за доступа к материалам. Но после того как ушёл, я не возвращался.']
   ]);
   const params=new URL(location.href).searchParams;
-  const isAi01=/\/detektivnaya-igra-s-ii\/?$/.test(location.pathname);
+  const isAi01=/\/detektivnaya-igra-s-ii\/vosem-minut-bez-kamery\/?$/.test(location.pathname);
   const adminPreviewRequested=isAi01&&params.get('live')==='1'&&params.get('admin_preview')==='1';
   let adminPreviewSession=false;
   let adminPreviewParent=false;

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const production=fs.readFileSync('.github/workflows/production-beget.yml','utf8');
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const promo=fs.readFileSync('assets/ai01-launch-promo.js','utf8');
 
 assert.ok(production.includes('production-web/admin/ai01-live-preview'),'owner Live preview must stay stripped from production');

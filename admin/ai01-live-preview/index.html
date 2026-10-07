@@ -93,7 +93,7 @@
     const setFocus=(enabled)=>document.body.classList.toggle('ai01-preview-open',Boolean(enabled));
     const ownerToken=()=>{try{return String(localStorage.getItem(OWNER_KEY)||'').trim()}catch{return ''}};
     const setOwnerToken=(value)=>{try{if(value)localStorage.setItem(OWNER_KEY,value);else localStorage.removeItem(OWNER_KEY)}catch{}};
-    const frameUrl=()=>`../../detektivnaya-igra-s-ii/?live=1&admin_preview=1&t=${Date.now()}`;
+    const frameUrl=()=>`../../detektivnaya-igra-s-ii/vosem-minut-bez-kamery/?live=1&admin_preview=1&t=${Date.now()}`;
     const openPreview=()=>{setPreview(true);if(frame)frame.src=frameUrl()};
     const lock=()=>{token='';setPreview(false);setFocus(false);app?.classList.remove('is-live-ready');try{sessionStorage.removeItem(TOKEN_KEY)}catch{};if(frame)frame.src='about:blank';if(app)app.hidden=true;if(login)login.hidden=false;if(input)input.value=''};
     const verify=async(candidate)=>{

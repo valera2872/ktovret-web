@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html=fs.readFileSync('detektivnaya-igra-s-ii/index.html','utf8');
+const html=fs.readFileSync('detektivnaya-igra-s-ii/vosem-minut-bez-kamery/index.html','utf8');
 const css=fs.readFileSync('assets/ai01-static-portraits.css','utf8');
 const js=fs.readFileSync('assets/ai01-static-portraits.js','utf8');
 const image=fs.readFileSync('assets/ai01-suspects-strip.jpg');
