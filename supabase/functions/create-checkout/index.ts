@@ -28,8 +28,8 @@ const RECEIPT_NAME = 'Mystery Logic — «Кто врёт?», полный ар�
 const AI02_ORDER_PRODUCT_ID='ai02_zero_copy';
 const AI02_ENTITLEMENT_PRODUCT_ID='ai02-zero-copy';
 const AI02_CASE_IDS=['AI02-NK-EASY','AI02-NK-STANDARD','AI02-NK-HARD'];
-const AI02_STANDARD_PRICE_RUB=299;
-const AI02_DOSSIER_PRICE_RUB=249;
+const AI02_STANDARD_PRICE_RUB=199;
+const AI02_DOSSIER_PRICE_RUB=149;
 const AI02_DOSSIER_MIN_XP=240;
 const AI02_BROWSER_KEY_RE=/^[a-f0-9]{48}$/;
 async function handleAi02Checkout(origin:string,body:any){
