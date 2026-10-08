@@ -74,7 +74,7 @@ jobs:
                 const visible=await page.locator('[data-ai02-storefront]').isVisible();
                 if(!visible)throw new Error(name+' storefront hidden');
                 const price=await page.locator('[data-ai02-price]').innerText();
-                if(!price.includes('249'))throw new Error(name+' dossier discount not rendered: '+price);
+                if(!price.includes('149'))throw new Error(name+' dossier discount not rendered: '+price);
                 if(!(await page.locator('[data-ai-v2-player]').isHidden()))throw new Error(name+' game should stay gated before purchase');
               }
               if(name.startsWith('catalog')){

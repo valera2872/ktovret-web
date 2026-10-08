@@ -4,8 +4,8 @@ const status=fs.readFileSync('supabase/functions/payment-status/index.ts','utf8'
 const hook=fs.readFileSync('supabase/functions/tbank-webhook/index.ts','utf8');
 for(const source of [checkout,status,hook]) assert.match(source,/AI02_ENTITLEMENT_PRODUCT_ID='ai02-zero-copy'/);
 assert.match(checkout,/AI02_ORDER_PRODUCT_ID='ai02_zero_copy'/);
-assert.match(checkout,/AI02_STANDARD_PRICE_RUB=299/);
-assert.match(checkout,/AI02_DOSSIER_PRICE_RUB=249/);
+assert.match(checkout,/AI02_STANDARD_PRICE_RUB=199/);
+assert.match(checkout,/AI02_DOSSIER_PRICE_RUB=149/);
 assert.match(checkout,/AI02_DOSSIER_MIN_XP=240/);
 assert.match(checkout,/player_profiles/);
 assert.match(status,/expires_at:null/);
