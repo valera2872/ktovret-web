@@ -1,4 +1,4 @@
-name: Zero Copy Exact Build 2026-10-04.19
+name: Zero Copy Exact Build 2026-10-08.20
 on:
   push:
     branches: [feature/zero-copy-runtime-final]
@@ -22,7 +22,7 @@ jobs:
           set -euo pipefail
           cd qa-zero-copy/client
           node --check app.js
-          grep -q 'staging build 2026-10-04.19' index.html
+          grep -q 'staging build 2026-10-08.20' index.html
           grep -q '\[hidden\]' style.css
           ! grep -RniE 'Z04|Z09|Z14|Z18|corpus\.json|investigate\.php' .
           for f in             assets/archive-lab-premium.png             assets/archive_boxes.jpg             assets/capture-series-premium.png             assets/capture_2208.svg             assets/capture_2209.svg             assets/lab_detail.jpg             assets/manuscript_close.jpg             assets/page47_2019.svg             assets/page47_2026.svg             assets/seal.svg             assets/investigation-board.png
@@ -31,28 +31,28 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          (cd qa-zero-copy/client && zip -q -r ../../dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build19.zip .)
-          sha256sum dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build19.zip | tee dist/SHA256.txt
+          (cd qa-zero-copy/client && zip -q -r ../../dist/MysteryLogic-Zero-Copy-STAGING-2026-10-08-build20.zip .)
+          sha256sum dist/MysteryLogic-Zero-Copy-STAGING-2026-10-08-build20.zip | tee dist/SHA256.txt
       - name: Unpack exact zip into clean directory
         run: |
           set -euo pipefail
-          rm -rf /tmp/zc-exact19
-          mkdir -p /tmp/zc-exact19
-          unzip -q dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build19.zip -d /tmp/zc-exact19
-          diff -qr qa-zero-copy/client /tmp/zc-exact19
-          node --check /tmp/zc-exact19/app.js
+          rm -rf /tmp/zc-exact20
+          mkdir -p /tmp/zc-exact20
+          unzip -q dist/MysteryLogic-Zero-Copy-STAGING-2026-10-08-build20.zip -d /tmp/zc-exact20
+          diff -qr qa-zero-copy/client /tmp/zc-exact20
+          node --check /tmp/zc-exact20/app.js
       - name: Install browser
         run: npm init -y && npm i -D playwright@1.56.0 && npx playwright install --with-deps chromium
       - name: Serve exact unpacked bytes
         run: |
-          python3 -m http.server 4174 --directory /tmp/zc-exact19 >/tmp/zc-exact19-http.log 2>&1 &
+          python3 -m http.server 4174 --directory /tmp/zc-exact20 >/tmp/zc-exact20-http.log 2>&1 &
           sleep 2
       - name: Browser E2E exact unpacked bytes with mocked transport
         run: EXACT_URL=http://127.0.0.1:4174/ node qa-zero-copy/exact-artifact-e2e.mjs
       - uses: actions/upload-artifact@v4
         with:
-          name: MysteryLogic-Zero-Copy-STAGING-2026-10-04-build19
+          name: MysteryLogic-Zero-Copy-STAGING-2026-10-08-build20
           path: |
-            dist/MysteryLogic-Zero-Copy-STAGING-2026-10-04-build19.zip
+            dist/MysteryLogic-Zero-Copy-STAGING-2026-10-08-build20.zip
             dist/SHA256.txt
           retention-days: 14
