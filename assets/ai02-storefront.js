@@ -2,7 +2,7 @@
   'use strict';
   const PRODUCT_ID='ai02_zero_copy';
   const CASE_ID='AI02-NK-STANDARD';
-  const PRICE_RUB=299;
+  const PRICE_RUB=199;
   const DISCOUNT_RUB=50;
   const CHECKOUT='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/create-checkout';
   const STATUS='https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/payment-status';
