@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Нулевая копия · Mystery Logic</title>
-<link rel="stylesheet" href="style.css?v=20261004-19">
+<link rel="stylesheet" href="style.css?v=20261008-20">
 </head>
 <body>
 <section id="intro" class="entry-screen">
@@ -13,9 +13,10 @@
   <div class="entry-panel">
     <div class="eyebrow">Mystery Logic · расследование для двоих</div>
     <h1>Нулевая копия</h1>
-    <p class="entry-lead">14 марта, 22:41. В закрытой реставрационной мастерской архива «Северный дом» находят Анну Левину без сознания. Рядом открыт защитный футляр. Рабочая тетрадь Арсения Воронцова исчезла.</p>
-    <p>Следов взлома нет. Архив закрыт для посетителей уже несколько часов. Анна умирает в больнице, не приходя в сознание. Вам предстоит выяснить, кто связан с её смертью и что на самом деле произошло с рукописью.</p>
-    <p>Вы работаете вдвоём. Первый игрок становится следователем, второй – экспертом архива. У каждого свои источники. Обсуждать находки можно свободно. Система не ведёт по правильному маршруту.</p>
+    <p class="entry-lead">14 марта, 22:41. В закрытой реставрационной мастерской архива «Северный дом» Анну Левину находят без сознания. Анна — реставратор. В тот вечер она работала с редкой рукописью: рабочей тетрадью писателя Арсения Воронцова, созданной в 1832–1835 годах.</p>
+    <p>Когда Анну нашли, защитный футляр был открыт, а тетради внутри не было. Следов взлома нет. Архив уже несколько часов закрыт для посетителей. Позже Анна умирает в больнице, так и не придя в сознание.</p>
+    <p><strong>Кто забрал тетрадь? Что произошло в мастерской? И была ли смерть Анны случайностью?</strong></p>
+    <p>Вы расследуете дело вдвоём. Следователь получает материалы о людях, доступах и событиях вечера. Эксперт архива — документы о самой рукописи, её состоянии, реставрации и перемещениях. Обсуждайте находки и стройте общую версию: игра не выдаёт готовых вариантов ответа и не ведёт по «правильному» маршруту.</p>
     <div class="entry-actions">
       <div class="entry-card">
         <h3>Начать расследование</h3>
@@ -28,7 +29,7 @@
       </div>
     </div>
     <button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button>
-    <div class="buildmark">staging build 2026-10-04.19</div>
+    <div class="buildmark">staging build 2026-10-08.20</div>
     <p id="entryMsg" class="muted statusline"></p>
   </div>
 </section>
@@ -60,7 +61,7 @@
     <button class="navitem" data-view="board"><span>⌘</span><b>Общая доска</b></button>
     <button class="navitem" data-view="notes"><span>≡</span><b>Мои заметки</b></button>
     <button class="navitem" data-view="final"><span>◇</span><b>Реконструкция</b></button>
-    <div class="side-foot"><div class="side-label">Принцип игры</div><p>Интерфейс показывает инструменты. Выводы делает только игрок.</p></div>
+    <div class="side-foot"><div class="side-label">Как расследовать</div><p>Игра не отмечает «правильные» улики и не ведёт по шагам. Решайте сами, что важно и как связаны факты.</p></div>
   </aside>
 
   <section class="content">
@@ -69,23 +70,23 @@
         <img src="assets/archive-lab-premium.png" alt="Реставрационная лаборатория архива">
         <div class="hero-overlay"></div>
         <div class="hero-copy">
-          <div class="eyebrow">Ваше рабочее место</div>
-          <h2>Перед вами дело, а не маршрут</h2>
+          <div class="eyebrow">Расследование</div>
+          <h2>Начните с того, что известно вашей роли</h2>
           <p id="roleBrief">Изучайте документы, сопоставляйте детали, задавайте вопросы персонажам и проверяйте любые версии. Система не сообщает, что считать уликой и в каком порядке идти.</p>
         </div>
       </div>
       <div class="overview-grid">
         <section class="card dossier-card">
-          <div class="section-title"><div><div class="eyebrow">Дано следствию</div><h3>Исходные материалы</h3></div><button class="ghost jump" data-view="materials">Все материалы</button></div>
-          <p class="muted">Это не подсказки, а то, что объективно доступно вашей роли в момент начала дела.</p>
+          <div class="section-title"><div><div class="eyebrow">На старте</div><h3>Материалы вашей роли</h3></div><button class="ghost jump" data-view="materials">Все материалы</button></div>
+          <p class="muted">Это документы, доступные вам с начала расследования. Они не отмечены как важные или второстепенные.</p>
           <div id="starterMaterials" class="starter-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
         </section>
         <section class="card people-card">
           <div class="section-title"><div><div class="eyebrow">Люди</div><h3>Кого можно расспросить</h3></div><button class="ghost jump" data-view="people">Открыть допросы</button></div>
           <div class="people-list compact">
-            <button data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора</small></span></button>
-            <button data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>оператор цифрового архива</small></span></button>
-            <button data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед</small></span></button>
+            <button data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
+            <button data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
+            <button data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
             <button data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
             <button data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
           </div>
@@ -101,7 +102,7 @@
     </section>
 
     <section id="view-materials" class="view">
-      <div class="viewhead"><div><div class="eyebrow">Рабочие материалы</div><h2>Досье вашей роли</h2></div><p>Открывайте и сопоставляйте материалы. Система не оценивает, что из найденного важно.</p></div>
+      <div class="viewhead"><div><div class="eyebrow">Документы дела</div><h2>Материалы вашей роли</h2></div><p>Открывайте документы и сопоставляйте факты. Игра не сообщает, какой материал окажется важным для вашей версии.</p></div>
       <div class="materials-layout">
         <section class="card materials-list-card"><div class="section-title"><h3>Доступно сейчас</h3><span id="foundCount" class="pill">0</span></div><div id="starterMaterialsFull" class="materials-stack"></div><div class="section-divider">Найдено в ходе проверки</div><div id="found" class="materials-stack"></div></section>
         <section class="card material-stage empty-stage" id="materialStage"><div class="stage-empty"><span class="bigicon">□</span><h3>Откройте материал слева</h3><p>Документ появится здесь. Можно вернуться к нему позже, сопоставить с другими данными или предъявить персонажу.</p></div></section>
@@ -109,12 +110,12 @@
     </section>
 
     <section id="view-people" class="view">
-      <div class="viewhead"><div><div class="eyebrow">Персонажи</div><h2>Разговор без готовых реплик</h2></div><p>Задавайте вопросы своими словами. Если хотите проверить реакцию, предъявите конкретный материал.</p></div>
+      <div class="viewhead"><div><div class="eyebrow">Люди, связанные с делом</div><h2>Расспрашивайте своими словами</h2></div><p>Спрашивайте о событиях, отношениях, документах и своих версиях. Чтобы проверить реакцию на конкретный факт, можно предъявить найденный материал.</p></div>
       <div class="people-layout">
         <section class="card people-sidebar"><div class="people-list">
-          <button class="suspect active" data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора</small></span></button>
-          <button class="suspect" data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>оператор цифрового архива</small></span></button>
-          <button class="suspect" data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед</small></span></button>
+          <button class="suspect active" data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
+          <button class="suspect" data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
+          <button class="suspect" data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
           <button class="suspect" data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
           <button class="suspect" data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
         </div></section>
@@ -124,7 +125,7 @@
 
     <section id="view-search" class="view">
       <div class="viewhead"><div><div class="eyebrow">Проверка версии</div><h2>Что вы хотите проверить?</h2></div><p>Человек, документ, помещение, дата, предмет, действие, фраза или событие. Запрос может ничего не дать.</p></div>
-      <section class="card search-card"><div class="searchrow"><input id="query" placeholder="Человек, дата, документ, место, предмет или действие…"><button id="searchBtn" class="primary">Искать</button></div><p class="muted">Поиск идёт только по источникам вашей роли. Правильной формулировки нет.</p><div id="results" class="search-results"></div></section>
+      <section class="card search-card"><div class="searchrow"><input id="query" placeholder="Человек, дата, документ, место, предмет или действие…"><button id="searchBtn" class="primary">Искать</button></div><p class="muted">Поиск проверяет только те архивные и служебные источники, которые доступны вашей роли. «Правильной» формулировки запроса нет.</p><div id="results" class="search-results"></div></section>
     </section>
 
     <section id="view-board" class="view">
@@ -138,8 +139,8 @@
     </section>
 
     <section id="view-final" class="view">
-      <div class="viewhead"><div><div class="eyebrow">Финальная реконструкция</div><h2>Объясните всю цепочку событий</h2></div><p>Не выбирайте ответ из вариантов. Сформулируйте собственную версию и укажите независимые основания.</p></div>
-      <section class="card"><div class="finalgrid"><label><span>Кто связан с произошедшим?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие независимые линии это доказывают?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто лгал и почему? Отделите ложь от виновности.</span><textarea id="f_lies"></textarea></label></div><button id="finalBtn" class="primary final-submit">Проверить реконструкцию</button><p id="finalResult" class="final-result"></p></section>
+      <div class="viewhead"><div><div class="eyebrow">Финальная реконструкция</div><h2>Объясните, что произошло</h2></div><p>Сформулируйте собственную версию целиком: кто, зачем и как действовал, когда и где произошли ключевые события и чем это подтверждается.</p></div>
+      <section class="card"><div class="finalgrid"><label><span>Кто несёт ответственность за произошедшее?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие факты и документы подтверждают вашу версию?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто ещё говорил неправду или что-то скрывал — и зачем? Не всякая ложь означает причастность к смерти Анны.</span><textarea id="f_lies"></textarea></label></div><button id="finalBtn" class="primary final-submit">Проверить реконструкцию</button><p id="finalResult" class="final-result"></p></section>
       <section id="reveal" class="reveal" hidden></section>
     </section>
   </section>
@@ -147,5 +148,5 @@
 
 <div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="no-image">Документ</div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="shareViewerBoard" class="secondary">Вынести на общую доску</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
 <div id="toast" class="toast"></div>
-<script src="app.js?v=20261004-19"></script>
-<!-- v18-partner-collaboration --></body></html>
+<script src="app.js?v=20261008-20"></script>
+<!-- v20-editorial-clarity --></body></html>
