@@ -10,7 +10,7 @@ const home=fs.readFileSync('index.html','utf8');
 
 assert.ok(store.includes("PRODUCT_ID='ai02_zero_copy'"),'storefront must use the existing production order product id');
 assert.ok(store.includes("CASE_ID='AI02-NK-STANDARD'"));
-assert.ok(store.includes('PRICE_RUB=299')&&store.includes('DISCOUNT_RUB=50'));
+assert.ok(store.includes('PRICE_RUB=199')&&store.includes('DISCOUNT_RUB=50'));
 assert.ok(store.includes("mysterylogic:challenge:client-key"),'storefront must reuse dossier browser identity');
 assert.ok(store.includes('dossierDiscountRequested:discountEligible'),'eligible dossier player must explicitly request the existing server-verified discount');
 assert.ok(store.includes('alreadyEntitled===true'),'already purchased AI-02 must reopen without creating another payment');
