@@ -188,3 +188,42 @@ Real blind-test packets prepared privately:
 
 Exact next step:
 run one real blind test with two players using ONLY these packets, capture literal observations and timing, then rerun W7/W10 + Cognitive gate and decide Content Freeze. Do not begin Premium UI/code before this unless the owner explicitly accepts the human-test UNKNOWN.
+
+
+## 2026-10-09 — Local two-player blind-test demo
+
+A real local two-player demo was built for human blind testing.
+
+Artifact:
+`MysteryLogic-LastSession-LOCAL-2PLAYER-DEMO-v1.zip`
+SHA-256:
+`08b28e5a0c61d5f357a7f36d6bc69d5e2536aa6186b4b489d23a37e319f466c9`
+
+Characteristics:
+- Python standard-library local server, no external dependencies;
+- one room shared by two real browser clients;
+- Player A / Player B role-bound permissions;
+- separate private evidence scopes;
+- staged unlocks;
+- local canon-bounded free-text interrogation / analysis engine;
+- explicit evidence transfer to partner;
+- shared board;
+- semantic Partner Sync checks;
+- final reconstruction;
+- room state persistence across refresh;
+- LAN access for two devices on the same network;
+- no LIVE / Supabase / payment / analytics writes.
+
+QA:
+- ZIP extraction: PASS;
+- server startup: PASS;
+- HTTP first screen: PASS;
+- room creation: PASS;
+- Player A join: PASS;
+- Player B join: PASS;
+- role action smoke tests: PASS.
+
+This demo is for blind-test validation, not a production implementation and not evidence of Content Freeze.
+
+Exact next step remains:
+run one real two-person blind test, capture timing/theories/stalls/aha moments, then rerun W7/W10 and decide Content Freeze.
