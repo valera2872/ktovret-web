@@ -18,7 +18,7 @@ jobs:
       - name: Audit real Beget build22 UI
         shell: bash
         run: |
-          cat > /tmp/audit22.mjs <<'EOF'
+          cat > audit22.mjs <<'EOF'
           import { chromium } from 'playwright';
           const base='http://tftanyaf.beget.tech/';
           const browser=await chromium.launch({headless:true});
@@ -57,7 +57,7 @@ jobs:
           console.log('ERRORS',JSON.stringify(errors));
           await browser.close();
           EOF
-          node /tmp/audit22.mjs
+          node audit22.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
