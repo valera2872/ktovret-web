@@ -1,6 +1,9 @@
 name: Zero Copy HTTP Asset Audit
 on:
   workflow_dispatch:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths: ['.github/workflows/zero-copy-http-asset-audit.yml']
 jobs:
   audit:
     runs-on: ubuntu-latest
