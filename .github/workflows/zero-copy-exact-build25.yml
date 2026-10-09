@@ -1,0 +1,119 @@
+name: Zero Copy Exact Build 2026-10-09.25
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - 'qa-zero-copy/client/**'
+      - '.github/workflows/zero-copy-exact-build25.yml'
+  workflow_dispatch:
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd qa-zero-copy/client
+          node --check app.js
+          grep -q 'staging build 2026-10-09.25' index.html
+          grep -q 'v25-final-visual-correction' index.html
+          ! grep -RniE 'style=' index.html app.js
+          ! grep -RniE 'Z04|Z09|Z14|Z18|corpus\.json|investigate\.php' .
+          for f in assets/mikhail-ratnikov.svg assets/denis-orlov.svg assets/lev-markin.svg assets/sofia-vorontsova.svg assets/irina-belova.svg assets/anna-levina.svg assets/audio/archive-ambience.wav assets/audio/open-document.wav assets/audio/present-evidence.wav assets/audio/board-note.wav assets/audio/switch-person.wav assets/audio/final-pass.wav; do test -s "$f"; done
+      - name: Build exact ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          (cd qa-zero-copy/client && zip -q -r ../../dist/MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build25.zip .)
+          sha256sum dist/MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build25.zip | tee dist/SHA256.txt
+      - name: Clean unpack verify
+        shell: bash
+        run: |
+          rm -rf /tmp/zc25 && mkdir -p /tmp/zc25
+          unzip -q dist/MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build25.zip -d /tmp/zc25
+          diff -qr qa-zero-copy/client /tmp/zc25
+          node --check /tmp/zc25/app.js
+      - name: Browser install
+        run: npm init -y && npm i -D playwright@1.56.0 && npx playwright install --with-deps chromium
+      - name: Browser visual smoke
+        shell: bash
+        run: |
+          python3 -m http.server 4179 --directory /tmp/zc25 >/tmp/zc25-http.log 2>&1 &
+          cat > audit25.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const p=await browser.newPage({viewport:{width:1600,height:1000}});
+          const errors=[];p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+          await p.goto('http://127.0.0.1:4179/',{waitUntil:'networkidle'});
+          await p.evaluate(()=>{
+            document.querySelector('#intro').hidden=true;
+            document.querySelector('#game').hidden=false;
+            S.code='BUILD25';S.role='investigator';S.demo=true;
+            S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:['scene','medical','fund'],notes:[]},interviews:{},final:null};
+            S.starter=[
+              {id:'scene',title:'Протокол обнаружения',kind:'Документ'},
+              {id:'medical',title:'Справка о характере травмы',kind:'Материалы дела'},
+              {id:'fund',title:'Финансовая записка фонда',kind:'Документ'}
+            ];
+            for(const m of S.starter)S.byId[m.id]=m;
+            render(true);showView('overview');
+          });
+          if((await p.locator('.starter').count())!==3)throw Error('starter cards missing');
+          await p.evaluate(()=>{showViewer({id:'fund',title:'Финансовая записка фонда',kind:'Документ',text:'Тестовый текст документа.'},'fund')});
+          if(!await p.locator('#viewerNoImage .doc-paper').isVisible())throw Error('document paper missing');
+          if((await p.locator('.starter-thumb-img').count())<1)throw Error('CSP-safe starter thumbnails missing');
+          await p.click('#closeViewer');
+          await p.click('[data-view="places"]'); if((await p.locator('.place-card').count())!==4)throw Error('places gallery missing'); await p.screenshot({path:'dist/build25-places.png',fullPage:false});
+          await p.click('[data-view="people"]');
+          if(!await p.locator('#activePersonPortrait').isVisible())throw Error('active portrait missing');
+          const portraitBox=await p.locator('#activePersonPortrait').boundingBox(),personBox=await p.locator('.interro-person').boundingBox();
+          if(!portraitBox||!personBox||portraitBox.width>personBox.width*.96||portraitBox.height>personBox.height*.82)throw Error('portrait crop too aggressive');
+          if((await p.locator('.person-dossier-strip').count())!==1)throw Error('dossier strip missing');
+          if((await p.locator('.interro-evidence-card').count())!==3)throw Error('evidence browser missing'); await p.screenshot({path:'dist/build25-people.png',fullPage:false});
+          await p.evaluate(()=>{
+            S.byId.fund={id:'fund',title:'Финансовая записка фонда',kind:'Документ'};
+            S.state.shared.board=[
+              {by:'investigator',text:'§Факт§ Материал «Финансовая записка фонда» — требует проверки'},
+              {by:'archivist',text:'§Версия§ Сопоставить финансовый документ с другими фактами'},
+              {by:'investigator',text:'§Связь§ [#0:#1] Финансовая записка ↔ рабочая версия'}
+            ];
+          });
+          await p.click('[data-view="board"]'); await p.evaluate(()=>renderBoard());
+          if((await p.locator('.board-kind button').count())!==3)throw Error('board kinds missing');
+          if((await p.locator('#linkBoardBtn').count())!==1)throw Error('board linker missing');
+          if((await p.locator('.board-attachment.paper').count())!==1)throw Error('physical board document missing');
+          const bgDisplay=await p.locator('.board-visual>img').evaluate(el=>getComputedStyle(el).display); if(bgDisplay!=='none')throw Error('legacy prebaked board background still visible');
+          await p.evaluate(()=>renderBoardLinks());
+          if((await p.locator('#boardLinks line').count())!==1)throw Error('exact red-string link missing'); await p.screenshot({path:'dist/build25-board.png',fullPage:false});
+          await p.click('[data-view="final"]');
+          if((await p.locator('.final-report').count())!==1)throw Error('final report missing');
+          if((await p.locator('[data-final-tab]').count())!==7)throw Error('final tabs missing');
+          await p.click('[data-final-tab="evidence"]');
+          if(!await p.locator('[data-final-panel="evidence"]').isVisible())throw Error('final tab switching missing');
+          if(!await p.locator('[data-final-panel="evidence"] h4').isVisible())throw Error('final prompt hidden');
+          if(!await p.locator('#f_evidence').isVisible())throw Error('final textarea hidden');
+          const finalBox=await p.locator('#f_evidence').boundingBox(); if(!finalBox||finalBox.height<150)throw Error('final textarea collapsed');
+          await p.screenshot({path:'dist/build25-final.png',fullPage:false});
+          if(errors.some(x=>x.includes('Content Security Policy')))throw Error('CSP console errors: '+errors.join(' | '));
+          console.log(JSON.stringify({ok:true,checks:['places','dossier','evidence-browser','portrait-framing','physical-board-ui','legacy-board-hidden','final-tabs','final-content-visible','document-viewer'],errors}));
+          await browser.close();
+          EOF
+          node audit25.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build25
+          path: |
+            dist/MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build25.zip
+            dist/SHA256.txt
+            dist/build25-places.png
+            dist/build25-people.png
+            dist/build25-board.png
+            dist/build25-final.png
+          retention-days: 14
