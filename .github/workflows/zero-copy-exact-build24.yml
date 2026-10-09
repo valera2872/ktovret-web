@@ -75,9 +75,20 @@ jobs:
           if(!await p.locator('#activePersonPortrait').isVisible())throw Error('active portrait missing');
           if((await p.locator('.person-dossier-strip').count())!==1)throw Error('dossier strip missing');
           if((await p.locator('.interro-evidence-card').count())!==3)throw Error('evidence browser missing');
-          await p.click('[data-view="board"]');
+          await p.evaluate(()=>{
+            S.byId.fund={id:'fund',title:'Финансовая записка фонда',kind:'Документ'};
+            S.state.shared.board=[
+              {by:'investigator',text:'§Факт§ Материал «Финансовая записка фонда» — требует проверки'},
+              {by:'archivist',text:'§Версия§ Сопоставить финансовый документ с другими фактами'},
+              {by:'investigator',text:'§Связь§ [#0:#1] Финансовая записка ↔ рабочая версия'}
+            ];
+          });
+          await p.click('[data-view="board"]'); await p.evaluate(()=>renderBoard());
           if((await p.locator('.board-kind button').count())!==3)throw Error('board kinds missing');
           if((await p.locator('#linkBoardBtn').count())!==1)throw Error('board linker missing');
+          if((await p.locator('.board-attachment.paper').count())!==1)throw Error('physical board document missing');
+          await p.evaluate(()=>renderBoardLinks());
+          if((await p.locator('#boardLinks line').count())!==1)throw Error('exact red-string link missing');
           await p.click('[data-view="final"]');
           if((await p.locator('.final-report').count())!==1)throw Error('final report missing');
           if((await p.locator('[data-final-tab]').count())!==7)throw Error('final tabs missing');
