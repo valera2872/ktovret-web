@@ -1,0 +1,30 @@
+name: Zero Copy HTTP Asset Audit
+on:
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect current Beget build22 files over HTTP
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='http://tftanyaf.beget.tech'
+          mkdir -p /tmp/zc
+          for p in index.html app.js style.css \
+            assets/mikhail-ratnikov.svg assets/denis-orlov.svg assets/lev-markin.svg \
+            assets/sofia-vorontsova.svg assets/irina-belova.svg assets/anna-levina.svg \
+            assets/audio/archive-ambience.wav assets/audio/open-document.wav \
+            assets/audio/present-evidence.wav assets/audio/board-note.wav \
+            assets/audio/switch-person.wav assets/audio/final-pass.wav
+          do
+            code=$(curl -L --max-time 20 -sS -o "/tmp/zc/$(basename "$p")" -w '%{http_code}' "$base/$p" || true)
+            size=$(wc -c <"/tmp/zc/$(basename "$p")" 2>/dev/null || echo 0)
+            echo "$p status=$code bytes=$size"
+          done
+          echo '--- index markers ---'
+          grep -E 'staging build|v22-premium-polish|document-artifact|evidenceTray|soundToggle' /tmp/zc/index.html || true
+          echo '--- app markers ---'
+          grep -E 'renderDocArtifact|PEOPLE=|updateEvidenceTray|boardType|boardLink|playSfx|reveal-timeline' /tmp/zc/app.js || true
+          echo '--- css markers ---'
+          grep -E 'document-artifact|doc-paper|premium-interrogation|evidence-tray|final-report|board-links' /tmp/zc/style.css || true
