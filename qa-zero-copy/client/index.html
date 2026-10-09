@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Нулевая копия · Mystery Logic</title>
-<link rel="stylesheet" href="style.css?v=20261009-23">
+<link rel="stylesheet" href="style.css?v=20261009-24">
 </head>
 <body>
 <section id="intro" class="entry-screen">
@@ -29,7 +29,7 @@
       </div>
     </div>
     <button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button>
-    <div class="buildmark">staging build 2026-10-09.23</div>
+    <div class="buildmark">staging build 2026-10-09.24</div>
     <p id="entryMsg" class="muted statusline"></p>
   </div>
 </section>
@@ -55,6 +55,7 @@
 
   <aside class="sidebar">
     <button class="navitem active" data-view="overview"><span>⌂</span><b>Обзор дела</b></button>
+    <button class="navitem" data-view="places"><span>▧</span><b>Места дела</b></button>
     <button class="navitem" data-view="materials"><span>□</span><b>Материалы</b></button>
     <button class="navitem" data-view="people"><span>◎</span><b>Персонажи и допросы</b></button>
     <button class="navitem" data-view="search"><span>⌕</span><b>Поиск</b></button>
@@ -77,9 +78,9 @@
         <div class="victim-card"><img src="assets/anna-levina.svg" alt="Анна Левина"><div><span>Анна Левина</span><small>реставратор · погибла после происшествия 14 марта</small></div></div>
       </div>
       <section class="case-world" aria-label="Мир дела">
-        <button class="world-card jump" data-view="materials"><img src="assets/archive-lab-premium.png" alt="Реставрационная мастерская"><span><b>Мастерская</b><small>место, где нашли Анну</small></span></button>
+        <button class="world-card jump" data-view="places"><img src="assets/archive-lab-premium.png" alt="Реставрационная мастерская"><span><b>Мастерская</b><small>место, где нашли Анну</small></span></button>
         <button class="world-card jump" data-view="materials"><img src="assets/manuscript_close.jpg" alt="Рабочая тетрадь Воронцова"><span><b>Тетрадь Воронцова</b><small>рукопись, с которой работала Анна</small></span></button>
-        <button class="world-card jump" data-view="materials"><img src="assets/archive_boxes.jpg" alt="Архивная коробка"><span><b>Архивные отправки</b><small>коробки и перемещения материалов</small></span></button>
+        <button class="world-card jump" data-view="places"><img src="assets/archive_boxes.jpg" alt="Архивное хранилище"><span><b>Архивное хранилище</b><small>служебная часть «Северного дома»</small></span></button>
         <button class="world-card jump" data-view="people"><img src="assets/anna-levina.svg" alt="Анна Левина"><span><b>Анна Левина</b><small>её последние часы предстоит восстановить</small></span></button>
       </section>
       <section class="anna-thread">
@@ -105,11 +106,27 @@
         </section>
       </div>
       <div class="toolstrip">
+        <button class="toolcard jump" data-view="places"><span class="toolicon">▧</span><b>Места дела</b><small>Пространства, связанные с материалами расследования</small></button>
         <button class="toolcard jump" data-view="materials"><span class="toolicon">□</span><b>Материалы</b><small>Документы, фото и записи вашей роли</small></button>
         <button class="toolcard jump" data-view="people"><span class="toolicon">◎</span><b>Допросы</b><small>Свободные вопросы и предъявление материалов</small></button>
         <button class="toolcard jump" data-view="search"><span class="toolicon">⌕</span><b>Поиск</b><small>Проверяйте человека, место, дату, предмет или действие</small></button>
         <button class="toolcard jump" data-view="board"><span class="toolicon">⌘</span><b>Общая доска</b><small>Факты, связи и ваши собственные версии</small></button>
         <button class="toolcard jump" data-view="final"><span class="toolicon">◇</span><b>Реконструкция</b><small>Когда сможете объяснить всю цепочку событий</small></button>
+      </div>
+    </section>
+
+    <section id="view-places" class="view">
+      <div class="viewhead"><div><div class="eyebrow">Пространство дела</div><h2>Места и предметный мир расследования</h2></div><p>Эти изображения дают контекст места. Они не содержат дополнительных улик и не заменяют материалы дела.</p></div>
+      <section class="places-hero card">
+        <img src="assets/archive-lab-premium.png" alt="Реставрационная мастерская">
+        <div class="places-hero-shade"></div>
+        <div class="places-hero-copy"><div class="eyebrow">14 марта</div><h3>Реставрационная мастерская</h3><p>Здесь Анна Левина работала с тетрадью Воронцова и здесь её нашли без сознания.</p></div>
+      </section>
+      <div class="places-gallery">
+        <article class="place-card"><img src="assets/lab_detail.jpg" alt="Рабочая зона реставратора"><div><span class="eyebrow">Рабочая зона</span><h3>Стол реставратора</h3><p>Инструменты, свет и поверхность для работы с редкими рукописями.</p></div></article>
+        <article class="place-card"><img src="assets/archive_boxes.jpg" alt="Архивное хранилище"><div><span class="eyebrow">Служебная часть</span><h3>Архивное хранилище</h3><p>Здесь хранятся и перемещаются архивные материалы и подготовленные отправки.</p></div></article>
+        <article class="place-card"><img src="assets/manuscript_close.jpg" alt="Рабочая тетрадь Арсения Воронцова"><div><span class="eyebrow">Центральный предмет</span><h3>Тетрадь Воронцова</h3><p>Рабочая рукопись 1832–1835 годов, с которой Анна работала в вечер происшествия.</p></div></article>
+        <article class="place-card"><img src="assets/archive-lab-premium.png" alt="Архив после закрытия"><div><span class="eyebrow">После закрытия</span><h3>Закрытый архив</h3><p>К моменту происшествия посетителей внутри уже не было. Служебная часть продолжала жить своей жизнью.</p></div></article>
       </div>
     </section>
 
@@ -133,7 +150,11 @@
         </div></section>
         <section class="card interrogation premium-interrogation">
           <div class="interro-person"><img id="activePersonPortrait" src="assets/mikhail-ratnikov.svg" alt="Михаил Ратников"><div class="interro-person-shade"></div><div class="interro-person-copy"><div class="eyebrow">Допрос</div><h3 id="activePersonName">Михаил Ратников</h3><p id="activePersonRole">заместитель директора архива</p></div></div>
-          <div class="interro-work"><div class="interro-head"><select id="character" aria-label="Персонаж"><option value="ratnikov">Михаил Ратников</option><option value="denis">Денис Орлов</option><option value="markin">Лев Маркин</option><option value="sofia">Софья Воронцова</option><option value="irina">Ирина Белова</option></select></div><div id="dialog" class="dialog-stream"><div class="dialog-empty">Разговор ещё не начат. Задайте вопрос своими словами.</div></div><div id="evidenceTray" class="evidence-tray" hidden><div class="evidence-thumb" id="evidenceThumb">□</div><div><div class="eyebrow">Выбран для предъявления</div><b id="evidenceTrayTitle"></b><small id="evidenceTrayKind"></small></div><button id="clearEvidence" type="button" class="ghost">Убрать</button></div><textarea id="question" rows="4" placeholder="Что вы хотите спросить?"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled><span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn" class="primary">Спросить</button></div>
+          <div class="interro-work"><div class="interro-head"><select id="character" aria-label="Персонаж"><option value="ratnikov">Михаил Ратников</option><option value="denis">Денис Орлов</option><option value="markin">Лев Маркин</option><option value="sofia">Софья Воронцова</option><option value="irina">Ирина Белова</option></select></div>
+          <section class="person-dossier-strip"><div><span class="eyebrow">Досье персонажа</span><b id="dossierRole"></b></div><div><small>Связь с делом</small><span id="dossierContext"></span></div><div><small>Что известно</small><span id="dossierKnown"></span></div></section>
+          <div id="dialog" class="dialog-stream"><div class="dialog-empty">Разговор ещё не начат. Задайте вопрос своими словами.</div></div>
+          <section class="interro-evidence-browser"><div class="interro-evidence-head"><div><span class="eyebrow">Предъявить материал</span><b>Ваши доступные материалы</b></div><small>Выбор документа не означает, что он важен или связан с этим человеком.</small></div><div id="interroEvidenceGrid" class="interro-evidence-grid"></div></section>
+          <div id="evidenceTray" class="evidence-tray" hidden><div class="evidence-thumb" id="evidenceThumb">□</div><div><div class="eyebrow">Выбран для предъявления</div><b id="evidenceTrayTitle"></b><small id="evidenceTrayKind"></small></div><button id="clearEvidence" type="button" class="ghost">Убрать</button></div><textarea id="question" rows="4" placeholder="Что вы хотите спросить?"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled><span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn" class="primary">Спросить</button></div>
         </section>
       </div>
     </section>
@@ -145,7 +166,7 @@
 
     <section id="view-board" class="view">
       <div class="viewhead"><div><div class="eyebrow">Совместная работа</div><h2>Общая доска</h2></div><p>Система ничего не соединяет за вас. Записывайте факты, связи, противоречия и версии, которые считаете важными.</p></div>
-      <div class="board-layout"><section class="card board-visual"><img src="assets/investigation-board.png" alt="Доска расследования"><div class="board-vignette"></div><svg id="boardLinks" class="board-links" aria-hidden="true"></svg><div id="board" class="board-cards"></div></section><section class="card board-compose"><h3>Добавить на доску</h3><div class="board-kind"><button type="button" data-board-kind="Факт" class="active">Факт</button><button type="button" data-board-kind="Версия">Версия</button><button type="button" data-board-kind="Противоречие">Противоречие</button></div><textarea id="boardInput" rows="6" placeholder="Что вы хотите зафиксировать?"></textarea><button id="boardBtn" class="primary">Добавить для напарника</button><div class="board-linker"><h4>Связать две записи</h4><p class="muted">Выберите две карточки на доске и нажмите «Связать». Связь — это ваша версия, игра её не оценивает.</p><button id="linkBoardBtn" class="secondary" type="button" disabled>Связать выбранные</button></div><p class="muted">Напарник увидит запись после синхронизации.</p></section></div>
+      <div class="board-layout"><section class="card board-visual"><img src="assets/investigation-board.png" alt="Доска расследования"><div class="board-vignette"></div><div class="board-desk-label"><span>ОБЩАЯ ДОСКА</span><small>вы решаете, что связать</small></div><svg id="boardLinks" class="board-links" aria-hidden="true"></svg><div id="board" class="board-cards"></div></section><section class="card board-compose"><h3>Добавить на доску</h3><div class="board-kind"><button type="button" data-board-kind="Факт" class="active">Факт</button><button type="button" data-board-kind="Версия">Версия</button><button type="button" data-board-kind="Противоречие">Противоречие</button></div><textarea id="boardInput" rows="6" placeholder="Что вы хотите зафиксировать?"></textarea><button id="boardBtn" class="primary">Добавить для напарника</button><div class="board-linker"><h4>Связать две записи</h4><p class="muted">Выберите две карточки на доске и нажмите «Связать». Связь — это ваша версия, игра её не оценивает.</p><button id="linkBoardBtn" class="secondary" type="button" disabled>Связать выбранные</button></div><p class="muted">Напарник увидит запись после синхронизации.</p></section></div>
     </section>
 
     <section id="view-notes" class="view">
@@ -155,7 +176,24 @@
 
     <section id="view-final" class="view">
       <div class="viewhead"><div><div class="eyebrow">Финальная реконструкция</div><h2>Объясните, что произошло</h2></div><p>Сформулируйте собственную версию целиком: кто, зачем и как действовал, когда и где произошли ключевые события и чем это подтверждается.</p></div>
-      <section class="card final-report"><div class="final-report-head"><div><span class="eyebrow">Итоговое заключение</span><h3>Ваша версия дела</h3></div><div class="report-seal">ML</div></div><div class="finalgrid"><label><span>Кто несёт ответственность за произошедшее?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие факты и документы подтверждают вашу версию?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто ещё говорил неправду или что-то скрывал — и зачем? Не всякая ложь означает причастность к смерти Анны.</span><textarea id="f_lies"></textarea></label></div><div class="final-actions"><button id="finalBtn" class="primary final-submit">Передать реконструкцию на проверку</button><span class="muted">Проверяется целостность версии, а не отдельное имя.</span></div><p id="finalResult" class="final-result"></p></section>
+      <section class="card final-report"><div class="final-report-head"><div><span class="eyebrow">Итоговое заключение</span><h3>Ваша версия дела</h3></div><div class="report-seal">ML</div></div>
+      <nav class="final-tabs" aria-label="Разделы реконструкции">
+        <button class="active" type="button" data-final-tab="who"><span>01</span>Кто?</button>
+        <button type="button" data-final-tab="why"><span>02</span>Почему?</button>
+        <button type="button" data-final-tab="how"><span>03</span>Как?</button>
+        <button type="button" data-final-tab="where"><span>04</span>Где?</button>
+        <button type="button" data-final-tab="when"><span>05</span>Когда?</button>
+        <button type="button" data-final-tab="evidence"><span>06</span>Доказательства</button>
+        <button type="button" data-final-tab="lies"><span>07</span>Ложь</button>
+      </nav>
+      <div class="final-step active" data-final-panel="who"><div class="final-step-number">01</div><div><span class="eyebrow">Кто?</span><h4>Кто несёт ответственность за произошедшее?</h4><p>Опишите свою версию своими словами.</p><textarea id="f_who"></textarea></div></div>
+      <div class="final-step" data-final-panel="why"><div class="final-step-number">02</div><div><span class="eyebrow">Почему?</span><h4>Почему это произошло?</h4><p>Укажите мотив или причины, которые, по вашей версии, объясняют действия.</p><textarea id="f_why"></textarea></div></div>
+      <div class="final-step" data-final-panel="how"><div class="final-step-number">03</div><div><span class="eyebrow">Как?</span><h4>Как развивались события?</h4><p>Восстановите причинную цепочку, не ограничиваясь последним эпизодом.</p><textarea id="f_how"></textarea></div></div>
+      <div class="final-step" data-final-panel="where"><div class="final-step-number">04</div><div><span class="eyebrow">Где?</span><h4>Где произошло ключевое событие?</h4><p>Укажите место или места, которые необходимы вашей реконструкции.</p><textarea id="f_where"></textarea></div></div>
+      <div class="final-step" data-final-panel="when"><div class="final-step-number">05</div><div><span class="eyebrow">Когда?</span><h4>Когда произошло ключевое событие?</h4><p>Опишите время или последовательность времени так, как вы её восстановили.</p><textarea id="f_when"></textarea></div></div>
+      <div class="final-step" data-final-panel="evidence"><div class="final-step-number">06</div><div><span class="eyebrow">Доказательства</span><h4>Какие факты и документы подтверждают вашу версию?</h4><p>Приведите независимые основания, на которых строится ваш вывод.</p><textarea id="f_evidence"></textarea></div></div>
+      <div class="final-step" data-final-panel="lies"><div class="final-step-number">07</div><div><span class="eyebrow">Ложь и сокрытие</span><h4>Кто ещё говорил неправду или что-то скрывал — и зачем?</h4><p>Не всякая ложь означает причастность к смерти Анны.</p><textarea id="f_lies"></textarea></div></div>
+      <div class="final-actions"><button id="finalPrev" class="secondary" type="button">← Предыдущий раздел</button><button id="finalNext" class="secondary" type="button">Следующий раздел →</button><button id="finalBtn" class="primary final-submit">Передать всю реконструкцию на проверку</button><span class="muted">Разделы можно заполнять в любом порядке. Проверяется только целостная версия.</span></div><p id="finalResult" class="final-result"></p></section>
       <section id="reveal" class="reveal" hidden></section>
     </section>
   </section>
@@ -169,5 +207,5 @@
 <audio id="sfxSwitch" src="assets/audio/switch-person.wav" preload="auto"></audio>
 <audio id="sfxFinal" src="assets/audio/final-pass.wav" preload="auto"></audio>
 <div id="toast" class="toast"></div>
-<script src="app.js?v=20261009-23"></script>
-<!-- v23-csp-visual-fix --></body></html>
+<script src="app.js?v=20261009-24"></script>
+<!-- v24-high-fidelity-integration --></body></html>
