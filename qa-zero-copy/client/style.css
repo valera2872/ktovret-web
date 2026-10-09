@@ -112,3 +112,92 @@ input,select,textarea{width:100%;background:#080b0d;color:var(--text);border:1px
 @media(max-width:760px){.places-hero{min-height:330px}.places-gallery{grid-template-columns:1fr}.place-card{min-height:245px}.person-dossier-strip{display:block}.person-dossier-strip>div{margin-bottom:7px}.interro-evidence-head{display:block}.interro-evidence-head>small{display:block;text-align:left;margin-top:4px}.interro-evidence-grid{grid-template-columns:1fr 1fr;max-height:240px}.final-tabs{display:flex;overflow-x:auto}.final-tabs button{min-width:105px}.final-step{grid-template-columns:1fr;padding:15px 0}.final-step-number{display:none}.final-step h4{font-size:24px}.final-actions .final-submit{margin-left:0;width:100%}.board-attachment.photo img{height:88px}}
 
 .interro-evidence-card.unopened{opacity:.78}.interro-evidence-card.unopened:hover{opacity:1}.interro-evidence-card.opened:after{content:'✓';justify-self:end;color:#c9a65b;font-size:12px}
+
+
+/* build25 final visual correction */
+.interro-person{background:
+  radial-gradient(circle at 50% 20%,rgba(201,166,91,.09),transparent 36%),
+  linear-gradient(180deg,#131719 0,#080b0d 68%,#080b0d 100%)}
+.interro-person>img{
+  position:absolute;
+  left:50%;
+  top:12px;
+  width:auto;
+  height:min(76%,520px);
+  max-width:92%;
+  transform:translateX(-50%);
+  object-fit:contain;
+  object-position:center top;
+  filter:saturate(.84) contrast(1.035) brightness(.9);
+  border:1px solid rgba(201,166,91,.18);
+  box-shadow:0 18px 44px rgba(0,0,0,.32)
+}
+.interro-person-shade{
+  background:
+    linear-gradient(180deg,rgba(4,6,7,0) 38%,rgba(4,6,7,.38) 63%,rgba(4,6,7,.94) 90%,#090d10 100%),
+    linear-gradient(90deg,rgba(3,5,6,.08),rgba(3,5,6,.16))
+}
+.interro-person-copy{background:linear-gradient(90deg,rgba(8,12,14,.84),rgba(8,12,14,.18));padding:12px 13px 10px;left:16px;right:16px;bottom:16px;border-left:2px solid var(--gold)}
+
+.board-visual{
+  background:
+    radial-gradient(circle at 18% 22%,rgba(255,255,255,.035),transparent 20%),
+    radial-gradient(circle at 78% 58%,rgba(0,0,0,.16),transparent 28%),
+    repeating-linear-gradient(6deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px),
+    linear-gradient(135deg,#4a3828,#32261c 58%,#261d16);
+}
+.board-visual>img{display:none!important}
+.board-vignette{background:radial-gradient(circle at center,rgba(255,255,255,.015) 20%,rgba(6,5,4,.45) 100%)}
+.board-visual:before{
+  content:'';
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg,rgba(62,41,24,.11) 0 2px,transparent 2px 11px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 7px);
+  mix-blend-mode:overlay
+}
+
+.final-report{min-height:650px}
+.final-report .final-step{
+  display:none!important;
+  min-height:350px;
+  color:var(--text);
+  position:relative;
+  z-index:2;
+}
+.final-report .final-step.active{
+  display:grid!important;
+  grid-template-columns:90px minmax(0,1fr)!important;
+  gap:22px;
+  align-items:start;
+  padding:28px 18px 22px;
+  background:
+    linear-gradient(90deg,rgba(201,166,91,.035),transparent 35%),
+    #0d1215;
+  border-left:1px solid rgba(201,166,91,.14);
+  border-right:1px solid rgba(201,166,91,.08);
+}
+.final-report .final-step>div:last-child{display:block!important;visibility:visible!important;opacity:1!important;min-width:0}
+.final-report .final-step .eyebrow{display:block;margin-bottom:5px}
+.final-report .final-step h4{display:block!important;color:#eee7db!important;font-size:30px;line-height:1.18;margin:4px 0 10px}
+.final-report .final-step p{display:block!important;color:#8f9da5!important;margin:0 0 16px}
+.final-report .final-step textarea{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%;
+  min-height:205px;
+  border:1px solid #46515a;
+  background:#070a0c;
+  color:#f0e9de;
+  padding:16px;
+  resize:vertical
+}
+.final-step-number{display:block!important}
+.final-actions{background:#0b0f12;padding:16px;border:1px solid var(--line);border-top:0}
+@media(max-width:760px){
+  .interro-person>img{height:min(72%,330px);max-width:86%}
+  .final-report .final-step.active{grid-template-columns:1fr!important;padding:20px 14px}
+  .final-step-number{display:none!important}
+  .final-report .final-step h4{font-size:24px}
+}
