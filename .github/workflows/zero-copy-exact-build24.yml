@@ -22,7 +22,7 @@ jobs:
           cd qa-zero-copy/client
           node --check app.js
           grep -q 'staging build 2026-10-09.24' index.html
-          grep -q 'v24-high-fidelity-integration' index.html
+          grep -q 'v24-mockup-gap-closure' index.html
           ! grep -RniE 'style=' index.html app.js
           ! grep -RniE 'Z04|Z09|Z14|Z18|corpus\.json|investigate\.php' .
           for f in assets/mikhail-ratnikov.svg assets/denis-orlov.svg assets/lev-markin.svg assets/sofia-vorontsova.svg assets/irina-belova.svg assets/anna-levina.svg assets/audio/archive-ambience.wav assets/audio/open-document.wav assets/audio/present-evidence.wav assets/audio/board-note.wav assets/audio/switch-person.wav assets/audio/final-pass.wav; do test -s "$f"; done
@@ -70,30 +70,29 @@ jobs:
           if(!await p.locator('#viewerNoImage .doc-paper').isVisible())throw Error('document paper missing');
           if((await p.locator('.starter-thumb-img').count())<1)throw Error('CSP-safe starter thumbnails missing');
           await p.click('#closeViewer');
-          await p.click('[data-view="places"]'); if((await p.locator('.place-card').count())!==4)throw Error('places gallery missing'); await p.screenshot({path:'dist/build24-places.png',fullPage:false});
+          if((await p.locator('.place-card').count())!==5)throw Error('places gallery missing'); await p.locator('.place-card').first().click(); if(!await p.locator('#placeViewer.open').isVisible())throw Error('place viewer missing'); await p.click('#closePlaceViewer'); await p.screenshot({path:'dist/build24-places.png',fullPage:false});
           await p.click('[data-view="people"]');
           if(!await p.locator('#activePersonPortrait').isVisible())throw Error('active portrait missing');
-          if((await p.locator('.person-dossier-strip').count())!==1)throw Error('dossier strip missing');
-          if((await p.locator('.interro-evidence-card').count())!==3)throw Error('evidence browser missing'); await p.screenshot({path:'dist/build24-people.png',fullPage:false});
+          if((await p.locator('.person-dossier').count())!==1)throw Error('dossier missing');
+          if((await p.locator('#interroEvidenceBrowser .interro-evidence-card').count())!==3)throw Error('evidence browser missing'); await p.screenshot({path:'dist/build24-people.png',fullPage:false});
           await p.evaluate(()=>{
             S.byId.fund={id:'fund',title:'Финансовая записка фонда',kind:'Документ'};
             S.state.shared.board=[
               {by:'investigator',text:'§Факт§ Материал «Финансовая записка фонда» — требует проверки'},
               {by:'archivist',text:'§Версия§ Сопоставить финансовый документ с другими фактами'},
-              {by:'investigator',text:'§Связь§ [#0:#1] Финансовая записка ↔ рабочая версия'}
+              {by:'investigator',text:'§Связь:0:1§ Финансовая записка ↔ рабочая версия'}
             ];
           });
           await p.click('[data-view="board"]'); await p.evaluate(()=>renderBoard());
           if((await p.locator('.board-kind button').count())!==3)throw Error('board kinds missing');
           if((await p.locator('#linkBoardBtn').count())!==1)throw Error('board linker missing');
-          if((await p.locator('.board-attachment.paper').count())!==1)throw Error('physical board document missing');
+          if((await p.locator('.board-note-thumb').count())<1)throw Error('physical board material thumbnail missing');
           await p.evaluate(()=>renderBoardLinks());
           if((await p.locator('#boardLinks line').count())!==1)throw Error('exact red-string link missing'); await p.screenshot({path:'dist/build24-board.png',fullPage:false});
           await p.click('[data-view="final"]');
           if((await p.locator('.final-report').count())!==1)throw Error('final report missing');
-          if((await p.locator('[data-final-tab]').count())!==7)throw Error('final tabs missing');
-          await p.click('[data-final-tab="evidence"]');
-          if(!await p.locator('[data-final-panel="evidence"]').isVisible())throw Error('final tab switching missing'); await p.screenshot({path:'dist/build24-final.png',fullPage:false});
+          if((await p.locator('[data-final-target]').count())!==7)throw Error('final stepbar missing');
+          await p.click('[data-final-target="f_evidence"]'); await p.screenshot({path:'dist/build24-final.png',fullPage:false});
           if(errors.some(x=>x.includes('Content Security Policy')))throw Error('CSP console errors: '+errors.join(' | '));
           console.log(JSON.stringify({ok:true,checks:['places','dossier','evidence-browser','physical-board-ui','final-tabs','document-viewer'],errors}));
           await browser.close();
