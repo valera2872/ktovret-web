@@ -70,11 +70,11 @@ jobs:
           if(!await p.locator('#viewerNoImage .doc-paper').isVisible())throw Error('document paper missing');
           if((await p.locator('.starter-thumb-img').count())<1)throw Error('CSP-safe starter thumbnails missing');
           await p.click('#closeViewer');
-          await p.click('[data-view="places"]'); if((await p.locator('.place-card').count())!==4)throw Error('places gallery missing');
+          await p.click('[data-view="places"]'); if((await p.locator('.place-card').count())!==4)throw Error('places gallery missing'); await p.screenshot({path:'dist/build24-places.png',fullPage:false});
           await p.click('[data-view="people"]');
           if(!await p.locator('#activePersonPortrait').isVisible())throw Error('active portrait missing');
           if((await p.locator('.person-dossier-strip').count())!==1)throw Error('dossier strip missing');
-          if((await p.locator('.interro-evidence-card').count())!==3)throw Error('evidence browser missing');
+          if((await p.locator('.interro-evidence-card').count())!==3)throw Error('evidence browser missing'); await p.screenshot({path:'dist/build24-people.png',fullPage:false});
           await p.evaluate(()=>{
             S.byId.fund={id:'fund',title:'Финансовая записка фонда',kind:'Документ'};
             S.state.shared.board=[
@@ -88,12 +88,12 @@ jobs:
           if((await p.locator('#linkBoardBtn').count())!==1)throw Error('board linker missing');
           if((await p.locator('.board-attachment.paper').count())!==1)throw Error('physical board document missing');
           await p.evaluate(()=>renderBoardLinks());
-          if((await p.locator('#boardLinks line').count())!==1)throw Error('exact red-string link missing');
+          if((await p.locator('#boardLinks line').count())!==1)throw Error('exact red-string link missing'); await p.screenshot({path:'dist/build24-board.png',fullPage:false});
           await p.click('[data-view="final"]');
           if((await p.locator('.final-report').count())!==1)throw Error('final report missing');
           if((await p.locator('[data-final-tab]').count())!==7)throw Error('final tabs missing');
           await p.click('[data-final-tab="evidence"]');
-          if(!await p.locator('[data-final-panel="evidence"]').isVisible())throw Error('final tab switching missing');
+          if(!await p.locator('[data-final-panel="evidence"]').isVisible())throw Error('final tab switching missing'); await p.screenshot({path:'dist/build24-final.png',fullPage:false});
           if(errors.some(x=>x.includes('Content Security Policy')))throw Error('CSP console errors: '+errors.join(' | '));
           console.log(JSON.stringify({ok:true,checks:['places','dossier','evidence-browser','physical-board-ui','final-tabs','document-viewer'],errors}));
           await browser.close();
@@ -105,4 +105,8 @@ jobs:
           path: |
             dist/MysteryLogic-Zero-Copy-STAGING-BEGET-2026-10-09-build24.zip
             dist/SHA256.txt
+            dist/build24-places.png
+            dist/build24-people.png
+            dist/build24-board.png
+            dist/build24-final.png
           retention-days: 14
