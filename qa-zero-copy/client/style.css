@@ -263,3 +263,18 @@ input,select,textarea{width:100%;background:#080b0d;color:var(--text);border:1px
 .material-filters{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 14px}.material-filters button{background:#0b1013;color:#aab5bc;border:1px solid var(--line2);padding:7px 10px}.material-filters button.active{background:linear-gradient(#cfb477,#b99a58);color:#15100a;border-color:#b99a58;font-weight:700}
 .viewer-media{align-content:start}.viewer-filmstrip{width:100%;display:flex;gap:8px;overflow-x:auto;padding:12px 2px 2px;margin-top:12px;border-top:1px solid #20282e}.viewer-film-item{width:112px;min-width:112px;background:#0a0e11;color:var(--text);border:1px solid #2d363d;padding:0;text-align:left;overflow:hidden}.viewer-film-item.active{border-color:#c9a65b;box-shadow:0 0 0 1px rgba(201,166,91,.18)}.viewer-film-item img,.viewer-film-item .mini-doc{width:100%;height:64px;object-fit:cover;display:grid;place-items:center;background:#dfd3b1;color:#292119;font:21px Georgia,serif}.viewer-film-item small{display:block;padding:6px 7px;line-height:1.25;color:#c6ced2}
 @media(max-width:760px){.material-filters{overflow-x:auto;flex-wrap:nowrap}.material-filters button{white-space:nowrap}.viewer-film-item{width:96px;min-width:96px}.viewer-film-item img,.viewer-film-item .mini-doc{height:56px}}
+
+/* build29 visual correction: restore high-fidelity place cards and full portrait framing */
+#view-places .places-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#view-places .place-card{height:auto;min-height:310px;padding:0;text-align:left}
+#view-places .place-card>div{position:absolute;left:20px;right:20px;bottom:18px;z-index:2}
+#view-places .place-card span{position:static}
+#view-places .place-card h3{font-size:28px;line-height:1.08;margin:.12em 0 .22em}
+#view-places .place-card p{font-size:15px;line-height:1.45;margin:0;color:#cbd3d7}
+.interro-person>img{object-fit:contain!important;object-position:center top!important;background:#0b1013!important;clip-path:none!important}
+.interro-person{grid-template-rows:minmax(430px,520px) auto!important}
+@media(max-width:760px){
+  #view-places .places-gallery{grid-template-columns:1fr}
+  #view-places .place-card{min-height:245px}
+  .interro-person{grid-template-rows:minmax(320px,420px) auto!important}
+}
