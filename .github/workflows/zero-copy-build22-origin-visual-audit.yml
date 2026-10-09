@@ -1,0 +1,66 @@
+name: Zero Copy Build22 Origin Visual Audit
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths: ['.github/workflows/zero-copy-build22-origin-visual-audit.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm init -y && npm i -D playwright@1.56.0
+      - run: npx playwright install --with-deps chromium
+      - name: Audit real Beget build22 UI
+        shell: bash
+        run: |
+          cat > /tmp/audit22.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const base='http://tftanyaf.beget.tech/';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1600,height:1000}});
+          const errors=[]; page.on('pageerror',e=>errors.push('PAGE:'+e.message)); page.on('console',m=>{if(m.type()==='error')errors.push('CONSOLE:'+m.text())});
+          await page.goto(base,{waitUntil:'networkidle'});
+          console.log('MARKER',await page.locator('.buildmark').textContent());
+          await page.click('#demoBtn');
+          await page.locator('#game').waitFor({state:'visible'});
+          await page.locator('#starterMaterials .starter').filter({hasText:'Финансовая записка фонда'}).click();
+          await page.locator('#viewer.open').waitFor({state:'visible'});
+          const doc={
+            artifactVisible:await page.locator('#viewerNoImage').isVisible(),
+            paperVisible:await page.locator('#viewerNoImage .doc-paper').isVisible(),
+            title:await page.locator('#docTitle').textContent(),
+            body:await page.locator('#docBody').textContent(),
+            artifactBox:await page.locator('#viewerNoImage').boundingBox(),
+            paperBox:await page.locator('#viewerNoImage .doc-paper').boundingBox(),
+            artifactDisplay:await page.locator('#viewerNoImage').evaluate(el=>getComputedStyle(el).display),
+            paperBg:await page.locator('#viewerNoImage .doc-paper').evaluate(el=>getComputedStyle(el).backgroundImage)
+          };
+          console.log('DOCUMENT',JSON.stringify(doc));
+          await page.screenshot({path:'/tmp/build22-fund.png',fullPage:false});
+          await page.click('#closeViewer');
+          await page.click('[data-view="people"]');
+          const portraits=await page.locator('.people-list img').count();
+          const activePortrait=await page.locator('#activePersonPortrait').isVisible();
+          console.log('PORTRAITS',JSON.stringify({list:portraits,active:activePortrait}));
+          console.log('EVIDENCE_TRAY_EXISTS',await page.locator('#evidenceTray').count());
+          console.log('SOUND_TOGGLE',await page.locator('#soundToggle').count());
+          await page.click('[data-view="board"]');
+          console.log('BOARD_KIND_BUTTONS',await page.locator('.board-kind button').count());
+          console.log('BOARD_LINKER',await page.locator('#boardLinkBtn').count());
+          await page.click('[data-view="final"]');
+          console.log('FINAL_REPORT',await page.locator('.final-report').count());
+          console.log('ERRORS',JSON.stringify(errors));
+          await browser.close();
+          EOF
+          node /tmp/audit22.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build22-origin-visual-audit
+          path: /tmp/build22-fund.png
+          retention-days: 7
