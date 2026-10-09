@@ -1,0 +1,62 @@
+name: Zero Copy Sync Beget Build22
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths: ['.github/workflows/zero-copy-sync-beget-build22.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/zero-copy-runtime-final
+      - name: Sync exact served build22 from Beget
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='http://tftanyaf.beget.tech'
+          root='qa-zero-copy/client'
+          mkdir -p "$root/assets/audio"
+          files=(
+            index.html app.js style.css
+            assets/archive-lab-premium.png
+            assets/archive_boxes.jpg
+            assets/capture-series-premium.png
+            assets/capture_2208.svg
+            assets/capture_2209.svg
+            assets/investigation-board.png
+            assets/lab_detail.jpg
+            assets/manuscript_close.jpg
+            assets/page47_2019.svg
+            assets/page47_2026.svg
+            assets/seal.svg
+            assets/anna-levina.svg
+            assets/denis-orlov.svg
+            assets/irina-belova.svg
+            assets/lev-markin.svg
+            assets/mikhail-ratnikov.svg
+            assets/sofia-vorontsova.svg
+            assets/audio/archive-ambience.wav
+            assets/audio/board-note.wav
+            assets/audio/final-pass.wav
+            assets/audio/open-document.wav
+            assets/audio/present-evidence.wav
+            assets/audio/switch-person.wav
+          )
+          for p in "${files[@]}"; do
+            mkdir -p "$root/$(dirname "$p")"
+            curl --fail --location --silent --show-error "$base/$p" -o "$root/$p"
+          done
+          grep -q 'staging build 2026-10-09.22' "$root/index.html"
+          grep -q 'v22-premium-polish' "$root/index.html"
+      - name: Commit exact served build22
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qa-zero-copy/client
+          git commit -m "chore(zero-copy): sync exact served build22 from Beget" || exit 0
+          git push origin HEAD:feature/zero-copy-runtime-final
