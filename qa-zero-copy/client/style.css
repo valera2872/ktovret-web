@@ -201,3 +201,9 @@ input,select,textarea{width:100%;background:#080b0d;color:var(--text);border:1px
   .final-step-number{display:none!important}
   .final-report .final-step h4{font-size:24px}
 }
+
+/* build26 final polish */
+.interro-person-copy{display:block!important;visibility:visible!important;opacity:1!important;z-index:4}
+.interro-person-copy .eyebrow,.interro-person-copy h3,.interro-person-copy p{display:block!important;visibility:visible!important;opacity:1!important}
+.final-report .final-step.active{animation:none!important}
+.final-report .final-step.active *{opacity:1}
