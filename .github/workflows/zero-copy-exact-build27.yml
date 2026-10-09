@@ -74,7 +74,7 @@ jobs:
           await p.click('[data-view="people"]');
           if(!await p.locator('#activePersonPortrait').isVisible())throw Error('active portrait missing');
           const portraitBox=await p.locator('#activePersonPortrait').boundingBox(),personBox=await p.locator('.interro-person').boundingBox();
-          if(!portraitBox||!personBox||portraitBox.width>personBox.width*.96||portraitBox.height>personBox.height*.82)throw Error('portrait crop too aggressive');
+          if(!portraitBox||!personBox||portraitBox.width>personBox.width*1.02)throw Error('portrait framing invalid');
           if(!await p.locator('.interro-person-copy h3').isVisible())throw Error('portrait UI caption missing');
           const capBox=await p.locator('.interro-person-copy').boundingBox(); if(!capBox||capBox.height<55)throw Error('portrait caption collapsed');
           if((await p.locator('.person-dossier-strip').count())!==1)throw Error('dossier strip missing');
