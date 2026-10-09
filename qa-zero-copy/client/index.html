@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Нулевая копия · Mystery Logic</title>
-<link rel="stylesheet" href="style.css?v=20261009-27">
+<link rel="stylesheet" href="style.css?v=20261009-28">
 </head>
 <body>
 <section id="intro" class="entry-screen">
@@ -29,7 +29,7 @@
       </div>
     </div>
     <button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button>
-    <div class="buildmark">staging build 2026-10-09.27</div>
+    <div class="buildmark">staging build 2026-10-09.28</div>
     <p id="entryMsg" class="muted statusline"></p>
   </div>
 </section>
@@ -133,7 +133,7 @@
     <section id="view-materials" class="view">
       <div class="viewhead"><div><div class="eyebrow">Документы дела</div><h2>Материалы вашей роли</h2></div><p>Открывайте документы и сопоставляйте факты. Игра не сообщает, какой материал окажется важным для вашей версии.</p></div>
       <div class="materials-layout">
-        <section class="card materials-list-card"><div class="section-title"><h3>Доступно сейчас</h3><span id="foundCount" class="pill">0</span></div><div id="starterMaterialsFull" class="materials-stack"></div><div class="section-divider">Найдено в ходе проверки</div><div id="found" class="materials-stack"></div></section>
+        <section class="card materials-list-card"><div class="section-title"><h3>Доступно сейчас</h3><span id="foundCount" class="pill">0</span></div><div class="material-filters" aria-label="Фильтр материалов"><button type="button" data-material-filter="all" class="active">Все</button><button type="button" data-material-filter="docs">Документы</button><button type="button" data-material-filter="photos">Фото</button><button type="button" data-material-filter="messages">Переписка</button><button type="button" data-material-filter="logs">Журналы</button></div><div id="starterMaterialsFull" class="materials-stack"></div><div class="section-divider">Найдено в ходе проверки</div><div id="found" class="materials-stack"></div></section>
         <section class="card material-stage empty-stage" id="materialStage"><div class="stage-empty"><span class="bigicon">□</span><h3>Откройте материал слева</h3><p>Документ появится здесь. Можно вернуться к нему позже, сопоставить с другими данными или предъявить персонажу.</p></div></section>
       </div>
     </section>
@@ -200,7 +200,7 @@
 </main>
 
 <div id="placeViewer" class="place-viewer"><div class="place-viewer-shell"><button id="closePlaceViewer" class="close">Закрыть</button><img id="placeViewerImage" alt=""><div class="place-viewer-copy"><div class="eyebrow">Место / объект дела</div><h2 id="placeViewerTitle"></h2><p id="placeViewerText"></p></div></div></div>
-<div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="document-artifact"><div class="doc-paper"><div class="doc-topline"><span id="docSource">АРХИВ «СЕВЕРНЫЙ ДОМ»</span><span>СЛУЖЕБНЫЙ МАТЕРИАЛ</span></div><div class="doc-rule"></div><div id="docKind" class="doc-kind"></div><h2 id="docTitle"></h2><div id="docBody" class="doc-body"></div><div class="doc-footer"><span>Копия для материалов дела</span><span class="doc-stamp">СЕВЕРНЫЙ ДОМ</span></div></div></div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="shareViewerBoard" class="secondary">Вынести на общую доску</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
+<div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="document-artifact"><div class="doc-paper"><div class="doc-topline"><span id="docSource">АРХИВ «СЕВЕРНЫЙ ДОМ»</span><span>СЛУЖЕБНЫЙ МАТЕРИАЛ</span></div><div class="doc-rule"></div><div id="docKind" class="doc-kind"></div><h2 id="docTitle"></h2><div id="docBody" class="doc-body"></div><div class="doc-footer"><span>Копия для материалов дела</span><span class="doc-stamp">СЕВЕРНЫЙ ДОМ</span></div></div><div id="viewerFilmstrip" class="viewer-filmstrip"></div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="shareViewerBoard" class="secondary">Вынести на общую доску</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
 <audio id="ambience" src="assets/audio/archive-ambience.wav" loop preload="auto"></audio>
 <audio id="sfxOpen" src="assets/audio/open-document.wav" preload="auto"></audio>
 <audio id="sfxPresent" src="assets/audio/present-evidence.wav" preload="auto"></audio>
@@ -208,5 +208,5 @@
 <audio id="sfxSwitch" src="assets/audio/switch-person.wav" preload="auto"></audio>
 <audio id="sfxFinal" src="assets/audio/final-pass.wav" preload="auto"></audio>
 <div id="toast" class="toast"></div>
-<script src="app.js?v=20261009-27"></script>
-<!-- v27-premium-visual-final --></body></html>
+<script src="app.js?v=20261009-28"></script>
+<!-- v28-material-experience --></body></html>
