@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Нулевая копия · Mystery Logic</title>
-<link rel="stylesheet" href="style.css?v=20261008-20">
+<link rel="stylesheet" href="style.css?v=20261009-22">
 </head>
 <body>
 <section id="intro" class="entry-screen">
@@ -29,7 +29,7 @@
       </div>
     </div>
     <button id="demoBtn" class="demo-btn" type="button">Демо: открыть расследование одному</button>
-    <div class="buildmark">staging build 2026-10-08.20</div>
+    <div class="buildmark">staging build 2026-10-09.22</div>
     <p id="entryMsg" class="muted statusline"></p>
   </div>
 </section>
@@ -50,7 +50,7 @@
 <main id="game" class="workspace" hidden>
   <header class="workspace-head">
     <div class="brandblock"><div class="eyebrow">Нулевая копия</div><div class="case-subtitle">Дело об исчезнувшей рукописи</div></div>
-    <div class="head-status"><span id="badge"></span><span class="divider"></span><span id="partnerStatus">Проверяем напарника…</span></div>
+    <div class="head-status"><span id="badge"></span><span class="divider"></span><span id="partnerStatus">Проверяем напарника…</span><button id="soundToggle" class="sound-toggle" type="button" aria-pressed="false" title="Звук">◔ Звук</button></div>
   </header>
 
   <aside class="sidebar">
@@ -74,7 +74,19 @@
           <h2>Начните с того, что известно вашей роли</h2>
           <p id="roleBrief">Изучайте документы, сопоставляйте детали, задавайте вопросы персонажам и проверяйте любые версии. Система не сообщает, что считать уликой и в каком порядке идти.</p>
         </div>
+        <div class="victim-card"><img src="assets/anna-levina.svg" alt="Анна Левина"><div><span>Анна Левина</span><small>реставратор · погибла после происшествия 14 марта</small></div></div>
       </div>
+      <section class="case-world" aria-label="Мир дела">
+        <button class="world-card jump" data-view="materials"><img src="assets/archive-lab-premium.png" alt="Реставрационная мастерская"><span><b>Мастерская</b><small>место, где нашли Анну</small></span></button>
+        <button class="world-card jump" data-view="materials"><img src="assets/manuscript_close.jpg" alt="Рабочая тетрадь Воронцова"><span><b>Тетрадь Воронцова</b><small>рукопись, с которой работала Анна</small></span></button>
+        <button class="world-card jump" data-view="materials"><img src="assets/archive_boxes.jpg" alt="Архивная коробка"><span><b>Архивные отправки</b><small>коробки и перемещения материалов</small></span></button>
+        <button class="world-card jump" data-view="people"><img src="assets/anna-levina.svg" alt="Анна Левина"><span><b>Анна Левина</b><small>её последние часы предстоит восстановить</small></span></button>
+      </section>
+      <section class="anna-thread">
+        <img src="assets/anna-levina.svg" alt="Анна Левина">
+        <div class="anna-thread-copy"><div class="eyebrow">Анна Левина</div><h3>Человек в центре дела</h3><p>Реставратор редких рукописей. Вечером 14 марта она работала с тетрадью Воронцова; в 22:41 её нашли без сознания в мастерской. Всё остальное вам предстоит восстановить по материалам и показаниям.</p></div>
+        <div class="anna-facts"><span><b>Роль</b><small>реставратор</small></span><span><b>Последняя работа</b><small>тетрадь Воронцова</small></span><span><b>Место</b><small>реставрационная мастерская</small></span></div>
+      </section>
       <div class="overview-grid">
         <section class="card dossier-card">
           <div class="section-title"><div><div class="eyebrow">На старте</div><h3>Материалы вашей роли</h3></div><button class="ghost jump" data-view="materials">Все материалы</button></div>
@@ -84,11 +96,11 @@
         <section class="card people-card">
           <div class="section-title"><div><div class="eyebrow">Люди</div><h3>Кого можно расспросить</h3></div><button class="ghost jump" data-view="people">Открыть допросы</button></div>
           <div class="people-list compact">
-            <button data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
-            <button data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
-            <button data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
-            <button data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
-            <button data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
+            <button data-suspect="ratnikov"><img class="avatar-photo" src="assets/mikhail-ratnikov.svg" alt="Михаил Ратников"><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
+            <button data-suspect="denis"><img class="avatar-photo" src="assets/denis-orlov.svg" alt="Денис Орлов"><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
+            <button data-suspect="markin"><img class="avatar-photo" src="assets/lev-markin.svg" alt="Лев Маркин"><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
+            <button data-suspect="sofia"><img class="avatar-photo" src="assets/sofia-vorontsova.svg" alt="Софья Воронцова"><span><b>Софья Воронцова</b><small>наследница</small></span></button>
+            <button data-suspect="irina"><img class="avatar-photo" src="assets/irina-belova.svg" alt="Ирина Белова"><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
           </div>
         </section>
       </div>
@@ -113,13 +125,16 @@
       <div class="viewhead"><div><div class="eyebrow">Люди, связанные с делом</div><h2>Расспрашивайте своими словами</h2></div><p>Спрашивайте о событиях, отношениях, документах и своих версиях. Чтобы проверить реакцию на конкретный факт, можно предъявить найденный материал.</p></div>
       <div class="people-layout">
         <section class="card people-sidebar"><div class="people-list">
-          <button class="suspect active" data-suspect="ratnikov"><span class="avatar monogram">МР</span><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
-          <button class="suspect" data-suspect="denis"><span class="avatar monogram">ДО</span><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
-          <button class="suspect" data-suspect="markin"><span class="avatar monogram">ЛМ</span><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
-          <button class="suspect" data-suspect="sofia"><span class="avatar monogram">СВ</span><span><b>Софья Воронцова</b><small>наследница</small></span></button>
-          <button class="suspect" data-suspect="irina"><span class="avatar monogram">ИБ</span><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
+          <button class="suspect active" data-suspect="ratnikov"><img class="avatar-photo" src="assets/mikhail-ratnikov.svg" alt="Михаил Ратников"><span><b>Михаил Ратников</b><small>заместитель директора архива</small></span></button>
+          <button class="suspect" data-suspect="denis"><img class="avatar-photo" src="assets/denis-orlov.svg" alt="Денис Орлов"><span><b>Денис Орлов</b><small>отвечает за оцифровку архива</small></span></button>
+          <button class="suspect" data-suspect="markin"><img class="avatar-photo" src="assets/lev-markin.svg" alt="Лев Маркин"><span><b>Лев Маркин</b><small>литературовед, исследователь Воронцова</small></span></button>
+          <button class="suspect" data-suspect="sofia"><img class="avatar-photo" src="assets/sofia-vorontsova.svg" alt="Софья Воронцова"><span><b>Софья Воронцова</b><small>наследница</small></span></button>
+          <button class="suspect" data-suspect="irina"><img class="avatar-photo" src="assets/irina-belova.svg" alt="Ирина Белова"><span><b>Ирина Белова</b><small>директор фонда</small></span></button>
         </div></section>
-        <section class="card interrogation"><div class="interro-head"><div><div class="eyebrow">Допрос</div><h3 id="activePersonName">Михаил Ратников</h3></div><select id="character" aria-label="Персонаж"><option value="ratnikov">Михаил Ратников</option><option value="denis">Денис Орлов</option><option value="markin">Лев Маркин</option><option value="sofia">Софья Воронцова</option><option value="irina">Ирина Белова</option></select></div><div id="dialog" class="dialog-stream"><div class="dialog-empty">Разговор ещё не начат.</div></div><textarea id="question" rows="4" placeholder="Задайте вопрос своими словами"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled><span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn" class="primary">Спросить</button></section>
+        <section class="card interrogation premium-interrogation">
+          <div class="interro-person"><img id="activePersonPortrait" src="assets/mikhail-ratnikov.svg" alt="Михаил Ратников"><div class="interro-person-shade"></div><div class="interro-person-copy"><div class="eyebrow">Допрос</div><h3 id="activePersonName">Михаил Ратников</h3><p id="activePersonRole">заместитель директора архива</p></div></div>
+          <div class="interro-work"><div class="interro-head"><select id="character" aria-label="Персонаж"><option value="ratnikov">Михаил Ратников</option><option value="denis">Денис Орлов</option><option value="markin">Лев Маркин</option><option value="sofia">Софья Воронцова</option><option value="irina">Ирина Белова</option></select></div><div id="dialog" class="dialog-stream"><div class="dialog-empty">Разговор ещё не начат. Задайте вопрос своими словами.</div></div><div id="evidenceTray" class="evidence-tray" hidden><div class="evidence-thumb" id="evidenceThumb">□</div><div><div class="eyebrow">Выбран для предъявления</div><b id="evidenceTrayTitle"></b><small id="evidenceTrayKind"></small></div><button id="clearEvidence" type="button" class="ghost">Убрать</button></div><textarea id="question" rows="4" placeholder="Что вы хотите спросить?"></textarea><label class="evidence-present"><input id="useEvidence" type="checkbox" disabled><span id="presentEvidence">Материал не выбран. Откройте найденный материал, чтобы при желании предъявить его.</span></label><button id="talkBtn" class="primary">Спросить</button></div>
+        </section>
       </div>
     </section>
 
@@ -130,7 +145,7 @@
 
     <section id="view-board" class="view">
       <div class="viewhead"><div><div class="eyebrow">Совместная работа</div><h2>Общая доска</h2></div><p>Система ничего не соединяет за вас. Записывайте факты, связи, противоречия и версии, которые считаете важными.</p></div>
-      <div class="board-layout"><section class="card board-visual"><img src="assets/investigation-board.png" alt="Доска расследования"><div class="board-vignette"></div><div id="board" class="board-cards"></div></section><section class="card board-compose"><h3>Добавить на доску</h3><textarea id="boardInput" rows="7" placeholder="Факт, связь, противоречие или гипотеза"></textarea><button id="boardBtn" class="primary">Добавить для напарника</button><p class="muted">Напарник увидит запись после синхронизации.</p></section></div>
+      <div class="board-layout"><section class="card board-visual"><img src="assets/investigation-board.png" alt="Доска расследования"><div class="board-vignette"></div><svg id="boardLinks" class="board-links" aria-hidden="true"></svg><div id="board" class="board-cards"></div></section><section class="card board-compose"><h3>Добавить на доску</h3><div class="board-kind"><button type="button" data-board-kind="Факт" class="active">Факт</button><button type="button" data-board-kind="Версия">Версия</button><button type="button" data-board-kind="Противоречие">Противоречие</button></div><textarea id="boardInput" rows="6" placeholder="Что вы хотите зафиксировать?"></textarea><button id="boardBtn" class="primary">Добавить для напарника</button><div class="board-linker"><h4>Связать две записи</h4><p class="muted">Выберите две карточки на доске и нажмите «Связать». Связь — это ваша версия, игра её не оценивает.</p><button id="linkBoardBtn" class="secondary" type="button" disabled>Связать выбранные</button></div><p class="muted">Напарник увидит запись после синхронизации.</p></section></div>
     </section>
 
     <section id="view-notes" class="view">
@@ -140,13 +155,19 @@
 
     <section id="view-final" class="view">
       <div class="viewhead"><div><div class="eyebrow">Финальная реконструкция</div><h2>Объясните, что произошло</h2></div><p>Сформулируйте собственную версию целиком: кто, зачем и как действовал, когда и где произошли ключевые события и чем это подтверждается.</p></div>
-      <section class="card"><div class="finalgrid"><label><span>Кто несёт ответственность за произошедшее?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие факты и документы подтверждают вашу версию?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто ещё говорил неправду или что-то скрывал — и зачем? Не всякая ложь означает причастность к смерти Анны.</span><textarea id="f_lies"></textarea></label></div><button id="finalBtn" class="primary final-submit">Проверить реконструкцию</button><p id="finalResult" class="final-result"></p></section>
+      <section class="card final-report"><div class="final-report-head"><div><span class="eyebrow">Итоговое заключение</span><h3>Ваша версия дела</h3></div><div class="report-seal">ML</div></div><div class="finalgrid"><label><span>Кто несёт ответственность за произошедшее?</span><textarea id="f_who"></textarea></label><label><span>Почему это произошло?</span><textarea id="f_why"></textarea></label><label><span>Как развивались события?</span><textarea id="f_how"></textarea></label><label><span>Где произошло ключевое событие?</span><textarea id="f_where"></textarea></label><label><span>Когда это произошло?</span><textarea id="f_when"></textarea></label><label><span>Какие факты и документы подтверждают вашу версию?</span><textarea id="f_evidence"></textarea></label><label class="wide"><span>Кто ещё говорил неправду или что-то скрывал — и зачем? Не всякая ложь означает причастность к смерти Анны.</span><textarea id="f_lies"></textarea></label></div><div class="final-actions"><button id="finalBtn" class="primary final-submit">Передать реконструкцию на проверку</button><span class="muted">Проверяется целостность версии, а не отдельное имя.</span></div><p id="finalResult" class="final-result"></p></section>
       <section id="reveal" class="reveal" hidden></section>
     </section>
   </section>
 </main>
 
-<div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="no-image">Документ</div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="shareViewerBoard" class="secondary">Вынести на общую доску</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
+<div id="viewer" class="viewer"><div class="viewer-shell"><button class="close" id="closeViewer">Закрыть</button><div class="viewer-media"><img id="viewerImage" class="evidence-image" hidden alt="Игровой материал"><div id="viewerNoImage" class="document-artifact"><div class="doc-paper"><div class="doc-topline"><span id="docSource">АРХИВ «СЕВЕРНЫЙ ДОМ»</span><span>СЛУЖЕБНЫЙ МАТЕРИАЛ</span></div><div class="doc-rule"></div><div id="docKind" class="doc-kind"></div><h2 id="docTitle"></h2><div id="docBody" class="doc-body"></div><div class="doc-footer"><span>Копия для материалов дела</span><span class="doc-stamp">СЕВЕРНЫЙ ДОМ</span></div></div></div></div><div class="viewer-copy"><div id="viewerKind" class="eyebrow"></div><h2 id="viewerTitle"></h2><p id="viewerText"></p><div class="viewer-actions"><button id="backViewer" class="secondary">Вернуться</button><button id="shareViewerBoard" class="secondary">Вынести на общую доску</button><button id="openInMaterials" class="primary">Открыть в материалах</button></div></div></div></div>
+<audio id="ambience" src="assets/audio/archive-ambience.wav" loop preload="auto"></audio>
+<audio id="sfxOpen" src="assets/audio/open-document.wav" preload="auto"></audio>
+<audio id="sfxPresent" src="assets/audio/present-evidence.wav" preload="auto"></audio>
+<audio id="sfxBoard" src="assets/audio/board-note.wav" preload="auto"></audio>
+<audio id="sfxSwitch" src="assets/audio/switch-person.wav" preload="auto"></audio>
+<audio id="sfxFinal" src="assets/audio/final-pass.wav" preload="auto"></audio>
 <div id="toast" class="toast"></div>
-<script src="app.js?v=20261008-20"></script>
-<!-- v20-editorial-clarity --></body></html>
+<script src="app.js?v=20261009-22"></script>
+<!-- v22-premium-polish --></body></html>
