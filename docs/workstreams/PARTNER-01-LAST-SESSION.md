@@ -159,3 +159,32 @@ Next:
 2. run DELIVERY_SELF_QA_CANON + Cognitive Gate;
 3. if PASS → Content Freeze;
 4. only then Premium visual architecture / room/workspace UX.
+
+
+## 2026-10-09 — Evidence Copy + Pre-Freeze Gates
+
+Private evidence copy A01–A10 / B01–B12 is now fully rewritten to v0.8 terminology and player-facing wording.
+
+Pre-freeze results:
+- DELIVERY_SELF_QA_CANON (content-level): PASS.
+- Cognitive pre-freeze gate: PASS at simulated/content level.
+- First Screen Clarity / Hook Gate: PASS.
+- Progressive Vocabulary gate: PASS.
+- Fair-play / minimum sufficient proof: PASS.
+- WOW precheck: W1–W6, W8–W9 PASS; W7 and W10 remain HUMAN UNKNOWN.
+- Content Freeze: HOLD, because this is intended as a flagship/signature Partner case and no real two-person blind test has yet been run.
+- Premium UI: NOT STARTED.
+- Implementation: NOT STARTED.
+
+Current private checkpoint:
+`/Mystery Logic/Checkpoints/MysteryLogic-Partner01-LastSession-CHECKPOINT-v0.8.md`
+Library id: `libfile_2291989d816081918dcf0a2569f985dd`
+SHA-256: `f5a25f884aa4204f38adcaf78edfb3703d48da66c9ca216cce83f1bb65c9931b`
+
+Real blind-test packets prepared privately:
+- Player A: `/Mystery Logic/Blind Tests/Last Session/LastSession-BLINDTEST-Player-A-v1.md`
+- Player B: `/Mystery Logic/Blind Tests/Last Session/LastSession-BLINDTEST-Player-B-v1.md`
+- Moderator: `/Mystery Logic/Blind Tests/Last Session/LastSession-BLINDTEST-Moderator-v1.md`
+
+Exact next step:
+run one real blind test with two players using ONLY these packets, capture literal observations and timing, then rerun W7/W10 + Cognitive gate and decide Content Freeze. Do not begin Premium UI/code before this unless the owner explicitly accepts the human-test UNKNOWN.
