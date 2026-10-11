@@ -161,3 +161,5 @@ jobs:
 # rerun after delegated place viewer binding
 
 # rerun after init-crash fix
+
+# rerun after deterministic places-view binding
