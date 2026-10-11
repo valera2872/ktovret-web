@@ -1,0 +1,40 @@
+name: Zero Copy Mobile Overflow Diagnostic
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths: ['.github/workflows/zero-copy-mobile-overflow-diagnostic.yml']
+  workflow_dispatch:
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm init -y && npm i -D playwright@1.56.0 && npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 4186 --directory qa-zero-copy/client >/tmp/zcdiag.log 2>&1 &
+          sleep 2
+      - shell: bash
+        run: |
+          cat > mobile-overflow.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:390,height:844}});
+          await p.goto('http://127.0.0.1:4186/',{waitUntil:'networkidle'});
+          const inv=[
+            {id:'scene',title:'Протокол обнаружения',kind:'Документ',text:'Анна найдена.'},
+            {id:'medical',title:'Справка о характере травмы',kind:'Материалы дела',text:'Травма.'},
+            {id:'fund',title:'Финансовая записка фонда',kind:'Документ',text:'Финансы.'}
+          ];
+          await p.evaluate(({inv})=>{document.querySelector('#intro').hidden=true;document.querySelector('#game').hidden=false;S.code='MOB';S.demo=true;S.role='investigator';S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:inv.map(x=>x.id),notes:[]},interviews:{},final:null};S.starter=inv;S.byId={};for(const m of inv)S.byId[m.id]=m;render(true);showView('overview')},{inv});
+          const x=await p.evaluate(()=>({innerWidth:window.innerWidth,scrollWidth:document.documentElement.scrollWidth,bad:[...document.querySelectorAll('body *')].map(el=>{const r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,cls:el.className?.toString?.()||'',left:r.left,right:r.right,width:r.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,display:getComputedStyle(el).display,overflowX:getComputedStyle(el).overflowX}}).filter(x=>x.right>window.innerWidth+1||x.left<-1||x.scrollWidth>x.clientWidth+2).slice(0,80)}));
+          console.log(JSON.stringify(x,null,2));
+          await p.screenshot({path:'/tmp/mobile-overflow.png',fullPage:true});
+          await b.close();
+          EOF
+          node mobile-overflow.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zero-copy-mobile-overflow
+          path: /tmp/mobile-overflow.png
