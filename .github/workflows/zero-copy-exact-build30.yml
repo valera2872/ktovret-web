@@ -155,3 +155,5 @@ jobs:
 # rerun after selector correction
 
 # rerun after viewer filmstrip nesting fix
+
+# rerun after all-place binding fix
