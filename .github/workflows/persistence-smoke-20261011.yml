@@ -22,7 +22,11 @@ jobs:
           set -euo pipefail
           marker="gha-$(date +%s)-$RANDOM"
           save_payload=$(node -e 'console.log(JSON.stringify({action:"progress_save",browserKey:process.env.BROWSER_KEY,caseId:"mini-101",state:{smoke:process.argv[1],stage:3,completed:false},summary:{status:"started",progressPct:41,title:"Persistence smoke",route:"/qa-smoke/",lastStage:"Stage 3",format:"solo-mini"}}))' "$marker")
-          save=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$save_payload" "$ENDPOINT")
+          save_raw=$(curl -sS --retry 1 --max-time 30 -w '\nHTTP_STATUS:%{http_code}' -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$save_payload" "$ENDPOINT")
+          echo "$save_raw"
+          save_status=$(printf '%s' "$save_raw" | sed -n 's/^HTTP_STATUS://p')
+          save=$(printf '%s' "$save_raw" | sed '/^HTTP_STATUS:/d')
+          test "$save_status" = "200"
           echo "SAVE=$save"
           SAVE="$save" node -e 'const j=JSON.parse(process.env.SAVE); if(j.ok!==true||Number(j.revision)!==1||j.status!=="started") process.exit(1)'
 
