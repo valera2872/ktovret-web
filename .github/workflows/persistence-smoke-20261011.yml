@@ -1,4 +1,4 @@
-name: Persistence release smoke 2026-10-11
+name: Persistence release smoke 2026-10-11 v2
 
 on:
   push:
