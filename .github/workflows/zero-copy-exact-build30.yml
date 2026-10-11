@@ -163,3 +163,5 @@ jobs:
 # rerun after init-crash fix
 
 # rerun after deterministic places-view binding
+
+# rerun after robust place binding
