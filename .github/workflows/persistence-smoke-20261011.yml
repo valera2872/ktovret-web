@@ -1,4 +1,4 @@
-name: Persistence release smoke 2026-10-11 v2
+name: Persistence paid release smoke 2026-10-11
 
 on:
   push:
@@ -13,38 +13,43 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
-      - name: Production progress save load reset
+      - name: Production paid persistence save load reset
         shell: bash
         env:
           ENDPOINT: https://orknvuwknvsedjgqcfwc.supabase.co/functions/v1/player-dossier
-          BROWSER_KEY: 8e4a3fbc17d649c190b2a6fe3d4c78a1a9f01bdc7e6a4492
+          BROWSER_KEY: 7055132e93b7e068790ca3e219cfcc3cea6c2af255dc075c
+          ACCESS_TOKEN: ml_qa_U3Ot8MrmkwiEtNJKjL77AwuGHQQuuLkqzjQu9Wd9fG9joDyh
         run: |
           set -euo pipefail
-          marker="gha-$(date +%s)-$RANDOM"
-          save_payload=$(node -e 'console.log(JSON.stringify({action:"progress_save",browserKey:process.env.BROWSER_KEY,caseId:"mini-101",state:{smoke:process.argv[1],stage:3,completed:false},summary:{status:"started",progressPct:41,title:"Persistence smoke",route:"/qa-smoke/",lastStage:"Stage 3",format:"solo-mini"}}))' "$marker")
-          save_raw=$(curl -sS --retry 1 --max-time 30 -w '\nHTTP_STATUS:%{http_code}' -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$save_payload" "$ENDPOINT")
-          echo "$save_raw"
-          save_status=$(printf '%s' "$save_raw" | sed -n 's/^HTTP_STATUS://p')
-          save=$(printf '%s' "$save_raw" | sed '/^HTTP_STATUS:/d')
-          test "$save_status" = "200"
-          echo "SAVE=$save"
-          SAVE="$save" node -e 'const j=JSON.parse(process.env.SAVE); if(j.ok!==true||Number(j.revision)!==1||j.status!=="started") process.exit(1)'
+          smoke_case() {
+            case_id="$1"
+            label="$2"
+            marker="$label-$(date +%s)-$RANDOM"
 
-          load_payload=$(node -e 'console.log(JSON.stringify({action:"progress_load",browserKey:process.env.BROWSER_KEY,caseId:"mini-101"}))')
-          load=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$load_payload" "$ENDPOINT")
-          echo "LOAD=$load"
-          LOAD="$load" MARKER="$marker" node -e 'const j=JSON.parse(process.env.LOAD); if(j.ok!==true||Number(j.revision)!==1||j.state?.smoke!==process.env.MARKER||j.resume?.server!==true) process.exit(1)'
+            save_payload=$(node -e 'console.log(JSON.stringify({action:"progress_save",browserKey:process.env.BROWSER_KEY,caseId:process.argv[1],state:{smoke:process.argv[2],stage:3,completed:false},summary:{status:"started",progressPct:41,title:"Paid persistence smoke",route:"/qa-smoke/",lastStage:"Stage 3",format:"solo-premium"}}))' "$case_id" "$marker")
+            save=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" --data "$save_payload" "$ENDPOINT")
+            echo "$label SAVE=$save"
+            SAVE="$save" node -e 'const j=JSON.parse(process.env.SAVE); if(j.ok!==true||Number(j.revision)!==1||j.status!=="started") process.exit(1)'
 
-          save2_payload=$(node -e 'console.log(JSON.stringify({action:"progress_save",browserKey:process.env.BROWSER_KEY,caseId:"mini-101",revision:1,state:{smoke:process.argv[1],stage:5,completed:false},summary:{status:"started",progressPct:72,title:"Persistence smoke",route:"/qa-smoke/",lastStage:"Stage 5",format:"solo-mini"}}))' "$marker")
-          save2=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$save2_payload" "$ENDPOINT")
-          echo "SAVE2=$save2"
-          SAVE2="$save2" node -e 'const j=JSON.parse(process.env.SAVE2); if(j.ok!==true||Number(j.revision)!==2||j.status!=="started") process.exit(1)'
+            load_payload=$(node -e 'console.log(JSON.stringify({action:"progress_load",browserKey:process.env.BROWSER_KEY,caseId:process.argv[1]}))' "$case_id")
+            load=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" --data "$load_payload" "$ENDPOINT")
+            echo "$label LOAD=$load"
+            LOAD="$load" MARKER="$marker" node -e 'const j=JSON.parse(process.env.LOAD); if(j.ok!==true||Number(j.revision)!==1||j.state?.smoke!==process.env.MARKER||j.resume?.server!==true||j.resume?.viaEntitlement!==true) process.exit(1)'
 
-          reset_payload=$(node -e 'console.log(JSON.stringify({action:"progress_reset",browserKey:process.env.BROWSER_KEY,caseId:"mini-101"}))')
-          reset=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$reset_payload" "$ENDPOINT")
-          echo "RESET=$reset"
-          RESET="$reset" node -e 'const j=JSON.parse(process.env.RESET); if(j.ok!==true||j.reset!==true) process.exit(1)'
+            save2_payload=$(node -e 'console.log(JSON.stringify({action:"progress_save",browserKey:process.env.BROWSER_KEY,caseId:process.argv[1],revision:1,state:{smoke:process.argv[2],stage:5,completed:false},summary:{status:"started",progressPct:72,title:"Paid persistence smoke",route:"/qa-smoke/",lastStage:"Stage 5",format:"solo-premium"}}))' "$case_id" "$marker")
+            save2=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" --data "$save2_payload" "$ENDPOINT")
+            echo "$label SAVE2=$save2"
+            SAVE2="$save2" node -e 'const j=JSON.parse(process.env.SAVE2); if(j.ok!==true||Number(j.revision)!==2||j.status!=="started") process.exit(1)'
 
-          after=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' --data "$load_payload" "$ENDPOINT")
-          echo "AFTER_RESET=$after"
-          AFTER="$after" node -e 'const j=JSON.parse(process.env.AFTER); if(j.ok!==true||j.state!==null||Number(j.revision)!==0||j.resume?.server!==false) process.exit(1)'
+            reset_payload=$(node -e 'console.log(JSON.stringify({action:"progress_reset",browserKey:process.env.BROWSER_KEY,caseId:process.argv[1]}))' "$case_id")
+            reset=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" --data "$reset_payload" "$ENDPOINT")
+            echo "$label RESET=$reset"
+            RESET="$reset" node -e 'const j=JSON.parse(process.env.RESET); if(j.ok!==true||j.reset!==true) process.exit(1)'
+
+            after=$(curl -fsS --retry 2 --max-time 30 -H 'Origin: https://mysterylogic.com' -H 'Content-Type: application/json' -H "Authorization: Bearer $ACCESS_TOKEN" --data "$load_payload" "$ENDPOINT")
+            echo "$label AFTER_RESET=$after"
+            AFTER="$after" node -e 'const j=JSON.parse(process.env.AFTER); if(j.ok!==true||j.state!==null||Number(j.revision)!==0||j.resume?.server!==false) process.exit(1)'
+          }
+
+          smoke_case premium_tikhaya_noch_v1 TIKHAYA
+          smoke_case web_v2r2_101_room_241 SOLO99
