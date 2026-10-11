@@ -157,3 +157,5 @@ jobs:
 # rerun after viewer filmstrip nesting fix
 
 # rerun after all-place binding fix
+
+# rerun after delegated place viewer binding
