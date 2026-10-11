@@ -28,7 +28,7 @@ jobs:
           const p=await browser.newPage({viewport:{width:1600,height:1000}});
           const errs=[]; p.on('pageerror',e=>errs.push('PAGE '+e.message)); p.on('console',m=>{if(m.type()==='error')errs.push('CONSOLE '+m.text())});
           await p.goto('http://127.0.0.1:4185/',{waitUntil:'networkidle'});
-          expect((await p.locator('.buildmark').textContent()).includes('2026-10-11.30'),'wrong build marker');
+          expect((await p.locator('.buildmark').textContent()).includes('2026-10-11.31'),'wrong build marker');
           expect((await p.locator('.entry-lead').textContent()).includes('Анну Левину'),'intro missing Anna context');
           expect((await p.locator('#intro').textContent()).includes('рабочей тетрадью писателя Арсения Воронцова'),'intro missing Vorontsov context');
 
