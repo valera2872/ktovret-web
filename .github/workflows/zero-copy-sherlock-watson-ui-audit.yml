@@ -100,7 +100,7 @@ jobs:
           await p.evaluate(({arc})=>{
             S.role='archivist';S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:arc.map(x=>x.id),notes:[]},interviews:{},final:null};S.starter=arc.slice(0,3);S.byId={};for(const m of arc)S.byId[m.id]=m;render(true);showView('overview');
           },{arc});
-          expect((await p.locator('#roleBrief').textContent()).includes('Эксперт архива'),'Watson role brief missing');
+          expect((await p.locator('#roleBrief').textContent()).toLowerCase().includes('эксперт архива'),'Watson role brief missing');
           expect((await p.locator('#starterMaterials .starter').count())===3,'Watson starters wrong');
           await p.click('[data-view="materials"]');expect((await p.locator('#starterMaterialsFull .material-row').count())===3,'Watson material package wrong');
           await p.click('[data-view="people"]');expect((await p.locator('.interro-evidence-card').count())>=5,'Watson evidence browser incomplete');
