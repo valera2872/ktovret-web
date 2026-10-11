@@ -278,3 +278,8 @@ input,select,textarea{width:100%;background:#080b0d;color:var(--text);border:1px
   #view-places .place-card{min-height:245px}
   .interro-person{grid-template-rows:minmax(320px,420px) auto!important}
 }
+
+/* build30 place viewer interaction */
+#view-places .place-card{cursor:zoom-in}
+#view-places .place-card:focus{outline:2px solid var(--gold);outline-offset:2px}
+.place-viewer-shell>img{background:#080c0f}
