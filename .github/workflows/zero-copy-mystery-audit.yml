@@ -16,3 +16,5 @@ jobs:
         with:
           node-version: '22'
       - run: node qa-zero-copy/mystery-audit.mjs
+
+# rerun 2026-10-11 Sherlock-Watson release audit
