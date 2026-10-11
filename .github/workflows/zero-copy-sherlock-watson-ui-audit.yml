@@ -68,7 +68,7 @@ jobs:
 
           await p.click('[data-view="people"]');
           for(const id of ['ratnikov','denis','markin','sofia','irina']){
-            await p.click('[data-suspect="'+id+'"]');
+            await p.locator('#view-people [data-suspect="'+id+'"]').click();
             const src=await p.locator('#activePersonPortrait').getAttribute('src');expect(src&&src.includes('assets/'),'portrait src missing '+id);
             const loaded=await p.locator('#activePersonPortrait').evaluate(img=>img.complete&&img.naturalWidth>50&&img.naturalHeight>50);expect(loaded,'portrait failed '+id);
             expect((await p.locator('#dossierRole').textContent()).trim().length>2,'dossier role missing '+id);
