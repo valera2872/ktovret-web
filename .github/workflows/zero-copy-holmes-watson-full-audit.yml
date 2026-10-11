@@ -1,0 +1,20 @@
+name: Zero Copy Holmes Watson Full Audit
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths:
+      - '.github/workflows/zero-copy-holmes-watson-full-audit.yml'
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Server two-player black-box
+        run: node qa-zero-copy/e2e.mjs
+      - name: Adversarial mystery audit
+        run: node qa-zero-copy/mystery-audit.mjs
