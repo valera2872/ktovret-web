@@ -1,0 +1,120 @@
+name: Zero Copy Sherlock Watson UI Audit
+on:
+  push:
+    branches: [feature/zero-copy-runtime-final]
+    paths: ['.github/workflows/zero-copy-sherlock-watson-ui-audit.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm init -y && npm i -D playwright@1.56.0 && npx playwright install --with-deps chromium
+      - name: Serve frozen build30 client
+        run: |
+          python3 -m http.server 4185 --directory qa-zero-copy/client >/tmp/zc-ui.log 2>&1 &
+          sleep 2
+      - name: Sherlock and Watson UI torture pass
+        shell: bash
+        run: |
+          cat > sherlock-watson-ui.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const expect=(v,m)=>{if(!v)throw Error(m)};
+          const browser=await chromium.launch({headless:true});
+          const p=await browser.newPage({viewport:{width:1600,height:1000}});
+          const errs=[]; p.on('pageerror',e=>errs.push('PAGE '+e.message)); p.on('console',m=>{if(m.type()==='error')errs.push('CONSOLE '+m.text())});
+          await p.goto('http://127.0.0.1:4185/',{waitUntil:'networkidle'});
+          expect((await p.locator('.buildmark').textContent()).includes('2026-10-11.30'),'wrong build marker');
+          expect((await p.locator('.entry-lead').textContent()).includes('Анну Левину'),'intro missing Anna context');
+          expect((await p.locator('#intro').textContent()).includes('рабочей тетрадью писателя Арсения Воронцова'),'intro missing Vorontsov context');
+
+          const inv=[
+            {id:'scene',title:'Протокол обнаружения',kind:'Документ',text:'Анна найдена в мастерской.'},
+            {id:'medical',title:'Справка о характере травмы',kind:'Материалы дела',text:'Описание травмы.'},
+            {id:'fund',title:'Финансовая записка фонда',kind:'Документ',text:'Финансовый контекст.'},
+            {id:'passes',title:'Журнал входов',kind:'Журнал',text:'Проходы после 22 часов.'},
+            {id:'denis_chat',title:'Переписка Дениса',kind:'Переписка',text:'Сообщения.'}
+          ];
+          const arc=[
+            {id:'catalog',title:'Карточка тетради Воронцова',kind:'Архив',text:'Описание рукописи.'},
+            {id:'repair',title:'История реставрации',kind:'Архив',text:'Работы по рукописи.'},
+            {id:'photosession',title:'Съёмка Анны вечером 14 марта',kind:'Фотографии',text:'Серия кадров.'},
+            {id:'capture2',title:'Последний кадр',kind:'Фотографии',text:'22:09:27.'},
+            {id:'outgoing',title:'Реестр отправок',kind:'Журнал',text:'Коробка L17-203.'}
+          ];
+          await p.evaluate(({inv})=>{
+            document.querySelector('#intro').hidden=true;document.querySelector('#game').hidden=false;
+            S.code='SHERLOCK';S.demo=true;S.role='investigator';S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:inv.map(x=>x.id),notes:[]},interviews:{},final:null};S.starter=inv.slice(0,3);S.byId={};for(const m of inv)S.byId[m.id]=m;render(true);showView('overview');
+          },{inv});
+          expect(await p.locator('#view-overview').isVisible(),'Sherlock overview missing');
+          expect((await p.locator('#starterMaterials .starter').count())===3,'Sherlock starters wrong');
+
+          await p.click('[data-view="places"]');
+          expect((await p.locator('.place-card').count())===4,'place count wrong');
+          for(let i=0;i<4;i++){const c=p.locator('.place-card').nth(i);await c.click();expect(await p.locator('#placeViewer.open').isVisible(),'place viewer fail '+i);const ok=await p.locator('#placeViewerImage').evaluate(img=>img.complete&&img.naturalWidth>100&&img.naturalHeight>100);expect(ok,'place image decode fail '+i);expect((await p.locator('#placeViewerTitle').textContent()).trim().length>3,'place title fail '+i);await p.click('#closePlaceViewer')}
+
+          await p.click('[data-view="materials"]');
+          expect((await p.locator('.material-filters button').count())===5,'filters missing');
+          for(const f of ['all','docs','photos','messages','logs']){await p.click('[data-material-filter="'+f+'"]');expect(await p.locator('[data-material-filter="'+f+'"]').evaluate(el=>el.classList.contains('active')),'filter not active '+f)}
+          await p.click('[data-material-filter="all"]');
+          await p.evaluate(()=>showViewer(S.byId.fund,'fund'));
+          expect(await p.locator('#viewerNoImage .doc-paper').isVisible(),'text document visual missing');
+          expect((await p.locator('#viewerFilmstrip .viewer-film-item').count())>=5,'viewer filmstrip incomplete');
+          await p.click('#closeViewer');
+
+          await p.click('[data-view="people"]');
+          for(const id of ['ratnikov','denis','markin','sofia','irina']){
+            await p.click('[data-suspect="'+id+'"]');
+            const src=await p.locator('#activePersonPortrait').getAttribute('src');expect(src&&src.includes('assets/'),'portrait src missing '+id);
+            const loaded=await p.locator('#activePersonPortrait').evaluate(img=>img.complete&&img.naturalWidth>50&&img.naturalHeight>50);expect(loaded,'portrait failed '+id);
+            expect((await p.locator('#dossierRole').textContent()).trim().length>2,'dossier role missing '+id);
+            expect((await p.locator('#dossierContext').textContent()).trim().length>5,'dossier context missing '+id);
+          }
+          expect((await p.locator('.interro-evidence-card').count())>=5,'interrogation evidence browser incomplete');
+          await p.locator('.interro-evidence-card').filter({hasText:'Финансовая записка фонда'}).click();
+          expect(await p.locator('#evidenceTray').isVisible(),'evidence tray did not open');
+
+          await p.click('[data-view="board"]');
+          await p.evaluate(()=>{
+            S.state.shared.board=[
+              {by:'investigator',text:'§Факт§ Материал «Финансовая записка фонда» — финансовое давление'},
+              {by:'archivist',text:'§Противоречие§ Временная линия требует проверки'},
+              {by:'investigator',text:'§Связь§ [#0:#1] Финансы ↔ временная линия'}
+            ];renderBoard();
+          });
+          expect((await p.locator('.board-note').count())===3,'board notes wrong');
+          expect((await p.locator('.board-attachment.paper').count())>=1,'physical board attachment missing');
+          expect((await p.locator('#boardLinks line').count())===1,'red-string exact link missing');
+
+          await p.click('[data-view="notes"]');await p.fill('#noteInput','Шерлок: проверить временную линию отдельно');expect((await p.locator('#noteInput').inputValue()).includes('Шерлок'),'private note input broken');
+
+          await p.click('[data-view="final"]');
+          expect((await p.locator('[data-final-tab]').count())===7,'final tabs count wrong');
+          for(const k of ['who','why','how','where','when','evidence','lies']){await p.click('[data-final-tab="'+k+'"]');expect(await p.locator('[data-final-panel="'+k+'"]').isVisible(),'final panel hidden '+k);expect(await p.locator('#f_'+k).isVisible(),'final textarea hidden '+k)}
+
+          // Watson role: same UI, different asymmetric package.
+          await p.evaluate(({arc})=>{
+            S.role='archivist';S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:arc.map(x=>x.id),notes:[]},interviews:{},final:null};S.starter=arc.slice(0,3);S.byId={};for(const m of arc)S.byId[m.id]=m;render(true);showView('overview');
+          },{arc});
+          expect((await p.locator('#roleBrief').textContent()).includes('Эксперт архива'),'Watson role brief missing');
+          expect((await p.locator('#starterMaterials .starter').count())===3,'Watson starters wrong');
+          await p.click('[data-view="materials"]');expect((await p.locator('#starterMaterialsFull .material-row').count())===3,'Watson material package wrong');
+          await p.click('[data-view="people"]');expect((await p.locator('.interro-evidence-card').count())>=5,'Watson evidence browser incomplete');
+          await p.evaluate(()=>showViewer(S.byId.photosession,'photosession'));
+          const imgVisible=await p.locator('#viewerImage').isVisible(); expect(imgVisible,'Watson photo evidence not rendered as image');
+          const imgOk=await p.locator('#viewerImage').evaluate(img=>img.complete&&img.naturalWidth>100);expect(imgOk,'Watson photo evidence failed decode');
+          await p.click('#closeViewer');
+
+          const mobile=await browser.newPage({viewport:{width:390,height:844}});
+          await mobile.goto('http://127.0.0.1:4185/',{waitUntil:'networkidle'});
+          await mobile.evaluate(()=>{document.querySelector('#intro').hidden=true;document.querySelector('#game').hidden=false;S.code='MOB';S.demo=true;S.role='investigator';S.state={version:1,shared:{evidence:[],board:[],timeline:[],hypotheses:[]},mine:{evidence:[],notes:[]},interviews:{},final:null};S.starter=[];render(true)});
+          for(const view of ['overview','places','materials','people','search','board','notes','final']){await mobile.evaluate(v=>showView(v),view);expect(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2),'mobile overflow '+view)}
+          expect(!errs.some(x=>/TypeError|ReferenceError|Content Security Policy/.test(x)),'browser errors '+errs.join(' | '));
+          console.log(JSON.stringify({ok:true,checks:['intro-context','sherlock-overview','all-four-place-viewers','all-filters','document-viewer-filmstrip','all-five-character-portraits','dossiers','evidence-browser','evidence-tray','physical-board','exact-red-string','private-notes','all-seven-final-tabs','watson-asymmetric-package','watson-photo-evidence','all-mobile-views'],errors:errs}));
+          await browser.close();
+          EOF
+          node sherlock-watson-ui.mjs
