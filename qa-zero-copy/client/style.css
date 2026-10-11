@@ -283,3 +283,12 @@ input,select,textarea{width:100%;background:#080b0d;color:var(--text);border:1px
 #view-places .place-card{cursor:zoom-in}
 #view-places .place-card:focus{outline:2px solid var(--gold);outline-offset:2px}
 .place-viewer-shell>img{background:#080c0f}
+
+/* build31 mobile containment */
+@media(max-width:760px){
+  .toolstrip{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .toolcard{min-width:0!important}
+  .anna-thread{min-width:0!important}
+  .anna-thread-copy,.anna-facts{min-width:0!important}
+  .content,.view{min-width:0;max-width:100%}
+}
