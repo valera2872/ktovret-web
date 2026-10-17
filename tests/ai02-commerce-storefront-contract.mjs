@@ -27,3 +27,4 @@ assert.ok(home.includes('Номер 407'),'LIVE Room 407 block must survive AI-0
 assert.ok(home.includes('Последняя ария'),'LIVE Last Aria block must survive AI-02 home reconciliation');
 assert.ok(home.includes('ml-ai02-launch'),'AI-02 release block missing from reconciled home');
 console.log('AI-02 storefront contract: ok');
+// QA trigger 2026-10-17: AI-02 commerce storefront live-readiness rerun.
