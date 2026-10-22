@@ -1,0 +1,129 @@
+/* Final emotional hierarchy for the documentary reveal. Visual only. */
+
+/* Document-reading screens should feel like reading evidence, not completing a form. */
+.rc-fact-grid[hidden]{display:none!important}
+.rc-reading-prompt{
+  max-width:760px;
+  margin:26px 0 0;
+  padding:15px 0 0;
+  border-top:1px solid rgba(23,35,49,.12);
+  color:rgba(23,35,49,.58);
+  font-size:.76rem;
+  line-height:1.6;
+}
+.rc-screen:not(.is-paper) .rc-reading-prompt{
+  border-top-color:rgba(255,255,255,.08);
+  color:var(--rc-muted,#9fb0c1);
+}
+
+/* S06 is a synthesis, not a sorting exercise. */
+.rc-screen[data-screen="S06"] .rc-board[hidden]{display:none!important}
+.rc-synthesis{
+  display:grid;
+  gap:12px;
+  max-width:820px;
+  margin:28px 0 8px;
+}
+.rc-synthesis-item{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr);
+  gap:20px;
+  align-items:start;
+  padding:18px 20px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+  box-shadow:inset 2px 0 0 rgba(234,211,156,.24);
+}
+.rc-synthesis-item small{
+  padding-top:2px;
+  color:var(--rc-premium-gold-soft,#ead39c);
+  font-size:.66rem;
+  font-weight:700;
+  letter-spacing:.12em;
+}
+.rc-synthesis-item strong{
+  color:#e4e9ed;
+  font-size:.98rem;
+  font-weight:500;
+  line-height:1.55;
+}
+
+/* S18 is a genuine temporal rupture, not a routine transition card. */
+.rc-screen[data-screen="S18"]::after{
+  content:"11 ЛЕТ";
+  position:absolute;
+  right:34px;
+  bottom:-18px;
+  color:#fff;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(8rem,16vw,14rem);
+  font-weight:400;
+  letter-spacing:-.07em;
+  line-height:.76;
+  opacity:.035;
+  pointer-events:none;
+}
+.rc-screen[data-screen="S18"] .rc-screen-inner{max-width:850px;padding-top:clamp(72px,9vw,118px)}
+.rc-screen[data-screen="S18"] .rc-title{font-size:clamp(4rem,8vw,7.2rem);line-height:.86}
+.rc-screen[data-screen="S18"] .rc-copy{max-width:620px;font-size:1.05rem}
+
+/* Human outcome first. A numeric game score must not compete with the factual reveal. */
+.rc-screen[data-screen="S23"] .rc-reveal{grid-template-columns:minmax(0,920px)}
+.rc-screen[data-screen="S23"] .rc-score{display:none}
+.rc-screen[data-screen="S23"] .rc-reveal-card{
+  padding:clamp(32px,5vw,54px);
+  border-color:rgba(234,211,156,.24);
+  background:
+    radial-gradient(circle at 88% 8%,rgba(203,168,98,.09),transparent 19rem),
+    linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+  box-shadow:0 24px 65px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.035);
+}
+.rc-screen[data-screen="S23"] .rc-reveal-card h3{
+  max-width:760px;
+  font-size:clamp(2.5rem,5vw,4.6rem);
+  line-height:.94;
+  letter-spacing:-.035em;
+}
+.rc-screen[data-screen="S23"] .rc-reveal-card .rc-copy{
+  max-width:760px;
+  margin-top:30px;
+  padding-top:24px;
+  border-top:1px solid rgba(234,211,156,.12);
+}
+.rc-screen[data-screen="S23"] .rc-reveal-card .rc-copy p{font-size:1rem;line-height:1.75}
+
+/* The score belongs to the post-case evaluation on S25, after the human outcome is known. */
+.rc-screen[data-screen="S25"] .rc-feedback.is-good{
+  max-width:760px;
+  margin-top:32px;
+  padding:26px 28px;
+  border-color:rgba(234,211,156,.22);
+  background:linear-gradient(145deg,rgba(203,168,98,.085),rgba(255,255,255,.022));
+  color:#dce3e8;
+  box-shadow:inset 2px 0 0 rgba(234,211,156,.5);
+  line-height:1.65;
+}
+.rc-screen[data-screen="S25"] .rc-feedback.is-good strong{
+  display:block;
+  margin:8px 0 4px;
+  color:var(--rc-premium-gold-soft,#ead39c);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(2.7rem,6vw,4.5rem);
+  font-weight:400;
+  line-height:1;
+}
+
+@media(max-width:620px){
+  .rc-reading-prompt{margin-top:20px;padding-top:13px;font-size:.7rem}
+  .rc-synthesis{gap:10px;margin-top:22px}
+  .rc-synthesis-item{grid-template-columns:1fr;gap:7px;padding:16px 15px}
+  .rc-synthesis-item small{font-size:.62rem}
+  .rc-synthesis-item strong{font-size:.92rem;line-height:1.5}
+  .rc-screen[data-screen="S18"]::after{right:-12px;bottom:10px;font-size:7.3rem;opacity:.025}
+  .rc-screen[data-screen="S18"] .rc-screen-inner{padding-top:46px}
+  .rc-screen[data-screen="S18"] .rc-title{font-size:clamp(3.4rem,17vw,5rem)}
+  .rc-screen[data-screen="S23"] .rc-reveal-card{padding:26px 20px}
+  .rc-screen[data-screen="S23"] .rc-reveal-card h3{font-size:clamp(2.25rem,11vw,3.25rem)}
+  .rc-screen[data-screen="S23"] .rc-reveal-card .rc-copy{margin-top:23px;padding-top:18px}
+  .rc-screen[data-screen="S25"] .rc-feedback.is-good{padding:22px 18px}
+}
