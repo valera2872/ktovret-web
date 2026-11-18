@@ -197,6 +197,9 @@
   };
 
   const patchProofCopy = () => {
+    // The investigator module owns this final proof guidance; avoid a competing
+    // MutationObserver writer that otherwise loops endlessly on the final screen.
+    if (window.MLAriaInvestigatorV16) return;
     const data = window.MLCaseAria;
     const lead = root.querySelector('.casearia-proof-board > p');
     if (!data?.final || !lead) return;
