@@ -25,4 +25,13 @@ assert.match(css, /-webkit-line-clamp:unset!important/);
 assert.match(css, /\.v4-evidence > article:not\(\.ref11-folder-card\) p/);
 assert.match(css, /\.ml-ai01-launch-promo\{display:none!important\}/);
 assert.match(css, /@media\(max-width:560px\)/);
+// The case opening must remain available after the player accepts the case.
+assert.match(folder, /function caseBrief\(expanded\)/);
+assert.match(folder, /Исходные обстоятельства и как расследовать/);
+assert.match(folder, /ДЕЛО У ВАС/);
+assert.doesNotMatch(folder, /empty\.innerHTML=initialReport\(\)/);
+assert.match(folder, /briefingPreference===null\?!hasJournal:briefingPreference/);
+assert.match(css, /\.ref11-case-brief-content\{/);
+assert.match(css, /@media\(max-width:700px\)/);
+
 console.log('PASS Moreno UX contracts: evidence visibility, truthful statuses, diagnostic cards, mobile start');
