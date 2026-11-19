@@ -172,3 +172,72 @@ body.moreno-body .v6-item:not(.ref17-answer):not(.ref18-memory-card){
 /* The global launch promotion covers the case acceptance button on phones.
    Investigation pages must remain operable; scope is limited to Moreno only. */
 body.moreno-body .ml-ai01-launch-promo{display:none!important}
+
+/* Persist the source-grounded opening brief in the investigation workspace.
+   Native details/summary avoids a custom modal and keeps the journal accessible. */
+body.moreno-body .v4-console > .ref11-case-brief{
+  margin:4px 0 20px;
+  padding:14px 17px;
+  border:1px solid rgba(213,174,99,.24);
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(22,42,54,.90),rgba(9,24,34,.95));
+  color:#e6e1d8;
+}
+body.moreno-body .ref11-case-brief summary{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:8px 14px;
+  cursor:pointer;
+  list-style:none;
+  line-height:1.4;
+}
+body.moreno-body .ref11-case-brief summary::-webkit-details-marker{display:none}
+body.moreno-body .ref11-case-brief summary::after{
+  content:"⌄";
+  margin-left:auto;
+  color:#c9aa71;
+  font-size:18px;
+  line-height:1;
+}
+body.moreno-body .ref11-case-brief[open] summary::after{transform:rotate(180deg)}
+body.moreno-body .ref11-case-brief summary:focus-visible{
+  outline:2px solid #d5ae63;
+  outline-offset:5px;
+  border-radius:3px;
+}
+body.moreno-body .ref11-case-brief-label{
+  color:#d5ae63;
+  font:700 10px/1.5 var(--ml-sans);
+  letter-spacing:.1em;
+}
+body.moreno-body .ref11-case-brief summary strong{
+  color:#f0e9dc;
+  font:500 15px/1.4 var(--ml-serif);
+}
+body.moreno-body .ref11-case-brief-content{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;
+  margin-top:15px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.10);
+}
+body.moreno-body .ref11-case-brief-content small{
+  display:block;
+  margin-bottom:7px;
+  color:#d2b579;
+  font:700 10px/1.4 var(--ml-sans);
+  letter-spacing:.08em;
+}
+body.moreno-body .ref11-case-brief-content p{
+  margin:0;
+  color:#bac7ce;
+  font:400 13px/1.6 var(--ml-sans);
+  overflow-wrap:anywhere;
+}
+@media(max-width:700px){
+  body.moreno-body .v4-console > .ref11-case-brief{margin:0 0 15px;padding:13px 14px}
+  body.moreno-body .ref11-case-brief-content{grid-template-columns:minmax(0,1fr);gap:15px}
+  body.moreno-body .ref11-case-brief summary strong{font-size:14px}
+}
