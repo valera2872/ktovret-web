@@ -98,3 +98,77 @@ body.moreno-body .v4-reveal-grid article p{font-size:13px!important;line-height:
  body.moreno-body .ref18-memory-panel>p{font-size:9px!important}
  body.moreno-body .ref18-memory-person span{font-size:12px!important}
 }
+
+/* Restored investigation UX: one authoritative evidence register and truthful feedback.
+   These corrections belong to the existing final production stylesheet, not a new layer. */
+body.moreno-body .v4-evidence > article:not(.ref11-folder-card){
+  min-height:0!important;
+  padding:15px 16px!important;
+  overflow:visible!important;
+}
+body.moreno-body .v4-evidence > article:not(.ref11-folder-card)::after{display:none!important}
+body.moreno-body .v4-evidence > article:not(.ref11-folder-card) p{
+  display:block!important;
+  -webkit-line-clamp:unset!important;
+  -webkit-box-orient:initial!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  color:#b2c0c8!important;
+  font-size:12.5px!important;
+  line-height:1.62!important;
+}
+body.moreno-body .v4-evidence > .v4-empty{
+  display:block!important;
+  margin:8px 0 0!important;
+  color:#9caeba!important;
+  font-size:12px!important;
+  line-height:1.6!important;
+}
+body.moreno-body .v4-evidence > article.v4-hyp{
+  border-color:rgba(213,174,99,.3)!important;
+}
+body.moreno-body .v4-console>header{
+  padding-top:25px!important;
+  min-height:0!important;
+}
+body.moreno-body .v4-console>header:before{top:0!important;line-height:1.2!important}
+body.moreno-body .v4-console>header>p:first-child{display:none!important}
+body.moreno-body .v4-console h1{
+  margin:7px 0 11px!important;
+  line-height:1.08!important;
+}
+body.moreno-body .v4-console>header>p:last-child{
+  margin-top:0!important;
+  max-width:60ch;
+  line-height:1.6!important;
+}
+body.moreno-body .v6-item:is(.system,.limit,.dead){
+  min-height:0!important;
+  padding:16px 18px 20px!important;
+}
+body.moreno-body .v6-item:is(.system,.limit,.dead)::after,
+body.moreno-body .v6-item:is(.system,.limit,.dead) .ref13-material,
+body.moreno-body .v6-item:is(.system,.limit,.dead) .ref13-preview-label{display:none!important}
+body.moreno-body .v6-item:not(.ref17-answer):not(.ref18-memory-card){
+  padding-bottom:20px!important;
+}
+@media(max-width:950px){
+  body.moreno-body .v4-console>header{
+    padding:25px 0 18px!important;
+    min-height:0!important;
+  }
+  body.moreno-body .v4-console>header:after{display:none!important}
+  body.moreno-body .v4-console h1{
+    font-size:clamp(31px,7.6vw,44px)!important;
+  }
+}
+@media(max-width:560px){
+  body.moreno-body .v4-evidence > article:not(.ref11-folder-card){padding:15px!important}
+  body.moreno-body .v4-evidence > article:not(.ref11-folder-card) p{font-size:13px!important}
+  body.moreno-body .v6-item:not(.ref17-answer):not(.ref18-memory-card){padding-bottom:18px!important}
+}
+
+/* The global launch promotion covers the case acceptance button on phones.
+   Investigation pages must remain operable; scope is limited to Moreno only. */
+body.moreno-body .ml-ai01-launch-promo{display:none!important}
