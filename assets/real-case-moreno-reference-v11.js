@@ -16,14 +16,18 @@ function rail(){return `
     <div class="ref11-location"><strong>MALDEN · 1991</strong><span>Люди ближе,<br>чем кажется.</span></div>
   </div>`}
 
-function initialReport(){return `
-  <div class="ref11-report-head"><span>ИСХОДНЫЙ РАПОРТ</span><em>материалы 1991 года</em></div>
-  <div class="ref11-report-title">Patricia Moreno найдена на пожарной лестнице</div>
-  <div class="ref11-report-facts">
-    <span><b>17 лет</b> потерпевшая</span>
-    <span><b>3 этаж</b> место обнаружения</span>
-    <span><b>не найдено</b> оружие и гильза</span>
-  </div>`}
+// The original facts and the rules of free investigation must remain
+// available after the opening screen, without prescribing the player's moves.
+let briefingPreference=null;
+function caseBrief(expanded){
+  return `<details class="ref11-case-brief"${expanded?' open':''}>
+    <summary><span class="ref11-case-brief-label">ДЕЛО 91-M · MALDEN, 1991</span><strong>Исходные обстоятельства и как расследовать</strong></summary>
+    <div class="ref11-case-brief-content">
+      <div><small>ЧТО ИЗВЕСТНО</small><p>20 июля 1991 года после 03:00 на пожарной лестнице третьего этажа нашли 17-летнюю Patricia Moreno с огнестрельным ранением головы. Она умерла в тот же день. Оружие и гильзы на месте не обнаружены.</p></div>
+      <div><small>ВАША РОЛЬ</small><p>Вы руководите повторным расследованием. Пишите следственные распоряжения обычным языком, задавайте вопросы установленным свидетелям, проверяйте свои версии. Материалы появляются только после ваших действий и сохраняются в «Рабочей папке». Ход расследования выбираете вы.</p></div>
+    </div>
+  </details>`;
+}
 
 const has=(set,...ids)=>ids.some(id=>set.has(id));
 function folderCard(kind,title,meta,body){return `<article class="ref11-folder-card ${kind}"><div class="ref11-folder-icon" aria-hidden="true"></div><div><small>${title}</small>${meta?`<b>${meta}</b>`:''}<p>${body}</p></div><span class="ref11-folder-chevron">›</span></article>`}
@@ -48,10 +52,17 @@ function enhance(){
 
   if(!work.querySelector('.ref11-rail-ui'))work.insertAdjacentHTML('beforeend',rail());
 
-  const empty=work.querySelector('.v4-journal-empty');
-  if(empty&&!empty.dataset.ref11){
-    empty.dataset.ref11='1';
-    empty.innerHTML=initialReport();
+  // Restore the engine's original "ДЕЛО У ВАС" first-step instruction.
+  // On later turns the briefing stays accessible, but starts folded.
+  const console=work.querySelector('.v4-console');
+  const header=console?.querySelector(':scope > header');
+  if(header&&!console.querySelector('.ref11-case-brief')){
+    const hasJournal=Boolean(work.querySelector('.v4-log'));
+    header.insertAdjacentHTML('afterend',caseBrief(briefingPreference===null?!hasJournal:briefingPreference));
+    const details=console.querySelector('.ref11-case-brief');
+    details?.querySelector('summary')?.addEventListener('click',()=>{
+      briefingPreference=!details.open;
+    });
   }
 
   const evidence=work.querySelector('.v4-evidence');
