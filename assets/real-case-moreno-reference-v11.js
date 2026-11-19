@@ -27,40 +27,19 @@ function initialReport(){return `
 
 const has=(set,...ids)=>ids.some(id=>set.has(id));
 function folderCard(kind,title,meta,body){return `<article class="ref11-folder-card ${kind}"><div class="ref11-folder-icon" aria-hidden="true"></div><div><small>${title}</small>${meta?`<b>${meta}</b>`:''}<p>${body}</p></div><span class="ref11-folder-chevron">›</span></article>`}
+// Keep the case engine's real evidence cards in place. Their complete
+// source-grounded descriptions must stay available while investigating.
+// Earlier design code replaced them with non-interactive category teasers.
 function buildFolder(evidence){
   if(evidence.dataset.ref11Folder==='1')return;
   evidence.dataset.ref11Folder='1';
-  const originalCount=evidence.querySelectorAll('article:not(.v4-hyp)').length;
-  const state=window.MLMorenoV6?.getState?.()||{};
-  const done=new Set(state.completed||[]);
-  const groups=[];
-
-  if(has(done,'people','interview','occupantsInterviewed','daughtersInterviewed','motherInterviewed','canvass','witnessLocated','witnessDescription')){
-    groups.push(folderCard('people','Круг лиц','люди и свидетели','Жильцы квартиры, найденные свидетели и установленные связи.'));
-  }
-  if(has(done,'scene','ballistics','trajectory')){
-    groups.push(folderCard('reconstruction','Реконструкция','сцена и физика','Осмотр сцены, баллистика и пространственная реконструкция выстрела.'));
-  }
-  if(has(done,'motive','weapon')){
-    groups.push(folderCard('conflict','Конфликт','отношения и доступ','Угрозы, напряжённые отношения и проверка доступа к оружию.'));
-  }
-  if(has(done,'interview','alibi')){
-    groups.push(folderCard('alibi','Проверка алиби','показания и расхождения','Версии присутствовавших, подтверждения и выявленные расхождения.'));
-  }
-
   const head=evidence.querySelector('.v4-evidence-head');
-  const count=Math.max(1,originalCount+1);
+  const count=evidence.querySelectorAll(':scope > article:not(.v4-hyp)').length;
   const counter=head?.querySelector('span');
-  if(counter)counter.textContent=`${count} ${count===1?'материал':count<5?'материала':'материалов'}`;
-  [...evidence.children].forEach(el=>{if(el!==head)el.remove()});
-
-  if(!groups.length){
-    evidence.insertAdjacentHTML('beforeend',folderCard('report','Исходный рапорт','1 материал','Patricia Moreno, 17 лет. Пожарная лестница третьего этажа; оружие и гильза на месте не обнаружены.'));
-  }else{
-    evidence.insertAdjacentHTML('beforeend',groups.join(''));
-    evidence.insertAdjacentHTML('beforeend','<div class="ref11-folder-quote"><i></i><p>Факты не упрямы.<br>Они просто требуют<br>внимания.</p><span></span></div>');
+  if(counter){
+    const copy=`${count} ${count%10===1&&count%100!==11?'материал':count%10>=2&&count%10<=4&&(count%100<10||count%100>=20)?'материала':'материалов'}`;
+    if(counter.textContent!==copy)counter.textContent=copy;
   }
-  if(state.hypothesis)evidence.insertAdjacentHTML('beforeend',folderCard('hypothesis','Ваша версия','рабочая гипотеза',String(state.hypothesis)));
 }
 
 function enhance(){
@@ -81,7 +60,9 @@ function enhance(){
   work.querySelectorAll('.v6-item').forEach((card,i)=>{
     const idx=String(i+1);
     if(card.dataset.ref11Index!==idx)card.dataset.ref11Index=idx;
-    if(!card.querySelector('.ref11-card-status'))card.insertAdjacentHTML('beforeend','<div class="ref11-card-status"><span>✓</span> Завершено</div>');
+    // Progress status is owned by the game engine and v16 semantic state bar.
+    // Never mark clarifications, errors and failed actions as completed.
+    card.querySelector('.ref11-card-status')?.remove();
   });
 
   work.querySelectorAll('.v4-log').forEach(log=>{
