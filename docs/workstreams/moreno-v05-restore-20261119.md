@@ -1,0 +1,91 @@
+# Mystery Logic — восстановление утверждённого дизайна Moreno v0.5
+
+**2026-11-19 · Workstream: Moreno restore approved v0.5 design.**
+
+## Решение пользователя
+Пользователь однозначно подтвердил: исторический дизайн v0.5 — это «та самая нормальная версия». Отверг чужие сгенерированные визуальные референсы, английские макеты, новый редизайн и накопление декоративных слоёв. Сохранять именно v0.5, не подменять его `reference-v10`.
+
+## Проверенные первоисточники
+- GitHub исторический коммит v0.5 `22e53f463dd76d476815fc93d6d7515e1d21f0f4`:
+  - `realnye-dela/pozharnaya-lestnica-1991/index.html` blob `7f4a06517d4594bda15422f032b077bcfe078731`;
+  - `assets/real-case-moreno-sandbox.css` blob `21441e17f47cb181cc99898a72fb4a78de4e3300`;
+  - `assets/real-case-moreno-ai-v5.js` blob `0bd420f04c2f1d37f6af02e42494b57e4cabe2c8`.
+- `CURRENT_RELEASE.json`: canonical LIVE baseline `MysteryLogic-FINAL-BASE-2026-09-25.zip`, SHA-256 `a510891c3d68dcef723e5ff2f88789a8ad164ee3e777ac95db21b5544e407185`. The actual bytes were verified. Baseline contains exact `sandbox.css` and historical `ai-v5.js` (same Git blob SHA).
+- Live site may drift beyond canonical baseline; **GitHub main is not LIVE**.
+
+## Выполнено (отдельная draft-ветка, не LIVE)
+Branch `feature/moreno-restore-v05-visual-20261119`
+- Premium page `realnye-dela/pozharnaya-lestnica-1991-premium/index.html`: restored original `ml-brand-strip` header from v0.5; restored two-column `sandbox.css` styling; removed 19 accumulated Moreno design CSS links, leaving functional v6/16/17/18 CSS plus one small compatible stylesheet; omitted visual overlay modules `intro-v20.js`, `reference-v11.js`, `reference-v13.js` that rewrote onboarding, evidence or status. **No changes to gameplay engine** `real-case-moreno-ai-v6.js`, AI router v23, semantic backend, inference, canon, payment, auth, sessions or final modules. Modern reference modules 16–19 and final-v25 remain.
+- Added `assets/real-case-moreno-v05-compat.css`: only compatibility corrections: prevent sticky composer covering the first instruction at short viewports; accessible full text, mobile wrapping; promo hides only on this page.
+- Added `assets/real-case-moreno-v05-brief.js`: opening factual context remains available after acceptance in native collapsible details styled in original v0.5. Initial state expanded before first action; collapses after first, retains manual toggle while continuing. No clue recommendation, no new facts.
+- Added source contract in `tests/real-case-moreno-v05-restored-visual-contract.mjs`.
+- SEO canonical/title/description/OG from current Premium page retained; no index change.
+
+## Локальный QA (mock API, Chromium)
+At 1366x900 and 390x844: initial acceptance PASS, v0.5 2-column/1-column responsive layout PASS, earned scene evidence stored/displayed in real working folder PASS, unclear action -> clarification without new evidence PASS, no JS exceptions, no horizontal overflow.
+Initial preview revealed sticky composer covering `ДЕЛО У ВАС` at short viewport; explicitly fixed with document-flow composer. Re-tested desktop/mobile.
+Persistent briefing: expanded at initial desk, auto-fold after first action, manual reopen and retention on following command PASS both sizes.
+Mock hypothesis -> existing v25 final gate -> opening reconstruction form PASS both sizes, no JS errors.
+Local preview is an internal QA tool, not a deliverable or a validated LIVE build.
+Screenshots from actual local Chromium (not generated images) saved under `/mnt/data/moreno_v05_modern_preview/screenshots/`.
+
+## Release boundary
+- **NOT READY / NOT LIVE**. Current deployed Beget files not directly accessible and may differ from GitHub main/canonical baseline.
+- No real backend full-flow interrogation or actual final submission was run. Actual iPad/iPhone Safari NOT RUN.
+- CASE_RELEASE_GATE, DELIVERY_SELF_QA_CANON and Cognitive Gate not fully executed. No approval for replacement of live page after reviewing a Beget-safe preview.
+- No ZIP must be described as final or LIVE-ready.
+- PR #383 (newer v26 styling repair) is superseded for visual direction; do not merge alongside v0.5 restoration.
+
+## Next precise step
+1. Obtain current LIVE files from Beget: `realnye-dela/pozharnaya-lestnica-1991-premium/index.html` and `assets/real-case-moreno-sandbox.css`. Cross-check hashes and existing active scripts/asset query versions.
+2. Rebase the minimal edit on exact LIVE rather than replacing site tree from GitHub. Confirm interface at desktop and mobile, especially initial case acceptance, briefing, filled journal, evidence, character memory and final reconstruction.
+3. Run real AI/backend non-destructive E2E, retained state on refresh, incorrect/unknown commands, final gate and actual reveal; complete required Release Gate.
+4. Request owner sign-off on the genuine v0.5-inspired screens. Only then prepare targeted deploy patch and verify mysterylogic.com; no CURRENT_RELEASE rewrite until canonical promotion conditions.
+
+## 2026-11-19 — Архивы с текущего Beget предоставлены пользователем
+- `(4).zip` содержит вложенный `archive_2056_2217.zip`: **53** файла `real-case-moreno-*`, CRC PASS, внешний ZIP SHA-256 `821d438c31ca16afe0a71fd6189cb8a3d4f8ed36029f56ebb06d87055a37ea7c`.
+- `(3).zip` содержит страницу `realnye-dela/pozharnaya-lestnica-1991-premium/index.html` и две соседние HTML-страницы; CRC PASS, внешний ZIP SHA-256 `4fba012f8e74b8525f581d9614e5f055c2b4061eefd7484e95eaab987a947bbc`.
+- Точный live HTML SHA-256: `254a8808f0252cca29eb26a5868fa65b2c0670ea37a88d2885d76fd2fc9f50ea`.
+- Совпадение с историческим v0.5: `assets/real-case-moreno-sandbox.css` Git blob `21441e17f47cb181cc99898a72fb4a78de4e3300`; текущий game engine `assets/real-case-moreno-ai-v6.js` Git blob `e0af5d69b498c409b686443e31f1a03403ffe259`. Все проверено побайтно.
+- В текущем Beget HTML присутствуют дополнительные, отсутствующие в GitHub main общесайтовые подключения: legal/typography/interface/logic-sitewide, analytics, `sitewide-menu-20261010-v3`. **Нельзя использовать HTML PR #384 напрямую для Beget** — он основан на GitHub main и не содержит LIVE additions.
+- Отдельный локальный кандидат создан из точных LIVE-байтов, а не GitHub: `/mnt/data/moreno_live_audit/test_site/`. Сохранены все старые общесайтовые CSS/JS, SEO/canonical, analytics и платежный контур; заменены только стиль оформления и визуальные модули дела. Кандидат HTML SHA256 `8adc84252570f696a2d592f57c4d6f39aa799f38f3ed4bb1d9f13c19f7a65af9`.
+- Встроенный Chromium тест на LIVE-базе, 1366×900 и 390×844 (mock AI): acceptance, preserved first brief, inspect_scene, real evidence text, no false completed status on clarify, brief collapsible preference, hypothesis save, mobile overflow/JS errors — PASS. Отдельно: seeded completed progress → финальная форма → submit → reveal + final summary — PASS desktop/mobile с mock API.
+- Обнаружена дополнительная визуальная коллизия с `assets/typography-polish.css`, уменьшающим v0.5 заголовок через generic `main h1 !important`. Исправлено **только в отдельном совместимом CSS** case-scoped восстановлением исходного масштаба.
+- При offline QA отсутствуют три не входивших в переданные ZIP sitewide assets: `sitewide-menu-20261010-v3.css`, `sitewide-menu-20261010-v3.js`, `funnel-analytics-20261010-v2.js`. Их ссылки сохранены в LIVE-кандидате; реальное влияние меню и аналитики не проверено. Реальный ИИ backend, Safari и полная проверка production-финала по-прежнему **NOT RUN**.
+- По этой причине **Release Gate NOT READY**; ZIP как готовая игра не выдан, production не менялся.
+
+## Local QA final follow-up (2026-11-19)
+- Case-scoped typography fix tested against supplied Beget HTML + canonical common assets at desktop 1366 and mobile 390: title size restored to original v0.5, no horizontal overflow, no JS page errors.
+- Independent seeded late-game mock test: saved evidence → final gate displayed → final reconstruction form opened → multi-evidence selection → valid reconstruction submitted → real current frontend v6 engine entered reveal and v25 printed final player summary. PASS in Chromium desktop and mobile, using **mocked network responses** only.
+- A local **NOT READY** preview archive was created from exact Beget LIVE page + 2 new compatibility assets; zip SHA-256 `b08fac53d14aa5a3f7324abc5b27353c1cd7051273fb9c4766019d3916cc98b4`; clean-room unpack, CRC, file SHA equality and node --check PASS. **Must NOT be distributed as production-ready.**
+- Still blocked: current live `sitewide-menu-20261010-v3.js/.css` and `funnel-analytics-20261010-v2.js` were not provided; true end-to-end with real AI/backend and Safari not executed. Release Gate NOT READY.
+- Prepared Beget-aligned HTML is *not committed to PR #384* yet: PR HTML is based on GitHub main and omits deployed sitewide includes. Never merge/deploy PR's HTML as a substitute for exact provided LIVE. Sitewide includes are retained in the local Beget-aligned candidate.
+
+## 2026-11-19 — Полная сверка общесайтовых модулей после предоставления владельцем файлов
+- Получены текущие файлы с Beget (точные bytes):
+  - `assets/funnel-analytics-20261010-v2.js` SHA-256 `6d7ac9f386b254b2c1b7bf5774abb6417e619f19137278839553654f32f3e777`;
+  - `assets/sitewide-menu-20261010-v3.js` SHA-256 `9f2554de82753f6440ddcf49e60ff731dfaae163826957c29d36686e3527ef70`;
+  - `assets/sitewide-menu-20261010-v3.css` SHA-256 `4d5357db9ea80f0d510a48debc852e04d4d7e2d448363ca311b56d4616b31f32`.
+- Собрана точная LIVE-aligned тестовая директория `/mnt/data/moreno_fullqa_20261119/site/` на основе проверенного обязательного canonical baseline, поверх него выгрузка 53 Moreno assets и Beget HTML, затем 3 общесайтовых файла и изолированный кандидат v0.5 (не опубликован). Все 15 CSS и 16 внутренних JS подключений страницы разрешены на локальные файлы, пропусков нет.
+- Chromium sandbox блокирует обычные URL даже file:// и localhost; для теста использован self-contained HTML **с точным содержимым** подключённых файлов, preserving CSS cascade and JS order (deferred scripts run after body). Серверные API mock, данные о платежах/пользователях не изменялись.
+- Playwright Chromium на 1366×900, 768×1024, 390×844: **PASS** desktop/hamburger menu (включая ESC), девять ссылок, opening → accept → persistent v0.5 briefing → inspect_scene evidence → clarify without evidence → identify_people → locate_witnesses → start_interview → server-shaped interrogate answer → six journal turns → in-memory localStorage restore into fresh context. Zero JS page errors, zero horizontal overflow. Analytics module initialized and mock telemetry requests intercepted; real analytics data не записывались.
+- Найдено: глобальное меню в исходном расположении выталкивало крайний nav-link вплотную к правому краю, а на 390 px длинная tagline загромождала header. Исправлено одной scoped CSS правкой в `real-case-moreno-v05-compat.css`: safe inline padding для current sitewide header, tagline скрывается при ширине <=1280; основной дизайн v0.5 не изменяется. Переиспытано PASS на трёх размерах.
+- Late-game mock with seeded canon-compatible completion: финальный gate v25 → открытие реконструкции → выбор материалов → отправка → frontend reveal с финальным резюме: **PASS** на 1366 и 390. Ни CSS, ни JS ошибок; горизонтального overflow нет.
+- Реальный Supabase AI/backend не вызывался, чтобы не загрязнять production state и не тратить клиентские квоты. LIVE web fetch возвращает cache miss. Поэтому **фактическая работа AI и Safari, реальный end-to-end и CASE_RELEASE_GATE/DELIVERY_SELF_QA_CANON/Cognitive Gate остаются NOT RUN/UNKNOWN. Финальный статус NOT READY, ZIP как production-ready запрещён.**
+- ВАЖНО: HTML в draft PR #384 по-прежнему основан на GitHub main; не публиковать его как LIVE. Точный HTML из Beget был использован в проверенном кандидате, а не подменён PR. Никаких PROD изменений нет.
+
+## 2026-11-20 — Проверка CI и production AI (read-only)
+- Current production Edge Functions in project `orknvuwknvsedjgqcfwc`: `ai-moreno-investigator-v11` active version 4, v9 active version 5, v8 active version 8. Frontend `real-case-moreno-ai-router-v23.js` targets v11, sends `x-ml-client-version: moreno-public-v23`, matching the server-side v11 guard. **Not proof of real-model response correctness.**
+- Direct fetch from this environment to mysterylogic.com and Supabase is blocked by network DNS/cache, so real E2E on live API impossible here; do not call it PASS.
+- PR #384 GitHub Actions run for `b975cc2a...`: `Real case Moreno vertical slice` failed at old v0.26-only assertion `grep -q moreno-production-v26.css`, which contradicts explicitly approved v0.5 restoration. **This is a stale test, not evidence of failed new UI.**
+- Six other CI pipelines (site validator/bundle/last-aria/SEO/visuals) failed at `Checkout private mobile content`: GitHub error `fatal: could not read Username for 'https://github.com': terminal prompts disabled` (authentication/access to auxiliary private repository). This is unrelated to Moreno CSS but a separate release blocker.
+- Updated **only the draft PR branch** `.github/workflows/real-case-moreno.yml`: replace v0.26-only validation by exact `sandbox.css` and `v05-compat.css` + `v05-brief.js` tests and `tests/real-case-moreno-v05-restored-visual-contract.mjs`. Commit `1855839a8450fd6c7978b06109222c73a0e9831d`. No production action.
+- Required: run new CI and read actual result (not assumed), fix private checkout access with repository/admin approval as separate task, then execute genuine AI/character/final E2E in an isolated test session with clean telemetry. Safari and full final release Gate pending. **NOT READY; no production ZIP**.
+
+## 2026-11-20 — Live AI smoke обнаружил подтверждённый дефект маршрутизации (блокер)
+- Новый run GitHub Actions `Real case Moreno vertical slice` по ветке прошёл живые тесты v0.17–v0.22, включая живой character interrogation. Однако **FAILED** на `tools/real-case-moreno-v23-semantic-entity-smoke.mjs`: фраза `мне нужен тот сосед, который жил этажом ниже. хочу с ним поговорить` при `focus=boyfriend` вернула `ask_witness(target=boyfriend)` и `mode=deterministic_active_interview` вместо ожидаемого `start_interview(second_floor_witness)`. Это реальный ответ Supabase через CI, а не mock.
+- Read-only inspection production `ai-moreno-investigator-v11` (ACTIVE) → v9 (ACTIVE) → v8 (ACTIVE): v9 semantic fallback forwards commands not classified with high confidence to v8. In v8 `hasInterviewIntent()` requires a narrow action verb from sentence start and rejects `мне нужен тот сосед ... хочу с ним поговорить`; while `secondFloorWitnessAlias()` does recognize neighbor floor. Verified minimal regex test: `hasInterviewIntent=false`, `secondFloorAlias=true`. Therefore `explicitSwitch=false` and `activeInterviewPlan()` defaults to the currently focused boyfriend. Fix must be server-side with explicit switch-intent recognition, respecting known characters and evidence-discovery guardrails; **do not patch UI to infer canonical target**.
+- Affected user-visible behavior: questions for a different witness are addressed to old witness. This plausibly explains the owner's earlier complaint about strange AI replies, independently of styling regression.
+- **No AI backend deployment or code change.** Production mutation requires specific owner's approval per project safety requirements. UI PR #384 should not hide this blocker or be labeled ready.
+- CI `Build Mystery Logic production bundle for Beget` and other unrelated validators fail at `Checkout private mobile content` with missing git credentials (private repo access); separate blocker. UI QA mock passes; real backend E2E is **FAIL**. FINAL GATE NOT READY.
+- Required: produce isolated v8/v9 server-side guard fix with regression cases for switching targets via indirect language, preserve direct-question behavior and player-led limits; verify production-compatible browser and backend full run; only after that finalize release ZIP.
