@@ -50,8 +50,13 @@ jobs:
           node --check assets/real-case-moreno-reference-v19.js
           node --check assets/real-case-moreno-final-v25.js
           node --check assets/real-case-moreno-final-v25-relaxed.js
-          test -s assets/real-case-moreno-production-v26.css
-          grep -q 'moreno-production-v26.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          test -s assets/real-case-moreno-sandbox.css
+          test -s assets/real-case-moreno-v05-compat.css
+          test -s assets/real-case-moreno-v05-brief.js
+          grep -q 'real-case-moreno-sandbox.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          ! grep -q 'real-case-moreno-production-v26.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
+          node --check assets/real-case-moreno-v05-brief.js
+          node tests/real-case-moreno-v05-restored-visual-contract.mjs
           grep -q 'content="index,follow,max-image-preview:large"' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           ! grep -q 'accepted premium mockup' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           node --check tools/real-case-moreno-v6-smoke.mjs
