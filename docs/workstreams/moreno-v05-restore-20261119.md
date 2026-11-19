@@ -53,3 +53,10 @@ Screenshots from actual local Chromium (not generated images) saved under `/mnt/
 - Обнаружена дополнительная визуальная коллизия с `assets/typography-polish.css`, уменьшающим v0.5 заголовок через generic `main h1 !important`. Исправлено **только в отдельном совместимом CSS** case-scoped восстановлением исходного масштаба.
 - При offline QA отсутствуют три не входивших в переданные ZIP sitewide assets: `sitewide-menu-20261010-v3.css`, `sitewide-menu-20261010-v3.js`, `funnel-analytics-20261010-v2.js`. Их ссылки сохранены в LIVE-кандидате; реальное влияние меню и аналитики не проверено. Реальный ИИ backend, Safari и полная проверка production-финала по-прежнему **NOT RUN**.
 - По этой причине **Release Gate NOT READY**; ZIP как готовая игра не выдан, production не менялся.
+
+## Local QA final follow-up (2026-11-19)
+- Case-scoped typography fix tested against supplied Beget HTML + canonical common assets at desktop 1366 and mobile 390: title size restored to original v0.5, no horizontal overflow, no JS page errors.
+- Independent seeded late-game mock test: saved evidence → final gate displayed → final reconstruction form opened → multi-evidence selection → valid reconstruction submitted → real current frontend v6 engine entered reveal and v25 printed final player summary. PASS in Chromium desktop and mobile, using **mocked network responses** only.
+- A local **NOT READY** preview archive was created from exact Beget LIVE page + 2 new compatibility assets; zip SHA-256 `b08fac53d14aa5a3f7324abc5b27353c1cd7051273fb9c4766019d3916cc98b4`; clean-room unpack, CRC, file SHA equality and node --check PASS. **Must NOT be distributed as production-ready.**
+- Still blocked: current live `sitewide-menu-20261010-v3.js/.css` and `funnel-analytics-20261010-v2.js` were not provided; true end-to-end with real AI/backend and Safari not executed. Release Gate NOT READY.
+- Prepared Beget-aligned HTML is *not committed to PR #384* yet: PR HTML is based on GitHub main and omits deployed sitewide includes. Never merge/deploy PR's HTML as a substitute for exact provided LIVE. Sitewide includes are retained in the local Beget-aligned candidate.
