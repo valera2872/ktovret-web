@@ -21,8 +21,15 @@ function enhanceLogs(){
     const bundle=log.querySelectorAll('.v6-item').length;
     if(!log.querySelector('.ref13-log-time'))log.insertAdjacentHTML('afterbegin',`<span class="ref13-log-time">Ход ${String(i+1).padStart(2,'0')}</span>`);
     const command=log.querySelector('.v4-command');
-    if(command&&!log.querySelector('.ref13-meta'))command.insertAdjacentHTML('afterend',`<div class="ref13-meta"><span class="spark">✦</span><b>${bundle?`Выполнено ${bundle} ${one(bundle,'действие','действия','действий')} по распоряжению`:'Результат внесён в журнал'}</b><i></i><span>материалы сохранены</span></div>`);
+    if(command&&!log.querySelector('.ref13-meta'))command.insertAdjacentHTML('afterend',`<div class="ref13-meta"><span class="spark">✦</span><b>${bundle?'Ответ следственной группы':'Запись по делу'}</b><i></i><span>запись в журнале</span></div>`);
     log.querySelectorAll('.v6-item').forEach((card,idx)=>{
+      const diagnostic=['system','limit','dead'].some(kind=>card.classList.contains(kind));
+      if(diagnostic){
+        // Clarifications and unavailable actions are not evidence objects.
+        card.querySelector('.ref13-material')?.remove();
+        card.querySelector('.ref13-preview-label')?.remove();
+        return;
+      }
       if(!card.querySelector('.ref13-material'))card.insertAdjacentHTML('beforeend',materialPreview(idx%4));
       if(!card.querySelector('.ref13-preview-label'))card.insertAdjacentHTML('beforeend','<span class="ref13-preview-label">визуальный индекс</span>');
     });
@@ -52,7 +59,7 @@ function enhanceComposer(){
   if(box&&box.placeholder!=='Напишите, что нужно сделать… Можно объединить несколько действий.')box.placeholder='Напишите, что нужно сделать… Можно объединить несколько действий.';
   if(!form.querySelector('.ref13-composer-foot')){
     const last=form.querySelector(':scope > div');
-    if(last)last.insertAdjacentHTML('beforebegin','<div class="ref13-composer-foot"><span>Shift + Enter — новая строка</span><span class="ref13-ai"><i></i>ИИ-помощник активен</span></div>');
+    if(last)last.insertAdjacentHTML('beforebegin','<div class="ref13-composer-foot"><span>Shift + Enter — новая строка</span><span class="ref13-ai">Свободный ввод распоряжений</span></div>');
   }
 }
 
