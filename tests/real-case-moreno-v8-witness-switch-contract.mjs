@@ -53,10 +53,19 @@ assert.equal(notIdentified.body.mode,'semantic_entity_clarification',JSON.string
 assert.ok(!hasOp(notIdentified.body,'start_interview'));
 
 for(const command of [
+  'мне нужен убийца, хочу с ним поговорить',
+  'хочу поговорить с мужчиной, которого видели на лестнице'
+]){
+  const result=await post({command});
+  assert.equal(result.body.mode,'semantic_entity_clarification',JSON.stringify(result.body));
+  assert.ok(hasOp(result.body,'clarify'));
+  assert.equal(result.body.automatic_identity_inference,false);
+  assert.ok(!hasOp(result.body,'start_interview'));
+}
+for(const command of [
   'вы видели бойфренда старшей дочери той ночью?',
   'вы помните соседа, который жил этажом ниже?',
   'мне нужен сосед, чтобы проверить его алиби',
-  'мне нужен убийца, хочу с ним поговорить',
   'хочу поговорить с вами о бойфренде старшей дочери'
 ]){
   const focus=command.includes('бойфренда старшей дочери')||command.includes('с вами о бойфренде')?'mother':'boyfriend';
@@ -71,4 +80,4 @@ const origin=await post({command:'мне нужен тот сосед, кото�
 assert.equal(origin.status,403);
 const status=await post({action:'status'});
 assert.equal(status.body.version,8);
-console.log('PASS Moreno v8 live-source-compatible witness switch: 5 valid, 2 gated, 5 non-switch, auth/origin/status');
+console.log('PASS Moreno v8 live-source-compatible witness switch: 5 valid, 2 gated, 2 unknown guarded, 4 non-switch, auth/origin/status');
