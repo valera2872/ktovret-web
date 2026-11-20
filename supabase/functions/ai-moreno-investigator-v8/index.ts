@@ -19,7 +19,15 @@ function clientAuthorized(req:Request){const marker=req.headers.get("x-ml-client
 function hasInterviewIntent(command:string){const q=qnorm(command);return /^(?:(?:я|мы)\s+)?(?:(?:хочу|хотим|нужно|надо)\s+)?(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*|допрос[а-я]*|опрос[а-я]*|поговор[а-я]*|побесед[а-я]*|бесед[а-я]*|привед[а-я]*|достав[а-я]*)/.test(q)||/(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*)[^.]{0,60}(?:на\s+)?допрос[а-я]*/.test(q)}
 function secondFloorWitnessAlias(q:string){const person="(?:сосед[а-я]*|жилец[а-я]*|жител[а-я]*|свидетел[а-я]*)";return new RegExp(`${person}[^.]{0,45}втор[а-я]*\\s+этаж[а-я]*`).test(q)||new RegExp(`втор[а-я]*\\s+этаж[а-я]*[^.]{0,45}${person}`).test(q)||new RegExp(`${person}[^.]{0,45}(?:с\\s+)?соседн[а-я]*\\s+этаж[а-я]*`).test(q)||new RegExp(`соседн[а-я]*\\s+этаж[а-я]*[^.]{0,45}${person}`).test(q)||new RegExp(`${person}[^.]{0,45}этаж[а-я]*\\s+(?:ниже|выше)`).test(q)||new RegExp(`${person}[^.]{0,45}(?:сверху|снизу)`).test(q)}
 function detectTarget(command:string){const q=qnorm(command);if(/бойфренд[а-я]*/.test(q)||/парн[а-я]*[^.]{0,30}доч[а-я]*/.test(q))return"boyfriend";if(/старш[а-я]*\s+доч[а-я]*/.test(q))return"older_daughter";if(/младш[а-я]*\s+доч[а-я]*/.test(q))return"younger_daughter";if(/приемн[а-я]*\s+мат[а-я]*/.test(q)||/мат[а-я]*\s+patricia/.test(q)||/мат[а-я]*\s+патриц[а-я]*/.test(q))return"mother";if(secondFloorWitnessAlias(q))return"second_floor_witness";return""}
-function explicitSwitch(command:string,current:string){if(!hasInterviewIntent(command))return false;const target=detectTarget(command);return Boolean(target&&target!==current)}
+function explicitSwitch(command:string,current:string){
+  const q=qnorm(command);
+  // "I want to talk to YOU about X" is a question to the current witness,
+  // not a request to summon X merely because the name appears in the phrase.
+  if(/^(?:(?:я|мы)\s+)?(?:хочу|хотим)\s+(?:поговор[а-я]*|побесед[а-я]*)\s+с\s+(?:вами|тобой)(?:\s|$)/.test(q))return false;
+  if(!hasInterviewIntent(command))return false;
+  const target=detectTarget(command);
+  return Boolean(target&&target!==current);
+}
 function explicitEndInterview(command:string){const q=qnorm(command);return /^(?:законч[а-я]*|заверш[а-я]*|прекрат[а-я]*|закр[а-я]*)\s+(?:этот\s+)?(?:допрос|опрос|разговор|бесед)/.test(q)||/^(?:вернут[а-я]*|возвращ[а-я]*)\s+(?:к\s+)?(?:расследован|дел)/.test(q)}
 function explicitPresentation(command:string){const q=qnorm(command);if(/^(?:вы|ты)\s+(?:мож[а-я]*|готов[а-я]*|соглас[а-я]*)/.test(q))return false;return /^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)\s+(?:ему|ей|собеседник[а-я]*|свидетел[а-я]*|бойфренд[а-я]*|матер[а-я]*|дочер[а-я]*|сосед[а-я]*)/.test(q)||/^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)[^.]{0,80}(?:показан[а-я]*|баллист[а-я]*|экспертиз[а-я]*|материал[а-я]*|улик[а-я]*|рапорт[а-я]*|результат[а-я]*)/.test(q)}
 function explicitExpertCall(command:string){const q=qnorm(command),caller="(?:(?:я|мы)\\s+)?(?:(?:хочу|хотим|нужно|надо)\\s+)?(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*|зов[а-я]*|треб[а-я]*|запрос[а-я]*)",expert="(?:эксперт[а-я]*|криминалист[а-я]*|судмедэксперт[а-я]*|судебн[а-я]*\\s+медик[а-я]*|баллист[а-я]*)";return new RegExp(`^${caller}[^.]{0,80}${expert}`).test(q)||new RegExp(`^${expert}[^.]{0,50}(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*)`).test(q)}
