@@ -1,0 +1,37 @@
+# Mystery Logic / Moreno — исправление маршрутизации свидетелей
+
+Дата: 2026-11-21. Статус: **код в отдельном draft PR, НЕ deployed, НЕ release ready**.
+
+## Источник и подтверждённый дефект
+- Production Supabase строго `orknvuwknvsedjgqcfwc` / `mystery-logic`; функции `ai-moreno-investigator-v11` → `v9` → `v8`.
+- В GitHub Actions реального smoke `tools/real-case-moreno-v23-semantic-entity-smoke.mjs` обнаружено: при активном `boyfriend` сообщение «мне нужен тот сосед, который жил этажом ниже. хочу с ним поговорить» направлялось как `ask_witness(boyfriend)`, а не `start_interview(second_floor_witness)`.
+- Production `v8` source 7246 bytes и GitHub `supabase/functions/ai-moreno-investigator-v8/index.ts` совпали побайтно до исправления (git blob `6fe0660507a16fa9280f0f1f4b02a45ad19e9e77`).
+- Причина: `hasInterviewIntent` понимает прямые глаголы, но не косвенное «мне нужен [человек], хочу с ним поговорить», вследствие чего `activeInterviewPlan` ошибочно принимает распоряжение за вопрос текущему свидетелю.
+- `v9` GitHub main отличается от активного Production (16903 vs 13337 bytes; форматирование и возможные изменения), поэтому **не подменять production v9 исходником GitHub**.
+
+## Исправление
+Branch `fix/moreno-witness-switch-20261121`; изменён только `supabase/functions/ai-moreno-investigator-v8/index.ts`, добавлен изолированный Node VM тест `tests/real-case-moreno-v8-witness-switch-contract.mjs` и его шаг в `.github/workflows/real-case-moreno.yml`.
+- После авторизации/Origin checks, перед дефолтным `ask_witness`, новая функция `indirectInterviewSwitchPlan` обрабатывает ограниченные явно выраженные просьбы о разговоре с распознанным человеком.
+- Использует уже существующий закрытый реестр TARGETS и detectTarget; не определяет виновного и не расширяет канон.
+- Требует наличия `people` или `witnessLocated` перед переходом; если свидетель не установлен — `clarify`, без авторазблокировки.
+- Вопросы текущему собеседнику, упоминающие других людей, остаются `ask_witness`; фразы `хочу поговорить с вами о...` специально исключены.
+- Граница: production v8/v9/v11 не изменялись. Отдельное согласование deploy обязательно.
+
+## Сценарии проверки
+- Пять вариантов явного переключения на известного персонажа, включая обнаруженную фразу.
+- Два сценария попытки вызвать персонажа до установления: уточнение без раннего раскрытия.
+- Пять отрицательных сценариев (вопросы о людях, неопределённая просьба, запрос на «убийцу», обращение к текущему собеседнику).
+- Проверки маркера клиента, запрещённого Origin и статуса.
+- Unit test выполняет настоящий обработчик Edge v8 в Node VM, с изоляцией сети и без запросов к production.
+- Live v23 smoke оставлен отдельным Gate: он должен продолжать FAIL до согласованного деплоя исправления. Не скрывать этот сигнал.
+
+## Взаимодействие с дизайном
+- Утверждённый пользователем дизайн v0.5: PR #384. Это отдельный UX workstream; в этой ветке нет замены HTML, CSS, JS игрового интерфейса.
+- Конфликты PRIVATE canon, payments, RLS, analytics не изменяются.
+
+## Следующие шаги
+1. Подтвердить offline unit tests и статус CI.
+2. После **отдельного разрешения владельца** и согласования релизного окна: применить только минимальный patch v8 к актуальному production source после повторной byte verification; развернуть Edge function. Не деплоить v9 через устаревший main.
+3. Реальный smoke v23, вопрос/ответ, допрос, отсутствие спойлеров, refresh, полный финал.
+4. Исправить отдельный CI checkout private mobile credentials (вне области этого исправления).
+5. Пройти CASE_RELEASE_GATE / DELIVERY_SELF_QA_CANON / Cognitive Gate. До PASS — NOT READY, ZIP как готовый продукт не выдавать.
