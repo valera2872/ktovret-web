@@ -42,3 +42,9 @@ Branch `fix/moreno-witness-switch-20261121`; изменён только `supaba
 - Финальный test coverage: 5 явных переключений, 2 gate до раскрытия, 2 неизвестных лица, 4 проверки отсутствия ложного переключения, origin/auth/status.
 - Node VM unit test после последнего изменения **PASS** в GitHub Actions job `136612015409`, run `44829932940`. Это локальный исполняемый контракт исходника, не признак применения в production.
 - Реальный v23 smoke должен запускаться против текущей старой production v8 и может оставаться FAIL до отдельно разрешённого backend deploy; нельзя скрывать его ошибку или утверждать LIVE PASS.
+
+## 2026-11-21 — CI итог и точный blocker
+- **PASS**: изолированный контракт на реальном обработчике `v8` `tests/real-case-moreno-v8-witness-switch-contract.mjs` в job `136612015409` run `44829932940`; проверено после дополнительных no-spoiler guardrails. Также PASS live smoke: v0.17 confrontation, v0.18 memory, v0.19 manual contradictions, v0.20 live character, v0.21/v0.22 routing.
+- **FAIL ожидаемо на действующем production**: `Smoke deployed v0.23 semantic entity routing contract` (run `44829932940`), старый сервер по-прежнему вернул `ask_witness(boyfriend)` для косвенного запроса соседа вместо `start_interview(second_floor_witness)`. Это подтверждает, что GitHub PR **не** изменил production.
+- Read-only повторная проверка Supabase function `ai-moreno-investigator-v8`: version 8, 7246 bytes, новая функция `indirectInterviewSwitchPlan` отсутствует. Backend deploy **не выполнялся**.
+- **Release Gate NOT READY**. Для реального smoke PASS нужно отдельно одобренное обновление только v8 в `orknvuwknvsedjgqcfwc`, затем повторное реальное тестирование. Производственный запуск нового дизайна v0.5 отдельно по PR #384 и LIVE-aligned Beget base, не смешивать с backend.
