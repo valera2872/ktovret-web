@@ -54,7 +54,10 @@ function indirectInterviewSwitchPlan(body:any){
     if(/^(?:вами|тобой|ним|ней|ними)(?:\s|$)/.test(subject))return null;
   }
   const target=detectTarget(subject);
-  if(!target||target===current)return null;
+  if(!target){
+    return {operations:[{op:"clarify",note:"Уточните, кого из уже установленных людей вы хотите пригласить. Описание само по себе не определяет личность."}],mode:"semantic_entity_clarification",player_led:true,automatic_identity_inference:false,automatic_contradiction_detection:false};
+  }
+  if(target===current)return null;
   const done=new Set(Array.isArray(body?.completed)?body.completed.map((x:unknown)=>clean(x,60)):[]);
   if(target==="second_floor_witness"&&!done.has("witnessLocated")){
     return {operations:[{op:"clarify",note:"Свидетель со второго этажа ещё не установлен. Сначала поручите найти его, чтобы затем провести допрос."}],mode:"semantic_entity_clarification",player_led:true,automatic_contradiction_detection:false};
