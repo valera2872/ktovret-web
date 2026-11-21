@@ -75,6 +75,10 @@ jobs:
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
           node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
           node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Regress isolated v8 witness switching (offline; production remains unchanged)
+        run: |
+          node --check tests/real-case-moreno-v8-witness-switch-contract.mjs
+          node tests/real-case-moreno-v8-witness-switch-contract.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
