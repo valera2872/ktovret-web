@@ -28,3 +28,12 @@
 
 ## Safe path forward
 Keep approved v0.5 **visual design** and current production-friendly backend/public state architecture, correct known v8 switch issue with separately approved tested backend migration, or design a server-side authoritative classic engine; preserve source and game mechanics as far as possible. Do not hide public spoiler by minification/encryption or remove functional finale. Need explicit owner approval before changing LIVE backend/security.
+
+## Real server full-path result — FINAL DIAGNOSIS
+- GitHub Actions run `44951675133`, job `136990768936` executed historical v0.5 full route against real production `ai-moreno-investigator-v1` in an isolated CI session, with stable visitor and RPM spacing.
+- Step 1 inspect_scene PASS, 2 identify_people PASS, 3 locate_witnesses PASS, 4 start_interview(boyfriend) PASS, 5 interrogate boyfriend topic=sequence PASS, 6 start_interview(second_floor_witness) PASS, 7 interrogate second_floor_witness topic=observation PASS, 8 forensic_ballistics PASS, 9 forensic_trajectory PASS, 10 check_weapon(boyfriend) PASS, 11 check_motive(boyfriend) PASS, 12 check_alibi(boyfriend) PASS.
+- **Step 13 compare_description FAIL**: live API returned `intent=identify_people` even though this action already existed in completed. Source inspection establishes a deterministic architecture mismatch: `ai-moreno-investigator-v1` INTENTS and the LLM routing instructions **do not include `compare_description`**; `ai-v5.js` has `case 'compare_description'` as an evidence-unlocking operation. Thus this clue cannot be reached through the normal real v1 router, irrespective of phrasing.
+- This is a failure in a central investigation mechanic, not a visual issue or a mere model-flakiness assumption. **Real E2E FAIL, no release.**
+- Separate HARD Premium blocker remains: original client contains spoiler/reveal, truth predicate, unlock logic, and complete unrevealed evidence; needs server-side private canon, not client code obfuscation. Historic opening also links directly to an official arrest announcement that can spoil the resolution.
+- Gate: source integrity PASS; mock browser E2E PASS; live backend smoke PASS; **live full investigation FAIL**; private canon **FAIL**; modern session migration **UNKNOWN**; Safari **NOT RUN**; therefore **NOT READY**.
+- No ready ZIP has been issued, no production backend/site changes made. Draft QA PR #386 is NOT a release branch.
