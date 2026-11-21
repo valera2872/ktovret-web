@@ -78,6 +78,9 @@ jobs:
           retention-days: 3
       - name: Smoke historical v0.5 real v1 AI backend
         run: node tools/real-case-moreno-v05-v1-live-smoke.mjs
+      - name: Full historical v0.5 investigation via real v1 (isolated CI test)
+        if: github.head_ref == 'test/moreno-v05-v1-rollback-20261122'
+        run: node tools/real-case-moreno-v05-v1-real-e2e.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
