@@ -70,6 +70,12 @@ jobs:
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
           node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
           node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Upload historic v0.5 runtime source for offline release QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: moreno-v05-rollback-source-not-release
+          path: assets/real-case-moreno-ai-v05-rollback.js
+          retention-days: 3
       - name: Smoke historical v0.5 real v1 AI backend
         run: node tools/real-case-moreno-v05-v1-live-smoke.mjs
       - name: Smoke deployed v0.17 confrontation contract
