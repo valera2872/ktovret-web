@@ -1,0 +1,49 @@
+/* User-approved v0.5 two-column design: original layout, typography and
+   palette are preserved in real-case-moreno-sandbox.css. Only compatibility
+   rules for current investigation modules belong here. */
+body.moreno-body .ml-ai01-launch-promo{display:none!important}
+body.moreno-body .v4-evidence article p{white-space:normal;overflow-wrap:anywhere}
+body.moreno-body .v4-composer{position:relative;bottom:auto}
+body.moreno-body .v4-journal .v6-bundle,
+body.moreno-body .v6-item{min-width:0}
+body.moreno-body .v6-item p{overflow-wrap:anywhere}
+/* Original-style case briefing stays available after initial acceptance. */
+body.moreno-body .v05-case-brief{margin:19px 0 0;padding:14px 17px;border:1px solid rgba(226,195,134,.26);border-radius:15px;background:rgba(4,12,20,.28);font:inherit}
+body.moreno-body .v05-case-brief summary{cursor:pointer;color:var(--v4-gold);font-size:.87rem;font-weight:750;line-height:1.5}
+body.moreno-body .v05-case-brief summary:focus-visible{outline:2px solid var(--v4-gold);outline-offset:4px}
+body.moreno-body .v05-case-brief-content{padding:12px 0 0;color:var(--v4-muted)}
+body.moreno-body .v05-case-brief-content p{margin:0 0 11px;line-height:1.55;overflow-wrap:anywhere;font-size:.9rem}
+body.moreno-body .v05-case-brief-content strong{color:#e8e0d0}
+@media(max-width:620px){
+  body.moreno-body .ref16-statebar{flex-wrap:wrap}
+  body.moreno-body .ref16-statebar span{white-space:normal!important}
+  body.moreno-body .v05-case-brief{padding:13px}
+}
+
+/* Guard the user's approved v0.5 typography against sitewide overrides. */
+body.moreno-body main .v4-opening h1,
+body.moreno-body main .v4-console h1,
+body.moreno-body main .v4-reveal h1{
+  font-size:clamp(3rem,7vw,6.8rem)!important;
+  line-height:.88!important;
+  letter-spacing:-.06em!important;
+}
+body.moreno-body main .v4-journal-empty h2{
+  font-size:clamp(2.3rem,4vw,4.2rem)!important;
+  line-height:1.04!important;
+}
+@media(max-width:620px){
+  body.moreno-body main .v4-opening h1,
+  body.moreno-body main .v4-console h1,
+  body.moreno-body main .v4-reveal h1{font-size:clamp(3rem,11vw,4.8rem)!important;line-height:.96!important}
+  body.moreno-body main .v4-journal-empty h2{font-size:clamp(2rem,9vw,3rem)!important}
+}
+
+/* Keep the canonical live sitewide menu usable without crowding v0.5. */
+body.moreno-body .ml-brand-strip-inner.ml-site-menu-header{
+  box-sizing:border-box!important;
+  padding-inline:clamp(12px,1.6vw,24px)!important;
+}
+@media(max-width:1280px){
+  body.moreno-body .moreno-header-note{display:none!important}
+}
