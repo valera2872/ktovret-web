@@ -57,6 +57,7 @@ jobs:
           ! grep -q 'real-case-moreno-production-v26.css' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           node --check assets/real-case-moreno-v05-brief.js
           node tests/real-case-moreno-v05-restored-visual-contract.mjs
+          node tests/real-case-moreno-v05-beget-integrated-contract.mjs
           grep -q 'content="index,follow,max-image-preview:large"' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           ! grep -q 'accepted premium mockup' realnye-dela/pozharnaya-lestnica-1991-premium/index.html
           node --check tools/real-case-moreno-v6-smoke.mjs
