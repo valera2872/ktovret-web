@@ -19,12 +19,82 @@ function clientAuthorized(req:Request){const marker=req.headers.get("x-ml-client
 function hasInterviewIntent(command:string){const q=qnorm(command);return /^(?:(?:я|мы)\s+)?(?:(?:хочу|хотим|нужно|надо)\s+)?(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*|допрос[а-я]*|опрос[а-я]*|поговор[а-я]*|побесед[а-я]*|бесед[а-я]*|привед[а-я]*|достав[а-я]*)/.test(q)||/(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*)[^.]{0,60}(?:на\s+)?допрос[а-я]*/.test(q)}
 function secondFloorWitnessAlias(q:string){const person="(?:сосед[а-я]*|жилец[а-я]*|жител[а-я]*|свидетел[а-я]*)";return new RegExp(`${person}[^.]{0,45}втор[а-я]*\\s+этаж[а-я]*`).test(q)||new RegExp(`втор[а-я]*\\s+этаж[а-я]*[^.]{0,45}${person}`).test(q)||new RegExp(`${person}[^.]{0,45}(?:с\\s+)?соседн[а-я]*\\s+этаж[а-я]*`).test(q)||new RegExp(`соседн[а-я]*\\s+этаж[а-я]*[^.]{0,45}${person}`).test(q)||new RegExp(`${person}[^.]{0,45}этаж[а-я]*\\s+(?:ниже|выше)`).test(q)||new RegExp(`${person}[^.]{0,45}(?:сверху|снизу)`).test(q)}
 function detectTarget(command:string){const q=qnorm(command);if(/бойфренд[а-я]*/.test(q)||/парн[а-я]*[^.]{0,30}доч[а-я]*/.test(q))return"boyfriend";if(/старш[а-я]*\s+доч[а-я]*/.test(q))return"older_daughter";if(/младш[а-я]*\s+доч[а-я]*/.test(q))return"younger_daughter";if(/приемн[а-я]*\s+мат[а-я]*/.test(q)||/мат[а-я]*\s+patricia/.test(q)||/мат[а-я]*\s+патриц[а-я]*/.test(q))return"mother";if(secondFloorWitnessAlias(q))return"second_floor_witness";return""}
-function explicitSwitch(command:string,current:string){if(!hasInterviewIntent(command))return false;const target=detectTarget(command);return Boolean(target&&target!==current)}
+function explicitSwitch(command:string,current:string){
+  const q=qnorm(command);
+  // "I want to talk to YOU about X" is a question to the current witness,
+  // not a request to summon X merely because the name appears in the phrase.
+  if(/^(?:(?:я|мы)\s+)?(?:хочу|хотим)\s+(?:поговор[а-я]*|побесед[а-я]*)\s+с\s+(?:вами|тобой)(?:\s|$)/.test(q))return false;
+  if(!hasInterviewIntent(command))return false;
+  const target=detectTarget(command);
+  return Boolean(target&&target!==current);
+}
 function explicitEndInterview(command:string){const q=qnorm(command);return /^(?:законч[а-я]*|заверш[а-я]*|прекрат[а-я]*|закр[а-я]*)\s+(?:этот\s+)?(?:допрос|опрос|разговор|бесед)/.test(q)||/^(?:вернут[а-я]*|возвращ[а-я]*)\s+(?:к\s+)?(?:расследован|дел)/.test(q)}
 function explicitPresentation(command:string){const q=qnorm(command);if(/^(?:вы|ты)\s+(?:мож[а-я]*|готов[а-я]*|соглас[а-я]*)/.test(q))return false;return /^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)\s+(?:ему|ей|собеседник[а-я]*|свидетел[а-я]*|бойфренд[а-я]*|матер[а-я]*|дочер[а-я]*|сосед[а-я]*)/.test(q)||/^(?:предъяв[а-я]*|покаж[а-я]*|зачит[а-я]*|ознаком[а-я]*)[^.]{0,80}(?:показан[а-я]*|баллист[а-я]*|экспертиз[а-я]*|материал[а-я]*|улик[а-я]*|рапорт[а-я]*|результат[а-я]*)/.test(q)}
 function explicitExpertCall(command:string){const q=qnorm(command),caller="(?:(?:я|мы)\\s+)?(?:(?:хочу|хотим|нужно|надо)\\s+)?(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*|зов[а-я]*|треб[а-я]*|запрос[а-я]*)",expert="(?:эксперт[а-я]*|криминалист[а-я]*|судмедэксперт[а-я]*|судебн[а-я]*\\s+медик[а-я]*|баллист[а-я]*)";return new RegExp(`^${caller}[^.]{0,80}${expert}`).test(q)||new RegExp(`^${expert}[^.]{0,50}(?:выз[а-я]*|приглас[а-я]*|позов[а-я]*)`).test(q)}
 function explicitGlobalInvestigation(command:string){const q=qnorm(command);if(explicitEndInterview(command)||explicitPresentation(command)||explicitExpertCall(command))return true;if(/^(?:моя\s+версия|рабочая\s+версия|зафиксир[а-я]*\s+(?:мою|версию)|запиш[а-я]*\s+(?:мою|версию)|переда[а-я]*\s+дело|заверш[а-я]*\s+расследован)/.test(q))return true;const action=/^(?:осмотр[а-я]*|провед[а-я]*|назнач[а-я]*|проверь[а-я]*|провер[а-я]*|установ[а-я]*|найд[а-я]*|разыщ[а-я]*|запрос[а-я]*|собер[а-я]*|свер[а-я]*|сопостав[а-я]*|исслед[а-я]*|проанализ[а-я]*|восстанов[а-я]*|реконструир[а-я]*)/.test(q),object=/(мест[а-я]*\s+происшеств|баллист[а-я]*|траектор[а-я]*|экспертиз[а-я]*|алibi|алиб[а-я]*|телефон[а-я]*|звонк[а-я]*|камер[а-я]*|днк|отпечат[а-я]*|свидетел[а-я]*|жил[а-я]*\s+дом[а-я]*|оруж[а-я]*\s+(?:на|по)\s+экспертиз[а-я]*|криминалист[а-я]*)/.test(q);return action&&object}
+// Explicit requests to speak to a DIFFERENT known person must outrank the
+// active-interview default, even when phrased in two natural-language clauses.
+// Only player-named characters are routed; no culprit/identity is inferred.
+function indirectInterviewSwitchPlan(body:any){
+  if(clean(body?.action,30)!=="plan")return null;
+  const current=clean(body?.focus,40);
+  if(!TARGETS.has(current))return null;
+  const q=qnorm(body?.command);
+  if(!q)return null;
+  let subject="";
+  const request=/^(?:мне|нам)\s+нуж(?:ен|на|ны|но)\s+(.+)/.exec(q);
+  if(request){
+    if(!/(?:поговор[а-я]*|побесед[а-я]*|допрос[а-я]*|опрос[а-я]*|задать\s+(?:ему|ей|им)\s+вопрос[а-я]*)/.test(q))return null;
+    subject=request[1].split(/\s+(?:хочу|хотим|надо|нужно|чтобы|поговор[а-я]*|побесед[а-я]*|допрос[а-я]*)\s+/)[0];
+  }else{
+    const direct=/^(?:(?:я|мы)\s+)?(?:хочу|хотим)\s+(?:поговор[а-я]*|побесед[а-я]*|допрос[а-я]*|опрос[а-я]*)\s+с\s+(.+)/.exec(q)
+      ||/^(?:дайте|позвольте)\s+(?:мне|нам)\s+(?:поговор[а-я]*|побесед[а-я]*)\s+с\s+(.+)/.exec(q);
+    // Russian polite and role-first requests do not start with the verbs
+    // expected by the older active-interview classifier.
+    const polite=/^(?:можно(?: ли)?|могу ли я|можем ли мы|не могли бы вы)\s+(?:приглас[а-я]*|выз[а-я]*|позов[а-я]*)\s+(.+)/.exec(q);
+    const roleFirst=/^(.{1,105}?)\s+(?:приглас[а-я]*|вызов[а-я]*|позов[а-я]*)(?:\s|$)/.exec(q)
+      ||/^(.{1,105}?)\s+можно\s+сюда(?:\s|$)/.exec(q);
+    const asked=direct||polite||roleFirst;
+    if(!asked)return null;
+    subject=asked[1].split(/\s+(?:о|про|насчет|насчёт|для\s+разговор[а-я]*)\s+/)[0];
+    if(/^(?:вами|тобой|ним|ней|ними)(?:\s|$)/.test(subject))return null;
+  }
+  const target=detectTarget(subject);
+  if(!target){
+    // Do not consume specialist/expert orders; the upstream semantic router
+    // must classify those. Only a genuinely unidentified person is ambiguous.
+    if(!/(?:убийц[а-я]*|стрелок[а-я]*|мужчин[а-я]*|неизвестн[а-я]*\s+(?:свидетел[а-я]*|человек[а-я]*|мужчин[а-я]*)|человек[а-я]*\s+над)/.test(subject))return null;
+    return {operations:[{op:"clarify",note:"Уточните, кого из уже установленных людей вы хотите пригласить. Описание само по себе не определяет личность."}],mode:"semantic_entity_clarification",player_led:true,automatic_identity_inference:false,automatic_contradiction_detection:false};
+  }
+  if(target===current)return null;
+  const done=new Set(Array.isArray(body?.completed)?body.completed.map((x:unknown)=>clean(x,60)):[]);
+  if(target==="second_floor_witness"&&!done.has("witnessLocated")){
+    return {operations:[{op:"clarify",note:"Свидетель со второго этажа ещё не установлен. Сначала поручите найти его, чтобы затем провести допрос."}],mode:"semantic_entity_clarification",player_led:true,automatic_contradiction_detection:false};
+  }
+  if(target!=="second_floor_witness"&&!done.has("people")){
+    return {operations:[{op:"clarify",note:"Этот человек ещё не установлен в материалах дела. Сначала поручите установить круг лиц."}],mode:"semantic_entity_clarification",player_led:true,automatic_contradiction_detection:false};
+  }
+  return {operations:[{op:"start_interview",target}],mode:"semantic_entity_routing",target,player_led:true,automatic_contradiction_detection:false};
+}
+// Expert requests are work orders to the investigation team, not questions
+// to the currently selected witness. Only player-explicit, bounded tasks route.
+function explicitExpertPlan(body:any){
+  if(clean(body?.action,30)!=="plan")return null;
+  const q=qnorm(body?.command);
+  if(!q)return null;
+  const order=/^(?:приглас[а-я]*|позов[а-я]*|выз[а-я]*|мне\s+нуж[а-я]*|нам\s+нуж[а-я]*|можно\s+(?:приглас[а-я]*|позов[а-я]*|выз[а-я]*))/.test(q);
+  const profession=/(?:специалист[а-я]*|эксперт[а-я]*|баллист[а-я]*|криминалист[а-я]*|судмедэксперт[а-я]*)/.test(q);
+  if(!order||!profession)return null;
+  const values={mode:"semantic_expert_routing",player_led:true,automatic_contradiction_detection:false,automatic_evidence_ranking:false};
+  if(/судмед[а-я]*|патолог[а-я]*|вскрыти[а-я]*|медицинск[а-я]*/.test(q))
+    return {...values,operations:[{op:"autopsy"}],expert_type:"medical"};
+  if(/баллист[а-я]*|оруж[а-я]*|пул[а-я]*|калибр[а-я]*/.test(q))
+    return {...values,operations:[{op:"forensic_ballistics"}],expert_type:"ballistics"};
+  if(/траектор[а-я]*|направлен[а-я]*\s+выстрел[а-я]*/.test(q))
+    return {...values,operations:[{op:"forensic_trajectory"}],expert_type:"trajectory"};
+  return {operations:[{op:"clarify",note:"Уточните специализацию эксперта или конкретную проверку, которую вы хотите ему поручить."}],mode:"semantic_expert_clarification",expert_type:"generic",player_led:true,automatic_contradiction_detection:false};
+}
 function activeInterviewPlan(body:any){if(clean(body?.action,30)!=="plan")return null;const current=clean(body?.focus,40);if(!TARGETS.has(current))return null;const command=clean(body?.command,900);if(!command)return null;if(explicitSwitch(command,current)||explicitGlobalInvestigation(command))return null;return {operations:[{op:"ask_witness",target:current,question:command}],mode:"deterministic_active_interview",target:current,player_led:true,automatic_contradiction_detection:false}}
 async function forward(body:any,headers:Record<string,string>){if(!ENV_ANON_KEY)return new Response(JSON.stringify({error:"upstream_public_key_missing"}),{status:503,headers});const r=await fetch(V7,{method:"POST",headers:{authorization:`Bearer ${ENV_ANON_KEY}`,apikey:ENV_ANON_KEY,"content-type":"application/json",origin:"https://mysterylogic.com"},body:JSON.stringify(body)});return new Response(await r.text(),{status:r.status,headers})}
 
-Deno.serve(async(req:Request)=>{const origin=req.headers.get("origin")||"";if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});const headers=cors(origin||"https://mysterylogic.com"),json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});if(req.method==="OPTIONS")return new Response("ok",{headers});if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);if(req.method!=="POST")return json({error:"method_not_allowed"},405);let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}if(clean(body?.action,30)==="status")return json({version:8,upstream:"ai-moreno-investigator-v7",interrogation_mode:"active-witness-first",explicit_interview_routing:"all-known-character-types",neighboring_floor_aliases:true,explicit_expert_calls:true,active_interview_default:"ask-current-character",global_action_requires_explicit_order:true,client_auth:"public-marker-or-current-key",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});const direct=activeInterviewPlan(body);if(direct)return json(direct);return forward(body,headers)});
+Deno.serve(async(req:Request)=>{const origin=req.headers.get("origin")||"";if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});const headers=cors(origin||"https://mysterylogic.com"),json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});if(req.method==="OPTIONS")return new Response("ok",{headers});if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);if(req.method!=="POST")return json({error:"method_not_allowed"},405);let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}if(clean(body?.action,30)==="status")return json({version:8,upstream:"ai-moreno-investigator-v7",interrogation_mode:"active-witness-first",explicit_interview_routing:"all-known-character-types",neighboring_floor_aliases:true,explicit_expert_calls:true,active_interview_default:"ask-current-character",global_action_requires_explicit_order:true,client_auth:"public-marker-or-current-key",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});const expertPlan=explicitExpertPlan(body);if(expertPlan)return json(expertPlan);const switchPlan=indirectInterviewSwitchPlan(body);if(switchPlan)return json(switchPlan);const direct=activeInterviewPlan(body);if(direct)return json(direct);return forward(body,headers)});
