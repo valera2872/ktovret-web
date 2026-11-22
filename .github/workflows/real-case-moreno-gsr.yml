@@ -1,0 +1,21 @@
+name: Moreno forensic GSR regression (read-only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/ai-moreno-investigator-v11/index.ts'
+      - 'tests/real-case-moreno-v11-gsr-contract.mjs'
+      - '.github/workflows/real-case-moreno-gsr.yml'
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate isolated Edge Function on real TypeScript source
+        run: |
+          node --check tests/real-case-moreno-v11-gsr-contract.mjs
+          node tests/real-case-moreno-v11-gsr-contract.mjs
