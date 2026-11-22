@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
+const liveUrl='https://mysterylogic.com/realnye-dela/pozharnaya-lestnica-1991-premium/';
+const expectedLive='c726cada177fdda9d04cb75f95491a005e535cc7e63826402da5ce8c645f8c69'; // exact previously delivered Beget ZIP page
+const live=await fetch(liveUrl,{headers:{'cache-control':'no-cache','user-agent':'MysteryLogic-ReleaseQA/1.0'},signal:AbortSignal.timeout(18000)});
+if(!live.ok)throw Error('LIVE Beget HTML unavailable HTTP '+live.status);
+const liveBytes=Buffer.from(await live.arrayBuffer()),liveHash=createHash('sha256').update(liveBytes).digest('hex');
+console.log('LIVE_BEGET_SHA256',liveHash,'BYTES',liveBytes.length,'EXPECTED',expectedLive);
+if(liveHash!==expectedLive)throw Error('LIVE Beget page changed after owner installed prior ZIP. Stop patch release until reconciled.');
 const out='artifacts/moreno-image-qa';await fs.mkdir(out,{recursive:true});
 const sources=[
  ['portrait-original','https://www.middlesexda.com/sites/g/files/vyhlif11841/f/styles/news_image/public/news/capture_3.jpg?itok=RK3zkJ6R'],
