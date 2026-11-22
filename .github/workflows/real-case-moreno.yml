@@ -70,6 +70,10 @@ jobs:
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
           node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
           node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Complete Free Moreno real-AI investigation (QA IDs, no user data)
+        if: github.head_ref == 'qa/moreno-free-v05-release-20261122'
+        timeout-minutes: 12
+        run: node tools/real-case-moreno-free-full-live-e2e.mjs
       - name: Smoke deployed v0.17 confrontation contract
         run: node tools/real-case-moreno-v17-confrontation-smoke.mjs
       - name: Smoke deployed v0.18 investigative memory contract
