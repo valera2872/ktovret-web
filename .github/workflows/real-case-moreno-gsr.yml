@@ -15,6 +15,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Live GSR smoke against deployed v11 (isolated test ID)
+        if: github.head_ref == 'fix/moreno-forensic-gsr-20261123'
+        run: node tools/moreno-v11-gsr-live-smoke.mjs
       - name: Validate isolated Edge Function on real TypeScript source
         run: |
           node --check tests/real-case-moreno-v11-gsr-contract.mjs
