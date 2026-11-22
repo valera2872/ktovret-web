@@ -70,6 +70,9 @@ jobs:
           node --check tools/real-case-moreno-v23-semantic-entity-smoke.mjs
           node --check tools/real-case-moreno-v24-semantic-action-contract.mjs
           node --check tools/real-case-moreno-v25-public-interrogation-smoke.mjs
+      - name: Confirm current Beget page matches owner-provided source
+        if: github.head_ref == 'qa/moreno-free-v05-release-20261122'
+        run: node tools/real-case-moreno-free-live-parity.mjs
       - name: Complete Free Moreno real-AI investigation (QA IDs, no user data)
         if: github.head_ref == 'qa/moreno-free-v05-release-20261122'
         timeout-minutes: 12
