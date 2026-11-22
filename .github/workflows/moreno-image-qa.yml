@@ -1,0 +1,25 @@
+name: Moreno public image asset availability QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/moreno-image-qa-download.mjs'
+      - '.github/workflows/moreno-image-qa.yml'
+jobs:
+  check-images:
+    if: github.head_ref == 'qa/moreno-assets-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download previously used public image files without modifying production
+        run: node tools/moreno-image-qa-download.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: moreno-public-images-inspection-only
+          path: artifacts/moreno-image-qa/
+          retention-days: 3
