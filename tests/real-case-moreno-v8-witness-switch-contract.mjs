@@ -80,10 +80,22 @@ for(const command of [
   assert.ok(hasOp(result.body,'ask_witness',focus),JSON.stringify(result.body));
   assert.ok(!hasOp(result.body,'start_interview'));
 }
+const specialist=await post({command:'пригласите специалиста по оружию и пуле'});
+assert.equal(specialist.body.mode,'semantic_expert_routing',JSON.stringify(specialist.body));
+assert.ok(hasOp(specialist.body,'forensic_ballistics'));
+const medical=await post({command:'мне нужен судмедэксперт, пусть изучит материалы вскрытия'});
+assert.equal(medical.body.mode,'semantic_expert_routing',JSON.stringify(medical.body));
+assert.ok(hasOp(medical.body,'autopsy'));
+const generic=await post({command:'позовите какого-нибудь эксперта'});
+assert.equal(generic.body.mode,'semantic_expert_clarification',JSON.stringify(generic.body));
+assert.ok(hasOp(generic.body,'clarify'));
+const questionToWitness=await post({command:'вы знаете судмедэксперта, который проводил вскрытие?'});
+assert.equal(questionToWitness.body.mode,'deterministic_active_interview',JSON.stringify(questionToWitness.body));
+assert.ok(hasOp(questionToWitness.body,'ask_witness','boyfriend'));
 const auth=await post({command:'мне нужен тот сосед, который жил этажом ниже. хочу с ним поговорить'},{'x-ml-client-version':'invalid'});
 assert.equal(auth.status,401);
 const origin=await post({command:'мне нужен тот сосед, который жил этажом ниже. хочу с ним поговорить'},{origin:'https://example.invalid'});
 assert.equal(origin.status,403);
 const status=await post({action:'status'});
 assert.equal(status.body.version,8);
-console.log('PASS Moreno v8 live-source-compatible witness switch: 9 valid, 2 gated, 2 unknown guarded, 4 non-switch, auth/origin/status');
+console.log('PASS Moreno v8 live-source-compatible witness switch: 9 valid, 2 gated, 2 unknown guarded, 4 non-switch, 3 expert work orders, 1 expert question preserved, auth/origin/status');
