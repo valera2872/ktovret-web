@@ -76,7 +76,25 @@ function indirectInterviewSwitchPlan(body:any){
   }
   return {operations:[{op:"start_interview",target}],mode:"semantic_entity_routing",target,player_led:true,automatic_contradiction_detection:false};
 }
+// Expert requests are work orders to the investigation team, not questions
+// to the currently selected witness. Only player-explicit, bounded tasks route.
+function explicitExpertPlan(body:any){
+  if(clean(body?.action,30)!=="plan")return null;
+  const q=qnorm(body?.command);
+  if(!q)return null;
+  const order=/^(?:приглас[а-я]*|позов[а-я]*|выз[а-я]*|мне\s+нуж[а-я]*|нам\s+нуж[а-я]*|можно\s+(?:приглас[а-я]*|позов[а-я]*|выз[а-я]*))/.test(q);
+  const profession=/(?:специалист[а-я]*|эксперт[а-я]*|баллист[а-я]*|криминалист[а-я]*|судмедэксперт[а-я]*)/.test(q);
+  if(!order||!profession)return null;
+  const values={mode:"semantic_expert_routing",player_led:true,automatic_contradiction_detection:false,automatic_evidence_ranking:false};
+  if(/судмед[а-я]*|патолог[а-я]*|вскрыти[а-я]*|медицинск[а-я]*/.test(q))
+    return {...values,operations:[{op:"autopsy"}],expert_type:"medical"};
+  if(/баллист[а-я]*|оруж[а-я]*|пул[а-я]*|калибр[а-я]*/.test(q))
+    return {...values,operations:[{op:"forensic_ballistics"}],expert_type:"ballistics"};
+  if(/траектор[а-я]*|направлен[а-я]*\s+выстрел[а-я]*/.test(q))
+    return {...values,operations:[{op:"forensic_trajectory"}],expert_type:"trajectory"};
+  return {operations:[{op:"clarify",note:"Уточните специализацию эксперта или конкретную проверку, которую вы хотите ему поручить."}],mode:"semantic_expert_clarification",expert_type:"generic",player_led:true,automatic_contradiction_detection:false};
+}
 function activeInterviewPlan(body:any){if(clean(body?.action,30)!=="plan")return null;const current=clean(body?.focus,40);if(!TARGETS.has(current))return null;const command=clean(body?.command,900);if(!command)return null;if(explicitSwitch(command,current)||explicitGlobalInvestigation(command))return null;return {operations:[{op:"ask_witness",target:current,question:command}],mode:"deterministic_active_interview",target:current,player_led:true,automatic_contradiction_detection:false}}
 async function forward(body:any,headers:Record<string,string>){if(!ENV_ANON_KEY)return new Response(JSON.stringify({error:"upstream_public_key_missing"}),{status:503,headers});const r=await fetch(V7,{method:"POST",headers:{authorization:`Bearer ${ENV_ANON_KEY}`,apikey:ENV_ANON_KEY,"content-type":"application/json",origin:"https://mysterylogic.com"},body:JSON.stringify(body)});return new Response(await r.text(),{status:r.status,headers})}
 
-Deno.serve(async(req:Request)=>{const origin=req.headers.get("origin")||"";if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});const headers=cors(origin||"https://mysterylogic.com"),json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});if(req.method==="OPTIONS")return new Response("ok",{headers});if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);if(req.method!=="POST")return json({error:"method_not_allowed"},405);let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}if(clean(body?.action,30)==="status")return json({version:8,upstream:"ai-moreno-investigator-v7",interrogation_mode:"active-witness-first",explicit_interview_routing:"all-known-character-types",neighboring_floor_aliases:true,explicit_expert_calls:true,active_interview_default:"ask-current-character",global_action_requires_explicit_order:true,client_auth:"public-marker-or-current-key",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});const switchPlan=indirectInterviewSwitchPlan(body);if(switchPlan)return json(switchPlan);const direct=activeInterviewPlan(body);if(direct)return json(direct);return forward(body,headers)});
+Deno.serve(async(req:Request)=>{const origin=req.headers.get("origin")||"";if(origin&&!ALLOWED_ORIGINS.has(origin))return new Response(JSON.stringify({error:"origin_not_allowed"}),{status:403,headers:{"content-type":"application/json"}});const headers=cors(origin||"https://mysterylogic.com"),json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});if(req.method==="OPTIONS")return new Response("ok",{headers});if(!clientAuthorized(req))return json({error:"unauthorized_client"},401);if(req.method!=="POST")return json({error:"method_not_allowed"},405);let body:any;try{body=await req.json()}catch{return json({error:"invalid_json"},400)}if(clean(body?.action,30)==="status")return json({version:8,upstream:"ai-moreno-investigator-v7",interrogation_mode:"active-witness-first",explicit_interview_routing:"all-known-character-types",neighboring_floor_aliases:true,explicit_expert_calls:true,active_interview_default:"ask-current-character",global_action_requires_explicit_order:true,client_auth:"public-marker-or-current-key",player_leads_investigation:true,automatic_contradiction_detection:false,visual_contract:"unchanged"});const expertPlan=explicitExpertPlan(body);if(expertPlan)return json(expertPlan);const switchPlan=indirectInterviewSwitchPlan(body);if(switchPlan)return json(switchPlan);const direct=activeInterviewPlan(body);if(direct)return json(direct);return forward(body,headers)});
