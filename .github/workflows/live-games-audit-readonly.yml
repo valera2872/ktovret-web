@@ -1,0 +1,34 @@
+name: Mystery Logic LIVE all-games audit (read-only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/live-games-audit-readonly-20261123.mjs
+      - .github/workflows/live-games-audit-readonly.yml
+jobs:
+  all-games-live-check:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate QA script
+        run: node --check tools/live-games-audit-readonly-20261123.mjs
+      - name: Prepare isolated browser (no repo lockfile changes)
+        run: |
+          mkdir -p /tmp/ml-live-audit
+          npm install --prefix /tmp/ml-live-audit --no-save --ignore-scripts --silent puppeteer-core@24.31.0
+          test -d /tmp/ml-live-audit/node_modules/puppeteer-core
+      - name: Audit LIVE case pages / assets / desktop and mobile renders
+        run: node tools/live-games-audit-readonly-20261123.mjs
+      - name: Publish audit JSON + report even if failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-live-all-games-readonly-20261123
+          path: artifacts/live-games-audit-20261123/
+          retention-days: 7
+          if-no-files-found: warn
