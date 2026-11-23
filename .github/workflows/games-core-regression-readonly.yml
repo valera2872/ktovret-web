@@ -1,0 +1,31 @@
+name: Mystery Logic core game regression audit (no private checkout)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/games-core-regression-readonly-20261123.mjs
+      - .github/workflows/games-core-regression-readonly.yml
+jobs:
+  game-engine-tests:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate audit tool
+        run: node --check tools/games-core-regression-readonly-20261123.mjs
+      - name: Run offline game-engine and two-role final regressions
+        run: node tools/games-core-regression-readonly-20261123.mjs
+      - name: Save pass/fail evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mysterylogic-core-regression-20261123
+          path: |
+            artifacts/game-engine-regression-20261123/
+            artifacts/last-aria-browser/
+          retention-days: 7
+          if-no-files-found: warn
