@@ -1,0 +1,27 @@
+name: Mystery Logic LIVE 100 short cases HTTP audit (read-only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/live-all-100-short-cases-readonly-20261123.mjs
+      - .github/workflows/live-all-100-short-cases-readonly.yml
+jobs:
+  live100:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check tools/live-all-100-short-cases-readonly-20261123.mjs
+      - name: Verify complete LIVE 100-case catalog and every public route
+        run: node tools/live-all-100-short-cases-readonly-20261123.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mysterylogic-live-100-short-cases-audit-20261123
+          path: artifacts/live-100-cases-audit-20261123/
+          retention-days: 7
+          if-no-files-found: warn
