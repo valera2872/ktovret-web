@@ -1,0 +1,28 @@
+name: Mystery Logic LIVE game asset parity audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/game-live-asset-parity-readonly-20261123.mjs
+      - .github/workflows/game-live-asset-parity-readonly.yml
+jobs:
+  read-only-parity:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate tool
+        run: node --check tools/game-live-asset-parity-readonly-20261123.mjs
+      - name: Compare deployed critical assets without modifying them
+        run: node tools/game-live-asset-parity-readonly-20261123.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mysterylogic-live-asset-parity-20261123
+          path: artifacts/game-live-parity-20261123/
+          retention-days: 7
+          if-no-files-found: warn
