@@ -1,0 +1,31 @@
+name: Mystery Logic Last Aria LIVE-assets browser final smoke (read-only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/last-aria-stage-live-assets-20261123.mjs
+      - .github/workflows/last-aria-live-assets-browser-smoke.yml
+jobs:
+  live-last-aria-browser:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source QA from current LIVE Beget without modifying production
+        run: node tools/last-aria-stage-live-assets-20261123.mjs
+      - name: Original Last Aria 2 roles x 3 stages, purchase cover, final and reveal
+        run: node tools/last-aria-browser-smoke.mjs
+      - name: Save exact-live source checks and browser images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-aria-exact-live-browser-regression-20261123
+          path: |
+            artifacts/last-aria-live-source-qa/
+            artifacts/last-aria-browser/
+          retention-days: 7
+          if-no-files-found: warn
