@@ -1083,3 +1083,40 @@ Artifacts:
 - standalone HTML: /mnt/data/CASE-ARCH-001-premium-v8/ОТКРЫТЬ_ИГРУ.html
 
 No LIVE / Supabase / payment / entitlement changes.
+
+
+## CASE-ARCH-001 model handoff — 2026-11-25
+
+A complete private handoff package was prepared for continuing CASE-ARCH-001 with a newer model.
+
+Spoiler-safe state:
+- active editorial target remains Premium Partner / SIGNATURE candidate;
+- CANON v2 remains the active canon and must not be casually rewritten;
+- v7 visual direction/opening was user-approved;
+- v7 gameplay was rejected because it behaved like a passive dossier;
+- v8 Active Investigation is the current prototype direction, but it was NOT successfully user-tested or user-approved because repeated ChatGPT file-delivery failures prevented a normal playthrough;
+- therefore the next model must treat v8 as an internally smoked prototype, not an accepted UX;
+- the old pre-v8 human blind-test packets must NOT be run unchanged because they predate the Active Investigation redesign.
+
+Next sequence:
+R0 verify handoff and current sources without coding
+→ R1 reconcile v8 with Player Plot and formalize the evidence-acquisition graph / hypothesis dynamics / Partner asymmetry
+→ R2 build a new self-contained Active Investigation review candidate and run autonomous desktop/mobile end-to-end QA
+→ R3 define canon-bounded character AI state
+→ R4 validate real Partner asymmetry and virtual fallback
+→ R5 adversarial internal playtests
+→ R6 fresh human two-person blind test matching the active mechanics
+→ R7 Content Freeze + CASE_RELEASE_GATE + DELIVERY_SELF_QA_CANON + Cognitive/WOW + G0–G9
+→ only then consider production integration with explicit approval.
+
+Private handoff artifacts generated outside public GitHub:
+- CASE-ARCH-001_HANDOFF_2026-11-25.docx
+- CASE-ARCH-001_HANDOFF_2026-11-25.md
+- CASE-ARCH-001_NEXT_MODEL_PROMPT.txt
+- CASE-ARCH-001_HANDOFF_PACK_2026-11-25.zip
+- active review prototype: Mystery-Logic-CASE-ARCH-001-v8-2026-09-28.html
+
+Important continuity rule:
+If production work is later approved, re-read CURRENT_RELEASE.json and the exact current LIVE baseline at that time. Do not use a remembered September LIVE baseline as current.
+
+No LIVE / Supabase / payment / auth / schema / RLS / entitlement changes were made during this handoff.
