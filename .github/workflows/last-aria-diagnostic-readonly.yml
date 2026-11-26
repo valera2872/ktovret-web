@@ -1,0 +1,32 @@
+name: Mystery Logic Last Aria diagnostic after intro (read-only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - tools/last-aria-diagnostic-after-known-intro-failure.mjs
+      - tools/last-aria-dynamic-asset-parity-20261123.mjs
+      - .github/workflows/last-aria-diagnostic-readonly.yml
+jobs:
+  diagnostic:
+    if: github.head_ref == 'audit/live-games-readonly-20261123'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect dynamic Last Aria LIVE scripts
+        run: node tools/last-aria-dynamic-asset-parity-20261123.mjs
+      - name: Diagnostic only — continue after known fail on intro spoiler, test roles and final
+        run: node tools/last-aria-diagnostic-after-known-intro-failure.mjs
+      - name: Publish partial results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-aria-readonly-deep-diagnostic-20261123
+          path: |
+            artifacts/last-aria-dynamic-parity/
+            artifacts/last-aria-audit-diagnostic/
+          retention-days: 7
+          if-no-files-found: warn
