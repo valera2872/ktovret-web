@@ -63,14 +63,21 @@ export function safeSoloClientPayload(runtime: SoloRuntime, state: SoloState, re
         evidenceExposure: (persisted?.evidence_exposure || []).filter((id) => isSoloEvidenceAccessible(runtime.definition, guestState, id)),
       };
     });
-    // Guard all payload categories, including opaque identifiers and expired-session results.
-    base.evidence = (base.evidence || []).filter((item: any) => item.accessible === true);
-    base.deductions = (base.deductions || []).filter((item: any) => item.accessible === true);
-    base.interactions = (base.interactions || []).filter((item: any) => item.accessible === true);
+    // Opt in to strict list-level secrecy only for cases with gated opening characters.
+    // Legacy cases without such rules keep their existing opaque, locked placeholders.
+    const strictGuestVisibility = runtime.definition.characters.some((character) => {
+      const openingRule = character.states[0]?.enter_rule || null;
+      return openingRule !== null && !evaluateSoloRule(openingRule, guestState);
+    });
+    if (strictGuestVisibility) {
+      base.evidence = (base.evidence || []).filter((item: any) => item.accessible === true);
+      base.deductions = (base.deductions || []).filter((item: any) => item.accessible === true);
+      base.interactions = (base.interactions || []).filter((item: any) => item.accessible === true);
+      base.reconstruction = null;
+      base.flags = { ...base.flags, confessionObtained: false, reconstructionStoryUnlocked: false, reconstructionAccessible: false };
+    }
     base.timeline = [];
     base.proofClasses = [];
-    base.reconstruction = null;
-    base.flags = { ...base.flags, confessionObtained: false, reconstructionStoryUnlocked: false, reconstructionAccessible: false };
   }
 
   return base;
