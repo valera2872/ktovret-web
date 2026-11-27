@@ -1,38 +1,8 @@
-import {adminClient} from '../_shared/payment.ts';
-import {TBANK_TERMINAL_KEY,amountToKopecks,tbankConfigReady,verifyTbankToken} from '../_shared/tbank.ts';
-import {SOLO_INVESTIGATIONS_PRODUCT_ID,refreshSoloOrder,refundSoloOrder} from '../_shared/solo-investigations.ts';
-
-const ok=()=>new Response('OK',{status:200,headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});
-const fail=(status:number,text:string)=>new Response(text,{status,headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});
-const readNotification=async(req:Request)=>{
-  const type=(req.headers.get('content-type')||'').toLowerCase();
-  if(type.includes('application/json'))return await req.json();
-  const text=await req.text();try{return JSON.parse(text);}catch{}
-  return Object.fromEntries(new URLSearchParams(text));
-};
-
-Deno.serve(async(req:Request)=>{
-  if(req.method!=='POST')return fail(405,'METHOD_NOT_ALLOWED');
-  if(!tbankConfigReady())return fail(503,'NOT_CONFIGURED');
-  let notification:any;try{notification=await readNotification(req);}catch{return fail(400,'INVALID_BODY');}
-  if(!notification||typeof notification!=='object')return fail(400,'INVALID_BODY');
-  if(!await verifyTbankToken(notification))return fail(403,'INVALID_TOKEN');
-  if(String(notification.TerminalKey||'')!==TBANK_TERMINAL_KEY)return fail(403,'INVALID_TERMINAL');
-  const orderId=String(notification.OrderId||'').trim(),paymentId=String(notification.PaymentId||'').trim();
-  if(!orderId||!paymentId)return ok();
-  const admin=adminClient();
-  const {data:order,error}=await admin.from('payment_orders').select('*').eq('id',orderId).maybeSingle();
-  if(error)return fail(503,'DB_ERROR');
-  if(!order)return ok();
-  if(String(order.product_id||'')!==SOLO_INVESTIGATIONS_PRODUCT_ID)return ok();
-  if(String(order.payment_provider||'')!=='tbank')return ok();
-  if(String(order.provider_payment_id||'')!==paymentId)return fail(409,'PAYMENT_MISMATCH');
-  if(notification.Amount!=null&&Number(notification.Amount)!==amountToKopecks(order.amount_value))return fail(409,'AMOUNT_MISMATCH');
-  const status=String(notification.Status||'').trim();
-  try{
-    if(status==='REFUNDED'){await refundSoloOrder(admin,order,notification);return ok();}
-    if(status)await admin.from('payment_orders').update({provider_status:status,updated_at:new Date().toISOString()}).eq('id',order.id);
-    if(['CONFIRMED','CANCELED','REJECTED','REVERSED','DEADLINE_EXPIRED'].includes(status))await refreshSoloOrder(admin,{...order,provider_status:status});
-    return ok();
-  }catch{return fail(503,'RETRY');}
-});
+import {adminClient} from 'https://raw.githubusercontent.com/valera2872/ktovret-web/85d120356354e836577a3e2fda9d53a820fce3ef/supabase/functions/_shared/payment.ts';
+import {TBANK_TERMINAL_KEY,amountToKopecks,tbankConfigReady,verifyTbankToken,tbankRequest,tbankPaymentMatchesOrder} from 'https://raw.githubusercontent.com/valera2872/ktovret-web/85d120356354e836577a3e2fda9d53a820fce3ef/supabase/functions/_shared/tbank.ts';
+const SOLO_ID='solo_investigations_v1',TN_ID='tikhaya_noch_v1',TN_CASE='premium_tikhaya_noch_v1',P001_ID='p001-premium-solo',P001_CASE='P-001';const validProduct=(id:string)=>id===SOLO_ID||id===TN_ID||id===P001_ID;
+const ok=()=>new Response('OK',{status:200,headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});const fail=(s:number,t:string)=>new Response(t,{status:s,headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});const read=async(req:Request)=>{const type=(req.headers.get('content-type')||'').toLowerCase();if(type.includes('application/json'))return await req.json();const text=await req.text();try{return JSON.parse(text);}catch{}return Object.fromEntries(new URLSearchParams(text));};
+const entitlementMetadata=(order:any)=>order.product_id===P001_ID?{order_id:order.id,source:'purchase',purchase_product_id:P001_ID,case_id:P001_CASE,allowed_case_ids:[P001_CASE],paid_price_rub:Number(order.amount_value)}:order.product_id===TN_ID?{order_id:order.id,source:'purchase',purchase_product_id:TN_ID,case_id:TN_CASE,allowed_case_ids:[TN_CASE],visitor_key_hash:order.metadata?.visitor_key_hash||null,dossier_discount:Boolean(order.metadata?.dossier_discount),paid_price_rub:Number(order.amount_value)}:{order_id:order.id,source:'tbank',purchase_product_id:SOLO_ID};
+const activate=async(admin:any,order:any,payment:any)=>{if(!tbankPaymentMatchesOrder(payment,order))throw new Error('payment_order_mismatch');if(String(payment?.Status||'')!=='CONFIRMED')throw new Error('payment_not_confirmed');const now=new Date().toISOString(),pid=String(payment.PaymentId||order.provider_payment_id||'');const {data:ent,error:e}=await admin.from('access_entitlements').upsert({token_hash:order.token_hash,product_id:order.product_id,status:'active',payment_provider:'tbank',payment_reference:pid,customer_email_hash:order.customer_email_hash||null,starts_at:now,expires_at:null,revoked_at:null,metadata:entitlementMetadata(order),updated_at:now},{onConflict:'token_hash,product_id'}).select('id').single();if(e||!ent)throw e||new Error('entitlement_write_failed');const {error:oe}=await admin.from('payment_orders').update({status:'paid',provider_status:'CONFIRMED',paid_at:order.paid_at||now,entitlement_id:ent.id,failure_code:null,metadata:{...(order.metadata||{}),entitlement_product_ids:[order.product_id]},updated_at:now}).eq('id',order.id);if(oe)throw oe;};
+const refresh=async(admin:any,order:any)=>{const p=await tbankRequest('GetState',{PaymentId:String(order.provider_payment_id)});if(!tbankPaymentMatchesOrder(p,order))throw new Error('payment_order_mismatch');const st=String(p?.Status||'');if(st==='CONFIRMED'){await activate(admin,order,p);return;}if(st==='REFUNDED'){const now=new Date().toISOString();const {data:other,error:otherError}=await admin.from('payment_orders').select('*').eq('token_hash',order.token_hash).eq('product_id',order.product_id).eq('status','paid').neq('id',order.id).order('paid_at',{ascending:false}).limit(1).maybeSingle();if(otherError)throw otherError;if(other){const {error:e}=await admin.from('access_entitlements').upsert({token_hash:order.token_hash,product_id:order.product_id,status:'active',payment_provider:'tbank',payment_reference:String(other.provider_payment_id||''),customer_email_hash:other.customer_email_hash||null,starts_at:other.paid_at||now,expires_at:null,revoked_at:null,metadata:entitlementMetadata(other),updated_at:now},{onConflict:'token_hash,product_id'});if(e)throw e;}else{const {error:e}=await admin.from('access_entitlements').update({status:'refunded',revoked_at:now,updated_at:now}).eq('token_hash',order.token_hash).eq('product_id',order.product_id);if(e)throw e;}const {error:oe}=await admin.from('payment_orders').update({status:'refunded',provider_status:'REFUNDED',refunded_at:now,entitlement_id:null,updated_at:now}).eq('id',order.id);if(oe)throw oe;return;}if(['CANCELED','REJECTED','REVERSED','DEADLINE_EXPIRED'].includes(st)){const now=new Date().toISOString();await admin.from('payment_orders').update({status:'canceled',provider_status:st,canceled_at:now,updated_at:now}).eq('id',order.id).neq('status','paid');return;}await admin.from('payment_orders').update({provider_status:st||null,updated_at:new Date().toISOString()}).eq('id',order.id).neq('status','paid');};
+Deno.serve(async(req:Request)=>{if(req.method!=='POST')return fail(405,'METHOD_NOT_ALLOWED');if(!tbankConfigReady())return fail(503,'NOT_CONFIGURED');let n:any;try{n=await read(req);}catch{return fail(400,'INVALID_BODY');}if(!n||typeof n!=='object')return fail(400,'INVALID_BODY');if(!await verifyTbankToken(n))return fail(403,'INVALID_TOKEN');if(String(n.TerminalKey||'')!==TBANK_TERMINAL_KEY)return fail(403,'INVALID_TERMINAL');const orderId=String(n.OrderId||'').trim(),paymentId=String(n.PaymentId||'').trim();if(!orderId||!paymentId)return ok();const admin=adminClient();const {data:order,error}=await admin.from('payment_orders').select('*').eq('id',orderId).maybeSingle();if(error)return fail(503,'DB_ERROR');if(!order)return ok();if(!validProduct(String(order.product_id||'')))return ok();if(String(order.payment_provider||'')!=='tbank')return ok();if(String(order.provider_payment_id||'')!==paymentId)return fail(409,'PAYMENT_MISMATCH');if(n.Amount!=null&&Number(n.Amount)!==amountToKopecks(order.amount_value))return fail(409,'AMOUNT_MISMATCH');try{const st=String(n.Status||'').trim();if(st)await admin.from('payment_orders').update({provider_status:st,updated_at:new Date().toISOString()}).eq('id',order.id);if(['CONFIRMED','REFUNDED','CANCELED','REJECTED','REVERSED','DEADLINE_EXPIRED'].includes(st))await refresh(admin,order);return ok();}catch{return fail(503,'RETRY');}});
