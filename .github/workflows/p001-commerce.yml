@@ -22,6 +22,6 @@ jobs:
         with:
           deno-version: v2.x
       - run: |
-          deno check supabase/functions/create-checkout-solo/index.ts
-          deno check supabase/functions/payment-status-solo/index.ts
-          deno check supabase/functions/tbank-webhook-solo/index.ts
+          deno check --node-modules-dir=auto supabase/functions/create-checkout-solo/index.ts
+          deno check --node-modules-dir=auto supabase/functions/payment-status-solo/index.ts
+          deno check --node-modules-dir=auto supabase/functions/tbank-webhook-solo/index.ts
