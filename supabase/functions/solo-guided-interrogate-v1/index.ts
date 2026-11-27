@@ -32,12 +32,14 @@ async function p001History(sessionKey:string,characterId:string):Promise<History
   const rows=await r.json();
   return (Array.isArray(rows)?rows:[]).reverse().map((x:any)=>({question:clean(x.question,500),answer:clean(x.answer,1000)})).filter((x:HistoryTurn)=>x.question&&x.answer);
 }
-async function p001SavedReply(sessionKey:string,turnId:string):Promise<string>{
-  const url=p001TurnUrl({select:'answer',session_key:'eq.'+sessionKey,turn_id:'eq.'+turnId,limit:'1'});
+async function p001SavedReply(sessionKey:string,turnId:string,characterId:string,question:string):Promise<string>{
+  const url=p001TurnUrl({select:'answer,question,character_id',session_key:'eq.'+sessionKey,turn_id:'eq.'+turnId,limit:'1'});
   const r=await fetch(url,{headers:p001Headers()});
   if(!r.ok)throw new Error('solo_ai_history_unavailable');
   const rows=await r.json();
-  return Array.isArray(rows)&&rows[0]?clean(rows[0].answer,1200):'';
+  const existing=Array.isArray(rows)?rows[0]:null;
+  if(existing&&(existing.character_id!==characterId||existing.question!==question))throw new Error('solo_ai_turn_conflict');
+  return existing?clean(existing.answer,1200):'';
 }
 async function p001SaveReply(input:{sessionKey:string,entitlementId:string,characterId:string,turnId:string,question:string,answer:string}){
   const r=await fetch(SUPABASE_URL+'/rest/v1/p001_ai_dialogue_turns',{method:'POST',headers:{...p001Headers(),prefer:'return=minimal'},body:JSON.stringify({
@@ -161,7 +163,7 @@ Deno.serve(async(req:Request)=>{
     const ctx=speakingContext(runtime,state,characterId);
     if(isP001&&op==='HISTORY')return json(origin,200,{history:await p001History(sessionKey,characterId),character_id:characterId});
     if(isP001){
-      const existingReply=await p001SavedReply(sessionKey,turnId);
+      const existingReply=await p001SavedReply(sessionKey,turnId,characterId,question);
       if(existingReply)return json(origin,200,{reply:existingReply,character:{id:ctx.def.id,name:ctx.def.name,role:ctx.def.role,state:Number(ctx.rt.state||0),statementVersion:ctx.version},mode:'ai_character',reused:true});
     }
     const serverHistory=isP001?await p001History(sessionKey,characterId):history(body.recent_history);
