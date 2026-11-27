@@ -120,7 +120,7 @@ Deno.test('guest and expired sessions cannot leak paid text, characters, IDs or 
     ],
     timeline: [{ id: 'T1', time: '14:00', label: 'Private chronology' }],
     proof_classes: [], milestone_rules: [], interactions: [],
-    reconstruction: { access_rule: { entitlement: ['owned', 'club', 'admin'] }, fields: [{ id: 'WHO', prompt: 'Private ending', options: [{ id: 'A', label: 'Secret answer' }] }], expected: { WHO: 'A' } },
+    reconstruction: { access_rule: { entitlement: ['owned', 'club', 'admin'] }, fields: [{ id: 'WHO', prompt: 'Private ending', options: [{ id: 'A', label: 'Secret answer' }, { id: 'B', label: 'Alternative' }] }], expected: { WHO: 'A' } },
   });
   const gatedRuntime: SoloRuntime = { caseId: 'GUARD-TEST', productId: 'guard-product', payloadVersion: 1, canonRelease: '1.0.0', definition: gated };
   let state = createInitialSoloServerState(gatedRuntime, 'owned');
