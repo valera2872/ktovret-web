@@ -96,3 +96,49 @@ Deno.test('reconstruction equality is independent of PostgreSQL jsonb object-key
 
   assert(state.completed === true, 'logically equal reconstruction failed after jsonb key reordering');
 });
+
+
+import { safeSoloClientPayload } from './solo-engine-v2-view.ts';
+
+Deno.test('guest and expired sessions cannot leak paid text, characters, IDs or conclusion', () => {
+  const gated = parseSoloDefinition({
+    schema_version: 2,
+    case_version: 'guard-test',
+    metadata: { title: 'Public case' },
+    initial_evidence_ids: ['FREE', 'SECRET'],
+    evidence: [
+      { id: 'FREE', title: 'Free document', body: 'Free body', sections: [] },
+      { id: 'SECRET', title: 'Protected secret', body: 'Unpublished clue', sections: [], access_rule: { entitlement: ['owned', 'club', 'admin'] } },
+    ],
+    characters: [
+      { id: 'witness', name: 'Free witness', statements: { '1': 'Free statement' }, states: [{ id: 0, statement_version: 1, disclosure_level: 0 }] },
+      { id: 'private', name: 'Private suspect', statements: { '1': 'Spoiler statement' }, states: [{ id: 0, statement_version: 1, disclosure_level: 0, enter_rule: { entitlement: ['owned', 'club', 'admin'] } }] },
+    ],
+    deductions: [
+      { id: 'D-FREE', title: 'Free question', prompt: 'Free prompt', choices: [{ id: 'A', label: 'A' }], correct_choice: 'A', effects_on_confirm: [] },
+      { id: 'D-PRIVATE', title: 'Paid question', prompt: 'Private prompt', choices: [{ id: 'B', label: 'B' }], correct_choice: 'B', effects_on_confirm: [], access_rule: { entitlement: ['owned', 'club', 'admin'] } },
+    ],
+    timeline: [{ id: 'T1', time: '14:00', label: 'Private chronology' }],
+    proof_classes: [], milestone_rules: [], interactions: [],
+    reconstruction: { access_rule: { entitlement: ['owned', 'club', 'admin'] }, fields: [{ id: 'WHO', prompt: 'Private ending', options: [{ id: 'A', label: 'Secret answer' }] }], expected: { WHO: 'A' } },
+  });
+  const gatedRuntime: SoloRuntime = { caseId: 'GUARD-TEST', productId: 'guard-product', payloadVersion: 1, canonRelease: '1.0.0', definition: gated };
+  let state = createInitialSoloServerState(gatedRuntime, 'owned');
+  state = processAuthorizedSoloAction(gatedRuntime, state, { type: 'OPEN_EVIDENCE', evidence_id: 'SECRET' }, 'owned');
+  state.milestones.push('RECONSTRUCTION_AVAILABLE');
+  const paid = safeSoloClientPayload(gatedRuntime, state, 2, 'owned');
+  const guest = safeSoloClientPayload(gatedRuntime, state, 2, 'demo');
+  assert(paid.evidence.some((e: any) => e.id === 'SECRET' && e.body), 'paid evidence vanished');
+  assert(paid.characters.some((c: any) => c.id === 'private'), 'paid character vanished');
+  assert(paid.reconstruction?.accessible, 'paid ending vanished');
+  assert(guest.evidence.length === 1 && guest.evidence[0].id === 'FREE', 'guest evidence metadata leaked');
+  assert(guest.deductions.length === 1 && guest.deductions[0].id === 'D-FREE', 'guest deduction metadata leaked');
+  assert(guest.characters.length === 1 && guest.characters[0].id === 'witness', 'guest character metadata leaked');
+  assert(guest.reconstruction === null, 'guest ending leaked');
+  assert(guest.timeline.length === 0 && guest.proofClasses.length === 0, 'guest chronology leaked');
+  assert(!guest.flags.reconstructionStoryUnlocked && !guest.flags.reconstructionAccessible, 'guest progression flags leaked');
+  const serialized = JSON.stringify(guest);
+  for (const word of ['SECRET', 'Unpublished clue', 'Private suspect', 'Spoiler statement', 'D-PRIVATE', 'Private ending', 'Secret answer']) {
+    assert(!serialized.includes(word), 'guest payload contained paid content: ' + word);
+  }
+});
