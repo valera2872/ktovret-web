@@ -10,6 +10,7 @@ on:
       - 'supabase/functions/_shared/solo-engine-v2-controller.test.ts'
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-preview-auth/**'
+      - 'supabase/functions/p001-guided-interrogate-v1/**'
       - 'assets/solo-v2-preview-auth.mjs'
       - 'assets/solo-v2-onboarding.mjs'
       - 'assets/solo-v2-onboarding.css'
@@ -27,6 +28,7 @@ on:
       - 'supabase/functions/_shared/solo-engine-v2-controller.test.ts'
       - 'supabase/functions/solo-session-v2/**'
       - 'supabase/functions/solo-preview-auth/**'
+      - 'supabase/functions/p001-guided-interrogate-v1/**'
       - 'assets/solo-v2-preview-auth.mjs'
       - 'assets/solo-v2-onboarding.mjs'
       - 'assets/solo-v2-onboarding.css'
@@ -55,6 +57,7 @@ jobs:
         run: |
           deno check supabase/functions/solo-session-v2/index.ts
           deno check supabase/functions/solo-preview-auth/index.ts
+          deno check supabase/functions/p001-guided-interrogate-v1/index.ts
       - name: Check preview bootstrap syntax
         run: |
           node --check assets/solo-v2-preview-auth.mjs
