@@ -18,6 +18,35 @@ const P001_CASE_ID='P-001';
 const ALLOWED_ORIGINS=new Set(['https://mysterylogic.com','https://www.mysterylogic.com','https://valera2872.github.io','https://rawcdn.githack.com']);
 const CHARACTER_IDS=new Set(['anton','sofia','mila','denis']);
 const P001_CHARACTER_IDS=new Set(['ingrid','lund','kraus','voss','richter','vestad']);
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function p001Headers(){return {apikey:SERVICE_ROLE_KEY,authorization:`Bearer ${SERVICE_ROLE_KEY}`,'content-type':'application/json'};}
+function p001TurnUrl(filter:Record<string,string>){
+  const url=new URL(SUPABASE_URL+'/rest/v1/p001_ai_dialogue_turns');
+  for(const [key,val] of Object.entries(filter))url.searchParams.set(key,val);
+  return url.toString();
+}
+async function p001History(sessionKey:string,characterId:string):Promise<HistoryTurn[]>{
+  const url=p001TurnUrl({select:'question,answer',session_key:'eq.'+sessionKey,character_id:'eq.'+characterId,order:'id.desc',limit:'8'});
+  const r=await fetch(url,{headers:p001Headers()});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+  const rows=await r.json();
+  return (Array.isArray(rows)?rows:[]).reverse().map((x:any)=>({question:clean(x.question,500),answer:clean(x.answer,1000)})).filter((x:HistoryTurn)=>x.question&&x.answer);
+}
+async function p001SavedReply(sessionKey:string,turnId:string):Promise<string>{
+  const url=p001TurnUrl({select:'answer',session_key:'eq.'+sessionKey,turn_id:'eq.'+turnId,limit:'1'});
+  const r=await fetch(url,{headers:p001Headers()});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+  const rows=await r.json();
+  return Array.isArray(rows)&&rows[0]?clean(rows[0].answer,1200):'';
+}
+async function p001SaveReply(input:{sessionKey:string,entitlementId:string,characterId:string,turnId:string,question:string,answer:string}){
+  const r=await fetch(SUPABASE_URL+'/rest/v1/p001_ai_dialogue_turns',{method:'POST',headers:{...p001Headers(),prefer:'return=minimal'},body:JSON.stringify({
+    session_key:input.sessionKey,entitlement_id:input.entitlementId,character_id:input.characterId,turn_id:input.turnId,
+    question:input.question,answer:input.answer
+  })});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+}
+
 
 const SESSION_LIMIT=100;
 const VISITOR_DAILY_LIMIT=180;
@@ -114,8 +143,8 @@ Deno.serve(async(req:Request)=>{
   let body:Record<string,any>={};try{body=record(await req.json());}catch{return json(origin,400,{error:'invalid_request'});}
   if(clean(body.action,30).toUpperCase()==='STATUS')return json(origin,200,{version:1,mode:'state-bounded-character-interrogation',caseId:CASE_ID,model:MODEL});
   const caseId=clean(body.case_id,160),rawSessionToken=clean(body.session_token,512),characterId=clean(body.character_id,80),question=clean(body.question,700),accessToken=bearer(req);
-  const isP001=caseId===P001_CASE_ID;
-  if(!(caseId===CASE_ID||isP001)||!rawSessionToken||!question||!(isP001?P001_CHARACTER_IDS:CHARACTER_IDS).has(characterId)||(!isP001&&!accessToken))return json(origin,400,{error:'invalid_request'});
+  const op=clean(body.action,30).toUpperCase(),isP001=caseId===P001_CASE_ID,turnId=clean(body.turn_id,60);
+  if(!(caseId===CASE_ID||isP001)||!rawSessionToken||!(isP001?P001_CHARACTER_IDS:CHARACTER_IDS).has(characterId)||(!isP001&&!accessToken)||(!question&&op!=='HISTORY')||(isP001&&op!=='HISTORY'&&!UUID_RE.test(turnId)))return json(origin,400,{error:'invalid_request'});
   try{
     const runtime=await loadSoloRuntime({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId});
     const sessionKey=await deriveSoloSessionKey(rawSessionToken);
@@ -130,15 +159,22 @@ Deno.serve(async(req:Request)=>{
     const characterDef=runtime.definition.characters.find((c:any)=>c.id===characterId);
     if(!characterDef||(isP001&&!evaluateSoloRule(characterDef.states?.[0]?.enter_rule||null,state)))throw new Error('character_not_available');
     const ctx=speakingContext(runtime,state,characterId);
+    if(isP001&&op==='HISTORY')return json(origin,200,{history:await p001History(sessionKey,characterId),character_id:characterId});
+    if(isP001){
+      const existingReply=await p001SavedReply(sessionKey,turnId);
+      if(existingReply)return json(origin,200,{reply:existingReply,character:{id:ctx.def.id,name:ctx.def.name,role:ctx.def.role,state:Number(ctx.rt.state||0),statementVersion:ctx.version},mode:'ai_character',reused:true});
+    }
+    const serverHistory=isP001?await p001History(sessionKey,characterId):history(body.recent_history);
     const claim=await claimTurn(req,sessionKey,isP001?rawSessionToken:accessToken,caseId);
     if(!claim?.ok)return json(origin,429,{error:clean(claim?.code,80)||'quota_denied',message:quotaMessage(clean(claim?.code,80))});
     const claimId=clean(claim.claim_id,80);
     try{
-      const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:buildInstructions(ctx,isP001?'Пассажирка №317':'Тринадцатая минута'),input:buildInput(isP001?[]:history(body.recent_history),question),store:false,max_output_tokens:240,reasoning:{effort:'none'},text:{verbosity:'low'}})});
+      const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:buildInstructions(ctx,isP001?'Пассажирка №317':'Тринадцатая минута'),input:buildInput(serverHistory,question),store:false,max_output_tokens:240,reasoning:{effort:'none'},text:{verbosity:'low'}})});
       if(!response.ok){const detail=clean(await response.text(),300);console.error('solo_guided_openai',response.status,detail);await releaseTurn(claimId);throw new Error('model_unavailable');}
       const data=await response.json();
       const reply=clean(data.output_text||data.output?.flatMap((o:any)=>o.content||[]).find((c:any)=>c.type==='output_text')?.text||'',1200);
       if(!reply){await releaseTurn(claimId);throw new Error('empty_reply');}
+      if(isP001)await p001SaveReply({sessionKey,entitlementId:entitlement.id,characterId,turnId,question,answer:reply});
       await completeTurn(claimId,usageOf(data));
       return json(origin,200,{reply,character:{id:ctx.def.id,name:ctx.def.name,role:ctx.def.role,state:Number(ctx.rt.state||0),statementVersion:ctx.version},mode:'ai_character',model:MODEL});
     }catch(error){if(claimId)await releaseTurn(claimId);throw error;}
