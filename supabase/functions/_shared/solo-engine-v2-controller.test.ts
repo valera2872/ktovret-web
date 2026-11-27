@@ -115,8 +115,8 @@ Deno.test('guest and expired sessions cannot leak paid text, characters, IDs or 
       { id: 'private', name: 'Private suspect', statements: { '1': 'Spoiler statement' }, states: [{ id: 0, statement_version: 1, disclosure_level: 0, enter_rule: { entitlement: ['owned', 'club', 'admin'] } }] },
     ],
     deductions: [
-      { id: 'D-FREE', title: 'Free question', prompt: 'Free prompt', choices: [{ id: 'A', label: 'A' }], correct_choice: 'A', effects_on_confirm: [] },
-      { id: 'D-PRIVATE', title: 'Paid question', prompt: 'Private prompt', choices: [{ id: 'B', label: 'B' }], correct_choice: 'B', effects_on_confirm: [], access_rule: { entitlement: ['owned', 'club', 'admin'] } },
+      { id: 'D-FREE', title: 'Free question', prompt: 'Free prompt', choices: [{ id: 'A', label: 'A' }, { id: 'A_WRONG', label: 'Wrong' }], correct_choice: 'A', effects_on_confirm: [] },
+      { id: 'D-PRIVATE', title: 'Paid question', prompt: 'Private prompt', choices: [{ id: 'B', label: 'B' }, { id: 'B_WRONG', label: 'Wrong' }], correct_choice: 'B', effects_on_confirm: [], access_rule: { entitlement: ['owned', 'club', 'admin'] } },
     ],
     timeline: [{ id: 'T1', time: '14:00', label: 'Private chronology' }],
     proof_classes: [], milestone_rules: [], interactions: [],
