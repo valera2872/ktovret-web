@@ -1,10 +1,11 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
   deriveSoloSessionKey,
   loadSoloRuntime,
   loadSoloSessionByKey,
   normalizeStoredSoloState,
   resolveEntitlementByToken,
+  resolveEntitlementById,
+  evaluateSoloRule,
 } from 'https://raw.githubusercontent.com/valera2872/ktovret-web/ccde6123717268f4d023da89c7f491726332154f/supabase/functions/_shared/solo-engine-v2-runtime.ts';
 
 const SUPABASE_URL=Deno.env.get('SUPABASE_URL')||'';
@@ -12,8 +13,41 @@ const SERVICE_ROLE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
 const OPENAI_API_KEY=Deno.env.get('OPENAI_API_KEY')||'';
 const MODEL=Deno.env.get('AI_DETECTIVE_MODEL')||'gpt-5.6-luna';
 const CASE_ID='ML0512_PREVIEW_CB6B46A0DADA7B5188CC65DEC92B0642';
+const P001_CASE_ID='P-001';
 const ALLOWED_ORIGINS=new Set(['https://mysterylogic.com','https://www.mysterylogic.com','https://valera2872.github.io','https://rawcdn.githack.com']);
 const CHARACTER_IDS=new Set(['anton','sofia','mila','denis']);
+const P001_CHARACTER_IDS=new Set(['ingrid','lund','kraus','voss','richter','vestad']);
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function p001Headers(){return {apikey:SERVICE_ROLE_KEY,authorization:`Bearer ${SERVICE_ROLE_KEY}`,'content-type':'application/json'};}
+function p001TurnUrl(filter:Record<string,string>){
+  const url=new URL(SUPABASE_URL+'/rest/v1/p001_ai_dialogue_turns');
+  for(const [key,val] of Object.entries(filter))url.searchParams.set(key,val);
+  return url.toString();
+}
+async function p001History(sessionKey:string,characterId:string):Promise<HistoryTurn[]>{
+  const url=p001TurnUrl({select:'question,answer',session_key:'eq.'+sessionKey,character_id:'eq.'+characterId,order:'id.desc',limit:'8'});
+  const r=await fetch(url,{headers:p001Headers()});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+  const rows=await r.json();
+  return (Array.isArray(rows)?rows:[]).reverse().map((x:any)=>({question:clean(x.question,500),answer:clean(x.answer,1000)})).filter((x:HistoryTurn)=>x.question&&x.answer);
+}
+async function p001SavedReply(sessionKey:string,turnId:string,characterId:string,question:string):Promise<string>{
+  const url=p001TurnUrl({select:'answer,question,character_id',session_key:'eq.'+sessionKey,turn_id:'eq.'+turnId,limit:'1'});
+  const r=await fetch(url,{headers:p001Headers()});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+  const rows=await r.json();
+  const existing=Array.isArray(rows)?rows[0]:null;
+  if(existing&&(existing.character_id!==characterId||existing.question!==question))throw new Error('solo_ai_turn_conflict');
+  return existing?clean(existing.answer,1200):'';
+}
+async function p001SaveReply(input:{sessionKey:string,entitlementId:string,characterId:string,turnId:string,question:string,answer:string}){
+  const r=await fetch(SUPABASE_URL+'/rest/v1/p001_ai_dialogue_turns',{method:'POST',headers:{...p001Headers(),prefer:'return=minimal'},body:JSON.stringify({
+    session_key:input.sessionKey,entitlement_id:input.entitlementId,character_id:input.characterId,turn_id:input.turnId,
+    question:input.question,answer:input.answer
+  })});
+  if(!r.ok)throw new Error('solo_ai_history_unavailable');
+}
+
 
 const SESSION_LIMIT=100;
 const VISITOR_DAILY_LIMIT=180;
@@ -39,7 +73,7 @@ function clientNetwork(req:Request){const cf=clean(req.headers.get('cf-connectin
 async function digest(value:string){const b=new TextEncoder().encode(value);const d=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 async function protectedHash(kind:string,value:string){return digest(`${kind}|${SERVICE_ROLE_KEY||OPENAI_API_KEY}|${value}`);}
 async function rpc(name:string,payload:Record<string,unknown>){const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:SERVICE_ROLE_KEY,authorization:`Bearer ${SERVICE_ROLE_KEY}`,'content-type':'application/json'},body:JSON.stringify(payload)});const text=await r.text();if(!r.ok)throw new Error(`metering_${r.status}:${clean(text,160)}`);return JSON.parse(text);}
-async function claimTurn(req:Request,sessionKey:string,accessToken:string){return rpc('ai_detective_claim_turn',{p_session_id:`ml0512-${sessionKey.slice(0,48)}`,p_visitor_hash:await protectedHash('visitor',accessToken),p_network_hash:await protectedHash('network',clientNetwork(req)),p_reserve_usd:RESERVE_USD,p_session_limit:SESSION_LIMIT,p_visitor_daily_limit:VISITOR_DAILY_LIMIT,p_network_daily_limit:NETWORK_DAILY_LIMIT,p_daily_budget_usd:DAILY_BUDGET_USD,p_session_rpm:SESSION_RPM,p_network_rpm:NETWORK_RPM});}
+async function claimTurn(req:Request,sessionKey:string,accessToken:string,caseId:string){return rpc('ai_detective_claim_turn',{p_session_id:`${caseId===P001_CASE_ID?'p001':'ml0512'}-${sessionKey.slice(0,48)}`,p_visitor_hash:await protectedHash('visitor',accessToken),p_network_hash:await protectedHash('network',clientNetwork(req)),p_reserve_usd:RESERVE_USD,p_session_limit:SESSION_LIMIT,p_visitor_daily_limit:VISITOR_DAILY_LIMIT,p_network_daily_limit:NETWORK_DAILY_LIMIT,p_daily_budget_usd:DAILY_BUDGET_USD,p_session_rpm:SESSION_RPM,p_network_rpm:NETWORK_RPM});}
 async function releaseTurn(id:string){try{await rpc('ai_detective_release_turn',{p_claim_id:id});}catch{}}
 async function completeTurn(id:string,u:Usage){try{await rpc('ai_detective_complete_turn',{p_claim_id:id,p_actual_usd:u.costUsd,p_input_tokens:u.inputTokens,p_cached_input_tokens:u.cachedInputTokens,p_output_tokens:u.outputTokens});}catch(e){console.error('ml0512_metering_complete',String(e));}}
 function usageOf(d:any):Usage{const input=Math.max(0,Number(d?.usage?.input_tokens)||0);const cached=Math.min(input,Math.max(0,Number(d?.usage?.input_tokens_details?.cached_tokens)||0));const output=Math.max(0,Number(d?.usage?.output_tokens)||0);const cost=((input-cached)*INPUT_USD_PER_M+cached*CACHED_INPUT_USD_PER_M+output*OUTPUT_USD_PER_M)/1e6;return{inputTokens:input,cachedInputTokens:cached,outputTokens:output,costUsd:Number(cost.toFixed(8))};}
@@ -49,7 +83,13 @@ const VOICE:Record<string,string>={
   anton:'Говори как опытный главный инженер: коротко, немного сухо и профессионально. Если текущая версия содержит ложь, держись именно этой версии, пока состояние дела не изменилось.',
   sofia:'Говори как ведущий астрофизик: спокойно, точно, сдержанно. Не становись исповедальной без основания. Скрывай только то, что скрывает текущая версия показаний.',
   mila:'Говори как ночной оператор: конкретно, по процедурам и журналам. Не добавляй сведения, которых нет в доступном контексте.',
-  denis:'Говори как аналитик данных: рационально, уверенно, иногда защищаясь логикой и техническими объяснениями. Не признавай факты будущих стадий расследования раньше времени.'
+  denis:'Говори как аналитик данных: рационально, уверенно, иногда защищаясь логикой и техническими объяснениями. Не признавай факты будущих стадий расследования раньше времени.',
+  ingrid:'Говори кратко и по служебной процедуре. Не добавляй необоснованных признаний.',
+  lund:'Говори сдержанно и официально, защищая профессиональную репутацию.',
+  kraus:'Говори технически точно, отличай измерения от гипотез.',
+  voss:'Говори как осторожный журналист, опираясь лишь на доступные показания.',
+  richter:'Говори как врач: различай услышанное и лично наблюдаемое.',
+  vestad:'Говори как служащий поста: отделяй записи от воспоминаний.'
 };
 
 function speakingContext(runtime:any,state:any,characterId:string){
@@ -63,10 +103,10 @@ function speakingContext(runtime:any,state:any,characterId:string){
   return {def,rt,version,statements,materials};
 }
 
-function buildInstructions(ctx:any){
+function buildInstructions(ctx:any,caseTitle='Тринадцатая минута'){
   const prior=ctx.statements.map((x:any,i:number)=>`${i+1}. ${x.text}`).join('\n');
   const shown=ctx.materials.length?ctx.materials.map((x:string,i:number)=>`${i+1}. ${x}`).join('\n'):'Никаких дополнительных материалов вам пока не предъявляли.';
-  return `Ты играешь персонажа детективной игры Mystery Logic «Тринадцатая минута». Ты не помощник игрока и не рассказчик, а только ${ctx.def.name}, ${ctx.def.role}.
+  return `Ты играешь персонажа детективной игры Mystery Logic «${caseTitle}». Ты не помощник игрока и не рассказчик, а только ${ctx.def.name}, ${ctx.def.role}.
 
 КРИТИЧЕСКИЕ ПРАВИЛА:
 - Отвечай только от первого лица этого персонажа, по-русски, обычно 1-4 короткими предложениями.
@@ -104,28 +144,40 @@ Deno.serve(async(req:Request)=>{
   let body:Record<string,any>={};try{body=record(await req.json());}catch{return json(origin,400,{error:'invalid_request'});}
   if(clean(body.action,30).toUpperCase()==='STATUS')return json(origin,200,{version:1,mode:'state-bounded-character-interrogation',caseId:CASE_ID,model:MODEL});
   const caseId=clean(body.case_id,160),rawSessionToken=clean(body.session_token,512),characterId=clean(body.character_id,80),question=clean(body.question,700),accessToken=bearer(req);
-  if(caseId!==CASE_ID||!rawSessionToken||!accessToken||!CHARACTER_IDS.has(characterId)||!question)return json(origin,400,{error:'invalid_request'});
+  const op=clean(body.action,30).toUpperCase(),isP001=caseId===P001_CASE_ID,turnId=clean(body.turn_id,60);
+  if(!(caseId===CASE_ID||isP001)||!rawSessionToken||!(isP001?P001_CHARACTER_IDS:CHARACTER_IDS).has(characterId)||(!isP001&&!accessToken)||(!question&&op!=='HISTORY')||(isP001&&op!=='HISTORY'&&!UUID_RE.test(turnId)))return json(origin,400,{error:'invalid_request'});
   try{
     const runtime=await loadSoloRuntime({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,caseId});
-    const entitlement=await resolveEntitlementByToken({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,accessToken});
-    if(!entitlement)throw new Error('access_denied');
     const sessionKey=await deriveSoloSessionKey(rawSessionToken);
     const row=await loadSoloSessionByKey({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,sessionKey});
     if(!row)throw new Error('solo_session_not_found');
-    if(clean(row.entitlement_id,80)!==entitlement.id)throw new Error('access_denied');
+    const boundEntitlementId=clean(row.entitlement_id,80);
+    const entitlement=isP001
+      ? (boundEntitlementId ? await resolveEntitlementById({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,entitlementId:boundEntitlementId}):null)
+      : await resolveEntitlementByToken({supabaseUrl:SUPABASE_URL,serviceRole:SERVICE_ROLE_KEY,runtime,accessToken});
+    if(!entitlement||boundEntitlementId!==entitlement.id)throw new Error('access_denied');
     const state=normalizeStoredSoloState(row.state,runtime,entitlement.accessMode);
+    const characterDef=runtime.definition.characters.find((c:any)=>c.id===characterId);
+    if(!characterDef||(isP001&&!evaluateSoloRule(characterDef.states?.[0]?.enter_rule||null,state)))throw new Error('character_not_available');
     const ctx=speakingContext(runtime,state,characterId);
-    const claim=await claimTurn(req,sessionKey,accessToken);
+    if(isP001&&op==='HISTORY')return json(origin,200,{history:await p001History(sessionKey,characterId),character_id:characterId});
+    if(isP001){
+      const existingReply=await p001SavedReply(sessionKey,turnId,characterId,question);
+      if(existingReply)return json(origin,200,{reply:existingReply,character:{id:ctx.def.id,name:ctx.def.name,role:ctx.def.role,state:Number(ctx.rt.state||0),statementVersion:ctx.version},mode:'ai_character',reused:true});
+    }
+    const serverHistory=isP001?await p001History(sessionKey,characterId):history(body.recent_history);
+    const claim=await claimTurn(req,sessionKey,isP001?rawSessionToken:accessToken,caseId);
     if(!claim?.ok)return json(origin,429,{error:clean(claim?.code,80)||'quota_denied',message:quotaMessage(clean(claim?.code,80))});
     const claimId=clean(claim.claim_id,80);
     try{
-      const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:buildInstructions(ctx),input:buildInput(history(body.recent_history),question),store:false,max_output_tokens:240,reasoning:{effort:'none'},text:{verbosity:'low'}})});
-      if(!response.ok){const detail=clean(await response.text(),300);console.error('ml0512_openai',response.status,detail);await releaseTurn(claimId);throw new Error('model_unavailable');}
+      const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{authorization:`Bearer ${OPENAI_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:MODEL,instructions:buildInstructions(ctx,isP001?'Пассажирка №317':'Тринадцатая минута'),input:buildInput(serverHistory,question),store:false,max_output_tokens:240,reasoning:{effort:'none'},text:{verbosity:'low'}})});
+      if(!response.ok){const detail=clean(await response.text(),300);console.error('solo_guided_openai',response.status,detail);await releaseTurn(claimId);throw new Error('model_unavailable');}
       const data=await response.json();
       const reply=clean(data.output_text||data.output?.flatMap((o:any)=>o.content||[]).find((c:any)=>c.type==='output_text')?.text||'',1200);
       if(!reply){await releaseTurn(claimId);throw new Error('empty_reply');}
+      if(isP001)await p001SaveReply({sessionKey,entitlementId:entitlement.id,characterId,turnId,question,answer:reply});
       await completeTurn(claimId,usageOf(data));
       return json(origin,200,{reply,character:{id:ctx.def.id,name:ctx.def.name,role:ctx.def.role,state:Number(ctx.rt.state||0),statementVersion:ctx.version},mode:'ai_character',model:MODEL});
     }catch(error){if(claimId)await releaseTurn(claimId);throw error;}
-  }catch(error){const code=clean(error instanceof Error?error.message:error,120)||'interrogation_failed';const status=code==='access_denied'?403:code==='solo_session_not_found'?404:code.startsWith('metering_')||code==='model_unavailable'?503:400;console.error('ml0512_interrogation_error',code);return json(origin,status,{error:code,message:status===503?'ИИ-допрос временно недоступен. Попробуйте ещё раз.':undefined});}
+  }catch(error){const code=clean(error instanceof Error?error.message:error,120)||'interrogation_failed';const status=code==='access_denied'?403:code==='solo_session_not_found'?404:code.startsWith('metering_')||code==='model_unavailable'?503:400;console.error('solo_guided_interrogation_error',code);return json(origin,status,{error:code,message:status===503?'ИИ-допрос временно недоступен. Попробуйте ещё раз.':undefined});}
 });

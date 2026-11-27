@@ -1,4 +1,5 @@
 import {
+  evaluateSoloRule,
   isSoloEvidenceAccessible,
   safeSoloPayload,
   type SoloAccessMode,
@@ -43,7 +44,11 @@ export function safeSoloClientPayload(runtime: SoloRuntime, state: SoloState, re
     : { id: item.id, accessible: false });
 
   if (accessMode === 'demo') {
-    base.characters = runtime.definition.characters.map((character) => {
+    const guestState: SoloState = { ...state, entitlement: 'demo' };
+    base.characters = runtime.definition.characters.filter((character) => {
+      const rule = character.states[0]?.enter_rule || null;
+      return !rule || evaluateSoloRule(rule, guestState);
+    }).map((character) => {
       const opening = character.states[0];
       const persisted = state.characters[character.id];
       return {
@@ -55,9 +60,22 @@ export function safeSoloClientPayload(runtime: SoloRuntime, state: SoloState, re
         statementVersion: opening.statement_version,
         statement: character.statements[String(opening.statement_version)] || '',
         contradictionsFound: 0,
-        evidenceExposure: (persisted?.evidence_exposure || []).filter((id) => isSoloEvidenceAccessible(runtime.definition, { ...state, entitlement: 'demo' }, id)),
+        evidenceExposure: (persisted?.evidence_exposure || []).filter((id) => isSoloEvidenceAccessible(runtime.definition, guestState, id)),
       };
     });
+    // Opt in to strict list-level secrecy only for cases with gated opening characters.
+    // Legacy cases without such rules keep their existing opaque, locked placeholders.
+    const strictGuestVisibility = runtime.definition.characters.some((character) => {
+      const openingRule = character.states[0]?.enter_rule || null;
+      return openingRule !== null && !evaluateSoloRule(openingRule, guestState);
+    });
+    if (strictGuestVisibility) {
+      base.evidence = (base.evidence || []).filter((item: any) => item.accessible === true);
+      base.deductions = (base.deductions || []).filter((item: any) => item.accessible === true);
+      base.interactions = (base.interactions || []).filter((item: any) => item.accessible === true);
+      base.reconstruction = null;
+      base.flags = { ...base.flags, confessionObtained: false, reconstructionStoryUnlocked: false, reconstructionAccessible: false };
+    }
     base.timeline = [];
     base.proofClasses = [];
   }
